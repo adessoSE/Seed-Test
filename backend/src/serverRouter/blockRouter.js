@@ -52,7 +52,7 @@ router.put('/block', async (req, res) => {
 		if (!req.user) res.sendStatus(401);
 		else {
 			const result = await mongo.updateBlock(body);
-			res.status(200).json(result.value);
+			res.status(200).json(result);
 		}
 	} catch (error) {
 		handleError(res, error, error, 500);

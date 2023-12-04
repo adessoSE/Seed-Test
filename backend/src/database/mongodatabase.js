@@ -909,13 +909,13 @@ async function upsertEntry(storyId, updatedContent, storySource) {
 			upsert: false
 		});
 		// TODO remove later when all used stories have the tag storySource
-		if (!result.value) {
+		if (!result) {
 			myObjt.storySource = undefined;
 			result = await collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
 				upsert: true
 			});
 		}
-		return result.value;
+		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in upsertEntry: ${e}`);
 		throw e;
@@ -1199,7 +1199,7 @@ async function updateUser(userID, updatedUser) {
 		db = await connectDb();
 		const collection = await selectUsersCollection(db);
 		const result = await collection.findOneAndReplace(myObjt, updatedUser);
-		return result.value;
+		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateUser: ${e}`);
 		throw e;
@@ -1443,7 +1443,7 @@ async function updateOneDriver(id, driver) {
 			{ _id: new ObjectId(id) },
 			{ $set: { oneDriver } }
 		);
-		return result.value;
+		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in updateOneDriver: ', e);
 	} finally {
