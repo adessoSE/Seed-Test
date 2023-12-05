@@ -1,6 +1,6 @@
 {
   "name": "seed-test-backend",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "engines": {
     "node": "18.13.0"
   },
@@ -69,6 +69,8 @@
       "<rootDir>/spec/serverHelper.spec.js",
       "<rootDir>/node_modules/"
     ],
-    "setupFiles": ["./spec/setupTest.js"]
+    "setupFiles": [
+      "./spec/setupTest.js"
+    ]
   }
 }
