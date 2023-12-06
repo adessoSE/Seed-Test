@@ -665,6 +665,9 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 
 // Search a textfield in the html code and assert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
+	const regex = /\{Regex:([^}]*)\}/g;
+	const resultString = expectedText.replace(regex, '($1)');
+
 	const world = this;
 
 	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`,
@@ -677,7 +680,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 			let resp = await elem.getText();
 			resp = resp == '' ? await elem.getAttribute('value') : resp;
 			resp = resp == '' ? await elem.getAttribute('outerHTML') : resp;
-			match(resp, RegExp(expectedText.toString()), `Textfield does not contain the string/regex: ${expectedText} , actual: ${resp}`);
+			match(resp, RegExp(resultString), `Textfield does not contain the string/regex: ${resultString} , actual: ${resp}`);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -690,6 +693,8 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 
 // Search if a is text in html code
 Then('So I can see the text: {string}', async function (expectedText) { // text is present
+	const regex = /\{Regex:([^}]*)\}/g;
+	const resultString = expectedText.replace(regex, '($1)');
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -699,7 +704,7 @@ Then('So I can see the text: {string}', async function (expectedText) { // text 
 				const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 				const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 				const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-				match(bodyAll, RegExp(expectedText.toString()), `Page HTML does not contain the string/regex: ${expectedText}`);
+				match(bodyAll, RegExp(resultString), `Page HTML does not contain the string/regex: ${resultString}`);
 			});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
