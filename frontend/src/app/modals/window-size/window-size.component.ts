@@ -11,6 +11,7 @@ export class WindowSizeComponent {
   @ViewChild('appMenu') menuTrigger: MatMenuTrigger;
   @Input() width: number;
   @Input() height: number;
+  @Input() emulator: boolean;
   @Output() sizeChange = new EventEmitter<{ width: number, height: number }>
 
 

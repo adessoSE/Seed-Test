@@ -3,7 +3,7 @@
 <ng-template #workgroupEditModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="workgroupHeader" class="MediumSubline1H4 modal-title">Project:</span>
+        <span class="MediumSubline1H4 modal-title">Project Settings</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click'); onModalClosed();">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -13,7 +13,7 @@
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link" href="#" [class.active]="currentTab === 'globalSettings'"
-                (click)="setCurrentTab('globalSettings'); $event.preventDefault();">Global Settings</a>
+                (click)="setCurrentTab('globalSettings'); $event.preventDefault();">Test Execution Settings</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="#" [class.active]="currentTab === 'members'"
@@ -37,6 +37,12 @@
                         <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
                         <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime" type="number"
                             min=0 max=25000 step=200>
+                        <dfn class="def">
+                            <span id="settingsInfoIcon" uk-icon="info"></span>
+                            <span rel="def" style="font-weight: normal">
+                                Specifies the amount of time (in milliseconds) to wait between each step when running
+                                the test. </span>
+                        </dfn>
                     </div>
 
                     <!-- Browser -->
@@ -51,8 +57,14 @@
                             <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
                                 [selected]="this.browser === 'MicrosoftEdge'">Edge</option>
                         </select>
+                        <dfn class="def">
+                            <span id="settingsInfoIcon" uk-icon="info"></span>
+                            <span rel="def" style="font-weight: normal">
+                                Selects a web browser (Chrome, Firefox, Edge) for running the test.
+                            </span>
+                        </dfn>
                     </div>
-                    
+
                     <!-- Emulator -->
                     <div class="emulatorDiv">
                         <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
@@ -76,12 +88,24 @@
                                 {{ emulator }}
                             </option>
                         </select>
+                        <dfn class="def">
+                            <span id="settingsInfoIcon" uk-icon="info"></span>
+                            <span rel="def" style="font-weight: normal">
+                                Runs the test on a simulated device.
+                            </span>
+                        </dfn>
                     </div>
 
                     <!-- Open Window Size Component-->
                     <div class="windowSizeDiv">
-                        <app-window-size #windoSizeModal [width]="repoWidth" [height]="repoHeight"
+                        <app-window-size id="windowSizeButton" #windoSizeModal [width]="repoWidth" [height]="repoHeight" [emulator]="emulator_enabled"
                             (sizeChange)="handleSizeChange($event)"></app-window-size>
+                        <dfn class="def">
+                            <span  uk-icon="info"></span>
+                            <span rel="def" style="font-weight: normal">
+                                Changes height and width to adjust the size of the window for the test.
+                            </span>
+                        </dfn>
                     </div>
                     <hr>
 

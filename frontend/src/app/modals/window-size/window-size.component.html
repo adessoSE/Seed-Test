@@ -19,10 +19,10 @@
         </div>
         <hr>
         <div class="menu-actions">
+            <button class="normalButton defaultButton" mat-button (click)="setDefaultWindowSize()"
+                (click)="$event.stopPropagation()">Restore default size</button>
             <button class="normalButton defaultButton" mat-button (click)="saveWindowSize($event)">Save</button>
-            <button class="normalButton defaultButton" mat-button (click)="setDefaultWindowSize()" (click)="$event.stopPropagation()">Restore default
-                size</button>
         </div>
     </form>
 </mat-menu>
-<button class="button-4" [matMenuTriggerFor]="appMenu">Window-Size</button>
+<button class="button-4" [matMenuTriggerFor]="appMenu" [disabled]="emulator">Window-Size</button>

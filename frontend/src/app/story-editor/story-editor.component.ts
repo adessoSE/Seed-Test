@@ -26,6 +26,8 @@ import { StepDefinition } from '../model/StepDefinition';
 import { BlockService } from '../Services/block.service';
 import { InfoWarningToast } from '../info-warning-toast';
 import { MatDialog } from '@angular/material/dialog';
+import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
+import { ManagementService } from '../Services/management.service';
 
 
 /**
@@ -114,6 +116,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   selectedScenario: Scenario;
 
+  /**
+   * Currently selected repository 
+   */
+  selectedRepository: RepositoryContainer;
+
+  /**
+   * Current repo Id
+   */
+
+  repoId: string;
   /**
    * If the story editor should be shown
    */
@@ -232,13 +244,29 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   edge_enabled;
 
   /**
-   * global settings indicator
+   * Global settings indicator
    */
   globalSettings: boolean;
 
+  /*
+  * Width of the window size
+  */
   width: number;
 
+  /*
+  * Height of the window size
+  */
   height: number;
+
+  /**
+     * Email of the user
+     */
+  email: string;
+
+  /**
+   * User id
+   */
+  id: string;
 
   lastToFocus;
 
@@ -276,6 +304,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
   @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
   @ViewChild('renameBackgroundModal') renameBackgroundModal: RenameBackgroundComponent;
+  @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
 
   /**
    * Event emitter to change to the report history component
@@ -306,6 +335,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     public projectService: ProjectService,
     public loginService: LoginService,
     public blockService: BlockService,
+    public managmentService: ManagementService,
     public dialog: MatDialog
   ) {
     if (this.apiService.urlReceived) {
@@ -338,6 +368,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+    this.setUserData();
     this.checkGlobalSettings();
   }
 
@@ -386,6 +417,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     if (this.loginService.isLoggedIn()) {
       this.projectService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
+        this.selectedRepository = this.findSelectedRepository(this.repoId)
       }, (err) => {
         this.error = err.error;
       });
@@ -484,6 +516,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
     });
   }
+
   ngOnDestroy() {
     if (!this.deleteStoryObservable.closed) {
       this.deleteStoryObservable.unsubscribe();
@@ -957,8 +990,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    *  Check for global settings
    */
   checkGlobalSettings() {
-    const repoId = localStorage.getItem("id")
-    this.projectService.getRepositorySettings(repoId).subscribe({
+    this.repoId = localStorage.getItem("id")
+    this.projectService.getRepositorySettings(this.repoId).subscribe({
       next: (settings) => {
         if (settings && settings?.activated) {
           this.globalSettings = true;
@@ -972,6 +1005,40 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  /**
+    * Finds repository container by Id
+    * @param repositoryId
+    */
+
+  findSelectedRepository(id) {
+    console.log(this.repositories)
+    console.log(this.repoId)
+    return this.repositories.find(repo => repo._id === id);
+  }
+
+  /**
+    * Opens Modal to edit the workgroup
+    * @param project
+    */
+  workGroupEdit(project: RepositoryContainer) {
+    console.log(this.workgroupEditModal);
+    console.log(project, this.email, this.id)
+    this.workgroupEditModal.openWorkgroupEditModal(project, this.email, this.id);
+  }
+
+  /**
+    * Fills user data to change global settings
+    */
+  setUserData() {
+    this.managmentService.getUserData().subscribe(user => {
+      this.id = user._id;
+      if (typeof user['email'] !== 'undefined') {
+        this.email = user['email'];
+      }
+    });
+  }
+
 
   // ------------------------------- EMULATOR --------------------------------
 

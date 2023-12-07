@@ -117,7 +117,7 @@ th.mat-mdc-header-cell:first-of-type {
     background: #90CAF9;
 }
 
-.globalSettings{
+.globalSettings {
     display: block;
 }
 
@@ -192,4 +192,13 @@ th.mat-mdc-header-cell:first-of-type {
 .nav-link.active {
     color: black;
 
+}
+
+.dfn .def {
+    position: relative !important;
+    z-index: 100 !important;
+}
+
+.windowSizeInfoButton{
+    margin-right: 5px !important;
 }

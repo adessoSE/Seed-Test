@@ -225,25 +225,30 @@
           <dfn class="def">
             <span id="emulatorInfoIcon" uk-icon="info"></span>
             <span rel="def" style="font-weight: normal">
-              Runs the test on a simulated a device.
+              Runs the test on a simulated device.
             </span>
           </dfn>
           <!-- Window Size -->
-          <app-window-size #windoSizeModal [width]="this.selectedScenario.width" [height]="this.selectedScenario.height"
+          <app-window-size #windoSizeModal [width]="this.selectedScenario.width" [height]="this.selectedScenario.height" [emulator]="emulator_enabled"
             (sizeChange)="handleSizeChange($event)"></app-window-size>
         </div>
 
         <div *ngIf="this.globalSettings">
           <div class="globalSettingsDiv">
-            <em class="material-icons warningIcon">warning</em>
-            <p class="globalSettingsText">Global Settings are currently activated for this Scenario.</p>
-            <em class="material-icons warningIcon">warning</em>
+            <!-- <em class="material-icons warningIcon">warning</em> -->
+            <p class="globalSettingsText">Test Execution Setting for this Scenario are currently overwritten by Project
+              Settings.</p>
+            <!-- <em class="material-icons warningIcon">warning</em> -->
           </div>
+          <button class="button-4" (click)="workGroupEdit(this.selectedRepository)">Edit Global Settings</button>
         </div>
       </div>
 
 
       <div class="storyInfoRight uk-button-group">
+        <!-- <div *ngIf="this.globalSettings">
+          <button class="button-4">Edit Global Settings</button>
+        </div> -->
         <button *ngIf="this.showResults" id="hide_results_top" [class.disabledButton]="!testDone" class="button"
           uk-tooltip="Hide Test Results" type="button" (click)="hideResults()">
           <em class="material-icons-outlined">expand_more</em>
@@ -336,3 +341,4 @@
   </div>
   <app-save-block-form #saveBlockModal></app-save-block-form>
 </div>
+<app-workgroup-edit #workgroupEditModal></app-workgroup-edit>

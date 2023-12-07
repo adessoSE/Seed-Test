@@ -190,15 +190,12 @@ export class WorkgroupEditComponent {
     this.workgroupProject = project;
     this.loadGlobalSettings();
     this.modalReference = this.modalService.open(this.workgroupEditModal, { ariaLabelledBy: 'modal-basic-titles' });
-    const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
-    header.textContent = 'Project: ' + project.value;
     this.projectName = project.value;
 
     this.projectService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
       this.workgroupList = res.member;
       this.workgroupOwner = res.owner.email;
     });
-    console.log("TEST ME BABY", this.repoHeight, this.repoWidth)
   }
 
   transferedOwnership(newOwner) {
