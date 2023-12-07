@@ -693,7 +693,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 
 // Search if a is text in html code
 Then('So I can see the text: {string}', async function (expectedText) { // text is present
-	const regex = /\{Regex:([^}]*)\}/g;
+	const regex = /\{Regex:([^}]*(?:\{[^}]*\}[^}]*)*)(\})(?=\s|$)/g;
 	const resultString = expectedText.replace(regex, '($1)');
 	const world = this;
 	try {
