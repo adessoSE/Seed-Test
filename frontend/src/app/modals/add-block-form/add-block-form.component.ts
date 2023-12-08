@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { DeleteToast } from 'src/app/delete-toast';
 import { ApiService } from 'src/app/Services/api.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-add-block-form',
@@ -18,7 +19,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
   @ViewChild('newTitle') newTitleLabel: HTMLElement;
  
-
+  waysToAddBlockControl = new FormControl('When');
     /**
      * Saved blocks
      */
@@ -59,6 +60,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       */
     selectedBlockList: Block[];
 
+    /**
+      *The type of step to which to add the block
+      */
+    addBlockToStepType: string[] = ['Given', 'When', 'Then'];
     /**
       * Currently selected block
       */
@@ -250,13 +255,14 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     }
 
     /**
-     * Adds a block to saved blocks
+     * Add a block to a scenario
      */
     addBlockFormSubmit() {
-      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
+      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference, this.waysToAddBlockControl.value);
       delete this.addAsReference;
       delete this.selectedBlock;
       this.stepList = [];
+      this.waysToAddBlockControl = new FormControl('When');
       this.modalReference.close();
     }
     
@@ -304,6 +310,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     closeModal(){
       delete this.addAsReference;
       delete this.selectedBlock;
+      this.waysToAddBlockControl = new FormControl('When');
       this.stepList = [];
       this.modalReference.close();
     }

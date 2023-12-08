@@ -108,17 +108,30 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
 }
 
 
-#addAsReferenceLabel{
+#addAsReferenceLabel, #blockAddAslabel{
     margin-right: 5px;
     margin-top: 3px
 }
-
+.addReferenceBlockToStepType{
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+}
+::ng-deep .wayToAddBlockDropDown .mat-mdc-form-field-infix{
+    padding-bottom: 3px!important;
+}
 #addAsReferenceCheckbox{
     margin-left: 5px;
     margin-right: 10px;
     margin-top: 3px
 }
-
+.addAsReference{
+    display: flex;
+    align-items: center;
+}
+.wayToAddBlock{
+    margin-bottom: 15px;
+}
 .mat-table{
     font-family: Klavika, sans-serif;
 }
@@ -150,6 +163,11 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
 
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
+}
+
+::ng-deep .mat-mdc-form-field.wayToAddBlockDropDown .mat-mdc-select-value-text {
+    font-size: 15px !important;
+    margin-left: 8px !important;
 }
 
 ::ng-deep.darkTheme h4 {

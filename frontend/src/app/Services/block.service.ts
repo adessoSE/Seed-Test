@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Block } from '../model/Block';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable} from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
@@ -63,14 +63,19 @@ export class BlockService {
   referenceStories: Story[];
   referenceScenarios: Scenario[];
   block: Block;
+  private toastDataSubject = new BehaviorSubject<any>(null);
+  toastData$ = this.toastDataSubject.asObservable();
 
+  updateToastData(data: any) {
+    this.toastDataSubject.next(data);
+  }
   /**
   * Emits the add block to scenario event
   * @param block
   * @param correspondingComponent
   */
-  addBlockToScenario(block: Block, correspondingComponent: string, addAsReference: boolean) {
-    this.addBlockToScenarioEvent.emit([correspondingComponent, block, addAsReference]);
+  addBlockToScenario(block: Block, correspondingComponent: string, addAsReference: boolean, addBlockAs?: string) {
+    this.addBlockToScenarioEvent.emit([correspondingComponent, block, addAsReference, addBlockAs]);
   }
   /**
   * Emits the update block in blocks
@@ -278,26 +283,79 @@ export class BlockService {
     }
   }
   /**
-   * Unpack steps from block. Wenn delete block unpack all reference in repository
+   * Unpack steps from a block. When deleting a block, unpack all references in the repository.
    * @param block
    * @param scenario
    */
-  unpackScenarioWithBlock(block, scenario) {
+  unpackScenarioWithBlock(block: Block, scenario: Scenario, stepReference?: StepType) {
     delete block.usedAsReference;
+
+    if (stepReference) {
+      this.unpackStepsFromBlock(block, scenario, stepReference);
+    }else {
+      // Unpack steps from the block for all reference blocks in the scenario
+      const arrayRefBlocks = this.findReferenceBlocks(scenario, block);
+      arrayRefBlocks.forEach(_ => {
+        this.unpackStepsFromBlock(block, scenario);
+      });
+    }
+  }
+  
+  /**
+   * Unpack steps from the block and remove the block reference among the steps.
+   * @param block
+   * @param scenario
+   * @param stepReference
+   */
+  unpackStepsFromBlock(block: Block, scenario: Scenario, stepReference?: StepType) {
     if (block && block.stepDefinitions) {
       for (const s in block.stepDefinitions) {
-        block.stepDefinitions[s].forEach((step: StepType, j) => {
+        block.stepDefinitions[s].forEach((step: StepType) => {
           step.checked = false;
           scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
         });
-        //remove the block reference among the steps 
-        const index = scenario.stepDefinitions[s].findIndex((element) => element._blockReferenceId == block._id);
-        if (index > -1) {
-          scenario.stepDefinitions[s].splice(index, 1);
+        // Remove the block reference among the steps
+        if(stepReference == undefined || stepReference.stepType == s){
+          this.removeBlocksAmongSteps(scenario.stepDefinitions[s], block, stepReference);
         }
       }
     }
   }
+  /**
+   * Find reference blocks in the given scenario for a specific block.
+   * @param scenario
+   * @param block
+   * @returns Array of reference blocks
+   */
+  findReferenceBlocks(scenario: Scenario, block: Block): StepType[] {
+    const arrayRefBlocks: StepType[] = [];
+
+    for (const type in scenario.stepDefinitions) {
+      scenario.stepDefinitions[type].forEach((step) => {
+        if (step._blockReferenceId === block._id) {
+          arrayRefBlocks.push(step);
+        }
+      });
+    }
+    return arrayRefBlocks;
+  }
+
+  /**
+   * Remove blocks among steps based on a block reference or step reference.
+   * @param stepToSplice
+   * @param block
+   * @param stepReference
+   */
+  removeBlocksAmongSteps(stepToSplice, block, stepReference? : StepType) {
+    const index = stepReference !== undefined
+      ? stepToSplice.findIndex((element) => element.id === stepReference.id)
+      : stepToSplice.findIndex((element) => element._blockReferenceId === block._id);
+
+    if (index > -1) {
+      stepToSplice.splice(index, 1);
+    }
+  }
+
   /**
    * Update the reference name in scenarios after changing the block name
    * @param block
