@@ -198,25 +198,9 @@ export class BaseEditorComponent {
       if (this.templateName == 'scenario' && block[0] == 'scenario') {
         if (block[2]) {
           let blockReference: StepType;
-          switch(block[3]){
-            case 'Given':
-              blockReference = { _blockReferenceId: block[1]._id, id: 0, type: block[1].name, 
-                stepType: 'given', pre: '', mid: '', post: '', values: []};
-                this.addStep(blockReference, this.selectedScenario, 'scenario');
-              break;
-            case 'When':  
-              blockReference = { _blockReferenceId: block[1]._id, id: 0, type: block[1].name, 
-                stepType: 'when', pre: '', mid: '', post: '', values: []};
-                this.addStep(blockReference, this.selectedScenario, 'scenario');
-              break;
-            case 'Then':
-              blockReference = { _blockReferenceId: block[1]._id, id: 0, type: block[1].name, 
-                stepType: 'then', pre: '', mid: '', post: '', values: []};
-                this.addStep(blockReference, this.selectedScenario, 'scenario');
-              break;
-            default:
-              break;
-          }        
+          blockReference = { _blockReferenceId: block[1]._id, id: 0, type: block[1].name, 
+            stepType: block[3].toLowerCase(), pre: '', mid: '', post: '', values: []};
+          this.addStep(blockReference, this.selectedScenario, 'scenario');
         } else {
           block = block[1];
           this.insertStepsWithExamples(block);
@@ -534,7 +518,7 @@ export class BaseEditorComponent {
     const obj = JSON.parse(JSON.stringify(step));
     const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
     const newStep: StepType = {
-      _blockReferenceId: step._blockReferenceId !== undefined ? step._blockReferenceId : undefined,
+      _blockReferenceId: step._blockReferenceId ?? undefined,
       id: newId,
       mid: obj.mid,
       pre: obj.pre,
