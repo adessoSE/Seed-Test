@@ -229,8 +229,8 @@
             </span>
           </dfn>
           <!-- Window Size -->
-          <app-window-size #windoSizeModal [width]="this.selectedScenario.width" [height]="this.selectedScenario.height" [emulator]="emulator_enabled"
-            (sizeChange)="handleSizeChange($event)"></app-window-size>
+          <app-window-size #windoSizeModal [width]="this.selectedScenario.width" [height]="this.selectedScenario.height"
+            [emulator]="emulator_enabled" (sizeChange)="handleSizeChange($event)"></app-window-size>
         </div>
 
         <div *ngIf="this.globalSettings">
@@ -246,9 +246,6 @@
 
 
       <div class="storyInfoRight uk-button-group">
-        <!-- <div *ngIf="this.globalSettings">
-          <button class="button-4">Edit Global Settings</button>
-        </div> -->
         <button *ngIf="this.showResults" id="hide_results_top" [class.disabledButton]="!testDone" class="button"
           uk-tooltip="Hide Test Results" type="button" (click)="hideResults()">
           <em class="material-icons-outlined">expand_more</em>
@@ -341,4 +338,4 @@
   </div>
   <app-save-block-form #saveBlockModal></app-save-block-form>
 </div>
-<app-workgroup-edit #workgroupEditModal></app-workgroup-edit>
+<app-workgroup-edit #workgroupEditModal (globalSettingsChanged)="updateGlobalSettings($event)"> </app-workgroup-edit>

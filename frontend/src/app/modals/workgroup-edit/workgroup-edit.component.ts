@@ -11,6 +11,7 @@ import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 import { Subscription } from 'rxjs';
 import { MatSelect } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
+import { EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-workgroup-edit',
@@ -89,6 +90,11 @@ export class WorkgroupEditComponent {
   * Selected member to transfer Ownership
   */
   selectedOwner: string;
+  
+  /**
+   * Used to notify story editor component about globalSettings
+   */
+  @Output() globalSettingsChanged = new EventEmitter<boolean>();
 
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
@@ -306,6 +312,7 @@ export class WorkgroupEditComponent {
 
   async saveProject() {
     this.updateRepository(this.workgroupProject)
+    this.globalSettingsChanged.emit(this.applyGlobalSettings);
     this.modalReference.close();
   }
 

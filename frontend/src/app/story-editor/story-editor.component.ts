@@ -1039,6 +1039,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Triggered if global settings are changed in workgroup-edit component
+   */
+  updateGlobalSettings(newSettings: boolean) {
+    this.globalSettings = newSettings;
+  }
+
 
   // ------------------------------- EMULATOR --------------------------------
 
