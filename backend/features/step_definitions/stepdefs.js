@@ -663,10 +663,16 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
+const resolveRegex = (rawString) => {
+	// undefined to empty string
+	rawString = !rawString ? '' : rawString;
+	const regex = /\{Regex:([^}]*(?:\{[^}]*\}[^}]*)*)(\})(?=\s|$)/g;
+	return rawString.replace(regex, '($1)');
+};
+
 // Search a textfield in the html code and assert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
-	const regex = /\{Regex:([^}]*)\}/g;
-	const resultString = expectedText.replace(regex, '($1)');
+	const resultString = resolveRegex(expectedText);
 
 	const world = this;
 
@@ -692,9 +698,8 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 });
 
 // Search if a is text in html code
-Then('So I can see the text: {string}', async function (expectedText) { // text is present
-	const regex = /\{Regex:([^}]*(?:\{[^}]*\}[^}]*)*)(\})(?=\s|$)/g;
-	const resultString = expectedText.replace(regex, '($1)');
+Then('So I can see the text: {string}', async function textPresent(expectedText) { // text is present
+	const resultString = resolveRegex(expectedText);
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -716,7 +721,7 @@ Then('So I can see the text: {string}', async function (expectedText) { // text 
 });
 
 // Search a textfield in the html code and assert if it's empty
-Then('So I can\'t see text in the textbox: {string}', async function (label) {
+Then('So I can\'t see text in the textbox: {string}', async function textAbsent(label) {
 	const world = this;
 	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@id, '${label}')]`, `${label}`];
 	const promises = [];
@@ -805,6 +810,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
+	const resultString = resolveRegex(expectedText.toString());
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -813,7 +819,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(e
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			doesNotMatch(bodyAll, RegExp(expectedText.toString()), `Page HTML does contain the string/regex: ${expectedText}`);
+			doesNotMatch(bodyAll, RegExp(resultString), `Page HTML does contain the string/regex: ${resultString}`);
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
