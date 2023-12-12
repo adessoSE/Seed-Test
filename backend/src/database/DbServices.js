@@ -327,7 +327,7 @@ async function createStoryGroup(repoID, name, members, sequence) {
 			},
 			{ upsert: true, projection: { groups: 1 } }
 		);
-		return groups.value.groups.slice(-1)._id;
+		return groups.groups.slice(-1)._id;
 	} catch (e) {
 		console.log(`ERROR in createStoryGroup: ${e}`);
 	}
@@ -612,7 +612,7 @@ async function deleteScenario(storyId, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		return collection.findOneAndUpdate({ _id: new ObjectId(storyId) }, { $pull: { scenarios: { scenario_id: scenarioId } } }, { returnDocument: 'after' }).then((res) => res.value);
+		return collection.findOneAndUpdate({ _id: new ObjectId(storyId) }, { $pull: { scenarios: { scenario_id: scenarioId } } }, { returnDocument: 'after' }).then((res) => res);
 	} catch (e) {
 		console.log(`ERROR in deleteScenario: ${e}`);
 		throw e;
@@ -817,7 +817,7 @@ async function removeFromWorkgroup(repoId, user) {
 		const repo = await db.collection(repositoriesCollection).findOne({ _id: new ObjectId(repoId) });
 		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
 		const workGroup = await wGcollection.findOneAndUpdate({ Repo: new ObjectId(repoId) }, { $pull: { Members: { email: user.email } } });
-		if (workGroup.value) {
+		if (workGroup) {
 			const wG = await wGcollection.findOne({ Repo: new ObjectId(repoId) });
 			const result = { owner: {}, member: [] };
 			result.owner = { email: owner.email, canEdit: true };

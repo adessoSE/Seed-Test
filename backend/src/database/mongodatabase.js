@@ -349,7 +349,7 @@ async function createStoryGroup(repoID, name, members, sequence) {
 			},
 			{ upsert: true, projection: { groups: 1 } }
 		);
-		return groups.value.groups.slice(-1)._id;
+		return groups.groups.slice(-1)._id;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in createStoryGroup: ${e}`);
 	} finally {
