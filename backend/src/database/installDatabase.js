@@ -5,17 +5,17 @@ require('dotenv').config();
 
 const uri = process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@localhost:27017';
 
-async function checkConnection() {
-	let fails = 1;
-	while (fails <= 3) try {
-		const client = await MongoClient.connect(uri, { poolSize: 20, useNewUrlParser: true, useUnifiedTopology: true });
+async function getConnection(attempt) {
+	const attempts = attempt || 1;
+	if (attempt > 3) throw new Error('\x1b[31mFailed to connect to the database after multiple retries.\x1b[0m');
+
+	try {
+		const client = await MongoClient.connect(uri, { maxPoolSize: 20 });
 		return client;
 	} catch (err) {
-		console.log(`Connection failed! Retrying... ${fails}`);
-		fails++;
+		console.log(`\x1b[38;5;208mConnection failed! Retrying... ${attempts}\x1b[0m`);
+		return getConnection(attempts + 1);
 	}
-
-	throw new Error('Failed to connect to the database after multiple retries.');
 }
 
 async function makeCollection(dbo, name) {
@@ -41,7 +41,7 @@ async function makeCollection(dbo, name) {
 
 async function installDatabase() {
 	console.log(`\x1b[33m Setting Up DB in: ${uri}\n\x1b[0m`);
-	const client = await checkConnection();
+	const client = await getConnection();
 	const dbo = client.db('Seed');
 
 	console.log('Starting: steps');

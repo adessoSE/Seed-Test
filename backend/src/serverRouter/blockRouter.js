@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
 	try {
 		const { body } = req;
 		if (!req.user) { res.sendStatus(401); return; }
-		body.owner = ObjectID(req.user._id);
+		body.owner = new ObjectID(req.user._id);
 		const result = await mongo.saveBlock(body);
 		res.status(200).json(result);
 	} catch (error) {
@@ -52,7 +52,7 @@ router.put('/block', async (req, res) => {
 		if (!req.user) res.sendStatus(401);
 		else {
 			const result = await mongo.updateBlock(body);
-			res.status(200).json(result.value);
+			res.status(200).json(result);
 		}
 	} catch (error) {
 		handleError(res, error, error, 500);
