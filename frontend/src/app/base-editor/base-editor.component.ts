@@ -2071,7 +2071,7 @@ export class BaseEditorComponent {
           });
         }
       }
-      textField.innerHTML = highlightedText
+      textField.innerHTML = highlightedText ? highlightedText : textContent;
 
       // Toastr logic
       if(initialCall && regexDetected) {
