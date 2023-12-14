@@ -30,90 +30,116 @@
         <div class="uk-card-title submitForm">
             <!-- Global Settings -->
             <div *ngIf="currentTab === 'globalSettings'">
-                <div class="globalSettings">
+                <div class="globalSettings" style="margin-left: 220px; margin-right: 220px;">
 
                     <!-- Wait Between Steps -->
-                    <div class="waitTimeDiv">
-                        <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
-                        <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime" type="number"
-                            min=0 max=25000 step=200>
-                        <dfn class="def">
-                            <span id="settingsInfoIcon" uk-icon="info"></span>
-                            <span rel="def" style="font-weight: normal">
-                                Specifies the amount of time (in milliseconds) to wait between each step when running
-                                the test. </span>
-                        </dfn>
+                    <div class="waitTimeDiv space-between">
+                        <div>
+                         <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
+                        </div>
+                        <div>
+                            <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime" type="number"
+                                min=0 max=25000 step=200>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span id="settingsInfoIcon" uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Specifies the amount of time (in milliseconds) to wait between each step when running
+                                    the test. </span>
+                            </dfn>
+                        </div>
                     </div>
 
                     <!-- Browser -->
-                    <div class="browserDiv">
-                        <label class="selectLabel SmallIcontext">Browser:</label>
-                        <select name="browser" class="select" id="browserSelect"
-                            (change)="setBrowser($event.target.value)">
-                            <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
-                                [selected]="this.browser === 'chrome'">Chrome</option>
-                            <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
-                                [selected]="this.browser === 'firefox'">Firefox</option>
-                            <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
-                                [selected]="this.browser === 'MicrosoftEdge'">Edge</option>
-                        </select>
-                        <dfn class="def">
-                            <span id="settingsInfoIcon" uk-icon="info"></span>
-                            <span rel="def" style="font-weight: normal">
-                                Selects a web browser (Chrome, Firefox, Edge) for running the test.
-                            </span>
-                        </dfn>
+                    <div class="browserDiv space-between">
+                        <div>
+                         <label class="selectLabel SmallIcontext">Browser:</label>
+                        </div>
+                        <div>
+                            <select name="browser" class="select" id="browserSelect"
+                                (change)="setBrowser($event.target.value)">
+                                <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
+                                    [selected]="this.browser === 'chrome'">Chrome</option>
+                                <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
+                                    [selected]="this.browser === 'firefox'">Firefox</option>
+                                <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
+                                    [selected]="this.browser === 'MicrosoftEdge'">Edge</option>
+                            </select>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span id="settingsInfoIcon" uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Selects a web browser (Chrome, Firefox, Edge) for running the test.
+                                </span>
+                            </dfn>
+                        </div>
                     </div>
 
                     <!-- Emulator -->
-                    <div class="emulatorDiv">
-                        <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
-                        <dfn class="def" [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }">
-                            <input class="def"
-                                [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }"
-                                type="checkbox" id="emulatorCheck" (change)="setEmulatorEnabled(!emulator_enabled)"
-                                [checked]="emulator_enabled" [disabled]="getAvaiableEmulators().length < 1" />
-                            <span *ngIf="getAvaiableEmulators().length < 1" rel="def" style="font-weight: normal">
-                                No emulators available for the selected browser!
-                            </span>
-                        </dfn>
-
-                        <select *ngIf="emulator_enabled" name="emulator" class="select" id="emulatorSelect"
-                            (change)="setEmulator($event.target.value)" [(ngModel)]="emulator">
-                            <option *ngIf="getAvaiableEmulators().length === 0" [value]="undefined">
-                                No emulator available
-                            </option>
-                            <option *ngFor="let emulator of getAvaiableEmulators()" [value]="emulator"
-                                id="{{emulator}}_option">
-                                {{ emulator }}
-                            </option>
-                        </select>
-                        <dfn class="def">
-                            <span id="settingsInfoIcon" uk-icon="info"></span>
-                            <span rel="def" style="font-weight: normal">
-                                Runs the test on a simulated device.
-                            </span>
-                        </dfn>
+                    <div class="emulatorDiv space-between">
+                        <div>
+                            <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
+                        </div>
+                        <div>
+                            <dfn class="def" [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }">
+                                <input class="def"
+                                    [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }"
+                                    type="checkbox" id="emulatorCheck" (change)="setEmulatorEnabled(!emulator_enabled)"
+                                    [checked]="emulator_enabled" [disabled]="getAvaiableEmulators().length < 1" />
+                                <span *ngIf="getAvaiableEmulators().length < 1" rel="def" style="font-weight: normal">
+                                    No emulators available for the selected browser!
+                                </span>
+                            </dfn>
+                        </div>
+                        <div>
+                            <select *ngIf="emulator_enabled" name="emulator" class="select" id="emulatorSelect"
+                                (change)="setEmulator($event.target.value)" [(ngModel)]="emulator">
+                                <option *ngIf="getAvaiableEmulators().length === 0" [value]="undefined">
+                                    No emulator available
+                                </option>
+                                <option *ngFor="let emulator of getAvaiableEmulators()" [value]="emulator"
+                                    id="{{emulator}}_option">
+                                    {{ emulator }}
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span id="settingsInfoIcon" uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Runs the test on a simulated device.
+                                </span>
+                            </dfn>
+                        </div>
                     </div>
 
                     <!-- Open Window Size Component-->
-                    <div class="windowSizeDiv">
-                        <app-window-size id="windowSizeButton" #windoSizeModal [width]="repoWidth" [height]="repoHeight" [emulator]="emulator_enabled"
-                            (sizeChange)="handleSizeChange($event)"></app-window-size>
-                        <dfn class="def">
-                            <span  uk-icon="info"></span>
-                            <span rel="def" style="font-weight: normal">
-                                Changes height and width to adjust the size of the window for the test.
-                            </span>
-                        </dfn>
+                    <div class="windowSizeDiv space-between">
+                        <div>
+                            <label class="selectLabel SmallIcontext">Change Windows Size:</label>
+                        </div>
+                        <div>
+                            <app-window-size id="windowSizeButton" #windoSizeModal [width]="repoWidth" [height]="repoHeight" [emulator]="emulator_enabled"
+                                (sizeChange)="handleSizeChange($event)"></app-window-size>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span  uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Changes height and width to adjust the size of the window for the test.
+                                </span>
+                            </dfn>
+                        </div>
                     </div>
-                    <hr>
+                </div>
+                <hr>
 
-                    <!-- Apply Settings -->
-                    <div class="applySettingsDiv">
-                        <label for="applyGlobalSettingsCheckbox">Override Local Settings in Stories:</label>
-                        <input type="checkbox" id="applyGlobalSettingsCheckbox" [(ngModel)]="applyGlobalSettings">
-                    </div>
+                <!-- Apply Settings -->
+                <div class="applySettingsDiv">
+                    <label for="applyGlobalSettingsCheckbox">Override Local Settings in Stories:</label>
+                    <input type="checkbox" id="applyGlobalSettingsCheckbox" [(ngModel)]="applyGlobalSettings">
                 </div>
             </div>
 
@@ -172,31 +198,33 @@
                     </form>
                 </div>
                 <!-- Part: Member List -->
-                <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8"
-                    aria-describedby="mydesc">
-                    <ng-container matColumnDef="email">
-                        <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
-                        <td mat-cell *matCellDef="let element">
-                            <div class="emailTableContainer">
-                                <label>{{element.email}} </label>
-                                <button class="normalButton deleteButton"
-                                    (click)="removeFromWorkgroup(element);">Remove</button>
-                            </div>
-                        </td>
-                    </ng-container>
+                <div class="workgroupTable">
+                    <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8"
+                        aria-describedby="mydesc">
+                        <ng-container matColumnDef="email">
+                            <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
+                            <td mat-cell *matCellDef="let element">
+                                <div class="emailTableContainer">
+                                    <label>{{element.email}} </label>
+                                    <button class="normalButton deleteButton"
+                                        (click)="removeFromWorkgroup(element);">Remove</button>
+                                </div>
+                            </td>
+                        </ng-container>
 
-                    <ng-container matColumnDef="can_edit_workgroup">
-                        <th id="checkboxCanEdit" class="editColumn" mat-header-cell *matHeaderCellDef> Can add team
-                            members
-                        </th>
-                        <td mat-cell *matCellDef="let element">
-                            <input type="checkbox" name="canEditUser" class="normalButton"
-                                (change)="this.checkEditUser($event, element)" [checked]="element.canEdit">
-                        </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsWorkgroup"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumnsWorkgroup;"></tr>
-                </table>
+                        <ng-container matColumnDef="can_edit_workgroup">
+                            <th id="checkboxCanEdit" class="editColumn" mat-header-cell *matHeaderCellDef> Can add team
+                                members
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <input type="checkbox" name="canEditUser" class="normalButton"
+                                    (change)="this.checkEditUser($event, element)" [checked]="element.canEdit">
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsWorkgroup"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsWorkgroup;"></tr>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

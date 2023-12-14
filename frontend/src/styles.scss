@@ -1003,6 +1003,12 @@ a:hover {
   z-index: 1 !important;
 }
 
+.mat-mdc-menu-content {
+	margin: 0;
+	padding: 0px !important;
+	list-style-type: none;
+}
+
 .mat-tooltip {
   font-style: italic !important;
 }
