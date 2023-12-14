@@ -35,17 +35,18 @@
                     <!-- Wait Between Steps -->
                     <div class="waitTimeDiv space-between">
                         <div>
-                         <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
+                            <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
                         </div>
                         <div>
-                            <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime" type="number"
-                                min=0 max=25000 step=200>
+                            <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime"
+                                type="number" min=0 max=25000 step=200>
                         </div>
                         <div>
                             <dfn class="def">
                                 <span id="settingsInfoIcon" uk-icon="info"></span>
                                 <span rel="def" style="font-weight: normal">
-                                    Specifies the amount of time (in milliseconds) to wait between each step when running
+                                    Specifies the amount of time (in milliseconds) to wait between each step when
+                                    running
                                     the test. </span>
                             </dfn>
                         </div>
@@ -54,7 +55,7 @@
                     <!-- Browser -->
                     <div class="browserDiv space-between">
                         <div>
-                         <label class="selectLabel SmallIcontext">Browser:</label>
+                            <label class="selectLabel SmallIcontext">Browser:</label>
                         </div>
                         <div>
                             <select name="browser" class="select" id="browserSelect"
@@ -80,27 +81,13 @@
                     <!-- Emulator -->
                     <div class="emulatorDiv space-between">
                         <div>
-                            <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
+                            <label class="selectLabel SmallIcontext" for="emulatorSelect">Emulator:</label>
                         </div>
                         <div>
-                            <dfn class="def" [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }">
-                                <input class="def"
-                                    [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }"
-                                    type="checkbox" id="emulatorCheck" (change)="setEmulatorEnabled(!emulator_enabled)"
-                                    [checked]="emulator_enabled" [disabled]="getAvaiableEmulators().length < 1" />
-                                <span *ngIf="getAvaiableEmulators().length < 1" rel="def" style="font-weight: normal">
-                                    No emulators available for the selected browser!
-                                </span>
-                            </dfn>
-                        </div>
-                        <div>
-                            <select *ngIf="emulator_enabled" name="emulator" class="select" id="emulatorSelect"
-                                (change)="setEmulator($event.target.value)" [(ngModel)]="emulator">
-                                <option *ngIf="getAvaiableEmulators().length === 0" [value]="undefined">
-                                    No emulator available
-                                </option>
-                                <option *ngFor="let emulator of getAvaiableEmulators()" [value]="emulator"
-                                    id="{{emulator}}_option">
+                            <select name="emulator" class="select" id="emulatorSelect" [(ngModel)]="emulator"
+                                (change)="updateEmulatorStatus($event.target.value)">
+                                <option [value]="undefined">No emulator</option>
+                                <option *ngFor="let emulator of getAvaiableEmulators()" [value]="emulator">
                                     {{ emulator }}
                                 </option>
                             </select>
@@ -121,12 +108,13 @@
                             <label class="selectLabel SmallIcontext">Change Windows Size:</label>
                         </div>
                         <div>
-                            <app-window-size id="windowSizeButton" #windoSizeModal [width]="repoWidth" [height]="repoHeight" [emulator]="emulator_enabled"
+                            <app-window-size id="windowSizeButton" #windoSizeModal [width]="repoWidth"
+                                [height]="repoHeight" [emulator]="emulator_enabled"
                                 (sizeChange)="handleSizeChange($event)"></app-window-size>
                         </div>
                         <div>
                             <dfn class="def">
-                                <span  uk-icon="info"></span>
+                                <span uk-icon="info"></span>
                                 <span rel="def" style="font-weight: normal">
                                     Changes height and width to adjust the size of the window for the test.
                                 </span>

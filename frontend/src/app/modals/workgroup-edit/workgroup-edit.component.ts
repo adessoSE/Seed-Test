@@ -404,6 +404,20 @@ export class WorkgroupEditComponent {
   }
 
   /**
+   * Updates emulator 
+   * @param selectedValue String
+   */
+  updateEmulatorStatus(selectedValue: string) {
+    if (selectedValue === 'undefined'){
+      this.emulator_enabled = false;
+      this.setEmulator(undefined);
+    } else {
+      this.emulator_enabled = true;
+      this.setEmulator(selectedValue);
+    }
+}
+
+  /**
    * Set the emultaor
    * @param newEmultaor
    */
