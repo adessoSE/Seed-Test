@@ -133,14 +133,14 @@ jobs:
       - name: Send sanity POST request and store response
         env:
           # <-- api url for sanity test -->/<---- repository_id --->/<------ group_id ------>
-          API_URL: localhost:8080/api/sanity/test/632893aad3bd45536c41b684/6400a70f5eda22409c4d2ed9
+          API_URL: localhost:8080/api/sanity/test/${{ secrets.SANITY_REPO_ID }}/${{ secrets.SANITY_GROUP_ID }}
         run: |
           curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
 
       - name: print sanity
         run: |
           echo $(cat sanityReport.txt)
-          
+
       - name: Get passed and total sanity
         run: |
           passed=$(awk '/Steps:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' sanityReport.txt)
