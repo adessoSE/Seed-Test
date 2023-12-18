@@ -22,6 +22,7 @@ import { InfoWarningToast } from '../info-warning-toast';
 import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
 import { DeleteToast } from '../delete-toast';
 import { ThemingService } from '../Services/theming.service';
+import { HighlightInputService } from '../Services/highlight-input.service';
 
 @Component({
   selector: 'app-base-editor',
@@ -174,7 +175,6 @@ export class BaseEditorComponent {
 
   regexInStory: boolean = false;
   initialRegex: boolean = true;
-  targetOffset: number = 0;
 
   @Input() isDark: boolean;
 
@@ -196,7 +196,8 @@ export class BaseEditorComponent {
     public scenarioService: ScenarioService,
     public backgroundService: BackgroundService,
     public apiService: ApiService,
-    public themeService: ThemingService) {}
+    public themeService: ThemingService,
+    public highlightInputService: HighlightInputService) {}
 
   ngOnInit(): void {
     this.addBlocktoScenarioObservable = this.blockService.addBlockToScenarioEvent.subscribe(block => {
@@ -2024,7 +2025,6 @@ export class BaseEditorComponent {
    * Value is in textContent and style is in innerHTML
    * If initialCall only check if a regex is already there and hightlight it
    * Only hightlights regex in first field of regexSteps, only then steps for now. Gets checked with stepPre
-   * Get cursor position with getCaretCharacterOffsetWithin Helper and set position again, else it is lost because of overwriting and changing the HTML Element in case of hightlighting
    * @param element HTML element of contentedible div
    * @param stepIndex for addToValue
    * @param valueIndex for addToValue
@@ -2034,13 +2034,8 @@ export class BaseEditorComponent {
    * @param initialCall if call is from ngAfterView
    */
     highlightRegex(element, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
-      const regexPattern =/(\{Regex:)(.*?)(\})(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with {Regex: and end with }
-
-      const textField = element//document.getElementById(element);
+      const textField = element;
       const textContent = textField.textContent;
-      //Get current cursor position
-      const offset = this.getCaretCharacterOffsetWithin(textField)
-      const regexSteps = ['So I can see the text', 'So I can see the text:', 'So I can\'t see the text:', 'So I can\'t see text in the textbox:']
       var regexDetected = false;
 
       if(!initialCall){
@@ -2051,123 +2046,12 @@ export class BaseEditorComponent {
         this.initialRegex = false;
       }
 
-      let highlightedText;
-      if(0==valueIndex && regexSteps.includes(stepPre)){
-        if(this.isDark){
-          highlightedText = textContent.replace(regexPattern, (match, match1, match2, match3) => {
-            regexDetected = true;
-            return `<span uk-tooltip="title:Regular Expression detected!;pos:right">`+
-            `<span style="color: var(--light-grey); font-weight: bold">${match1}</span>`+
-            `<span style="color: var(--light-blue); font-weight: bold">${match2}</span>`+
-            `<span style="color: var(--light-grey); font-weight: bold">${match3}</span></span>`;
-          });
-        } else{
-          highlightedText = textContent.replace(regexPattern, (match, match1, match2, match3) => {
-            regexDetected = true;
-            return `<span uk-tooltip="title:Regular Expression detected!;pos:right">`+
-            `<span style="color: var(--brown-grey); font-weight: bold">${match1}</span>`+
-            `<span style="color: var(--ocean-blue); font-weight: bold">${match2}</span>`+
-            `<span style="color: var(--brown-grey); font-weight: bold">${match3}</span></span>`;
-          });
-        }
-      }
-      textField.innerHTML = highlightedText ? highlightedText : textContent;
+      regexDetected = this.highlightInputService.highlightRegex(element, initialCall, this.isDark, this.regexInStory, valueIndex, stepPre)
 
-      // Toastr logic
       if(initialCall && regexDetected) {
         this.regexInStory = true
       }
-      if(regexDetected && !this.regexInStory){
-        this.regexInStory = true
-        this.toastr.info('View our Documentation for more Info','Regular Expression detected!');
-      }
-
-      // Set cursor to correct position
-      if(!initialCall){
-        if (regexDetected) { //maybe not needed
-          const selection = window.getSelection();
-          selection.removeAllRanges()
-
-          // Call the function to find the correct node and offset
-          this.targetOffset = offset
-          const result = this.findNodeAndOffset(textField);
-
-          if (result !== null) {
-            const [node, offsetIndex] = result;
-            requestAnimationFrame(() => {
-              if (node.nodeType === 3) {
-                // Text node
-                selection.setBaseAndExtent(node, offsetIndex, node, offsetIndex);
-              } else if (node.nodeType === 1 && node.childNodes.length > 0) {
-                // Element node with child nodes (e.g., <span>)
-                selection.setBaseAndExtent(node.childNodes[0], offsetIndex, node.childNodes[0], offsetIndex);
-              }
-            });
-          }
-        } else {
-          requestAnimationFrame(() => {
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.setBaseAndExtent(textField.firstChild, offset, textField.firstChild, offset)
-          })
-        }
-      }
-    }
-
-  /**
-   * Helper for Regex Highlighter, find right node and index for current cursor position
-   * @param element HTMLElement
-   * @returns node: node with cursor, number: offest of cursor in node
-   */
-    findNodeAndOffset(element: Node): [Node, number] | null {
-      if (element.nodeType === 3) {
-        // Text node
-        const textLength = (element.nodeValue || "").length;
-        if (this.targetOffset <= textLength) {
-          return [element, this.targetOffset];
-        } else {
-          this.targetOffset -= textLength;
-        }
-      } else if (element.nodeType === 1){
-        // Element node
-        for (let i = 0; i < element.childNodes.length; i++) {
-          const child = element.childNodes[i];
-          const result = this.findNodeAndOffset(child);
-          if (result !== null) {
-            return result;
-          }
-        }
-      }
-      return null;
-    }
-
-    /**
-     * Helper for Regex Highlighter, extract current cursor position
-     * @param element HTMLElement
-     * @returns num, offset of cursor position
-     */
-    getCaretCharacterOffsetWithin(element) {
-      var caretOffset = 0;
-      var doc = element.ownerDocument || element.document;
-      var win = doc.defaultView || doc.parentWindow;
-      var sel;
-      if (typeof win.getSelection != "undefined") {
-          sel = win.getSelection();
-          if (sel.rangeCount > 0) {
-              var range = win.getSelection().getRangeAt(0);
-              var preCaretRange = range.cloneRange();
-              preCaretRange.selectNodeContents(element);
-              preCaretRange.setEnd(range.endContainer, range.endOffset);
-              caretOffset = preCaretRange.toString().length;
-          }
-      } else if ( (sel = doc.selection) && sel.type != "Control") {
-          var textRange = sel.createRange();
-          var preCaretTextRange = doc.body.createTextRange();
-          preCaretTextRange.moveToElementText(element);
-          preCaretTextRange.setEndPoint("EndToEnd", textRange);
-          caretOffset = preCaretTextRange.text.length;
-      }
-      return caretOffset;
+      
     }
 
     /**
