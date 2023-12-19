@@ -181,4 +181,28 @@ router.post('/oneDriver/:storyID', async (req, res) => {
 	}
 });
 
+router.post('/uploadFile/:filename', async (req, res) => {
+	try {
+		let data = '';
+
+		// Readable stream data event
+		req.on('data', (chunk) => {
+		data += chunk;
+		});
+
+		// Readable stream end event
+		req.on('end', async () => {
+		// Process the collected data
+		console.log('Received data:', data);
+
+		const result = await mongo.fileUpload(req.params.filename, data);
+
+		// Respond to the client
+		res.status(200).json({ message: 'Data received successfully', stored: result });
+		});
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 module.exports = router;

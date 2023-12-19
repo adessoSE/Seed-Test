@@ -1308,6 +1308,23 @@ async function updateOneDriver(id, driver) {
 	}
 }
 
+async function fileUpload(filename, file) {
+	const db = dbConnection.getConnection();
+	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+	const id = new ObjectId();
+	str(JSON.stringify(file))
+		.pipe(bucket.openUploadStreamWithId(id, filename))
+		.on('error', async (error) => {
+			assert.ifError(error);
+		})
+		.on('finish', async () => {
+			console.log('Done! Uploaded some File');
+			console.log('ObjectID: of File: ', id);
+			return id;
+		});
+	return id;
+}
+
 function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	if (v instanceof Object) {
 		for (const key in v) {
@@ -1322,6 +1339,7 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 }
 
 module.exports = {
+	fileUpload,
 	setIsSavedTestReport,
 	deleteReport,
 	getTestReports,
