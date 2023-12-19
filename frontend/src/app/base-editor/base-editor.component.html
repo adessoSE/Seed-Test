@@ -7,7 +7,7 @@
   <ng-template #actionBar>
     <div class="scenarioBarContainer" [ngStyle]="{'margin': (name==='example') ? '0px' : ''}">
       <div class="actionBarButtonGroup">
-        <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps()" [checked]="this.allChecked"
+        <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()" [checked]="this.allChecked"
           uk-tooltip title="Check All Steps" />
         <div [class.disabled]="!this.activeActionBar">
           <button *ngIf="name !== 'example' && name !== 'block-editor'" id="{{name+'_addBlock_step_'}}"
@@ -28,7 +28,7 @@
             <em class="material-icons">content_copy</em>
           </button>
         </div>
-        <button *ngIf="name==='example'" id="{{name+'_add_row'}}" uk-tooltip title="Add new Variable"
+        <button *ngIf="name==='example'" id="{{name+'_add_column'}}" uk-tooltip title="Add new Variable"
           (click)="openNewExample(step)">
           <div class="actionButton" style="display:grid;">
             <em class="material-icons-outlined"
@@ -517,6 +517,6 @@
     [selectedBlock]="selectedBlock"></app-edit-block>
   <app-new-example #newExampleModal></app-new-example>
   <app-new-step-request #newStepRequest></app-new-step-request>
-  <app-add-block-form #addBlockModal></app-add-block-form>
+  <app-add-block-form #addBlockModal [templateName]="name" ></app-add-block-form>
   <app-save-block-form #saveBlockModal></app-save-block-form>
 </ng-template>

@@ -40,11 +40,11 @@ if (process.env.NODE_ENV) app
 	.use(flash())
 	.use(session({
 		store: new MongoStore({
-			url: process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017",
+			url: process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
 			dbName: 'Seed',
 			collection: 'Sessions'
 		}),
-		secret: process.env.SESSION_SECRET || "unsaveSecret",
+		secret: process.env.SESSION_SECRET || 'unsaveSecret',
 		resave: false,
 		saveUninitialized: false,
 		proxy: true,
@@ -56,7 +56,7 @@ if (process.env.NODE_ENV) app
 else app
 	.use(flash())
 	.use(session({
-		secret: process.env.SESSION_SECRET || "unsaveSecret",
+		secret: process.env.SESSION_SECRET || 'unsaveSecret',
 		resave: false,
 		saveUninitialized: false,
 		proxy: true
@@ -74,7 +74,7 @@ app
 	.use(passport.initialize())
 	.use(passport.session())
 	.use((_, __, next) => {
-		logging.httpLog(_, __, next)
+		logging.httpLog(_, __, next);
 	})
 	.use('/api/script', scriptRouter)
 	.use('/api/run', runReportRouter)

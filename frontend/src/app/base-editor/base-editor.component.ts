@@ -950,6 +950,7 @@ export class BaseEditorComponent {
 
       case 'scenario':
         this.checkOnIteration(this.selectedScenario.stepDefinitions, this.allChecked);
+        this.disableSaveBlock()
         break;
 
       case 'example':
@@ -1082,7 +1083,7 @@ export class BaseEditorComponent {
           step.checked = checkValue;
         } else {
           step.checked = !step.checked;
-          this.disableSaveBlock(step);
+          this.disableSaveBlock();
         }
         this.areAllStepsChecked();
         break;
@@ -1092,26 +1093,39 @@ export class BaseEditorComponent {
   /**
    * Enables/disables "Save steps as Block" if only reference-block-steps selected
    */
-  disableSaveBlock(step) {
+  disableSaveBlock() {
+    if (this.templateName !== 'scenario') {
+      return;
+    }
+
+    const { stepDefinitions } = this.selectedScenario;
     let allSelectedSteps = 0;
     let onlyReferenceSteps = 0;
-    if (this.templateName === 'scenario') {
-      for (const prop in this.selectedScenario.stepDefinitions) {
-        if (prop !== 'example') {
-          for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-            if (this.selectedScenario.stepDefinitions[prop][i].checked) {
-              allSelectedSteps++;
-            } if (this.selectedScenario.stepDefinitions[prop][i].checked && this.selectedScenario.stepDefinitions[prop][i]._blockReferenceId) {
-              onlyReferenceSteps++;
-            }
+
+    for (const prop in stepDefinitions) {
+      if (prop !== 'example') {
+        this.updateStepCounts(stepDefinitions[prop], (step) => {
+          allSelectedSteps++;
+          if (step._blockReferenceId) {
+            onlyReferenceSteps++;
           }
-        }
+        });
       }
-      if (onlyReferenceSteps == allSelectedSteps) {
-        this.isReferenceBlock = true;
+    }
+
+    this.isReferenceBlock = onlyReferenceSteps === allSelectedSteps;
+  }
+  /**
+   * Update step counts
+   */
+  updateStepCounts(steps, callback) {
+    for (let i = steps.length - 1; i >= 0; i--) {
+      if (steps[i].checked) {
+        callback(steps[i]);
       }
     }
   }
+
   /**
    * Enables/disables action bar and checkbox in it depending on whether all steps are checked 
    */

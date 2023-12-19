@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
@@ -32,7 +32,14 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Old block name
      */
     oldName:string;
-
+    selectedTemplate: string;
+    /**
+      * Sets a new selected story
+      */
+    @Input()
+    set templateName(name) {
+      this.selectedTemplate = name;
+    }
     /**
       * If blocks are saved 
       */
@@ -248,6 +255,8 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     addBlockFormSubmit() {
       this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
       delete this.addAsReference;
+      delete this.selectedBlock;
+      this.stepList = [];
       this.modalReference.close();
     }
     
@@ -259,10 +268,13 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
         if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
           this.newblockName = this.selectedBlock.name;
         } else{
-          this.selectedBlock.name = this.newblockName;        
+          this.selectedBlock.name = this.newblockName;    
           this.blockService
           .updateBlock(this.selectedBlock)
           .subscribe(_ => {
+            if(this.selectedBlock.usedAsReference){
+              this.blockService.updateNameRefEmitter(this.selectedBlock);
+            }
             this.updateBlocksEventEmitter();
             this.toastr.success('successfully saved', 'Block');
           });
@@ -291,6 +303,8 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     }
     closeModal(){
       delete this.addAsReference;
+      delete this.selectedBlock;
+      this.stepList = [];
       this.modalReference.close();
     }
   }

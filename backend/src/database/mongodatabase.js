@@ -16,7 +16,7 @@ if (!process.env.NODE_ENV) {
 	const dotenv = require('dotenv').config();
 }
 
-const uri = process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017";
+const uri = process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017';
 const dbName = 'Seed';
 const userCollection = 'User';
 const storiesCollection = 'Stories';
@@ -40,7 +40,7 @@ const ReportsCollection = 'Reports';
 function connectDb() {
 	return new Promise((resolve, reject) => {
 		mongodb.MongoClient
-			.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, db) => {
+			.connect(uri, (err, db) => {
 				if (err) reject(err);
 				else resolve(db);
 			});
@@ -118,11 +118,11 @@ async function registerUser(user) {
 	let result;
 	if (dbUser !== null) throw Error('User already exists');
 	else
-	if (user.userId) result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
-	else {
-		delete user.userId;
-		result = await collection.insertOne(user);
-	}
+		if (user.userId) result = await collection.updateOne({ _id: new ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
+		else {
+			delete user.userId;
+			result = await collection.insertOne(user);
+		}
 	if (db) db.close();
 	console.log('I am closing the DB here - registerUser');
 	return result;
@@ -199,7 +199,7 @@ async function getUserById(id) {
 	const db = await connectDb();
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
-	const result = await collection.findOne({ _id: ObjectId(id) });
+	const result = await collection.findOne({ _id: new ObjectId(id) });
 	db.close();
 	console.log('I am closing the DB here - getUserById');
 	return result;
@@ -216,7 +216,7 @@ async function updateGithubToken(objId, updatedToken) {
 	const db = await connectDb();
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
-	const user = await collection.updateOne({ _id: ObjectId(objId) }, { $set: { 'github.githubToken': updatedToken } });
+	const user = await collection.updateOne({ _id: new ObjectId(objId) }, { $set: { 'github.githubToken': updatedToken } });
 	db.close();
 	console.log('I am closing the DB here - updateGithubToken');
 	return user;
@@ -251,7 +251,7 @@ function selectUsersCollection(db) {
 }
 
 function findStory(storyId, collection) {
-	const id = ObjectId(storyId);
+	const id = new ObjectId(storyId);
 	return new Promise((resolve, reject) => {
 		collection.findOne({ _id: id }, (err, result) => {
 			if (err) reject(err);
@@ -262,16 +262,11 @@ function findStory(storyId, collection) {
 
 function replace(story, collection) {
 	const filter = {
-		_id: ObjectId(story._id),
+		_id: new ObjectId(story._id),
 		storySource: story.storySource
 	};
-	story._id = ObjectId(story._id);
-	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(filter, story, (err, result) => {
-			if (err) reject(err);
-			else resolve(result.value);
-		});
-	});
+	story._id = new ObjectId(story._id);
+	return collection.findOneAndReplace(filter, story);
 }
 
 async function disconnectGithub(user) {
@@ -282,13 +277,8 @@ async function disconnectGithub(user) {
 }
 
 function replaceUser(newUser, collection) {
-	const myObjt = { _id: ObjectId(newUser._id) };
-	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(myObjt, newUser, (err, result) => {
-			if (err) reject(err);
-			else resolve(result.value);
-		});
-	});
+	const myObjt = { _id: new ObjectId(newUser._id) };
+	return collection.findOneAndReplace(myObjt, newUser);
 }
 
 async function updateStory(updatedStuff) {
@@ -312,9 +302,9 @@ async function getOneStory(storyId) {
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		let story = await collection.findOne({ _id: ObjectId(storyId) });
+		let story = await collection.findOne({ _id: new ObjectId(storyId) });
 		// TODO remove later when all used stories have the tag storySource
-		if (!story) story = await collection.findOne({ _id: ObjectId(storyId) });
+		if (!story) story = await collection.findOne({ _id: new ObjectId(storyId) });
 		return story;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneStory: ${e}`);
@@ -349,17 +339,17 @@ async function createStoryGroup(repoID, name, members, sequence) {
 		const collection = await selectRepositoryCollection(db);
 
 		const groups = await collection.findOneAndUpdate(
-			{ _id: ObjectId(repoID) },
+			{ _id: new ObjectId(repoID) },
 			{
 				$push: {
 					groups: {
-						_id: ObjectId(), name, member_stories: members, isSequential: sequence
+						_id: new ObjectId(), name, member_stories: members, isSequential: sequence
 					}
 				}
 			},
 			{ upsert: true, projection: { groups: 1 } }
 		);
-		return groups.value.groups.slice(-1)._id;
+		return groups.groups.slice(-1)._id;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in createStoryGroup: ${e}`);
 	} finally {
@@ -372,13 +362,13 @@ async function updateStoryGroup(repoId, groupId, updatedGroup) {
 	let db;
 	try {
 		db = await connectDb();
-		updatedGroup._id = ObjectId(updatedGroup._id);
+		updatedGroup._id = new ObjectId(updatedGroup._id);
 		const collection = await selectRepositoryCollection(db);
-		const repo = await collection.findOne({ _id: ObjectId(repoId) });
+		const repo = await collection.findOne({ _id: new ObjectId(repoId) });
 		// leave with double equal:
 		const index = repo.groups.findIndex((o) => o._id == groupId);
 		repo.groups[index] = updatedGroup;
-		await collection.updateOne({ _id: ObjectId(repoId) }, { $set: repo });
+		await collection.updateOne({ _id: new ObjectId(repoId) }, { $set: repo });
 		return updatedGroup;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoryGroup: ${e}`);
@@ -393,11 +383,11 @@ async function deleteStoryGroup(repoId, groupId) {
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const repo = await collection.findOne({ _id: ObjectId(repoId) });
+		const repo = await collection.findOne({ _id: new ObjectId(repoId) });
 		// leave with double equal:
 		const index = repo.groups.findIndex((o) => o._id == groupId);
 		repo.groups.splice(index, 1);
-		await collection.updateOne({ _id: ObjectId(repoId) }, { $set: repo });
+		await collection.updateOne({ _id: new ObjectId(repoId) }, { $set: repo });
 		return null;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteStoryGroup: ${e}`);
@@ -434,7 +424,7 @@ async function getAllStoryGroups(repoId) {
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		return await collection.findOne({ _id: ObjectId(repoId) }, { projection: { groups: 1 } });
+		return await collection.findOne({ _id: new ObjectId(repoId) }, { projection: { groups: 1 } });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getAllStoryGroups: ${e}`);
 	} finally {
@@ -448,7 +438,7 @@ async function updateStoryGroupsArray(repoId, groupsArray) {
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { groups: groupsArray } }, { projection: { groups: 1 } });
+		return await collection.findOneAndUpdate({ _id: new ObjectId(repoId) }, { $set: { groups: groupsArray } }, { projection: { groups: 1 } });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoryGroupsArray: ${e}`);
 	} finally {
@@ -527,10 +517,10 @@ async function createStory(storyTitel, storyDescription, repoId) {
 		db = await connectDb();
 		const repoCollection = await selectRepositoryCollection(db);
 		const collection = await selectStoriesCollection(db);
-		const repo = await repoCollection.findOne({ _id: ObjectId(repoId) });
+		const repo = await repoCollection.findOne({ _id: new ObjectId(repoId) });
 		if (repo) if (repo.stories.length > 0) {
 			for (const storyId of repo.stories) {
-				const story = await collection.findOne({ _id: ObjectId(storyId) });
+				const story = await collection.findOne({ _id: new ObjectId(storyId) });
 				iNumberArray.push(story.issue_number);
 			}
 			for (let i = 0; i <= iNumberArray.length; i++) {
@@ -563,12 +553,12 @@ async function deleteStory(repoId, storyId) {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
 		const repo = await selectRepositoryCollection(db);
-		const delStory = await collection.findOneAndDelete({ _id: ObjectId(storyId) });
-		await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } });
+		const delStory = await collection.findOneAndDelete({ _id: new ObjectId(storyId) });
+		await repo.findOneAndUpdate({ _id: new ObjectId(repoId) }, { $pull: { stories: new ObjectId(storyId) } });
 
-		const groups = await repo.findOne({ _id: ObjectId(repoId) }, { projection: { groups: 1 } });
+		const groups = await repo.findOne({ _id: new ObjectId(repoId) }, { projection: { groups: 1 } });
 		for (const index in groups.groups) groups.groups[index].member_stories = groups.groups[index].member_stories.filter((story) => story !== storyId);
-		await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { groups: groups.groups } });
+		await repo.findOneAndUpdate({ _id: new ObjectId(repoId) }, { $set: { groups: groups.groups } });
 		return delStory;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteStory: ${e}`);
@@ -584,7 +574,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 	try {
 		db = await connectDb();
 		const collectionRepo = await selectRepositoryCollection(db);
-		return await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: ObjectId(storyId) } });
+		return await collectionRepo.findOneAndUpdate({ _id: new ObjectId(repoId) }, { $push: { stories: new ObjectId(storyId) } });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in insertStoryIdIntoRepo: ${e}`);
 		throw e;
@@ -599,7 +589,7 @@ async function updateScenarioList(storyId, scenarioList) {
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		return await collection.findOneAndUpdate({ _id: ObjectId(storyId) }, { $set: { scenarios: scenarioList } });
+		return await collection.findOneAndUpdate({ _id: new ObjectId(storyId) }, { $set: { scenarios: scenarioList } });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in insertStoryIdIntoRepo: ${e}`);
 		throw e;
@@ -616,9 +606,9 @@ async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
 		db = await connectDb();
 		const collectionRepo = await selectRepositoryCollection(db);
 		const collectionStories = await selectStoriesCollection(db);
-		const repo = await collectionRepo.findOne({ _id: ObjectId(repoId) });
+		const repo = await collectionRepo.findOne({ _id: new ObjectId(repoId) });
 		if (repo) for (const entry of repo.stories) {
-			const story = await collectionStories.findOne({ _id: ObjectId(entry) });
+			const story = await collectionStories.findOne({ _id: new ObjectId(entry) });
 			storiesArray.push(story);
 		}
 		return storiesArray;
@@ -637,7 +627,7 @@ async function getOneScenario(storyId, storySource, scenarioId) {
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const scenarios = await collection.findOne({ _id: ObjectId(storyId), storySource, 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
+		const scenarios = await collection.findOne({ _id: new ObjectId(storyId), storySource, 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
 		return scenarios.scenarios.find((o) => o.scenario_id === scenarioId);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneScenario: ${e}`);
@@ -731,21 +721,21 @@ async function deleteScenario(storyId, scenarioId) {
 async function getRepository(userID) {
 	let db;
 	try {
-		const myObjt = { owner: ObjectId(userID) };
+		const myObjt = { owner: new ObjectId(userID) };
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const wGCollection = await dbo.collection(WorkgroupsCollection);
 		const repoCollection = await selectRepositoryCollection(db);
 		const usersCollection = await selectUsersCollection(db);
-		const user = await usersCollection.findOne({ _id: ObjectId(userID) });
+		const user = await usersCollection.findOne({ _id: new ObjectId(userID) });
 		const positiveWorkgroups = await wGCollection.find({ Members: { $elemMatch: { email: user.email, canEdit: true } } }).toArray();
-		const PWgArray = positiveWorkgroups.map((entry) => ObjectId(entry.Repo));
+		const PWgArray = positiveWorkgroups.map((entry) => new ObjectId(entry.Repo));
 		const PWgRepos = await repoCollection.find({ _id: { $in: PWgArray } }).toArray();
 		PWgRepos.forEach((element) => {
 			element.canEdit = true;
 		});
 		const negativeWorkgroups = await wGCollection.find({ Members: { $elemMatch: { email: user.email, canEdit: false } } }).toArray();
-		const NWgArray = negativeWorkgroups.map((entry) => ObjectId(entry.Repo));
+		const NWgArray = negativeWorkgroups.map((entry) => new ObjectId(entry.Repo));
 		const NWgRepos = await repoCollection.find({ _id: { $in: NWgArray } }).toArray();
 		NWgRepos.forEach((element) => {
 			element.canEdit = false;
@@ -769,7 +759,7 @@ async function getRepository(userID) {
 async function deleteRepositorys(ownerID) {
 	let db;
 	try {
-		const myObjt = { owner: ObjectId(ownerID) };
+		const myObjt = { owner: new ObjectId(ownerID) };
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		return await collection.deleteMany(myObjt);
@@ -787,7 +777,7 @@ async function deleteRepository(repoId, ownerId) {
 	try {
 		db = await connectDb();
 		const collectionRepo = await selectRepositoryCollection(db);
-		const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId) });
+		const repo = await collectionRepo.findOne({ owner: new ObjectId(ownerId), _id: new ObjectId(repoId) });
 		return await collectionRepo.deleteOne(repo);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteRepository${e}`);
@@ -800,7 +790,7 @@ async function deleteRepository(repoId, ownerId) {
 
 async function getOneRepository(ownerId, name) {
 	try {
-		const repo = { owner: ObjectId(ownerId), repoName: name };
+		const repo = { owner: new ObjectId(ownerId), repoName: name };
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne(repo);
@@ -832,7 +822,7 @@ async function createRepo(ownerId, name) {
 	};
 	const db = await connectDb();
 	const collection = await selectRepositoryCollection(db);
-	const result = await collection.findOne({ owner: ObjectId(ownerId), repoName: name });
+	const result = await collection.findOne({ owner: new ObjectId(ownerId), repoName: name });
 	if (result !== null) return 'Sie besitzen bereits ein Repository mit diesem Namen!';
 	collection.insertOne(emptyRepo);
 }
@@ -866,7 +856,7 @@ async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, rep
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const result = await collection.findOne({ owner: ObjectId(ownerId), repoName });
+		const result = await collection.findOne({ owner: new ObjectId(ownerId), repoName });
 		if (result === null) {
 			let repo = await collection.findOne({ gitOwner: gitOwnerId, repoName });
 			// create repo / project if there is none
@@ -877,7 +867,7 @@ async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, rep
 				repo = await collection.insertOne(newRepo);
 				return repo;
 			}
-			if (repo.gitOwner === githubId) repo.owner = ObjectId(ownerId);
+			if (repo.gitOwner === githubId) repo.owner = new ObjectId(ownerId);
 			return repo;
 		}
 		return result._id;
@@ -893,10 +883,10 @@ async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, rep
 async function updateStoriesArrayInRepo(repoId, storiesArray) {
 	let db;
 	try {
-		const sortedStoriesArray = storiesArray.map((s) => ObjectId(s));
+		const sortedStoriesArray = storiesArray.map((s) => new ObjectId(s));
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: sortedStoriesArray } }, { returnNewDocument: true });
+		return await collection.findOneAndUpdate({ _id: new ObjectId(repoId) }, { $set: { stories: sortedStoriesArray } }, { returnNewDocument: true });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoriesArrayInRepo${e}`);
 		throw e;
@@ -919,13 +909,13 @@ async function upsertEntry(storyId, updatedContent, storySource) {
 			upsert: false
 		});
 		// TODO remove later when all used stories have the tag storySource
-		if (!result.value) {
+		if (!result) {
 			myObjt.storySource = undefined;
 			result = await collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
 				upsert: true
 			});
 		}
-		return result.value;
+		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in upsertEntry: ${e}`);
 		throw e;
@@ -943,8 +933,10 @@ async function getTestReports(storyId) {
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(ReportDataCollection);
 		console.log('Getting Report for storyId :', storyId);
-		result = await collection.find({ storyId: ObjectId(storyId) },
-			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }).toArray();
+		result = await collection.find(
+			{ storyId: new ObjectId(storyId) },
+			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }
+		).toArray();
 		console.log('Got ', result.length, ' reports for  :', storyId);
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
@@ -963,9 +955,11 @@ async function getGroupTestReports(storyId) {
 		const collection = await dbo.collection(ReportDataCollection);
 		console.log('Getting Groups Reports for storyId :', storyId);
 		// projection value 0 excludes from returning
-		const query = { storyStatuses: { $elemMatch: { storyId: ObjectId(storyId) } } };
-		const result = await collection.find(query,
-			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }).toArray();
+		const query = { storyStatuses: { $elemMatch: { storyId: new ObjectId(storyId) } } };
+		const result = await collection.find(
+			query,
+			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }
+		).toArray();
 		db.close();
 		console.log('I am closing the DB here - getGroupTestReports');
 		console.log('Got ', result.length, ' Group Reports for  :', storyId);
@@ -984,19 +978,19 @@ async function deleteReport(reportId) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(ReportDataCollection);
-		const reportData = await collection.findOne({ _id: ObjectId(reportId) });
+		const reportData = await collection.findOne({ _id: new ObjectId(reportId) });
 		if (reportData.smallReport) {
 			idToDelete = reportData.smallReport;
 			console.log('Trying to delete smallReport', idToDelete, ' in DB for Report', reportId);
 			const reportsCollection = await dbo.collection(ReportsCollection);
-			await reportsCollection.deleteOne({ _id: ObjectId(idToDelete) });
-			result = await collection.deleteOne({ _id: ObjectId(reportId) });
+			await reportsCollection.deleteOne({ _id: new ObjectId(idToDelete) });
+			result = await collection.deleteOne({ _id: new ObjectId(reportId) });
 		} else {
 			idToDelete = reportData.bigReport;
 			console.log('trying to delete bigReport', idToDelete, ' in DB for Report', reportId);
 			const bucket = await new mongodb.GridFSBucket(dbo, { bucketName: 'GridFS' });
-			bucket.delete(ObjectId(idToDelete));
-			result = await collection.deleteOne({ _id: ObjectId(reportId) });
+			bucket.delete(new ObjectId(idToDelete));
+			result = await collection.deleteOne({ _id: new ObjectId(reportId) });
 		}
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in deleteReport', e);
@@ -1014,10 +1008,12 @@ async function setIsSavedTestReport(testReportId, isSaved) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(ReportDataCollection);
-		const updatedReport = await collection.findOne({ _id: ObjectId(testReportId) });
+		const updatedReport = await collection.findOne({ _id: new ObjectId(testReportId) });
 		updatedReport.isSaved = isSaved;
-		result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
-			updatedReport);
+		result = await collection.findOneAndReplace(
+			{ _id: new ObjectId(testReportId) },
+			updatedReport
+		);
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in setIsSavedTestReport', e);
 	} finally {
@@ -1032,7 +1028,7 @@ async function updateStoryStatus(storyId, storyLastTestStatus) {
 	try {
 		db = await connectDb();
 		const dbo = db.db(dbName);
-		dbo.collection(storiesCollection).updateOne({ _id: ObjectId(storyId) }, {
+		dbo.collection(storiesCollection).updateOne({ _id: new ObjectId(storyId) }, {
 			$set: { lastTestPassed: storyLastTestStatus }
 		});
 		// db.close();
@@ -1049,7 +1045,7 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(storiesCollection);
-		const story = await collection.findOne({ _id: ObjectId(storyId) });
+		const story = await collection.findOne({ _id: new ObjectId(storyId) });
 
 		const scenarioList = story.scenarios;
 		const scenario = scenarioList.find((scen) => scen.scenario_id === parseInt(scenarioId, 10));
@@ -1058,7 +1054,7 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 			scenario.lastTestPassed = scenarioLastTestStatus;
 			story.scenarios[index] = scenario;
 		}
-		return await collection.findOneAndReplace({ _id: ObjectId(storyId) }, story);
+		return await collection.findOneAndReplace({ _id: new ObjectId(storyId) }, story);
 	} catch (e) {
 		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);
 	} finally {
@@ -1071,7 +1067,7 @@ async function uploadBigJsonData(data, fileName) {
 	const db = await connectDb();
 	const dbo = db.db(dbName);
 	const bucket = await new mongodb.GridFSBucket(dbo, { bucketName: 'GridFS' });
-	const id = ObjectId();
+	const id = new ObjectId();
 	str(JSON.stringify(data))
 		.pipe(bucket.openUploadStreamWithId(id, fileName))
 		.on('error', async (error) => {
@@ -1079,7 +1075,7 @@ async function uploadBigJsonData(data, fileName) {
 		})
 		.on('finish', async () => {
 			console.log('Done! Uplaoded BigReport');
-			console.log('ObjectID: of Big Report: ' + id);
+			console.log(`ObjectID: of Big Report: ${id}`);
 			return id;
 		});
 	return id;
@@ -1096,7 +1092,7 @@ async function uploadReport(reportResults) {
 		if (len >= 16000000) {
 			try {
 				reportData.bigReport = await uploadBigJsonData(jReport, reportResults.storyId);
-				console.log('ObjectID: of Big Report in UplaodReport: ' + reportData.bigReport);
+				console.log(`ObjectID: of Big Report in UplaodReport: ${reportData.bigReport}`);
 				collection.insertOne(reportData);
 			} catch (e) {
 				console.log('UPS!!!! FEHLER in uploadReport', e);
@@ -1130,11 +1126,11 @@ async function getReport(reportName) {
 		const report = await collection.findOne({ reportName });
 		if (report.smallReport) {
 			const reportCollection = await dbo.collection(ReportsCollection);
-			const reportJson = await reportCollection.findOne({ _id: ObjectId(report.smallReport) });
+			const reportJson = await reportCollection.findOne({ _id: new ObjectId(report.smallReport) });
 			result = { _id: report._id, jsonReport: reportJson.jsonReport };
 		} else {
 			const bucket = await new mongodb.GridFSBucket(dbo, { bucketName: 'GridFS' });
-			const reportString = await toString(bucket.openDownloadStream(ObjectId(report.bigReport.toString())));
+			const reportString = await toString(bucket.openDownloadStream(new ObjectId(report.bigReport.toString())));
 			const reportJson = JSON.parse(reportString);
 			result = { _id: report._id, jsonReport: reportJson.jsonReport };
 		}
@@ -1170,7 +1166,7 @@ async function createUser(user) {
 async function deleteUser(userID) {
 	let db;
 	try {
-		const oId = ObjectId(userID);
+		const oId = new ObjectId(userID);
 		const myObjt = { _id: oId };
 		db = await connectDb();
 		const collection = await selectUsersCollection(db);
@@ -1178,7 +1174,7 @@ async function deleteUser(userID) {
 		const collectionStories = await selectStoriesCollection(db);
 		const repos = await collectionRepo.find({ owner: oId }).toArray();
 		if (repos) {
-			for (const repo of repos) for (const storyID of repo.stories) await collectionStories.deleteOne({ _id: ObjectId(storyID) });
+			for (const repo of repos) for (const storyID of repo.stories) await collectionStories.deleteOne({ _id: new ObjectId(storyID) });
 
 			const resultRepo = await collectionRepo.deleteMany({ owner: oId });
 			const resultUser = await collection.deleteOne(myObjt);
@@ -1198,12 +1194,12 @@ async function deleteUser(userID) {
 async function updateUser(userID, updatedUser) {
 	let db;
 	try {
-		const oId = ObjectId(userID);
+		const oId = new ObjectId(userID);
 		const myObjt = { _id: oId };
 		db = await connectDb();
 		const collection = await selectUsersCollection(db);
 		const result = await collection.findOneAndReplace(myObjt, updatedUser);
-		return result.value;
+		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateUser: ${e}`);
 		throw e;
@@ -1217,7 +1213,7 @@ async function updateUser(userID, updatedUser) {
 async function getUserData(userID) {
 	let db;
 	try {
-		const oId = ObjectId(userID);
+		const oId = new ObjectId(userID);
 		const myObjt = { _id: oId };
 		db = await connectDb();
 		const collection = await selectUsersCollection(db);
@@ -1234,7 +1230,7 @@ async function getUserData(userID) {
 async function saveBlock(block) {
 	let db;
 	try {
-		block.repositoryId = ObjectId(block.repositoryId);
+		block.repositoryId = new ObjectId(block.repositoryId);
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(CustomBlocksCollection);
@@ -1272,7 +1268,7 @@ async function getBlocks(userId, repoId) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(CustomBlocksCollection);
-		return await collection.find({ repositoryId: ObjectId(repoId) }).toArray();
+		return await collection.find({ repositoryId: new ObjectId(repoId) }).toArray();
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getBlocks: ${e}`);
 		throw e;
@@ -1286,8 +1282,8 @@ async function deleteBlock(blockId, userId) {
 	let db;
 	try {
 		const myObjt = {
-			_id: ObjectId(blockId),
-			owner: ObjectId(userId)
+			_id: new ObjectId(blockId),
+			owner: new ObjectId(userId)
 		};
 		db = await connectDb();
 		const dbo = db.db(dbName);
@@ -1309,7 +1305,7 @@ async function getWorkgroup(id) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(WorkgroupsCollection);
-		return await collection.findOne({ Repo: ObjectId(id) });
+		return await collection.findOne({ Repo: new ObjectId(id) });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getWorkgroup: ${e}`);
 		throw e;
@@ -1325,27 +1321,27 @@ async function addMember(id, user) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const wGCollection = await dbo.collection(WorkgroupsCollection);
-		const check = await wGCollection.findOne({ Repo: ObjectId(id), Members: { $elemMatch: { email: user.email } } });
+		const check = await wGCollection.findOne({ Repo: new ObjectId(id), Members: { $elemMatch: { email: user.email } } });
 		if (check) return 'Dieser User ist bereits in der Workgroup';
 		const rCollection = await dbo.collection(repositoriesCollection);
-		const repo = await rCollection.findOne({ _id: ObjectId(id) });
+		const repo = await rCollection.findOne({ _id: new ObjectId(id) });
 		const usersCollection = await selectUsersCollection(db);
 		const owner = await usersCollection.findOne({ _id: repo.owner });
-		const workGroup = await wGCollection.findOne({ Repo: ObjectId(id) });
+		const workGroup = await wGCollection.findOne({ Repo: new ObjectId(id) });
 		if (!workGroup) {
 			await wGCollection.insertOne({
-				name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }]
+				name: repo.repoName, owner: owner.email, Repo: new ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }]
 			});
 			const result = { owner: {}, member: [] };
-			const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
+			const wG = await wGCollection.findOne({ Repo: new ObjectId(id) });
 			result.owner = { email: owner.email, canEdit: true };
 			result.member = wG.Members;
 			return result;
 		}
 		// if there is a workGroup already:
-		await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } });
+		await wGCollection.findOneAndUpdate({ Repo: new ObjectId(id) }, { $push: { Members: user } });
 		const result = { owner: {}, member: [] };
-		const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
+		const wG = await wGCollection.findOne({ Repo: new ObjectId(id) });
 		result.owner = { email: owner.email, canEdit: true };
 		result.member = wG.Members;
 		return result;
@@ -1365,12 +1361,12 @@ async function updateMemberStatus(repoId, user) {
 		const dbo = db.db(dbName);
 		const wGCollection = await dbo.collection(WorkgroupsCollection);
 		const rCollection = await dbo.collection(repositoriesCollection);
-		const repo = await rCollection.findOne({ _id: ObjectId(repoId) });
+		const repo = await rCollection.findOne({ _id: new ObjectId(repoId) });
 		const usersCollection = await selectUsersCollection(db);
 		const owner = await usersCollection.findOne({ _id: repo.owner });
-		const updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { 'Members.$[elem].canEdit': user.canEdit } }, { arrayFilters: [{ 'elem.email': user.email }] });
+		const updatedWG = await wGCollection.findOneAndUpdate({ Repo: new ObjectId(repoId) }, { $set: { 'Members.$[elem].canEdit': user.canEdit } }, { arrayFilters: [{ 'elem.email': user.email }] });
 		if (updatedWG) {
-			const wG = await wGCollection.findOne({ Repo: ObjectId(repoId) });
+			const wG = await wGCollection.findOne({ Repo: new ObjectId(repoId) });
 			const result = { owner: {}, member: [] };
 			result.owner = { email: owner.email, canEdit: true };
 			result.member = wG.Members;
@@ -1392,10 +1388,10 @@ async function getMembers(id) {
 		const dbo = db.db(dbName);
 		const wGCollection = await dbo.collection(WorkgroupsCollection);
 		const rCollection = await dbo.collection(repositoriesCollection);
-		const repo = await rCollection.findOne({ _id: ObjectId(id) });
+		const repo = await rCollection.findOne({ _id: new ObjectId(id) });
 		const usersCollection = await selectUsersCollection(db);
 		const owner = await usersCollection.findOne({ _id: repo.owner });
-		const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
+		const wG = await wGCollection.findOne({ Repo: new ObjectId(id) });
 		if (!wG) return { owner: { email: owner.email, canEdit: true }, member: [] };
 		const result = { owner: {}, member: [] };
 		result.owner = { email: owner.email, canEdit: true };
@@ -1417,12 +1413,12 @@ async function removeFromWorkgroup(id, user) {
 		const dbo = db.db(dbName);
 		const wGcollection = await dbo.collection(WorkgroupsCollection);
 		const rCollection = await dbo.collection(repositoriesCollection);
-		const repo = await rCollection.findOne({ _id: ObjectId(id) });
+		const repo = await rCollection.findOne({ _id: new ObjectId(id) });
 		const usersCollection = await selectUsersCollection(db);
 		const owner = await usersCollection.findOne({ _id: repo.owner });
-		const workGroup = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } });
+		const workGroup = await wGcollection.findOneAndUpdate({ Repo: new ObjectId(id) }, { $pull: { Members: { email: user.email } } });
 		if (workGroup) {
-			const wG = await wGcollection.findOne({ Repo: ObjectId(id) });
+			const wG = await wGcollection.findOne({ Repo: new ObjectId(id) });
 			const result = { owner: {}, member: [] };
 			result.owner = { email: owner.email, canEdit: true };
 			result.member = wG.Members;
@@ -1444,10 +1440,10 @@ async function updateOneDriver(id, driver) {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
 		const result = await collection.findOneAndUpdate(
-			{ _id: ObjectId(id) },
+			{ _id: new ObjectId(id) },
 			{ $set: { oneDriver } }
 		);
-		return result.value;
+		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in updateOneDriver: ', e);
 	} finally {

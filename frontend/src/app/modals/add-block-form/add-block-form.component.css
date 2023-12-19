@@ -163,3 +163,6 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     align-items: center;
     
 } 
+.forBackground{
+    justify-content: end !important;
+}

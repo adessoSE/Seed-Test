@@ -449,10 +449,21 @@ function stepDefs() {
 		stepType: 'then',
 		type: 'CSS-Value',
 		pre: 'So on element',
-		mid: 'the css property',
+		mid: 'the css property ',
 		post: 'is',
 		values: [
 			'',
+			'',
+			''
+		]
+	},
+	{
+		id: 502,
+		stepType: 'then',
+		type: 'Tool-Tip',
+		pre: 'So the element',
+		mid: 'has the tool-tip ',
+    values: [
 			'',
 			''
 		]
