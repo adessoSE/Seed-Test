@@ -1,11 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const pmHelper = require('../../dist/helpers/projectManagement');
 
 const router = express.Router();
+const upload = multer({
+	storage: multer.memoryStorage(),
+	// 10 MB limit
+	limits: { fileSize: 10 * 1024 * 1024 }
+});
 
 router
 	.use(cors())
@@ -172,18 +178,12 @@ router.get('/download/export/:repo_id', async (req, res) => {
 	}
 });
 
-router.post('/upload/import/', async (req, res) => {
+router.post('/upload/import/', upload.single('file'), async (req, res) => {
 	try {
-		console.log('WE ARE IMPORTING!!!');
-		const msg = (req.query.projectName ? ('Importing to new project: ', req.query.projectName) : ('Importing to existing project: ', req.query.repo_id));
-		console.log(msg);
-		// Vermutlich inzwischen if-Abfrage reduzierbar
-		if (req.query.projectName) { 
-			const result = pmHelper.importProject(req.body, req.query.repo_id, req.query.projectName);
+		if (req.query.projectName) {
+			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName);
 			res.status(200).json(result);
-		}else {
-			res.status(200).json("");
-		}
+		} else res.status(200).json('');
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}

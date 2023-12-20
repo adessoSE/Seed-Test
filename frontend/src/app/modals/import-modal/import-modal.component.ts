@@ -98,7 +98,7 @@ export class ImportModalComponent implements OnInit {
 
   isValidFileFormat(file: File): boolean {
     const validExtensions = ["zip"]; //Später vielleicht noch einzelne .json Files?
-    const validMimeType = ["application/x-zip-compressed"]; //Andere MIME-Types möglich, die sollten aber reichen (vermutlich auch nur letzterer)
+    const validMimeType = ["application/x-zip-compressed"]; //Andere MIME-Types möglich, der sollte aber reichen
 
     return (
       validExtensions.includes(this.getFileExtension(file.name)) &&
