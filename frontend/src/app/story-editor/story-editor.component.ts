@@ -798,6 +798,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.testDone = false;
 
     this.emulator_enabled = scenario.emulator ?? this.repoSettings?.emulator ?? false;
+    if (this.emulator_enabled){
+      this.selectedScenario.emulator = scenario.emulator ?? this.repoSettings?.emulator ?? 'No emulator'
+    }
     this.selectedScenario.stepWaitTime = scenario.stepWaitTime ?? this.repoSettings?.stepWaitTime ?? 0;
     this.selectedScenario.browser = scenario.browser ?? this.repoSettings?.browser ?? 'chrome';
     this.selectedScenario.width = scenario.width ?? this.repoSettings?.width ?? 1920;
