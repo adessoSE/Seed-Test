@@ -11,7 +11,7 @@ require('geckodriver');
 const firefox = require('../../node_modules/selenium-webdriver/firefox');
 const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
-const { applyDateCommand } = require('../../src/serverHelper');
+const { applySpecialCommands } = require('../../src/serverHelper');
 
 let driver;
 const firefoxOptions = new firefox.Options();
