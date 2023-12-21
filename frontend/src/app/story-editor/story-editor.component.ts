@@ -246,7 +246,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
    * Global settings indicator
    */
-  globalSettings: boolean;
+  globalSettingsActivated: boolean;
+
+  /**
+   * Project configuartion settings
+   */
+
+  repoSettings;
 
   /*
   * Width of the window size
@@ -368,8 +374,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
-    this.setUserData();
-    this.checkGlobalSettings();
+      this.setUserData();
+      this.checkGlobalSettings();
+    
   }
 
   handleSizeChange(event: { width: number, height: number }) {
@@ -789,18 +796,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     if (scenario) this.showEditor = true;
     else this.showEditor = false;
     this.testDone = false;
-    this.emulator_enabled = false;
 
-    if (scenario.emulator) this.emulator_enabled = true
-    // nicht besser als wenn man im html entweder oder macht (267)
-    if (!scenario.browser) this.selectedScenario.browser = 'chrome'
-    if (scenario.width && scenario.height) {
-      this.selectedScenario.width = scenario.width
-      this.selectedScenario.height = scenario.height;
-    } else {
-      this.selectedScenario.width = 1920;
-      this.selectedScenario.height = 1080;
-    }
+    this.emulator_enabled = scenario.emulator ?? this.repoSettings?.emulator ?? false;
+    this.selectedScenario.stepWaitTime = scenario.stepWaitTime ?? this.repoSettings?.stepWaitTime ?? 0;
+    this.selectedScenario.browser = scenario.browser ?? this.repoSettings?.browser ?? 'chrome';
+    this.selectedScenario.width = scenario.width ?? this.repoSettings?.width ?? 1920;
+    this.selectedScenario.height = scenario.height ??  this.repoSettings?.height ?? 1080;
   }
 
   /**
@@ -894,7 +895,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       let browserSelect = null;
       let emulatorSelect = null;
 
-      if (!this.globalSettings) {
+      if (!this.globalSettingsActivated) {
         browserSelect = document.getElementById("browserSelect") as HTMLSelectElement;
         emulatorSelect = document.getElementById("emulatorSelect") as HTMLSelectElement;
       }
@@ -993,15 +994,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.repoId = localStorage.getItem("id")
     this.projectService.getRepositorySettings(this.repoId).subscribe({
       next: (settings) => {
+        this.repoSettings = settings;
         if (settings && settings?.activated) {
-          this.globalSettings = true;
+          this.globalSettingsActivated = true;
         } else {
-          this.globalSettings = false;
+          this.globalSettingsActivated = false;
         }
       },
       error: (err) => {
         console.error('Fehler beim Abrufen der Repository Settings:', err);
-        this.globalSettings = false;
+        this.globalSettingsActivated = false;
       }
     });
   }
@@ -1043,7 +1045,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * Triggered if global settings are changed in workgroup-edit component
    */
   updateGlobalSettings(newSettings: boolean) {
-    this.globalSettings = newSettings;
+    this.globalSettingsActivated = newSettings;
   }
 
 
