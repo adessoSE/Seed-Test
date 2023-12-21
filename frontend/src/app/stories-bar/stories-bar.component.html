@@ -53,8 +53,8 @@
         <mat-form-field appearance="standard" class="filterFormField">
           <mat-label>Group</mat-label>
           <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
-            <mat-option>--</mat-option>
-            <mat-option *ngFor="let group of createDistictList('group')" [value]="group">
+            <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
+            <mat-option *ngFor="let group of createDistictList('group'); let odd = odd" [value]="group" [ngClass]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
               {{group}}
             </mat-option>
           </mat-select>
