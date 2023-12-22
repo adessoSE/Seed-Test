@@ -482,15 +482,16 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 			const ariaProm = [driver.findElement(By.xpath(`//*[contains(text(),"${dropd}") or contains(@id, "${dropd}") or contains(@*, "${dropd}")]`)), driver.findElement(By.xpath(`${dropd}`))];
 			const dropdownElement = await Promise.any(ariaProm);
 			await dropdownElement.click();
+
+			const ariaOptProm = [driver.findElement(By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
+			`)), driver.findElement(By.xpath(`${value}`))];
+			const dropdownOption = await Promise.any(ariaOptProm).catch((e) => { throw e; });
 	
 			// Wait for the dropdown options to be visible
-			await driver.wait(until.elementIsVisible(driver.findElement(By.xpath(`(//*[contains(text(),'${dropd}') or contains(@id, '${dropd}') or contains(@*, '${dropd}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
-			`)))).catch((e) => { throw e; });
+			await driver.wait(until.elementIsVisible(dropdownOption)).catch((e) => { throw e; });
 	
 			// Select the option from the dropdown
-			const optionLocator = By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])`);
-			const optionElement = await driver.findElement(optionLocator).catch((e) => { throw e; });
-			await optionElement.click();
+			await dropdownOption.click();
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
