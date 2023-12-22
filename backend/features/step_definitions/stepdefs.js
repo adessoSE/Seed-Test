@@ -462,15 +462,37 @@ When('I select {string} from the selection {string}', async function clickRadioB
 });
 
 // Select an Option from a dropdown-menu
-When('I select the option {string} from the drop-down-menue {string}', async (value, dropd) => {
-	let world;
+When('I select the option {string} from the drop-down-menue {string}', async function (value, dropd) {
+	const world = this;
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`];
-	const promises = [];
-	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
+		`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
+	const promises = identifiers.map((idString) =>
+		driver.wait(
+			until.elementLocated(By.xpath(idString)),
+			searchTimeout,
+			`Timed out after ${searchTimeout} ms`,
+			100
+		)
+	);
 
 	await Promise.any(promises)
 		.then((elem) => elem.click())
+		.catch(async (e) => {
+			const ariaProm = [driver.findElement(By.xpath(`//*[contains(text(),"${dropd}") or contains(@id, "${dropd}") or contains(@*, "${dropd}")]`)), driver.findElement(By.xpath(`${dropd}`))];
+			const dropdownElement = await Promise.any(ariaProm);
+			await dropdownElement.click();
+
+			const ariaOptProm = [driver.findElement(By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
+			`)), driver.findElement(By.xpath(`${value}`))];
+			const dropdownOption = await Promise.any(ariaOptProm).catch((e) => { throw e; });
+	
+			// Wait for the dropdown options to be visible
+			await driver.wait(until.elementIsVisible(dropdownOption)).catch((e) => { throw e; });
+	
+			// Select the option from the dropdown
+			await dropdownOption.click();
+		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
