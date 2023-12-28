@@ -463,18 +463,18 @@
       </ng-container>
     </div>
   </div>
-  <ng-template #stepBlockReference let-block>
-    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(block)" (closed)="unselectBlock()">
+  <ng-template #stepBlockReference let-blockStep>
+    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(blockStep)" (closed)="unselectBlock()">
       <mat-expansion-panel-header class="stepBlockHeader">
         <mat-panel-title class="stepBlockTitle">
           <!-- <div class="dragIconContainer" cdkDragHandle >
             <em class="material-icons dragIcon">drag_indicator</em>
           </div>
-          <div *ngIf="(block.selectionValue === undefined || block.selectionValue === null)">
-            <input type="checkbox" class="checkbox" id="{{'block' + block.id + 'Checkbox'}}" (change)="this.checkStep($event, block, null)" [checked]="block.checked">
+          <div *ngIf="(blockStep.selectionValue === undefined || blockStep.selectionValue === null)">
+            <input type="checkbox" class="checkbox" id="{{'blockStep' + blockStep.id + 'Checkbox'}}" (change)="this.checkStep($event, blockStep, null)" [checked]="blockStep.checked">
           </div> -->
           <div class="SmallHeadline5">
-            {{block.type}}
+            {{blockStep.type}}
           </div>
         </mat-panel-title>
         <span class="mat-expansion-indicator" matTooltip="Expand Block to view its Steps"
@@ -482,19 +482,19 @@
       </mat-expansion-panel-header>
       <!--Block Content-->
       <div *ngIf="this.selectedBlock" id="blockContent"
-        [class.scrollable]="getStepsListBlockPreview(block.stepDefinitions, j).length > 7">
-        <div *ngFor="let currentStep of getStepsListBlockPreview(block.stepDefinitions); let j = index;">
+        [class.scrollable]="getStepsListBlockPreview(blockStep.stepDefinitions, j).length > 7">
+        <div *ngFor="let currentStep of getStepsListBlockPreview(blockStep.stepDefinitions); let j = index;">
           <ng-template *ngTemplateOutlet="blockstep;
             context: {$implicit: currentStep , index:j}">
           </ng-template>
         </div>
       </div>
       <mat-action-row class="blockButtonGroup">
-        <button id="editBlock" uk-tooltip title="Edit Block" class="blockButton" (click)="editBlock(block);">
+        <button id="editBlock" uk-tooltip title="Edit Block" class="blockButton" (click)="editBlock(blockStep);">
           <em class="material-icons">edit</em>
         </button>
         <button id="block_RemoveReference" uk-tooltip title="Remove Reference and Unpack Block" class="blockButton"
-          (click)="showUnpackBlockToast(this.selectedBlock);">
+          (click)="showUnpackBlockToast(this.selectedBlock, blockStep);">
           <em class="material-icons">link_off</em>
         </button>
       </mat-action-row>

@@ -215,11 +215,10 @@ export class BaseEditorComponent {
       }
       if (this.templateName == 'scenario' && block[0] == 'scenario') {
         if (block[2]) {
-          const blockReference: StepType = {
-            _blockReferenceId: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
-            pre: '', mid: '', post: '', values: []
-          };
-          this.selectedScenario.stepDefinitions.when.push(JSON.parse(JSON.stringify(blockReference)));
+          let blockReference: StepType;
+          blockReference = { _blockReferenceId: block[1]._id, id: 0, type: block[1].name, 
+            stepType: block[3].toLowerCase(), pre: '', mid: '', post: '', values: []};
+          this.addStep(blockReference, this.selectedScenario, 'scenario');
         } else {
           block = block[1];
           this.insertStepsWithExamples(block);
@@ -541,6 +540,7 @@ export class BaseEditorComponent {
     const obj = JSON.parse(JSON.stringify(step));
     const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
     const newStep: StepType = {
+      _blockReferenceId: step._blockReferenceId,
       id: newId,
       mid: obj.mid,
       pre: obj.pre,
@@ -1840,9 +1840,10 @@ export class BaseEditorComponent {
     this.expandStepBlock = false;
   }
 
-  showUnpackBlockToast(block) {
+  showUnpackBlockToast(block, stepReference) {
+    const toastData = { block: block, stepReference: stepReference };
+    this.blockService.updateToastData(toastData);
     this.apiService.nameOfComponent('unpackBlock');
-    this.blockService.block = block;
     this.toastr.warning(
     'Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?', 'Unpack Block', {
       toastComponent: DeleteToast

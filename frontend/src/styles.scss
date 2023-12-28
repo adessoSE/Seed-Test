@@ -1123,6 +1123,15 @@ mat-mdc-select{
   margin-top: 5px;
 }
 
+.addBlockDropDown .mat-mdc-form-field-infix{
+  padding-bottom: 3px;
+}
+
+.mat-mdc-form-field.addBlockDropDown .mat-mdc-select-value-text {
+  font-size: 15px;
+  margin-left: 8px;
+}
+
 .mat-mdc-select-arrow{
   width: 15px !important;
 }
