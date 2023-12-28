@@ -55,7 +55,7 @@
                     <mat-form-field appearance="standard" style="width: 100%;">
                         <mat-label>Project</mat-label>
                         <mat-select #ngSelect [(ngModel)]="downloadRepoID">
-                            <mat-option *ngFor="let repo of searchList" [value]="repo._id">{{repo.value}}</mat-option>
+                            <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.value}}</mat-option>
                         </mat-select>
                     </mat-form-field>
                 </div>

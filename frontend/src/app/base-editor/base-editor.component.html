@@ -168,7 +168,7 @@
                             <mat-select [ngModel]="currentStep.values[0] | slice:1:-1"
                               (selectionChange)="addToValues($event.value, j, 0, currentStep.stepType, currentStep)"
                               class="exampleMatSelect" [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
-                              <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList"
+                              <mat-option *ngFor="let exampleList of getExampleList(); let odd = odd" [value]="exampleList" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
                                 style="padding-left: 5px;" class="exampleListOption">
                                 {{exampleList}}
                               </mat-option>
@@ -192,7 +192,7 @@
                         <mat-form-field appearance="standard">
                           <mat-select [(ngModel)]="currentStep.values[0]"
                             (selectionChange)="addToValues(currentStep.values[0], j, 0, currentStep.stepType)">
-                            <mat-option *ngFor="let dropdownValue of currentStep.selection" [value]="dropdownValue">
+                            <mat-option *ngFor="let dropdownValue of currentStep.selection; let odd = odd" [value]="dropdownValue" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
                               {{dropdownValue}}
                             </mat-option>
                           </mat-select>
@@ -219,7 +219,7 @@
                               <mat-select [ngModel]="currentStep.values[1] | slice:1:-1"
                                 (selectionChange)="addToValues($event.value, j, 1, currentStep.stepType,currentStep)"
                                 class="exampleMatSelect"  [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
-                                <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList"
+                                <mat-option *ngFor="let exampleList of getExampleList(); let odd = odd" [value]="exampleList" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
                                   class="exampleListOption">
                                   {{exampleList}}
                                 </mat-option>
@@ -244,7 +244,7 @@
                         <mat-form-field appearance="standard">
                           <mat-select [(ngModel)]="currentStep.values[1]"
                             (selectionChange)="addToValues(currentStep.values[1], j, 1, currentStep.stepType)">
-                            <mat-option *ngFor="let dropdownValue of currentStep.selection" [value]="dropdownValue">
+                            <mat-option *ngFor="let dropdownValue of currentStep.selection; let odd = odd" [value]="dropdownValue" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
                               {{dropdownValue}}
                             </mat-option>
                           </mat-select>
@@ -272,7 +272,7 @@
                             <mat-select [ngModel]="currentStep.values[2] | slice:1:-1"
                               (selectionChange)="addToValues($event.value, j, 2, currentStep.stepType,currentStep)"
                               class="exampleMatSelect"  [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
-                              <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList"
+                              <mat-option *ngFor="let exampleList of getExampleList(); let odd = odd" [value]="exampleList" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
                                 class="exampleListOption">
                                 {{exampleList}}
                               </mat-option>
@@ -297,7 +297,7 @@
                       <mat-form-field appearance="standard">
                         <mat-select [(ngModel)]="currentStep.values[2]"
                           (selectionChange)="addToValues(currentStep.values[2], j, 2, currentStep.stepType)">
-                          <mat-option *ngFor="let dropdownValue of currentStep.selection" [value]="dropdownValue">
+                          <mat-option *ngFor="let dropdownValue of currentStep.selection; let odd = odd" [value]="dropdownValue" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
                             {{dropdownValue}}
                           </mat-option>
                         </mat-select>

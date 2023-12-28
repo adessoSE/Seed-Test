@@ -1147,6 +1147,30 @@ mat-mdc-select{
   height: 40px;
 }
 
+.even-row-mat-option {
+  background-color: white;
+  font-size: 14px;
+  font-weight: normal !important;
+}
+
+.odd-row-mat-option {
+  background-color: rgba(0, 0, 0, 0.04);
+  font-size: 14px;
+  font-weight: normal !important;
+}
+
+.darkTheme .even-row-mat-option{
+  background-color: #6c7c84;
+  font-size: 14px;
+  font-weight: normal !important;
+}
+
+.darkTheme .odd-row-mat-option{
+  background-color: rgba(255,255,255,.08);
+  font-size: 14px;
+  font-weight: normal !important;
+}
+
 .darkTheme .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text, 
 .darkTheme .mat-pseudo-checkbox-checked.mat-pseudo-checkbox-minimal:after,
 .darkTheme .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
