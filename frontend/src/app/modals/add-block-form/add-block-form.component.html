@@ -69,11 +69,11 @@
             <div>
               <label id="blockAddAslabel">Block will be added as: </label>
             </div>
-            <div class="wayToAddBlock">
-              <mat-form-field appearance="standard" class="wayToAddBlockDropDown">
+            <div class="addBlockDropDownDiv">
+              <mat-form-field appearance="standard" class="addBlockDropDown">
                 <mat-select [formControl]="currentStepType">
-                  <mat-option *ngFor="let wayToAdd of this.addBlockToStepType" [value]="wayToAdd">
-                    {{wayToAdd}}
+                  <mat-option *ngFor="let addBlockOption of this.addBlockToStepType" [value]="addBlockOption">
+                    {{addBlockOption}}
                   </mat-option>
                 </mat-select>
               </mat-form-field>

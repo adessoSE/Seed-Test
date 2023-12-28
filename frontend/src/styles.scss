@@ -1147,6 +1147,14 @@ mat-mdc-select{
   height: 40px;
 }
 
+.addBlockDropDown .mat-mdc-form-field-infix{
+  padding-bottom: 3px;
+}
+
+.mat-mdc-form-field.addBlockDropDown .mat-mdc-select-value-text {
+  font-size: 15px;
+  margin-left: 8px;
+}
 .darkTheme .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text, 
 .darkTheme .mat-pseudo-checkbox-checked.mat-pseudo-checkbox-minimal:after,
 .darkTheme .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {

@@ -315,9 +315,8 @@ export class BlockService {
           scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
         });
         // Remove the block reference among the steps
-        if(stepReference == undefined || stepReference.stepType == s){
-          this.removeBlocksAmongSteps(scenario.stepDefinitions[s], block, stepReference);
-        }
+        this.removeBlocksAmongSteps(scenario.stepDefinitions[s], block, stepReference);
+
       }
     }
   }
@@ -348,7 +347,7 @@ export class BlockService {
    */
   removeBlocksAmongSteps(stepToSplice, block, stepReference? : StepType) {
     const index = stepReference !== undefined
-      ? stepToSplice.findIndex((element) => element.id === stepReference.id)
+      ? stepToSplice.findIndex((element) => element.stepType === stepReference.stepType && element.id === stepReference.id )
       : stepToSplice.findIndex((element) => element._blockReferenceId === block._id);
 
     if (index > -1) {

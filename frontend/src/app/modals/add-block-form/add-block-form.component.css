@@ -117,9 +117,6 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     display: flex;
     align-items: center;
 }
-::ng-deep .wayToAddBlockDropDown .mat-mdc-form-field-infix{
-    padding-bottom: 3px!important;
-}
 #addAsReferenceCheckbox{
     margin-left: 5px;
     margin-right: 10px;
@@ -129,7 +126,7 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     display: flex;
     align-items: center;
 }
-.wayToAddBlock{
+.addBlockDropDownDiv{
     margin-bottom: 15px;
 }
 .mat-table{
@@ -163,11 +160,6 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
 
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
-}
-
-::ng-deep .mat-mdc-form-field.wayToAddBlockDropDown .mat-mdc-select-value-text {
-    font-size: 15px !important;
-    margin-left: 8px !important;
 }
 
 ::ng-deep.darkTheme h4 {
