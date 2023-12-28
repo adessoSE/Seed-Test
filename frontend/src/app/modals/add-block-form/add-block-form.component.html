@@ -71,7 +71,7 @@
             </div>
             <div class="wayToAddBlock">
               <mat-form-field appearance="standard" class="wayToAddBlockDropDown">
-                <mat-select [formControl]="waysToAddBlockControl">
+                <mat-select [formControl]="currentStepType">
                   <mat-option *ngFor="let wayToAdd of this.addBlockToStepType" [value]="wayToAdd">
                     {{wayToAdd}}
                   </mat-option>

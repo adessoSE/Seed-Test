@@ -518,7 +518,7 @@ export class BaseEditorComponent {
     const obj = JSON.parse(JSON.stringify(step));
     const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
     const newStep: StepType = {
-      _blockReferenceId: step._blockReferenceId ?? undefined,
+      _blockReferenceId: step._blockReferenceId,
       id: newId,
       mid: obj.mid,
       pre: obj.pre,

@@ -19,7 +19,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
   @ViewChild('newTitle') newTitleLabel: HTMLElement;
  
-  waysToAddBlockControl = new FormControl('When');
+  currentStepType = new FormControl('When');
     /**
      * Saved blocks
      */
@@ -258,11 +258,11 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Add a block to a scenario
      */
     addBlockFormSubmit() {
-      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference, this.waysToAddBlockControl.value);
+      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference, this.currentStepType.value);
       delete this.addAsReference;
       delete this.selectedBlock;
       this.stepList = [];
-      this.waysToAddBlockControl = new FormControl('When');
+      this.currentStepType = new FormControl('When');
       this.modalReference.close();
     }
     
@@ -310,7 +310,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     closeModal(){
       delete this.addAsReference;
       delete this.selectedBlock;
-      this.waysToAddBlockControl = new FormControl('When');
+      this.currentStepType = new FormControl('When');
       this.stepList = [];
       this.modalReference.close();
     }
