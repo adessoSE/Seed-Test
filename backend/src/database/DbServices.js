@@ -1335,7 +1335,7 @@ async function getFileList(repoId) {
 async function getFiles(fileIds) {
 	const db = dbConnection.getConnection();
 	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
-	cpnst destinationDirectory = '/home/public/SeedExec';
+	const destinationDirectory = '/home/public/SeedExec';
 	
 	for (const fileId of fileIds) {
 		const downloadStream = bucket.openDownloadStream(fileId);
