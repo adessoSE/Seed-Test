@@ -58,6 +58,104 @@ router.post('/', async (req, res) => {
 	}
 });
 
+
+
+// delete scenario
+router.delete('/scenario/:story_id/:_id', async (req, res) => {
+	try {
+		await mongo
+			.deleteScenario(req.params.story_id, parseInt(req.params._id, 10));
+		await helper.updateFeatureFile(req.params.story_id);
+		res.status(200)
+			.json({ text: 'success' });
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/story/:_id', async (req, res) => {
+	try {
+		console.log('download feature-file', req.params._id);
+		const file = await helper.exportSingleFeatureFile(req.params._id);
+		console.log(file);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/project/:repo_id', async (req, res) => {
+	try {
+		console.log('download project feature-files', req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
+		console.log(file);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/export/:repo_id', async (req, res) => {
+	try {
+		console.log('export project ', req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await pmHelper.exportProject(req.params.repo_id, version);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.post('/oneDriver/:storyID', async (req, res) => {
+	try {
+		const result = await mongo.updateOneDriver(req.params.storyID, req.body);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.post('/uploadFile/:repoId/:filename', async (req, res) => {
+	try {
+		console.log('uploadfile');
+		let data = '';
+
+		// Readable stream data event
+		req.on('data', (chunk) => {
+		data += chunk;
+		});
+
+		// Readable stream end event
+		req.on('end', async () => {
+		// Process the collected data
+		console.log('Received data:', data);
+
+		const result = await mongo.fileUpload(req.params.filename, req.params.repoId, data);
+
+		// Respond to the client
+		res.status(200).json({ message: 'Data received successfully', stored: result });
+		});
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+router.get('/uploadFile/:repoId', async (req, res) => {
+	try {
+		const result = await mongo.getFileList(req.params.repoId);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+router.delete('/uploadFile/:fileId', async (req, res) => {
+	try {
+		
+	} catch (error) {
+		
+	}
+});
+
 // update Story
 router.put('/:_id', async (req, res) => {
 	try {
@@ -120,86 +218,6 @@ router.put('/:story_id/:_id', async (req, res) => {
 		await helper.updateFeatureFile(req.params.story_id);
 		res.status(200)
 			.json(updatedStory);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-// delete scenario
-router.delete('/scenario/:story_id/:_id', async (req, res) => {
-	try {
-		await mongo
-			.deleteScenario(req.params.story_id, parseInt(req.params._id, 10));
-		await helper.updateFeatureFile(req.params.story_id);
-		res.status(200)
-			.json({ text: 'success' });
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-router.get('/download/story/:_id', async (req, res) => {
-	try {
-		console.log('download feature-file', req.params._id);
-		const file = await helper.exportSingleFeatureFile(req.params._id);
-		console.log(file);
-		res.send(file);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-router.get('/download/project/:repo_id', async (req, res) => {
-	try {
-		console.log('download project feature-files', req.params.repo_id);
-		const version = req.query.version_id ? req.query.version_id : '';
-		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
-		console.log(file);
-		res.send(file);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-router.get('/download/export/:repo_id', async (req, res) => {
-	try {
-		console.log('export project ', req.params.repo_id);
-		const version = req.query.version_id ? req.query.version_id : '';
-		const file = await pmHelper.exportProject(req.params.repo_id, version);
-		res.send(file);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-router.post('/oneDriver/:storyID', async (req, res) => {
-	try {
-		const result = await mongo.updateOneDriver(req.params.storyID, req.body);
-		res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-router.post('/uploadFile/:filename', async (req, res) => {
-	try {
-		let data = '';
-
-		// Readable stream data event
-		req.on('data', (chunk) => {
-		data += chunk;
-		});
-
-		// Readable stream end event
-		req.on('end', async () => {
-		// Process the collected data
-		console.log('Received data:', data);
-
-		const result = await mongo.fileUpload(req.params.filename, data);
-
-		// Respond to the client
-		res.status(200).json({ message: 'Data received successfully', stored: result });
-		});
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}

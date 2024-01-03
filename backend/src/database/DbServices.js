@@ -1308,12 +1308,12 @@ async function updateOneDriver(id, driver) {
 	}
 }
 
-async function fileUpload(filename, file) {
+async function fileUpload(filename, repoId, file) {
 	const db = dbConnection.getConnection();
 	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
 	const id = new ObjectId();
 	str(JSON.stringify(file))
-		.pipe(bucket.openUploadStreamWithId(id, filename))
+		.pipe(bucket.openUploadStreamWithId(id, filename, {metadata:{repoId: new ObjectId(repoId)}}))
 		.on('error', async (error) => {
 			assert.ifError(error);
 		})
@@ -1322,7 +1322,35 @@ async function fileUpload(filename, file) {
 			console.log('ObjectID: of File: ', id);
 			return id;
 		});
-	return id;
+	//return id;
+}
+async function getFileList(repoId) {
+	const db = dbConnection.getConnection();
+	//const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+	const files = await db.collection('GridFS.files').find({ 'metadata.repoId': new ObjectId(repoId) }).toArray();
+	console.log('Dateien für RepoId', repoId, ':', files);
+	return files;
+}
+
+async function getFiles(fileIds) {
+	const db = dbConnection.getConnection();
+	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+	cpnst destinationDirectory = '/home/public/SeedExec';
+	
+	for (const fileId of fileIds) {
+		const downloadStream = bucket.openDownloadStream(fileId);
+		const destinationPath = `${destinationDirectory}/${fileId}.txt`;
+		const fileWriteStream = fs.createWriteStream(destinationPath);
+
+		await new Promise((resolve, reject) => {
+			downloadStream.pipe(fileWriteStream);
+			downloadStream.on('end', resolve);
+			downloadStream.on('error', reject);
+			fileWriteStream.on('finish', resolve);
+			fileWriteStream.on('error', reject);
+		});
+		console.log('Datei erfolgreich heruntergeladen:', destinationPath);
+	}
 }
 
 function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
@@ -1339,6 +1367,7 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 }
 
 module.exports = {
+	getFileList,
 	fileUpload,
 	setIsSavedTestReport,
 	deleteReport,
