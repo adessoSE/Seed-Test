@@ -448,12 +448,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         this.blockService.deleteBlockReference(block, this.stories);
       });
       //Event when unpacking block
-      this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((block) => {
-        this.blockService.unpackScenarioWithBlock(block, this.selectedScenario);
+      this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((obj) => {
+        this.blockService.unpackScenarioWithBlock(obj.block, this.selectedScenario, obj.stepReference);
         const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.blocks = resp;
-          this.blockService.checkBlockOnReference(this.blocks, this.stories, block)
+          this.blockService.checkBlockOnReference(this.blocks, this.stories, obj.block)
         });
         this.selectedScenario.saved = false;
       });

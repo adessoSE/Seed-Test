@@ -9,6 +9,7 @@
     "test": "jest --verbose",
     "test-coverage": "jest --coverage",
     "database": "node src/database/installDatabase.js",
+    "database-examples": "node src/database/insertExampleData.js",
     "clean": "rimraf ./dist",
     "tsc": "tsc",
     "lint": "./node_modules/.bin/eslint src/database --fix",

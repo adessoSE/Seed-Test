@@ -198,4 +198,13 @@ router.post('/oneDriver/:storyID', async (req, res) => {
 	}
 });
 
+router.post('/specialCommands/resolve', async (req, res) => {
+	try {
+		const result = helper.applySpecialCommands(req.body.command);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 module.exports = router;

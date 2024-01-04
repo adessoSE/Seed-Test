@@ -339,3 +339,7 @@ h2, h1{
     color:white;
     opacity: 1;
 }
+
+.mat-mdc-option{
+    padding: 0px 16px 0px 16px !important;
+}

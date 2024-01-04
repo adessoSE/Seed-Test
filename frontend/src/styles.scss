@@ -1123,6 +1123,15 @@ mat-mdc-select{
   margin-top: 5px;
 }
 
+.addBlockDropDown .mat-mdc-form-field-infix{
+  padding-bottom: 3px;
+}
+
+.mat-mdc-form-field.addBlockDropDown .mat-mdc-select-value-text {
+  font-size: 15px;
+  margin-left: 8px;
+}
+
 .mat-mdc-select-arrow{
   width: 15px !important;
 }
@@ -1145,6 +1154,30 @@ mat-mdc-select{
 
 .mat-mdc-form-field{
   height: 40px;
+}
+
+.even-row-mat-option {
+  background-color: white;
+  font-size: 14px;
+  font-weight: normal !important;
+}
+
+.odd-row-mat-option {
+  background-color: rgba(0, 0, 0, 0.04);
+  font-size: 14px;
+  font-weight: normal !important;
+}
+
+.darkTheme .even-row-mat-option{
+  background-color: #6c7c84;
+  font-size: 14px;
+  font-weight: normal !important;
+}
+
+.darkTheme .odd-row-mat-option{
+  background-color: rgba(255,255,255,.08);
+  font-size: 14px;
+  font-weight: normal !important;
 }
 
 .darkTheme .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text, 

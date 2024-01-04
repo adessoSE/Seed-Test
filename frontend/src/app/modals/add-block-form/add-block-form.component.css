@@ -108,17 +108,27 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
 }
 
 
-#addAsReferenceLabel{
+#addAsReferenceLabel, #blockAddAslabel{
     margin-right: 5px;
     margin-top: 3px
 }
-
+.addReferenceBlockToStepType{
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+}
 #addAsReferenceCheckbox{
     margin-left: 5px;
     margin-right: 10px;
     margin-top: 3px
 }
-
+.addAsReference{
+    display: flex;
+    align-items: center;
+}
+.addBlockDropDownDiv{
+    margin-bottom: 15px;
+}
 .mat-table{
     font-family: Klavika, sans-serif;
 }
