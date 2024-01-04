@@ -1,0 +1,5 @@
+<div class="fake-input" (click)="hiddenInput.focus()">
+    <div [innerHTML]="formattedText"></div>
+    <input type="text" #hiddenInput [(ngModel)]="inputText" (input)="checkRegex()"
+        style="opacity: 0; position: absolute; left: -9999px">
+</div>

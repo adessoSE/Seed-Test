@@ -23,11 +23,11 @@ router
 	.use((_, __, next) => {
 		console.log('Time of user request:', Date.now());
 		next();
-	})
-	.use((req, res, next) => {
-		if (req.user) next();
-		else console.log('not Authenticated');
 	});
+// .use((req, res, next) => {
+// 	if (req.user) next();
+// 	else console.log('not Authenticated');
+// });
 
 // Handling response errors
 function handleError(res, reason, statusMessage, code) {
