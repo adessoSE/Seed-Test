@@ -21,6 +21,8 @@ import { BackgroundService } from '../Services/background.service';
 import { InfoWarningToast } from '../info-warning-toast';
 import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
 import { DeleteToast } from '../delete-toast';
+import { ThemingService } from '../Services/theming.service';
+import { HighlightInputService } from '../Services/highlight-input.service';
 
 @Component({
   selector: 'app-base-editor',
@@ -31,7 +33,13 @@ export class BaseEditorComponent {
 
   @ViewChildren('step_type_input') step_type_input: QueryList<ElementRef>;
 
+  @ViewChildren('step_type_pre') step_type_pre: QueryList<ElementRef>;
+
   @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
+
+  @ViewChildren('step_type_input2') step_type_input2: QueryList<ElementRef>;
+
+  @ViewChildren('step_type_input3') step_type_input3: QueryList<ElementRef>;
 
   /**
     * View child of the example table
@@ -71,6 +79,7 @@ export class BaseEditorComponent {
       this.checkAllSteps(false);
     }
     this.selectedScenario = scenario;
+    this.initialRegex = true;
   }
 
   @Input()
@@ -86,6 +95,7 @@ export class BaseEditorComponent {
   @Input()
   set newlySelectedStory(story: Story) {
     this.selectedStory = story;
+    this.initialRegex = true;
   }
 
   /**
@@ -163,6 +173,11 @@ export class BaseEditorComponent {
 
   exampleChild: ExampleTableComponent;
 
+  regexInStory: boolean = false;
+  initialRegex: boolean = true;
+
+  @Input() isDark: boolean;
+
   /**
     * Subscribtions for all EventEmitter
     */
@@ -172,6 +187,7 @@ export class BaseEditorComponent {
   scenarioChangedObservable: Subscription;
   backgroundChangedObservable: Subscription;
   copyExampleOptionObservable: Subscription;
+  themeObservable: Subscription;
 
 
   constructor(public toastr: ToastrService,
@@ -179,7 +195,9 @@ export class BaseEditorComponent {
     public exampleService: ExampleService,
     public scenarioService: ScenarioService,
     public backgroundService: BackgroundService,
-    public apiService: ApiService) { }
+    public apiService: ApiService,
+    public themeService: ThemingService,
+    public highlightInputService: HighlightInputService) {}
 
   ngOnInit(): void {
     this.addBlocktoScenarioObservable = this.blockService.addBlockToScenarioEvent.subscribe(block => {
@@ -197,11 +215,10 @@ export class BaseEditorComponent {
       }
       if (this.templateName == 'scenario' && block[0] == 'scenario') {
         if (block[2]) {
-          const blockReference: StepType = {
-            _blockReferenceId: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
-            pre: '', mid: '', post: '', values: []
-          };
-          this.selectedScenario.stepDefinitions.when.push(JSON.parse(JSON.stringify(blockReference)));
+          let blockReference: StepType;
+          blockReference = { _blockReferenceId: block[1]._id, id: 0, type: block[1].name, 
+            stepType: block[3].toLowerCase(), pre: '', mid: '', post: '', values: []};
+          this.addStep(blockReference, this.selectedScenario, 'scenario');
         } else {
           block = block[1];
           this.insertStepsWithExamples(block);
@@ -215,6 +232,7 @@ export class BaseEditorComponent {
     this.renameExampleObservable = this.exampleService.renameExampleEvent.subscribe(value => { this.renameExample(value.name, value.column); });
     this.scenarioChangedObservable = this.scenarioService.scenarioChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
+      this.initialRegex = true;
     });
     this.backgroundChangedObservable = this.backgroundService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
@@ -228,7 +246,12 @@ export class BaseEditorComponent {
           this.insertStepsWithoutExamples()
         }
       }
-  });  
+    });
+    this.isDark = this.themeService.isDarkMode();
+    this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
+      this.isDark = this.themeService.isDarkMode();
+      this.regexHighlightOnInit();
+    });  
   }
 
   ngOnDestroy(): void {
@@ -249,6 +272,9 @@ export class BaseEditorComponent {
     }
     if (!this.copyExampleOptionObservable.closed) {
       this.copyExampleOptionObservable.unsubscribe();
+    }
+    if (!this.themeObservable.closed) {
+      this.themeObservable.unsubscribe();
     }
 
   }
@@ -278,26 +304,21 @@ export class BaseEditorComponent {
     }
     if (this.allChecked) {
       this.checkAllSteps(this.allChecked);
+    } 
+  }
+
+  ngAfterViewChecked(){
+    this.regexDOMChangesHelper()
+    if(this.initialRegex){
+      this.regexHighlightOnInit()
     }
   }
 
   ngAfterViewInit(): void {
-    this.step_type_input.changes.subscribe(_ => {
-      this.step_type_input.forEach(in_field => {
-        if (in_field.nativeElement.id === this.lastToFocus) {
-          in_field.nativeElement.focus();
-        }
-      });
-      this.lastToFocus = '';
-    });
-    this.step_type_input1.changes.subscribe(_ => {
-      this.step_type_input1.forEach(in_field => {
-        if (in_field.nativeElement.id === this.lastToFocus) {
-          in_field.nativeElement.focus();
-        }
-      });
-      this.lastToFocus = '';
-    });
+    this.regexDOMChangesHelper()
+    if(this.initialRegex){
+      this.regexHighlightOnInit()
+    }
 
     if (this.exampleChildren.last != undefined) {
       this.exampleChild = this.exampleChildren.last;
@@ -519,6 +540,7 @@ export class BaseEditorComponent {
     const obj = JSON.parse(JSON.stringify(step));
     const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
     const newStep: StepType = {
+      _blockReferenceId: step._blockReferenceId,
       id: newId,
       mid: obj.mid,
       pre: obj.pre,
@@ -1603,6 +1625,7 @@ export class BaseEditorComponent {
               });
             }
           });
+          this.regexHighlightOnInit();
           this.markUnsaved();
         }
         break;
@@ -1687,6 +1710,7 @@ export class BaseEditorComponent {
         this.insertCopiedExamples(block)
       }
     });
+    this.regexHighlightOnInit();
     this.markUnsaved();
 
   }
@@ -1710,6 +1734,7 @@ export class BaseEditorComponent {
         });
       }
     });
+    this.regexHighlightOnInit();
     this.markUnsaved();
   }
 
@@ -1815,9 +1840,10 @@ export class BaseEditorComponent {
     this.expandStepBlock = false;
   }
 
-  showUnpackBlockToast(block) {
+  showUnpackBlockToast(block, stepReference) {
+    const toastData = { block: block, stepReference: stepReference };
+    this.blockService.updateToastData(toastData);
     this.apiService.nameOfComponent('unpackBlock');
-    this.blockService.block = block;
     this.toastr.warning(
     'Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?', 'Unpack Block', {
       toastComponent: DeleteToast
@@ -1993,6 +2019,122 @@ export class BaseEditorComponent {
     this.selectedScenario.stepDefinitions.example.push(row)
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved();
-  }  
-  
+  }
+
+  /**
+   * Add value and highlight regex, Style regex in value and give value to addToValue() function
+   * Value is in textContent and style is in innerHTML
+   * If initialCall only check if a regex is already there and hightlight it
+   * Only hightlights regex in first field of regexSteps, only then steps for now. Gets checked with stepPre
+   * @param element HTML element of contentedible div
+   * @param stepIndex for addToValue
+   * @param valueIndex for addToValue
+   * @param stepType for addToValue
+   * @param step for addToValue
+   * @param stepPre pre text of step
+   * @param initialCall if call is from ngAfterView
+   */
+    highlightRegex(element, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
+      const textField = element;
+      const textContent = textField.textContent;
+      var regexDetected = false;
+
+      if(!initialCall){
+        this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
+      }
+
+      if(!initialCall){
+        this.initialRegex = false;
+      }
+
+      regexDetected = this.highlightInputService.highlightRegex(element, initialCall, this.isDark, this.regexInStory, valueIndex, stepPre)
+
+      if(initialCall && regexDetected) {
+        this.regexInStory = true
+      }
+      
+    }
+
+    /**
+     * Helper for inital hightlighting
+     */
+    regexHighlightOnInit(){
+      // Regex Highlight on init
+      this.regexInStory = false;
+      this.initialRegex = false;
+      //Logic currently not needed since regex only in then step
+      /*if(this.step_type_input){ //background
+        this.step_type_input.forEach(in_field => {  
+          this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+        });
+      }*/
+      if(this.step_type_input1){ //scenario first input value
+        const stepTypePre = this.step_type_pre.toArray()
+        this.step_type_input1.forEach((in_field, index) => {  
+          this.highlightRegex(in_field.nativeElement,undefined,0,undefined,undefined,stepTypePre[index].nativeElement.innerText, true)
+        });
+
+        //Logic currently not needed since regex only in first input field
+        /*this.step_type_input2.forEach((in_field, index) => {  //scenario second input value
+          this.highlightRegex(in_field.nativeElement.id,undefined,1,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
+        });
+        this.step_type_input3.forEach((in_field, index) => {  //scenario third input value
+          this.highlightRegex(in_field.nativeElement.id,undefined,2,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
+        });*/
+      }
+    }
+
+    /**
+     * Helper for DOM change subscription
+     */
+    regexDOMChangesHelper(){
+
+      //Logic currently not needed
+      /*this.step_type_input.changes.subscribe(_ => { //background
+        this.step_type_input.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });*/
+
+      this.step_type_pre.changes.subscribe(_ => { //scenario text before first input value
+        this.step_type_pre.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });
+
+      this.step_type_input1.changes.subscribe(_ => { //scenario first input value
+        this.step_type_input1.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });
+      
+      //Logic currently not needed
+      /*this.step_type_input2.changes.subscribe(_ => { //scenario second input value
+        this.step_type_input2.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });
+      this.step_type_input3.changes.subscribe(_ => { //scenario third input value
+        this.step_type_input3.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });*/
+
+    }
+
 }
