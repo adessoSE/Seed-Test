@@ -6,7 +6,7 @@ import {
     transition,
     trigger
   } from '@angular/animations';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
 import { BlockService } from './Services/block.service';
@@ -100,7 +100,7 @@ import { StoryService } from './Services/story.service';
     ],
     preserveWhitespaces: false,
   })
-  export class DeleteToast extends Toast {
+  export class DeleteToast extends Toast implements OnInit {
     /**
      * Name of the delete button
      */
@@ -113,6 +113,8 @@ import { StoryService } from './Services/story.service';
      * Name of the component that the user wants to delete
      */
     nameComponent: string;
+    toastData: any;
+
     /**
      * Constructor
      * @param toastrService 
@@ -139,7 +141,12 @@ import { StoryService } from './Services/story.service';
         this.deleteString = 'Delete';
       }
     }
-    
+      
+    ngOnInit() {
+      this.blockService.toastData$.subscribe((data) => {
+        this.toastData = data;
+      });
+    }
     /**
      * Creates a toast and delete the selected component
      * @param event 
@@ -157,10 +164,7 @@ import { StoryService } from './Services/story.service';
           break;
           case 'block': this.blockService.deleteBlockEmitter();
           break;
-          case 'unpackBlock':{
-            const blockToUnpack = this.blockService.block;
-            this.blockService.unpackBlockEmitter(blockToUnpack);
-          }
+          case 'unpackBlock': this.blockService.unpackBlockEmitter(this.toastData);
           break;
         }
         this.remove();

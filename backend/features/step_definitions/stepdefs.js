@@ -314,15 +314,37 @@ When('I select {string} from the selection {string}', async function clickRadioB
 });
 
 // Select an Option from a dropdown-menu
-When('I select the option {string} from the drop-down-menue {string}', async (value, dropd) => {
-	let world;
+When('I select the option {string} from the drop-down-menue {string}', async function (value, dropd) {
+	const world = this;
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-	`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`];
-	const promises = [];
-	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
+		`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
+	const promises = identifiers.map((idString) =>
+		driver.wait(
+			until.elementLocated(By.xpath(idString)),
+			searchTimeout,
+			`Timed out after ${searchTimeout} ms`,
+			100
+		)
+	);
 
 	await Promise.any(promises)
 		.then((elem) => elem.click())
+		.catch(async (e) => {
+			const ariaProm = [driver.findElement(By.xpath(`//*[contains(text(),"${dropd}") or contains(@id, "${dropd}") or contains(@*, "${dropd}")]`)), driver.findElement(By.xpath(`${dropd}`))];
+			const dropdownElement = await Promise.any(ariaProm);
+			await dropdownElement.click();
+
+			const ariaOptProm = [driver.findElement(By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
+			`)), driver.findElement(By.xpath(`${value}`))];
+			const dropdownOption = await Promise.any(ariaOptProm).catch((e) => { throw e; });
+	
+			// Wait for the dropdown options to be visible
+			await driver.wait(until.elementIsVisible(dropdownOption)).catch((e) => { throw e; });
+	
+			// Select the option from the dropdown
+			await dropdownOption.click();
+		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
@@ -515,8 +537,17 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
+const resolveRegex = (rawString) => {
+	// undefined to empty string
+	rawString = !rawString ? '' : rawString;
+	const regex = /\{Regex:([^}]*(?:\{[^}]*\}[^}]*)*)(\})(?=\s|$)/g;
+	return rawString.replace(regex, '($1)');
+};
+
 // Search a textfield in the html code and assert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
+	const resultString = resolveRegex(expectedText);
+
 	const world = this;
 
 	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`,
@@ -529,7 +560,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 			let resp = await elem.getText();
 			resp = resp == '' ? await elem.getAttribute('value') : resp;
 			resp = resp == '' ? await elem.getAttribute('outerHTML') : resp;
-			match(resp, RegExp(expectedText.toString()), `Textfield does not contain the string/regex: ${expectedText} , actual: ${resp}`);
+			match(resp, RegExp(resultString), `Textfield does not contain the string/regex: ${resultString} , actual: ${resp}`);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -541,7 +572,8 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 });
 
 // Search if a is text in html code
-Then('So I can see the text: {string}', async function (expectedText) { // text is present
+Then('So I can see the text: {string}', async function textPresent(expectedText) { // text is present
+	const resultString = resolveRegex(expectedText);
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -551,7 +583,7 @@ Then('So I can see the text: {string}', async function (expectedText) { // text 
 				const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 				const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 				const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-				match(bodyAll, RegExp(expectedText.toString()), `Page HTML does not contain the string/regex: ${expectedText}`);
+				match(bodyAll, RegExp(resultString), `Page HTML does not contain the string/regex: ${resultString}`);
 			});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -563,7 +595,7 @@ Then('So I can see the text: {string}', async function (expectedText) { // text 
 });
 
 // Search a textfield in the html code and assert if it's empty
-Then('So I can\'t see text in the textbox: {string}', async function (label) {
+Then('So I can\'t see text in the textbox: {string}', async function textAbsent(label) {
 	const world = this;
 	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@id, '${label}')]`, `${label}`];
 	const promises = [];
@@ -653,6 +685,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
+	const resultString = resolveRegex(expectedText.toString());
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -661,7 +694,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(e
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			doesNotMatch(bodyAll, RegExp(expectedText.toString()), `Page HTML does contain the string/regex: ${expectedText}`);
+			doesNotMatch(bodyAll, RegExp(resultString), `Page HTML does contain the string/regex: ${resultString}`);
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {

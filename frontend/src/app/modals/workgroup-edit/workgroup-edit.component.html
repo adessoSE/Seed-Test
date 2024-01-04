@@ -18,7 +18,7 @@
                     <mat-form-field *ngIf="!this.workgroupList.length == 0" style="margin-right: 10px; position: inherit;" appearance="fill"  [ngStyle]="{'width': workgroupOwner.length + 6 +'ch'}">
                         <mat-label>Project Owner</mat-label>
                         <mat-select  #ownerSelect [(ngModel)]="selectedOwner">
-                            <mat-option *ngFor="let element of workgroupList" [value]="element.email">
+                            <mat-option *ngFor="let element of workgroupList; let odd = odd" [value]="element.email" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
                             {{element.email}}
                             </mat-option>
                         </mat-select>
