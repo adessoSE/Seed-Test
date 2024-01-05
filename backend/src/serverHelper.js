@@ -56,7 +56,7 @@ function getSteps(steps, stepType) {
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
 			data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] !== undefined ? `'${step.values[1]}'` : ''}`;
 			if (step.post !== undefined) data += ` ${step.post}${step.values[2] !== undefined ? `'${step.values[2]}'` : ''}`;
-		} else if ((step.values[0]) === 'User') data += `${step.pre} '${values[0]}'`;
+		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
 		else {
 			data += `${step.pre} ${step.mid}${getValues(step.values)}`;
 			if (step.post !== undefined) data += ` ${step.post}`;
