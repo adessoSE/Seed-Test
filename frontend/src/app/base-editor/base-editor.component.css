@@ -89,9 +89,8 @@ em.dragIcon {
 }
 
 .mat-expansion-panel-header.stepBlockHeader {
-  display: grid;
   height: 100%;
-  padding: 3.4px;
+  padding: 3.4px
 }
 
 .blockReference {
@@ -104,6 +103,7 @@ em.dragIcon {
 }
 
 .stepBlockTitle {
+  justify-content: center;
   word-break: break-word;
   white-space: pre-wrap;
 }
@@ -121,13 +121,6 @@ em.dragIcon {
 
 .blockButtonGroup .material-icons {
   color: var(--ocean-blue);
-}
-
-.blockButtonGroup{
-  grid-column: 2;
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 5px;
 }
 
 .mat-action-row.blockButtonGroup {
@@ -317,14 +310,10 @@ input[type="text"] {
   max-height: 20px;
 }
 
-.stepBlockContainer{
-  background-color: #f0eded;
+mat-expansion-panel.stepBlockContainer .mat-expansion-panel-body {
+  padding: 0 4px 0px 10px;
 }
 
-.blockStepDescription{
-  margin-left: 4px;
-  color: var(--ocean-blue);
-}
 :host ::ng-deep .exampleListContainer .mat-mdc-form-field-infix {
   width: fit-content !important;
 }

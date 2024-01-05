@@ -1155,17 +1155,6 @@ mat-mdc-select{
 .mat-mdc-form-field{
   height: 40px;
 }
-.stepBlockContainer .mat-expansion-indicator{
-  margin-left: 90px;
-  margin-top: 20px;
-  position: absolute;
-}
-.stepBlockContainer .mat-content{
-  display: grid;
-}
-mat-expansion-panel.stepBlockContainer #blockContent {
-  padding: 0 4px 0px 10px;
-}
 
 .even-row-mat-option {
   background-color: white;
@@ -1191,15 +1180,6 @@ mat-expansion-panel.stepBlockContainer #blockContent {
   font-weight: normal !important;
 }
 
-mat-expansion-panel.stepBlockContainer .mat-expansion-panel-body{
-  padding: 0px !important;
-}
-.darkTheme .stepBlockContainer{
-  background-color: #546e7a !important;
-}
-.darkTheme .stepBlockContainer .blockStepDescription>span{
-  color: var(--light-blue);
-}
 .darkTheme .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text, 
 .darkTheme .mat-pseudo-checkbox-checked.mat-pseudo-checkbox-minimal:after,
 .darkTheme .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {

@@ -110,6 +110,11 @@ export class BaseEditorComponent {
   @Output("blockSelectTriggerEvent") blockSelectTriggerEvent: EventEmitter<string> = new EventEmitter();
 
   /**
+     * Subscribtions for all EventEmitter
+     */
+  expandStepBlock = false;
+
+  /**
     * currently selected scenario
     */
   selectedScenario: Scenario;
@@ -1808,8 +1813,7 @@ export class BaseEditorComponent {
    * Block methods 
    */
 
-  editBlock(event) {
-    event.stopPropagation();
+  editBlock() {
     this.editBlockModal.openEditBlockModal();
     const x = document.getElementsByClassName('stepBlockContainer')[0];
     x.setAttribute('aria-expanded', 'false');
@@ -1826,18 +1830,17 @@ export class BaseEditorComponent {
    */
   selectBlock(block) {
     this.blockSelectTriggerEvent.emit(block);
-    block.blockStepExpanded = true;
+    this.expandStepBlock = true;
   }
 
   /**
    * Unselect Block and reset selected Block
    */
-  unselectBlock(blockStep) {
-    blockStep.blockStepExpanded = false;
+  unselectBlock() {
+    this.expandStepBlock = false;
   }
 
-  showUnpackBlockToast(block, stepReference, event) {
-    event.stopPropagation();
+  showUnpackBlockToast(block, stepReference) {
     const toastData = { block: block, stepReference: stepReference };
     this.blockService.updateToastData(toastData);
     this.apiService.nameOfComponent('unpackBlock');
