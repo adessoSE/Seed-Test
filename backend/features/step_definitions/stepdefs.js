@@ -13,10 +13,13 @@ const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
 const { applySpecialCommands } = require('../../src/serverHelper');
 
+const downloadDirectory = 'C:\\Users\\Public\\seed_Downloads';
 let driver;
-const firefoxOptions = new firefox.Options();
-const chromeOptions = new chrome.Options();
-const edgeOptions = new edge.Options();
+const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
+	.setPreference('browser.download.folderList', 2) // Set to 2 for the "custom" folder
+	.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream');
+const chromeOptions = new chrome.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
+const edgeOptions = new edge.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
 
 if (!os.platform().includes('win')) {
 	chromeOptions.addArguments('--headless');
@@ -39,7 +42,6 @@ edgeOptions.addArguments('--lang=de');
 edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
 
-chromeOptions.setUserPreferences({ 'download.default_directory': 'C:\\Users\\Public\\seed_Downloads' });
 
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -623,11 +625,11 @@ Then(
 	async function checkDownloadedFile(fileName, directory) {
 		const world = this;
 		try {
-			const path = `${directory}\\${fileName}`;
+			const path = `${downloadDirectory}\\${fileName}`;
 			await fs.promises.access(path, fs.constants.F_OK);
 			const timestamp = Date.now();
 			// Rename the downloaded file, so a new Run of the Test will not check the old file
-			await fs.promises.rename(path, `${directory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
+			await fs.promises.rename(path, `${downloadDirectory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
 				if (err) console.log(`ERROR: ${err}`);
 			});
 		} catch (e) {
