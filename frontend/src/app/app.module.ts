@@ -47,7 +47,7 @@ import { HttpLoggerInterceptor } from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from "./report-history/report-history.component";
 import { ClipboardModule } from "@angular/cdk/clipboard";
 import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
-import { EditBlockComponent } from "./modals/edit-block/edit-block.component";
+import { EditBlockComponent } from './modals/edit-block/edit-block.component';
 import { ThemingService } from "./Services/theming.service";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatIconModule } from "@angular/material/icon";
@@ -78,8 +78,6 @@ import { NewExampleComponent } from "./modals/new-example/new-example.component"
 import { TransferOwnershipToast } from "./transferOwnership-toastr";
 import { InfoWarningToast } from "./info-warning-toast";
 import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-popup/confirm-reset-password-popup.component";
-import { InputWithSpecialCommandsComponent } from "./input-with-special-commands/input-with-special-commands.component";
-import { AnimatedTooltipComponent } from './animated-tooltip/animated-tooltip.component';
 
 @NgModule({
   declarations: [
@@ -131,8 +129,6 @@ import { AnimatedTooltipComponent } from './animated-tooltip/animated-tooltip.co
     DeleteToast,
     TransferOwnershipToast,
     ConfirmResetPasswordPopupComponent,
-    InputWithSpecialCommandsComponent,
-    AnimatedTooltipComponent,
   ],
   imports: [
     NgbModule,
