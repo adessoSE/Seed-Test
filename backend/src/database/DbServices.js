@@ -1332,23 +1332,29 @@ async function getFileList(repoId) {
 	return files;
 }
 
+/**
+ * Store Files Temporarily in the File System
+ * @param {string} fileIds 
+ */
 async function getFiles(fileIds) {
 	const db = dbConnection.getConnection();
 	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
-	const destinationDirectory = '/home/public/SeedExec';
+	const destinationDirectory = '/Users/public/SeedExec';
 	
 	for (const fileId of fileIds) {
-		const downloadStream = bucket.openDownloadStream(fileId);
-		const destinationPath = `${destinationDirectory}/${fileId}.txt`;
+		const fileInfo = await bucket.find({ _id: new ObjectId(fileId) }).toArray((err, file) => file[0]);
+		console.log(fileInfo);
+		const downloadStream = bucket.openDownloadStream(new ObjectId(fileId));
+		const destinationPath = `${destinationDirectory}/${fileInfo[0].filename}`;
 		const fileWriteStream = fs.createWriteStream(destinationPath);
 
 		await new Promise((resolve, reject) => {
 			downloadStream.pipe(fileWriteStream);
-			downloadStream.on('end', resolve);
+			//downloadStream.on('end', resolve);
 			downloadStream.on('error', reject);
 			fileWriteStream.on('finish', resolve);
 			fileWriteStream.on('error', reject);
-		});
+		}).catch((e)=>{console.error(e)})
 		console.log('Datei erfolgreich heruntergeladen:', destinationPath);
 	}
 }
@@ -1368,6 +1374,7 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 
 module.exports = {
 	getFileList,
+	getFiles,
 	fileUpload,
 	setIsSavedTestReport,
 	deleteReport,
