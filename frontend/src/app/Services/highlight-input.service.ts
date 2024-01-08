@@ -44,7 +44,6 @@ export class HighlightInputService {
       "So I can't see text in the textbox:",
     ];
     var regexDetected = false;
-    var identifier = `id${Date.now()}`;
     let highlightedText;
     // TODO: Hardcoded Styles
     if (!valueIndex || (0 == valueIndex && regexSteps.includes(stepPre))) {
@@ -52,16 +51,26 @@ export class HighlightInputService {
         regexPattern,
         (match, match1, match2, match3) => {
           regexDetected = true;
-          this.apiService
-            .resolveSpecialCommand(match2)
-            .subscribe((resolvedCommand) => {
+          var identifier = `specialInputId${Date.now()}`;
+          this.apiService.resolveSpecialCommand(match2).subscribe({
+            next: (resolvedCommand) => {
               console.log("RECIEVED: " + resolvedCommand);
               document
                 .querySelector(`#${identifier}`)
-                .setAttribute("uk-tooltip", resolvedCommand);
-            });
+                .setAttribute("uk-tooltip", `title:${resolvedCommand}`);
+            },
+            error: (error) => {
+              console.log(error.error.error);
+              document
+                .querySelector(`#${identifier}`)
+                .setAttribute(
+                  "uk-tooltip",
+                  `title:Error: ${error.error.error}`
+                );
+            },
+          });
           return (
-            `<span uk-tooltip="Resolving Command ..." id="${identifier}">` +
+            `<span uk-tooltip="title:Resolving Command ..." id="${identifier}">` +
             `<span style="color: ${
               isDark ? "var(--light - grey)" : "var(--brown-grey)"
             }; font-weight: bold">${match1}</span>` +

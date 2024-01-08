@@ -480,7 +480,7 @@ function calcDate(value) {
 
 	// check the correct usage of @@Day, @@Month, @@Year
 	else {
-		startcopy = start.slice();
+		let startcopy = start.slice();
 		for (let i = 0; i < substrings.length; i++) {
 			if (start.split(substrings[i]).length - 1 > 1) throw Error(`${substringsErr[i]} may only be used 0 or 1 time. Input: ${start}`);
 			startcopy = startcopy.replace(substrings[i], '');
@@ -582,7 +582,7 @@ function calcDate(value) {
 }
 
 function applySpecialCommands(str) {
-	let appliedCommandsString = '';
+	let appliedCommandsString = str;
 	if (str.includes('@@Day') || str.includes('@@Month') || str.includes('@@Year') || str.includes('@@Date')) {
 		appliedCommandsString = applyDateCommand(str);
 	}

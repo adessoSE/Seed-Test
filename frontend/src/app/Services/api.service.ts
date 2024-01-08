@@ -269,7 +269,8 @@ export class ApiService {
     this.apiServer = localStorage.getItem("url_backend");
     return this.http.post<any>(
       this.apiServer + "/story/specialCommands/resolve",
-      { command: command }
+      { command: command },
+      ApiService.getOptions()
     );
   }
 }
