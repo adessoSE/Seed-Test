@@ -390,10 +390,9 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	function matchOrder(storiesIdList, storiesArray, repo) {
 		const mySet = new Set(storiesIdList.concat(repo.stories).map((i) => i.toString()));
 		for (const i of repo.stories) mySet.delete(i.toString());
-
 		const storyList = repo.stories.concat([...mySet]);
 		if (repo) mongo.updateStoriesArrayInRepo(repo._id, storyList);
-		return storyList.map((i) => storiesArray.get(i.toString()));
+		return storyList.map((i) => storiesArray.get(i.toString())).filter((s) => s !== undefined);
 	}
 });
 
