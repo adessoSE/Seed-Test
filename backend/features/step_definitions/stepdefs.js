@@ -68,7 +68,6 @@ defineParameterType({
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
 	currentParameters = this.parameters.scenarios[scenarioIndex];
-	console.log(currentParameters);
 
 	if (currentParameters.emulator !== undefined) switch (currentParameters.browser) {
 		case 'chrome':
@@ -78,30 +77,24 @@ Before(async function () {
 			edgeOptions.setMobileEmulation({ deviceName: currentParameters.emulator });
 			break;
 		case 'firefox':
-				// no way to do it ?
+		// no way to do it ?
 	}
 
-
-
-	if (currentParameters.windowSize !== undefined) {
-		switch (currentParameters.browser) {
-			case 'chrome':
-				chromeOptions.windowSize(currentParameters.windowSize);
-				break;
-			case 'MicrosoftEdge':
-				edgeOptions.windowSize(currentParameters.windowSize);
-				break;
-			case 'firefox':
-				firefoxOptions.windowSize(currentParameters.windowSize);
-				break;
-			default:
-				console.error(`Unsupported browser: ${currentParameters.browser}`);
-				break;
-		}
-	} else {
-		console.error('Invalid width or height values');
+	if (currentParameters.windowSize !== undefined) switch (currentParameters.browser) {
+		case 'chrome':
+			chromeOptions.windowSize(currentParameters.windowSize);
+			break;
+		case 'MicrosoftEdge':
+			edgeOptions.windowSize(currentParameters.windowSize);
+			break;
+		case 'firefox':
+			firefoxOptions.windowSize(currentParameters.windowSize);
+			break;
+		default:
+			console.error(`Unsupported browser: ${currentParameters.browser}`);
+			break;
 	}
-	
+	else console.error('Invalid width or height values');
 
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) if (driver) console.log('OneDriver');
@@ -291,8 +284,8 @@ When('The site should wait for {string} milliseconds', async function (ms) {
 When('I insert {string} into the field {string}', async function fillTextField(value, label) {
 	const world = this;
 	const identifiers = [`//input[@id='${label}']`, `//input[contains(@id,'${label}')]`, `//textarea[@id='${label}']`, `//textarea[contains(@id,'${label}')]`,
-		`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
-		`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
+	`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
+	`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
 	if (value.includes('@@')) value = calcDate(value);
 
@@ -487,7 +480,7 @@ When('I select {string} from the selection {string}', async function clickRadioB
 When('I select the option {string} from the drop-down-menue {string}', async (value, dropd) => {
 	let world;
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`];
+	`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
@@ -562,7 +555,7 @@ When('I hover over the element {string} and select the option {string}', async f
 });
 
 // TODO:
-When('I select from the {string} multiple selection, the values {string}{string}{string}', async () => {});
+When('I select from the {string} multiple selection, the values {string}{string}{string}', async () => { });
 
 // Check the Checkbox with a specific name or id
 When('I check the box {string}', async function checkBox(name) {
@@ -690,7 +683,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 	const world = this;
 
 	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`,
-		`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
+	`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
@@ -830,8 +823,9 @@ Then('So on element {string} the css property {string} is {string}', async funct
 	await Promise.any(promises)
 		.then(async (elem) => {
 			const actual = await elem.getCssValue(property);
-			if (actual.startsWith('rgba')) {// in selenium colors are always rgba. support.Color is not implemented in javascript
-				const colorNumbers = actual.replace('rgba(', '').replace(')', '').split(',');
+			if (actual.startsWith('rgba')) { // in selenium colors are always rgba. support.Color is not implemented in javascript
+				const colorNumbers = actual.replace('rgba(', '').replace(')', '')
+					.split(',');
 				const [r, g, b] = colorNumbers.map((v) => Number(v).toString(16));
 				const hex = `#${r}${g}${b}`;
 				expect(value.toString()).to.equal(hex.toString(), `actual ${hex} does not match ${value}`);
