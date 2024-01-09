@@ -581,11 +581,25 @@ function calcDate(value) {
 	return result;
 }
 
+/**
+* Applies the special commands to a string.
+* Special commands are marked via: {Regex: TEXT}.
+* return the string with the special commands applied.
+*/
 function applySpecialCommands(str) {
 	let appliedCommandsString = str;
-	if (str.includes('@@Day') || str.includes('@@Month') || str.includes('@@Year') || str.includes('@@Date')) {
-		appliedCommandsString = applyDateCommand(str);
-	}
+	const regexPattern = /(\{Regex:)(.*?)(\})/g;
+	appliedCommandsString = str.replace(
+		regexPattern,
+		(match, match1, match2) => {
+			// ApplySpecialCommands
+			if (match2.includes('@@Day') || match2.includes('@@Month') || match2.includes('@@Year') || match2.includes('@@Date')) {
+				return applyDateCommand(match2);
+			}
+			// Return the inner content if no cammnd fits
+			return match2;
+		}
+	);
 	return appliedCommandsString;
 }
 

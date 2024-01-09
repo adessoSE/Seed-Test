@@ -31,7 +31,7 @@ export class HighlightInputService {
     valueIndex?: number,
     stepPre?: string
   ) {
-    const regexPattern = /(\{Regex:)(.*?)(\})(?=\s|$)/g; // Regex pattern to recognize and highlight regex expressions -> start with {Regex: and end with }
+    const regexPattern = /(\{Regex:)(.*?)(\})/g; // Regex pattern to recognize and highlight regex expressions -> start with {Regex: and end with }
 
     const textField = element;
     const textContent = textField.textContent;
@@ -51,8 +51,10 @@ export class HighlightInputService {
         regexPattern,
         (match, match1, match2, match3) => {
           regexDetected = true;
-          var identifier = `specialInputId${Date.now()}`;
-          this.apiService.resolveSpecialCommand(match2).subscribe({
+          var identifier = `specialInputId${
+            Date.now().toString(36) + Math.random().toString(36).substr(2)
+          }`;
+          this.apiService.resolveSpecialCommand(match).subscribe({
             next: (resolvedCommand) => {
               console.log("RECIEVED: " + resolvedCommand);
               document
