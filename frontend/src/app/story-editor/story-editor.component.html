@@ -177,7 +177,7 @@
 
 
       <div class="storyInfoCenter" *ngIf="this.selectedScenario">
-        <div *ngIf="!this.globalSettings">
+        <div *ngIf="!this.globalSettingsActivated">
           <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
           <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
             value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event.target.valueAsNumber)">
@@ -233,7 +233,7 @@
             [emulator]="emulator_enabled" (sizeChange)="handleSizeChange($event)"></app-window-size>
         </div>
 
-        <div *ngIf="this.globalSettings">
+        <div *ngIf="this.globalSettingsActivated">
           <div class="globalSettingsDiv">
             <!-- <em class="material-icons warningIcon">warning</em> -->
             <p class="globalSettingsText">Test Execution Setting for this Scenario are currently overwritten by Project
