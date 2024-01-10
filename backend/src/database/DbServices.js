@@ -1309,27 +1309,47 @@ async function updateOneDriver(id, driver) {
 }
 
 async function fileUpload(filename, repoId, file) {
-	const db = dbConnection.getConnection();
-	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
-	const id = new ObjectId();
-	str(JSON.stringify(file))
-		.pipe(bucket.openUploadStreamWithId(id, filename, {metadata:{repoId: new ObjectId(repoId)}}))
-		.on('error', async (error) => {
-			assert.ifError(error);
-		})
-		.on('finish', async () => {
-			console.log('Done! Uploaded some File');
-			console.log('ObjectID: of File: ', id);
-			return id;
-		});
-	//return id;
+	try {
+		const db = dbConnection.getConnection();
+		const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+		const id = new ObjectId();
+		str(JSON.stringify(file))
+			.pipe(bucket.openUploadStreamWithId(id, filename, {metadata:{repoId: new ObjectId(repoId)}}))
+			.on('error', async (error) => {
+				assert.ifError(error);
+			})
+			.on('finish', async () => {
+				console.log('Done! Uploaded some File');
+				console.log('ObjectID: of File: ', id);
+				return id;
+			});
+	} catch (e) {
+		console.log('ERROR in file upload: ', e);
+		throw e;
+	}
 }
+
+async function deleteFile(fileId) {
+	try {
+		const db = dbConnection.getConnection();
+		const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+		await bucket.delete(new ObjectId(fileId));
+	} catch (e) {
+		console.log('ERROR in file delete: ', e);
+		throw e;
+	}
+}
+
 async function getFileList(repoId) {
-	const db = dbConnection.getConnection();
-	//const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
-	const files = await db.collection('GridFS.files').find({ 'metadata.repoId': new ObjectId(repoId) }).toArray();
-	console.log('Dateien für RepoId', repoId, ':', files);
-	return files;
+	try {
+		const db = dbConnection.getConnection();
+		const files = await db.collection('GridFS.files').find({ 'metadata.repoId': new ObjectId(repoId) }).toArray();
+		//console.log('Dateien für RepoId', repoId, ':', files);
+		return files;
+	} catch (e) {
+		console.log('ERROR in get file list: ', e);
+		throw e;
+	}
 }
 
 /**
@@ -1376,6 +1396,7 @@ module.exports = {
 	getFileList,
 	getFiles,
 	fileUpload,
+	deleteFile,
 	setIsSavedTestReport,
 	deleteReport,
 	getTestReports,

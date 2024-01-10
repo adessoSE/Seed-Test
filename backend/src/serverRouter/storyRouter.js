@@ -150,9 +150,10 @@ router.get('/uploadFile/:repoId', async (req, res) => {
 });
 router.delete('/uploadFile/:fileId', async (req, res) => {
 	try {
-		
+		const result = await mongo.deleteFile(req.params.fileId);
+		req.status(200).json({ message: 'File deleted' });
 	} catch (error) {
-		
+		handleError(res, error, error, 500);
 	}
 });
 
