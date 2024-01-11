@@ -1,18 +1,31 @@
 <mat-menu #appMenu="matMenu" class="custom-menu">
     <div class="modal-header">
-        <span id="windowSizeHeader" class="SmallSubline1H4 modal-title">Change Window-Size</span>
+        <span id="windowSizeHeader" class="SmallSubline1H4 modal-title">Custom Window-Size</span>
         <button type="button" class="close" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     <form (keydown.tab)="$event.stopPropagation()">
         <div class="inputFields" (click)="$event.stopPropagation()">
+            <!-- Resoultion Dropdown -->
             <mat-form-field appearance="fill">
+                <mat-label>Resolution</mat-label>
+                <mat-select [(value)]="selectedResolution">
+                    <mat-option value="3840x2160">3840x2160 (4K UHD)</mat-option>
+                    <mat-option value="2560x1440">2560x1440 (QHD)</mat-option>
+                    <mat-option value="1920x1080">1920x1080 (Full HD)</mat-option>
+                    <mat-option value="1600x900">1600x900 (HD+)</mat-option>
+                    <mat-option value="1280x720">1280x720 (HD)</mat-option>
+                    <mat-option value="custom">Custom</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Custom Resolution Fields -->
+            <mat-form-field appearance="fill" *ngIf="selectedResolution === 'custom'">
                 <mat-label>Width</mat-label>
                 <input [(ngModel)]="this.width" name="Width" matInput tabindex="1">
             </mat-form-field>
-
-            <mat-form-field appearance="fill">
+            <mat-form-field appearance="fill" *ngIf="selectedResolution === 'custom'">
                 <mat-label>Height</mat-label>
                 <input [(ngModel)]="this.height" name="Height" matInput tabindex="2">
             </mat-form-field>
