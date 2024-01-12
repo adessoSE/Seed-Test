@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 import { DeleteToast } from './../delete-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { UntypedFormGroup, UntypedFormArray, UntypedFormControl } from '@angular/forms';
 import { Scenario } from '../model/Scenario';
 import { ToastrService } from 'ngx-toastr';
@@ -13,6 +13,9 @@ import { ApiService } from '../Services/api.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatTable } from '@angular/material/table';
 import { StepDefinition } from '../model/StepDefinition';
+import { ThemePalette } from '@angular/material/core';
+import { ThemingService } from '../Services/theming.service';
+import { HighlightInputService } from '../Services/highlight-input.service';
 
 
 @Component({
@@ -98,15 +101,21 @@ export class ExampleTableComponent implements OnInit {
    * selected Scenario
    */
   selectedScenario: Scenario;
-
+  /**
+   * toggle Edit table mode
+   */
+  color: ThemePalette = 'primary';
+  toggleControl = new UntypedFormControl(false);
+  editMode: boolean;
   /**
    * Boolean if the example table should be shown or not
    */
   exampleThere: boolean = false;
 
   deleteExampleObservable: Subscription;
-
+  toggleObservable: Subscription;
   updateExampleTableObservable: Subscription;
+  themeObservable: Subscription;
 
   indexOfExampleToDelete;
   @ViewChild('table') table: MatTable<StepDefinition>;
@@ -124,6 +133,7 @@ export class ExampleTableComponent implements OnInit {
   set newSelectedScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
     this.updateTable();
+    this.initialRegex = true;
   }
 
   @Input() isDark: boolean;
@@ -136,13 +146,21 @@ export class ExampleTableComponent implements OnInit {
   @Output()
   deleteExampleEvent: EventEmitter<Scenario> = new EventEmitter();
 
+  regexInStory: boolean = false;
+  initialRegex: boolean = true;
+  targetOffset: number = 0;
+
+  @ViewChildren('example_input') example_input: QueryList<ElementRef>;
+
     /**
    * @ignore
    */
      constructor( public scenarioService: ScenarioService,
        private toastr: ToastrService,
        public exampleService: ExampleService,
-       public apiService: ApiService
+       public apiService: ApiService,
+       public themeService: ThemingService,
+       public highlightInputService: HighlightInputService
        ) {}
 
      /**
@@ -152,6 +170,15 @@ export class ExampleTableComponent implements OnInit {
     this.deleteExampleObservable = this.exampleService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
     //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
     this.updateExampleTableObservable = this.exampleService.updateExampleTableEvent.subscribe(() =>{this.updateTable();});
+
+    this.toggleObservable = this.toggleControl.valueChanges.subscribe(val => {
+      this.editMode = val;
+    });
+    this.isDark = this.themeService.isDarkMode();
+    this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
+      this.isDark = this.themeService.isDarkMode();
+      this.regexHighlightOnInit();
+  });
   }
  
   // eslint-disable-next-line @angular-eslint/use-lifecycle-interface
@@ -161,6 +188,23 @@ export class ExampleTableComponent implements OnInit {
     }
     if (!this.updateExampleTableObservable.closed) {
       this.updateExampleTableObservable.unsubscribe();
+    }
+    if (!this.themeObservable.closed) {
+      this.themeObservable.unsubscribe();
+    }
+  }
+
+  ngAfterViewInit(){
+    this.regexDOMChangesHelper();
+    if(this.initialRegex){
+      this.regexHighlightOnInit()
+    }
+  }
+
+  ngAfterViewChecked(){
+    this.regexDOMChangesHelper();
+    if(this.initialRegex){
+      this.regexHighlightOnInit()
     }
   }
 
@@ -213,6 +257,7 @@ export class ExampleTableComponent implements OnInit {
       }
       this.data.push(js);
     }
+    this.regexHighlightOnInit();
   }
 
   /**
@@ -221,7 +266,7 @@ export class ExampleTableComponent implements OnInit {
    * @param rowIndex index of the row of the changed value
    * @param column name of the changed value column
    */
-  updateField(columnIndex: number, rowIndex: number, column) {
+  /*updateField(columnIndex: number, rowIndex: number, column) {
     const control = this.getControl(rowIndex, column);
     if (control.valid) {
       const getCircularReplacer = () => {
@@ -242,7 +287,7 @@ export class ExampleTableComponent implements OnInit {
     } else {
       console.log('CONTROL NOT VALID');
     }
-   }
+   }*/
 
    /**
     * Get the controls of a specific cell
@@ -250,10 +295,10 @@ export class ExampleTableComponent implements OnInit {
     * @param fieldName name of the cell column
     * @returns FormControl of the cell
     */
-  getControl(rowIndex: number, fieldName: string): UntypedFormControl {
+  /*getControl(rowIndex: number, fieldName: string): UntypedFormControl {
     this.selectedScenario.saved = false;
     return this.controls.at(rowIndex).get(fieldName) as UntypedFormControl;
-  }
+  }*/
 
   /**
    * Updates the table controls and data
@@ -372,5 +417,53 @@ export class ExampleTableComponent implements OnInit {
     for (let i = 1; i < this.selectedScenario.stepDefinitions.example.length; i++) {
       this.selectedScenario.stepDefinitions.example[i].values = newData[i-1]
     }
+  }
+
+  /**
+   * Add value and highlight regex, Style regex in value and add value in selectedScenario
+   * Value is in textContent and style is in innerHTML
+   * @param el HTML element of contentedible div
+   * @param columnIndex index of changed value in values
+   * @param rowIndex index of changed value in example
+   * @param initialCall if call is from ngDoCheck
+   */
+  private highlightRegex(el, columnIndex, rowIndex, initialCall) {
+    const inputValue: string = el.textContent;
+
+    if(!initialCall){
+      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = inputValue;
+      this.selectedScenario.saved = false;
+    }
+    if(!initialCall){
+      this.initialRegex = false;
+    }
+
+    var regexDetected = false;
+    
+    regexDetected = this.highlightInputService.highlightRegex(el,initialCall, this.isDark, this.regexInStory)
+
+    if(initialCall && regexDetected) {
+      this.regexInStory = true
+    }
+  }
+
+  /**
+     * Helper for inital hightlighting
+     */
+  regexHighlightOnInit(){
+    this.regexInStory = false
+    this.initialRegex = false
+    if(this.example_input){
+      this.example_input.forEach(in_field => {  
+      this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
+      });
+    }
+  }
+
+   /**
+     * Helper for DOM change subscription
+     */
+   regexDOMChangesHelper(){
+    this.example_input.changes.subscribe(_ => {});
   }
 }

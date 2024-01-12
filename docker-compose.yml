@@ -24,21 +24,22 @@ services:
       - seedmongodb
     restart: always
     environment:
+      FRONTEND_URL: "http://localhost:4200"
       DATABASE_URI: mongodb://SeedAdmin:SeedTest@seedmongodb:27017
       REPORT_DELETION_TIME: 5
-      TESTACCOUNT_NAME: 
+      TESTACCOUNT_NAME:
       TESTACCOUNT_REPO:
       TESTACCOUNT_TOKEN:
-      SESSION_SECRET: 'secretSessionKey'
-      JIRA_SECRET: 'secretJiraKey'
-      JIRA_SALT: 'BJ1yJTJ7AFql'
+      SESSION_SECRET: "secretSessionKey"
+      JIRA_SECRET: "secretJiraKey"
+      JIRA_SALT: "BJ1yJTJ7AFql"
       EMAIL_AUTH:
       EMAIL_PW:
       EMAIL_PORT:
       EMAIL_HOST:
       GITHUB_CLIENT_SECRET:
       GITHUB_CLIENT_ID:
-      PASSPORT_GITHUB_LOCAL_PW_FIELD: 'id'
+      PASSPORT_GITHUB_LOCAL_PW_FIELD: "id"
       MAX_SAVED_REPORTS:
 
   frontend:
@@ -52,6 +53,7 @@ services:
     environment:
       GITHUB_CLIENT_ID:
       VERSION:
+      API_SERVER: "http://localhost:8080/api"
 
 volumes:
   seedDB:

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { DeleteToast } from 'src/app/delete-toast';
 import { ApiService } from 'src/app/Services/api.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-add-block-form',
@@ -18,7 +19,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
   @ViewChild('newTitle') newTitleLabel: HTMLElement;
  
-
+  currentStepType = new FormControl('When');
     /**
      * Saved blocks
      */
@@ -32,7 +33,14 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Old block name
      */
     oldName:string;
-
+    selectedTemplate: string;
+    /**
+      * Sets a new selected story
+      */
+    @Input()
+    set templateName(name) {
+      this.selectedTemplate = name;
+    }
     /**
       * If blocks are saved 
       */
@@ -52,6 +60,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       */
     selectedBlockList: Block[];
 
+    /**
+      *The type of step to which to add the block
+      */
+    addBlockToStepType: string[] = ['Given', 'When', 'Then'];
     /**
       * Currently selected block
       */
@@ -243,11 +255,14 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     }
 
     /**
-     * Adds a block to saved blocks
+     * Add a block to a scenario
      */
     addBlockFormSubmit() {
-      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
+      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference, this.currentStepType.value);
       delete this.addAsReference;
+      delete this.selectedBlock;
+      this.stepList = [];
+      this.currentStepType = new FormControl('When');
       this.modalReference.close();
     }
     
@@ -259,10 +274,13 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
         if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
           this.newblockName = this.selectedBlock.name;
         } else{
-          this.selectedBlock.name = this.newblockName;        
+          this.selectedBlock.name = this.newblockName;    
           this.blockService
           .updateBlock(this.selectedBlock)
           .subscribe(_ => {
+            if(this.selectedBlock.usedAsReference){
+              this.blockService.updateNameRefEmitter(this.selectedBlock);
+            }
             this.updateBlocksEventEmitter();
             this.toastr.success('successfully saved', 'Block');
           });
@@ -291,6 +309,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     }
     closeModal(){
       delete this.addAsReference;
+      delete this.selectedBlock;
+      this.currentStepType = new FormControl('When');
+      this.stepList = [];
       this.modalReference.close();
     }
   }

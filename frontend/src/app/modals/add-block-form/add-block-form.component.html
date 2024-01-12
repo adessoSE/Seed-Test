@@ -53,18 +53,40 @@
             </table>
         </div>
       </div>
-      <div id="addBlockFooter" class="modal-footer">
-        <form *ngIf="blocks.length !== 0" class="addAsReference">
-          <label id="addAsReferenceLabel">Add Block as Reference: </label>
-          <input type="checkbox" [checked]="this.addAsReference" (change)="checkAddAsReference()" style="transform: translate(0px, 2px);">
-          <dfn class="def">
-            <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999; transform: translate(0px, 2px);"></span>
-            <span rel="def">
-              Add the saved Block as a Reference to adopt changes, when steps in the original Block get changed.
-            </span>
-          </dfn>
+      <div id="addBlockFooter" class="modal-footer" [class.forBackground]="this.selectedTemplate == 'background'">
+        <form *ngIf="blocks.length !== 0 && this.selectedTemplate !== 'background'" class="addAsReference">
+          <div class="addRefCheckbox">
+            <label id="addAsReferenceLabel">Add Block as Reference: </label>
+            <input id="addAsReferenceCheckbox "type="checkbox"  [checked]="this.addAsReference" (change)="checkAddAsReference()"  [disabled]="this.selectedBlock == undefined">
+            <dfn class="def">
+              <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
+              <span rel="def">
+                Add the saved Block as a Reference to adopt changes, when steps in the original Block get changed.
+              </span>
+            </dfn>
+          </div>
+          <div *ngIf="this.addAsReference" class="addReferenceBlockToStepType">
+            <div>
+              <label id="blockAddAslabel">Block will be added as: </label>
+            </div>
+            <div class="addBlockDropDownDiv">
+              <mat-form-field appearance="standard" class="addBlockDropDown">
+                <mat-select [formControl]="currentStepType">
+                  <mat-option *ngFor="let addBlockOption of this.addBlockToStepType" [value]="addBlockOption">
+                    {{addBlockOption}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <dfn class="def">
+                <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
+                <span rel="def">
+                  Add the saved Block as a Reference to a selected type of steps.
+                </span>
+              </dfn>
+            </div>
+          </div>
         </form>
-        <button *ngIf="blocks.length !== 0" type="button" class="normalButton"  (click)="onClickSubmit()">Add Block</button>
+        <button *ngIf="blocks.length !== 0" type="button" class="normalButton" (click)="onClickSubmit()"  [disabled]="this.selectedBlock == undefined" [class.disable]="this.selectedBlock == undefined">Add Block</button>
       </div>
     </div>
   </ng-template>

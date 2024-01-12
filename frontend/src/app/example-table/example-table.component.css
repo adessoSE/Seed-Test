@@ -65,6 +65,10 @@ span, .checkboxWrapper{
   background: transparent;
 }
 
+.edit-mode.icon.darkTheme {
+  color: var(--light-blue);
+}
+
 .scenarioTitle > em{
   color:  var(--ocean-blue);
   font-size: 20px;
@@ -89,7 +93,7 @@ span, .checkboxWrapper{
   vertical-align: middle;
 }
 
-#inputExample{
+#inputExample_rename, #inputExample_delete{
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -115,4 +119,31 @@ th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:
   z-index:999;
   left:0;
   background: inherit;
+}
+
+.slide-toggle-container{
+  display: flex;
+  justify-content: center;
+}
+
+.icon{
+  color: var(--ocean-blue);
+}
+
+.edit-mode{
+  font-size: 17px;
+  margin: 2px;
+  margin-right: 5px;
+}
+
+.blue-text {
+  color: blue;
+}
+
+.contentEditableElement { /*needed for trailing whitespaces*/
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }

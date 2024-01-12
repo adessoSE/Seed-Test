@@ -44,31 +44,35 @@
         <div class="repositories" *ngIf="loginService.isLoggedIn()">
             <div>
                 <label>Download Project</label>
-                <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
-                    <span rel="def">Download all Tests as Feature files of a Project in a zip File</span>
-                </dfn>
             </div>
             <div class="uk-flex uk-flex-row uk-search downloadWrapper">
-                <em class="material-icons" id="searchBarIcons">search</em>
-                <input class="searchInput" type="text" #searchbar (keyup)="searchRepos()"  [(ngModel)]="searchInput" placeholder="Search"/>
-                <input class="versionInput" type="text" #versionbar [(ngModel)]="versionInput" placeholder="Optional: Version"/>
-                <div style="width: 10%;"></div>
-                <mat-form-field appearance="standard" class="filterFormField">
-                    <mat-label>Project</mat-label>
-                      <mat-select #ngSelect [(ngModel)]="downloadRepoID">
-                        <mat-option *ngFor="let repo of searchList" [value]="repo._id">{{repo.value}}</mat-option>
-                      </mat-select>
-                </mat-form-field>
+                <div class="searchAndVersion">
+                    <em class="material-icons" id="searchBarIcons">search</em>
+                    <input class="searchInput" type="text" #searchbar (keyup)="searchRepos()"  [(ngModel)]="searchInput" placeholder="Search"/>
+                    <input class="versionInput" type="text" #versionbar [(ngModel)]="versionInput" placeholder="Optional: Version"/>
+                </div>
+                <div class="dropDownProject">
+                    <mat-form-field appearance="standard" style="width: 100%;">
+                        <mat-label>Project</mat-label>
+                        <mat-select #ngSelect [(ngModel)]="downloadRepoID">
+                            <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.value}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
             </div>
-            <div>
-            <button (click)="downloadProjectFeatures(downloadRepoID)"  class="normalButton">Download</button>
-            </div>
-            <br>
-            <div>
-                <button (click)="exportProject(downloadRepoID)"  class="normalButton">Export</button>
-                <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
-                    <span rel="def">Export Tests in Gherkin: Export your project as a .zip file containing the stories and blocks of a project importable as .json.</span>
-                </dfn>
+            <div class="downloadExportButton">
+                <div>
+                    <button (click)="downloadProjectFeatures(downloadRepoID)"  class="normalButton">Download</button>
+                    <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
+                        <span rel="def">Download all Tests as Feature files of a Project in a zip File</span>
+                    </dfn>
+                </div>
+                <div>
+                    <button (click)="exportProject(downloadRepoID)"  class="normalButton" style="width: 86.76px;" >Export</button>
+                    <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
+                        <span rel="def">Export Tests in Gherkin: Export your project as a .zip file containing the stories and blocks of a project importable as .json.</span>
+                    </dfn>
+                </div>
             </div>
         </div>
 

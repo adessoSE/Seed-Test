@@ -11,12 +11,15 @@ require('geckodriver');
 const firefox = require('../../node_modules/selenium-webdriver/firefox');
 const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
-const moment = require('../../node_modules/moment');
+const { applySpecialCommands } = require('../../src/serverHelper');
 
+const downloadDirectory = 'C:\\Users\\Public\\seed_Downloads';
 let driver;
-const firefoxOptions = new firefox.Options();
-const chromeOptions = new chrome.Options();
-const edgeOptions = new edge.Options();
+const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
+	.setPreference('browser.download.folderList', 2) // Set to 2 for the "custom" folder
+	.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream');
+const chromeOptions = new chrome.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
+const edgeOptions = new edge.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
 
 if (!os.platform().includes('win')) {
 	chromeOptions.addArguments('--headless');
@@ -39,10 +42,11 @@ edgeOptions.addArguments('--lang=de');
 edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
 
-chromeOptions.setUserPreferences({ 'download.default_directory': 'C:\\Users\\Public\\seed_Downloads' });
 
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
+
+const NotFoundError = (e) => Error(`ElementNotFoundError: ${e}`);
 
 function CustomWorld({ attach, parameters }) {
 	this.attach = attach;
@@ -75,7 +79,7 @@ Before(async function () {
 			edgeOptions.setMobileEmulation({ deviceName: currentParameters.emulator });
 			break;
 		case 'firefox':
-				// no way to do it ?
+		// no way to do it ?
 	}
 
 	if (currentParameters.oneDriver) {
@@ -138,6 +142,32 @@ Given('I remove a cookie with the name {string}', async function removeCookie(na
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
+Given('I add a session-storage with the name {string} and value {string}', async function addSessionStorage(name, value) {
+	const world = this;
+	try {
+		await driver.executeScript(`window.sessionStorage.setItem('${name}', '${value}');`);
+	} catch (e) {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	}
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
+Given('I remove a session-storage with the name {string}', async function addSessionStorage(name) {
+	const world = this;
+	try {
+		await driver.executeScript(`window.sessionStorage.removeItem('${name}');`);
+	} catch (e) {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	}
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
 // Take a Screenshot
 Given('I take a screenshot', async function () {
 	const world = this;
@@ -175,6 +205,7 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Element ${element} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -216,6 +247,7 @@ When('I click the button: {string}', async function clickButton(button) {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Button ${button} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -238,10 +270,10 @@ When('The site should wait for {string} milliseconds', async function (ms) {
 When('I insert {string} into the field {string}', async function fillTextField(value, label) {
 	const world = this;
 	const identifiers = [`//input[@id='${label}']`, `//input[contains(@id,'${label}')]`, `//textarea[@id='${label}']`, `//textarea[contains(@id,'${label}')]`,
-		`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
-		`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
+	`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
+	`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
-	if (value.includes('@@')) value = calcDate(value);
+	if (value.includes('@@')) value = applyDateCommand(value);
 
 	const promises = [];
 	for (const idString of identifiers) promises.push(
@@ -249,171 +281,25 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	);
 
 	await Promise.any(promises)
-		.then((elem) => {
-			elem.clear();
-			elem.sendKeys(value);
+		.then(async (elem) => {
+			await elem.clear();
+			await elem.sendKeys(value);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Input/Textarea ${label} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
-function calcDate(value) {
-	// Regex that matches the start: e.g @@Date, @@Day @@Month, @@Day,23
-	// works only with PCRE2. JS uses EMCAScript
-	// const start_regex = /^((@@Date)|((@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))(?!\1)(((@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day))(?!\2))?(((@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month))(?!\3))?)|(^\s*$)/
-
-	// Regex that matches the middle: e.g. +@@Day,2-@@Month,4 ....
-	const mid_regex = /(^((\+|\-)@@(\d+),(Day|Month|Year))*)|(^\s*$)/;
-	// Regex that matches the format end: e.g @@format:DDMMYY€€
-	const end_regex = /(^(@@format:\w*€€)*)|(^\s*$)/;
-
-	function getStart(str) {
-		let endIndex = str.length;
-		const symbols = ['+', '-', '@@format'];
-
-		symbols.forEach((symbol) => {
-			const symbolIndex = str.indexOf(symbol);
-			if (symbolIndex !== -1 && symbolIndex < endIndex) endIndex = symbolIndex;
-		});
-		return str.substring(0, endIndex);
-	}
-
-	function getMid(str) {
-		let endIndex = str.length;
-		const symbols = ['@@format'];
-
-		symbols.forEach((symbol) => {
-			const symbolIndex = str.indexOf(symbol);
-			if (symbolIndex !== -1 && symbolIndex < endIndex) endIndex = symbolIndex;
-		});
-		return str.substring(0, endIndex);
-	}
-	const start = getStart(value).replace(' ', '');
-	const mid = getMid(value.replace(start, '')).replace(' ', '');
-	const end = mid.replace(mid, '').trim();
-
-	// check if the start part is written correctly
-	const dates = start.split(/@@Date/);
-	const substrings = [/@@Day,\d{1,2}|@@Day/, /@@Month,\d{1,2}|@@Month/, /@@Year,\d{4}|@@Year/];
-	const substringsErr = ['@@Day', '@@Month', '@@Year'];
-	// check if @@Date has been used
-	if (dates.length > 1) if (dates.length - 1 > 1) throw Error('@@Date should only be used once.');
-	else for (let i = 0; i < substrings.length; i++) {
-		if (substrings[i].test(start)) throw Error(`@@Date should only be used by itself. Found: ${substringsErr[i]}`);
-	}
-
-	// check the correct usage of @@Day, @@Month, @@Year
-	else {
-		startcopy = start.slice();
-		for (let i = 0; i < substrings.length; i++) {
-			if (start.split(substrings[i]).length - 1 > 1) throw Error(`${substringsErr[i]} may only be used 0 or 1 time. Input: ${start}`);
-			startcopy = startcopy.replace(substrings[i], '');
-		}
-		// if (startcopy.length !== 0) throw Error(`Unkown tokens in the start section: ${startcopy}`);
-	}
-
-	// check if the calculation part is written correctly
-	if (!mid_regex.test(mid)) throw Error('Error parsing the calculation section. Example: +@@23,Day-@@Month,1');
-
-	// check if the format part is written correctly
-	if (!end_regex.test(end)) throw Error('Error parsing the format section. Example: @@format:XXXXXX€€. Where XXXXX is the Format String. Example: @@format:DD-MM-YY');
-
-	// Get the format e.g @@format:XXXXX€€
-	let format = value.match(/(@@format:.*€€)/g);
-
-	// Start Date
-	const currDate = new Date();
-	let day = value.match(/(@@Day,\d{1,2})/g);
-	if (day) day = parseInt(day[0].match(/@@Day,(\d+)/)[1]);
-	let month = value.match(/(@@Month,\d{1,2})/g);
-	if (month) month = parseInt(month[0].match(/@@Month,(\d+)/)[1] - 1);
-	let year = value.match(/(@@Year,\d\d\d\d)/g);
-	if (year) year = parseInt(year[0].match(/@@Year,(\d+)/)[1]);
-
-	currDate.setFullYear(
-		year == null ? currDate.getFullYear() : year,
-		month == null ? currDate.getMonth() : month,
-		day == null ? currDate.getDate() : day
-	);
-
-	// If no format was found, check the given format e.g. @@Date, @@Day@@Month, @@Day ...
-	if (format == null) {
-		// Get the Substring until the first add,sub or format e.g @@Day@@Month+@@ ... -> @@Day@@Month
-		format = value.split(/[\+\-]/)[0];
-		// Replace the @@Day, @@Month, @@Year
-		format = format.replace(/@@Day(,(\d\d){1,2}){0,1}/, 'DD.').replace(/@@Month(,(\d\d){1,2}){0,1}/, 'MM.')
-			.replace(/@@Year(,(\d\d\d\d)){0,1}/, 'YYYY.')
-			.replace('@@Date', 'DD.MM.YYYY.')
-			.slice(0, -1);
-	} else
-		// Get @@format: tag and €€ at the end
-		format = format[0].slice(9, -2);
-
-	// console.log(`Day: ${day}\nMonth: ${month}\nYear: ${year}\nFormat: ${format}\nDate: ${currDate.toDateString()}`);
-
-	// Get all adds e.g +@@2,Month
-	let adds = value.match(/\+@@(\d+),(\w+)/g);
-	// Read values e.g. of +@@5,Day -> {number: 5, kind: "Day"}; or set to empty array if null (no match)
-	adds = adds ? adds.map((element) => {
-		const match = element.match(/\+@@(\d+),(\w+)/);
-		return { number: parseInt(match[1]), kind: match[2] };
-	}) : [];
-	// Get all subs e.g -@@10,Year
-	let subs = value.match(/\-@@(\d+),(\w+)/g);
-	// Read values e.g. of -@@2,Month -> {number: 2, kind: "Month"}; or set to empty array if null (no match)
-	subs = subs ? subs.map((element) => {
-		const match = element.match(/\-@@(\d+),(\w+)/);
-		return { number: parseInt(match[1]), kind: match[2] };
-	}) : [];
-
-	// Add every add in the adds array
-	adds.forEach((add) => {
-		switch (add.kind) {
-			case 'Day':
-				currDate.setDate(currDate.getDate() + add.number);
-				break;
-			case 'Month':
-				currDate.setMonth(currDate.getMonth() + add.number);
-				break;
-			case 'Year':
-				currDate.setFullYear(currDate.getFullYear() + add.number);
-				break;
-			default:
-				new Error(`Unknown type to add to the date: ${add.kind}`);
-		}
-	});
-
-	// Substract every sub in the subs array
-	subs.forEach((sub) => {
-		switch (sub.kind) {
-			case 'Day':
-				currDate.setDate(currDate.getDate() - sub.number);
-				break;
-			case 'Month':
-				currDate.setMonth(currDate.getMonth() - sub.number);
-				break;
-			case 'Year':
-				currDate.setFullYear(currDate.getFullYear() - sub.number);
-				break;
-			default:
-				new Error(`Unknown type to substract of the date: ${sub.kind}`);
-		}
-	});
-
-	// Format the date
-	const result = moment(currDate).format(format);
-	return result;
-}
-
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
 	const world = this;
-	const identifiers = [`//*[@${label}='${radioname}']`, `//*[contains(@${label}, '${radioname}')]`];
+	const identifiers = [`//input[@${label}='${radioname}']/following-sibling::label[1]`, `//input[contains(@${label}, '${radioname}')]/following-sibling::label[1]`, `//label[contains(text(), '${label}')]/following::input[@value='${radioname}']/following-sibling::label[1]
+	`, `//input[@name='${label}' and @value='${radioname}']/following-sibling::label[1]`, `//input[contains(@*,'${label}')]/following-sibling::label[contains(text(), '${radioname}')]`, `${radioname}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
@@ -423,25 +309,49 @@ When('I select {string} from the selection {string}', async function clickRadioB
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Radio ${label} with option ${radioname} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Select an Option from a dropdown-menu
-When('I select the option {string} from the drop-down-menue {string}', async (value, dropd) => {
-	let world;
+When('I select the option {string} from the drop-down-menue {string}', async function (value, dropd) {
+	const world = this;
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`];
-	const promises = [];
-	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
+		`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
+	const promises = identifiers.map((idString) =>
+		driver.wait(
+			until.elementLocated(By.xpath(idString)),
+			searchTimeout,
+			`Timed out after ${searchTimeout} ms`,
+			100
+		)
+	);
 
 	await Promise.any(promises)
 		.then((elem) => elem.click())
 		.catch(async (e) => {
+			const ariaProm = [driver.findElement(By.xpath(`//*[contains(text(),"${dropd}") or contains(@id, "${dropd}") or contains(@*, "${dropd}")]`)), driver.findElement(By.xpath(`${dropd}`))];
+			const dropdownElement = await Promise.any(ariaProm);
+			await dropdownElement.click();
+
+			const ariaOptProm = [driver.findElement(By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
+			`)), driver.findElement(By.xpath(`${value}`))];
+			const dropdownOption = await Promise.any(ariaOptProm).catch((e) => { throw e; });
+	
+			// Wait for the dropdown options to be visible
+			await driver.wait(until.elementIsVisible(dropdownOption)).catch((e) => { throw e; });
+	
+			// Select the option from the dropdown
+			await dropdownOption.click();
+		})
+		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Dropdown ${dropd} with option ${value} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(currentParameters.waitTime);
@@ -456,6 +366,7 @@ When('I select the option {string}', async function selectviaXPath(dropd) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
+		if (Object.keys(e).length === 0) throw NotFoundError(`Dropdown-option ${dropd} could not be found!`);
 		throw Error(e);
 	}
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -496,6 +407,7 @@ When('I hover over the element {string} and select the option {string}', async f
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
+				if (Object.keys(e).length === 0) throw NotFoundError(`Selector ${element} could not be found!`);
 				throw Error(e);
 			}
 		}
@@ -504,7 +416,7 @@ When('I hover over the element {string} and select the option {string}', async f
 });
 
 // TODO:
-When('I select from the {string} multiple selection, the values {string}{string}{string}', async () => {});
+When('I select from the {string} multiple selection, the values {string}{string}{string}', async () => { });
 
 // Check the Checkbox with a specific name or id
 When('I check the box {string}', async function checkBox(name) {
@@ -533,10 +445,9 @@ When('I check the box {string}', async function checkBox(name) {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`checkbox ${name} could not be found!`);
 			throw Error(e);
 		});
-
-	// await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
@@ -604,6 +515,7 @@ When(
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
+				if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
 				throw Error(e);
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
@@ -627,12 +539,21 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
+const resolveRegex = (rawString) => {
+	// undefined to empty string
+	rawString = !rawString ? '' : rawString;
+	const regex = /\{Regex:([^}]*(?:\{[^}]*\}[^}]*)*)(\})(?=\s|$)/g;
+	return rawString.replace(regex, '($1)');
+};
+
 // Search a textfield in the html code and assert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
+	const resultString = resolveRegex(expectedText);
+
 	const world = this;
 
 	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`,
-		`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
+	`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
@@ -641,7 +562,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 			let resp = await elem.getText();
 			resp = resp == '' ? await elem.getAttribute('value') : resp;
 			resp = resp == '' ? await elem.getAttribute('outerHTML') : resp;
-			match(resp, RegExp(expectedText.toString()), `Textfield does not contain the string/regex: ${expectedText} , actual: ${resp}`);
+			match(resp, RegExp(resultString), `Textfield does not contain the string/regex: ${resultString} , actual: ${resp}`);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -653,7 +574,8 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 });
 
 // Search if a is text in html code
-Then('So I can see the text: {string}', async function (expectedText) { // text is present
+Then('So I can see the text: {string}', async function textPresent(expectedText) { // text is present
+	const resultString = resolveRegex(expectedText);
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -663,7 +585,7 @@ Then('So I can see the text: {string}', async function (expectedText) { // text 
 				const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 				const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 				const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-				match(bodyAll, RegExp(expectedText.toString()), `Page HTML does not contain the string/regex: ${expectedText}`);
+				match(bodyAll, RegExp(resultString), `Page HTML does not contain the string/regex: ${resultString}`);
 			});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -675,7 +597,7 @@ Then('So I can see the text: {string}', async function (expectedText) { // text 
 });
 
 // Search a textfield in the html code and assert if it's empty
-Then('So I can\'t see text in the textbox: {string}', async function (label) {
+Then('So I can\'t see text in the textbox: {string}', async function textAbsent(label) {
 	const world = this;
 	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@id, '${label}')]`, `${label}`];
 	const promises = [];
@@ -703,11 +625,11 @@ Then(
 	async function checkDownloadedFile(fileName, directory) {
 		const world = this;
 		try {
-			const path = `${directory}\\${fileName}`;
+			const path = `${downloadDirectory}\\${fileName}`;
 			await fs.promises.access(path, fs.constants.F_OK);
 			const timestamp = Date.now();
 			// Rename the downloaded file, so a new Run of the Test will not check the old file
-			await fs.promises.rename(path, `${directory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
+			await fs.promises.rename(path, `${downloadDirectory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
 				if (err) console.log(`ERROR: ${err}`);
 			});
 		} catch (e) {
@@ -720,8 +642,52 @@ Then(
 	}
 );
 
+Then('So the picture {string} has the name {string}', async function checkPicture(picture, name) {
+	const world = this;
+	const identifiers = [`//picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]]`, `//img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]`, `${picture}`];
+	const promises = [];
+	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+	const domain = (await driver.getCurrentUrl()).split('/').slice(0, 3)
+		.join('/');
+	let finSrc = '';
+	await Promise.any(promises)
+		.then(async (elem) => {
+			if (await elem.getTagName() === 'picture') {
+				const childSourceElems = await elem.findElements(By.xpath('.//source'));
+				const elementWithSrcset = await childSourceElems.find(async (element) => {
+					const srcsetValue = await element.getAttribute('srcset');
+					return srcsetValue && srcsetValue.includes(name);
+				});
+				finSrc = await elementWithSrcset.getAttribute('srcset');
+			}
+			const primSrc = await elem.getAttribute('src');
+			const secSrc = await elem.getAttribute('srcset');
+			if (!finSrc && primSrc && primSrc.includes(name)) finSrc = primSrc;
+			if (!finSrc && secSrc && secSrc.includes(name)) finSrc = secSrc;
+			finSrc = finSrc.split(' ').filter((substring) => substring.includes(name));
+		})
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e);
+		});
+	await fetch(domain + finSrc, { method: 'HEAD' })
+		.then((response) => {
+			if (!response.ok) throw Error(`Image ${finSrc} not Found`);
+		})
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(`Image availability check: could not reach image source ${domain + finSrc} `, e);
+		});
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
+	const resultString = resolveRegex(expectedText.toString());
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -730,7 +696,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(e
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			doesNotMatch(bodyAll, RegExp(expectedText.toString()), `Page HTML does contain the string/regex: ${expectedText}`);
+			doesNotMatch(bodyAll, RegExp(resultString), `Page HTML does contain the string/regex: ${resultString}`);
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -752,8 +718,8 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
 	await Promise.any(promises)
-		.then((elem) => {
-			expect(elem.isSelected()).to.equal(checked);
+		.then(async (elem) => {
+			expect(await elem.isSelected()).to.equal(checked);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -766,19 +732,47 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 
 Then('So on element {string} the css property {string} is {string}', async function cssIs(element, property, value) {
 	const world = this;
-	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
+	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@*, '${element}')]`, `//*[contains(@id, '${element}')]`, `${element}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 	await Promise.any(promises)
 		.then(async (elem) => {
 			const actual = await elem.getCssValue(property);
-			if (actual.startsWith('rgba')) {// in selenium colors are always rgba. support.Color is not implemented in javascript
-				const colorNumbers = actual.replace('rgba(', '').replace(')', '').split(',');
+			if (actual.startsWith('rgba')) { // in selenium colors are always rgba. support.Color is not implemented in javascript
+				const colorNumbers = actual.replace('rgba(', '').replace(')', '')
+					.split(',');
 				const [r, g, b] = colorNumbers.map((v) => Number(v).toString(16));
 				const hex = `#${r}${g}${b}`;
 				expect(value.toString()).to.equal(hex.toString(), `actual ${hex} does not match ${value}`);
 			} else expect(value.toString()).to.equal(actual.toString(), `actual ${actual} does not match ${value}`);
+		})
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e);
 		});
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
+Then('So the element {string} has the tool-tip {string}', async function toolTipIs(element, value) {
+	const world = this;
+	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `\\*[@*='${element} and @role=tooltip]`, `//*[contains(@*, '${element}')]`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
+	const promises = [];
+	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+	await Promise.any(promises)
+		.then(async (elem) => {
+			const actual = await elem.getAttribute('title');
+			expect(actual).to.equal(value);
+		})
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found (check tool-tip).`);
+			throw Error(e);
+		});
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Closes the webdriver (Browser)

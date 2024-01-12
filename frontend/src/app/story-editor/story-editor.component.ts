@@ -48,7 +48,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   @Input()
   set newSelectedScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
-      if (this.selectedStory) {
+      if (this.selectedStory && scenario) {
           this.selectScenario(scenario);
       }       
   }
@@ -69,7 +69,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   @Input()
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
-    this.showEditor = true;
+
+    // hide if no scenarios in story
+    this.showEditor = !!story.scenarios.length;
   }
 
   /**
@@ -251,6 +253,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   checkReferenceObservable: Subscription;
   deleteReferenceObservable: Subscription;
   unpackBlockObservable: Subscription;
+  updateNameRefObservable: Subscription;
   convertToReferenceObservable: Subscription;
 
   @Input() isDark: boolean;
@@ -337,7 +340,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       const loadingScreen = document.getElementById('loading');
       loadingScreen.scrollIntoView();
     }
-    if (this.selectedStory !== undefined){
+    if (this.selectedStory !== undefined && this.stories && this.blocks){
       this.storeCurrentBackground(this.selectedStory.background);
       this.backgrounds = this.stories.filter((s) => s !== null).map((s) => s.background);
       this.blockAsBackground = [];
@@ -435,23 +438,30 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.blocks = resp;
-          this.blockService.removeReferenceForStep(this.blocks, this.stories, blockReferenceId)
+          if (this.blocks){
+            let referenceBlock = this.blocks.find((block) => block._id == blockReferenceId);
+            this.blockService.checkBlockOnReference(this.blocks, this.stories, referenceBlock)
+          }
         });
       });
-      //Event when the entire reference block is deleted. Unpacking steps in all stories
+      //Event when the entire reference block is deleted. Unpacking steps in all relevant stories
       this.deleteReferenceObservable = this.blockService.deleteReferenceEvent.subscribe(block => {
-        this.blockService.deteleBlockReference(block, this.stories);
+        this.blockService.deleteBlockReference(block, this.stories);
       });
-      //Event when unpacking steps
-      this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((block) => {
-        this.blockService.unpackScenarioWithBlock(block, this.selectedScenario);
+      //Event when unpacking block
+      this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((obj) => {
+        this.blockService.unpackScenarioWithBlock(obj.block, this.selectedScenario, obj.stepReference);
         const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.blocks = resp;
-          this.blockService.removeReferenceForStep(this.blocks, this.stories, block._id)
+          this.blockService.checkBlockOnReference(this.blocks, this.stories, obj.block)
         });
         this.selectedScenario.saved = false;
       });
+      //Event to update a reference block name
+      this.updateNameRefObservable = this.blockService.updateNameRefEvent.subscribe((block)=> 
+        this.blockService.updateNameReference(block, this.stories)
+      );
       this.applyBackgroundChangesObservable = this.backgroundService.applyChangesBackgroundEvent.subscribe(option => {
         if (option == 'toCurrentBackground') {
           this.toastr.info('Please enter a new Background name to save your changes');
@@ -530,7 +540,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
      */
     selectNewScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
-      if (this.selectedStory) {
+      if (this.selectedStory && scenario) {
           this.selectScenario(scenario);
       }
     }
@@ -594,7 +604,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     if (indexScenario !== -1) {
       this.selectedStory.scenarios.splice(indexScenario, 1);
     }
-    this.showEditor = false;
+    
+    if (this.selectedStory.scenarios.length > 0) { 
+      this.selectScenario(this.selectedStory.scenarios.slice(-1)[0]);
+    } else {
+      this.showEditor = false;
+    }
   }
 
   /**
@@ -728,7 +743,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   selectScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
-    this.showEditor = true;
+    if (scenario) this.showEditor = true;
+    else this.showEditor = false;
     this.testDone = false;
     this.emulator_enabled = false;
 
@@ -801,14 +817,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * Selects a story and scenario
    * @param story
    */
-	selectStoryScenario(story: Story) {
+	selectStoryScenario(story: Story) { 
 		this.showResults = false;
 		this.selectedStory = story;
-		this.showEditor = true;
-		const storyIndex = this.stories.indexOf(this.selectedStory);
-		if (this.stories[storyIndex].scenarios[0] !== undefined) {
-			this.selectScenario(this.stories[storyIndex].scenarios[0]);
-		}
+    console.log('log aus story editor selectStoryScen', story)
+		if (story.scenarios.length > 0) {
+			this.selectScenario(story.scenarios[0]);
+      this.showEditor = true;
+		} else this.showEditor = false;
 	}
 
   /**

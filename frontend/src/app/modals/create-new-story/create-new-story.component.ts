@@ -68,11 +68,16 @@ export class CreateNewStoryComponent {
       const story = {title, description};
       this.storyService.createCustomStoryEvent({repositoryContainer, story});
     }
+    this.storyForm.reset({storyTitle:'', storyDescription:''});
     this.modalReference.close();
   }
 
   storyUnique() {
     this.storyService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
+  }
+  close(modal){
+    this.storyForm.reset({storyTitle:'', storyDescription:''});
+    modal.dismiss('Cross click');
   }
 }
 

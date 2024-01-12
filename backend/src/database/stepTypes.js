@@ -218,6 +218,25 @@ function stepDefs() {
 		],
 		type: 'Remove Cookie'
 	}, {
+		id: 1,
+		mid: 'and value ',
+		pre: 'I add a session-storage with the name',
+		stepType: 'given',
+		values: [
+			'',
+			''
+		],
+		type: 'Add Session-Storage'
+	}, {
+		id: 2,
+		mid: '',
+		pre: 'I remove a session-storage with the name',
+		stepType: 'given',
+		values: [
+			''
+		],
+		type: 'Remove Session-Storage'
+	}, {
 		id: 300,
 		stepType: 'when',
 		type: 'Upload File',
@@ -430,10 +449,31 @@ function stepDefs() {
 		stepType: 'then',
 		type: 'CSS-Value',
 		pre: 'So on element',
-		mid: 'the css property',
+		mid: 'the css property ',
 		post: 'is',
 		values: [
 			'',
+			'',
+			''
+		]
+	},
+	{
+		id: 502,
+		stepType: 'then',
+		type: 'Tool-Tip',
+		pre: 'So the element',
+		mid: 'has the tool-tip ',
+    values: [
+			'',
+			''
+		]
+	}, {
+		id: 3,
+		stepType: 'then',
+		type: 'Check Image',
+		pre: 'So the picture',
+		mid: 'has the name ',
+		values: [
 			'',
 			''
 		]
