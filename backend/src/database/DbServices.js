@@ -1368,13 +1368,20 @@ async function getFiles(fileIds) {
 		const destinationPath = `${destinationDirectory}/${fileInfo[0].filename}`;
 		const fileWriteStream = fs.createWriteStream(destinationPath);
 
+		setTimeout(() => {
+			fs.unlink(destinationPath, (err) => {
+				if (err) console.log(err);
+    			else console.log(`${fileInfo[0].filename} deleted.`);
+			});
+		}, 18000000);// 5h Timeout
+
 		await new Promise((resolve, reject) => {
 			downloadStream.pipe(fileWriteStream);
 			//downloadStream.on('end', resolve);
 			downloadStream.on('error', reject);
 			fileWriteStream.on('finish', resolve);
 			fileWriteStream.on('error', reject);
-		}).catch((e)=>{console.error(e)})
+		}).catch((e)=>{console.error(e)});
 		console.log('Datei erfolgreich heruntergeladen:', destinationPath);
 	}
 }
