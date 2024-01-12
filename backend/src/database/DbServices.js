@@ -763,19 +763,44 @@ async function createRepo(ownerId, name) {
 	}
 }
 
+async function getRepoSettingsById(repoId) {
+	try {
+		const db = dbConnection.getConnection();
+		const collection = await db.collection(repositoriesCollection);
+
+		const repo = await collection.findOne({ _id: new ObjectId(repoId) });
+
+		if (!repo) {
+			console.log(`Kein Repository gefunden mit der ID: ${repoId}`);
+			return null;
+		}
+		return repo.settings;
+	} catch (e) {
+		console.error(`Fehler beim Abrufen der Repository-Einstellungen: ${e}`);
+		throw e;
+	}
+}
+
 /**
  *
  * @param {*} repoID
  * @param {*} newName
+ * @param {*} globalSettings
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) {
+async function updateRepository(repoID, newName, globalSettings, user) {
 	try {
 		const repoFilter = { owner: new ObjectId(user), _id: new ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		return collection.findOneAndUpdate(repoFilter, { $set: { repoName: newName } }, { returnNewDocument: true });
+		if (newName !== undefined) {
+			await collection.findOneAndUpdate(repoFilter, { $set: { repoName: newName } }, { returnDocument: 'after' });
+		}
+		if (globalSettings !== undefined) {
+			await collection.findOneAndUpdate(repoFilter, { $set: { settings: globalSettings } }, { returnDocument: 'after' });
+		}
+		return await collection.findOne(repoFilter);
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e;
@@ -1393,5 +1418,6 @@ module.exports = {
 	createGitRepo,
 	updateOwnerInRepo,
 	updateRepository,
-	getOneRepositoryById
+	getOneRepositoryById,
+	getRepoSettingsById
 };

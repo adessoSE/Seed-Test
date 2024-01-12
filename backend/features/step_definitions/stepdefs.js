@@ -42,7 +42,6 @@ edgeOptions.addArguments('--lang=de');
 edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
 
-
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
 
@@ -81,6 +80,22 @@ Before(async function () {
 		case 'firefox':
 		// no way to do it ?
 	}
+
+	if (currentParameters.windowSize !== undefined) switch (currentParameters.browser) {
+		case 'chrome':
+			chromeOptions.windowSize(currentParameters.windowSize);
+			break;
+		case 'MicrosoftEdge':
+			edgeOptions.windowSize(currentParameters.windowSize);
+			break;
+		case 'firefox':
+			firefoxOptions.windowSize(currentParameters.windowSize);
+			break;
+		default:
+			console.error(`Unsupported browser: ${currentParameters.browser}`);
+			break;
+	}
+	else console.error('Invalid width or height values');
 
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) if (driver) console.log('OneDriver');
@@ -319,16 +334,14 @@ When('I select {string} from the selection {string}', async function clickRadioB
 When('I select the option {string} from the drop-down-menue {string}', async function (value, dropd) {
 	const world = this;
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
-		`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
-	const promises = identifiers.map((idString) =>
-		driver.wait(
-			until.elementLocated(By.xpath(idString)),
-			searchTimeout,
-			`Timed out after ${searchTimeout} ms`,
-			100
-		)
-	);
+	`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
+	`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
+	const promises = identifiers.map((idString) => driver.wait(
+		until.elementLocated(By.xpath(idString)),
+		searchTimeout,
+		`Timed out after ${searchTimeout} ms`,
+		100
+	));
 
 	await Promise.any(promises)
 		.then((elem) => elem.click())
@@ -340,10 +353,10 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 			const ariaOptProm = [driver.findElement(By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
 			`)), driver.findElement(By.xpath(`${value}`))];
 			const dropdownOption = await Promise.any(ariaOptProm).catch((e) => { throw e; });
-	
+
 			// Wait for the dropdown options to be visible
 			await driver.wait(until.elementIsVisible(dropdownOption)).catch((e) => { throw e; });
-	
+
 			// Select the option from the dropdown
 			await dropdownOption.click();
 		})

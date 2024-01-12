@@ -160,23 +160,76 @@ async function deleteFeatureFile(storyTitle, storyId) {
 	}
 }
 
+/*
+* Use global values if global settings are activated, else use local sceneraio values
+*/
+function getSettings(scenario, globalSettings) {
+	const finalSettings = {
+		browser: scenario.browser || 'chrome',
+		waitTime: scenario.stepWaitTime || 0,
+		daisyAutoLogout: scenario.daisyAutoLogout || false
+	};
+
+	// if globalSettings are activated, then use global values
+	if (globalSettings.activated) {
+		finalSettings.browser = globalSettings.browser || finalSettings.browser;
+		finalSettings.waitTime = globalSettings.stepWaitTime || finalSettings.waitTime;
+		// if emulator is activated, use emulator
+		if (globalSettings.emulator !== undefined) {
+			finalSettings.emulator = globalSettings.emulator;
+			// if emulator is no activated, use custom window size
+		} else if (globalSettings.width !== undefined && globalSettings.height !== undefined) {
+			finalSettings.windowSize = {
+				height: Number(globalSettings.height),
+				width: Number(globalSettings.width)
+			};
+		}
+		// else use local values from scenario
+	} else {
+		// if emulator is activated, use emulator
+		if (scenario.emulator !== undefined) {
+			finalSettings.emulator = scenario.emulator;
+			// if emulator is no activated, use custom window size
+		} else if (scenario.width !== undefined && scenario.height !== undefined) {
+			finalSettings.windowSize = {
+				height: Number(scenario.height),
+				width: Number(scenario.width)
+			};
+		}
+	}
+
+	return finalSettings;
+}
+
 async function executeTest(req, mode, story) {
+	const repoId = req.body.repositoryId;
+
+	let globalSettings;
+
+	// get repo globalsettings from database
+	try {
+		globalSettings = await mongo.getRepoSettingsById(repoId);
+	} catch (error) {
+		console.error('Error during fetching global settings:', error);
+		return;
+	}
+
 	let parameters = {};
 
 	if (mode === 'scenario') {
 		const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioId, 10));
 
 		const scenarioCount = Math.max(scenario.stepDefinitions.example.length, 1);
+
+		const additionalParams = getSettings(scenario, globalSettings);
+
 		parameters = {
 			scenarios: Array.from({ length: scenarioCount }).map(() => ({
-				browser: scenario.browser || 'chrome',
-				waitTime: scenario.stepWaitTime || 0,
-				daisyAutoLogout: scenario.daisyAutoLogout || false,
-				...(scenario.emulator !== undefined && { emulator: scenario.emulator })
+				...additionalParams
 			}))
 		};
 	} else if (mode === 'feature' || mode === 'group') {
-		const prep = scenarioPrep(story.scenarios, story.oneDriver);
+		const prep = scenarioPrep(story.scenarios, story.oneDriver, globalSettings);
 		story.scenarios = prep.scenarios;
 		parameters = prep.parameters;
 	}
@@ -230,7 +283,6 @@ async function executeTest(req, mode, story) {
 				reportTime, story, scenarioId: req.params.scenarioId, reportName
 			});
 		});
-
 		runner.on('exit', () => {
 			console.log('test finished');
 			resolve({
@@ -240,8 +292,9 @@ async function executeTest(req, mode, story) {
 	});
 }
 
-function scenarioPrep(scenarios, driver) {
+function scenarioPrep(scenarios, driver, globalSettings) {
 	const parameters = { scenarios: [] };
+
 	scenarios.forEach((scenario) => {
 		// eslint-disable-next-line no-param-reassign
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
@@ -249,23 +302,20 @@ function scenarioPrep(scenarios, driver) {
 		if (!scenario.browser) scenario.browser = 'chrome';
 		// eslint-disable-next-line no-param-reassign
 		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
+
+		const additionalParams = getSettings(scenario, globalSettings);
+
 		if (scenario.stepDefinitions.example.length <= 0) {
 			parameters.scenarios.push({
-				browser: scenario.browser,
-				waitTime: scenario.stepWaitTime,
-				daisyAutoLogout: scenario.daisyAutoLogout,
 				oneDriver: driver,
-				...(scenario.emulator !== undefined && { emulator: scenario.emulator })
+				...additionalParams
 			});
 		} else {
-			scenario.stepDefinitions.example.forEach((examples, index) => {
+			scenario.stepDefinitions.example.forEach((index) => {
 				if (index > 0) {
 					parameters.scenarios.push({
-						browser: scenario.browser,
-						waitTime: scenario.stepWaitTime,
-						daisyAutoLogout: scenario.daisyAutoLogout,
 						oneDriver: driver,
-						...(scenario.emulator !== undefined && { emulator: scenario.emulator })
+						...additionalParams
 					});
 				}
 			});

@@ -214,8 +214,25 @@ router.post('/createRepository', async (req, res) => {
 
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
-	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.user._id);
-	res.status(200).json(repo);
+	const { repoName, settings } = req.body;
+	try {
+		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings, req.user._id);
+		res.status(200).json(repo);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error while updating Repository.');
+	}
+});
+
+// get global repository settings
+router.get('/repository/settings/:repo_id', async (req, res) => {
+	try {
+		const globalSettings = await mongo.getRepoSettingsById(req.params.repo_id);
+		res.status(200).json(globalSettings);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error getting global repository settings');
+	}
 });
 
 // update user

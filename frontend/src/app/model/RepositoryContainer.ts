@@ -22,4 +22,17 @@ export interface RepositoryContainer {
      * If the user can edit the repository
      */
     canEdit?: boolean;
+
+    /**
+     * Global settings for the repository
+     */
+    settings?: {
+        stepWaitTime?: number;
+        browser?: string;
+        emulator?: string;
+        width?: number;
+        height?: number;
+        activated?: boolean;
+    };
+
 }

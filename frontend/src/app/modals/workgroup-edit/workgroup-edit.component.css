@@ -1,117 +1,301 @@
 .uk-card-title {
-    font-size: medium;
+  font-size: medium;
 }
 
-.submitForm{
-    width: 100%
-}
-::ng-deep .d-block{
-    z-index: 1!important;
-}
-#changeOwner{
-    margin-left: 7px; 
+.submitForm {
+  width: 100%;
 }
 
-.modal-body.modal-xl{
-    padding: 10px;
+::ng-deep .d-block {
+  z-index: 1 !important;
 }
 
+#changeOwner {
+  margin-left: 7px;
+}
+
+.modal-body.modal-xl {
+  padding: 10px;
+  margin-bottom: 5px;
+  margin-top: 10px;
+  overflow: unset !important;
+}
+.workgroupTable {
+  overflow: scroll;
+  max-height: calc(100vh - 270px);
+}
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
 input.wrongEmail {
-    border-left: 5px solid #d15553;
+  border-left: 5px solid #d15553;
 }
 
 .divWrapper {
-    margin: 3px;
+  margin: 3px;
 }
 
-.workGroupEmail{
-    margin-right: 5px;
+.workGroupEmail {
+  margin-right: 5px;
 }
 
-.wrongEmail{
-    background-color: var(--grape);
+.wrongEmail {
+  background-color: var(--grape);
 }
 
-.canEditContainer{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+.canEditContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
-.canEditLabel{
-    margin-right: 5px;
-    margin-bottom: 0px;
+.canEditLabel {
+  margin-right: 5px;
+  margin-bottom: 0px;
 }
 
 table {
-    width: 100%;
-    margin-top:5px;
+  width: 100%;
+  margin-top: 5px;
 }
 
-.emailTableContainer{
-    display: flex;
-    justify-content: space-between;
+.emailTableContainer {
+  display: flex;
+  justify-content: space-between;
 }
 
 .emailTableContainer > * {
-    margin-left: 15px;
-    margin-right: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
-.editColumn{
-    max-width: 50px;
+.editColumn {
+  max-width: 50px;
 }
 
-.mat-mdc-table{
-    font-family: Klavika, sans-serif;
+.mat-mdc-table {
+  font-family: Klavika, sans-serif;
 }
 
-.mat-mdc-table .mat-mdc-cell:first-child, .mat-mdc-table .mat-mdc-header-cell:first-child{
-    border-right: 1px solid #e0e0e0;
-  }
-
-.mat-mdc-cell, .mat-mdc-header-cell {
-    text-align: center;
+.mat-mdc-table .mat-mdc-cell:first-child,
+.mat-mdc-table .mat-mdc-header-cell:first-child {
+  border-right: 1px solid #e0e0e0;
 }
 
-td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type, th.mat-mdc-header-cell:last-of-type{
-    padding-right: 0px;
+.mat-mdc-cell,
+.mat-mdc-header-cell {
+  text-align: center;
 }
 
-td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type, th.mat-mdc-header-cell:first-of-type{
-    padding-left: 0px;
+td.mat-mdc-cell:last-of-type,
+td.mat-mdc-footer-cell:last-of-type,
+th.mat-mdc-header-cell:last-of-type {
+  padding-right: 0px;
+}
+
+td.mat-mdc-cell:first-of-type,
+td.mat-mdc-footer-cell:first-of-type,
+th.mat-mdc-header-cell:first-of-type {
+  padding-left: 0px;
 }
 
 @media screen and (max-height: 800px) {
-    .tableContainer{
-        max-height: 300px;
-        overflow-y: auto;
-    }
+  .tableContainer {
+    max-height: 300px;
+    overflow-y: auto;
+  }
 
-    .dividerContainer{
-        max-height: 300px;
-        overflow-y: auto;
-    }
+  .dividerContainer {
+    max-height: 300px;
+    overflow-y: auto;
+  }
 }
 
 .addTeamMembersLabel {
-    position: relative;
-    left: -67px;
+  position: relative;
+  left: -67px;
 }
 
-::ng-deep .mdc-checkbox{
-    display: none !important;
+::ng-deep .mdc-checkbox {
+  display: none !important;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #90CAF9;
+  background: #90caf9;
 }
 
-::ng-deep .mat-mdc-select-arrow-wrapper{
-    transform: inherit !important;
+.globalSettings {
+  display: block;
+}
+
+.browserDiv {
+  margin-bottom: 20px;
+}
+
+.windowSizeDiv {
+  margin-bottom: 20px;
+}
+
+.waitTimeDiv {
+  margin-bottom: 20px;
+}
+
+.emulatorDiv {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  text-align: left;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.selectLabel {
+  margin-right: 3px;
+}
+
+#emulatorInfoIcon {
+  width: 13px;
+  vertical-align: baseline;
+}
+#emulatorCheck {
+  margin-left: 45px;
+}
+.select {
+  width: 120px;
+  margin-left: 90px;
+}
+
+.waitTime {
+  width: 120px;
+  height: 25px;
+}
+#defaultWaitTimeInput {
+  margin-right: 10px;
+}
+.applySettingsDiv {
+  margin-top: 10px;
+}
+#windowSizeButton {
+  margin-top: -5px;
+  margin-left: -10px;
+}
+.applySettingsText {
+  margin-right: 10px;
+}
+
+#applyGlobalSettingsCheckbox {
+  margin-left: 5px;
+}
+
+.nav-tabs {
+  display: flex;
+  justify-content: center;
+}
+
+.nav-link {
+  color: #6c757d;
+  margin: 5px;
+}
+
+.nav-link.active {
+  color: black;
+}
+
+.dfn .def {
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+.globalSettings {
+  display: block;
+}
+
+.browserDiv {
+  margin-bottom: 20px;
+}
+
+.windowSizeDiv {
+  margin-bottom: 20px;
+}
+
+.waitTimeDiv {
+  margin-bottom: 20px;
+}
+
+.emulatorDiv {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  text-align: left;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.selectLabel {
+  margin-right: 3px;
+}
+
+#emulatorInfoIcon {
+  width: 13px;
+  vertical-align: baseline;
+}
+#emulatorCheck {
+  margin-left: 45px;
+}
+.select {
+  width: 120px;
+  margin-left: 90px;
+}
+
+.waitTime {
+  width: 120px;
+  height: 25px;
+}
+#defaultWaitTimeInput {
+  margin-right: 10px;
+}
+.applySettingsDiv {
+  margin-top: 10px;
+}
+#windowSizeButton {
+  margin-top: -5px;
+  margin-left: -10px;
+}
+.applySettingsText {
+  margin-right: 10px;
+}
+
+#applyGlobalSettingsCheckbox {
+  margin-left: 5px;
+}
+
+.nav-tabs {
+  display: flex;
+  justify-content: center;
+}
+
+.nav-link {
+  color: #6c757d;
+  margin: 5px;
+}
+
+.nav-link.active {
+  color: black;
+}
+
+.dfn .def {
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+::ng-deep .mat-mdc-select-arrow-wrapper {
+  transform: inherit !important;
 }
 
 ::ng-deep #Workgroup_Owner .mat-mdc-floating-label {
-    top: 25px !important;
-    font-size: 16px !important;
+  top: 25px !important;
+  font-size: 16px !important;
 }
