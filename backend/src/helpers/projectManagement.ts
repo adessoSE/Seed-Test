@@ -350,9 +350,10 @@ async function importProject(file, repo_id?, projectName?) {
   // Create a MongoDB client and start a session
   const client = dbConnector.getConnection();
 
-  const zip = new AdmZip(file);
+  const zip = new AdmZip(file.buffer);
 
-  console.log(zip);
+  console.log(repo_id);
+  console.log(projectName);
   try {
     // Extract the stories and groups data
     const storiesFolder = "stories_data";
@@ -365,7 +366,7 @@ async function importProject(file, repo_id?, projectName?) {
       .getEntries()
       .filter((entry) => entry.entryName.startsWith(groupsFolder));
 
-    console.log(zip.getEntry('repo.json'));
+    console.log(zip.getEntries());
     console.log(storyFiles);
     console.log(groupFiles);
 
@@ -381,9 +382,7 @@ async function importProject(file, repo_id?, projectName?) {
       return filenameA.localeCompare(filenameB);
     });
 
-    console.log(storyFiles);
-    console.log(groupFiles);
-
+    console.log(repo_id);
     if (repo_id) {
       // Perform a PUT request for an existing project
       //Return Array of Strings/Ids needed for name change => still not final

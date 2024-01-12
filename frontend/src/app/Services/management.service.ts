@@ -130,7 +130,7 @@ export class ManagementService {
    * @param file: File which should be imported
    * @returns
    */
-  importProject(file, repo_id, projectName): Observable<Blob> {
+  importProject(file: File, repo_id: string, projectName: string): Observable<Blob> {
     const formData: FormData = new FormData();
     formData.append("file", file, file.name);
 
@@ -151,7 +151,7 @@ export class ManagementService {
         {
           withCredentials: true,
           responseType: "json", //Array of strings expected, if story title changes are needed
-          params: { projectName: projectName, repo_id: repo_id },
+          params: { repo_id: repo_id },
         }
       );
     }
