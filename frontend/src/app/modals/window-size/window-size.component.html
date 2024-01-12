@@ -11,6 +11,7 @@
             <mat-form-field appearance="fill">
                 <mat-label>Resolution</mat-label>
                 <mat-select [(value)]="selectedResolution">
+                    <mat-option value="custom">Custom</mat-option>
                     <mat-option value="3840x2160">3840x2160 (4K UHD)</mat-option>
                     <mat-option value="2560x1440">2560x1440 (QHD)</mat-option>
                     <mat-option value="1920x1080">1920x1080 (Full HD)</mat-option>
@@ -18,8 +19,7 @@
                     <mat-option value="1536x864">1536x864</mat-option>
                     <mat-option value="1440x900">1440x900</mat-option>
                     <mat-option value="1366x768">1366x768</mat-option>
-                    <mat-option value="1280x720">1280x720</mat-option>
-                    <mat-option value="custom">Custom</mat-option>
+                    <mat-option value="1280x720">1280x720</mat-option>   
                 </mat-select>
             </mat-form-field>
 
