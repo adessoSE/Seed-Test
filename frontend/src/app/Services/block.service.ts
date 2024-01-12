@@ -56,6 +56,8 @@ export class BlockService {
    */
   public updateNameRefEvent = new EventEmitter();
 
+  public updateScenariosRefEvent = new EventEmitter();
+
   /**
   * Stores an array of references blocks, before the reference is deleted
   */
