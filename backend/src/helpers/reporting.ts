@@ -349,6 +349,13 @@ function deleteReport(jsonReport: string) {
 }
 
 async function runReport(req, res, stories: any[], mode: ExecutionMode, parameters) {
+    const neededFiles = stories
+			.flatMap(story => story.scenarios)
+			.flatMap(scen => scen.stepDefinitions.when)
+			.filter(step => step.type === "Upload File")
+			.map(step => step.values[0]);
+	//if (neededFiles) await mongo.getFiles(neededFiles, repoId)
+
 	let reportObj;
 	try {
 		if (mode === ExecutionMode.GROUP) {

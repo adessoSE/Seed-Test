@@ -1356,15 +1356,15 @@ async function getFileList(repoId) {
  * Store Files Temporarily in the File System
  * @param {string} fileIds 
  */
-async function getFiles(fileIds) {
+async function getFiles(fileTitles, repoId) {
 	const db = dbConnection.getConnection();
 	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
 	const destinationDirectory = '/Users/public/SeedExec';
 	
-	for (const fileId of fileIds) {
-		const fileInfo = await bucket.find({ _id: new ObjectId(fileId) }).toArray((err, file) => file[0]);
+	for (const fileTitle of fileTitles) {
+		const fileInfo = await bucket.find({ 'metadata.repoId': new ObjectId(repoId), filename: fileTitle }).toArray((err, file) => file[0]);
 		console.log(fileInfo);
-		const downloadStream = bucket.openDownloadStream(new ObjectId(fileId));
+		const downloadStream = bucket.openDownloadStream(fileInfo._id);
 		const destinationPath = `${destinationDirectory}/${fileInfo[0].filename}`;
 		const fileWriteStream = fs.createWriteStream(destinationPath);
 
