@@ -426,32 +426,30 @@ export class BlockService {
   }
  
   /** 
-   * convert Steps To Reference
+   * convert selected steps To Reference
    * @param block
    * @param scenario
    */
-  convertStepsToRef(block: Block, scenario: Scenario, storyId){
-    let blockStepsToCompare = block.stepDefinitions.when;
-    let indexToPush; 
-    for (let i = scenario.stepDefinitions.when.length - 1; i >= 0; i--) {
-      const value = scenario.stepDefinitions.when[i];
-      const foundIndex = blockStepsToCompare.findIndex((blockStep) => 
-        blockStep.pre === value.pre && 
-        blockStep.mid === value.mid && 
-        JSON.stringify(blockStep.values) === JSON.stringify(value.values)
-      );
-      if (foundIndex !== -1) {
-        indexToPush = i;
-        scenario.stepDefinitions.when.splice(i, 1);
-      }
+  convertStepsToRef(block: Block, scenario: Scenario){
+   let indexToPush; 
+   let pushStepDef;
+
+    for (const step in scenario.stepDefinitions) {
+      scenario.stepDefinitions[step].forEach((stepInScenario, index) => {
+        for(const stepBlock in block.stepDefinitions){
+          block.stepDefinitions[stepBlock].forEach((stepInBlock)=>{
+            if(stepInScenario.stepType == stepInBlock.stepType && stepInScenario.id === stepInBlock.id){
+              scenario.stepDefinitions[step].splice(index, 1);
+              indexToPush = indexToPush === undefined ? index : indexToPush;
+              pushStepDef = pushStepDef === undefined ? stepInScenario.stepType : pushStepDef;
+            }  
+          })
+        }
+      })
     }
-    const blockReference: StepType = {_blockReferenceId: block._id, id: 0, type: block.name, stepType: 'when',
+    const blockReference: StepType = {_blockReferenceId: block._id, id: indexToPush, type: block.name, stepType: pushStepDef,
     pre: '', mid: '', post: '', values: []};
-    if (indexToPush < 0 || indexToPush > scenario.stepDefinitions.when.length) {
-      throw new Error("Invalid indexToPush");
-    }else{
-      scenario.stepDefinitions.when.splice(indexToPush, 0, JSON.parse(JSON.stringify(blockReference)));
-    } 
+    scenario.stepDefinitions[pushStepDef].splice(indexToPush, 0, JSON.parse(JSON.stringify(blockReference)));
     scenario.saved = false;
   }
 

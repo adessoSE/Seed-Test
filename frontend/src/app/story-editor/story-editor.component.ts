@@ -471,7 +471,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         }
       });
       this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block => 
-          this.blockService.convertStepsToRef(block, this.selectedScenario, this.selectedStory._id)
+          this.blockService.convertStepsToRef(block, this.selectedScenario)
       );
   }
     ngOnDestroy() {
