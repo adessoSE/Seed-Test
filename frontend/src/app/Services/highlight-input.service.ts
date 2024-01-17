@@ -23,7 +23,7 @@ export class HighlightInputService {
    * @param stepPre pre text of step
    * @returns if a regex was detected
    */
-  highlightRegex(
+  highlightInput(
     element,
     initialCall?: boolean,
     isDark?: boolean,
@@ -31,8 +31,6 @@ export class HighlightInputService {
     valueIndex?: number,
     stepPre?: string
   ) {
-    const regexPattern = /(\{Regex:)(.*?)(\})/g; // Regex pattern to recognize and highlight regex expressions -> start with {Regex: and end with }
-
     const textField = element;
     const textContent = textField.textContent;
     //Get current cursor position
@@ -44,47 +42,16 @@ export class HighlightInputService {
       "So I can't see text in the textbox:",
     ];
     var regexDetected = false;
-    let highlightedText;
-    // TODO: Hardcoded Styles
+    var specialCommandDetected = false;
+    let highlightedText = textContent;
+
     if (!valueIndex || (0 == valueIndex && regexSteps.includes(stepPre))) {
-      highlightedText = textContent.replace(
-        regexPattern,
-        (match, match1, match2, match3) => {
-          regexDetected = true;
-          var identifier = `specialInputId${
-            Date.now().toString(36) + Math.random().toString(36).substr(2)
-          }`;
-          this.apiService.resolveSpecialCommand(match).subscribe({
-            next: (resolvedCommand) => {
-              console.log("RECIEVED: " + resolvedCommand);
-              document
-                .querySelector(`#${identifier}`)
-                .setAttribute("uk-tooltip", `title:${resolvedCommand}`);
-            },
-            error: (error) => {
-              console.log(error.error.error);
-              document
-                .querySelector(`#${identifier}`)
-                .setAttribute(
-                  "uk-tooltip",
-                  `title:Error: ${error.error.error}`
-                );
-            },
-          });
-          return (
-            `<span uk-tooltip="title:Resolving Command ..." id="${identifier}">` +
-            `<span style="color: ${
-              isDark ? "var(--light - grey)" : "var(--brown-grey)"
-            }; font-weight: bold">${match1}</span>` +
-            `<span style="color: ${
-              isDark ? "var(--light-blue)" : "var(--ocean-blue)"
-            }; font-weight: bold">${match2}</span>` +
-            `<span style="color: ${
-              isDark ? "var(--light-grey)" : "var(--brown-grey)"
-            }; font-weight: bold">${match3}</span></span>`
-          );
-        }
-      );
+      ({ regexDetected, highlightedText } = this.highlightRegex(
+        highlightedText,
+        isDark
+      ));
+      ({ specialCommandDetected, highlightedText } =
+        this.highlightSpecialCommands(highlightedText, isDark));
     }
     textField.innerHTML = highlightedText ? highlightedText : textContent;
 
@@ -101,7 +68,7 @@ export class HighlightInputService {
 
     // Set cursor to correct position
     if (!initialCall) {
-      if (regexDetected) {
+      if (true) {
         //maybe not needed
         const selection = window.getSelection();
         selection.removeAllRanges();
@@ -141,6 +108,90 @@ export class HighlightInputService {
       }
     }
     return regexDetected;
+  }
+
+  /**
+   * This function takes a html element and highlights the regex inside it if found.
+   * @param element HTML element of contentedible div
+   * @param isDark theming Service
+   * @returns an object containing {regexDetected , highlightedText}
+   */
+  highlightRegex(element, isDark) {
+    const regexPattern = /(\{Regex:)(.*?)(\})/g;
+
+    const textContent = element;
+
+    var regexDetected = false;
+    let highlightedText;
+    // TODO: Hardcoded Styles
+    highlightedText = textContent.replace(
+      regexPattern,
+      (match, match1, match2, match3) => {
+        regexDetected = true;
+        return (
+          `<span>` +
+          `<span style="color: ${
+            isDark ? "var(--light - grey)" : "var(--brown-grey)"
+          }; font-weight: bold">${match1}</span>` +
+          `<span style="color: ${
+            isDark ? "var(--light-blue)" : "var(--ocean-blue)"
+          }; font-weight: bold">${match2}</span>` +
+          `<span style="color: ${
+            isDark ? "var(--light-grey)" : "var(--brown-grey)"
+          }; font-weight: bold">${match3}</span></span>`
+        );
+      }
+    );
+    return { regexDetected, highlightedText };
+  }
+
+  /**
+   * This function takes a html element and highlights the special commands inside it if found.
+   * @param element HTML element of contentedible div
+   * @param isDark theming Service
+   * @returns an object containing {regexDetected , highlightedText}
+   */
+  highlightSpecialCommands(element, isDark) {
+    const specialCommandsPattern =
+      /(((((@@(Day|Month|Year),(\d\d?\d?\d?))+)|(@@((\d|\d\d),)?[a-zA-Z]+))((\+|-)(@@((\d|\d\d),)?[a-zA-Z]+))+)|(((@@(Day|Month|Year),(\d\d?\d?\d?))+)|(@@((\d|\d\d),)?[a-zA-Z]+)))(@@format:.*€€)?/g;
+
+    const textContent = element;
+
+    var specialCommandDetected = false;
+    let highlightedText;
+    // TODO: Hardcoded Styles
+    highlightedText = textContent.replace(specialCommandsPattern, (match) => {
+      specialCommandDetected = true;
+      var identifier = `specialInputId${
+        Date.now().toString(36) + Math.random().toString(36).substr(2)
+      }`;
+      this.apiService.resolveSpecialCommand(match).subscribe({
+        next: (resolvedCommand) => {
+          if (resolvedCommand === match) {
+            document
+              .querySelector(`#${identifier}`)
+              .setAttribute(
+                "uk-tooltip",
+                `title: Unknown command: ${resolvedCommand}`
+              );
+          } else {
+            document
+              .querySelector(`#${identifier}`)
+              .setAttribute("uk-tooltip", `title:${resolvedCommand}`);
+          }
+        },
+        error: (error) => {
+          document
+            .querySelector(`#${identifier}`)
+            .setAttribute("uk-tooltip", `title:Error: ${error.error.error}`);
+        },
+      });
+      return `<span uk-tooltip="title:Resolving Command ..." id="${identifier}" style="color: ${
+        isDark ? "var(--light-blue)" : "var(--ocean-blue)"
+      }; font-weight: bold">${match}</span>`;
+    });
+
+    return { specialCommandDetected, highlightedText };
   }
 
   /**

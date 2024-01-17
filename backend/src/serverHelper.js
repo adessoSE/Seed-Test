@@ -420,7 +420,7 @@ function applyDateCommand(str) {
 
 	// Wenn das Array leer ist, wurden keine Substrings gefunden
 	if (indices.length === 0) {
-		return -1;
+		return str;
 	}
 
 	// Finde den niedrigsten Index (die erste Vorkommen)
@@ -587,19 +587,11 @@ function calcDate(value) {
 * return the string with the special commands applied.
 */
 function applySpecialCommands(str) {
+	const pattern = /(((((@@(Day|Month|Year),(\d\d?\d?\d?))+)|(@@((\d|\d\d),)?[a-zA-Z]+))((\+|-)(@@((\d|\d\d),)?[a-zA-Z]+))+)|(((@@(Day|Month|Year),(\d\d?\d?\d?))+)|(@@((\d|\d\d),)?[a-zA-Z]+)))(@@format:.*€€)?/g;
 	let appliedCommandsString = str;
-	const regexPattern = /(\{Regex:)(.*?)(\})/g;
-	appliedCommandsString = str.replace(
-		regexPattern,
-		(match, match1, match2) => {
-			// ApplySpecialCommands
-			if (match2.includes('@@Day') || match2.includes('@@Month') || match2.includes('@@Year') || match2.includes('@@Date')) {
-				return applyDateCommand(match2);
-			}
-			// Return the inner content if no cammnd fits
-			return match2;
-		}
-	);
+
+	// appliedCommandsString = applyDateCommand(str);
+	appliedCommandsString = str.replace(pattern, (match) => applyDateCommand(match));
 	return appliedCommandsString;
 }
 
