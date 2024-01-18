@@ -134,7 +134,7 @@ export class HighlightInputService {
             isDark ? "var(--light - grey)" : "var(--brown-grey)"
           }; font-weight: bold">${match1}</span>` +
           `<span style="color: ${
-            isDark ? "var(--light-blue)" : "var(--ocean-blue)"
+            isDark ? "#ffbae1" : "#a71768"
           }; font-weight: bold">${match2}</span>` +
           `<span style="color: ${
             isDark ? "var(--light-grey)" : "var(--brown-grey)"
