@@ -2,46 +2,47 @@
   padding: 0px;
   margin: 0px;
 }
-.scenarioTitle > .mat-icons{
+.scenarioTitle > .mat-icons {
   transform: translateY(-5px);
   width: 25px;
-
 }
-.scenarioHeaderContainer{
+.scenarioHeaderContainer {
   display: grid;
   grid-template-columns: 1fr auto 1fr auto;
   margin: 0 20px;
   padding: 12px 0 12px 0;
-  position: relative; 
+  position: relative;
 }
 
-#scenario{
+#scenario {
   border: 1px solid #999;
+  border-radius: 7px;
 }
 
 .darkTheme#scenario {
-  border:1px solid #60767b;
+  border: 1px solid #60767b;
+  border-radius: 7px;
 }
 
 /* Eventually not in use ? */
-.marginButton{
+.marginButton {
   margin: 5px;
 }
 
 /* Eventually not in use ? */
-.modal-title{
+.modal-title {
   color: var(--white);
 }
 
 /* Eventually not in use ? */
-.modal-header2{
+.modal-header2 {
   background-color: var(--ocean-blue);
   padding: 15px;
   margin-bottom: 5px;
 }
 
 /* Eventually not in use ? */
-.modalMargin{
+.modalMargin {
   margin-left: auto !important;
   margin-right: auto !important;
 }
@@ -66,11 +67,10 @@
   color: red !important;
 } */
 
-
 /* Eventually not in use */
-.uk-card-footer{
+.uk-card-footer {
   padding-bottom: 0;
-} 
+}
 
 /* Seems not being in use  */
 
@@ -90,16 +90,16 @@ table {
 /* .scenario_unsaved {
   color: red !important;
 } */
-.saveDone{
+.saveDone {
   display: block;
-  position: absolute; 
-  bottom:0; 
-  left:0; 
+  position: absolute;
+  bottom: 0;
+  left: 0;
   background: transparent;
   border: none;
   margin-right: 2px;
 }
-.material-icons-merged{
+.material-icons-merged {
   height: 71%;
   width: 194%;
 }
@@ -117,11 +117,11 @@ table {
   background: transparent;
 } */
 
-.disabled{
+.disabled {
   opacity: 0.8;
 }
 
-:host ::ng-deep .comment{
+:host ::ng-deep .comment {
   /* column-width: fill-available; */
   margin-left: 20px;
   margin-right: 20px;
@@ -131,11 +131,11 @@ table {
   height: 50px;
 }
 
-:host ::ng-deep .daisyAutoLogout{
+:host ::ng-deep .daisyAutoLogout {
   column-width: 100px;
-  float:right;
+  float: right;
 }
 
-:host ::ng-deep #daisyAutoLogout{
+:host ::ng-deep #daisyAutoLogout {
   margin-left: 5px;
 }

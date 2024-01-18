@@ -1,0 +1,7 @@
+Buttons: border radius: 7px
+
+Report: selbes styling wie scneario editor
+
+Story nicht scrollbar (scrollbar in scrollbar ist komisch)
+
+storybar sticky gemacht

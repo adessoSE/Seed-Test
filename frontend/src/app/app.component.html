@@ -1,63 +1,66 @@
 <div class="grid mat-app-background" [class.darkTheme]="isDark">
   <div class="topnav">
     <!--left-->
-    <div class="uk-inline dropdown">
-      <button *ngIf="this.loginService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
-      <div #dropdownMenu [class.closedMenu]="closed">
-        <ul uk-dropdown="mode: hover" *ngIf="this.loginService.isLoggedIn()" class="dropdown-list">
-          <li>
-            <div *ngIf="this.repositories" class="dropdown">
-              <button class="menuSelection" title="Select Project">Projects</button>
-              <div uk-dropdown="mode: click" id="static">
-                <ul class="dropdown-list">
-                  <li *ngFor="let repository of repositories; let i = index" class="list-item">
-                    <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)"
-                      src="../assets/GitHub-Mark-32px.png" alt="github">
-                    <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)"
-                      src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
-                    <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
-                      src="../assets/database-5-32.png" alt="database">
-                    <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
-                      routerLink=''>{{repository.value}}</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </li>
-          <li>
-            <button id="manageAccount" class="menuSelection" title="Account Settings"
-              routerLink='/accountManagement'>Account Settings</button>
-          </li>
-          <li>
-            <button class="menuSelection" id="logout" title="Logout" (click)="logout();">Logout</button>
-          </li>
-        </ul>
-      </div>
-      <div class="vertical-container">
-        <div id="version" class="Largecaption">
-          Version 1.7.0 {{version === '' ? " (demo)" : ""}}
+    <div class="topNavLeft vertical-container">
+      <div class="uk-inline dropdown" id="menu">
+        <div class="menuContainer">
+          <button *ngIf="this.loginService.isLoggedIn()" class="menuButton material-icons" id="menuButton"
+            title="menu">menu</button>
         </div>
-        <dfn *ngIf="this.version === ''" id="defaultVersionWarning" class="def">
-          <span uk-icon="warning"></span>
-          <span rel="def" style="font-weight: normal">
-            This is a demo version of Seed-Test.
-            Please note that to use it in production, you need to make some configurations to ensure it's fully
-            functional.
-            Certain features may not work until you complete the installation process.
-            <b>We strongly advise against using this unconfigured version in a production environment.</b>
-            For more information, please refer to the README.
-          </span>
-        </dfn>
+        <div #dropdownMenu [class.closedMenu]="closed">
+          <ul uk-dropdown="mode: hover" *ngIf="this.loginService.isLoggedIn()" class="dropdown-list">
+            <li>
+              <div *ngIf="this.repositories" class="dropdown">
+                <button class="menuSelection" title="Select Project">Projects</button>
+                <div uk-dropdown="mode: click" id="static">
+                  <ul class="dropdown-list">
+                    <li *ngFor="let repository of repositories; let i = index" class="list-item">
+                      <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)"
+                        src="../assets/GitHub-Mark-32px.png" alt="github">
+                      <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)"
+                        src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
+                      <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
+                        src="../assets/database-5-32.png" alt="database">
+                      <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
+                        routerLink=''>{{repository.value}}</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </li>
+            <li>
+              <button id="manageAccount" class="menuSelection" title="Account Settings"
+                routerLink='/accountManagement'>Account Settings</button>
+            </li>
+            <li>
+              <button class="menuSelection" id="logout" title="Logout" (click)="logout();">Logout</button>
+            </li>
+          </ul>
+        </div>
       </div>
+
+      <div id="version" class="Largecaption">
+        Version 1.7.0 {{version === '' ? " (demo)" : ""}}
+      </div>
+      <dfn *ngIf="this.version === ''" id="defaultVersionWarning" class="def">
+        <span uk-icon="warning"></span>
+        <span rel="def" style="font-weight: normal">
+          This is a demo version of Seed-Test.
+          Please note that to use it in production, you need to make some configurations to ensure it's fully
+          functional.
+          Certain features may not work until you complete the installation process.
+          <b>We strongly advise against using this unconfigured version in a production environment.</b>
+          For more information, please refer to the README.
+        </span>
+      </dfn>
+
     </div>
 
 
     <!--center-->
     <div class="topnavCenter">
-      <a routerLink="/" class="title">
-        <h4 id="seedTest">
-          <img id="logo" src="assets/seed-test-logo1.png" alt="Seed-Test">
-        </h4>
+      <a routerLink="/" class="title" id="seedTest">
+        <img id="logo" src="assets/seed-test-logo1.png" alt="Seed-Test">
       </a>
     </div>
     <!--right-->
