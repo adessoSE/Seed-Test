@@ -214,8 +214,25 @@ router.post('/createRepository', async (req, res) => {
 
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
-	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.user._id);
-	res.status(200).json(repo);
+	const { repoName, settings } = req.body;
+	try {
+		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings, req.user._id);
+		res.status(200).json(repo);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error while updating Repository.');
+	}
+});
+
+// get global repository settings
+router.get('/repository/settings/:repo_id', async (req, res) => {
+	try {
+		const globalSettings = await mongo.getRepoSettingsById(req.params.repo_id);
+		res.status(200).json(globalSettings);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error getting global repository settings');
+	}
 });
 
 // update user
@@ -390,10 +407,9 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	function matchOrder(storiesIdList, storiesArray, repo) {
 		const mySet = new Set(storiesIdList.concat(repo.stories).map((i) => i.toString()));
 		for (const i of repo.stories) mySet.delete(i.toString());
-
 		const storyList = repo.stories.concat([...mySet]);
 		if (repo) mongo.updateStoriesArrayInRepo(repo._id, storyList);
-		return storyList.map((i) => storiesArray.get(i.toString()));
+		return storyList.map((i) => storiesArray.get(i.toString())).filter((s) => s !== undefined);
 	}
 });
 

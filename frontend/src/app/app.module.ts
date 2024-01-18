@@ -80,6 +80,12 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { EditBlockComponent } from './modals/edit-block/edit-block.component';
 import { ThemingService } from "./Services/theming.service";
 import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-popup/confirm-reset-password-popup.component";
+import { MatInputModule} from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { WindowSizeComponent } from './modals/window-size/window-size.component';
+
 
 @NgModule({
   declarations: [
@@ -132,6 +138,7 @@ import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-pop
     TransferOwnershipToast,
     ImportModalComponent,
     ConfirmResetPasswordPopupComponent,
+    WindowSizeComponent
   ],
   imports: [
     NgbModule,
@@ -164,6 +171,10 @@ import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-pop
     MatTabsModule,
     MatDialogModule,
     MatTooltipModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatMenuModule
   ],
   entryComponents: [InfoWarningToast],
   providers: [

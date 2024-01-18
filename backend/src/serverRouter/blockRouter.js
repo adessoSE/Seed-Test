@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { ObjectID } = require('mongodb');
+const { ObjectId } = require('mongodb');
 const mongo = require('../database/DbServices');
 
 // router for all block requests
@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
 	try {
 		const { body } = req;
 		if (!req.user) { res.sendStatus(401); return; }
-		body.owner = new ObjectID(req.user._id);
+		body.owner = new ObjectId(req.user._id);
 		const result = await mongo.saveBlock(body);
 		res.status(200).json(result);
 	} catch (error) {

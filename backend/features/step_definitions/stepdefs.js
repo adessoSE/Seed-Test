@@ -13,10 +13,13 @@ const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
 const { applySpecialCommands } = require('../../src/serverHelper');
 
+const downloadDirectory = 'C:\\Users\\Public\\seed_Downloads';
 let driver;
-const firefoxOptions = new firefox.Options();
-const chromeOptions = new chrome.Options();
-const edgeOptions = new edge.Options();
+const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
+	.setPreference('browser.download.folderList', 2) // Set to 2 for the "custom" folder
+	.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream');
+const chromeOptions = new chrome.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
+const edgeOptions = new edge.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
 
 if (!os.platform().includes('win')) {
 	chromeOptions.addArguments('--headless');
@@ -38,8 +41,6 @@ edgeOptions.addArguments('--start-maximized');
 edgeOptions.addArguments('--lang=de');
 edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
-
-chromeOptions.setUserPreferences({ 'download.default_directory': 'C:\\Users\\Public\\seed_Downloads' });
 
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -79,6 +80,22 @@ Before(async function () {
 		case 'firefox':
 		// no way to do it ?
 	}
+
+	if (currentParameters.windowSize !== undefined) switch (currentParameters.browser) {
+		case 'chrome':
+			chromeOptions.windowSize(currentParameters.windowSize);
+			break;
+		case 'MicrosoftEdge':
+			edgeOptions.windowSize(currentParameters.windowSize);
+			break;
+		case 'firefox':
+			firefoxOptions.windowSize(currentParameters.windowSize);
+			break;
+		default:
+			console.error(`Unsupported browser: ${currentParameters.browser}`);
+			break;
+	}
+	else console.error('Invalid width or height values');
 
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) if (driver) console.log('OneDriver');
@@ -317,16 +334,14 @@ When('I select {string} from the selection {string}', async function clickRadioB
 When('I select the option {string} from the drop-down-menue {string}', async function (value, dropd) {
 	const world = this;
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
-		`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
-	const promises = identifiers.map((idString) =>
-		driver.wait(
-			until.elementLocated(By.xpath(idString)),
-			searchTimeout,
-			`Timed out after ${searchTimeout} ms`,
-			100
-		)
-	);
+	`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
+	`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
+	const promises = identifiers.map((idString) => driver.wait(
+		until.elementLocated(By.xpath(idString)),
+		searchTimeout,
+		`Timed out after ${searchTimeout} ms`,
+		100
+	));
 
 	await Promise.any(promises)
 		.then((elem) => elem.click())
@@ -338,10 +353,10 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 			const ariaOptProm = [driver.findElement(By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
 			`)), driver.findElement(By.xpath(`${value}`))];
 			const dropdownOption = await Promise.any(ariaOptProm).catch((e) => { throw e; });
-	
+
 			// Wait for the dropdown options to be visible
 			await driver.wait(until.elementIsVisible(dropdownOption)).catch((e) => { throw e; });
-	
+
 			// Select the option from the dropdown
 			await dropdownOption.click();
 		})
@@ -623,11 +638,11 @@ Then(
 	async function checkDownloadedFile(fileName, directory) {
 		const world = this;
 		try {
-			const path = `${directory}\\${fileName}`;
+			const path = `${downloadDirectory}\\${fileName}`;
 			await fs.promises.access(path, fs.constants.F_OK);
 			const timestamp = Date.now();
 			// Rename the downloaded file, so a new Run of the Test will not check the old file
-			await fs.promises.rename(path, `${directory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
+			await fs.promises.rename(path, `${downloadDirectory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
 				if (err) console.log(`ERROR: ${err}`);
 			});
 		} catch (e) {

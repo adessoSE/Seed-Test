@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { DeleteToast } from 'src/app/delete-toast'; 
+import { DeleteToast } from 'src/app/delete-toast';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { ApiService } from 'src/app/Services/api.service';
 import { ProjectService } from 'src/app/Services/project.service';
@@ -10,6 +10,8 @@ import { TransferOwnershipToast } from 'src/app/transferOwnership-toastr';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 import { Subscription } from 'rxjs';
 import { MatSelect } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
+import { EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-workgroup-edit',
@@ -23,51 +25,84 @@ export class WorkgroupEditComponent {
      */
   displayedColumnsWorkgroup: string[] = ['email', 'can_edit_workgroup'];
 
-   /**
-    * List of all members in the workgroup
-    */
+  /**
+   * List of all members in the workgroup
+   */
   workgroupList = [];
 
-   /**
-    * Owner of the workgroup
-    */
+  /**
+   * Owner of the workgroup
+   */
   workgroupOwner = '';
 
-   /**
-    * Error if the request was not successful
-    */
+  /**
+   * Error if the request was not successful
+   */
   workgroupError = '';
 
-   /**
-    * Repository container of the workgroup
-    */
+  /**
+   * Repository container of the workgroup
+   */
   workgroupProject: RepositoryContainer;
 
-   /**
-    * Email and id of the active user
-    */
+  /**
+   * Email and id of the active user
+   */
   userEmail = '';
   userId = '';
   repos: RepositoryContainer[];
 
-   /**
-    * Model Reference for closing
-    */
+  /**
+   * varibales to work with settings 
+   */
+
+  gecko_enabled;
+
+  chromium_enabled;
+
+  edge_enabled;
+
+  browser: string;
+
+  waitBetweenSteps: number;
+
+  repoWidth: number;
+
+  repoHeight: number;
+
+  applyGlobalSettings: boolean;
+
+  windowSizeEnabled: boolean = false;
+
+  /**
+   * To navigiate between tabs, initial tab on global settings
+   */
+  currentTab: string = 'globalSettings';
+
+  /**
+   * Model Reference for closing
+   */
   modalReference: NgbModalRef;
 
   projectName: string;
   @ViewChild('ownerSelect') ownerSelect: MatSelect;
-    /**
-    * Selected member to transfer Ownership
-    */
-    selectedOwner: string;
+  /**
+  * Selected member to transfer Ownership
+  */
+  selectedOwner: string;
   
+  /**
+   * Used to notify story editor component about globalSettings
+   */
+  @Output() globalSettingsChanged = new EventEmitter<boolean>();
+
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
   transferOwnershipObservable: Subscription;
-  constructor(private modalService: NgbModal, 
+  constructor(private modalService: NgbModal,
     public projectService: ProjectService,
     private toastr: ToastrService,
+    public dialog: MatDialog,
     public apiService: ApiService) {
     this.projectService.deleteRepositoryEvent.subscribe(() => {
       this.deleteCustomRepo();
@@ -75,12 +110,27 @@ export class WorkgroupEditComponent {
     this.projectService.getRepositories().subscribe(repos => {
       this.repos = repos;
     });
+
+    this.gecko_enabled = localStorage.getItem("gecko_enabled");
+    this.chromium_enabled = localStorage.getItem("chromium_enabled");
+    this.edge_enabled = localStorage.getItem("edge_enabled");
+
+    this.gecko_emulators = localStorage.getItem("gecko_emulators");
+    this.gecko_emulators =
+      this.gecko_emulators === "" ? [] : this.gecko_emulators.split(",");
+    this.chromium_emulators = localStorage.getItem("chromium_emulators");
+    this.chromium_emulators =
+      this.chromium_emulators === "" ? [] : this.chromium_emulators.split(",");
+    this.edge_emulators = localStorage.getItem("edge_emulators");
+    this.edge_emulators =
+      this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
   }
+
   ngOnInit() {
     this.transferOwnershipObservable = this.projectService.transferOwnershipEvent.subscribe(_ => {
       this.transferedOwnership(this.selectedOwner);
     });
- }
+  }
   ngOnDestroy() {
     if (!this.transferOwnershipObservable.closed) {
       this.transferOwnershipObservable.unsubscribe();
@@ -90,7 +140,52 @@ export class WorkgroupEditComponent {
     this.selectedOwner = undefined;
     this.ownerSelect = null;
   }
- 
+
+  loadGlobalSettings(): void {
+    const repoId = this.workgroupProject._id;
+    this.projectService.getRepositorySettings(repoId).subscribe({
+      next: (settings) => {
+        if (settings) {
+          this.applyGlobalSettings = settings.activated !== undefined ? settings.activated : false;
+          if (settings.emulator) {
+            this.emulator_enabled = true
+            this.emulator = settings.emulator;
+          }
+          this.waitBetweenSteps = settings.stepWaitTime || 0;
+          this.browser = settings.browser || 'Chrome';
+          this.repoHeight = settings.height || undefined;
+          this.repoWidth = settings.width || undefined;
+        } else {
+          console.warn('No global settings found, default settings are used.');
+          this.applyDefaultSettings();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading global settings:', error);
+        this.applyDefaultSettings();
+      }
+    });
+  }
+
+  /**
+   * default settings if no previous settings were set for the project
+   */
+
+  applyDefaultSettings() {
+    this.applyGlobalSettings = false;
+    this.waitBetweenSteps = 0;
+    this.browser = 'Chrome';
+    this.emulator_enabled = false;
+    this.emulator = undefined;
+    this.repoHeight = undefined;
+    this.repoWidth = undefined;
+  }
+
+  handleSizeChange(event: { width: number, height: number }) {
+    this.repoWidth = event.width;
+    this.repoHeight = event.height;
+  }
+  
   /**
      * Opens the workgroup edit modal
      */
@@ -99,43 +194,42 @@ export class WorkgroupEditComponent {
     this.userId = userId;
     this.workgroupList = [];
     this.workgroupProject = project;
-    this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-titles'});
-    const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
-    header.textContent = 'Project: ' + project.value;
+    this.loadGlobalSettings();
+    this.modalReference = this.modalService.open(this.workgroupEditModal, { ariaLabelledBy: 'modal-basic-titles' });
     this.projectName = project.value;
 
     this.projectService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
-        this.workgroupList = res.member;
-        this.workgroupOwner = res.owner.email;
+      this.workgroupList = res.member;
+      this.workgroupOwner = res.owner.email;
     });
   }
 
-  transferedOwnership(newOwner){
+  transferedOwnership(newOwner) {
     document.getElementById('changeOwner').setAttribute('style', 'display: none');
     const repo_id = localStorage.getItem('id');
     this.projectService
-    .changeOwner(repo_id, newOwner)
-    .subscribe(_ => {
+      .changeOwner(repo_id, newOwner)
+      .subscribe(_ => {
         this.toastr.success('successfully changed', 'New owner');
-    }); 
+      });
     this.modalReference.close();
   }
 
- transferOwnership(selectedMember: string){
-  this.selectedOwner = selectedMember;
-  this.toastr.warning('', 'Do you really want to transfer your ownership? You will lose your administrator rights.', {
-    toastComponent: TransferOwnershipToast
-  });
- }
-/**
- * Invites a user to the workgroup
- * @param form
- */
+  transferOwnership(selectedMember: string) {
+    this.selectedOwner = selectedMember;
+    this.toastr.warning('', 'Do you really want to transfer your ownership? You will lose your administrator rights.', {
+      toastComponent: TransferOwnershipToast
+    });
+  }
+  /**
+   * Invites a user to the workgroup
+   * @param form
+   */
   workgroupInvite(form: NgForm) {
     const email = form.value.email;
     let canEdit = form.value.canEdit;
     if (!canEdit) { canEdit = false; }
-    const user = {email, canEdit};
+    const user = { email, canEdit };
     this.workgroupError = '';
     this.projectService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
       const originList = JSON.parse(JSON.stringify(this.workgroupList));
@@ -149,31 +243,31 @@ export class WorkgroupEditComponent {
 
   }
 
-/**
- * Removes a user from the workgroup
- * @param user
- */
+  /**
+   * Removes a user from the workgroup
+   * @param user
+   */
   removeFromWorkgroup(user) {
     this.projectService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-        this.workgroupList = res.member;
+      this.workgroupList = res.member;
     });
   }
 
-/**
- * Checks if the user can edit the workgroup
- * @param event
- * @param user
- */
+  /**
+   * Checks if the user can edit the workgroup
+   * @param event
+   * @param user
+   */
   checkEditUser(event, user) {
     user.canEdit = !user.canEdit;
     this.projectService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
-        this.workgroupList = res.member;
+      this.workgroupList = res.member;
     });
   }
 
-/**
- * Delete a custom repository
- */
+  /**
+   * Delete a custom repository
+   */
   deleteCustomRepo() {
     if (this.userEmail == this.workgroupOwner) {
       this.projectService.deleteRepository(this.workgroupProject, this.userId).subscribe(() => {
@@ -186,24 +280,50 @@ export class WorkgroupEditComponent {
 
   isCurrentRepoToDelete() {
     const currentRepo = localStorage.getItem('repository');
-    if ( this.workgroupProject.value === currentRepo) {
+    if (this.workgroupProject.value === currentRepo) {
       this.openRepoSwitchModal();
     } else {
       this.showDeleteRepositoryToast();
     }
   }
 
-/**
- * Opens the delete repository toast
- */
-  showDeleteRepositoryToast() {
-    this.apiService.nameOfComponent('repository');
-    this.toastr.warning('Are your sure you want to delete this Project? It cannot be restored.', 'Delete Project?', {
-        toastComponent: DeleteToast
+  /**
+   * Updates project and passes settings variables
+   * @param project 
+   */
+  updateRepository(project: RepositoryContainer) {
+
+    project.settings = {
+      ...project.settings,
+      stepWaitTime: this.waitBetweenSteps,
+      browser: this.browser,
+      emulator: this.emulator,
+      activated: this.applyGlobalSettings,
+      width: this.repoWidth,
+      height: this.repoHeight
+    };
+
+    this.projectService.updateRepository(project._id, project.value, this.userId, project.settings).subscribe(_resp => {
+      this.projectService.getRepositories();
+      this.toastr.success('successfully saved', 'Repository');
     });
   }
 
-  showErrorToast () {
+
+  async saveProject() {
+    this.updateRepository(this.workgroupProject)
+    this.globalSettingsChanged.emit(this.applyGlobalSettings);
+    this.modalReference.close();
+  }
+
+  showDeleteRepositoryToast() {
+    this.apiService.nameOfComponent('repository');
+    this.toastr.warning('Are your sure you want to delete this Project? It cannot be restored.', 'Delete Project?', {
+      toastComponent: DeleteToast
+    });
+  }
+
+  showErrorToast() {
     this.toastr.error(this.workgroupError);
   }
 
@@ -229,9 +349,97 @@ export class WorkgroupEditComponent {
     const project = this.workgroupProject;
     if (name.replace(/\s/g, '').length > 0) {
       project.value = name;
-   }
+    }
     // Emits rename event
     this.projectService.renameProjectEmitter(project);
   }
+
+  /**
+ * Set the browser
+ * @param newBrowser
+ */
+  setBrowser(newBrowser) {
+    this.browser = newBrowser;
+    this.setEmulatorEnabled(false);
+  }
+
+  setCurrentTab(tabName: string): void {
+    this.currentTab = tabName;
+  }
+
+
+  // ------------------------------- EMULATOR --------------------------------
+  /**
+   * To store emulator
+   */
+
+  emulator;
+  /**
+   * Boolean emulator indicator
+   */
+  emulator_enabled;
+
+  /**
+   * List of supported emulators for gecko
+   */
+  gecko_emulators;
+
+  /**
+   * List of supported emulators for gecko
+   */
+  chromium_emulators;
+
+  /**
+   * List of supported emulators for gecko
+   */
+  edge_emulators;
+
+  /**
+   * Set if an emulator should be used
+   * @param enabled Boolean
+   */
+  setEmulatorEnabled(enabled) {
+    this.emulator_enabled = enabled;
+    this.setEmulator(enabled ? this.getAvaiableEmulators()[0] : undefined)
+  }
+
+  /**
+   * Updates emulator 
+   * @param selectedValue String
+   */
+  updateEmulatorStatus(selectedValue: string) {
+    if (selectedValue === 'undefined'){
+      this.emulator_enabled = false;
+      this.setEmulator(undefined);
+    } else {
+      this.emulator_enabled = true;
+      this.setEmulator(selectedValue);
+    }
+}
+
+  /**
+   * Set the emultaor
+   * @param newEmultaor
+   */
+  setEmulator(newEmulator) {
+    this.emulator = newEmulator;
+  }
+
+  /**
+   * Get the avaiable emulators
+   */
+  getAvaiableEmulators() {
+    switch (this.browser) {
+      case "chrome":
+        return this.chromium_emulators;
+      case "firefox":
+        return this.gecko_emulators;
+      case "MicrosoftEdge":
+        return this.edge_emulators;
+    }
+    return []
+  }
+
+  // ------------------------------- EMULATOR -----------------------------
 
 }
