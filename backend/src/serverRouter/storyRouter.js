@@ -189,6 +189,18 @@ router.post('/upload/import/', upload.single('file'), async (req, res) => {
 	}
 });
 
+router.put('/upload/import/', upload.single('file'), async (req, res) => {
+	try {
+		console.log("Routing a PUT")
+		if (req.query.repo_id) {
+			const result = pmHelper.importProject(req.file, req.query.repo_id);
+			res.status(200).json(result);
+		} else res.status(200).json('');
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 router.post('/oneDriver/:storyID', async (req, res) => {
 	try {
 		const result = await mongo.updateOneDriver(req.params.storyID, req.body);

@@ -348,9 +348,12 @@ async function exportProject(repo_id, versionID) {
 
 async function importProject(file, repo_id?, projectName?) {
   // Create a MongoDB client and start a session
-  const client = dbConnector.getConnection();
+  const client = await dbConnector.establishConnection();
+  const session = await client.startSession();
 
   const zip = new AdmZip(file.buffer);
+
+  console.log("We are in ProjectManagement!")
 
   console.log(repo_id);
   console.log(projectName);
@@ -366,7 +369,7 @@ async function importProject(file, repo_id?, projectName?) {
       .getEntries()
       .filter((entry) => entry.entryName.startsWith(groupsFolder));
 
-    console.log(zip.getEntries());
+    console.log(zip.getEntries().toString());
     console.log(storyFiles);
     console.log(groupFiles);
 
@@ -382,6 +385,8 @@ async function importProject(file, repo_id?, projectName?) {
       return filenameA.localeCompare(filenameB);
     });
 
+    session.startTransaction();
+
     console.log(repo_id);
     if (repo_id) {
       // Perform a PUT request for an existing project
@@ -394,9 +399,23 @@ async function importProject(file, repo_id?, projectName?) {
       console.log("Performing a POST request for a new project");
       const repoJsonData = zip.readAsText('repo.json');
       const repoData = JSON.parse(repoJsonData);
+      console.log(repoData);
+      const mappingJsonData = zip.readAsText('keyStoryIds.json');
+      const mappingData = JSON.parse(mappingJsonData);
+      console.log(mappingData);
+      let groupMapping = [];
+      //Füllen der KeyStoryIds in Array -> ArrayIndex für Gruppenzuweisung wichtig!
+      for(const singularMapping of mappingData){
+        groupMapping.push(singularMapping);
+      };
+      await session.withTransaction(async () => {
       //Create new repo with some exported information
-      const newRepo = await mongo.createRepo(repoData.owner, repoData.repoName);
-      
+      const newRepo = await mongo.createRepo(repoData.owner, projectName);
+      if(newRepo == 'Sie besitzen bereits ein Repository mit diesem Namen!'){
+        return('Sie besitzen bereits ein Repository mit diesem Namen!');
+      }
+
+      }, );
       //Add stories, groups, blocks
 
       return("We are in POST"); //As we are in POST, we just return an empty String, e.g. no names have to be changed
@@ -404,11 +423,12 @@ async function importProject(file, repo_id?, projectName?) {
 
   } catch (error) {
     console.error("Import failed:", error);
-    //if (session.inTransaction()) {
-      //await session.abortTransaction();
-    //}
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
   } finally {
-    //session.endSession();
+    await session.endSession();
+    await client.close();
   }
 }
 
