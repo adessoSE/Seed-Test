@@ -1,7 +1,7 @@
 <div class="grid mat-app-background" [class.darkTheme]="isDark">
   <div class="topnav">
     <!--left-->
-    <div class="topNavLeft vertical-container">
+    <div class="topnavLeft">
       <div class="dropdown" id="menu">
         <div class="menuContainer">
           <button *ngIf="this.loginService.isLoggedIn()" class="menuButton material-icons" id="menuButton"
@@ -57,8 +57,6 @@
         </div>
       </div>
     </div>
-
-
     <!--center-->
     <div class="topnavCenter">
       <a routerLink="/" class="title" id="seedTest">
@@ -73,23 +71,23 @@
           [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark}" title="Switch to dark/light mode"></mat-slide-toggle>
         <mat-icon>bedtime</mat-icon>
       </div>
-      <div>
-        <div class="dropdown">
-          <button class="rightButton">Help</button>
-          <div #helpMenu [class.closedMenu]="closed">
-            <div class="dropdown-list">
-              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
-                target="_blank">Tutorial (german)</a>
-              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
-                target="_blank">Tutorial (english)</a>
-            </div>
+
+      <div class="helpContainer">
+        <button class=" rightButton">Help</button>
+        <div #helpMenu [class.closedMenu]="closed">
+          <div class="dropdown-list">
+            <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
+              target="_blank">Tutorial (german)</a>
+            <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
+              target="_blank">Tutorial (english)</a>
           </div>
         </div>
-        <a routerLink="/feedback">
-          <button class="rightButton">Feedback</button>
-        </a>
       </div>
+      <a routerLink="/feedback">
+        <button class="rightButton">Feedback</button>
+      </a>
     </div>
+
   </div>
 
   <div class="router">
