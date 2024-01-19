@@ -65,13 +65,6 @@
     </div>
     <!--right-->
     <div class="topnavRight">
-      <div class="slide-toggle-container">
-        <mat-icon>brightness_5</mat-icon>
-        <mat-slide-toggle [formControl]="toggleControl" [ngClass]="{'mat-checked mat-slide-toggle-thumb':isDark}"
-          [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark}" title="Switch to dark/light mode"></mat-slide-toggle>
-        <mat-icon>bedtime</mat-icon>
-      </div>
-
       <div class="helpContainer">
         <button class=" rightButton">Help</button>
         <div #helpMenu [class.closedMenu]="closed">
@@ -86,6 +79,15 @@
       <a routerLink="/feedback">
         <button class="rightButton">Feedback</button>
       </a>
+      <div class="slide-toggle-container">
+        <span style="font-size: 15px;color: white; padding-right: 5px">Theme:</span>
+        <div class="toggle-container">
+          <div class="toggle-btn" id="_1st-toggle-btn">
+            <input type="checkbox" [formControl]="toggleControl">
+            <span></span>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>

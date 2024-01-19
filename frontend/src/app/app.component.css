@@ -42,7 +42,6 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  align-items: center;
   padding-right: 10px;
   gap: 10px;
 }
@@ -54,13 +53,11 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  align-items: center;
 }
 
 .topnavCenter {
   grid-area: center;
   align-self: center;
-  align-items: center;
   display: flex;
   justify-content: center;
 }
@@ -428,4 +425,88 @@ a:hover {
 
 .helpContainer:hover .rightButton {
   color: var(--light-grey);
+}
+
+/* # SLIDER --------------------- */
+
+.toggle-btn {
+  position: relative;
+  width: 40px; /* Adjusted from 70px */
+  height: 20px; /* New height */
+  margin: 0 auto;
+  border-radius: 11px; /* Adjusted for new size ratio */
+}
+
+input[type="checkbox"] {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 2;
+}
+
+#_1st-toggle-btn span {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  opacity: 1;
+  background-color: var(--light-grey);
+  border-radius: 11px; /* Adjusted */
+  transition: 0.2s ease background-color, 0.2s ease opacity;
+}
+
+#_1st-toggle-btn span:before,
+#_1st-toggle-btn span:after {
+  content: "";
+  position: absolute;
+  top: 2px; /* Adjusted */
+  width: 16px; /* Adjusted */
+  height: 16px; /* Adjusted */
+  border-radius: 50%;
+  transition: 0.5s ease transform, 0.2s ease background-color;
+}
+
+#_1st-toggle-btn span:before {
+  background-color: var(--light-grey);
+  transform: translate(-16px, 0); /* Adjusted */
+  z-index: 1;
+}
+
+#_1st-toggle-btn span:after {
+  background-color: hwb(48 0% 0%);
+  transform: translate(2px, 0); /* Adjusted */
+  z-index: 0;
+}
+
+#_1st-toggle-btn input[type="checkbox"]:checked + span {
+  background-color: #37474f;
+}
+
+#_1st-toggle-btn input[type="checkbox"]:active + span {
+  opacity: 0.5;
+}
+
+#_1st-toggle-btn input[type="checkbox"]:checked + span:before {
+  background-color: #37474f;
+  transform: translate(14px, -5px); /* Adjusted */
+}
+
+#_1st-toggle-btn input[type="checkbox"]:checked + span:after {
+  background-color: var(--light-grey);
+  transform: translate(22px, 0); /* Adjusted */
+}
+
+.toggle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
