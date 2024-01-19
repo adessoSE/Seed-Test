@@ -3,85 +3,224 @@
 <ng-template #workgroupEditModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="workgroupHeader"class="MediumSubline1H4 modal-title">Project:</span>
+        <span class="MediumSubline1H4 modal-title">Project Settings</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click'); onModalClosed();">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="#" [class.active]="currentTab === 'globalSettings'"
+                (click)="setCurrentTab('globalSettings'); $event.preventDefault();">Test Execution Settings</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" [class.active]="currentTab === 'members'"
+                (click)="setCurrentTab('members'); $event.preventDefault();">Members</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" [class.active]="currentTab === 'ownership'"
+                (click)="setCurrentTab('ownership'); $event.preventDefault();">Ownership</a>
+        </li>
+    </ul>
+
+
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
-            <!-- Part: Workgroup Owner -->
-            <div class="divWrapper" id="Workgroup_Owner">
-                <!-- Only for WG-Owner -->
-                <div *ngIf="userEmail===workgroupOwner">
-                    <label style="margin-right: 10px;">Project Owner:</label>
-                    <mat-form-field *ngIf="!this.workgroupList.length == 0" style="margin-right: 10px; position: inherit;" appearance="fill"  [ngStyle]="{'width': workgroupOwner.length + 6 +'ch'}">
-                        <mat-label>Project Owner</mat-label>
-                        <mat-select  #ownerSelect [(ngModel)]="selectedOwner">
-                            <mat-option *ngFor="let element of workgroupList; let odd = odd" [value]="element.email" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
-                            {{element.email}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <button id="changeOwner" type="button" class="normalButton"
-                        [ngStyle]="{'opacity': this.workgroupList.length == 0 || selectedOwner == undefined  ?  '50%' : '100%'}" 
-                        [disabled]="this.workgroupList.length == 0 || selectedOwner == undefined "
-                        (click)="transferOwnership(selectedOwner);">Transfer Ownership
-                    </button>
-                    <div>
-                        <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle" [(ngModel)]="projectName">
-                        <button id="renameProject" type="button" class="normalButton" (click)="renameProject(workgroupInviteForm)">Rename project</button>
-                    </div>
-                </div>
-                <!-- If User is not the WG-Owner -->
-                <div *ngIf="userEmail!==workgroupOwner" >
-                    <label style="margin-right: 10px;">Project Owner:</label>
-                    <label id="projectOwner">{{this.workgroupOwner}}</label>
-                </div>
-            </div>
-            <hr>
-            <!-- Part: Invite Member -->
-            <div>
-                <form #workgroupInviteForm="ngForm" novalidate [disabled]="workgroupInviteForm.invalid"
-                (ngSubmit)="workgroupInvite(workgroupInviteForm);">
-                    <div class="divWrapper"> 
-                        <input class="workGroupEmail leftMargin" type="email" id="emailField" ngModel name="email" placeholder="Email*" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
-                        <button class="normalButton">Invite to Team</button>
-                    </div>
-                    <div class="canEditContainer divWrapper">
-                        <label class="canEditLabel addTeamMembersLabel" >Can add team members</label>
-                        <input type="checkbox" ngModel name="canEdit"
-                        class="normalButton addTeamMembersLabel" style="align-self: center;">
-                    </div>
-                </form>
-            </div>
-            <!-- Part: Member List -->
-            <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8" aria-describedby="mydesc">
-                <ng-container matColumnDef="email">
-                  <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
-                  <td mat-cell *matCellDef="let element">
-                    <div class="emailTableContainer">
-                        <label>{{element.email}} </label>
-                        <button class="normalButton deleteButton"(click)="removeFromWorkgroup(element);">Remove</button>
-                    </div>             
-                  </td>
-                </ng-container>
+            <!-- Global Settings -->
+            <div *ngIf="currentTab === 'globalSettings'">
+                <div class="globalSettings" style="margin-left: 220px; margin-right: 220px;">
 
-                <ng-container  matColumnDef="can_edit_workgroup">
-                    <th id="checkboxCanEdit" class="editColumn" mat-header-cell *matHeaderCellDef> Can add team members </th>
-                    <td mat-cell *matCellDef="let element">
-                        <input type="checkbox" name="canEditUser" class="normalButton" (change)="this.checkEditUser($event, element)" [checked]="element.canEdit">
-                    </td>
-                </ng-container>
-                <tr mat-header-row *matHeaderRowDef="displayedColumnsWorkgroup"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumnsWorkgroup;"></tr>
-              </table>
+                    <!-- Wait Between Steps -->
+                    <div class="waitTimeDiv space-between">
+                        <div>
+                            <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
+                        </div>
+                        <div>
+                            <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime"
+                                type="number" min=0 max=25000 step=200>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span id="settingsInfoIcon" uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Specifies the amount of time (in milliseconds) to wait between each step when
+                                    running
+                                    the test. </span>
+                            </dfn>
+                        </div>
+                    </div>
+
+                    <!-- Browser -->
+                    <div class="browserDiv space-between">
+                        <div>
+                            <label class="selectLabel SmallIcontext">Browser:</label>
+                        </div>
+                        <div>
+                            <select name="browser" class="select" id="browserSelect"
+                                (change)="setBrowser($event.target.value)">
+                                <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
+                                    [selected]="this.browser === 'chrome'">Chrome</option>
+                                <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
+                                    [selected]="this.browser === 'firefox'">Firefox</option>
+                                <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
+                                    [selected]="this.browser === 'MicrosoftEdge'">Edge</option>
+                            </select>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span id="settingsInfoIcon" uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Selects a web browser (Chrome, Firefox, Edge) for running the test.
+                                </span>
+                            </dfn>
+                        </div>
+                    </div>
+
+                    <!-- Emulator -->
+                    <div class="emulatorDiv space-between">
+                        <div>
+                            <label class="selectLabel SmallIcontext" for="emulatorSelect">Emulator:</label>
+                        </div>
+                        <div>
+                            <select name="emulator" class="select" id="emulatorSelect" [(ngModel)]="emulator"
+                                (change)="updateEmulatorStatus($event.target.value)">
+                                <option [value]="undefined">No emulator</option>
+                                <option *ngFor="let emulator of getAvaiableEmulators()" [value]="emulator">
+                                    {{ emulator }}
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span id="settingsInfoIcon" uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Runs the test on a simulated device.
+                                </span>
+                            </dfn>
+                        </div>
+                    </div>
+
+                    <!-- Open Window Size Component-->
+                    <div class="windowSizeDiv space-between">
+                        <div>
+                            <label class="selectLabel SmallIcontext">Change Windows Size:</label>
+                        </div>
+                        <div>
+                            <app-window-size id="windowSizeButton" #windoSizeModal [width]="repoWidth"
+                                [height]="repoHeight" [emulator]="emulator_enabled"
+                                (sizeChange)="handleSizeChange($event)"></app-window-size>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Changes height and width to adjust the size of the window for the test.
+                                </span>
+                            </dfn>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+
+                <!-- Apply Settings -->
+                <div class="applySettingsDiv">
+                    <label for="applyGlobalSettingsCheckbox">Override Local Settings in Stories:</label>
+                    <input type="checkbox" id="applyGlobalSettingsCheckbox" [(ngModel)]="applyGlobalSettings">
+                </div>
+            </div>
+
+            <div *ngIf="currentTab === 'ownership'">
+                <!-- Part: Workgroup Owner -->
+
+                <div class="divWrapper" id="Workgroup_Owner">
+                    <!-- Only for WG-Owner -->
+                    <div *ngIf="userEmail===workgroupOwner">
+                        <label style="margin-right: 10px;">Project Owner:</label>
+                        <mat-form-field *ngIf="!this.workgroupList.length == 0"
+                            style="margin-right: 10px; position: inherit;" appearance="fill"
+                            [ngStyle]="{'width': workgroupOwner.length + 6 +'ch'}">
+                            <mat-label>Project Owner</mat-label>
+                            <mat-select #ownerSelect [(ngModel)]="selectedOwner">
+                                <mat-option *ngFor="let element of workgroupList" [value]="element.email">
+                                    {{element.email}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button id="changeOwner" type="button" class="normalButton"
+                            [ngStyle]="{'opacity': this.workgroupList.length == 0 || selectedOwner == undefined  ?  '50%' : '100%'}"
+                            [disabled]="this.workgroupList.length == 0 || selectedOwner == undefined "
+                            (click)="transferOwnership(selectedOwner);">Transfer Ownership
+                        </button>
+                        <div>
+                            <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle"
+                                [(ngModel)]="projectName">
+                            <button id="renameProject" type="button" class="normalButton"
+                                (click)="renameProject(workgroupInviteForm)">Rename project</button>
+                        </div>
+                    </div>
+                    <!-- If User is not the WG-Owner -->
+                    <div *ngIf="userEmail!==workgroupOwner">
+                        <label style="margin-right: 10px;">Project Owner:</label>
+                        <label id="projectOwner">{{this.workgroupOwner}}</label>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="currentTab === 'members'">
+                <!-- Part: Invite Member -->
+                <div>
+                    <form #workgroupInviteForm="ngForm" novalidate [disabled]="workgroupInviteForm.invalid"
+                        (ngSubmit)="workgroupInvite(workgroupInviteForm);">
+                        <div class="divWrapper">
+                            <input class="workGroupEmail leftMargin" type="email" id="emailField" ngModel name="email"
+                                placeholder="Email*" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+                            <button class="normalButton">Invite to Team</button>
+                        </div>
+                        <div class="canEditContainer divWrapper">
+                            <label class="canEditLabel addTeamMembersLabel">Can add team members</label>
+                            <input type="checkbox" ngModel name="canEdit" class="normalButton addTeamMembersLabel"
+                                style="align-self: center;">
+                        </div>
+                    </form>
+                </div>
+                <!-- Part: Member List -->
+                <div class="workgroupTable">
+                    <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8"
+                        aria-describedby="mydesc">
+                        <ng-container matColumnDef="email">
+                            <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
+                            <td mat-cell *matCellDef="let element">
+                                <div class="emailTableContainer">
+                                    <label>{{element.email}} </label>
+                                    <button class="normalButton deleteButton"
+                                        (click)="removeFromWorkgroup(element);">Remove</button>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="can_edit_workgroup">
+                            <th id="checkboxCanEdit" class="editColumn" mat-header-cell *matHeaderCellDef> Can add team
+                                members
+                            </th>
+                            <td mat-cell *matCellDef="let element">
+                                <input type="checkbox" name="canEditUser" class="normalButton"
+                                    (change)="this.checkEditUser($event, element)" [checked]="element.canEdit">
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsWorkgroup"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsWorkgroup;"></tr>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button *ngIf="userEmail===workgroupOwner" type="button" class="normalButton deleteButton" (click)="isCurrentRepoToDelete()">Delete Project
+        <button *ngIf="userEmail===workgroupOwner" type="button" class="normalButton deleteButton"
+            (click)="isCurrentRepoToDelete()">Delete Project
         </button>
-        <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
+        <button type="button" class="normalButton" (click)="saveProject()">Save Project
         </button>
     </div>
 </ng-template>
