@@ -475,3 +475,11 @@ input.background {
   padding-right: 5px;
 }
 
+.actionBarButtons{
+  display: flex;
+  align-items: center;
+}
+.actionBarButtons.disabled img,
+.actionButton.disabled>img{
+  filter: invert(54%) brightness(92%);
+}

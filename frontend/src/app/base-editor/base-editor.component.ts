@@ -214,10 +214,10 @@ export class BaseEditorComponent {
         this.markUnsaved();
       }
       if (this.templateName == 'scenario' && block[0] == 'scenario') {
-        if (block[2]) {
+        if (!block[3]) {
           let blockReference: StepType;
           blockReference = { _blockReferenceId: block[1]._id, id: 0, type: block[1].name, 
-            stepType: block[3].toLowerCase(), pre: '', mid: '', post: '', values: []};
+            stepType: block[2].toLowerCase(), pre: '', mid: '', post: '', values: []};
           this.addStep(blockReference, this.selectedScenario, 'scenario');
         } else {
           block = block[1];

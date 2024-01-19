@@ -108,7 +108,7 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
 }
 
 
-#addAsReferenceLabel, #blockAddAslabel{
+#addAsSingleStepsLabel, #blockAddAslabel{
     margin-right: 5px;
     margin-top: 3px
 }
@@ -117,12 +117,23 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     display: flex;
     align-items: center;
 }
-#addAsReferenceCheckbox{
+.addBlockToScenario{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+.leftFooterContainer{
+    display: flex;
+    align-items: center;
+}
+
+#addAsSingleStepsCheckbox{
     margin-left: 5px;
     margin-right: 10px;
     margin-top: 3px
 }
-.addAsReference{
+.addAsSingleSteps{
     display: flex;
     align-items: center;
 }
@@ -175,4 +186,9 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
 } 
 .forBackground{
     justify-content: end !important;
+}
+
+.tooltipAddBlockDropDown{
+    word-wrap: break-word !important;
+    width: 200px !important;
 }

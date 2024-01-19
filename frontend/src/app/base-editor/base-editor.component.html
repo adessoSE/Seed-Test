@@ -9,11 +9,11 @@
       <div class="actionBarButtonGroup">
         <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()" [checked]="this.allChecked"
           uk-tooltip title="Check All Steps" />
-        <div [class.disabled]="!this.activeActionBar">
+        <div [class.disabled]="!this.activeActionBar" class="actionBarButtons">
           <button *ngIf="name !== 'example' && name !== 'block-editor'" id="{{name+'_addBlock_step_'}}"
-            class="actionButton" uk-tooltip title="Save Steps as Block" (click)="saveBlock();"
+            class="actionButton" uk-tooltip title="Merge Steps into Reference Block" (click)="saveBlock();"
             [disabled]="!this.activeActionBar || this.isReferenceBlock" [class.disabled]="this.isReferenceBlock">
-            <em class="material-icons">queue</em>
+            <img class="icons-img" alt="saveStepsAsBlock" style="width: 20px;" src="..\..\assets\saveAsBlock.png">
           </button>
           <button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="De-/Activate Step"
             (click)="deactivateStep();" [disabled]="!this.activeActionBar">

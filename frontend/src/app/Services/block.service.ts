@@ -74,8 +74,8 @@ export class BlockService {
   * @param block
   * @param correspondingComponent
   */
-  addBlockToScenario(block: Block, correspondingComponent: string, addAsReference: boolean, addBlockAs?: string) {
-    this.addBlockToScenarioEvent.emit([correspondingComponent, block, addAsReference, addBlockAs]);
+  addBlockToScenario(block: Block, correspondingComponent: string, addBlockToStepType: string, addAsSingleSteps: boolean) {
+    this.addBlockToScenarioEvent.emit([correspondingComponent, block, addBlockToStepType, addAsSingleSteps]);
   }
   /**
   * Emits the update block in blocks
