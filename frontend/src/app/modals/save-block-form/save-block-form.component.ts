@@ -61,7 +61,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
   parentComponent;
   
   /**
-    * Boolean, wether steps should be convert to a reference
+    * Boolean, whether steps should be convert to a reference
     */
   saveAsReference: boolean;
 
