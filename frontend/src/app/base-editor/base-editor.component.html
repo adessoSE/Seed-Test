@@ -464,23 +464,36 @@
     </div>
   </div>
   <ng-template #stepBlockReference let-blockStep>
-    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(blockStep)" (closed)="unselectBlock()">
+    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(blockStep)" (closed)="unselectBlock(blockStep)">
       <mat-expansion-panel-header class="stepBlockHeader">
-        <mat-panel-title class="stepBlockTitle">
-          <!-- <div class="dragIconContainer" cdkDragHandle >
-            <em class="material-icons dragIcon">drag_indicator</em>
-          </div>
-          <div *ngIf="(blockStep.selectionValue === undefined || blockStep.selectionValue === null)">
-            <input type="checkbox" class="checkbox" id="{{'blockStep' + blockStep.id + 'Checkbox'}}" (change)="this.checkStep($event, blockStep, null)" [checked]="blockStep.checked">
-          </div> -->
-          <div class="SmallHeadline5">
-            {{blockStep.type}}
-          </div>
-        </mat-panel-title>
-        <span class="mat-expansion-indicator" matTooltip="Expand Block to view its Steps"
-          style="mix-blend-mode: color; width: 15px; transform: translate(9px, 0px);"></span>
+        <div>
+            <mat-panel-title class="stepBlockTitle">
+            <!-- <div class="dragIconContainer" cdkDragHandle >
+              <em class="material-icons dragIcon">drag_indicator</em>
+            </div>
+            <div *ngIf="(blockStep.selectionValue === undefined || blockStep.selectionValue === null)">
+              <input type="checkbox" class="checkbox" id="{{'block' + blockStep.id + 'Checkbox'}}" (change)="this.checkStep($event, blockStep, null)" [checked]="blockStep.checked">
+            </div> -->
+            <div class="SmallHeadline5">
+              {{blockStep.type}}
+            </div>
+          </mat-panel-title>
+          <mat-panel-description class="blockStepDescription">
+            <span matTooltip="Expand Block to view its Steps">{{!blockStep.blockStepExpanded ? 'Show' : 'Hide'}} Steps</span>
+          </mat-panel-description>
+        </div>
+        <div class="blockButtonGroup">
+          <button id="editBlock" uk-tooltip title="Edit Block" class="blockButton" (click)="editBlock($event);">
+            <em class="material-icons">edit</em>
+          </button>
+          <button id="block_RemoveReference" uk-tooltip title="Remove Reference and Unpack Block" class="blockButton"
+            (click)="showUnpackBlockToast(this.selectedBlock, blockStep, $event);">
+            <em class="material-icons">link_off</em>
+          </button>
+        </div>
       </mat-expansion-panel-header>
       <!--Block Content-->
+      <hr style="border-color: #d9d7d7;">
       <div *ngIf="this.selectedBlock" id="blockContent"
         [class.scrollable]="getStepsListBlockPreview(blockStep.stepDefinitions, j).length > 7">
         <div *ngFor="let currentStep of getStepsListBlockPreview(blockStep.stepDefinitions); let j = index;">
@@ -489,15 +502,6 @@
           </ng-template>
         </div>
       </div>
-      <mat-action-row class="blockButtonGroup">
-        <button id="editBlock" uk-tooltip title="Edit Block" class="blockButton" (click)="editBlock(blockStep);">
-          <em class="material-icons">edit</em>
-        </button>
-        <button id="block_RemoveReference" uk-tooltip title="Remove Reference and Unpack Block" class="blockButton"
-          (click)="showUnpackBlockToast(this.selectedBlock, blockStep);">
-          <em class="material-icons">link_off</em>
-        </button>
-      </mat-action-row>
     </mat-expansion-panel>
   </ng-template>
 

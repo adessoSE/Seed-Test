@@ -32,6 +32,10 @@ export class BlockService {
    */
   public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
   /**
+   * Event emitter to convert steps into reference
+   */
+  public convertToReferenceEvent: EventEmitter<any> = new EventEmitter();
+  /**
    * Event emitter to delete reference
    */
   public deleteReferenceEvent: EventEmitter<any> = new EventEmitter();
@@ -51,6 +55,8 @@ export class BlockService {
    * Event emitter to update reference Block name
    */
   public updateNameRefEvent = new EventEmitter();
+
+  public updateScenariosRefEvent = new EventEmitter();
 
   /**
   * Stores an array of references blocks, before the reference is deleted
@@ -85,18 +91,31 @@ export class BlockService {
   }
 
   /**
+  * Emits the convertation steps in reference block
+  */
+  convertToReferenceEmitter(block) {
+    this.convertToReferenceEvent.emit(block);
+  }
+  
+  /**
   * Emits the delete block in blocks
   */
   public deleteBlockEmitter() {
     this.deleteBlockEvent.emit();
   }
   /**
+  * Emits the references in scenarios
+  */
+  public updateScenariosRefEmitt(scenario, storyId) {
+    this.updateScenariosRefEvent.emit([scenario, storyId]);
+  }
+    /**
   * Emits the unpack block event
   * @param block
   */
-  public unpackBlockEmitter(block) {
-    this.unpackBlockEvent.emit(block);
-  }
+    public unpackBlockEmitter(block) {
+      this.unpackBlockEvent.emit(block);
+    }
   /**
   * Emits the update a reference block name event
   * @param block
@@ -404,5 +423,70 @@ export class BlockService {
       }
     });
     return blockFound;
+  }
+ 
+  /** 
+   * convert selected steps To Reference
+   * @param block
+   * @param scenario
+   */
+  convertStepsToRef(block: Block, scenario: Scenario){
+   let indexToPush; 
+   let pushStepDef;
+
+    for (const step in scenario.stepDefinitions) {
+      scenario.stepDefinitions[step].forEach((stepInScenario, index) => {
+        for(const stepBlock in block.stepDefinitions){
+          block.stepDefinitions[stepBlock].forEach((stepInBlock)=>{
+            if(stepInScenario.stepType == stepInBlock.stepType && stepInScenario.id === stepInBlock.id){
+              scenario.stepDefinitions[step].splice(index, 1);
+              indexToPush = indexToPush === undefined ? index : indexToPush;
+              pushStepDef = pushStepDef === undefined ? stepInScenario.stepType : pushStepDef;
+            }  
+          })
+        }
+      })
+    }
+    const blockReference: StepType = {_blockReferenceId: block._id, id: indexToPush, type: block.name, stepType: pushStepDef,
+    pre: '', mid: '', post: '', values: []};
+    scenario.stepDefinitions[pushStepDef].splice(indexToPush, 0, JSON.parse(JSON.stringify(blockReference)));
+    scenario.saved = false;
+  }
+
+  //CURRENTLY NOT ACTIVATED 
+  convertStepsInAllStories(block: Block, stories: Story[]){
+    let foundScenarios = [];
+    let foundStories = [];
+    let blockStepsToCompare = block.stepDefinitions.when;
+
+    stories.forEach((story) => story !== null && story.scenarios.forEach((scenario) => {
+      for (let i = scenario.stepDefinitions.when.length - 1; i >= 0; i--) {
+          const value = scenario.stepDefinitions.when[i];
+          if (blockStepsToCompare.some((blockStep) => 
+          blockStep.pre === value.pre && 
+          blockStep.mid === value.mid && 
+          JSON.stringify(blockStep.values) === JSON.stringify(value.values))
+          ) {
+            scenario.stepDefinitions.when.splice(i, 1); 
+            foundScenarios.push(scenario);
+            foundStories.push(story);
+          }
+        }
+      }));
+    const uniqueSetScenarios = new Set(foundScenarios);
+    const uniqueSetStories = new Set(foundStories);
+    foundScenarios = Array.from(uniqueSetScenarios);
+    foundStories = Array.from(uniqueSetStories);
+    foundStories.forEach((story)=> story.scenarios.forEach((scenario) =>{
+        foundScenarios.forEach((scen)=>{ 
+          if(scenario == scen){
+            const blockReference: StepType = {_blockReferenceId: block._id, id: 0, type: block.name, stepType: 'when',
+            pre: '', mid: '', post: '', values: []};
+            scenario.stepDefinitions.when.push(JSON.parse(JSON.stringify(blockReference))); 
+            this.updateScenariosRefEmitt(scen,  story._id);
+          };
+        });
+      })
+    );
   }
 }
