@@ -63,7 +63,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
   /**
     * Boolean, whether steps should be convert to a reference
     */
-  saveAsReference: boolean;
+  saveAsSingleSteps: boolean;
 
   modalReference: NgbModalRef;
 
@@ -184,21 +184,34 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
       this.block.repository = localStorage.getItem('repository');
       this.block.source = localStorage.getItem('source');
       this.block.repositoryId = localStorage.getItem('id');
-      this.block.stepDefinitions.when = this.block.stepDefinitions.when.filter((step) => !step._blockReferenceId);//prevents saving reference blocks in blocks
+      this.filterResavedReferences(this.block);
       this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
         this.updateBlocksEventEmitter();
-        if(this.saveAsReference){
+        if(!this.saveAsSingleSteps){
           this.block._id = resp.insertedId;
           this.blockService.convertToReferenceEmitter(this.block);
-          this.saveAsReference = (!this.saveAsReference);
+          this.saveAsSingleSteps = (!this.saveAsSingleSteps);
         }
+        delete this.saveAsSingleSteps;
         this.toastr.success('successfully saved', 'Block');
       });
       this.modalReference.close();
     }
   }
-  
+
+  /**
+   * Prevents reference blocks from being saved repeatedly
+   */
+  filterResavedReferences(block: Block): Block {
+    for (let stepType in this.block.stepDefinitions) {
+      this.block.stepDefinitions[stepType] = this.block.stepDefinitions[stepType].filter(
+        (step) => !step._blockReferenceId
+      );
+    }
+    return this.block; // Assuming you want to return the modified block
+  }
+
   /**
    * Performing checks in block before saving
    *  @param title
@@ -241,8 +254,8 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     return bool;
   }
 
-  checkSaveAsReference() {
-    this.saveAsReference = (!this.saveAsReference);
+  checkSaveAsSingleSteps() {
+    this.saveAsSingleSteps = (!this.saveAsSingleSteps);
   }
 
   updateBlocksEventEmitter() {
@@ -254,7 +267,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
   }
 
   closeModal(){
-    delete this.saveAsReference;
+    delete this.saveAsSingleSteps;
     this.modalReference.close();
   }
 }

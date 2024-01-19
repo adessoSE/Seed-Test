@@ -6,8 +6,7 @@
     <div class="modal-header">
       <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
       <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-        <span id="infoSpan" rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
-          Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
+        <span id="infoSpan" rel="def">Saving multiple steps as block, can be used to convert them to reference Block, so that you can apply the changes you have made within this Block centrally. These saved blocks can be used only in this project.
         </span>
       </dfn>
       <button type="button" class="close" aria-label="Close" (click)="closeModal()">
@@ -64,13 +63,13 @@
         </div>
       </div>
       <div id="saveBlockFooter" class="modal-footer">
-        <form *ngIf="blocks.length !== 0 && !isBackground" class="saveAsReference">
-          <label id="saveAsReferenceLabel">Convert Steps to Reference: </label>
-          <input type="checkbox" [checked]="this.saveAsReference" (change)="checkSaveAsReference()" style="transform: translate(0px, 2px);">
+        <form *ngIf="blocks.length !== 0 && !isBackground" class="saveAsSingleSteps">
+          <label id="saveAsSingleStepsLabel">Keep as Single Steps: </label>
+          <input type="checkbox" [checked]="this.saveAsSingleSteps" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
           <dfn class="def">
             <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999; transform: translate(0px, 2px);"></span>
             <span rel="def">
-              If applied, all same steps across the project will be referenced with this block and change automatically if block update performed.
+              Selecting this checkbox allows you to save selected Steps as a normal Block, that can be used to add these steps in another scenario without much effort. Just click the Add Saved Block button next to the Save button.
             </span>
           </dfn>
         </form>
