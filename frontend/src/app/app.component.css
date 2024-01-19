@@ -228,6 +228,7 @@ a:hover {
   max-height: 70%;
   height: auto;
   top: 51px;
+  left: 0;
   min-width: auto;
 }
 
@@ -257,10 +258,6 @@ a:hover {
 
 .dropdown-list a:hover {
   color: var(--ocean-blue);
-}
-
-.dropdown:hover .dropdown-list {
-  display: block;
 }
 
 .list-item {
@@ -366,7 +363,42 @@ a:hover {
   padding-left: 10px;
 }
 
-.menuContainer:hover #menuButton {
+#versionContainer {
+  transition: transform 0.5s ease; /* Glatter Übergang für die Bewegung */
+  z-index: 50;
+}
+
+#menuText {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  transform: translateX(-30%); /* Initially off-screen to the left */
+  transition: visibility 0s linear 0.5s, opacity 0.45s ease, transform 0.5s ease; /* Apply transition for both hover and non-hover states */
+  color: var(--light-grey);
+  width: 138px;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.menuContainer:hover:not(:has(#versionContainer:hover)) #menuText {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(0); /* Move into view on hover */
+  transition-delay: 0s; /* Apply transition immediately on hover */
+}
+
+.menuContainer:hover:not(:has(#versionContainer:hover)) #versionContainer {
+  transform: translateX(100px); /* Verschiebt die Box um 100px nach rechts */
+}
+
+.menuContainer:hover:not(:has(#versionContainer:hover)) .dropdown-list {
+  display: block;
+}
+
+.menuContainer:hover:not(:has(#versionContainer:hover)) #menuButton {
   transform: rotate(90deg);
   transition: transform 0.5s ease;
 }
