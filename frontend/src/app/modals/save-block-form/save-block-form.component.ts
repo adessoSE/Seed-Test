@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -16,7 +16,14 @@ import { BackgroundService } from '../../Services/background.service';
 export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
   @ViewChild('saveBlockFormModal') saveBlockFormModal: SaveBlockFormComponent;
-
+  selectedTemplate: string;
+  /**
+    * Sets a new selected story
+    */
+  @Input()
+  set templateName(name) {
+    this.selectedTemplate = name;
+  }
   /**
      * Block to be saved
      */
@@ -104,6 +111,9 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
      * @param stories
      */
   openSaveBlockFormModal(block: Block, comp, isBackground?: boolean, backgroundName?) {
+    if (this.selectedTemplate === 'background'){
+      this.checkSaveAsSingleSteps();
+    }
     this.exampleBlock = false;
     this.exampleChecked = false;
     this.block = block;

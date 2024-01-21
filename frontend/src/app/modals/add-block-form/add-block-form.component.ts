@@ -119,6 +119,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * @param repoId id of the current repository / project
      */
     openAddBlockFormModal(correspondingComponent: string, repoId: string) {
+      if (this.selectedTemplate === 'background'){
+        this.checkaddAsSingleSteps(); 
+      }
       this.blockSaved = true;
       this.getAllBlocks(repoId);
       this.correspondingComponent = correspondingComponent;

@@ -53,12 +53,12 @@
         </table>
       </div>
     </div>
-    <div id="addBlockFooter" class="modal-footer" [class.forBackground]="this.selectedTemplate == 'background'">
-      <form *ngIf="blocks.length !== 0 && this.selectedTemplate !== 'background'" class="addBlockToScenario">
+    <div id="addBlockFooter" class="modal-footer" [class.forBackground]="this.selectedTemplate === 'background'">
+      <form *ngIf="blocks.length !== 0" class="addBlockToScenario">
         <div class="addRefCheckbox">
           <label id="addAsSingleStepsLabel">Add as Single Steps: </label>
           <input id="addAsSingleStepsCheckbox " type="checkbox" [checked]="this.addAsSingleSteps"
-            (change)="checkaddAsSingleSteps()" [disabled]="this.selectedBlock == undefined">
+            (change)="checkaddAsSingleSteps()" [disabled]="this.selectedBlock === undefined || this.selectedTemplate === 'background'">
           <dfn class="def">
             <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
             <span rel="def">
@@ -87,11 +87,9 @@
               </dfn>
             </div>
           </div>
-          <button *ngIf="blocks.length !== 0" type="button" class="normalButton" (click)="onClickSubmit()"
-            [disabled]="this.selectedBlock == undefined" [class.disable]="this.selectedBlock == undefined">Add
-            Block</button>
         </div>
       </form>
+      <button *ngIf="blocks.length !== 0" type="button" class="normalButton" (click)="onClickSubmit()" [disabled]="this.selectedBlock === undefined" [class.disable]="this.selectedBlock === undefined">Add Block</button>
     </div>
   </div>
 </ng-template>

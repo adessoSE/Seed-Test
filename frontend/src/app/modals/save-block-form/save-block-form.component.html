@@ -65,7 +65,7 @@
       <div id="saveBlockFooter" class="modal-footer">
         <form *ngIf="blocks.length !== 0 && !isBackground" class="saveAsSingleSteps">
           <label id="saveAsSingleStepsLabel">Keep as Single Steps: </label>
-          <input type="checkbox" [checked]="this.saveAsSingleSteps" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
+          <input type="checkbox" [checked]="this.saveAsSingleSteps" [disabled]="this.selectedTemplate === 'background'" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
           <dfn class="def">
             <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999; transform: translate(0px, 2px);"></span>
             <span rel="def">

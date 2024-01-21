@@ -244,6 +244,10 @@ input[type="text"] {
 .actionBarButtonGroup {
   margin-left: 3px;
 }
+.actionBarButtonGroup .checkbox{
+  bottom: 3px;
+  position: relative;
+}
 
 .actionButton {
   margin-left: 10px;

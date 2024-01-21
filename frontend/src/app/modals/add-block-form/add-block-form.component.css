@@ -48,6 +48,9 @@ table {
 .normalButton:disabled{
     opacity: 20%;
 }
+#addBlockFooter .normalButton{
+    width: 8%;
+}
 .modal-ccc{
     width: 110%;
 }

@@ -1589,19 +1589,25 @@ export class BaseEditorComponent {
   insertCopiedBlock(): void {
     switch (this.templateName) {
       case 'background':
+        let clipboardRefBlock = [];
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
               //to prevent blocks to be checked after pasting
-              this.uncheckStep(step);
-              this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+              if(!step._blockReferenceId){
+                this.uncheckStep(step);
+                this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+              }else{
+                clipboardRefBlock.push(step);
+              }
             });
           }
         });
-        //this.selectedStory.background.saved = false;
-        this.markUnsaved();
+        //to prevent saving without changes, if only reference steps habe been added.
+        if(this.clipboardBlock.stepDefinitions.when.length !== clipboardRefBlock.length){
+          this.markUnsaved();
+        }
         break;
-
       case 'scenario':
         //this.insertStepsWithExamples()
         if (this.clipboardBlock.stepDefinitions['example'].length != 0) {
