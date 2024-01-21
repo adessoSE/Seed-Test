@@ -197,12 +197,12 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
       this.filterResavedReferences(this.block);
       this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
-        this.updateBlocksEventEmitter();
         if(!this.saveAsSingleSteps){
           this.block._id = resp.insertedId;
           this.blockService.convertToReferenceEmitter(this.block);
           this.saveAsSingleSteps = (!this.saveAsSingleSteps);
         }
+        this.updateBlocksEventEmitter();
         delete this.saveAsSingleSteps;
         this.toastr.success('successfully saved', 'Block');
       });
