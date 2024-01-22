@@ -1360,22 +1360,21 @@ async function getFiles(fileTitles, repoId) {
 	const db = dbConnection.getConnection();
 	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
 	const destinationDirectory = '/Users/public/SeedExec';
-	
+
 	for (const fileTitle of fileTitles) {
-		console.log('hello download loop')
 		const fileInfo = await bucket.find({ 'metadata.repoId': new ObjectId(repoId), filename: fileTitle }).toArray((err, file) => file[0]);
 		console.log(fileInfo);
 		const downloadStream = bucket.openDownloadStream(fileInfo[0]._id);
 		const destinationPath = `${destinationDirectory}/${fileInfo[0].filename}`;
 		if (!fs.existsSync(destinationDirectory)) {
-		fs.mkdirSync(destinationDirectory, { recursive: true });
+			fs.mkdirSync(destinationDirectory, { recursive: true });
 		}
 		const fileWriteStream = fs.createWriteStream(destinationPath);
 
 		setTimeout(() => {
 			fs.unlink(destinationPath, (err) => {
 				if (err) console.log(err);
-    			else console.log(`${fileInfo[0].filename} deleted.`);
+				else console.log(`${fileInfo[0].filename} deleted.`);
 			});
 		}, 18000000);// 5h Timeout
 
