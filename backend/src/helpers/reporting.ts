@@ -348,17 +348,22 @@ function deleteReport(jsonReport: string) {
     });
 }
 
-async function runReport(req, res, stories: any[], mode: ExecutionMode, parameters) {
+async function fetchFiles(stories, repoId){
     const neededFiles = stories
 			.flatMap(story => story.scenarios)
 			.flatMap(scen => scen.stepDefinitions.when)
 			.filter(step => step.type === "Upload File")
 			.map(step => step.values[0]);
-	//if (neededFiles) await mongo.getFiles(neededFiles, repoId)
+    console.log(neededFiles)
+	if (neededFiles) return mongo.getFiles(neededFiles, repoId)
+}
+
+async function runReport(req, res, stories: any[], mode: ExecutionMode, parameters) {
 
 	let reportObj;
 	try {
 		if (mode === ExecutionMode.GROUP) {
+            await fetchFiles(stories, parameters.repoId)
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			if (parameters.isSequential == undefined || !parameters.isSequential)
@@ -370,12 +375,14 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			}
 		} else {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+            await fetchFiles([story], parameters.repoId)
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {
 		res.status(404).send(error);
 		return;
 	}
+    
 
 	const { reportResults, reportName } = await resolveReport(reportObj, mode, stories, req);
 	// generate HTML Report

@@ -859,6 +859,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
             browser: browserSelect,
             emulator: emulator,
             repository: localStorage.getItem("repository"),
+            repoId: localStorage.getItem("id"),
             source: localStorage.getItem("source"),
             oneDriver: this.selectedStory.oneDriver,
           }
