@@ -87,6 +87,11 @@
               </dfn>
             </div>
           </div>
+          <div *ngIf="this.addAsSingleSteps" class="addReferenceBlockToStepType">
+            <div>
+              <label id="splitStepsLabel">Single Steps will be inserted into their original Section</label>
+            </div>
+          </div>
         </div>
       </form>
       <button *ngIf="blocks.length !== 0" type="button" class="normalButton" (click)="onClickSubmit()" [disabled]="this.selectedBlock === undefined" [class.disable]="this.selectedBlock === undefined">Add Block</button>
