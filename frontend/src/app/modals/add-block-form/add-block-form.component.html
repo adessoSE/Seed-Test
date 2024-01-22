@@ -2,9 +2,9 @@
 <ng-template #addBlockFormModal let-modal>
   <app-layout-modal></app-layout-modal>
   <div class="modal-header">
-    <span id="modalHeader" class="MediumSubline1H4 modal-title">Add block</span>
+    <span id="modalHeader" class="MediumSubline1H4 modal-title">Add Block</span>
     <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
-      <span rel="def">Add a saved Block. These Blocks are used as a Reference to adopt changes, when steps in these Blocks get changed.
+      <span rel="def">Add a Block to the current Scenario. Changes to a Block will affect other Scenarios using the same Block.
       </span>
     </dfn>
 
@@ -56,20 +56,20 @@
     <div id="addBlockFooter" class="modal-footer" [class.forBackground]="this.selectedTemplate === 'background'">
       <form *ngIf="blocks.length !== 0" class="addBlockToScenario">
         <div class="addRefCheckbox">
-          <label id="addAsSingleStepsLabel">Add as Single Steps: </label>
+          <label id="addAsSingleStepsLabel">Add Block as single Steps: </label>
           <input id="addAsSingleStepsCheckbox " type="checkbox" [checked]="this.addAsSingleSteps"
             (change)="checkaddAsSingleSteps()" [disabled]="this.selectedBlock === undefined || this.selectedTemplate === 'background'">
           <dfn class="def">
             <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
             <span rel="def">
-              Add the saved Block to a Scenario as a Single Steps.
+              Use this Option to add the Steps of a Block to the Scenario, without creating a Block, that is affected by changes.
             </span>
           </dfn>
         </div>
         <div class="leftFooterContainer">
           <div *ngIf="!this.addAsSingleSteps" class="addReferenceBlockToStepType">
             <div>
-              <label id="blockAddAslabel">Block will be added as:</label>
+              <label id="blockAddAslabel">Insert Block into:</label>
             </div>
             <div class="addBlockDropDownDiv">
               <mat-form-field appearance="standard" class="addBlockDropDown">
@@ -82,7 +82,7 @@
               <dfn class="def">
                 <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
                 <span class="tooltipAddBlockDropDown" rel="def">
-                  Add the saved Block as a Reference to a selected type of steps.
+                  Specify the Section of the Scenario where the Block will be added.
                 </span>
               </dfn>
             </div>
