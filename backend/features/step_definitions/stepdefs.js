@@ -13,8 +13,10 @@ const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
 const { applySpecialCommands } = require('../../src/serverHelper');
 
-const downloadDirectory = 'C:\\Users\\Public\\seed_Downloads';
 let driver;
+
+const downloadDirectory = !(/^win/i.test(process.platform)) ? '/home/public/Downloads/' : 'C:\\Users\\Public\\seed_Downloads\\';
+if (!fs.existsSync(downloadDirectory)) fs.mkdirSync(downloadDirectory, { recursive: true });
 const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
 	.setPreference('browser.download.folderList', 2) // Set to 2 for the "custom" folder
 	.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream');
@@ -638,11 +640,11 @@ Then(
 	async function checkDownloadedFile(fileName, directory) {
 		const world = this;
 		try {
-			const path = `${downloadDirectory}\\${fileName}`;
+			const path = `${downloadDirectory}${fileName}`;
 			await fs.promises.access(path, fs.constants.F_OK);
 			const timestamp = Date.now();
 			// Rename the downloaded file, so a new Run of the Test will not check the old file
-			await fs.promises.rename(path, `${downloadDirectory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
+			await fs.promises.rename(path, `${downloadDirectory}Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
 				if (err) console.log(`ERROR: ${err}`);
 			});
 		} catch (e) {
