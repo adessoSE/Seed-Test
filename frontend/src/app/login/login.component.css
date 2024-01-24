@@ -241,10 +241,6 @@ h1 {
     /* background-color: var(--white); */
     text-align: center;
     font-size: small;
-    margin-top: 80px;
-    margin-bottom: 180px;
-    margin-right: 150px;
-    margin-left: 100px;
     /* width: 830px;
     height: 500px; */
     position: relative;
@@ -255,11 +251,8 @@ h1 {
     grid-row: 2 / 3;
     grid-column: 3 / 4;
     background-color: var(--white);
-    margin-top: 80px;
-    margin-right: 100px;
-    margin-bottom: 100px;
     text-align: center;
-    padding: 40px;
+    padding: 41px;
   }
 }
 

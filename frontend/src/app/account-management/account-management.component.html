@@ -1,167 +1,210 @@
-<div [class.darkTheme]= "isDark" class="grid-container uk-card-default">
-    <div>
+<div [class.darkTheme]="isDark" class="grid-container">
+    <h1 class="backButtonGrid">
         <a routerLink="/" class="title">
             <button class="backButton" title="Back to Projects">
                 <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'" alt="back">
             </button>
         </a>
-    </div>
-    <div >
-        <h1 class="LargeHeadline1">Account Settings</h1>
-    </div>
+    </h1>
+
+    <h1 class="LargeHeadline1 accountSettingsHeading">Account Settings</h1>
+
     <div class="grid_seedTest uk-card uk-card-default">
         <h2 class="LargeHeadline3">Seed-Test Account</h2>
-        <div *ngIf="email">
-            <p class="SmallHeadline5">Email: </p>
-            <label id="emailLabel" class="active MediumBody2">{{email}}</label>
-            <hr>
-            <p id="needCustomRepo" class="LargeBody2">Need a new Custom Project?</p>
-            <p><button class="normalButton" (click)="newRepository()">Create Custom Project</button></p>
-        </div>
-        <div *ngIf="!email">
-            <label id="noEmail">- no email deposited -</label>
-            <p><button class="normalButton" title="register" (click)="navToRegistration();">Register</button></p>
-        </div>
-        <!------------------Repositories DB------------------->
-        <div class="grid_customRepos repositories" *ngIf="repositories">
-            <div id="DBRepositoriesList">
-                <label class="MediumHeadline5">Custom Projects:</label>
-                <ul class="uk-list">
-                    <ng-container *ngFor="let repository of repositories; let i = index">
-                        <li class="customRepoContainer" *ngIf="this.apiService.isCustomRepo(repository)">
-                            <div class="db-item-list">
-                                <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)" src="../assets/database-5-32.png">
-                                <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-                            </div>
-                            <span class="flex-end-item">
-                            <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
-                            </span>
-                        </li>
-                    </ng-container>
-                </ul>
+        <div class="cardContainer">
+            <!------------------Account Details------------------->
+            <div class="accountDetailsContainer" *ngIf="email">
+                <div class="SmallHeadline5">Email: </div>
+                <label id="emailLabel" class="active MediumBody2">{{email}}</label>
             </div>
-        </div>
-        <div class="repositories" *ngIf="loginService.isLoggedIn()">
-            <div>
-                <label>Download Project</label>
+            <div class="accountDetailsContainer" *ngIf="!email">
+                <div class="SmallHeadline5">Email: </div>
+                <label id="noEmail">- no email deposited -</label>
             </div>
-            <div class="uk-flex uk-flex-row uk-search downloadWrapper">
-                <div class="searchAndVersion">
-                    <em class="material-icons" id="searchBarIcons">search</em>
-                    <input class="searchInput" type="text" #searchbar (keyup)="searchRepos()"  [(ngModel)]="searchInput" placeholder="Search"/>
-                    <input class="versionInput" type="text" #versionbar [(ngModel)]="versionInput" placeholder="Optional: Version"/>
+            <button class="normalButton" title="register" (click)="navToRegistration();"
+                *ngIf="!email">Register</button>
+            <!------------------Repositories DB------------------->
+            <hr class="cardDevider">
+            <div class="customProjectsContainer">
+                <div class="grid_customRepos repositories" *ngIf="repositories">
+                    <div id="DBRepositoriesList">
+                        <label class="MediumHeadline5">Custom Projects:</label>
+                        <ul class="uk-list">
+                            <ng-container *ngFor="let repository of repositories; let i = index">
+                                <li class="customRepoContainer" *ngIf="this.apiService.isCustomRepo(repository)">
+                                    <div class="db-item-list">
+                                        <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
+                                            src="../assets/database-5-32.png">
+                                        <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}"
+                                            (click)="selectRepository(repository);">{{repository.value}}</a>
+                                    </div>
+                                    <span class="flex-end-item">
+                                        <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit"
+                                            id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)"
+                                            data-uk-tooltip title="Edit project">settings</mat-icon>
+                                    </span>
+                                </li>
+                            </ng-container>
+                        </ul>
+                    </div>
                 </div>
-                <div class="dropDownProject">
-                    <mat-form-field appearance="standard" style="width: 100%;">
-                        <mat-label>Project</mat-label>
-                        <mat-select #ngSelect [(ngModel)]="downloadRepoID">
-                            <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.value}}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                <div class="createCustomRepoContainer" *ngIf="email">
+                    <!-- <p id="needCustomRepo" class="LargeBody2">Need a new Custom Project?</p> -->
+                    <button class="normalButton" (click)="newRepository()">Create Custom Project</button>
                 </div>
             </div>
-            <div class="downloadExportButton">
+            <!-----------------Download Repo ------------------>
+            <hr class="cardDevider">
+            <div class="repositories" *ngIf="loginService.isLoggedIn()">
                 <div>
-                    <button (click)="downloadProjectFeatures(downloadRepoID)"  class="normalButton">Download</button>
-                    <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
-                        <span rel="def">Download all Tests as Feature files of a Project in a zip File</span>
-                    </dfn>
+                    <label>Download Project</label>
                 </div>
-                <div>
-                    <button (click)="exportProject(downloadRepoID)"  class="normalButton" style="width: 86.76px;" >Export</button>
-                    <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
-                        <span rel="def">Export Tests in Gherkin: Export your project as a .zip file containing the stories and blocks of a project importable as .json.</span>
-                    </dfn>
+                <div class="uk-flex uk-flex-row uk-search downloadWrapper">
+                    <div class="searchAndVersion">
+                        <em class="material-icons" id="searchBarIcons">search</em>
+                        <input class="searchInput" type="text" #searchbar (keyup)="searchRepos()"
+                            [(ngModel)]="searchInput" placeholder="Search" />
+                        <input class="versionInput" type="text" #versionbar [(ngModel)]="versionInput"
+                            placeholder="Optional: Version" />
+                    </div>
+                    <div class="dropDownProject">
+                        <mat-form-field appearance="standard" style="width: 100%;">
+                            <mat-label>Project</mat-label>
+                            <mat-select #ngSelect [(ngModel)]="downloadRepoID">
+                                <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id"
+                                    [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.value}}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="downloadExportButton">
+                    <div>
+                        <button (click)="downloadProjectFeatures(downloadRepoID)" class="normalButton">Download</button>
+                        <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
+                            <span rel="def">Download all Tests as Feature files of a Project in a zip File</span>
+                        </dfn>
+                    </div>
+                    <div>
+                        <button (click)="exportProject(downloadRepoID)" class="normalButton"
+                            style="width: 86.76px;">Export</button>
+                        <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
+                            <span rel="def">Export Tests in Gherkin: Export your project as a .zip file containing
+                                the
+                                stories and blocks of a project importable as .json.</span>
+                        </dfn>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-----------------Erase your Account-------------->
-        <div class="grid_eraseAccount repositories" *ngIf="loginService.isLoggedIn() && email">
-            <div class="uk-form-horizontal">
-                <button class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete Seed-Test Account</button>
+            <!-----------------Erase your Account-------------->
+            <hr class="cardDevider">
+            <div class="grid_eraseAccount repositories" *ngIf="loginService.isLoggedIn() && email">
+                <div class="uk-form-horizontal">
+                    <button class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete
+                        Seed-Test
+                        Account</button>
+                </div>
             </div>
         </div>
     </div>
     <!------------------------------------->
     <div class="grid_github uk-card uk-card-default">
+
         <h2 class="LargeHeadline3" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">Github</h2>
-        <div *ngIf="github" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
-            <p class="SmallHeadline5">Github-Account: </p>
-            <label class="active MediumBody2">{{github['login']}}</label>
-            <div>
-                <a class="githubLoginContainer" (click)="disconnectGithub();">
-                    <div class="githubLogin" >
-                       <img src ="../assets/github-logo.png" alt="github">
-                       <p style="margin-bottom: 0px;">Disconnect GitHub</p>
-                    </div>
-                 </a>
+        <div class="cardContainer">
+            <!---------------Account Details------------->
+            <div class="accountDetailsContainer" *ngIf="github"
+                [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
+                <p class="SmallHeadline5">Github-Account: </p>
+                <label class="active MediumBody2">{{github['login']}}</label>
             </div>
-        </div>
-        <div class="grid_github" *ngIf="!github">
-            <a class="githubLoginContainer" (click)="login();" *ngIf="clientId!=='undefined'">
-                <div class="githubLogin" >
-                   <img src ="../assets/github-logo.png" alt="github">
-                   <p style="margin-bottom: 0px;">Login via GitHub</p>
+            <div class="githubLoginContainer" *ngIf="github">
+                <button class="githubLogin" (click)="disconnectGithub();">
+                    <img src="../assets/github-logo.png" alt="github">
+                    Disconnect GitHub
+                </button>
+            </div>
+            <div class="grid_github" *ngIf="!github">
+                <div class="githubLoginContainer">
+                    <button class="githubLogin" (click)="login();" *ngIf="clientId!=='undefined'">
+                        <img src="../assets/github-logo.png" alt="github">
+                        Login via GitHub
+                    </button>
                 </div>
-            </a>
-            <p class="wrongLogin" *ngIf="clientId==='undefined'">Github has not been set up yet.</p>
-        </div>
-        <!------------------Repositories GITHUB------------------->
-        <div class="grid_githubRepos repositories" *ngIf="repositories" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
-            <div id="GitHubRepositoriesList">
-                <label class="MediumHeadline5">Github Projects:</label>
-                <ul class="uk-list">
-                    <ng-container *ngFor="let repository of repositories; let i = index">
-                        <li *ngIf="this.apiService.isGithubRepo(repository)">
-                            <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png" alt="github">
-                            <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-                        </li>
-                    </ng-container>
-                </ul>
+                <p class="wrongLogin" *ngIf="clientId==='undefined'">Github has not been set up yet.</p>
+            </div>
+            <!------------------Repositories GITHUB------------------->
+            <hr class="cardDevider">
+            <div class="grid_githubRepos repositories" *ngIf="repositories"
+                [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
+                <div id="GitHubRepositoriesList">
+                    <label class="MediumHeadline5">Github Projects:</label>
+                    <ul class="uk-list">
+                        <ng-container *ngFor="let repository of repositories; let i = index">
+                            <li *ngIf="this.apiService.isGithubRepo(repository)">
+                                <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)"
+                                    src="../assets/GitHub-Mark-32px.png" alt="github">
+                                <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}"
+                                    (click)="selectRepository(repository);">{{repository.value}}</a>
+                            </li>
+                        </ng-container>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
     <!------------------------------------->
     <div class="grid_jira uk-card uk-card-default">
         <h2 class="LargeHeadline3">Jira</h2>
-        <div>
+        <div class="cardContainer">
+
             <div id="jiraDiv" *ngIf="jira">
                 <div class="uk-form-horizontal">
-                    <p class="SmallHeadline5">Jira-Name: </p>
-                    <label class="active MediumBody2">{{jira['AccountName']}}</label>
+                    <div class="accountDetailsContainer">
+                        <p class="SmallHeadline5">Jira-Name: </p>
+                        <label class="active MediumBody2">{{jira['AccountName']}}</label>
+                    </div>
                 </div>
                 <div class="uk-form-horizontal">
-                    <p class="SmallHeadline5">Jira-Server: </p>
-                    <label class="active MediumBody2">{{jira['Host']}}</label>
+                    <div class="accountDetailsContainer">
+                        <p class="SmallHeadline5">Jira-Server: </p>
+                        <label class="active MediumBody2">{{jira['Host']}}</label>
+                    </div>
                 </div>
             </div>
-            <div id="ChangeJiraDiv">
-                <button class="normalButton" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
+            <div class="jiraButtonsContainer">
+                <div id="ChangeJiraDiv">
+                    <button class="normalButton" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
+                </div>
+                <div id="ChangeJiraDiv">
+                    <button class="normalButton" style="display:none;" id="disconnect-jira"
+                        (click)="jiraDisconnect()">Disconnect
+                        Jira-Account</button>
+                </div>
             </div>
-            <div id="ChangeJiraDiv">
-                <button class="normalButton" style="display:none;" id="disconnect-jira" (click)="jiraDisconnect()">Disconnect Jira-Account</button>
+            <!------------------Repositories JIRA------------------->
+            <hr class="cardDevider">
+            <div class="grid_jiraRepos repositories" *ngIf="repositories">
+                <div id="JiraRepositoriesList">
+                    <label class="MediumHeadline5">Jira Projects:</label>
+                    <ul class="uk-list">
+                        <ng-container *ngFor="let repository of repositories; let i = index">
+                            <li *ngIf="this.apiService.isJiraRepo(repository)">
+                                <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)"
+                                    src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
+                                <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}"
+                                    (click)="selectRepository(repository);">{{repository.value}}</a>
+                            </li>
+                        </ng-container>
+                    </ul>
+                </div>
             </div>
+            <!------------------------------------->
         </div>
-        <!------------------Repositories JIRA------------------->
-        <div class="grid_jiraRepos repositories" *ngIf="repositories">
-            <div id="JiraRepositoriesList">
-                <label class="MediumHeadline5">Jira Projects:</label>
-                <ul class="uk-list">
-                    <ng-container *ngFor="let repository of repositories; let i = index">
-                        <li *ngIf="this.apiService.isJiraRepo(repository)">
-                            <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
-                            <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-                        </li>
-                    </ng-container>
-                </ul>
-            </div>
-        </div>
-        <!------------------------------------->
     </div>
 </div>
 <app-change-jira-account #changeJiraModal (jiraAccountResponse)="updateSite($event)"></app-change-jira-account>
-<app-disconnect-jira-account #disconnectJiraModal (jiraAccountResponse)="updateSite($event)"></app-disconnect-jira-account>
+<app-disconnect-jira-account #disconnectJiraModal
+    (jiraAccountResponse)="updateSite($event)"></app-disconnect-jira-account>
 <app-create-custom-project #createCustomProject></app-create-custom-project>
 <app-delete-account #deleteAccountModal></app-delete-account>
 <app-workgroup-edit #workgroupEditModal></app-workgroup-edit>

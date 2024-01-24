@@ -72,8 +72,7 @@
   text-align: center;
   color: var(--white);
   font-size: small;
-  padding: 4px;
-  position: center;
+  margin: 0px;
 }
 
 .footer {
@@ -96,9 +95,9 @@
   grid-area: footerCenter;
   grid-column-start: 2;
   margin-left: auto;
-  margin-top: 4px;
   display: flex;
   flex-direction: row;
+  padding: 5px;
 }
 
 .expendable {
@@ -176,6 +175,7 @@ a:hover {
   background: transparent;
   float: left;
   transition: 0.3s;
+  margin-left: 10px;
 }
 
 .menuSelection {
@@ -349,7 +349,6 @@ a:hover {
   align-items: center;
   height: 100%;
   position: relative;
-  padding-left: 10px;
 }
 
 .helpContainer {
