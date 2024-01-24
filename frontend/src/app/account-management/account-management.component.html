@@ -28,7 +28,7 @@
             <div class="customProjectsContainer">
                 <div class="grid_customRepos repositories" *ngIf="repositories">
                     <div id="DBRepositoriesList">
-                        <label class="MediumHeadline5">Custom Projects:</label>
+                        <label class="MediumHeadline5">Custom Projects</label>
                         <ul class="uk-list">
                             <ng-container *ngFor="let repository of repositories; let i = index">
                                 <li class="customRepoContainer" *ngIf="this.apiService.isCustomRepo(repository)">
@@ -57,7 +57,7 @@
             <hr class="cardDevider">
             <div class="repositories" *ngIf="loginService.isLoggedIn()">
                 <div>
-                    <label>Download Project</label>
+                    <label class="MediumHeadline5">Download Project</label>
                 </div>
                 <div class="uk-flex uk-flex-row uk-search downloadWrapper">
                     <div class="searchAndVersion">
@@ -137,7 +137,7 @@
             <div class="grid_githubRepos repositories" *ngIf="repositories"
                 [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
                 <div id="GitHubRepositoriesList">
-                    <label class="MediumHeadline5">Github Projects:</label>
+                    <label class="MediumHeadline5">Github Projects</label>
                     <ul class="uk-list">
                         <ng-container *ngFor="let repository of repositories; let i = index">
                             <li *ngIf="this.apiService.isGithubRepo(repository)">
@@ -185,7 +185,7 @@
             <hr class="cardDevider">
             <div class="grid_jiraRepos repositories" *ngIf="repositories">
                 <div id="JiraRepositoriesList">
-                    <label class="MediumHeadline5">Jira Projects:</label>
+                    <label class="MediumHeadline5">Jira Projects</label>
                     <ul class="uk-list">
                         <ng-container *ngFor="let repository of repositories; let i = index">
                             <li *ngIf="this.apiService.isJiraRepo(repository)">
