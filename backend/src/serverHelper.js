@@ -171,7 +171,7 @@ function getSettings(scenario, globalSettings) {
 	};
 
 	// if globalSettings are activated, then use global values
-	if (globalSettings.activated) {
+	if (globalSettings && globalSettings.activated) {
 		finalSettings.browser = globalSettings.browser || finalSettings.browser;
 		finalSettings.waitTime = globalSettings.stepWaitTime || finalSettings.waitTime;
 		// if emulator is activated, use emulator
