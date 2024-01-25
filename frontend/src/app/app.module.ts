@@ -76,7 +76,6 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
 import { TransferOwnershipToast } from './transferOwnership-toastr';
 import { InfoWarningToast } from './info-warning-toast';
 import { ImportModalComponent } from './modals/import-modal/import-modal.component';
-import { MatDialogModule } from '@angular/material/dialog';
 import { EditBlockComponent } from './modals/edit-block/edit-block.component';
 import { ThemingService } from "./Services/theming.service";
 import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-popup/confirm-reset-password-popup.component";
