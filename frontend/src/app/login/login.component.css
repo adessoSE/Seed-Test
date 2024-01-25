@@ -166,7 +166,7 @@ h1 {
 }
 
 .githubLoginContainer {
-  margin: 10px;
+  margin: 20px;
   display: inline-block;
 }
 
@@ -199,12 +199,12 @@ h1 {
 }
 
 #noAccountDiv {
-  border: 0.25px solid #999;
+  /* border: 0.25px solid #999; */
   padding: 10px;
 }
 
 .darkTheme #noAccountDiv {
-  border: 0.25px solid #60767b;
+  /* border: 0.25px solid #60767b; */
 }
 
 #loadingSpinner {

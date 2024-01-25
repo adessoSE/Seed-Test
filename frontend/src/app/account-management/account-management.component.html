@@ -10,7 +10,7 @@
     <h1 class="LargeHeadline1 accountSettingsHeading">Account Settings</h1>
 
     <div class="grid_seedTest uk-card uk-card-default">
-        <h2 class="LargeHeadline3">Seed-Test Account</h2>
+        <h2 class="LargeHeadline3 cardHeading">Seed-Test Account</h2>
         <div class="cardContainer">
             <!------------------Account Details------------------->
             <div class="accountDetailsContainer" *ngIf="email">
@@ -109,7 +109,8 @@
     <!------------------------------------->
     <div class="grid_github uk-card uk-card-default">
 
-        <h2 class="LargeHeadline3" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">Github</h2>
+        <h2 class="LargeHeadline3 cardHeading" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">Github
+        </h2>
         <div class="cardContainer">
             <!---------------Account Details------------->
             <div class="accountDetailsContainer" *ngIf="github"
@@ -154,7 +155,7 @@
     </div>
     <!------------------------------------->
     <div class="grid_jira uk-card uk-card-default">
-        <h2 class="LargeHeadline3">Jira</h2>
+        <h2 class="LargeHeadline3 cardHeading">Jira</h2>
         <div class="cardContainer">
 
             <div id="jiraDiv" *ngIf="jira">

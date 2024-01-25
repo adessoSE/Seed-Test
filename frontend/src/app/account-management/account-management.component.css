@@ -12,6 +12,7 @@
   justify-content: space-evenly;
   margin-left: 20px;
   margin-right: 20px;
+  margin-bottom: 10px;
 }
 
 #noEmail {
@@ -160,12 +161,14 @@ label {
   text-align: start;
   display: flex;
   align-items: center;
+  margin: 20px;
 }
 
 .accountSettingsHeading {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 20px;
 }
 
 .backButton:focus {
@@ -179,13 +182,11 @@ label {
 .uk-card {
   border: 1px solid grey;
   border-radius: 10px;
-  overflow: hidden;
 }
 
 .darkTheme .uk-card {
   border: 1px solid #60767b;
   border-radius: 10px;
-  overflow: hidden;
 }
 
 a.repoLink {
@@ -350,7 +351,6 @@ h1 {
 .cardContainer {
   padding-left: 25px;
   padding-right: 25px;
-  padding-bottom: 25px;
 }
 
 .cardDevider {
@@ -370,4 +370,10 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.cardHeading {
+  border-radius: inherit;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
 }
