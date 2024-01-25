@@ -182,22 +182,6 @@ a:hover {
   padding-left: 10;
 }
 
-.dropdown-list {
-  display: none;
-  position: relative;
-  background-color: var(--light-grey);
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 99999 !important;
-  list-style-type: none;
-  overflow-y: auto;
-  max-height: 70%;
-  height: auto;
-  top: 51px;
-  left: 0;
-  min-width: auto;
-  padding: 0px;
-}
-
 .darkTheme .dropdown-list {
   background-color: #60767b;
 }
@@ -225,6 +209,10 @@ a:hover {
 
 .dropdown-list a:hover {
   color: var(--ocean-blue);
+}
+
+.dropdownReposTrigger:hover .dropdown-repos {
+  display: block;
 }
 
 .list-item {
@@ -323,6 +311,7 @@ a:hover {
   align-items: center;
   height: 100%;
   position: relative;
+  z-index: 999999 !important;
 }
 
 .helpContainer {
@@ -358,7 +347,10 @@ a:hover {
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 99999 !important;
   list-style-type: none;
-  overflow-y: auto;
+  overflow: visible;
+  top: 51px;
+  left: 0;
+  padding: 0;
   max-height: inherit;
   height: auto;
   min-width: auto;
@@ -482,4 +474,23 @@ input[type="checkbox"] {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.dropdown-repos {
+  position: absolute;
+  left: 100%;
+  display: none;
+  max-height: 550px;
+  position: absolute;
+  top: 0;
+  overflow-y: auto;
+  width: max-content;
+}
+
+.dropdown-list-item-repos {
+  padding: 8px;
+}
+
+.arrow-right {
+  width: 20px;
 }

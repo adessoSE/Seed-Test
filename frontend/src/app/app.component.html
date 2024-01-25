@@ -25,22 +25,23 @@
           </div>
           <div #dropdownMenu [class.closedMenu]="closed">
             <div uk-dropdown="mode: hover" *ngIf="this.loginService.isLoggedIn()" class="dropdown-list">
-              <div *ngIf="this.repositories" class="dropdown">
-                <button class="dropdown-list-item" title="Select Project">Projects</button>
-                <div uk-dropdown="mode: click" id="static">
-                  <ul class="dropdown-list">
-                    <li *ngFor="let repository of repositories; let i = index" class="list-item">
-                      <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)"
-                        src="../assets/GitHub-Mark-32px.png" alt="github">
-                      <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)"
-                        src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
-                      <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
-                        src="../assets/database-5-32.png" alt="database">
-                      <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
-                        routerLink=''>{{repository.value}}</a>
-                    </li>
-                  </ul>
+              <div *ngIf="this.repositories" class="dropdown dropdownReposTrigger">
+                <button class="dropdown-list-item" title="Select Project">Projects
+                </button>
+                <div class="dropdown-list dropdown-repos">
+                  <div *ngFor="let repository of repositories; let i = index" class="list-item">
+                    <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)"
+                      src="../assets/GitHub-Mark-32px.png" alt="github">
+                    <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)"
+                      src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
+                    <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
+                      src="../assets/database-5-32.png" alt="database">
+                    <button class="dropdown-list-item dropdown-list-item-repos" id="{{'repository_' + i}}"
+                      (click)="selectRepository(repository)" routerLink=''>{{repository.value}}</button>
+                  </div>
                 </div>
+
+
               </div>
               <div>
                 <button id="manageAccount" class="dropdown-list-item" title="Account Settings"
