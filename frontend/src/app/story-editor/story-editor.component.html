@@ -336,6 +336,6 @@
       </div>
     </div>
   </div>
-  <app-save-block-form #saveBlockModal></app-save-block-form>
+  <app-save-block-form #saveBlockModal [templateName]="TEMPLATE_NAME"></app-save-block-form>
 </div>
 <app-workgroup-edit #workgroupEditModal (globalSettingsChanged)="updateGlobalSettings($event)"> </app-workgroup-edit>

@@ -32,6 +32,10 @@ export class BlockService {
    */
   public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
   /**
+   * Event emitter to convert steps into reference
+   */
+  public convertToReferenceEvent: EventEmitter<any> = new EventEmitter();
+  /**
    * Event emitter to delete reference
    */
   public deleteReferenceEvent: EventEmitter<any> = new EventEmitter();
@@ -51,6 +55,8 @@ export class BlockService {
    * Event emitter to update reference Block name
    */
   public updateNameRefEvent = new EventEmitter();
+
+  public updateScenariosRefEvent = new EventEmitter();
 
   /**
   * Stores an array of references blocks, before the reference is deleted
@@ -74,8 +80,8 @@ export class BlockService {
   * @param block
   * @param correspondingComponent
   */
-  addBlockToScenario(block: Block, correspondingComponent: string, addAsReference: boolean, addBlockAs?: string) {
-    this.addBlockToScenarioEvent.emit([correspondingComponent, block, addAsReference, addBlockAs]);
+  addBlockToScenario(block: Block, correspondingComponent: string, addBlockToStepType: string, addAsSingleSteps: boolean) {
+    this.addBlockToScenarioEvent.emit([correspondingComponent, block, addBlockToStepType, addAsSingleSteps]);
   }
   /**
   * Emits the update block in blocks
@@ -85,15 +91,28 @@ export class BlockService {
   }
 
   /**
+  * Emits the convertation steps in reference block
+  */
+  convertToReferenceEmitter(block) {
+    this.convertToReferenceEvent.emit(block);
+  }
+
+  /**
   * Emits the delete block in blocks
   */
   public deleteBlockEmitter() {
     this.deleteBlockEvent.emit();
   }
   /**
-  * Emits the unpack block event
-  * @param block
+  * Emits the references in scenarios
   */
+  public updateScenariosRefEmitt(scenario, storyId) {
+    this.updateScenariosRefEvent.emit([scenario, storyId]);
+  }
+  /**
+* Emits the unpack block event
+* @param block
+*/
   public unpackBlockEmitter(block) {
     this.unpackBlockEvent.emit(block);
   }
@@ -207,7 +226,7 @@ export class BlockService {
     stories.flatMap((story) => story.scenarios
       .filter((scenario) => scenario.hasRefBlock))
       .forEach((scenario) => this.referenceScenarios.push(scenario));
-      
+
     this.referenceStories = this.referenceScenarios
       .map((scenario) => stories.find((story) => story.scenarios.includes(scenario)))
       .filter((story, index, arr) => story && arr.indexOf(story) === index);
@@ -300,7 +319,7 @@ export class BlockService {
       });
     }
   }
-  
+
   /**
    * Unpack steps from the block and remove the block reference among the steps.
    * @param block
@@ -404,5 +423,119 @@ export class BlockService {
       }
     });
     return blockFound;
+  }
+
+  /** 
+   * convert selected steps To Reference
+   * @param block
+   * @param scenario
+   */
+  convertSelectedStepsToRef(block: Block, scenario: Scenario) {
+    const { indexToPush, pushStepDef } = this.findMatchingSteps(block, scenario);
+    this.removeMatchingSteps(block, scenario);
+    this.insertBlockReference(block, scenario, indexToPush, pushStepDef);
+  }
+
+ /** 
+   * find the index and step definition for pushing the reference block
+   * @param block
+   * @param scenario
+   */
+  findMatchingSteps(block: Block, scenario: Scenario): { indexToPush?: number; pushStepDef?: string } {
+    let indexToPush;
+    let pushStepDef;
+    for (const step in scenario.stepDefinitions) {
+      scenario.stepDefinitions[step].forEach((stepInScenario, index) => {
+        for (const stepBlock in block.stepDefinitions) {
+          block.stepDefinitions[stepBlock].forEach((stepInBlock) => {
+            if (stepInScenario.stepType == stepInBlock.stepType && stepInScenario.id === stepInBlock.id) {
+              indexToPush = indexToPush === undefined ? index : indexToPush;
+              pushStepDef = pushStepDef === undefined ? stepInScenario.stepType : pushStepDef;
+            }
+          })
+        }
+      })
+    }
+    return { indexToPush, pushStepDef };
+  }
+
+ /** 
+   * remove the steps from the scenario that need to be merged into a reference block
+   * @param block
+   * @param scenario
+   */
+  removeMatchingSteps(block: Block, scenario: Scenario): void {
+    for (const step in scenario.stepDefinitions) {
+      for (let index = scenario.stepDefinitions[step].length - 1; index >= 0; index--) {
+        const stepInScenario = scenario.stepDefinitions[step][index];
+        for (const stepBlock in block.stepDefinitions) {
+          block.stepDefinitions[stepBlock].forEach((stepInBlock) => {
+            if (stepInScenario.stepType === stepInBlock.stepType && stepInScenario.id === stepInBlock.id) {
+              scenario.stepDefinitions[step].splice(index, 1);
+            }
+          });
+        }
+      }
+    }
+  }
+
+ /** 
+   * insert a reference block to the scenario
+   * @param block
+   * @param scenario
+   */
+  insertBlockReference(block: Block, scenario: Scenario, indexToPush?: number, pushStepDef?: string): void {
+    if (indexToPush !== undefined && pushStepDef !== undefined) {
+      const blockReference: StepType = {
+        _blockReferenceId: block._id,
+        id: indexToPush + 1,
+        type: block.name,
+        stepType: pushStepDef,
+        pre: '',
+        mid: '',
+        post: '',
+        values: [],
+      };
+
+      scenario.stepDefinitions[pushStepDef].splice(indexToPush, 0, JSON.parse(JSON.stringify(blockReference)));
+      scenario.saved = false;
+    }
+  }
+
+  //CURRENTLY NOT ACTIVATED 
+  convertStepsInAllStories(block: Block, stories: Story[]){
+    let foundScenarios = [];
+    let foundStories = [];
+    let blockStepsToCompare = block.stepDefinitions.when;
+
+    stories.forEach((story) => story !== null && story.scenarios.forEach((scenario) => {
+      for (let i = scenario.stepDefinitions.when.length - 1; i >= 0; i--) {
+        const value = scenario.stepDefinitions.when[i];
+        if (blockStepsToCompare.some((blockStep) =>
+          blockStep.pre === value.pre &&
+          blockStep.mid === value.mid &&
+          JSON.stringify(blockStep.values) === JSON.stringify(value.values))
+        ) {
+          scenario.stepDefinitions.when.splice(i, 1);
+          foundScenarios.push(scenario);
+          foundStories.push(story);
+        }
+      }
+    }));
+    const uniqueSetScenarios = new Set(foundScenarios);
+    const uniqueSetStories = new Set(foundStories);
+    foundScenarios = Array.from(uniqueSetScenarios);
+    foundStories = Array.from(uniqueSetStories);
+    foundStories.forEach((story)=> story.scenarios.forEach((scenario) =>{
+      foundScenarios.forEach((scen)=>{
+        if(scenario == scen){
+          const blockReference: StepType = {_blockReferenceId: block._id, id: 0, type: block.name, stepType: 'when',
+            pre: '', mid: '', post: '', values: []};
+          scenario.stepDefinitions.when.push(JSON.parse(JSON.stringify(blockReference)));
+          this.updateScenariosRefEmitt(scen,  story._id);
+        };
+      });
+    })
+    );
   }
 }

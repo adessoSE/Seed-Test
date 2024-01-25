@@ -2,9 +2,9 @@
 <ng-template #addBlockFormModal let-modal>
   <app-layout-modal></app-layout-modal>
   <div class="modal-header">
-    <span id="modalHeader" class="MediumSubline1H4 modal-title">Add block</span>
+    <span id="modalHeader" class="MediumSubline1H4 modal-title">Add Block</span>
     <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
-      <span rel="def">Add a saved Block. These Steps will get appended to the steps of this story.
+      <span rel="def">Add a Block to the current Scenario. Changes to a Block will affect other Scenarios using the same Block.
       </span>
     </dfn>
 
@@ -12,62 +12,64 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
-    <div (keydown.enter)="enterSubmit($event)">
-      <div class="dividerContainer">
-        <div class="savedBlocksContainer">
-          <p class="subHeader">Saved Blocks</p>
-          <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="changeBlockSelection($event)" name="folderss">
-              <mat-list-option  *ngFor="let block of getFilteredListBlocks(), let rowIndex = index" [value]="block" style="height: 100%; margin-bottom: 10px;">
-                <label mat-line style="white-space: pre-wrap; word-break: break-all;">{{rowIndex+1}}. {{block.name}}</label>
-              </mat-list-option>
-          </mat-selection-list>
-        </div>
-        <div class="previewContainer">
-            <div class="previewEditBlock">
-              <p class="subHeader" *ngIf="selectedBlock == undefined">Preview</p>
-                <div class="subHeader" *ngIf="selectedBlock != undefined"> 
-                  Preview: <label id="newTitle" contentEditable="false" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
-                </div>
-                <button *ngIf="this.blockSaved == true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
-                  <em class="material-icons">edit</em>
-                </button>   
-                <button *ngIf="this.blockSaved == false" id="saveBlockButton" class="blockButton" title="Save Block" [class.disabled]="saveBlockButtonDisable == true" [disabled]="saveBlockButtonDisable == true" (click)="updateBlock();">
-                  <em class="material-icons">save</em>
-                </button>
-                <button id="deleteBlock" class="blockButton" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined" title="Delete Block" (click)="deleteBlock($event)">
-                 <em class="material-icons">delete</em>
-                </button>
-            </div>
-            <table id="savedStepTable" mat-table [dataSource]="stepList" class="mat-elevation-z8" aria-describedby="mydesc">
-              <ng-container matColumnDef="stepType">
-                <td mat-cell *matCellDef="let element" style="text-transform: capitalize"> 
-                  <ng-container *ngIf="element.stepType!='example'">{{element.stepType}}</ng-container>
-                  <ng-container *ngIf="element.stepType=='example'">Multiple Scenario</ng-container></td>
-              </ng-container>
-              <ng-container matColumnDef="pre">
-                <td mat-cell *matCellDef="let element"> 
-                  <ng-container *ngIf="element.stepType!='example'">{{element.pre}} {{element.values[0]}} {{element.mid}} {{element.values[1]}} {{element.values[2]}} {{element.values[3]}}</ng-container>
-                  <ng-container *ngIf="element.stepType=='example'"><ng-container *ngFor="let el of element.values">{{el}} | </ng-container></ng-container></td>
-              </ng-container>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
-        </div>
+  <div (keydown.enter)="enterSubmit($event)">
+    <div class="dividerContainer">
+      <div class="savedBlocksContainer">
+        <p class="subHeader">Saved Blocks</p>
+        <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="changeBlockSelection($event)" name="folderss">
+          <mat-list-option  *ngFor="let block of getFilteredListBlocks(), let rowIndex = index" [value]="block" style="height: 100%; margin-bottom: 10px;">
+            <label mat-line style="white-space: pre-wrap; word-break: break-all;">{{rowIndex+1}}. {{block.name}}</label>
+          </mat-list-option>
+        </mat-selection-list>
       </div>
-      <div id="addBlockFooter" class="modal-footer" [class.forBackground]="this.selectedTemplate == 'background'">
-        <form *ngIf="blocks.length !== 0 && this.selectedTemplate !== 'background'" class="addAsReference">
-          <div class="addRefCheckbox">
-            <label id="addAsReferenceLabel">Add Block as Reference: </label>
-            <input id="addAsReferenceCheckbox "type="checkbox"  [checked]="this.addAsReference" (change)="checkAddAsReference()"  [disabled]="this.selectedBlock == undefined">
-            <dfn class="def">
-              <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
-              <span rel="def">
-                Add the saved Block as a Reference to adopt changes, when steps in the original Block get changed.
-              </span>
-            </dfn>
+      <div class="previewContainer">
+        <div class="previewEditBlock">
+          <p class="subHeader" *ngIf="selectedBlock == undefined">Preview</p>
+          <div class="subHeader" *ngIf="selectedBlock != undefined">
+            Preview: <label id="newTitle" contentEditable="false" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
           </div>
-          <div *ngIf="this.addAsReference" class="addReferenceBlockToStepType">
+          <button *ngIf="this.blockSaved == true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
+            <em class="material-icons">edit</em>
+          </button>
+          <button *ngIf="this.blockSaved == false" id="saveBlockButton" class="blockButton" title="Save Block" [class.disabled]="saveBlockButtonDisable == true" [disabled]="saveBlockButtonDisable == true" (click)="updateBlock();">
+            <em class="material-icons">save</em>
+          </button>
+          <button id="deleteBlock" class="blockButton" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined" title="Delete Block" (click)="deleteBlock($event)">
+            <em class="material-icons">delete</em>
+          </button>
+        </div>
+        <table id="savedStepTable" mat-table [dataSource]="stepList" class="mat-elevation-z8" aria-describedby="mydesc">
+          <ng-container matColumnDef="stepType">
+            <td mat-cell *matCellDef="let element" style="text-transform: capitalize">
+              <ng-container *ngIf="element.stepType!='example'">{{element.stepType}}</ng-container>
+              <ng-container *ngIf="element.stepType=='example'">Multiple Scenario</ng-container></td>
+          </ng-container>
+          <ng-container matColumnDef="pre">
+            <td mat-cell *matCellDef="let element">
+              <ng-container *ngIf="element.stepType!='example'">{{element.pre}} {{element.values[0]}} {{element.mid}} {{element.values[1]}} {{element.values[2]}} {{element.values[3]}}</ng-container>
+              <ng-container *ngIf="element.stepType=='example'"><ng-container *ngFor="let el of element.values">{{el}} | </ng-container></ng-container></td>
+          </ng-container>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </div>
+    <div id="addBlockFooter" class="modal-footer" [class.forBackground]="this.selectedTemplate === 'background'">
+      <form *ngIf="blocks.length !== 0" class="addBlockToScenario">
+        <div class="addRefCheckbox">
+          <label id="addAsSingleStepsLabel">Add Block as single Steps: </label>
+          <input id="addAsSingleStepsCheckbox " type="checkbox" [checked]="this.addAsSingleSteps"
+            (change)="checkaddAsSingleSteps()" [disabled]="this.selectedBlock === undefined || this.selectedTemplate === 'background'">
+          <dfn class="def">
+            <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
+            <span rel="def">
+              Use this Option to add the Steps of a Block to the Scenario, without creating a Block, that is affected by changes.
+            </span>
+          </dfn>
+        </div>
+        <div class="leftFooterContainer">
+          <div *ngIf="!this.addAsSingleSteps" class="addReferenceBlockToStepType">
             <div>
-              <label id="blockAddAslabel">Block will be added as: </label>
+              <label id="blockAddAslabel">Insert Block into:</label>
             </div>
             <div class="addBlockDropDownDiv">
               <mat-form-field appearance="standard" class="addBlockDropDown">
@@ -79,14 +81,20 @@
               </mat-form-field>
               <dfn class="def">
                 <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
-                <span rel="def">
-                  Add the saved Block as a Reference to a selected type of steps.
+                <span class="tooltipAddBlockDropDown" rel="def">
+                  Specify the Section of the Scenario where the Block will be added.
                 </span>
               </dfn>
             </div>
           </div>
-        </form>
-        <button *ngIf="blocks.length !== 0" type="button" class="normalButton" (click)="onClickSubmit()"  [disabled]="this.selectedBlock == undefined" [class.disable]="this.selectedBlock == undefined">Add Block</button>
-      </div>
+          <div *ngIf="this.addAsSingleSteps" class="addReferenceBlockToStepType">
+            <div>
+              <label id="splitStepsLabel">Single Steps will be inserted into their original Section</label>
+            </div>
+          </div>
+        </div>
+      </form>
+      <button *ngIf="blocks.length !== 0" type="button" class="normalButton" (click)="onClickSubmit()" [disabled]="this.selectedBlock === undefined" [class.disable]="this.selectedBlock === undefined">Add Block</button>
     </div>
-  </ng-template>
+  </div>
+</ng-template>

@@ -310,6 +310,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   deleteReferenceObservable: Subscription;
   unpackBlockObservable: Subscription;
   updateNameRefObservable: Subscription;
+  convertToReferenceObservable: Subscription;
 
   @Input() isDark: boolean;
 
@@ -585,6 +586,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           this.applyChangesToBackgrounds(this.selectedStory.background);
         }
       });
+      this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block => 
+          this.blockService.convertSelectedStepsToRef(block, this.selectedScenario)
+      );
   }
 
   ngOnDestroy() {
