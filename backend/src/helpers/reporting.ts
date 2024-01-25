@@ -363,7 +363,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 	let reportObj;
 	try {
 		if (mode === ExecutionMode.GROUP) {
-            await fetchFiles(stories, parameters.repoId)
+            await fetchFiles(stories, parameters.repositoryId)
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			if (parameters.isSequential == undefined || !parameters.isSequential)
@@ -375,7 +375,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			}
 		} else {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
-            await fetchFiles([story], parameters.repoId)
+            await fetchFiles([story], parameters.repositoryId)
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {

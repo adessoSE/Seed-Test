@@ -4,13 +4,14 @@
     <!-- If no block name given submits placeholder title -->
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-      <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
+      <span id="modalHeader" class="MediumSubline1H4 modal-title">Save Steps as Block</span>
       <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-        <span id="infoSpan" rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
-          Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
+        <span id="infoSpan" rel="def">
+          Save multiple Steps as a Block. Use Blocks to create reusable processes that are saved project-wide.
+          Changes to a Block will affect other Scenarios using the same Block.
         </span>
       </dfn>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <button type="button" class="close" aria-label="Close" (click)="closeModal()">
           <span aria-hidden="true">&times;</span>
       </button>
     </div>
@@ -63,7 +64,19 @@
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div id="saveBlockFooter" class="modal-footer">
+        <form *ngIf="blocks.length !== 0 && !isBackground" class="saveAsSingleSteps">
+          <label id="saveAsSingleStepsLabel">Keep Steps separated: </label>
+          <input type="checkbox" [checked]="this.saveAsSingleSteps" [disabled]="this.selectedTemplate === 'background'" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
+          <dfn class="def">
+            <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999; transform: translate(0px, 2px);"></span>
+            <span rel="def">
+              Use this Option to keep the Steps separated in the current Scenario. 
+              Otherwise the selected Steps will be turned into a Block automatically.
+              The Block can later be added in both ways - as a Block or as regular Steps.
+            </span>
+          </dfn>
+        </form>
         <button *ngIf="isBackground === true" class="normalButton deleteButton" type="button" (click)="closeModal()">Discard Background</button>
         <button class="normalButton" type="submit" [disabled]="!saveBlockForm.valid"
         [ngStyle]="{'opacity': !saveBlockForm.valid ?  '50%' : '100%'}">Submit</button>

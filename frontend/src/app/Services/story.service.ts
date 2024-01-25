@@ -175,7 +175,7 @@ export class StoryService {
   */
   public changeOneDriver(oneDriver: boolean, storyID: any) {
     return this.http
-      .post(this.apiService.apiServer + '/story/oneDriver/' + storyID, { oneDriver });
+      .post(this.apiService.apiServer + '/story/oneDriver/' + storyID, { oneDriver }, ApiService.getOptions());
   }
   /**
     * Checking the same name of the story

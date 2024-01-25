@@ -71,5 +71,10 @@ export interface StepType {
      * deactivated currently not used
      */
     deactivated?: boolean;
+    
+    /**
+     * if block reference is expanded in scenario
+     */
+    blockStepExpanded?: boolean;
 
 }

@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { DeleteToast } from 'src/app/delete-toast';
 import { ApiService } from 'src/app/Services/api.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-add-block-form',
@@ -18,7 +19,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
   @ViewChild('newTitle') newTitleLabel: HTMLElement;
  
-
+  currentStepType = new FormControl('When');
     /**
      * Saved blocks
      */
@@ -60,6 +61,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     selectedBlockList: Block[];
 
     /**
+      *The type of step to which to add the block
+      */
+    addBlockToStepType: string[] = ['Given', 'When', 'Then'];
+    /**
       * Currently selected block
       */
     selectedBlock: Block;
@@ -80,9 +85,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     clipboardBlock: Block;
 
     /**
-     * Boolean, wether Block should be added as reference
+     * Boolean, wether Block should be added as a single steps
      */
-    addAsReference: boolean;
+    addAsSingleSteps: boolean;
 
     modalReference: NgbModalRef;
     deleteBlockObservable: Subscription;
@@ -114,6 +119,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * @param repoId id of the current repository / project
      */
     openAddBlockFormModal(correspondingComponent: string, repoId: string) {
+      if (this.selectedTemplate === 'background'){
+        this.checkaddAsSingleSteps(); 
+      }
       this.blockSaved = true;
       this.getAllBlocks(repoId);
       this.correspondingComponent = correspondingComponent;
@@ -245,18 +253,19 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
     copiedBlock() {
       if (this.clipboardBlock) {
-        this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, false);
+        this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, null, false);
       }
     }
 
     /**
-     * Adds a block to saved blocks
+     * Add a block to a scenario
      */
     addBlockFormSubmit() {
-      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
-      delete this.addAsReference;
+      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.currentStepType.value, this.addAsSingleSteps);
+      delete this.addAsSingleSteps;
       delete this.selectedBlock;
       this.stepList = [];
+      this.currentStepType = new FormControl('When');
       this.modalReference.close();
     }
     
@@ -290,8 +299,8 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       this.blockService.updateBlocksEvent.emit();
     }
 
-    checkAddAsReference() {
-      this.addAsReference = (!this.addAsReference);
+    checkaddAsSingleSteps() {
+      this.addAsSingleSteps = (!this.addAsSingleSteps);
     }
 
     enterSubmit(event) {
@@ -302,8 +311,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       this.addBlockFormSubmit();
     }
     closeModal(){
-      delete this.addAsReference;
+      delete this.addAsSingleSteps;
       delete this.selectedBlock;
+      this.currentStepType = new FormControl('When');
       this.stepList = [];
       this.modalReference.close();
     }

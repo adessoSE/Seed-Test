@@ -224,4 +224,69 @@ router.put('/:story_id/:_id', async (req, res) => {
 	}
 });
 
+// delete scenario
+router.delete('/scenario/:story_id/:_id', async (req, res) => {
+	try {
+		await mongo
+			.deleteScenario(req.params.story_id, parseInt(req.params._id, 10));
+		await helper.updateFeatureFile(req.params.story_id);
+		res.status(200)
+			.json({ text: 'success' });
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/story/:_id', async (req, res) => {
+	try {
+		console.log('download feature-file', req.params._id);
+		const file = await helper.exportSingleFeatureFile(req.params._id);
+		console.log(file);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/project/:repo_id', async (req, res) => {
+	try {
+		console.log('download project feature-files', req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
+		console.log(file);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/export/:repo_id', async (req, res) => {
+	try {
+		console.log('export project ', req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await pmHelper.exportProject(req.params.repo_id, version);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.post('/oneDriver/:storyID', async (req, res) => {
+	try {
+		const result = await mongo.updateOneDriver(req.params.storyID, req.body);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.post('/specialCommands/resolve', async (req, res) => {
+	try {
+		const result = helper.applySpecialCommands(req.body.command);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 module.exports = router;
