@@ -1,9 +1,4 @@
-* {
-  padding: 0px;
-  margin: 0px;
-}
-
-.reportHistoryContainer{
+.reportHistoryContainer {
   margin-top: 24px;
   border-left: 1px solid #999;
   border-top: 1px solid #999;
@@ -15,7 +10,7 @@
   border-left: 1px solid #60767b;
   border-top: 1px solid #60767b;
   border-bottom: 1px solid #60767b;
-  background: #455A64;
+  background: #455a64;
 }
 
 /* a.passed{
@@ -24,17 +19,17 @@
 
 /* a.notPassed{
     color: red !important;
-} */ 
+} */
 
-.backButton{
-    background: none;
-    width: 50px;
-    height: 50px;
-    margin-left: 20px;
-    margin-right: 20px;
-    font-size: 15px;
-    cursor: pointer;
-    border: none;
+.backButton {
+  background: none;
+  width: 50px;
+  height: 50px;
+  margin-left: 20px;
+  margin-right: 20px;
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
 }
 
 .sectionHeader {
@@ -43,33 +38,32 @@
 }
 
 .darkTheme .sectionHeader {
-  background-color: #37474F;
+  background-color: #37474f;
 }
 
-.report{
+.report {
   display: flex;
   justify-content: space-between;
   margin: 3px 30px;
   align-items: center;
 }
 
-.reportButtons{
+.reportButtons {
   margin-right: 10px;
 }
 
-.actionButton{
+.actionButton {
   margin-left: 10px;
   background: none;
   border: none;
 }
 
-.actionButton > em{
+.actionButton > em {
   color: var(--ocean-blue);
   font-size: 22px;
-
 }
 
-.headline{
+.headline {
   color: var(--charcoal-grey);
 }
 
@@ -77,20 +71,20 @@
   color: white;
 }
 
-.reportHistoryTitleContainer{
+.reportHistoryTitleContainer {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   margin: 10px;
 }
 
-.disclaimerContainer{
+.disclaimerContainer {
   margin: 20px;
   padding: 5px;
   border: 1px solid var(--grape);
   text-align: center;
 }
 
-.reportsHeader{
-  padding:  2px;
+.reportsHeader {
+  padding: 2px;
 }

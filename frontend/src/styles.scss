@@ -1210,3 +1210,30 @@ body {
 button {
   border-radius: 7px;
 }
+
+.dropdown-list-item {
+  font-size: 14px;
+  font-style: inherit;
+  padding: 12px 16px;
+  border: 0px;
+  background-color: transparent;
+  color: var(--black);
+  outline: none;
+  width: 100%;
+}
+
+.darkTheme .dropdown-list-item {
+  color: white;
+}
+
+.dropdown-list-item:hover {
+  color: var(--ocean-blue) !important;
+}
+
+.darkTheme .dropdown-list-item:hover {
+  color: var(--light-blue) !important;
+}
+
+.dropdown-list-item#logout:hover {
+  color: var(--grape) !important;
+}
