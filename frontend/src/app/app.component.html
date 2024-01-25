@@ -26,8 +26,8 @@
           <div #dropdownMenu [class.closedMenu]="closed">
             <div uk-dropdown="mode: hover" *ngIf="this.loginService.isLoggedIn()" class="dropdown-list">
               <button class=" dropdown-list-item dropdown dropdownReposTrigger" id="projectsMenuButton">
-                <span>Projects </span>
-                <span class="material-icons" id="arrowRight">arrow_right</span>
+                <div>Projects </div>
+                <div class="material-icons" id="arrowRight">arrow_right</div>
                 <div id="dropdown-repos">
                   <div *ngFor="let repository of repositories; let i = index" class="list-item">
                     <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)"
