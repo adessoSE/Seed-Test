@@ -178,6 +178,18 @@ a:hover {
   margin-left: 10px;
 }
 
+.rightArrow {
+  color: var(--dark-grey);
+  outline: none;
+  font-style: inherit;
+  border: 0px;
+  background: transparent;
+  float: left;
+  transition: 0.3s;
+  margin-left: 10px;
+  font-size: 20px;
+}
+
 #menu {
   padding-left: 10;
 }
@@ -491,6 +503,9 @@ input[type="checkbox"] {
   padding: 8px;
 }
 
-.arrow-right {
-  width: 20px;
+#projectsMenuButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
