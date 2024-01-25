@@ -390,6 +390,7 @@ a:hover {
   opacity: 1;
   transform: translateY(0); /* Move into view on hover */
   transition-delay: 0s; /* Apply transition immediately on hover */
+  pointer-events: all;
 }
 
 .menuContainer:hover:not(:has(#versionContainer:hover)) #menuButton {
@@ -402,6 +403,7 @@ a:hover {
   opacity: 1;
   transform: translateY(0); /* Move into view on hover */
   transition-delay: 0s; /* Apply transition immediately on hover */
+  pointer-events: all;
 }
 
 .helpContainer:hover .rightButton {
