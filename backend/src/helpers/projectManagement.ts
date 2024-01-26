@@ -352,9 +352,6 @@ async function importProject(file, repo_id?, projectName?) {
   const session = await client.startSession();
 
   const zip = new AdmZip(file.buffer);
-
-  console.log("We are in ProjectManagement!")
-
   console.log(repo_id);
   console.log(projectName);
   try {
@@ -424,6 +421,7 @@ async function importProject(file, repo_id?, projectName?) {
   } catch (error) {
     console.error("Import failed:", error);
     if (session.inTransaction()) {
+      console.log("Import transaction is being aborted.")
       await session.abortTransaction();
     }
   } finally {
