@@ -2388,7 +2388,7 @@ export class BaseEditorComponent {
           undefined,
           stepTypePre[index].nativeElement.innerText,
           true,
-          // mies hin geschumelt, muss checken ob es nur im then ist beim highlighten um das nur für Inputfelder im when zu tun
+          // mies hin geschumelt, muss checken ob es nur im then ist beim highlighten für den regex
           in_field.nativeElement.id.includes("_2_input") ? "then" : undefined
         );
       });
