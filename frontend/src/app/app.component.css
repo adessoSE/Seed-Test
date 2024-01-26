@@ -510,7 +510,8 @@ input[type="checkbox"] {
   overflow-y: auto;
   width: max-content;
   transform: translateX(-30%); /* Initially off-screen to the left */
-  transition: visibility 0s linear 0.5s, opacity 0.45s ease, transform 0.5s ease;
+  transition: visibility 0.3s linear 0.5s, opacity 0.45s ease,
+    transform 0.5s ease;
   pointer-events: none;
 }
 
@@ -535,7 +536,7 @@ input[type="checkbox"] {
 }
 
 #projectsMenuButton #arrowRight {
-  transition: translateX 0.3s ease-in-out, transform 0.3s ease-in-out;
+  transition: translateX 0.4s ease-in-out, transform 0.45s ease-in-out;
 }
 
 #projectsMenuButton:hover #arrowRight {
@@ -546,6 +547,6 @@ input[type="checkbox"] {
   visibility: visible;
   opacity: 1;
   transform: translateX(0);
-  transition-delay: 0.1s;
+  transition-delay: 0.35s;
   pointer-events: all;
 }
