@@ -135,3 +135,9 @@ table {
 :host ::ng-deep #daisyAutoLogout {
   margin-left: 5px;
 }
+
+.autoLogoutDaisyContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 20px;
+}

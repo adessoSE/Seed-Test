@@ -65,7 +65,7 @@
 }
 
 .storyInfoCenter {
-  margin-bottom: 5px;
+  margin: 5px;
 }
 
 .selectLabel {
@@ -635,6 +635,7 @@ button#background_up {
 #defaultWaitTimeInput {
   width: fit-content;
   text-align: center;
+  height: 20px;
 }
 
 #browserSelect {
