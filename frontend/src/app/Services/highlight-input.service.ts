@@ -21,6 +21,7 @@ export class HighlightInputService {
    * @param regexInStory if first regex in Story
    * @param valueIndex index of input field
    * @param stepPre pre text of step
+   * @param highlightRegex if regex should be detexted and highlighted
    * @returns if a regex was detected
    */
   highlightInput(
@@ -29,7 +30,8 @@ export class HighlightInputService {
     isDark?: boolean,
     regexInStory?: boolean,
     valueIndex?: number,
-    stepPre?: string
+    stepPre?: string,
+    highlightRegex?: boolean
   ) {
     const textField = element;
     const textContent = textField.textContent;
@@ -46,10 +48,12 @@ export class HighlightInputService {
     let highlightedText = textContent;
 
     if (!valueIndex || (0 == valueIndex && regexSteps.includes(stepPre))) {
-      ({ regexDetected, highlightedText } = this.highlightRegex(
-        highlightedText,
-        isDark
-      ));
+      if (highlightRegex) {
+        ({ regexDetected, highlightedText } = this.highlightRegex(
+          highlightedText,
+          isDark
+        ));
+      }
       ({ specialCommandDetected, highlightedText } =
         this.highlightSpecialCommands(highlightedText, isDark));
     }

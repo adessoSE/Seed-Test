@@ -2324,6 +2324,7 @@ export class BaseEditorComponent {
    * @param step for addToValue
    * @param stepPre pre text of step
    * @param initialCall if call is from ngAfterView
+   * @param sd the type of scenario block (given,when,then)
    */
   highlightInput(
     element,
@@ -2332,7 +2333,8 @@ export class BaseEditorComponent {
     stepType?: string,
     step?: StepType,
     stepPre?: string,
-    initialCall?: boolean
+    initialCall?: boolean,
+    sd?: string
   ) {
     const textField = element;
     const textContent = textField.textContent;
@@ -2352,7 +2354,8 @@ export class BaseEditorComponent {
       this.isDark,
       this.regexInStory,
       valueIndex,
-      stepPre
+      stepPre,
+      sd === "then"
     );
 
     if (initialCall && regexDetected) {
@@ -2384,7 +2387,9 @@ export class BaseEditorComponent {
           undefined,
           undefined,
           stepTypePre[index].nativeElement.innerText,
-          true
+          true,
+          // mies hin geschumelt, muss checken ob es nur im then ist beim highlighten um das nur für Inputfelder im when zu tun
+          in_field.nativeElement.id.includes("_2_input") ? "then" : undefined
         );
       });
 

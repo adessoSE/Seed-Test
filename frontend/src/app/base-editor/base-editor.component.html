@@ -159,7 +159,7 @@
                             style="padding-left: 5px; padding-right: 5px;min-width: 100px; padding-bottom: 1px;" /-->
                           <div class="scenario contentEditableElement inputEditableDiv" #step_type_input1
                             id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true"
-                            (input)="highlightInput(step_type_input1, j, 0, currentStep.stepType, currentStep, currentStep.pre)"
+                            (input)="highlightInput(step_type_input1, j, 0, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
                             style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;">
                             {{currentStep.values[0]}}</div>
                         </div>
@@ -219,7 +219,7 @@
                               style="padding-left: 5px; padding-right: 5px;min-width: 100px" /-->
                             <div class="scenario contentEditableElement inputEditableDiv" #step_type_input2
                               id="{{name+'_' + i + '_input_mid_' + j}}" contenteditable="true"
-                              (input)="highlightInput(step_type_input2, j, 1, currentStep.stepType, currentStep, currentStep.pre)"
+                              (input)="highlightInput(step_type_input2, j, 1, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
                               style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;">
                               {{currentStep.values[1]}}</div>
                           </div>
@@ -281,7 +281,7 @@
                             style="padding-left: 5px; padding-right: 5px;min-width: 100px" /-->
                           <div class="scenario contentEditableElement inputEditableDiv" #step_type_input3
                             id="{{name+'_' + i + '_input_post_' + j}}" contenteditable="true"
-                            (input)="highlightInput(step_type_input3, j, 2, currentStep.stepType, currentStep, currentStep.pre)"
+                            (input)="highlightInput(step_type_input3, j, 2, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
                             style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;">
                             {{currentStep.values[2]}}</div>
                         </div>
@@ -438,7 +438,7 @@
                       <div class="scenario contentEditableElement inputEditableDiv" #step_type_input
                         id="{{name+'_step_input_pre_' + j}}" [containerEl]="backgroundContainerEl"
                         [parentEl]="backgroundParentEl" contenteditable="true"
-                        (input)="highlightInput(step_type_input, j, 0, currentStep.stepType, currentStep, currentStep.pre)"
+                        (input)="highlightInput(step_type_input, j, 0, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
                         style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;">
                         {{currentStep.values[0]}}</div>
                     </div>
@@ -452,7 +452,7 @@
                       <div class="scenario contentEditableElement inputEditableDiv"
                         *ngIf="currentStep.values[1] != null" #step_type_input id="{{name+'_step_input_mid_' + j}}"
                         [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true"
-                        (input)="highlightInput(step_type_input, j, 1, currentStep.stepType, currentStep, currentStep.pre)"
+                        (input)="highlightInput(step_type_input, j, 1, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
                         style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;">
                         {{currentStep.values[1]}}</div>
                     </div>
@@ -466,7 +466,7 @@
                       <div class="scenario contentEditableElement inputEditableDiv"
                         *ngIf="currentStep.values[2] != null" #step_type_input id="{{name+'_step_input_post_' + j}}"
                         [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true"
-                        (input)="highlightInput(step_type_input, j, 2, currentStep.stepType, currentStep, currentStep.pre)"
+                        (input)="highlightInput(step_type_input, j, 2, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
                         style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;">
                         {{currentStep.values[2]}}</div>
                     </div>
