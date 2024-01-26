@@ -3,11 +3,15 @@
   flex-flow: row wrap;
   font-weight: bold;
   text-align: center;
-  border-top: 1px solid #e5e5e5;
+  justify-content: space-between;
 }
 
 .storyInfoContainer#justifyScenarioContent {
   justify-content: space-between;
+}
+
+#justifyScenarioContent {
+  width: 100%;
 }
 
 :host
@@ -61,32 +65,23 @@
 }
 
 .storyInfoCenter {
-  display: flex;
-  justify-content: center;
-  padding: 0;
-  align-items: center;
+  margin-bottom: 5px;
 }
 
 .selectLabel {
   margin-right: 3px;
 }
 
-.select {
-  width: 120px;
-  margin-right: 5px;
-}
-
 .waitTime {
-  width: 70px;
-  margin-right: 5px;
+  width: 55px;
 }
 
 #oneDriverCheck {
-  margin-right: 5px;
+  margin-right: 3px;
 }
 
 #emulatorCheck {
-  margin-right: 5px;
+  margin-right: 3px;
 }
 
 #oneDriverInfoIcon {
@@ -97,8 +92,7 @@
 }
 
 #emulatorInfoIcon {
-  /* margin-right: 10px;
-  margin-bottom: 7px; */
+  margin-left: 3px;
   width: 13px;
   vertical-align: baseline;
 }
@@ -631,4 +625,22 @@ button#background_up {
 #testreport {
   border: 1px solid #999;
   border-radius: 7px;
+}
+
+.alignItemsCentered {
+  display: flex;
+  align-items: center;
+}
+
+#defaultWaitTimeInput {
+  width: fit-content;
+  text-align: center;
+}
+
+#browserSelect {
+  width: fit-content;
+}
+
+#centeredSettings {
+  gap: 10px;
 }

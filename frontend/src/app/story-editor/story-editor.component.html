@@ -164,86 +164,7 @@
           <em class="material-icons">insert_chart_outlined</em>
           View Reports
         </button>
-        <div class="storyInOneSessionDiv">
-          <label class="selectLabel SmallIcontext">Run Story in one Session:</label>
-          <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()" [checked]="this.selectedStory.oneDriver">
-          <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
-            <span rel="def" style="font-weight: normal;">
-              Executes all scenarios consecutively in one single Browser session.
-            </span>
-          </dfn>
-        </div>
       </div>
-
-
-      <div class="storyInfoCenter" *ngIf="this.selectedScenario">
-        <div *ngIf="!this.globalSettingsActivated">
-          <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
-          <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
-            value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event.target.valueAsNumber)">
-          <label class="selectLabel SmallIcontext">Browser:</label>
-          <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
-            <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
-              [selected]="this.selectedScenario.browser === 'chrome'">Chrome</option>
-            <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
-              [selected]="this.selectedScenario.browser === 'firefox'">Firefox</option>
-            <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
-              [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
-          </select>
-
-          <!-- EMULATOR -->
-
-          <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
-          <dfn class="def" [ngStyle]="
-            this.getAvaiableEmulators() < 1
-              ? { cursor: 'help' }
-              : { cursor: 'default' }
-          ">
-            <input class="def" [ngStyle]="
-              this.getAvaiableEmulators() < 1
-                ? { cursor: 'help' }
-                : { cursor: 'default' }
-            " type="checkbox" id="emulatorCheck" (change)="setEmulatorEnabled(!this.emulator_enabled)"
-              [checked]="this.emulator_enabled" [disabled]="this.getAvaiableEmulators().length < 1" />
-            <span *ngIf="this.getAvaiableEmulators().length < 1" rel="def" style="font-weight: normal">
-              No emulators avaiable for the selected browser!
-            </span>
-          </dfn>
-
-          <select *ngIf="this.emulator_enabled" name="emulator" class="select" id="emulatorSelect"
-            (change)="setEmulator($event.target.value)">
-            <option *ngIf="this.getAvaiableEmulators().length === 0" value="{{ undefined }}"
-              [selected]="this.selectedScenario.emulator === emulator">
-              No emulator avaiable
-            </option>
-            <option *ngFor="let emulator of this.getAvaiableEmulators()" value="{{ emulator }}" id="{{emulator}}_option"
-              [selected]="this.selectedScenario.emulator === emulator">
-              {{ emulator }}
-            </option>
-          </select>
-
-          <dfn class="def">
-            <span id="emulatorInfoIcon" uk-icon="info"></span>
-            <span rel="def" style="font-weight: normal">
-              Runs the test on a simulated device.
-            </span>
-          </dfn>
-          <!-- Window Size -->
-          <app-window-size #windoSizeModal [width]="this.selectedScenario.width" [height]="this.selectedScenario.height"
-            [emulator]="emulator_enabled" (sizeChange)="handleSizeChange($event)"></app-window-size>
-        </div>
-
-        <div *ngIf="this.globalSettingsActivated">
-          <div class="globalSettingsDiv">
-            <!-- <em class="material-icons warningIcon">warning</em> -->
-            <p class="globalSettingsText">Test Execution Setting for this Scenario are currently overwritten by Project
-              Settings.</p>
-            <!-- <em class="material-icons warningIcon">warning</em> -->
-          </div>
-          <button class="button-4" (click)="workGroupEdit(this.selectedRepository)">Edit Global Settings</button>
-        </div>
-      </div>
-
 
       <div class="storyInfoRight uk-button-group">
         <button *ngIf="this.showResults" id="hide_results_top" [class.disabledButton]="!testDone" class="button"
@@ -274,6 +195,82 @@
           uk-tooltip="Copy Story Link to Clipboard">
           add_link
         </button>
+      </div>
+    </div>
+    <div class="storyInfoCenter" *ngIf=" this.selectedScenario">
+      <div class="alignItemsCentered" id="centeredSettings" *ngIf="!this.globalSettingsActivated">
+        <div class="storyInOneSessionDiv alignItemsCentered">
+          <span class="selectLabel SmallIcontext">Run Story in one Session:</span>
+          <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()" [checked]="this.selectedStory.oneDriver">
+          <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
+            <span rel="def" style="font-weight: normal;">
+              Executes all scenarios consecutively in one single Browser session.
+            </span>
+          </dfn>
+        </div>
+        <div>
+          <span class="selectLabel SmallIcontext">Wait between steps (ms):</span>
+          <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
+            value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event.target.valueAsNumber)">
+        </div>
+        <div>
+          <span class="selectLabel SmallIcontext">Browser:</span>
+          <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
+            <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
+              [selected]="this.selectedScenario.browser === 'chrome'">Chrome</option>
+            <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
+              [selected]="this.selectedScenario.browser === 'firefox'">Firefox</option>
+            <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
+              [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
+          </select>
+        </div>
+
+        <!-- EMULATOR -->
+        <div class="alignItemsCentered">
+          <span class=" selectLabel SmallIcontext" for="emulatorCheck">Emulator:</span>
+          <input class="def" [ngStyle]="
+                        this.getAvaiableEmulators() < 1
+                          ? { cursor: 'help' }
+                          : { cursor: 'default' }
+                      " type="checkbox" id="emulatorCheck" (change)="setEmulatorEnabled(!this.emulator_enabled)"
+            [checked]="this.emulator_enabled" [disabled]="this.getAvaiableEmulators().length < 1" />
+          <span *ngIf="this.getAvaiableEmulators().length < 1" rel="def" style="font-weight: normal">
+            No emulators avaiable for the selected browser!
+          </span>
+
+          <select *ngIf="this.emulator_enabled" name="emulator" class="select" id="emulatorSelect"
+            (change)="setEmulator($event.target.value)">
+            <option *ngIf="this.getAvaiableEmulators().length === 0" value="{{ undefined }}"
+              [selected]="this.selectedScenario.emulator === emulator">
+              No emulator avaiable
+            </option>
+            <option *ngFor="let emulator of this.getAvaiableEmulators()" value="{{ emulator }}" id="{{emulator}}_option"
+              [selected]="this.selectedScenario.emulator === emulator">
+              {{ emulator }}
+            </option>
+          </select>
+          <dfn class="def">
+            <span id="emulatorInfoIcon" uk-icon="info"></span>
+            <span rel="def" style="font-weight: normal">
+              Runs the test on a simulated device.
+            </span>
+          </dfn>
+        </div>
+
+
+        <!-- Window Size -->
+        <app-window-size #windoSizeModal [width]="this.selectedScenario.width" [height]="this.selectedScenario.height"
+          [emulator]="emulator_enabled" (sizeChange)="handleSizeChange($event)"></app-window-size>
+      </div>
+
+      <div *ngIf="this.globalSettingsActivated">
+        <div class="globalSettingsDiv">
+          <!-- <em class="material-icons warningIcon">warning</em> -->
+          <p class="globalSettingsText">Test Execution Setting for this Scenario are currently overwritten by Project
+            Settings.</p>
+          <!-- <em class="material-icons warningIcon">warning</em> -->
+        </div>
+        <button class="button-4" (click)="workGroupEdit(this.selectedRepository)">Edit Global Settings</button>
       </div>
     </div>
 

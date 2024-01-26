@@ -141,6 +141,7 @@ a.storyListLink {
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
+  padding-left: 5px;
 }
 
 .normalButton {
