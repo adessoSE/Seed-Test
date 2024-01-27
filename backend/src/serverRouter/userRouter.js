@@ -353,30 +353,55 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		// send request to Jira API
 		try {
 			await fetch(
-				`http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`,
+				`http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+(labels=Seed-Test+OR+issuetype=Test)&startAt=0&maxResults=200`,
 				options
 			)
 				.then(async (response) => response.json())
 				.then(async (json) => {
 					try {
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
-						for (const issue of json.issues) if (issue.fields.labels.includes('Seed-Test')) {
+						for (const issue of json.issues) {
+							let testStepDescription = '';
+							if (issue.fields.issuetype.name === 'Test') {
+								try {
+									const testStepsResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
+									const testSteps = await testStepsResponse.json();
+									console.log(testSteps);
+									const steps = testSteps.steps;
+									testStepDescription = '\n\nTest-Steps:\n\n';
+									for (const step of steps) {
+										const fields = step.fields;
+										const stepInfo = [`Step ${step.index}:`];
+									
+										stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}` : '(GIVEN): Not used');
+										stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw} ---` : '(WHEN): Not used --- ');
+										stepInfo.push(fields.Data && fields.Data.value.raw ? `(DATA): ${fields.Data.value.raw} --- ` : '(DATA): Not used --- ');
+										stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw} --- ` : '(THEN): Not used --- ');
+										testStepDescription += stepInfo.join('\n');
+									}
+									
+								} catch (e) {
+									console.log('Error while getting test steps', e);
+								}
+							}
+
 							const story = {
 								story_id: issue.id,
 								title: issue.fields.summary,
-								body: issue.fields.description,
+								body: issue.fields.description + testStepDescription,
 								state: issue.fields.status.name,
 								issue_number: issue.key,
 								storySource: 'jira'
 							};
+
 							if (issue.fields.assignee !== null) {
-								// skip in case of "unassigned"
 								story.assignee = issue.fields.assignee.name;
 								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
 							} else {
 								story.assignee = 'unassigned';
 								story.assignee_avatar_url = null;
 							}
+
 							const entry = await projectMng.fuseStoryWithDb(story, issue.id);
 							tmpStories.set(entry._id.toString(), entry);
 							storiesArray.push(entry._id);
@@ -384,6 +409,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 					} catch (e) {
 						console.error('Error while getting Jira issues:', e);
 					}
+
 					Promise.all(storiesArray)
 						.then((array) => {
 							const orderedStories = matchOrder(array, tmpStories, repo);
@@ -397,7 +423,6 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		} catch (e) {
 			console.error('Jira Error during API call:', e);
 		}
-
 		// get DB Repo / Projects
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
 		const result = await mongo.getAllStoriesOfRepo(req.query.id);
