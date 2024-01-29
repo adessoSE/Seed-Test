@@ -83,6 +83,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { WindowSizeComponent } from './modals/window-size/window-size.component';
+import { StepComponent } from './step/step.component';
 
 
 @NgModule({
@@ -135,7 +136,8 @@ import { WindowSizeComponent } from './modals/window-size/window-size.component'
     DeleteToast,
     TransferOwnershipToast,
     ConfirmResetPasswordPopupComponent,
-    WindowSizeComponent
+    WindowSizeComponent,
+    StepComponent
   ],
   imports: [
     NgbModule,

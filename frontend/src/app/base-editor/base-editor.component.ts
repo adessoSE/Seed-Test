@@ -1003,9 +1003,8 @@ export class BaseEditorComponent {
     * @param event Click event
     * @param step Current step
     * @param checkbox_id Checkbox id
-    * @param checkValue Optional value
     */
-  handleClick(event, step, checkbox_id, checkValue?: boolean) {
+  handleClick(event, step, checkbox_id) {
     // if key pressed is shift
     delete this.isReferenceBlock;
     if (event.shiftKey && this.lastVisitedTemplate == this.templateName) {
@@ -2067,9 +2066,6 @@ export class BaseEditorComponent {
 
     if(!initialCall){
       this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
-    }
-
-    if(!initialCall){
       this.initialRegex = false;
     }
 
@@ -2078,7 +2074,6 @@ export class BaseEditorComponent {
     if(initialCall && regexDetected) {
       this.regexInStory = true
     }
-
   }
 
   /**
