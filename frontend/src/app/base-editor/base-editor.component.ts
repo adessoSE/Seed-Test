@@ -2348,6 +2348,13 @@ export class BaseEditorComponent {
       this.initialRegex = false;
     }
 
+    if (initialCall && regexDetected) {
+      this.regexInStory = true;
+    }
+
+    console.log("BLA");
+    console.log(this.regexInStory);
+
     regexDetected = this.highlightInputService.highlightInput(
       element,
       initialCall,
@@ -2358,9 +2365,7 @@ export class BaseEditorComponent {
       sd === "then"
     );
 
-    if (initialCall && regexDetected) {
-      this.regexInStory = true;
-    }
+    this.regexInStory = regexDetected || this.regexInStory;
   }
 
   /**
