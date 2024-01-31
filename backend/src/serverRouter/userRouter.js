@@ -368,15 +368,15 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 									const testSteps = await testStepsResponse.json();
 									console.log(testSteps);
 									const steps = testSteps.steps;
-									testStepDescription = '\n\nTest-Steps:\n\n';
+									testStepDescription = '\n\nTest-Steps:\n';
 									for (const step of steps) {
 										const fields = step.fields;
-										const stepInfo = [`Step ${step.index}:`];
+										const stepInfo = [`\n----- Step ${step.index} -----`];
 									
-										stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}` : '(GIVEN): Not used');
-										stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw} ---` : '(WHEN): Not used --- ');
-										stepInfo.push(fields.Data && fields.Data.value.raw ? `(DATA): ${fields.Data.value.raw} --- ` : '(DATA): Not used --- ');
-										stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw} --- ` : '(THEN): Not used --- ');
+										stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
+										stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
+										stepInfo.push(fields.Data && fields.Data.value.raw ? `(DATA): ${fields.Data.value.raw}\n` : '(DATA): No data used\n');
+										stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
 										testStepDescription += stepInfo.join('\n');
 									}
 									
