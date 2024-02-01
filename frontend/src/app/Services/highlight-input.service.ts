@@ -121,7 +121,7 @@ export class HighlightInputService {
    * @returns an object containing {regexDetected , highlightedText}
    */
   highlightRegex(element, isDark) {
-    const regexPattern = /(\{Regex:)(.*?)(\})/g;
+    const regexPattern = /(\{Regex:)(.*)(\})(.*)/g;
 
     const textContent = element;
 
@@ -130,7 +130,7 @@ export class HighlightInputService {
     // TODO: Hardcoded Styles
     highlightedText = textContent.replace(
       regexPattern,
-      (match, match1, match2, match3) => {
+      (match, match1, match2, match3, match4) => {
         regexDetected = true;
         return (
           `<span>` +
@@ -142,7 +142,7 @@ export class HighlightInputService {
           }; font-weight: bold">${match2}</span>` +
           `<span style="color: ${
             isDark ? "var(--light-grey)" : "var(--brown-grey)"
-          }; font-weight: bold">${match3}</span></span>`
+          }; font-weight: bold">${match3}</span></span>${match4}`
         );
       }
     );
