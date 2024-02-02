@@ -1,5 +1,6 @@
-<div #backgroundContainerEl class="stepsContainer"
-    *ngIf="!stepData.checked"><!--or not draging-->
+<ng-container #stepContainer></ng-container>
+
+<div #backgroundContainerEl class="stepsContainer" ><!--or not draging-->
     <div #backgroundParentEl class="text-inline SmallBody1regularLH stepLine"
     [class.deactivated]="stepData.deactivated">
         <div class="dragIconContainer" cdkDragHandle>
@@ -11,18 +12,18 @@
             {{ selectedCount(selectedStory.background.stepDefinitions,1) || 1 }}
             </div>
         </div>-->
-        <input type="checkbox" class="checkbox" id="{{name+'_'+i+'_checkbox_' + index}}" [checked]="stepData.checked">
+        <input type="checkbox" class="checkbox" id="{{'checkbox_' + index}}" [checked]="stepData.checked">
         {{index+1}}. {{stepData.pre}}
         <div style="display:inline" *ngIf="stepData.values.length > 0">
-            <div class="scenario contentEditableElement inputEditableDiv" id="{{name+'_step_input_pre_' + index}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{stepData.values[0]}}</div>
+            <div class="scenario contentEditableElement inputEditableDiv" id="{{'step_input_pre_' + index}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{stepData.values[0]}}</div>
         </div>
         {{stepData.mid}}
         <div>
-            <div class="scenario contentEditableElement inputEditableDiv" *ngIf="stepData.values[1] != null" id="{{name+'_step_input_mid_' + index}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{stepData.values[1]}}</div>
+            <div class="scenario contentEditableElement inputEditableDiv" *ngIf="stepData.values[1] != null" id="{{'step_input_mid_' + index}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{stepData.values[1]}}</div>
         </div>
         {{stepData.post}}
         <div>
-            <div class="scenario contentEditableElement inputEditableDiv" *ngIf="stepData.values[2] != null" id="{{name+'_step_input_post_' + index}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{stepData.values[2]}}</div>
+            <div class="scenario contentEditableElement inputEditableDiv" *ngIf="stepData.values[2] != null" id="{{'step_input_post_' + index}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{stepData.values[2]}}</div>
         </div>
         <div *ngIf="stepData.outdated">
             <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
@@ -34,3 +35,40 @@
         </div>
     </div>
 </div>
+<ng-template #stepContainerUpload class="stepsContainer" ><!--or not draging-->
+    <div #backgroundParentEl class="text-inline SmallBody1regularLH stepLine"
+    [class.deactivated]="stepData.deactivated">
+        <div class="dragIconContainer" cdkDragHandle>
+            <em class="material-icons dragIcon">drag_indicator</em>
+        </div>
+        <!--<div *cdkDragPreview>
+            <div *ngIf="selectedCount(selectedStory.background.stepDefinitions,1)>1"
+            class="select-item-drag-preview float-left">
+            {{ selectedCount(selectedStory.background.stepDefinitions,1) || 1 }}
+            </div>
+        </div>-->
+        <input type="checkbox" class="checkbox" id="{{'checkbox_' + index}}" [checked]="stepData.checked">
+        {{index+1}}. {{stepData.pre}}
+        <select name="" id="">
+            <option value="">A</option>
+            <option value="">B</option>
+            <option value="">C</option>
+        </select>
+        {{stepData.mid}}
+        <div>
+            <div class="scenario contentEditableElement inputEditableDiv" *ngIf="stepData.values[1] != null" id="{{'step_input_mid_' + index}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{stepData.values[1]}}</div>
+        </div>
+        {{stepData.post}}
+        <div>
+            <div class="scenario contentEditableElement inputEditableDiv" *ngIf="stepData.values[2] != null" id="{{'step_input_post_' + index}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{stepData.values[2]}}</div>
+        </div>
+        <div *ngIf="stepData.outdated">
+            <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
+            <span rel="def">
+                This step got updated. Please check if the implemented logic is still valid. When you've
+                adjusted the step, save the background to confirm your adjustments.
+            </span>
+            </dfn>
+        </div>
+    </div>
+</ng-template>
