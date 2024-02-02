@@ -35,7 +35,7 @@
     "moment": "^2.29.4",
     "mongodb": "^3.7.3",
     "node-fetch": "^2.6.7",
-    "nodemailer": "^6.7.5",
+    "nodemailer": "^6.9.9",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "selenium-webdriver": "^4.1.1",
