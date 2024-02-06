@@ -270,12 +270,16 @@ async function executeTest(req, mode, story) {
 		console.log(`stdout: ${data}`);
 	});
 	runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
-
+	// eslint-disable-next-line consistent-return
 	return new Promise((resolve) => {
 		runner.on('error', (error) => {
 			console.error(`exec error: ${error}`);
 			resolve({
-				reportTime, story, scenarioId: req.params.scenarioId, reportName
+				reportTime,
+				story,
+				scenarioId: req.params.scenarioId,
+				reportName,
+				settings: (globalSettings && globalSettings.activated ? globalSettings : null)
 			});
 		});
 		runner.on('exit', () => {

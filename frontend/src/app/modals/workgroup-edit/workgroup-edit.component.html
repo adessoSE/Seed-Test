@@ -121,6 +121,22 @@
                             </dfn>
                         </div>
                     </div>
+                    <div class="windowSizeDiv space-between" *ngIf="workgroupProject?.source !== 'db'">
+                        <div>
+                            <label class="selectLabel SmallIcontext">Report comment</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" [(ngModel)]="reportComment">
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Creates a comment with the Test Results on your connected Issue Tracker
+                                </span>
+                            </dfn>
+                        </div>
+                    </div>
                 </div>
                 <hr>
 
