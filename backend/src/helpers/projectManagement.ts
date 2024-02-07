@@ -349,8 +349,9 @@ async function exportProject(repo_id, versionID) {
 async function importProject(file, repo_id?, projectName?) {
   // Create a MongoDB client and start a session
   const client = await dbConnector.establishConnection();
+  //client.runCommand( { killAllSessions: [] })
   const session = await client.startSession();
-
+  console.log(session.inTransaction())
   const zip = new AdmZip(file.buffer);
   console.log(repo_id);
   console.log(projectName);
@@ -382,8 +383,6 @@ async function importProject(file, repo_id?, projectName?) {
       return filenameA.localeCompare(filenameB);
     });
 
-    session.startTransaction();
-
     console.log(repo_id);
     if (repo_id) {
       // Perform a PUT request for an existing project
@@ -405,8 +404,9 @@ async function importProject(file, repo_id?, projectName?) {
       for(const singularMapping of mappingData){
         groupMapping.push(singularMapping);
       };
-      await session.withTransaction(async () => {
+      await session.withTransaction(async (session) => {
       //Create new repo with some exported information
+      console.log("We are in Transition!");
       const newRepo = await mongo.createRepo(repoData.owner, projectName);
       if(newRepo == 'Sie besitzen bereits ein Repository mit diesem Namen!'){
         return('Sie besitzen bereits ein Repository mit diesem Namen!');
@@ -421,8 +421,11 @@ async function importProject(file, repo_id?, projectName?) {
   } catch (error) {
     console.error("Import failed:", error);
     if (session.inTransaction()) {
+      console.log(session)
+      console.log(session.inTransaction())
       console.log("Import transaction is being aborted.")
       await session.abortTransaction();
+      console.log(session.inTransaction())
     }
   } finally {
     await session.endSession();
