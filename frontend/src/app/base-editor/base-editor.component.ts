@@ -2112,6 +2112,7 @@ export class BaseEditorComponent {
       }
       return undefined;
     }
+
   }
 
   /**
