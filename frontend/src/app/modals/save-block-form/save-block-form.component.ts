@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -16,7 +16,14 @@ import { BackgroundService } from '../../Services/background.service';
 export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
   @ViewChild('saveBlockFormModal') saveBlockFormModal: SaveBlockFormComponent;
-
+  selectedTemplate: string;
+  /**
+    * Sets a new selected story
+    */
+  @Input()
+  set templateName(name) {
+    this.selectedTemplate = name;
+  }
   /**
      * Block to be saved
      */
@@ -59,6 +66,11 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     * Parent component
     */
   parentComponent;
+  
+  /**
+    * Boolean, whether steps should be convert to a reference
+    */
+  saveAsSingleSteps: boolean;
 
   modalReference: NgbModalRef;
 
@@ -94,8 +106,14 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
      * Opens save block form modal
      * @param block
      * @param comp
+     * @param isBackground
+     * @param backgroundName
+     * @param stories
      */
   openSaveBlockFormModal(block: Block, comp, isBackground?: boolean, backgroundName?) {
+    if (this.selectedTemplate === 'background'){
+      this.checkSaveAsSingleSteps();
+    }
     this.exampleBlock = false;
     this.exampleChecked = false;
     this.block = block;
@@ -170,12 +188,48 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
  */
   submitSaveBlock(form: NgForm) {
     let title = form.value.blockNameInput;
-    /* if (this.exampleBlock) {
-        this.parentComponent.checkAllExampleSteps(false);
-    } else {
-        this.parentComponent.checkAllSteps(false);
-    } */
     this.parentComponent.checkAllSteps(false);
+    if (this.blockBeforeSubmit(title)) {
+      this.block.name = title;
+      this.block.repository = localStorage.getItem('repository');
+      this.block.source = localStorage.getItem('source');
+      this.block.repositoryId = localStorage.getItem('id');
+      this.filterResavedReferences(this.block);
+      this.blockService.saveBlock(this.block).subscribe((resp) => {
+        console.log(resp);
+        if(!this.saveAsSingleSteps){
+          this.block._id = resp.insertedId;
+          this.blockService.convertToReferenceEmitter(this.block);
+          this.saveAsSingleSteps = (!this.saveAsSingleSteps);
+        }
+        this.updateBlocksEventEmitter();
+        delete this.saveAsSingleSteps;
+        this.toastr.success('successfully saved', 'Block');
+      });
+      this.modalReference.close();
+    }
+  }
+
+  /**
+   * Prevents reference blocks from being saved repeatedly
+   */
+  filterResavedReferences(block: Block): Block {
+    for (let stepType in this.block.stepDefinitions) {
+      this.block.stepDefinitions[stepType] = this.block.stepDefinitions[stepType].filter(
+        (step) => !step._blockReferenceId
+      );
+    }
+    return this.block; // Assuming you want to return the modified block
+  }
+
+  /**
+   * Performing checks in block before saving
+   *  @param title
+   *  @returns
+   */
+  blockBeforeSubmit(title){
+    //title validation
+    let blockValid = true;
     if (this.isBackground && this.isBackground !== undefined){
       title = this.backgroundName;
     }
@@ -183,35 +237,21 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
       title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
     }
     if (this.isTitleEqual(title)) {
-      this.nameExistsToast();
-      return;
+      this.toastr.warning('', 'This name exists already. Enter unique name.', {});
+      blockValid = false;
+      return blockValid;
     }
-    this.block.name = title;
-    this.block.repository = localStorage.getItem('repository');
-    this.block.source = localStorage.getItem('source');
-    this.block.repositoryId = localStorage.getItem('id');
+    //saving block if contain examples
     if(this.exampleChecked){
       this.block.stepDefinitions = {given: [], when: [], then: [], example: this.stepListSaveBlockExample}
     }
+    //saving block central as a background(won't be displayed when adding a block, only in the list of backgrounds)
     if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){
       this.block.isBackground = true;
     }
-    this.block.stepDefinitions.when = this.block.stepDefinitions.when.filter((step) => !step._blockReferenceId);
-    this.blockService.saveBlock(this.block).subscribe((resp) => {
-        console.log(resp);
-        this.updateBlocksEventEmitter();
-        this.toastr.success('successfully saved', 'Block');
-    });
-    this.modalReference.close();
+    return blockValid;
   }
 
-  /**
- * Opens warning toast
- */
-  nameExistsToast() {
-    this.toastr.warning('', 'This name exists already. Enter unique name.', {
-    });
-  }
   /**
    * If title already used
    * @param value
@@ -219,18 +259,25 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
   isTitleEqual(value): boolean {
     let bool = false;
     this.blocks.forEach(block => {
-      if (value === block.name && this.isBackground == this.block.isBackground) { bool = true; }
+      if (value === block.name && block.isBackground == this.block.isBackground) { bool = true; }
     });
     return bool;
+  }
+
+  checkSaveAsSingleSteps() {
+    this.saveAsSingleSteps = (!this.saveAsSingleSteps);
   }
 
   updateBlocksEventEmitter() {
     this.blockService.updateBlocksEvent.emit();
   }
+
   onSubmit(form: NgForm) {
     this.submitSaveBlock(form);
   }
+
   closeModal(){
+    delete this.saveAsSingleSteps;
     this.modalReference.close();
   }
 }

@@ -116,3 +116,11 @@ label.block {
     width: 110%;
    
 } 
+
+#saveBlockFooter{
+    justify-content: space-between;
+}
+
+#saveAsSingleStepsLabel{
+    margin-right: 5px;
+}

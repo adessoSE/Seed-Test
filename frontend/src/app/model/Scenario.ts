@@ -59,4 +59,15 @@ export interface Scenario {
      */
     hasRefBlock?: boolean;
 
+
+    /**
+     * Width of the window for the test
+     */
+    width?: number;
+
+    /**
+     * Height of the window for the test
+     */
+
+    height?: number;
 }

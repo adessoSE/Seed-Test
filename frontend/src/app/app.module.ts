@@ -78,6 +78,12 @@ import { NewExampleComponent } from "./modals/new-example/new-example.component"
 import { TransferOwnershipToast } from "./transferOwnership-toastr";
 import { InfoWarningToast } from "./info-warning-toast";
 import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-popup/confirm-reset-password-popup.component";
+import { MatInputModule} from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { WindowSizeComponent } from './modals/window-size/window-size.component';
+
 
 @NgModule({
   declarations: [
@@ -129,6 +135,7 @@ import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-pop
     DeleteToast,
     TransferOwnershipToast,
     ConfirmResetPasswordPopupComponent,
+    WindowSizeComponent
   ],
   imports: [
     NgbModule,
@@ -160,6 +167,10 @@ import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-pop
     MatExpansionModule,
     MatTabsModule,
     MatTooltipModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatMenuModule
   ],
   entryComponents: [InfoWarningToast],
   providers: [
