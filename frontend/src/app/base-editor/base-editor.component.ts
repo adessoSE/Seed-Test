@@ -2352,9 +2352,6 @@ export class BaseEditorComponent {
       this.regexInStory = true;
     }
 
-    console.log("BLA");
-    console.log(this.regexInStory);
-
     regexDetected = this.highlightInputService.highlightInput(
       element,
       initialCall,
