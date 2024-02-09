@@ -516,12 +516,12 @@ When('I switch to the next tab', async function switchToNewTab() {
 
 When(
 	'I want to upload the file from this path: {string} into this uploadfield: {string}',
-	async function uploadFile(path, input) {
+	async function uploadFile(file, input) {
 		const world = this;
 		const identifiers = [`//input[@*='${input}']`, `${input}`];
 		const promises = [];
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
-
+		const path = !(/^win/i.test(process.platform)) ? `/home/public/seedExec/${file}` : `C:\\Users\\Public\\seedExec\\${file}`;
 		await Promise.any(promises)
 			.then((elem) => elem.sendKeys(`${path}`))
 			.catch(async (e) => {
