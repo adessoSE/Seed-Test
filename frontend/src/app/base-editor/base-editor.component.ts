@@ -268,7 +268,7 @@ export class BaseEditorComponent {
     this.isDark = this.themeService.isDarkMode();
     this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
       this.isDark = this.themeService.isDarkMode();
-      this.regexHighlightOnInit();
+      this.highlightInputOnInit();
     });
   }
 
@@ -333,14 +333,14 @@ export class BaseEditorComponent {
   ngAfterViewChecked() {
     this.regexDOMChangesHelper();
     if (this.initialRegex) {
-      this.regexHighlightOnInit();
+      this.highlightInputOnInit();
     }
   }
 
   ngAfterViewInit(): void {
     this.regexDOMChangesHelper();
     if (this.initialRegex) {
-      this.regexHighlightOnInit();
+      this.highlightInputOnInit();
     }
 
     if (this.exampleChildren.last != undefined) {
@@ -1844,7 +1844,7 @@ export class BaseEditorComponent {
         });
       }
     });
-    this.regexHighlightOnInit();
+    this.highlightInputOnInit();
     this.markUnsaved();
   }
 
@@ -1929,7 +1929,7 @@ export class BaseEditorComponent {
         this.insertCopiedExamples(block);
       }
     });
-    this.regexHighlightOnInit();
+    this.highlightInputOnInit();
     this.markUnsaved();
   }
 
@@ -1956,7 +1956,7 @@ export class BaseEditorComponent {
         );
       }
     });
-    this.regexHighlightOnInit();
+    this.highlightInputOnInit();
     this.markUnsaved();
   }
 
@@ -2355,7 +2355,7 @@ export class BaseEditorComponent {
   /**
    * Helper for inital hightlighting
    */
-  regexHighlightOnInit() {
+  highlightInputOnInit() {
     // Regex Highlight on init
     this.regexInStory = false;
     this.initialRegex = false;
@@ -2365,10 +2365,11 @@ export class BaseEditorComponent {
           this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
         });
       }*/
+    
     if (this.step_type_input1) {
       //scenario first input value
       const stepTypePre = this.step_type_pre.toArray();
-      this.step_type_input1.forEach((in_field, index) => {
+      this.step_type_input1.forEach((in_field, index) => {        
         this.highlightInput(
           in_field.nativeElement,
           undefined,
@@ -2414,6 +2415,7 @@ export class BaseEditorComponent {
         }
       });
       this.lastToFocus = '';
+      this.highlightInputOnInit()
     });
 
     this.step_type_input1.changes.subscribe(_ => { //scenario first input value
@@ -2423,6 +2425,7 @@ export class BaseEditorComponent {
         }
       });
       this.lastToFocus = '';
+      this.highlightInputOnInit()
     });
 
     //Logic currently not needed

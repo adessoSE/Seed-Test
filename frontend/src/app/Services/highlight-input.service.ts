@@ -59,17 +59,6 @@ export class HighlightInputService {
     }
     textField.innerHTML = highlightedText ? highlightedText : textContent;
 
-    // Toastr logic
-    if (initialCall && regexDetected) {
-      regexInStory = true;
-    }
-    if (regexDetected && !regexInStory) {
-      this.toastr.info(
-        "View our Documentation for more Info",
-        "Regular Expression detected!"
-      );
-    }
-
     // Set cursor to correct position
     if (!initialCall) {
       if (true) {
