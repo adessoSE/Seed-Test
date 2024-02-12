@@ -1,35 +1,50 @@
-import { Subscription } from 'rxjs';
-import { DeleteToast } from './../delete-toast';
-import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, QueryList, ViewChildren } from '@angular/core';
-import { UntypedFormGroup, UntypedFormArray, UntypedFormControl } from '@angular/forms';
-import { Scenario } from '../model/Scenario';
-import { ToastrService } from 'ngx-toastr';
-import { Story } from '../model/Story';
-import { StepType } from '../model/StepType';
-import { ExampleService } from '../Services/example.service';
-import { ScenarioService } from '../Services/scenario.service';
-import { ApiService } from '../Services/api.service';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { MatTable } from '@angular/material/table';
-import { StepDefinition } from '../model/StepDefinition';
-import { ThemePalette } from '@angular/material/core';
-import { ThemingService } from '../Services/theming.service';
-import { HighlightInputService } from '../Services/highlight-input.service';
-
+import { Subscription } from "rxjs";
+import { DeleteToast } from "./../delete-toast";
+import { NewExampleComponent } from "./../modals/new-example/new-example.component";
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  QueryList,
+  ViewChildren,
+} from "@angular/core";
+import {
+  UntypedFormGroup,
+  UntypedFormArray,
+  UntypedFormControl,
+} from "@angular/forms";
+import { Scenario } from "../model/Scenario";
+import { ToastrService } from "ngx-toastr";
+import { Story } from "../model/Story";
+import { StepType } from "../model/StepType";
+import { ExampleService } from "../Services/example.service";
+import { ScenarioService } from "../Services/scenario.service";
+import { ApiService } from "../Services/api.service";
+import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { MatTable } from "@angular/material/table";
+import { StepDefinition } from "../model/StepDefinition";
+import { ThemePalette } from "@angular/material/core";
+import { ThemingService } from "../Services/theming.service";
+import { HighlightInputService } from "../Services/highlight-input.service";
 
 @Component({
-  selector: 'app-example',
-  template: `<app-base-editor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
-  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-base-editor>
-  `,
-  styleUrls: ['./example-table.component.css'],
-  
+  selector: "app-example",
+  template: `<app-base-editor
+    [templateName]="TEMPLATE_NAME"
+    [testRunning]="testRunning"
+    [newlySelectedScenario]="selectedScenario"
+    [newlySelectedStory]="selectedStory"
+    [originalStepTypes]="originalStepTypes"
+  ></app-base-editor> `,
+  styleUrls: ["./example-table.component.css"],
 })
 
 /* Example component */
-export class ExampleComponent{
-
+export class ExampleComponent {
   selectedScenario;
 
   selectedStory;
@@ -39,41 +54,38 @@ export class ExampleComponent{
   @Input() templateName: string;
 
   /**
-    * If the test is running
-    */
+   * If the test is running
+   */
   @Input() testRunning: boolean;
 
   /**
-    * Sets a new selected story
-    */
+   * Sets a new selected story
+   */
   @Input()
   set newlySelectedStory(story: Story) {
     this.selectedStory = story;
   }
 
   /**
-    * Sets a new selected scenaio
-    */
+   * Sets a new selected scenaio
+   */
   @Input()
   set newlySelectedScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
   }
 
-  readonly TEMPLATE_NAME ='example';
-
+  readonly TEMPLATE_NAME = "example";
 }
-
 
 /**
  * Component of for the Example Table
  */
 @Component({
-  selector: 'app-example-table',
-  templateUrl: './example-table.component.html',
-  styleUrls: ['./example-table.component.css']
+  selector: "app-example-table",
+  templateUrl: "./example-table.component.html",
+  styleUrls: ["./example-table.component.css"],
 })
 export class ExampleTableComponent implements OnInit {
-
   /**
    * Columns which are displayed in the table
    */
@@ -95,7 +107,7 @@ export class ExampleTableComponent implements OnInit {
   /**
    * Last row to render add button
    */
-  lastRow
+  lastRow;
 
   /**
    * selected Scenario
@@ -104,7 +116,7 @@ export class ExampleTableComponent implements OnInit {
   /**
    * toggle Edit table mode
    */
-  color: ThemePalette = 'primary';
+  color: ThemePalette = "primary";
   toggleControl = new UntypedFormControl(false);
   editMode: boolean;
   /**
@@ -118,7 +130,7 @@ export class ExampleTableComponent implements OnInit {
   themeObservable: Subscription;
 
   indexOfExampleToDelete;
-  @ViewChild('table') table: MatTable<StepDefinition>;
+  @ViewChild("table") table: MatTable<StepDefinition>;
 
   /**
    * Event emitter to check if ththe example table should be removed or added to
@@ -138,11 +150,11 @@ export class ExampleTableComponent implements OnInit {
 
   @Input() isDark: boolean;
 
-  @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
+  @ViewChild("newExampleModal") newExampleModal: NewExampleComponent;
 
   /**
-    * Event emitter to delete the example
-    */
+   * Event emitter to delete the example
+   */
   @Output()
   deleteExampleEvent: EventEmitter<Scenario> = new EventEmitter();
 
@@ -150,37 +162,46 @@ export class ExampleTableComponent implements OnInit {
   initialRegex: boolean = true;
   targetOffset: number = 0;
 
-  @ViewChildren('example_input') example_input: QueryList<ElementRef>;
+  @ViewChildren("example_input") example_input: QueryList<ElementRef>;
 
-    /**
+  /**
    * @ignore
    */
-     constructor( public scenarioService: ScenarioService,
-       private toastr: ToastrService,
-       public exampleService: ExampleService,
-       public apiService: ApiService,
-       public themeService: ThemingService,
-       public highlightInputService: HighlightInputService
-       ) {}
+  constructor(
+    public scenarioService: ScenarioService,
+    private toastr: ToastrService,
+    public exampleService: ExampleService,
+    public apiService: ApiService,
+    public themeService: ThemingService,
+    public highlightInputService: HighlightInputService
+  ) {}
 
-     /**
-    * @ignore
-    */
+  /**
+   * @ignore
+   */
   ngOnInit() {
-    this.deleteExampleObservable = this.exampleService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
+    this.deleteExampleObservable =
+      this.exampleService.deleteExampleEvent.subscribe(() => {
+        this.deleteExampleFunction();
+      });
     //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
-    this.updateExampleTableObservable = this.exampleService.updateExampleTableEvent.subscribe(() =>{this.updateTable();});
+    this.updateExampleTableObservable =
+      this.exampleService.updateExampleTableEvent.subscribe(() => {
+        this.updateTable();
+      });
 
-    this.toggleObservable = this.toggleControl.valueChanges.subscribe(val => {
+    this.toggleObservable = this.toggleControl.valueChanges.subscribe((val) => {
       this.editMode = val;
     });
     this.isDark = this.themeService.isDarkMode();
-    this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
-      this.isDark = this.themeService.isDarkMode();
-      this.regexHighlightOnInit();
-  });
+    this.themeObservable = this.themeService.themeChanged.subscribe(
+      (changedTheme) => {
+        this.isDark = this.themeService.isDarkMode();
+        this.regexHighlightOnInit();
+      }
+    );
   }
- 
+
   // eslint-disable-next-line @angular-eslint/use-lifecycle-interface
   ngOnDestroy() {
     if (!this.deleteExampleObservable.closed) {
@@ -194,31 +215,33 @@ export class ExampleTableComponent implements OnInit {
     }
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.regexDOMChangesHelper();
-    if(this.initialRegex){
-      this.regexHighlightOnInit()
+    if (this.initialRegex) {
+      this.regexHighlightOnInit();
     }
   }
 
-  ngAfterViewChecked(){
+  ngAfterViewChecked() {
     this.regexDOMChangesHelper();
-    if(this.initialRegex){
-      this.regexHighlightOnInit()
+    if (this.initialRegex) {
+      this.regexHighlightOnInit();
     }
   }
 
   /**
-    * Adds a value to every example
-    */
-  addRowToExamples(){
-    let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
-      row.values.forEach((value, index) => {
-        row.values[index] = 'value'
-      });
-      this.selectedScenario.stepDefinitions.example.push(row)
-      this.updateTable();
-      this.selectedScenario.saved = false;
+   * Adds a value to every example
+   */
+  addRowToExamples() {
+    let row = JSON.parse(
+      JSON.stringify(this.selectedScenario.stepDefinitions.example[0])
+    );
+    row.values.forEach((value, index) => {
+      row.values[index] = "value";
+    });
+    this.selectedScenario.stepDefinitions.example.push(row);
+    this.updateTable();
+    this.selectedScenario.saved = false;
   }
   /**
    * Initializes the controls of the table
@@ -230,30 +253,53 @@ export class ExampleTableComponent implements OnInit {
     //    return seen.has(k) ? false : seen.add(k);
     //});
     //this.selectedScenario.stepDefinitions.example[0].values = Array.from(seen);
-    this.displayedColumns = [" "].concat(this.selectedScenario.stepDefinitions.example[0].values);
+    this.displayedColumns = [" "].concat(
+      this.selectedScenario.stepDefinitions.example[0].values
+    );
     const formArray: UntypedFormGroup[] = [];
-    for (let i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++) {
-      let toGroups = new UntypedFormGroup({},{updateOn: 'blur'});
-      for (let j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ) {
-        let cont1 = new UntypedFormControl(this.selectedScenario.stepDefinitions.example[i].values[j]);
-        toGroups.addControl(this.selectedScenario.stepDefinitions.example[0].values[j], cont1);
-
+    for (
+      let i = 1;
+      i < this.selectedScenario.stepDefinitions.example.length;
+      i++
+    ) {
+      let toGroups = new UntypedFormGroup({}, { updateOn: "blur" });
+      for (
+        let j = 0;
+        j < this.selectedScenario.stepDefinitions.example[i].values.length;
+        j++
+      ) {
+        let cont1 = new UntypedFormControl(
+          this.selectedScenario.stepDefinitions.example[i].values[j]
+        );
+        toGroups.addControl(
+          this.selectedScenario.stepDefinitions.example[0].values[j],
+          cont1
+        );
       }
       formArray.push(toGroups);
     }
 
     this.controls = new UntypedFormArray(formArray);
   }
-  
+
   /**
    * Initializes the data of the table
    */
   initializeTable() {
     this.data = [];
-    for (let i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++) {
-      let js= {};
-      for (let j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ) {
-        js[this.selectedScenario.stepDefinitions.example[0].values[j]] = this.selectedScenario.stepDefinitions.example[i].values[j];
+    for (
+      let i = 1;
+      i < this.selectedScenario.stepDefinitions.example.length;
+      i++
+    ) {
+      let js = {};
+      for (
+        let j = 0;
+        j < this.selectedScenario.stepDefinitions.example[i].values.length;
+        j++
+      ) {
+        js[this.selectedScenario.stepDefinitions.example[0].values[j]] =
+          this.selectedScenario.stepDefinitions.example[i].values[j];
       }
       this.data.push(js);
     }
@@ -289,12 +335,12 @@ export class ExampleTableComponent implements OnInit {
     }
    }*/
 
-   /**
-    * Get the controls of a specific cell
-    * @param rowIndex index of the row
-    * @param fieldName name of the cell column
-    * @returns FormControl of the cell
-    */
+  /**
+   * Get the controls of a specific cell
+   * @param rowIndex index of the row
+   * @param fieldName name of the cell column
+   * @returns FormControl of the cell
+   */
   /*getControl(rowIndex: number, fieldName: string): UntypedFormControl {
     this.selectedScenario.saved = false;
     return this.controls.at(rowIndex).get(fieldName) as UntypedFormControl;
@@ -320,12 +366,12 @@ export class ExampleTableComponent implements OnInit {
    * @param event change event
    * @param rowIndex row index of the changed cell
    */
-  checkExample(event, rowIndex){
-    this.checkRowIndex.emit(rowIndex + 1)
+  checkExample(event, rowIndex) {
+    this.checkRowIndex.emit(rowIndex + 1);
   }
 
-  renameExample(columnIndex){
-    this.newExampleModal.renameExample(this.selectedScenario, columnIndex-1);
+  renameExample(columnIndex) {
+    this.newExampleModal.renameExample(this.selectedScenario, columnIndex - 1);
     this.updateTable();
   }
 
@@ -334,60 +380,73 @@ export class ExampleTableComponent implements OnInit {
    * @param event
    */
   deleteExample(event, columnIndex) {
-    this.indexOfExampleToDelete = columnIndex-1
+    this.indexOfExampleToDelete = columnIndex - 1;
     this.deleteExampleEvent.emit();
-    this.showDeleteExampleToast(event)
+    this.showDeleteExampleToast(event);
   }
 
   /**
    * Opens the delete example toast
    * @param scenario
    */
-   showDeleteExampleToast(scenario: Scenario) {
-    this.apiService.nameOfComponent('example');
-    this.toastr.warning('Are your sure you want to delete this variable?', 'Delete variable?', {
-        toastComponent: DeleteToast
-    });
+  showDeleteExampleToast(scenario: Scenario) {
+    this.apiService.nameOfComponent("example");
+    this.toastr.warning(
+      "Are your sure you want to delete this variable?",
+      "Delete variable?",
+      {
+        toastComponent: DeleteToast,
+      }
+    );
   }
 
-  deleteExampleFunction(){
-    let oldName = this.selectedScenario.stepDefinitions.example[0].values[this.indexOfExampleToDelete]
+  deleteExampleFunction() {
+    let oldName =
+      this.selectedScenario.stepDefinitions.example[0].values[
+        this.indexOfExampleToDelete
+      ];
     this.selectedScenario.stepDefinitions.example.forEach((value, index) => {
-      this.selectedScenario.stepDefinitions.example[index].values.splice(this.indexOfExampleToDelete, 1)
-    })
+      this.selectedScenario.stepDefinitions.example[index].values.splice(
+        this.indexOfExampleToDelete,
+        1
+      );
+    });
 
-    if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
-      this.selectedScenario.stepDefinitions.example = []
+    if (this.selectedScenario.stepDefinitions.example[0].values.length == 0) {
+      this.selectedScenario.stepDefinitions.example = [];
     }
 
     this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
       value.values.forEach((val, i) => {
-        if(val == '<'+oldName+'>'){
-          this.selectedScenario.stepDefinitions.given[index].values[i] = ""
-          this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined
+        if (val == "<" + oldName + ">") {
+          this.selectedScenario.stepDefinitions.given[index].values[i] = "";
+          this.selectedScenario.stepDefinitions.given[index].isExample[i] =
+            undefined;
         }
-      })
-    })
+      });
+    });
 
     this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
       value.values.forEach((val, i) => {
-        if(val == '<'+oldName+'>'){
-          this.selectedScenario.stepDefinitions.when[index].values[i] = ""
-          this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
+        if (val == "<" + oldName + ">") {
+          this.selectedScenario.stepDefinitions.when[index].values[i] = "";
+          this.selectedScenario.stepDefinitions.when[index].isExample[i] =
+            undefined;
         }
-      })
-    })
+      });
+    });
 
     this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
       value.values.forEach((val, i) => {
-        if(val == '<'+oldName+'>'){
-          this.selectedScenario.stepDefinitions.then[index].values[i] = ""
-          this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined
+        if (val == "<" + oldName + ">") {
+          this.selectedScenario.stepDefinitions.then[index].values[i] = "";
+          this.selectedScenario.stepDefinitions.then[index].isExample[i] =
+            undefined;
         }
-      })
-    })
+      });
+    });
 
-    this.updateTable()
+    this.updateTable();
     this.selectedScenario.saved = false;
   }
   /**
@@ -405,7 +464,7 @@ export class ExampleTableComponent implements OnInit {
   /**
    * Change the order of rows
    */
-  replaceDragedValue(){
+  replaceDragedValue() {
     const newData = [];
     this.data.forEach((row) => {
       const newRow = [];
@@ -414,8 +473,12 @@ export class ExampleTableComponent implements OnInit {
       });
       newData.push(newRow);
     });
-    for (let i = 1; i < this.selectedScenario.stepDefinitions.example.length; i++) {
-      this.selectedScenario.stepDefinitions.example[i].values = newData[i-1]
+    for (
+      let i = 1;
+      i < this.selectedScenario.stepDefinitions.example.length;
+      i++
+    ) {
+      this.selectedScenario.stepDefinitions.example[i].values = newData[i - 1];
     }
   }
 
@@ -430,40 +493,47 @@ export class ExampleTableComponent implements OnInit {
   private highlightRegex(el, columnIndex, rowIndex, initialCall) {
     const inputValue: string = el.textContent;
 
-    if(!initialCall){
-      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = inputValue;
+    if (!initialCall) {
+      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[
+        columnIndex - 1
+      ] = inputValue;
       this.selectedScenario.saved = false;
     }
-    if(!initialCall){
+    if (!initialCall) {
       this.initialRegex = false;
     }
 
     var regexDetected = false;
-    
-    regexDetected = this.highlightInputService.highlightRegex(el,initialCall, this.isDark, this.regexInStory)
 
-    if(initialCall && regexDetected) {
-      this.regexInStory = true
+    regexDetected = this.highlightInputService.highlightInput(
+      el,
+      initialCall,
+      this.isDark,
+      this.regexInStory
+    );
+
+    if (initialCall && regexDetected) {
+      this.regexInStory = true;
     }
   }
 
   /**
-     * Helper for inital hightlighting
-     */
-  regexHighlightOnInit(){
-    this.regexInStory = false
-    this.initialRegex = false
-    if(this.example_input){
-      this.example_input.forEach(in_field => {  
-      this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
+   * Helper for inital hightlighting
+   */
+  regexHighlightOnInit() {
+    this.regexInStory = false;
+    this.initialRegex = false;
+    if (this.example_input) {
+      this.example_input.forEach((in_field) => {
+        this.highlightRegex(in_field.nativeElement, undefined, undefined, true);
       });
     }
   }
 
-   /**
-     * Helper for DOM change subscription
-     */
-   regexDOMChangesHelper(){
-    this.example_input.changes.subscribe(_ => {});
+  /**
+   * Helper for DOM change subscription
+   */
+  regexDOMChangesHelper() {
+    this.example_input.changes.subscribe((_) => {});
   }
 }
