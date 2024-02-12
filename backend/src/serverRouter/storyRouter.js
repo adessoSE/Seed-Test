@@ -186,7 +186,7 @@ router.post('/specialCommands/resolve', async (req, res) => {
 		const result = helper.applySpecialCommands(req.body.command);
 		res.status(200).json(result);
 	} catch (error) {
-		handleError(res, error, error, 500);
+		handleError(res, error, error.message, 500);
 	}
 });
 
