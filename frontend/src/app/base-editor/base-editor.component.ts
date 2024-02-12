@@ -173,6 +173,10 @@ export class BaseEditorComponent {
    * Block saved to clipboard
    */
   clipboardBlock: Block = null;
+ /**
+    * Blocks in Repository
+    */
+  blocks: Block[];
 
   indexOfExampleToDelete;
 
@@ -208,6 +212,10 @@ export class BaseEditorComponent {
   ) {}
 
   ngOnInit(): void {
+    const id = localStorage.getItem('id');
+    this.blockService.getBlocks(id).subscribe((resp) => {
+      this.blocks = resp;
+    });
     this.addBlocktoScenarioObservable = this.blockService.addBlockToScenarioEvent.subscribe(block => {
       if (this.templateName == 'background' && block[0] == 'background') {
         //block = block[1];
@@ -2057,13 +2065,28 @@ export class BaseEditorComponent {
    * Block methods
    */
 
-  editBlock(event) {
+  editBlock(event, blockStep) {
     event.stopPropagation();
-    this.editBlockModal.openEditBlockModal();
-    const x = document.getElementsByClassName("stepBlockContainer")[0];
-    x.setAttribute("aria-expanded", "false");
+    let block = this.getBlockInSteps(blockStep._blockReferenceId);
+    this.editBlockModal.openEditBlockModal(block);
+    const x = document.getElementsByClassName('stepBlockContainer')[0];
+    x.setAttribute('aria-expanded', 'false');
   }
+  
+  /**
+   * get Block in Scenario to edit/unpack
+   * @param blockId
+   */
 
+  getBlockInSteps(blockId): Block{
+    let foundBlock;
+    this.blocks.forEach((block)=>{
+      if(block._id == blockId){
+        foundBlock = block;
+      }
+    })
+    return foundBlock;
+  }
   /**
    * Methods for referenced Blocks (only implemented for scenarios)
    */
@@ -2086,6 +2109,9 @@ export class BaseEditorComponent {
 
   showUnpackBlockToast(block, stepReference, event) {
     event.stopPropagation();
+    if(!block){
+      block = this.getBlockInSteps(stepReference._blockReferenceId);
+    }
     const toastData = { block: block, stepReference: stepReference };
     this.blockService.updateToastData(toastData);
     this.apiService.nameOfComponent("unpackBlock");
