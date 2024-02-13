@@ -351,7 +351,7 @@ async function importProject(file, repo_id?, projectName?) {
   const client = await dbConnector.establishConnection();
   //client.runCommand( { killAllSessions: [] })
   const session = await client.startSession();
-  console.log(session.inTransaction())
+  console.log(session.inTransaction());
   const zip = new AdmZip(file.buffer);
   console.log(repo_id);
   console.log(projectName);
@@ -368,8 +368,10 @@ async function importProject(file, repo_id?, projectName?) {
       .filter((entry) => entry.entryName.startsWith(groupsFolder));
 
     console.log(zip.getEntries().toString());
-    console.log(storyFiles);
-    console.log(groupFiles);
+    console.log(storyFiles[0]);
+    console.log(storyFiles.map((entry) => entry.entryName));
+    console.log(groupFiles[0]);
+    console.log(groupFiles.map((entry) => entry.entryName));
 
     // Sort Files by filename - important for keyStoryId assignment
     storyFiles.sort((a, b) => {
@@ -383,49 +385,66 @@ async function importProject(file, repo_id?, projectName?) {
       return filenameA.localeCompare(filenameB);
     });
 
-    console.log(repo_id);
     if (repo_id) {
       // Perform a PUT request for an existing project
       //Return Array of Strings/Ids needed for name change => still not final
       console.log("Performing a PUT request for an existing project");
-      return("We are in PUT")
-
+      return "We are in PUT";
     } else {
       // Perform a POST request for a new project
       console.log("Performing a POST request for a new project");
-      const repoJsonData = zip.readAsText('repo.json');
+      const repoJsonData = zip.readAsText("repo.json");
       const repoData = JSON.parse(repoJsonData);
       console.log(repoData);
-      const mappingJsonData = zip.readAsText('keyStoryIds.json');
+      const mappingJsonData = zip.readAsText("keyStoryIds.json");
       const mappingData = JSON.parse(mappingJsonData);
       console.log(mappingData);
       let groupMapping = [];
       //Füllen der KeyStoryIds in Array -> ArrayIndex für Gruppenzuweisung wichtig!
-      for(const singularMapping of mappingData){
+      for (const singularMapping of mappingData) {
         groupMapping.push(singularMapping);
-      };
-      await session.withTransaction(async (session) => {
-      //Create new repo with some exported information
-      console.log("We are in Transition!");
-      const newRepo = await mongo.createRepo(repoData.owner, projectName);
-      if(newRepo == 'Sie besitzen bereits ein Repository mit diesem Namen!'){
-        return('Sie besitzen bereits ein Repository mit diesem Namen!');
       }
+      await session.withTransaction(async (session) => {
+        //Create new repo with some exported information
+        console.log("We are in Transition!");
+        const newRepo = await mongo.createRepo(repoData.owner, projectName);
+        console.log(newRepo);
+        if (
+          newRepo == "Sie besitzen bereits ein Repository mit diesem Namen!"
+        ) {
+          return "Sie besitzen bereits ein Repository mit diesem Namen!";
+        }
+        //Add stories, groups
+        let newMappingIds = [...mappingData];
+        // Iterate through each story file
+        for (const storyFile of storyFiles) {
+          const storyData = zip.readAsText(storyFile.entryName);
+          const storyObject = JSON.parse(storyData);
+          console.log(storyObject);
+          const newStory = mongo.createStory(
+            storyObject.title,
+            storyObject.body,
+            newRepo.insertedId
+          );
+          console.log(newStory);
+          // Assign new ObjectId but save old ID in newMappingIds
+          newMappingIds[storyObject.story_id]
+          storyObject.story_id = newStory;
+          console.log(storyObject);
+          //mongo.updateStory(storyObject);
+        }
+      });
 
-      }, );
-      //Add stories, groups, blocks
-
-      return("We are in POST"); //As we are in POST, we just return an empty String, e.g. no names have to be changed
+      return "We are in POST"; //As we are in POST, we just return an empty String, e.g. no names have to be changed
     }
-
   } catch (error) {
     console.error("Import failed:", error);
     if (session.inTransaction()) {
-      console.log(session)
-      console.log(session.inTransaction())
-      console.log("Import transaction is being aborted.")
+      console.log(session);
+      console.log(session.inTransaction());
+      console.log("Import transaction is being aborted.");
       await session.abortTransaction();
-      console.log(session.inTransaction())
+      console.log(session.inTransaction());
     }
   } finally {
     await session.endSession();
