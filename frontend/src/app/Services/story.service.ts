@@ -225,38 +225,4 @@ export class StoryService {
       return window.open(s);
     }
   }
-
-  /**
-   * getUploadedFiles by RepoId
-   * @param repoId
-   */
-  public getUploadedFiles(repoId: string) {
-    return this.http
-      .get(this.apiService.apiServer + '/story/uploadFile/' + repoId, ApiService.getOptions())
-      .pipe(tap(_ => {
-        //
-      }));
-  }
-
-  /**
-   * deleteUploadedFile
-   */
-  public deleteUploadedFile(fileId: string) {
-    return this.http
-      .delete(this.apiService.apiServer + '/story/uploadFile/' + fileId, ApiService.getOptions())
-      .pipe(tap(_ => {
-        //
-      }));
-  }
-
-  /**
-   * uploadFile
-   */
-  public uploadFile(repoId: string, file: BinaryData, filename:string) {
-    return this.http
-      .post(this.apiService.apiServer + '/story/uploadFile/' + repoId +"/"+ filename, file,ApiService.getOptions())
-      .pipe(tap(_ => {
-        //
-      }));
-  }
 }

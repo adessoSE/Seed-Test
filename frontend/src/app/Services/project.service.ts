@@ -1,9 +1,10 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { FileElement } from '../model/FileElement';
 
 
 /**
@@ -220,6 +221,59 @@ export class ProjectService {
     const user = { email };
     return this.http
       .post<any>(this.apiService.apiServer + '/workgroups/deletemember/' + _id, user, ApiService.getOptions())
+      .pipe(tap(_ => {
+        //
+      }));
+  }
+
+  
+  private fileMap = new Map<string, FileElement>();
+  /**
+   * getUploadedFiles by RepoId
+   * @param repoId
+   */
+  public getUploadedFiles(repoId: string): Observable<FileElement[]> {
+    return this.http
+      .get<any>(this.apiService.apiServer + '/story/uploadFile/' + repoId, ApiService.getOptions())
+      .pipe(tap(_ => {
+        //
+      }));
+  }
+  private querySubject: BehaviorSubject<FileElement[]>;
+  queryFiles(repoId: string) {
+    const result: FileElement[] = [];
+    this.fileMap.forEach(element => {
+      result.push(JSON.parse(JSON.stringify(element)));
+    });
+    if (!this.querySubject) {
+      // Perform API call if file map is empty
+      this.getUploadedFiles(repoId).subscribe(response => {
+        // Handle API response, assuming it returns an array of FileElement
+        this.querySubject = new BehaviorSubject(response);
+      });
+    } else {
+      this.querySubject.next(result);
+    }
+    return this.querySubject.asObservable();
+  }
+
+  /**
+   * deleteUploadedFile
+   */
+  public deleteUploadedFile(fileId: string) {
+    return this.http
+      .delete(this.apiService.apiServer + '/story/uploadFile/' + fileId, ApiService.getOptions())
+      .pipe(tap(_ => {
+        //
+      }));
+  }
+
+  /**
+   * uploadFile
+   */
+  public uploadFile(repoId: string, file: BinaryData, filename:string) {
+    return this.http
+      .post(this.apiService.apiServer + '/story/uploadFile/' + repoId +"/"+ filename, file,ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
