@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FileElement } from '../../model/FileElement';
 import { ProjectService } from '../../Services/project.service';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-file-explorer-modal',
@@ -10,15 +11,18 @@ import { ProjectService } from '../../Services/project.service';
 })
 export class FileExplorerModalComponent {
   public fileElements: Observable<FileElement[]>;
+  modalReference: NgbModalRef; 
 
-  constructor(public fileService: ProjectService) {}
+  @ViewChild ('fileExplorerModal') fileExplorerModal: FileExplorerModalComponent;
 
-  currentRoot: FileElement;
-  currentPath: string;
-  canNavigateUp = false;
+  constructor(private modalService: NgbModal, public fileService: ProjectService) {}
 
   ngOnInit() {
     this.updateFileElementQuery();
+  }
+
+  openFileExplorerModal() {
+    this.modalReference = this.modalService.open(this.fileExplorerModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
   addFile(file: { name: string }) {
@@ -37,6 +41,6 @@ export class FileExplorerModalComponent {
   }
 
   updateFileElementQuery() {
-    this.fileElements = this.fileService.queryFiles(null);
+    this.fileElements = this.fileService.queryFiles("65818299961b8100320fccfe");
   }
 }

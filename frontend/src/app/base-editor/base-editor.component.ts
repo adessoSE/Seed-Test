@@ -23,6 +23,7 @@ import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
 import { DeleteToast } from '../delete-toast';
 import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
+import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
 
 @Component({
   selector: 'app-base-editor',
@@ -54,6 +55,7 @@ export class BaseEditorComponent {
   @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
   @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
   @ViewChild('editBlockModal') editBlockModal: EditBlockComponent;
+  @ViewChild('fileExplorerModal') fileExplorerModal: FileExplorerModalComponent;
 
 
 
@@ -438,6 +440,10 @@ export class BaseEditorComponent {
   addStep(step: StepType, selectedScenario: any, templateName, step_idx?: any) {
     let lastEl;
     let newStep;
+    if (step.type == 'UploadFile'){
+      this.fileExplorerModal.openFileExplorerModal();
+      return;
+    }
     if (templateName == 'background') {
       newStep = this.createNewStep(step, selectedScenario.background.stepDefinitions);
     }

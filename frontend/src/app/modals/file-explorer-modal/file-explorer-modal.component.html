@@ -1,7 +1,10 @@
-<div style="padding: 100px; height: 100%; box-sizing: border-box;">
+<ng-template #fileExplorerModal let-modal>
+  <app-layout-modal></app-layout-modal>
+  <div style="padding: 100px; height: 100%; box-sizing: border-box;">
     <mat-card style="height: 100%; box-sizing: border-box; padding:0">
-      <file-explorer [fileElements]="fileElements | async" [path]="currentPath" [canNavigateUp]="canNavigateUp" (folderAdded)="addFolder($event)"
+      <file-explorer [fileElements]="fileElements | async"  (folderAdded)="addFolder($event)"
         (elementRemoved)="removeElement($event)" (elementRenamed)="renameElement($event)">
       </file-explorer>
     </mat-card>
   </div>
+</ng-template>
