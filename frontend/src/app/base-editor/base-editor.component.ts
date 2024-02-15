@@ -654,6 +654,26 @@ export class BaseEditorComponent {
   }
 
 
+  activeHeader: string | null = null;
+
+  toggleHeader(header: string): void {
+	  if (this.activeHeader === header) {
+		  // Wenn auf die bereits aktive Überschrift geklickt wird, wird sie deaktiviert
+		  this.activeHeader = null;
+	  } else {
+		  // Aktiviere die angeklickte Überschrift
+		  this.activeHeader = header;
+	  }
+  }
+  
+  isHeaderActive(header: string): boolean {
+	  return this.activeHeader === header;
+  }
+  
+  handleStepClick(step: any, event: MouseEvent): void {
+    event.stopPropagation(); // Stoppe die Event-Propagation
+    this.addStepToBlock(step); // Rufe die ursprüngliche Funktion auf
+}
 
 
 

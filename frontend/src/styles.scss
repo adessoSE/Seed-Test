@@ -903,20 +903,18 @@ div.notPassed{
   color: white;
 }
 
-
 .darkTheme .uk-dropdown {
   background: #546E7A;
   color: var(--light-blue);
 }
 
-.uk-nav>li>.dropdownStep {
-  color: var(--ocean-blue);
+.uk-nav li .dropdownStep {
+	color: var(--ocean-blue);
 }
-
-.darkTheme .uk-nav>li>.dropdownStep {
-  color: var(--light-blue) !important;
-}
-
+  
+.darkTheme .uk-nav li .dropdownStep {
+	color: var(--light-blue) !important;
+}  
 
 #static {
   position: static;
