@@ -83,6 +83,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { WindowSizeComponent } from './modals/window-size/window-size.component';
+import { FileExplorerComponent } from "./modals/file-explorer/file-explorer.component";
 import { FileExplorerModalComponent } from "./modals/file-explorer-modal/file-explorer-modal.component";
 
 
@@ -138,7 +139,8 @@ import { FileExplorerModalComponent } from "./modals/file-explorer-modal/file-ex
     TransferOwnershipToast,
     ConfirmResetPasswordPopupComponent,
     WindowSizeComponent,
-    FileExplorerModalComponent
+    FileExplorerModalComponent,
+    FileExplorerComponent
   ],
   imports: [
     NgbModule,

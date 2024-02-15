@@ -440,7 +440,7 @@ export class BaseEditorComponent {
   addStep(step: StepType, selectedScenario: any, templateName, step_idx?: any) {
     let lastEl;
     let newStep;
-    if (step.type == 'UploadFile'){
+    if (step.type == 'Upload File'){
       this.fileExplorerModal.openFileExplorerModal();
       return;
     }

@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
@@ -227,32 +227,31 @@ export class ProjectService {
   }
 
   
-  private fileMap = new Map<string, FileElement>();
-  /**
-   * getUploadedFiles by RepoId
-   * @param repoId
-   */
+  private querySubject: BehaviorSubject<FileElement[]> = new BehaviorSubject<FileElement[]>([]);
+
   public getUploadedFiles(repoId: string): Observable<FileElement[]> {
-    return this.http
-      .get<any>(this.apiService.apiServer + '/story/uploadFile/' + repoId, ApiService.getOptions())
-      .pipe(tap(_ => {
-        //
-      }));
+    return this.http.get<FileElement[]>(this.apiService.apiServer + '/story/uploadFile/' + repoId)
+      .pipe(
+        tap(files => console.log(files)), // Optional: Log files
+        catchError(error => {
+          console.error('Error fetching uploaded files:', error);
+          return throwError(error);
+        })
+      );
   }
-  private querySubject: BehaviorSubject<FileElement[]>;
-  queryFiles(repoId: string) {
-    const result: FileElement[] = [];
-    this.fileMap.forEach(element => {
-      result.push(JSON.parse(JSON.stringify(element)));
-    });
-    if (!this.querySubject) {
-      // Perform API call if file map is empty
-      this.getUploadedFiles(repoId).subscribe(response => {
-        // Handle API response, assuming it returns an array of FileElement
-        this.querySubject = new BehaviorSubject(response);
-      });
-    } else {
-      this.querySubject.next(result);
+
+  public queryFiles(repoId: string): Observable<FileElement[]> {
+    if (!this.querySubject.value.length) {
+      // Perform API call if querySubject is empty
+      this.getUploadedFiles(repoId).subscribe(
+        response => {
+          this.querySubject.next(response);
+        },
+        error => {
+          console.error('Error fetching uploaded files:', error);
+          this.querySubject.error(error);
+        }
+      );
     }
     return this.querySubject.asObservable();
   }

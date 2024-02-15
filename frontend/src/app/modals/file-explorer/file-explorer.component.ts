@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 
 import { MatDialog } from '@angular/material/dialog';
-import { FileElement } from '../model/FileElement';
+import { FileElement } from '../../model/FileElement';
 //import { NewFolderDialogComponent } from './modals/newFolderDialog/newFolderDialog.component';
 //import { RenameDialogComponent } from './modals/renameDialog/renameDialog.component';
 

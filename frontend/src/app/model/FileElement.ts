@@ -1,4 +1,4 @@
 export class FileElement {
-  id?: string;
-  name: string;
+  _id?: string;
+  filename: string;
 }

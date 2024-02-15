@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FileElement } from '../../model/FileElement';
 import { ProjectService } from '../../Services/project.service';
@@ -9,7 +9,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './file-explorer-modal.component.html',
   styleUrls: ['./file-explorer-modal.component.css']
 })
-export class FileExplorerModalComponent {
+export class FileExplorerModalComponent implements OnInit {
   public fileElements: Observable<FileElement[]>;
   modalReference: NgbModalRef; 
 
@@ -19,10 +19,11 @@ export class FileExplorerModalComponent {
 
   ngOnInit() {
     this.updateFileElementQuery();
+    this.fileElements.subscribe((hi)=>{console.log('hallo ' +hi)})
   }
 
   openFileExplorerModal() {
-    this.modalReference = this.modalService.open(this.fileExplorerModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.modalReference = this.modalService.open(this.fileExplorerModal);
   }
 
   addFile(file: { name: string }) {
@@ -31,7 +32,7 @@ export class FileExplorerModalComponent {
   }
 
   removeElement(element: FileElement) {
-    this.fileService.deleteUploadedFile(element.id);
+    this.fileService.deleteUploadedFile(element._id);
     this.updateFileElementQuery();
   }
 
