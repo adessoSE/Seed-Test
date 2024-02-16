@@ -64,16 +64,15 @@
 					uk-tooltip>
 					<em class="material-icons-outlined">add_circle_outline</em>
 				</button>
-				<div *ngIf="name === 'block-editor'" uk-dropdown="pos: right">
+				<div *ngIf="name === 'block-editor'" uk-dropdown="pos: right-top; shift: false; flip: false">
 					<ul class="uk-nav uk-dropdown-nav">
-						<!-- Füge die Header-Logik schrittweise wieder ein -->
 						<li *ngFor="let header of ['Given', 'When', 'Then']; let i = index" class="dropdownHeader">
 							<span (click)="toggleHeader(header)">{{header}}</span>
 							<ul *ngIf="isHeaderActive(header)" class="uk-nav uk-dropdown-nav">
 								<li *ngFor="let step of originalStepTypes"
 									[hidden]="step.stepType !== header.toLowerCase() || step.type === this.newStepName || step.type === 'Role' || step.type === 'Add Variable'"
 									class="dropdownStep">
-									<span (click)="addStepToBlock(step); $event.stopPropagation();">{{step.type}}</span>
+									<span (click)="addStepToBlock(step)">{{step.type}}</span>
 								</li>
 							</ul>
 						</li>

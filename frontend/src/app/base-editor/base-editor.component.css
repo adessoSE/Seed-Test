@@ -402,18 +402,6 @@ input[type="text"] {
 	color: red !important;
 }
 
-.dropdownStep {
-	margin: 5px 0;
-	font-weight: normal;
-	text-decoration: none !important;
-}
-
-.dropdownHeader {
-    font-weight: bold;
-    padding: 10px 20px 10px 0;
-    position: relative;
-}
-
 input.scenario,
 input.background {
 	margin-left: 10px;
@@ -457,21 +445,17 @@ input.background {
 	background: #90CAF9 !important;
 }
 
-.dropdownHeader {
-	font-weight: bold;
-	padding: 10px 0;
-	border-top: 1px solid #ddd;
-	margin-top: 5px;
-	text-decoration: underline;
+.dropdownStep {
+	margin: 5px 0;
+	font-weight: normal;
 }
 
-.darkTheme .uk-dropdown .dropdownHeader {
-	font-weight: bold;
-	padding: 10px 0;
-	color: white !important;
-	border-top: 1px solid #ddd;
-	margin-top: 5px;
-	text-decoration: underline;
+.dropdownHeader {
+    font-weight: bold;
+    padding: 10px 20px 10px 0;
+    border-top: 1px solid #ddd;
+    margin-top: 5px;
+    position: relative;
 }
 
 .dropdownHeader:first-of-type {
@@ -479,6 +463,7 @@ input.background {
 	margin-top: 0;
 	padding-top: 0;
 }
+
 
 .contentEditableElement {
 	/*needed for trailing whitespaces*/
