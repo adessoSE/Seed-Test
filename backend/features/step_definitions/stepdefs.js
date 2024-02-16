@@ -767,6 +767,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
+				if (Object.keys(e).length === 0) throw NotFoundError(`The Picture ${picture} could not be found!`);
 				throw Error(e);
 			});
 		await fetch(domain + finSrc, { method: 'HEAD' })
@@ -777,6 +778,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
+				if (Object.keys(e).length === 0) throw NotFoundError(`The Picture ${picture} could not be found!`);
 				throw Error(`Image availability check: could not reach image source ${domain + finSrc} `, e);
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
