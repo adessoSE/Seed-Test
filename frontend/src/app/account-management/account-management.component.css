@@ -346,6 +346,7 @@ h1 {
 .cardContainer {
   padding-left: 25px;
   padding-right: 25px;
+  margin-bottom: 20px;
 }
 
 .cardDevider {
