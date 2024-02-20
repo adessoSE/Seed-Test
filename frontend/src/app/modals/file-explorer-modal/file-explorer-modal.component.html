@@ -3,7 +3,7 @@
   <div style="padding: 100px; height: 100%; box-sizing: border-box;">
     <mat-card style="height: 100%; box-sizing: border-box; padding:0">
       <app-file-explorer [fileElements]="fileElements | async"  (folderAdded)="addFolder($event)"
-        (elementRemoved)="removeElement($event)" (elementRenamed)="renameElement($event)">
+        (elementRemoved)="removeElement($event)" (elementRenamed)="renameElement($event)" (fileSelectSubmit)="submitSelected($event)" (uploadFile)="uploadFile($event)">
       </app-file-explorer>
     </mat-card>
   </div>

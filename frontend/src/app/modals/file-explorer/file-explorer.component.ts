@@ -20,6 +20,11 @@ export class FileExplorerComponent {
   @Output() elementRemoved = new EventEmitter<FileElement>();
   @Output() elementRenamed = new EventEmitter<FileElement>();
   @Output() elementMoved = new EventEmitter<{ element: FileElement; moveTo: FileElement }>();
+  @Output() fileSelectSubmit = new EventEmitter<FileElement>();
+  @Output() uploadFile = new EventEmitter<any>();
+
+
+  selectedElement: FileElement
 
   deleteElement(element: FileElement) {
     this.elementRemoved.emit(element);
@@ -48,5 +53,19 @@ export class FileExplorerComponent {
   openMenu(event: MouseEvent, viewChild: MatMenuTrigger) {
     event.preventDefault();
     viewChild.openMenu();
+  }
+
+  selection(event: MouseEvent, element: FileElement) {
+    this.selectedElement = element;
+    console.log('selected: ', element)
+  }
+
+  selectUploadFile(event: any) {
+    const selectedFile = event.target.files[0];
+    console.log(selectedFile);
+    this.uploadFile.emit(selectedFile)
+  }
+  submit() {
+    this.fileSelectSubmit.emit(this.selectedElement)
   }
 }
