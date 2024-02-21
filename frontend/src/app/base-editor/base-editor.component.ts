@@ -249,6 +249,8 @@ export class BaseEditorComponent {
       this.isDark = this.themeService.isDarkMode();
       this.regexHighlightOnInit();
     });
+
+    
   }
 
   ngOnDestroy(): void {
@@ -441,7 +443,10 @@ export class BaseEditorComponent {
     let lastEl;
     let newStep;
     if (step.type == 'Upload File'){
-      this.fileExplorerModal.openFileExplorerModal();
+      this.fileExplorerModal.openFileExplorerModal()
+        .then(result => {
+          console.log("Upload modal return: ", result)
+        })
       return;
     }
     if (templateName == 'background') {

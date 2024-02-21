@@ -1,10 +1,12 @@
 <ng-template #fileExplorerModal let-modal>
   <app-layout-modal></app-layout-modal>
   <div style="padding: 100px; height: 100%; box-sizing: border-box;">
+    <input type="file" style="justify-self: right;" (change)="selectUploadFile($event)">
     <mat-card style="height: 100%; box-sizing: border-box; padding:0">
       <app-file-explorer [fileElements]="fileElements | async"  (folderAdded)="addFolder($event)"
-        (elementRemoved)="removeElement($event)" (elementRenamed)="renameElement($event)" (fileSelectSubmit)="submitSelected($event)" (uploadFile)="uploadFile($event)">
+        (elementRemoved)="removeElement($event)" (elementRenamed)="renameElement($event)" (selected)="selected($event)">
       </app-file-explorer>
     </mat-card>
+    <button style="justify-self: right;" (click)="submit()" >Select</button>
   </div>
 </ng-template>

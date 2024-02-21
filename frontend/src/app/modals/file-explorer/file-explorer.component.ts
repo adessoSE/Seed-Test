@@ -16,15 +16,13 @@ export class FileExplorerComponent {
 
   @Input() fileElements: FileElement[];
 
+  selectedFile: FileElement
+
   @Output() folderAdded = new EventEmitter<{ name: string }>();
   @Output() elementRemoved = new EventEmitter<FileElement>();
   @Output() elementRenamed = new EventEmitter<FileElement>();
   @Output() elementMoved = new EventEmitter<{ element: FileElement; moveTo: FileElement }>();
-  @Output() fileSelectSubmit = new EventEmitter<FileElement>();
-  @Output() uploadFile = new EventEmitter<any>();
-
-
-  selectedElement: FileElement
+  @Output() selected = new EventEmitter<FileElement>();
 
   deleteElement(element: FileElement) {
     this.elementRemoved.emit(element);
@@ -56,16 +54,8 @@ export class FileExplorerComponent {
   }
 
   selection(event: MouseEvent, element: FileElement) {
-    this.selectedElement = element;
+    this.selectedFile = element;
+    this.selected.emit(element);
     console.log('selected: ', element)
-  }
-
-  selectUploadFile(event: any) {
-    const selectedFile = event.target.files[0];
-    console.log(selectedFile);
-    this.uploadFile.emit(selectedFile)
-  }
-  submit() {
-    this.fileSelectSubmit.emit(this.selectedElement)
   }
 }

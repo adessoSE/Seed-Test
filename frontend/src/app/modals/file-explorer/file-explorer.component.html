@@ -6,17 +6,15 @@
 
 <div class="container" style="display: flex; justify-content: space-between; align-items: stretch;">
   <div class="content" style="display: flex;">
-    <input type="file" style="justify-self: right;" (change)="selectUploadFile($event)">
     <div class="grid-container" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
       <div *ngFor="let element of fileElements" class="file-or-folder" style="height: 100px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
-        <span style="color: blue; cursor: pointer;" [ngClass]="{'selected': element === this.selectedElement}" (contextmenu)="openMenu($event)" (click)="selection($event, element)" uk-icon="file-text">&#x1F4C2;</span>
+        <span style="color: blue; cursor: pointer;" [ngClass]="{'selected': element === this.selectedFile}" (contextmenu)="openMenu($event)" (click)="selection($event, element)" uk-icon="file-text">&#x1F4C2;</span>
         <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center;" (contextmenu)="openMenu($event)">
-          <span style="color: blue; cursor: pointer;" uk-icon="file-text">insert_drive_file</span>
+          <span style="color: blue; cursor: pointer;" uk-icon="file-text"></span>
           <span>{{element.filename}}</span>
         </div>
       </div>
     </div>
-    <button style="justify-self: right;" (click)="submit()" >Select</button>
   </div>
 </div>
 

@@ -23,7 +23,8 @@ export class FileExplorerModalComponent implements OnInit {
   }
 
   openFileExplorerModal() {
-    this.modalReference = this.modalService.open(this.fileExplorerModal);
+    this.modalReference = this.modalService.open(this.fileExplorerModal)
+    return this.modalReference.result
   }
 
   addFile(file: { name: string }) {
@@ -43,5 +44,25 @@ export class FileExplorerModalComponent implements OnInit {
 
   updateFileElementQuery() {
     this.fileElements = this.fileService.queryFiles("65818299961b8100320fccfe");
+  }
+
+  selectUploadFile(event: any) {
+    console.log(event.target.files[0])
+    const file = event.target.files[0];
+    file.arrayBuffer().then(arrayBuffer => {
+      this.fileService.uploadFile("65818299961b8100320fccfe", arrayBuffer, file.name)
+        .subscribe(() => {
+          this.updateFileElementQuery();
+        });
+    });
+  }
+
+  selectedFile: FileElement
+  selected(element: FileElement) {
+    this.selectedFile = element;
+  }
+
+  submit(event: MouseEvent) {
+    this.modalReference.close(this.selectedFile);
   }
 }

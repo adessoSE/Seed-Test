@@ -245,7 +245,7 @@ export class ProjectService {
       // Perform API call if querySubject is empty
       this.getUploadedFiles(repoId).subscribe(
         response => {
-          this.querySubject.next(response);
+          this.querySubject.next(this.querySubject.getValue().concat(response));
         },
         error => {
           console.error('Error fetching uploaded files:', error);
@@ -270,11 +270,11 @@ export class ProjectService {
   /**
    * uploadFile
    */
-  public uploadFile(repoId: string, file: BinaryData, filename:string) {
+  public uploadFile(repoId: string, file: ArrayBuffer, filename:string) {
     return this.http
-      .post(this.apiService.apiServer + '/story/uploadFile/' + repoId +"/"+ filename, file,ApiService.getOptions())
+      .post(`${this.apiService.apiServer}/story/uploadFile/${repoId}/${filename}`, file ,ApiService.getOptions())
       .pipe(tap(_ => {
-        //
+        this.querySubject.next([{filename}])
       }));
   }
 }
