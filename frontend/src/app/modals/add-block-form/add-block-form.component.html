@@ -26,7 +26,10 @@
         <div class="previewEditBlock">
           <p class="subHeader" *ngIf="selectedBlock == undefined">Preview</p>
           <div class="subHeader" *ngIf="selectedBlock != undefined">
-            Preview: <label id="newTitle" contentEditable="false" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
+            Preview: 
+            <label *ngIf="this.blockSaved == true" id="newTitle" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label> 
+            <input *ngIf="this.blockSaved == false" #newBlockTitle id="blockTitleChange" name="newBlockTitle" type="text" 
+            value={{selectedBlock.name}}  (keyup)="checkName(newBlockTitle.value)" pattern="\S(.*\S)?" required>
           </div>
           <button *ngIf="this.blockSaved == true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
             <em class="material-icons">edit</em>

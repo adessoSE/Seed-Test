@@ -199,6 +199,7 @@ export class BaseEditorComponent {
   backgroundChangedObservable: Subscription;
   copyExampleOptionObservable: Subscription;
   themeObservable: Subscription;
+  updateBlockObservable: Subscription;
 
   constructor(
     public toastr: ToastrService,
@@ -277,6 +278,11 @@ export class BaseEditorComponent {
     this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
       this.isDark = this.themeService.isDarkMode();
       this.highlightInputOnInit();
+    });
+    this.updateBlockObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
+      this.blockService.getBlocks(id).subscribe((resp) => {
+        this.blocks = resp;
+      });
     });
   }
 
@@ -2081,9 +2087,9 @@ export class BaseEditorComponent {
   getBlockInSteps(blockId): Block{
     let foundBlock;
     this.blocks.forEach((block)=>{
-      if(block._id == blockId){
-        foundBlock = block;
-      }
+       if(block._id.toString() === blockId.toString()){
+         foundBlock = block;
+       }
     })
     return foundBlock;
   }
@@ -2392,23 +2398,25 @@ export class BaseEditorComponent {
         });
       }*/
     
-    if (this.step_type_input1) {
-      //scenario first input value
-      const stepTypePre = this.step_type_pre.toArray();
-      this.step_type_input1.forEach((in_field, index) => {        
-        this.highlightInput(
-          in_field.nativeElement,
-          undefined,
-          0,
-          undefined,
-          undefined,
-          stepTypePre[index].nativeElement.innerText,
-          true,
-          // mies hin geschumelt, muss checken ob es nur im then ist beim highlighten für den regex
-          in_field.nativeElement.id.includes("_2_input") ? "then" : undefined
-        );
-      });
-
+      if (this.step_type_input1 && this.step_type_input1.length > 0) {
+        //scenario first input value
+        const stepTypePre = this.step_type_pre.toArray();
+        let stepTypeInput_1 = this.step_type_input1.filter((in_field) => in_field !== undefined);
+        stepTypeInput_1.forEach((in_field, index) => {
+          if (in_field && stepTypePre[index]) {
+            this.highlightInput(
+              in_field.nativeElement,
+              undefined,
+              0,
+              undefined,
+              undefined,
+              stepTypePre[index].nativeElement.innerText,
+              true,
+              // mies hin geschumelt, muss checken ob es nur im then ist beim highlighten für den regex
+              in_field.nativeElement.id.includes("_2_input") ? "then" : undefined
+            );
+          }
+        });
       //Logic currently not needed since regex only in first input field
       /*this.step_type_input2.forEach((in_field, index) => {  //scenario second input value
         this.highlightRegex(in_field.nativeElement.id,undefined,1,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
@@ -2436,7 +2444,7 @@ export class BaseEditorComponent {
 
     this.step_type_pre.changes.subscribe(_ => { //scenario text before first input value
       this.step_type_pre.forEach(in_field => {
-        if (in_field.nativeElement.id === this.lastToFocus) {
+        if (in_field && in_field.nativeElement.id === this.lastToFocus) {
           in_field.nativeElement.focus();
         }
       });
@@ -2446,7 +2454,7 @@ export class BaseEditorComponent {
 
     this.step_type_input1.changes.subscribe(_ => { //scenario first input value
       this.step_type_input1.forEach(in_field => {
-        if (in_field.nativeElement.id === this.lastToFocus) {
+        if (in_field && in_field.nativeElement.id === this.lastToFocus) {
           in_field.nativeElement.focus();
         }
       });
