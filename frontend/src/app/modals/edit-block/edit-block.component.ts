@@ -53,9 +53,10 @@ export class EditBlockComponent {
   /**
    * Opens the edit block form modal
    */
-  openEditBlockModal() {
+  openEditBlockModal(block: Block) {
     this.modalReference = this.modalService.open(this.editBlockModal, { ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block' });
     this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+    this.selectedBlock = block;
     Object.keys(this.selectedBlock.stepDefinitions).forEach((key, _) => {
       this.selectedBlock.stepDefinitions[key].forEach((step: StepType) => {
         //to prevent blocks to be checked after pasting
