@@ -439,22 +439,29 @@ export class BaseEditorComponent {
     * @param templateName
     * @param step_idx Optional argument
     */
-  addStep(step: StepType, selectedScenario: any, templateName, step_idx?: any) {
+  async addStep(step: StepType, selectedScenario: any, templateName, step_idx?: any) {
     let lastEl;
     let newStep;
+    const stepLocation = templateName !== 'background' ? selectedScenario.stepDefinitions: selectedScenario.background.stepDefinitions;
     if (step.type == 'Upload File'){
-      this.fileExplorerModal.openFileExplorerModal()
-        .then(result => {
-          console.log("Upload modal return: ", result)
-        })
-      return;
+        try {
+            const result = await this.fileExplorerModal.openFileExplorerModal();
+            console.log("Upload modal return: ", result);
+            const preSelectValues = [result.filename];
+            newStep = this.createNewStep(step, stepLocation);
+            preSelectValues.forEach((value, index) => {
+                if (value) {
+                    newStep.values[index] = value;
+                }
+            });
+        } catch (error) {
+            console.error("Error while opening file explorer modal:", error);
+        }
+    } else {
+      newStep = this.createNewStep(step, stepLocation);
     }
-    if (templateName == 'background') {
-      newStep = this.createNewStep(step, selectedScenario.background.stepDefinitions);
-    }
-    else {
-      newStep = this.createNewStep(step, selectedScenario.stepDefinitions);
-    }
+    console.log('newstep ',newStep);
+
     if (newStep['type'] === this.newStepName) {
       this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
     } else {

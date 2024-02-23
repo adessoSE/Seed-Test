@@ -53,6 +53,7 @@ export class FileExplorerModalComponent implements OnInit {
       this.fileService.uploadFile("65818299961b8100320fccfe", arrayBuffer, file.name)
         .subscribe(() => {
           this.updateFileElementQuery();
+          this.selected({filename: file.name})
         });
     });
   }
