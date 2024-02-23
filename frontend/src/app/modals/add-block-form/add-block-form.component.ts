@@ -17,7 +17,6 @@ import { FormControl } from '@angular/forms';
 export class AddBlockFormComponent implements OnInit,OnDestroy {
 
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
-  @ViewChild('newTitle') newTitleLabel: HTMLElement;
  
   currentStepType = new FormControl('When');
     /**
@@ -27,7 +26,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     /**
      * New block name when renaming
      */
-    newblockName: string;
+    newBlockName: string;
 
      /**
      * Old block name
@@ -191,34 +190,22 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Change block title
      */
     changeBlockTitle() {
-      this.newTitleLabel = document.getElementById("newTitle");
-      this.newTitleLabel.setAttribute('contentEditable', 'true');
-      this.newTitleLabel.style.border = '1px inset';
-      this.newblockName = null;
-      this.blockSaved = false;
-      this.newTitleLabel.focus();
+      this.blockSaved = !this.blockSaved;
     }
-
     /**
      * Check if a new block name is valid
      */   
-    checkName(){
-      this.newblockName = this.newTitleLabel.textContent;
-      if (this.newTitleLabel.getAttribute('contentEditable') === 'true') {
-        const pattern = /^\S(.*\S)?$/;
-        if (!pattern.test(this.newblockName)) {
-          this.saveBlockButtonDisable = true;
-          return;
-        }
-      }
-      if (this.newblockName.trim().length === 0) {
-        this.saveBlockButtonDisable = true;
-        this.toastr.warning('', 'The field can not be empty. Enter the name.', {});
-      } else if ((!this.blocks.find(i => i.name === this.newblockName)) || (this.selectedBlock ? this.blocks.find(g => g._id === this.selectedBlock._id && g.name === this.newblockName) : false)) {
-        this.saveBlockButtonDisable = false;
-      } else {
-        this.saveBlockButtonDisable = true;
-        this.toastr.warning('', 'This name exists already. Enter unique name.', {});
+    checkName(inputValue){
+      this.newBlockName = inputValue;
+      const isNameValid = this.newBlockName.trim().length > 0;
+      const isNameUnique = !this.blocks.some(i => i.name === this.newBlockName) || (this.selectedBlock && this.blocks.some(g => g._id === this.selectedBlock._id && g.name === this.newBlockName));
+      
+      this.saveBlockButtonDisable = !(isNameValid && isNameUnique);
+      
+      if (!isNameValid) {
+        this.toastr.warning('', 'The field cannot be empty. Enter a name.', {});
+      } else if (!isNameUnique) {
+        this.toastr.warning('', 'This name already exists. Enter a unique name.', {});
       }
     }
     /**
@@ -236,15 +223,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       });
       //to avoid an error if the user select another block when the changes haven't been saved
       if(!this.blockSaved){     
-        this.newTitleLabel.setAttribute('contentEditable', 'false');
-        this.newTitleLabel.style.border='none';
-        this.blockSaved = true;
-      }
-      //to avoid an error if the user selects another block when new name is undefined
-      if(this.newTitleLabel !== undefined)
-      {
-        if(this.newTitleLabel.textContent.trim().length === 0)
-        this.newTitleLabel.textContent = this.selectedBlock.name;
+        this.blockSaved = !this.blockSaved;
+        delete this.saveBlockButtonDisable;
+        delete this.newBlockName;
       }
     }
 
@@ -273,11 +254,11 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Update block when title is changed
      */
     updateBlock(){
-      if(this.saveBlockButtonDisable == false){
-        if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
-          this.newblockName = this.selectedBlock.name;
+      if(!this.saveBlockButtonDisable){
+        if(this.newBlockName == undefined){//if user has not entered anything, name saves without changes
+          this.newBlockName = this.selectedBlock.name;
         } else{
-          this.selectedBlock.name = this.newblockName;    
+          this.selectedBlock.name = this.newBlockName.trim();    
           this.blockService
           .updateBlock(this.selectedBlock)
           .subscribe(_ => {
@@ -288,9 +269,8 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
             this.toastr.success('successfully saved', 'Block');
           });
         }
-       this.newTitleLabel.setAttribute('contentEditable', 'false');
-       this.newTitleLabel.style.border = 'none';
        this.blockSaved = true;
+       delete this.newBlockName;
       }
  
     }
