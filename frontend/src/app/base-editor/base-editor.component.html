@@ -68,7 +68,7 @@
 					<ul class="uk-nav uk-dropdown-nav">
 						<li *ngFor="let header of ['Given', 'When', 'Then']; let i = index" class="dropdownHeader">
 							<span (click)="toggleHeader(header)">{{header}}</span>
-							<ul *ngIf="isHeaderActive(header)" class="uk-nav uk-dropdown-nav">
+							<ul *ngIf="isHeaderActive(header)" class="stepsList uk-nav uk-dropdown-nav">
 								<li *ngFor="let step of originalStepTypes"
 									[hidden]="step.stepType !== header.toLowerCase() || step.type === this.newStepName || step.type === 'Role' || step.type === 'Add Variable'"
 									class="dropdownStep">

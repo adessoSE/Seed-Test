@@ -504,3 +504,11 @@ input.background {
 .actionButton.disabled>img {
 	filter: invert(54%) brightness(92%);
 }
+
+@media screen and (max-height: 700px) {
+    ul.stepsList{
+        height: 250px;
+        overflow: scroll;
+        margin-right: -25px;
+    }
+}
