@@ -11,13 +11,15 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 })
 export class FileExplorerModalComponent implements OnInit {
   public fileElements: Observable<FileElement[]>;
-  modalReference: NgbModalRef; 
+  modalReference: NgbModalRef;
+  repoId: string;
 
   @ViewChild ('fileExplorerModal') fileExplorerModal: FileExplorerModalComponent;
 
   constructor(private modalService: NgbModal, public fileService: ProjectService) {}
 
   ngOnInit() {
+    this.repoId = localStorage.getItem('id'); // set before updateFileElementQuery
     this.updateFileElementQuery();
     this.fileElements.subscribe((hi)=>{console.log('hallo ' +hi)})
   }
@@ -43,14 +45,14 @@ export class FileExplorerModalComponent implements OnInit {
   }
 
   updateFileElementQuery() {
-    this.fileElements = this.fileService.queryFiles("65818299961b8100320fccfe");
+    this.fileElements = this.fileService.queryFiles(this.repoId);
   }
 
   selectUploadFile(event: any) {
     console.log(event.target.files[0])
     const file = event.target.files[0];
     file.arrayBuffer().then(arrayBuffer => {
-      this.fileService.uploadFile("65818299961b8100320fccfe", arrayBuffer, file.name)
+      this.fileService.uploadFile(this.repoId, arrayBuffer, file.name)
         .subscribe(() => {
           this.updateFileElementQuery();
           this.selected({filename: file.name})
