@@ -225,4 +225,21 @@ export class StoryService {
       return window.open(s);
     }
   }
+
+/**
+   * Updates XRay status in Jira
+   */
+  /**
+ * Updates XRay status in Jira using fetch
+ */
+ updateXrayStatus(testRunId, stepId, status) {
+  const data = {
+    testRunId: testRunId,
+    stepId: stepId,
+    status: status
+  };
+  return this.http
+  .put(this.apiService.apiServer + '/jira/update-xray-status/', data, ApiService.getOptions())
+  .pipe(tap());
+}
 }

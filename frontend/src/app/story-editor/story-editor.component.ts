@@ -1071,6 +1071,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           if (scenario_id) {
             // ScenarioReport
             const val = report.status;
+            const testStatus = val ? "PASS" : "FAIL";
+            const testRunId = 224812;
+            const stepId = 268854;
+            this.storyService.updateXrayStatus(testRunId, stepId, testStatus).subscribe({
+              next: () => {
+                console.log('XRay update successful');},
+              error: (error) => {
+                console.error('Error while updating XRay status', error);}});
             this.scenarioService.scenarioStatusChangeEmit(
               this.selectedStory._id,
               scenario_id,
@@ -1101,7 +1109,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       );
     }
   }
-
+  
   /**
    * Download the test report
    */

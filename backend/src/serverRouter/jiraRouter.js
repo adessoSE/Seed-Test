@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const userHelper = require('../../dist/helpers/userManagement');
+const issueTracker = require('../../dist/models/IssueTracker');
 
 const router = express.Router();
 
@@ -118,6 +119,52 @@ router.post('/login', (req, res) => {
 	} else {
 		console.log('No Jira User sent. (Got undefinded)');
 		res.status(500).json('No Jira User sent. (Got undefinded)');
+	}
+});
+
+router.put('/update-xray-status', async (req, res) => {
+	if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
+		const jiraTracker = issueTracker.IssueTracker
+			.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+		const clearPass = jiraTracker.decryptPassword(req.user.jira);
+		const {
+			AccountName, AuthMethod, Host
+		} = req.user.jira;
+		let authString = `Bearer ${clearPass}`;
+		if (AuthMethod === 'basic') {
+			const auth = Buffer.from(`${AccountName}:${clearPass}`).toString('base64');
+			authString = `Basic ${auth}`;
+		}
+		const { testRunId, stepId, status } = req.body;
+		const testStatus = status ? 'PASS' : 'FAIL';
+		const url = new URL(`https://${Host}/rest/raven/1.0/api/testrun/${testRunId}/step/${stepId}/status`);
+		url.searchParams.append('status', testStatus);
+
+		const options = {
+			method: 'PUT',
+			headers: {
+				'cache-control': 'no-cache',
+				'Content-Type': 'application/json',
+				Authorization: authString
+			}
+		};
+		try {
+			const response = await fetch(url, options);
+			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+			let data;
+			const contentType = response.headers.get('content-type');
+			if (contentType && contentType.includes('application/json')) {
+				const text = await response.text();
+				if (text) data = JSON.parse(text);
+			} else data = { message: 'Success', status: response.status };
+			res.json(data);
+		} catch (error) {
+			console.error('Error while updating Xray status:', error);
+			res.status(500).json({ message: 'Internal server error while updating Xray status' });
+		}
+	} else {
+		console.log('No Jira User sent. (Got undefined)');
+		res.status(500).json('No Jira User sent. Got (undefined)');
 	}
 });
 
