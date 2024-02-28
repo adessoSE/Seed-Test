@@ -121,8 +121,7 @@ router.post('/uploadFile/:repoId/:filename', async (req, res) => {
 		console.log('uploadfile');
 		let data = '';
 
-		const repoId = req.path.match(/\/([^/]+)\/[^/]+$/)[1];
-		const filename = req.path.match(/\/([^/]+)$/)[1];
+		const { repoId, filename } = req.params;
 
 		// Readable stream data event
 		req.on('data', (chunk) => {
@@ -152,8 +151,9 @@ router.get('/uploadFile/:repoId', async (req, res) => {
 });
 router.delete('/uploadFile/:fileId', async (req, res) => {
 	try {
+		console.log(req.params.fileId)
 		const result = await mongo.deleteFile(req.params.fileId);
-		req.status(200).json({ message: 'File deleted' });
+		res.status(200).json({ message: 'File deleted' });
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}

@@ -274,7 +274,7 @@ export class ProjectService {
     return this.http
       .post(`${this.apiService.apiServer}/story/uploadFile/${repoId}/${filename}`, file ,ApiService.getOptions())
       .pipe(tap(_ => {
-        this.querySubject.next([{filename}])
+        this.querySubject.next([...this.querySubject.value, {filename}])
         return {filename};
       }));
   }
