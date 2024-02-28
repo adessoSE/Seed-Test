@@ -121,6 +121,9 @@ router.post('/uploadFile/:repoId/:filename', async (req, res) => {
 		console.log('uploadfile');
 		let data = '';
 
+		const repoId = req.path.match(/\/([^/]+)\/[^/]+$/)[1];
+		const filename = req.path.match(/\/([^/]+)$/)[1];
+
 		// Readable stream data event
 		req.on('data', (chunk) => {
 		data += chunk;
@@ -128,18 +131,17 @@ router.post('/uploadFile/:repoId/:filename', async (req, res) => {
 
 		// Readable stream end event
 		req.on('end', async () => {
-		// Process the collected data
-		console.log('Received data:', data);
 
-		const result = await mongo.fileUpload(req.params.filename, req.params.repoId, data);
+			const result = await mongo.fileUpload(filename, repoId, data);
 
-		// Respond to the client
-		res.status(200).json({ message: 'Data received successfully', stored: result });
+			// Respond to the client
+			//res.status(200).json({ message: 'Data received successfully', stored: result });
 		});
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
 });
+
 router.get('/uploadFile/:repoId', async (req, res) => {
 	try {
 		const result = await mongo.getFileList(req.params.repoId);
