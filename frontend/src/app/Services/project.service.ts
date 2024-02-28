@@ -230,7 +230,7 @@ export class ProjectService {
   private querySubject: BehaviorSubject<FileElement[]> = new BehaviorSubject<FileElement[]>([]);
 
   public getUploadedFiles(repoId: string): Observable<FileElement[]> {
-    return this.http.get<FileElement[]>(this.apiService.apiServer + '/story/uploadFile/' + repoId)
+    return this.http.get<FileElement[]>(this.apiService.apiServer + '/story/uploadFile/' + repoId, ApiService.getOptions())
       .pipe(
         tap(files => console.log(files)), // Optional: Log files
         catchError(error => {
