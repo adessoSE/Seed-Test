@@ -21,12 +21,12 @@ export class FileExplorerModalComponent implements OnInit {
   ngOnInit() {
     this.repoId = localStorage.getItem('id'); // set before updateFileElementQuery
     this.updateFileElementQuery();
-    this.fileElements.subscribe((hi)=>{console.log('hallo ' +hi)})
+    this.fileElements.subscribe((_)=>{})
   }
 
   openFileExplorerModal() {
     this.modalReference = this.modalService.open(this.fileExplorerModal)
-    return this.modalReference.result
+    return this.modalReference.result.catch((reason)=> console.log('UploadFileModal dismissed: ', reason))
   }
 
   addFile(file: { name: string }) {

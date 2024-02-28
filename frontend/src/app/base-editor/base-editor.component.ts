@@ -446,6 +446,7 @@ export class BaseEditorComponent {
     if (step.type == 'Upload File'){
         try {
             const result = await this.fileExplorerModal.openFileExplorerModal();
+            if(!result) return;
             console.log("Upload modal return: ", result);
             const preSelectValues = [result.filename];
             newStep = this.createNewStep(step, stepLocation);
