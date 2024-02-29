@@ -29,21 +29,6 @@ export class FileExplorerModalComponent implements OnInit {
     return this.modalReference.result.catch((reason)=> console.log('UploadFileModal dismissed: ', reason))
   }
 
-  addFile(file: { name: string }) {
-    //this.fileService.add({name: file.name});
-    this.updateFileElementQuery();
-  }
-
-  removeElement(element: FileElement) {
-    this.fileService.deleteUploadedFile(element._id);
-    this.updateFileElementQuery();
-  }
-
-  renameElement(element: FileElement) {
-    //this.fileService.update(element.id, { name: element.name });
-    this.updateFileElementQuery();
-  }
-
   updateFileElementQuery() {
     this.fileElements = this.fileService.queryFiles(this.repoId);
   }
@@ -55,14 +40,19 @@ export class FileExplorerModalComponent implements OnInit {
       this.fileService.uploadFile(this.repoId, arrayBuffer, file.name)
         .subscribe(() => {
           this.updateFileElementQuery();
-          this.selected({filename: file.name})
+          this.selected(null,{filename: file.name})
         });
     });
   }
 
   selectedFile: FileElement
-  selected(element: FileElement) {
+  selected(event: MouseEvent, element: FileElement) {
     this.selectedFile = element;
+  }
+
+  delete(event: MouseEvent) {
+    this.fileService.deleteUploadedFile(this.selectedFile._id);
+    this.updateFileElementQuery();
   }
 
   submit(event: MouseEvent) {

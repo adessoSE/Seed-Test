@@ -3,10 +3,21 @@
   <div style="padding: 100px; height: 100%; box-sizing: border-box;">
     <input type="file" style="justify-self: right;" (change)="selectUploadFile($event)">
     <mat-card style="height: 100%; box-sizing: border-box; padding:0">
-      <app-file-explorer [fileElements]="fileElements | async"  (folderAdded)="addFolder($event)"
-        (elementRemoved)="removeElement($event)" (elementRenamed)="renameElement($event)" (selected)="selected($event)">
-      </app-file-explorer>
+      <div class="container" style="display: flex; justify-content: space-between; align-items: stretch;">
+        <div class="content" style="display: flex;">
+          <div class="grid-container" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;" *ngIf="fileElements | async as files">
+            <div *ngFor="let file of files" (click)="selected($event, file)" class="file-or-folder" style="height: 100px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+              <span style="color: blue; cursor: pointer;" [ngClass]="{'selected': file === this.selectedFile}" uk-icon="file-text">&#x1F4C2;</span>
+              <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+                <span style="color: blue; cursor: pointer;" uk-icon="file-text"></span>
+                <span>{{file.filename}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </mat-card>
+    <button style="justify-self: right;" (click)="delete()" >Delete</button>
     <button style="justify-self: right;" (click)="submit()" >Select</button>
   </div>
 </ng-template>
