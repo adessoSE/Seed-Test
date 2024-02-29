@@ -263,7 +263,7 @@ export class ProjectService {
     return this.http
       .delete(this.apiService.apiServer + '/story/uploadFile/' + fileId, ApiService.getOptions())
       .pipe(tap(_ => {
-        //
+        this.querySubject.next([...this.querySubject.value.filter((item) => item._id != fileId)])
       }));
   }
 
