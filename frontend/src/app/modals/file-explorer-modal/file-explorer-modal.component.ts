@@ -36,9 +36,9 @@ export class FileExplorerModalComponent implements OnInit {
     const file = event.target.files[0];
     file.arrayBuffer().then(arrayBuffer => {
       this.fileService.uploadFile(this.repoId, arrayBuffer, file.name)
-        .subscribe(() => {
+        .subscribe((res: FileElement) => {
           this.updateFileElementQuery();
-          this.selected(null,{filename: file.name})
+          this.selected(null,res)
         });
     });
   }
@@ -49,6 +49,7 @@ export class FileExplorerModalComponent implements OnInit {
   }
 
   delete(event: MouseEvent) {
+    console.log("delete: ", this.selectedFile)
     this.fileService.deleteUploadedFile(this.selectedFile._id)
       .subscribe(() => {
         this.updateFileElementQuery();
