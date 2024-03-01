@@ -1338,7 +1338,7 @@ async function fileUpload(filename, repoId, file) {
 		const db = dbConnection.getConnection();
 		const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
 		const id = new ObjectId();
-		str(JSON.stringify(file))
+		return await str(JSON.stringify(file))
 			.pipe(bucket.openUploadStreamWithId(id, filename, {metadata:{repoId: new ObjectId(repoId)}}))
 			.on('error', async (error) => {
 				assert.ifError(error);
@@ -1369,7 +1369,7 @@ async function getFileList(repoId) {
 	try {
 		const db = dbConnection.getConnection();
 		const files = await db.collection('GridFS.files').find({ 'metadata.repoId': new ObjectId(repoId) }).toArray();
-		//console.log('Dateien für RepoId', repoId, ':', files);
+		console.log('Dateien für RepoId', repoId, ':', files);
 		return files;
 	} catch (e) {
 		console.log('ERROR in get file list: ', e);

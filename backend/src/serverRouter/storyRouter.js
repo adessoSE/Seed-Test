@@ -132,9 +132,10 @@ router.post('/uploadFile/:repoId/:filename', async (req, res) => {
 		req.on('end', async () => {
 
 			const result = await mongo.fileUpload(filename, repoId, data);
+			console.log("upload result: ",result)
 
 			// Respond to the client
-			res.status(200).json({ message: 'Data received successfully', stored: result });
+			res.status(200).json({filename: filename, _id:result.toString() });
 		});
 	} catch (error) {
 		handleError(res, error, error, 500);

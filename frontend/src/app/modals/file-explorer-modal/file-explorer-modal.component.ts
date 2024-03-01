@@ -21,7 +21,6 @@ export class FileExplorerModalComponent implements OnInit {
   ngOnInit() {
     this.repoId = localStorage.getItem('id'); // set before updateFileElementQuery
     this.updateFileElementQuery();
-    this.fileElements.subscribe((_)=>{})
   }
 
   openFileExplorerModal() {
