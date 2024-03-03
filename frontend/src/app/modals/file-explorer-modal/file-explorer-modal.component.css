@@ -1,5 +1,121 @@
+.searchFile {
+    flex: 2;
+    display: flex;
+}
 
+.modal-body.top {
+    padding: 30px 26px 15px;
+    display: flex;
+}
+.uploadFile.normalButton{
+    height: 37px;
+}
+.modal-body.upload-modal {
+    padding: 0;
+}
 
-.selected {
-    background-color: aqua;
+label.label input[type="file"] {
+    position: absolute;
+    top: -1000px;
+}
+
+.uploadFile .label {
+    display: flex;
+    margin-top: 3px;
+}
+
+.searchFile .uk-icon {
+    padding-top: 8px !important;
+    translate: -26px;
+}
+
+.modal-body.storage-empty {
+    margin: 20px 10px;
+    box-shadow: 1px 1px 9px gray;
+    padding: 120px 220px 120px;
+}
+
+.fileTableContainer {
+    margin: 10px 25px 25px;
+    text-align: left;
+    max-height: 35vh;
+    overflow: auto;
+    box-shadow: 0 5px 5px -3px #0003, 0 8px 10px 1px #00000024, 0 3px 14px 2px #0000001f;
+}
+
+tr.file-or-folder:hover {
+    cursor: pointer;
+    background-color: #f1f1f1;
+}
+
+.highlight,
+.selectedFile {
+    background-color: #f1f1f1;
+}
+
+.mat-mdc-table .mat-mdc-cell:first-child,
+.mat-mdc-table .mat-mdc-header-cell:first-child {
+    border-right: 1px solid #e0e0e0;
+}
+
+.selectedFile td {
+    color: var(--ocean-blue);
+}
+
+.noResultFound {
+    text-align: center;
+}
+
+.fileNameCell {
+    width: 66%;
+}
+
+.uploadDateCell {
+    width: 33%;
+}
+
+.fileTable th {
+    z-index: 9999;
+    position: sticky;
+    top: 0;
+    background-color: white;
+}
+
+.fileNameContainer {
+    display: flex;
+    align-items: center;
+}
+
+.fileIcon {
+    margin-right: 5px;
+}
+
+.fileIcon svg {
+    position: relative;
+    z-index: 99 !important;
+}
+
+.darkTheme .fileTable th {
+    background: #455a64;
+    color: white;
+}
+
+.darkTheme .file-or-folder:hover {
+    cursor: pointer;
+    background-color: #506772 !important;
+}
+
+.darkTheme .highlight,
+.darkTheme .selectedFile {
+    background-color: #506772;
+}
+
+.darkTheme .normalButton {
+    cursor: pointer;
+    background: var(--button);
+}
+
+.darkTheme .normalButton:hover {
+    cursor: pointer;
+    background: var(--buttonHover);
 }

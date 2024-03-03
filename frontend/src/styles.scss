@@ -800,9 +800,9 @@ body {
 
 .infoIcon {
   grid-area: storyHeader;
-  color: #999;
-  padding-top: 3px !important;
-  margin-left: 7px !important;
+  color: white;
+  padding-top: 3px;
+  margin-left: 7px;
 }
 
 .def {
@@ -937,6 +937,9 @@ div.notPassed{
 
 .darkTheme select>option {
   background-color: #60767b;
+  color: white !important;
+}
+.darkTheme td{
   color: white !important;
 }
 

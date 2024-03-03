@@ -1,23 +1,77 @@
 <ng-template #fileExplorerModal let-modal>
-  <app-layout-modal></app-layout-modal>
-  <div style="padding: 100px; height: 100%; box-sizing: border-box;">
-    <input type="file" style="justify-self: right;" (change)="selectUploadFile($event)">
-    <mat-card style="height: 100%; box-sizing: border-box; padding:0">
-      <div class="container" style="display: flex; justify-content: space-between; align-items: stretch;">
-        <div class="content" style="display: flex;">
-          <div class="grid-container" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;" *ngIf="fileElements | async as files">
-            <div *ngFor="let file of files" (click)="selected($event, file)" class="file-or-folder" style="height: 100px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
-              <span style="color: blue; cursor: pointer;" [ngClass]="{'selected': file === this.selectedFile}" uk-icon="file-text">&#x1F4C2;</span>
-              <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
-                <span style="color: blue; cursor: pointer;" uk-icon="file-text"></span>
-                <span>{{file.filename}}</span>
-              </div>
+  <div [class.darkTheme]="isDark">
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+      <span id="modalHeader" class="MediumSubline1H4 modal-title">Upload File</span>
+      <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
+        <span rel="def">Upload a file to step.
+        </span>
+      </dfn>
+      <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div *ngIf="allFiles.length > 0" class="modal-body modal-xl upload-modal storage-not-empty">
+      <div class="modal-body top">
+        <div class="searchFile">
+          <input class="form-control" type="text" name="search" [(ngModel)]="searchText" (input)="searchFile()"
+            autocomplete="off" placeholder="Search file...">
+          <span uk-icon="search"></span>
+        </div>
+        <div class="uploadFile normalButton">
+          <label class="label">
+            <input type="file" (change)="selectUploadFile($event)" required />
+            <span uk-icon="upload"></span>Upload
+          </label>
+        </div>
+      </div>
+      <form #uploadFile="ngForm" novalidate [disabled]="!uploadFile.valid" (ngSubmit)="submitUploadFile()">
+        <div class="submitForm">
+          <div class="form-group modalsContent">
+            <div *ngIf="searchedFiles.length>0" class="fileTableContainer">
+              <table mat-table class="fileTable mat-table" [dataSource]="searchedFiles.slice(0, 20)">
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef class="fileCell">Name</th>
+                  <td mat-cell *matCellDef="let file" class="fileCell fileNameCell">
+                    <div class="fileNameContainer">
+                      <span class="fileIcon" uk-icon="file-text"></span>{{file.filename}}
+                    </div>
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="uploadDate">
+                  <th mat-header-cell *matHeaderCellDef class="fileCell">Upload Date</th>
+                  <td mat-cell *matCellDef="let file" class="fileCell uploadDateCell">{{ file.uploadDate |
+                    date:'dd/MM/yyyy HH:mm' }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="['name', 'uploadDate']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['name', 'uploadDate']" (click)="selected($event, row)"
+                  class="file-or-folder" [class.selectedFile]="row === selectedFile"
+                  [class.highlight]="row === hoveredFile"></tr>
+              </table>
+            </div>
+            <div *ngIf="searchedFiles.length == 0" class="noResultFound">
+              <label style="color: gray; font-style: italic;">No result found</label>
+            </div>
+            <div class="modal-footer">
+              <button class="normalButton deleteButton" type="button" [disabled]="!this.selectedFile"
+                [ngStyle]="{'opacity': !this.selectedFile ?  '50%' : '100%'}" (click)="deleteFile()">Delete File
+              </button>
+              <button class="normalButton" type="submit" [disabled]="!this.selectedFile"
+                [ngStyle]="{'opacity': !this.selectedFile ?  '50%' : '100%'}">Submit
+              </button>
             </div>
           </div>
         </div>
+      </form>
+    </div>
+    <div *ngIf="allFiles.length == 0" class="modal-body modal-xl upload-modal storage-empty">
+      <div class="empty-storage-message">
+        <label style="font-size: large; font-style: italic;">There are no files in this project yet</label>
+        <label class="label normalButton">
+          <input type="file" (change)="selectUploadFile($event)" required />
+          <span uk-icon="upload"></span>Upload
+        </label>
       </div>
-    </mat-card>
-    <button style="justify-self: right;" (click)="delete()" >Delete</button>
-    <button style="justify-self: right;" (click)="submit()" >Select</button>
+    </div>
   </div>
 </ng-template>

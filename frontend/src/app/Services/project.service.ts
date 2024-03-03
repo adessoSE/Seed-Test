@@ -39,8 +39,8 @@ export class ProjectService {
     * Event Emitter to distribute the repositories to all components
   */
   public getRepositoriesEvent = new EventEmitter();
-  /**
-    * Emits the delete repository event
+    /**
+        * Emits the delete repository event
   */
   public deleteRepositoryEmitter() {
     this.deleteRepositoryEvent.emit();
@@ -59,7 +59,7 @@ export class ProjectService {
   createRepositoryEvent(repository) {
     this.createRepositoryEmitter.emit(repository);
   }
-
+  
   public transferOwnershipEvent = new EventEmitter();
 
   transferOwnershipEmitter() {
@@ -274,6 +274,9 @@ export class ProjectService {
     return this.http
       .post(`${this.apiService.apiServer}/story/uploadFile/${repoId}/${filename}`, file ,ApiService.getOptions())
       .pipe(tap((result: FileElement) => {
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
+        result.uploadDate = formattedDate;
         this.querySubject.next([...this.querySubject.value, result])
         return result
       }));
