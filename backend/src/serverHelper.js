@@ -470,7 +470,7 @@ function applyDateCommand(str) {
 
 	// Wenn das Array leer ist, wurden keine Substrings gefunden
 	if (indices.length === 0) {
-		return -1;
+		return str;
 	}
 
 	// Finde den niedrigsten Index (die erste Vorkommen)
@@ -530,7 +530,7 @@ function calcDate(value) {
 
 	// check the correct usage of @@Day, @@Month, @@Year
 	else {
-		startcopy = start.slice();
+		let startcopy = start.slice();
 		for (let i = 0; i < substrings.length; i++) {
 			if (start.split(substrings[i]).length - 1 > 1) throw Error(`${substringsErr[i]} may only be used 0 or 1 time. Input: ${start}`);
 			startcopy = startcopy.replace(substrings[i], '');
@@ -631,11 +631,17 @@ function calcDate(value) {
 	return result;
 }
 
+/**
+* Applies the special commands to a string.
+* Special commands are marked via: {Regex: TEXT}.
+* return the string with the special commands applied.
+*/
 function applySpecialCommands(str) {
-	let appliedCommandsString = '';
-	if (str.includes('@@Day') || str.includes('@@Month') || str.includes('@@Year') || str.includes('@@Date')) {
-		appliedCommandsString = applyDateCommand(str);
-	}
+	const pattern = /(((((@@(Day|Month|Year),(\d\d?\d?\d?))+)|(@@((\d|\d\d),)?[a-zA-Z]+))((\+|-)(@@((\d|\d\d),)?[a-zA-Z]+))+)|(((@@(Day|Month|Year),(\d\d?\d?\d?))+)|(@@((\d|\d\d),)?[a-zA-Z]+)))(@@format:.*€€)?/g;
+	let appliedCommandsString = str;
+
+	// appliedCommandsString = applyDateCommand(str);
+	appliedCommandsString = str.replace(pattern, (match) => applyDateCommand(match));
 	return appliedCommandsString;
 }
 

@@ -13,8 +13,10 @@ const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
 const { applySpecialCommands } = require('../../src/serverHelper');
 
-const downloadDirectory = 'C:\\Users\\Public\\seed_Downloads';
 let driver;
+
+const downloadDirectory = !(/^win/i.test(process.platform)) ? '/home/public/Downloads/' : 'C:\\Users\\Public\\seed_Downloads\\';
+if (!fs.existsSync(downloadDirectory)) fs.mkdirSync(downloadDirectory, { recursive: true });
 const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
 	.setPreference('browser.download.folderList', 2) // Set to 2 for the "custom" folder
 	.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream');
@@ -288,7 +290,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
 	`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
-	if (value.includes('@@')) value = applyDateCommand(value);
+	if (value.includes('@@')) value = applySpecialCommands(value);
 
 	const promises = [];
 	for (const idString of identifiers) promises.push(
@@ -555,13 +557,16 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 const resolveRegex = (rawString) => {
 	// undefined to empty string
 	rawString = !rawString ? '' : rawString;
-	const regex = /\{Regex:([^}]*(?:\{[^}]*\}[^}]*)*)(\})(?=\s|$)/g;
-	return rawString.replace(regex, '($1)');
+	const regex = /(\{Regex:)(.*)(\})(.*)/g;
+	const regexFound = regex.test(rawString);
+	const resultString = regexFound ? rawString.replace(regex, '$2$4') : rawString;
+	return { resultString, regexFound };
 };
 
 // Search a textfield in the html code and assert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
-	const resultString = resolveRegex(expectedText);
+	expectedText = applySpecialCommands(expectedText.toString());
+	const { resultString, regexFound } = resolveRegex(expectedText);
 
 	const world = this;
 
@@ -575,7 +580,8 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 			let resp = await elem.getText();
 			resp = resp == '' ? await elem.getAttribute('value') : resp;
 			resp = resp == '' ? await elem.getAttribute('outerHTML') : resp;
-			match(resp, RegExp(resultString), `Textfield does not contain the string/regex: ${resultString} , actual: ${resp}`);
+			if (regexFound) match(resp, RegExp(resultString), `Textfield does not contain the string/regex: ${resultString} , actual: ${resp}`);
+			else expect(resp).to.equal(resultString, `Textfield does not contain the string: ${resultString}`);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -588,7 +594,8 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 
 // Search if a is text in html code
 Then('So I can see the text: {string}', async function textPresent(expectedText) { // text is present
-	const resultString = resolveRegex(expectedText);
+	expectedText = applySpecialCommands(expectedText.toString());
+	const { resultString, regexFound } = resolveRegex(expectedText);
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -598,7 +605,8 @@ Then('So I can see the text: {string}', async function textPresent(expectedText)
 				const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 				const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 				const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-				match(bodyAll, RegExp(resultString), `Page HTML does not contain the string/regex: ${resultString}`);
+				if (regexFound) match(bodyAll, RegExp(resultString), `Page HTML does not contain the string/regex: ${resultString}`);
+				else expect(bodyAll).to.contain(resultString, `Page HTML does not contain the string/regex: ${resultString}`);
 			});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -638,11 +646,11 @@ Then(
 	async function checkDownloadedFile(fileName, directory) {
 		const world = this;
 		try {
-			const path = `${downloadDirectory}\\${fileName}`;
+			const path = `${downloadDirectory}${fileName}`;
 			await fs.promises.access(path, fs.constants.F_OK);
 			const timestamp = Date.now();
 			// Rename the downloaded file, so a new Run of the Test will not check the old file
-			await fs.promises.rename(path, `${downloadDirectory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
+			await fs.promises.rename(path, `${downloadDirectory}Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
 				if (err) console.log(`ERROR: ${err}`);
 			});
 		} catch (e) {
@@ -700,7 +708,8 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
-	const resultString = resolveRegex(expectedText.toString());
+	expectedText = applySpecialCommands(expectedText.toString());
+	const { resultString, regexFound } = resolveRegex(expectedText);
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -709,7 +718,8 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(e
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			doesNotMatch(bodyAll, RegExp(resultString), `Page HTML does contain the string/regex: ${resultString}`);
+			if (regexFound) doesNotMatch(bodyAll, RegExp(resultString), `Page HTML does contain the string/regex: ${resultString}`);
+			else expect(bodyAll).to.not.contain(resultString, `Page HTML does contain the string/regex: ${resultString}`);
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {

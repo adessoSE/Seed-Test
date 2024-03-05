@@ -195,3 +195,17 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     word-wrap: break-word !important;
     width: 200px !important;
 }
+
+input#blockTitleChange{
+    width: 10vw;
+    border: none; 
+    border-bottom: 1px solid black; 
+    padding-left: 5px;
+   
+    &:focus {
+        outline: none;
+        transition: 0.2s;
+        width: 12vw;
+        border-bottom: 2px solid var(--ocean-blue); /* Change border color on focus */
+    }
+}
