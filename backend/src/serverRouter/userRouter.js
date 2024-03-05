@@ -361,38 +361,21 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 					try {
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
 						for (const issue of json.issues) {
-							let testStepDescription = '';
-							if (issue.fields.issuetype.name === 'Test') {
-								try {
-									const testStepsResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
-									const testSteps = await testStepsResponse.json();
-									console.log(testSteps);
-									const steps = testSteps.steps;
-									testStepDescription = '\n\nTest-Steps:\n';
-									for (const step of steps) {
-										const fields = step.fields;
-										const stepInfo = [`\n----- Scenario ${step.index} -----`];
-									
-										stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
-										stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
-										//stepInfo.push(fields.Data && fields.Data.value.raw ? `(DATA): ${fields.Data.value.raw}\n` : '(DATA): No data used\n');
-										stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
-										testStepDescription += stepInfo.join('\n');
-									}
-									
-								} catch (e) {
-									console.log('Error while getting test steps', e);
-								}
-							}
+							let testStepDescription = [];
+							let scenarioList = [];
+							// eslint-disable-next-line curly
+							if (issue.fields.issuetype.name === 'Test') ({ scenarioList, testStepDescription } = await handleTestIssue(issue, options, Host));
 
 							const story = {
 								story_id: issue.id,
 								title: issue.fields.summary,
 								body: issue.fields.description + testStepDescription,
+								scenarios: scenarioList,
 								state: issue.fields.status.name,
 								issue_number: issue.key,
 								storySource: 'jira'
 							};
+							if (issue.fields.issuetype.name === 'Test') console.log("STORY DEBUG", story);
 
 							if (issue.fields.assignee !== null) {
 								story.assignee = issue.fields.assignee.name;
@@ -437,6 +420,56 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		return storyList.map((i) => storiesArray.get(i.toString())).filter((s) => s !== undefined);
 	}
 });
+
+// extract test executions and step details for given test issue
+async function handleTestIssue(issue, options, Host) {
+	const scenarioList = [];
+	let testStepDescription = [];
+	try {
+		const testrunResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
+		const testRuns = await testrunResponse.json();
+		const testExecutionData = testRuns.map((testExecution) => ({
+			id: testExecution.id,
+			testExecKey: testExecution.testExecKey,
+			stepIds: testExecution.steps.map((step) => step.id)
+		}));
+
+		testExecutionData.forEach((testExecution) => {
+			testExecution.stepIds.forEach((stepId) => {
+				const scenario = {
+					scenario_id: stepId,
+					name: `Execution ${testExecution.testExecKey}. Step ${stepId}`,
+					comment: null,
+					stepDefinitions: {
+						given: [],
+						when: [],
+						then: [],
+						example: []
+					},
+					testRun_id: testExecution.id
+				};
+				scenarioList.push(scenario);
+			});
+		});
+
+		const testStepsResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
+		const testSteps = await testStepsResponse.json();
+		const steps = testSteps.steps;
+		testStepDescription = '\n\nTest-Steps:\n';
+		for (const step of steps) {
+			const fields = step.fields;
+			const stepInfo = [`\n----- Scenario ${step.index} -----`];
+			stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
+			stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
+			stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
+			testStepDescription += stepInfo.join('\n');
+		}
+	} catch (e) {
+		console.log('Error while getting test steps', e);
+	}
+
+	return { scenarioList, testStepDescription };
+}
 
 // delete user
 router.delete('/', async (req, res) => {

@@ -93,14 +93,14 @@ function getScenarioContent(scenarios, storyID) {
 	for (const scenario of scenarios) {
 		data += `@${storyID}_${scenario.scenario_id}\n`;
 		// if there are examples
-		if ((scenario.stepDefinitions.example.length) > 0) data += `Scenario Outline: ${scenario.name}\n\n`;
+		if (scenario.stepDefinitions?.example?.length > 0) data += `Scenario Outline: ${scenario.name}\n\n`;
 		else data += `Scenario: ${scenario.name}\n\n`;
 		// Get Stepdefinitions
-		if (scenario.stepDefinitions.given !== undefined) data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
-		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
-		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
-		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
-		if (scenario.comment !== null) {
+		if (scenario.stepDefinitions?.given) data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
+		if (scenario.stepDefinitions?.when) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
+		if (scenario.stepDefinitions?.then) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
+		if (scenario.stepDefinitions?.example?.length > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
+		if (scenario.comment != null) {
 			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
 	}

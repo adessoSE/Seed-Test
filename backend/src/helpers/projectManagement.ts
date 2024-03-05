@@ -190,7 +190,10 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 async function fuseStoryWithDb(story) {
 	const result = await mongo.getOneStory(parseInt(story.story_id, 10));
 	if (result !== null) {
-		story.scenarios = result.scenarios;
+		const existingScenarioIds = new Set(result.scenarios.map(s => s.scenario_id));
+		const newScenarios = story.scenarios.filter(scenario => !existingScenarioIds.has(scenario.scenario_id));
+    	const updatedScenarios = [...result.scenarios, ...newScenarios];
+		story.scenarios = updatedScenarios;
 		story.background = result.background;
 		story.lastTestPassed = result.lastTestPassed;
 	} else {
