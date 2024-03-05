@@ -70,4 +70,9 @@ export interface Scenario {
      */
 
     height?: number;
+
+    /**
+     * id of corresponding test run in xray
+     */
+    testRun_id?: number;
 }
