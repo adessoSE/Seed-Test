@@ -1071,15 +1071,24 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           if (scenario_id) {
             // ScenarioReport
             const val = report.status;
-            //update xray status
-            if (this.selectedScenario.testRun_id) {
+            // Update xray status
+            if (this.selectedScenario.testRunSteps) {
+              console.log(this.selectedScenario.testRunSteps);
               const testStatus = val ? "PASS" : "FAIL";
-              this.storyService.updateXrayStatus(this.selectedScenario.testRun_id, scenario_id, testStatus).subscribe({
-                next: () => {
-                  console.log('XRay update successful');},
-                error: (error) => {
-                  console.error('Error while updating XRay status', error);}});
-            }
+              
+              // run through the list of test execution step and update their status
+              for (const testRun of this.selectedScenario.testRunSteps) {
+                this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, testStatus)
+                  .subscribe({
+                    next: () => {
+                      console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId);
+                    },
+                    error: (error) => {
+                      console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+                    }
+                  });
+              }
+            } 
 
             this.scenarioService.scenarioStatusChangeEmit(
               this.selectedStory._id,

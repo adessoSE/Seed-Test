@@ -74,5 +74,5 @@ export interface Scenario {
     /**
      * id of corresponding test run in xray
      */
-    testRun_id?: number;
+    testRunSteps?: { testRunId: number; testRunStepId: number }[];
 }

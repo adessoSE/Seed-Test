@@ -1,3 +1,4 @@
+/* eslint-disable curly */
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
@@ -375,8 +376,6 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 								issue_number: issue.key,
 								storySource: 'jira'
 							};
-							if (issue.fields.issuetype.name === 'Test') console.log("STORY DEBUG", story);
-
 							if (issue.fields.assignee !== null) {
 								story.assignee = issue.fields.assignee.name;
 								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
@@ -421,53 +420,99 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	}
 });
 
+// helper function to extract raw data of given field in xray test execution field
+function extractRaw(givenField) {
+	try {
+		const givenData = JSON.parse(givenField);
+		if (givenData && givenData.raw) {
+			// return normalizeText(givenData.raw);
+			return givenData.raw;
+		}
+	} catch (e) {
+		console.error('Error while parsing Given field of xRay execution step', e);
+	}
+	return '';
+}
+
 // extract test executions and step details for given test issue
 async function handleTestIssue(issue, options, Host) {
 	const scenarioList = [];
-	let testStepDescription = [];
+	let testStepDescription = '\n\nTest-Steps:\n';
+
 	try {
+		// api to get all testruns of corresponding test issue
 		const testrunResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
 		const testRuns = await testrunResponse.json();
-		const testExecutionData = testRuns.map((testExecution) => ({
-			id: testExecution.id,
-			testExecKey: testExecution.testExecKey,
-			stepIds: testExecution.steps.map((step) => step.id)
-		}));
 
-		testExecutionData.forEach((testExecution) => {
-			testExecution.stepIds.forEach((stepId) => {
-				const scenario = {
-					scenario_id: stepId,
-					name: `Execution ${testExecution.testExecKey}. Step ${stepId}`,
-					comment: null,
-					stepDefinitions: {
-						given: [],
-						when: [],
-						then: [],
-						example: []
-					},
-					testRun_id: testExecution.id
-				};
-				scenarioList.push(scenario);
-			});
-		});
-
+		// api to get all steps defined in the corresponding test issue
 		const testStepsResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
 		const testSteps = await testStepsResponse.json();
-		const steps = testSteps.steps;
-		testStepDescription = '\n\nTest-Steps:\n';
+		const { steps } = testSteps;
+
+		/* iterate through steps and for each step add story description
+		*  and test execution steps
+		*/
 		for (const step of steps) {
-			const fields = step.fields;
+			const { fields } = step;
+			// add story description
 			const stepInfo = [`\n----- Scenario ${step.index} -----`];
 			stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
 			stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
 			stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
-			testStepDescription += stepInfo.join('\n');
+			testStepDescription += stepInfo.join('');
+
+			const matchingSteps = [];
+
+			/* run through each testrun and for each test run step that is equal
+			*  to the original test step -> add to matchingStep list
+			*/
+			for (const testRun of testRuns) {
+				try {
+					const testRunDetails = await (await fetch(`http://${Host}/rest/raven/2.0/api/testrun/${testRun.id}`, options)).json();
+					for (const testRunStep of testRunDetails.steps) {
+						// compare given, action and expected field
+						const givenNormalized = fields.Given ? fields.Given.value : '';
+						const actionNormalized = fields.Action ? fields.Action.value.raw : '';
+						const expectedResultNormalized = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
+						const testRunGivenNormalized = testRunStep.fields.Given ? extractRaw(testRunStep.fields.Given.value) : '';
+						const testRunActionNormalized = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
+						const testRunExpectedResultNormalized = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
+						if (givenNormalized === testRunGivenNormalized
+							&& actionNormalized === testRunActionNormalized
+							&& expectedResultNormalized === testRunExpectedResultNormalized) {
+							// add equal steps to list
+							matchingSteps.push({
+								testRunId: testRun.id,
+								testRunStepId: testRunStep.id
+							});
+						}
+					}
+				} catch (e) {
+					console.error(`Error while fetching details for testrun ${testRun.id}: `, e);
+				}
+			}
+			/* pass matching list to the scenario so each scenario
+			*  comes with a list of steps of test executions
+			*/
+			const scenario = {
+				scenario_id: step.id,
+				name: `${step.id}`,
+				comment: null,
+				stepDefinitions: {
+					given: [],
+					when: [],
+					then: [],
+					example: []
+				},
+				testRunSteps: matchingSteps
+			};
+
+			scenarioList.push(scenario);
 		}
 	} catch (e) {
-		console.log('Error while getting test steps', e);
+		console.error('Error while getting test steps', e);
 	}
-
+	// return list of new scenarios and story description
 	return { scenarioList, testStepDescription };
 }
 
