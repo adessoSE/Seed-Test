@@ -1098,11 +1098,29 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           } else {
             // StoryReport
             report.scenarioStatuses.forEach((scenario) => {
+              console.log(scenario)
               this.scenarioService.scenarioStatusChangeEmit(
                 this.selectedStory._id,
                 scenario.scenarioId,
                 scenario.status
               );
+
+              // run through testruns of currenct scenario and update xray status
+              const currentScenarioId = scenario.scenarioId
+              const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
+              if (currentScenario.testRunSteps){
+                for (const testRun of currentScenario.testRunSteps) {
+                  this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
+                    .subscribe({
+                      next: () => {
+                        console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId);
+                      },
+                      error: (error) => {
+                        console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+                      }
+                    });
+                }
+              }
             });
           }
         });
