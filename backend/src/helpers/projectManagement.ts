@@ -367,11 +367,11 @@ async function importProject(file, repo_id?, projectName?) {
       .getEntries()
       .filter((entry) => entry.entryName.startsWith(groupsFolder));
 
-    console.log(zip.getEntries().toString());
+    /* console.log(zip.getEntries().toString());
     console.log(storyFiles[0]);
     console.log(storyFiles.map((entry) => entry.entryName));
     console.log(groupFiles[0]);
-    console.log(groupFiles.map((entry) => entry.entryName));
+    console.log(groupFiles.map((entry) => entry.entryName)); */
 
     // Sort Files by filename - important for keyStoryId assignment
     storyFiles.sort((a, b) => {
@@ -402,36 +402,85 @@ async function importProject(file, repo_id?, projectName?) {
       let groupMapping = [];
       //Füllen der KeyStoryIds in Array -> ArrayIndex für Gruppenzuweisung wichtig!
       for (const singularMapping of mappingData) {
-        groupMapping.push(singularMapping);
+        const mappingObject = {
+          oldID: singularMapping,
+          //To be filled during story creation process
+          newID: "",
+        };
+        groupMapping.push(mappingObject);
       }
+      // Function to insert newID based on oldID
+      function insertNewId(oldID, newID) {
+        for (const mapping of groupMapping) {
+          if (mapping.oldID === oldID) {
+            mapping.newID = newID;
+            return; // Exit the loop after successful insertion
+          }
+        }
+        console.error(
+          `Mapping with oldID: ${oldID} not found for newID insertion.`
+        );
+      }
+
+      //Begin Transaction!
       await session.withTransaction(async (session) => {
         //Create new repo with some exported information
         console.log("We are in Transition!");
         const newRepo = await mongo.createRepo(repoData.owner, projectName);
-        console.log(newRepo);
         if (
           newRepo == "Sie besitzen bereits ein Repository mit diesem Namen!"
         ) {
+          console.log("Repository already existing!")
+          await session.abortTransaction();
           return "Sie besitzen bereits ein Repository mit diesem Namen!";
         }
         //Add stories, groups
-        let newMappingIds = [...mappingData];
         // Iterate through each story file
         for (const storyFile of storyFiles) {
           const storyData = zip.readAsText(storyFile.entryName);
           const storyObject = JSON.parse(storyData);
-          console.log(storyObject);
-          const newStory = mongo.createStory(
+          const newStory = await mongo.createStory(
             storyObject.title,
-            storyObject.body,
-            newRepo.insertedId
+            storyObject.body === null ? undefined : storyObject.body,
+            newRepo.toHexString()
           );
-          console.log(newStory);
-          // Assign new ObjectId but save old ID in newMappingIds
-          newMappingIds[storyObject.story_id]
-          storyObject.story_id = newStory;
-          console.log(storyObject);
-          //mongo.updateStory(storyObject);
+          console.log(newStory + " inserted into: " + newRepo.toHexString());
+          //Insert new ID corresponding to old one
+          insertNewId(
+            groupMapping[storyFiles.indexOf(storyFile)].oldID,
+            newStory.toHexString()
+          );
+          //Get newly created StoryID and paste it into "old" story to replace newly generated one with same id
+          storyObject._id = newStory;
+          const importedStory = await mongo.updateStory(storyObject);
+          const insertedId = await mongo.insertStoryIdIntoRepo(newStory, newRepo.toHexString());
+        }
+        console.log(groupMapping);
+        //RepoBlocks creation and assignment
+        const repoBlocksJsonData = zip.readAsText("repoBlocks.json");
+        const repoBlocksData = JSON.parse(repoBlocksJsonData);
+        for (const singularBlock of repoBlocksData) {
+          singularBlock.repository = projectName;
+          singularBlock.repositoryId = newRepo.toHexString();
+          mongo.saveBlock(singularBlock);
+        }
+
+        //Group creation and assignment
+        // TODO: Ggf. Export anpassen -> Ersatz von StoryIds durch indices vermutlich unnötig
+        for (const groupFile of groupFiles) {
+          const groupData = zip.readAsText(groupFile.entryName);
+          const groupObject = JSON.parse(groupData);
+          for(let i = 0; i < groupObject.member_stories.length; i++){
+            groupObject.member_stories[i] = groupMapping[groupObject.member_stories[i]].newID;
+          }
+          console.log(groupObject);
+          const newGroup = await mongo.createStoryGroup(
+            newRepo.toHexString(),
+            groupObject.name,
+            groupObject.member_stories,
+            groupObject.isSequential
+          );
+          console.log("Group " + newGroup + " inserted into: " + newRepo.toHexString());
         }
       });
 
