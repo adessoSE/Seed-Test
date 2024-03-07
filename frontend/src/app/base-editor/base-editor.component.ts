@@ -187,6 +187,8 @@ export class BaseEditorComponent {
   regexInStory: boolean = false;
   initialRegex: boolean = true;
 
+  activeHeader: string | null = null;
+
   @Input() isDark: boolean;
 
   /**
@@ -739,8 +741,17 @@ export class BaseEditorComponent {
     return uniqueStepTypes;
   }
 
-
-
+  toggleHeader(header: string): void {
+	  if (this.activeHeader === header) {
+		  this.activeHeader = null;
+	  } else {
+		  this.activeHeader = header;
+	  }
+  }
+  
+  isHeaderActive(header: string): boolean {
+	  return this.activeHeader === header;
+  }
 
 
   /**
