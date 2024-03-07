@@ -187,13 +187,41 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 	return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token, ownerId, githubId);
 }
 
+function updateTestrunSteps(dbScenarios, storyScenarios) {
+    dbScenarios.forEach(dbScenario => {
+        const storyScenario = storyScenarios.find(scenario => scenario.scenario_id === dbScenario.scenario_id);
+        if (storyScenario) {
+            storyScenario.testRunSteps.forEach(testRunStep => {
+                const exists = dbScenario.testRunSteps.some(dbTestRunStep =>
+                    dbTestRunStep.testRunId === testRunStep.testRunId && dbTestRunStep.testRunStepId === testRunStep.testRunStepId);
+
+                if (!exists) {
+                    dbScenario.testRunSteps.push(testRunStep);
+                }
+            });
+        }
+    });
+}
+
+function addScenariosToDb(dbScenarios, storyScenarios) {
+    const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
+    const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
+    if (newScenarios.length > 0) {
+        dbScenarios.push(...newScenarios);
+    }
+}
+
 async function fuseStoryWithDb(story) {
 	const result = await mongo.getOneStory(parseInt(story.story_id, 10));
 	if (result !== null) {
-		const existingScenarioIds = new Set(result.scenarios.map(s => s.scenario_id));
-		const newScenarios = story.scenarios.filter(scenario => !existingScenarioIds.has(scenario.scenario_id));
-    	const updatedScenarios = [...result.scenarios, ...newScenarios];
-		story.scenarios = updatedScenarios;
+
+		// update scenarios in db in case new testruns have been added
+		updateTestrunSteps(result.scenarios, story.scenarios);
+
+		// add scenarios for new xray steps
+        addScenariosToDb(result.scenarios, story.scenarios);
+ 
+		story.scenarios = result.scenarios;
 		story.background = result.background;
 		story.lastTestPassed = result.lastTestPassed;
 	} else {
