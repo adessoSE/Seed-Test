@@ -151,7 +151,7 @@ export class ManagementService {
         {
           withCredentials: true,
           responseType: "json", //Array of strings expected, if story title changes are needed
-          params: { repo_id: repo_id },
+          params: { projectName: projectName, repo_id: repo_id },
         }
       );
     }
