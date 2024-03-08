@@ -86,7 +86,7 @@ router.delete('/:repo_id/:_id', async (req, res) => {
 	}
 });
 
-//Import new project
+// Import into new project
 router.post('/upload/import/', upload.single('file'), async (req, res) => {
 	try {
 		if (req.query.projectName) {
@@ -98,7 +98,7 @@ router.post('/upload/import/', upload.single('file'), async (req, res) => {
 	}
 });
 
-//Import into existing project
+// Import into existing project
 router.put('/upload/import/', upload.single('file'), async (req, res) => {
 	try {
 		if (req.query.repo_id) {

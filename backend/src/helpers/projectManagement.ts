@@ -532,9 +532,34 @@ async function importProject(file, repo_id?, projectName?) {
 
     if (repo_id) {
       // Perform a PUT request for an existing project
-      //Return Array of Strings/Ids needed for name change => still not final
+      //TODO: Return Array of Strings/Ids needed for name change? => still not final thought; as of now predetermined modes
       console.log("Performing a PUT request for an existing project");
-      return "We are in PUT";
+
+      //Begin Transaction!
+      await session.withTransaction(async (session) => {
+        // Check for duplicate names
+        const storyConflicts = await nameCheckStory();
+        const blockConflicts = await nameCheckBlock();
+        const groupConflicts = await nameCheckGroup();
+
+        // Concatenate the results into a single array
+        const allConflicts = storyConflicts.concat(
+          blockConflicts,
+          groupConflicts
+        );
+
+        // Log or use the combined conflicts here
+        console.log("All conflicting names:", allConflicts);
+
+        await importStories(repo_id.toHexString());
+        await importBlocks(
+          repo_id.toHexString(),
+          await mongo.getOneRepositoryById(repo_id).repoName
+        );
+        await importGroups(repo_id.toHexString());
+      });
+
+      return "";
     } else {
       // Perform a POST request for a new project
       console.log("Performing a POST request for a new project");
@@ -542,7 +567,6 @@ async function importProject(file, repo_id?, projectName?) {
       //Begin Transaction!
       await session.withTransaction(async (session) => {
         //Create new repo with some exported information
-        console.log("We are in Transition!");
         const newRepo = await mongo.createRepo(repoData.owner, projectName);
         if (
           typeof newRepo === "string" &&
@@ -553,10 +577,10 @@ async function importProject(file, repo_id?, projectName?) {
           console.log("Repository already existing!");
           throw new Error(newRepo); // Throw an error with the message
         }
-        importStories(newRepo.toHexString());
+        await importStories(newRepo.toHexString());
         console.log(groupMapping);
-        importBlocks(newRepo.toHexString(), projectName);
-        importGroups(newRepo.toHexString());
+        await importBlocks(newRepo.toHexString(), projectName);
+        await importGroups(newRepo.toHexString());
       });
 
       return ""; //As we are in POST, we just return an empty String, e.g. no names have to be changed
