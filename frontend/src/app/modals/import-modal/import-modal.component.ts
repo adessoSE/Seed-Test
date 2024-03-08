@@ -37,7 +37,7 @@ export class ImportModalComponent implements OnInit {
       this.errorMessage = "Please enter a project name.";
       return;
     }
-    this.managmentService
+    const toRename = this.managmentService
       .importProject(file, this.importingRepoId, this.projectName)
       .subscribe((ret) => {
         console.log(ret);
