@@ -353,8 +353,6 @@ async function importProject(file, repo_id?, projectName?) {
   const session = await client.startSession();
   console.log(session.inTransaction());
   const zip = new AdmZip(file.buffer);
-  console.log(repo_id);
-  console.log(projectName);
   try {
     // Extract the stories and groups data
     const storiesFolder = "stories_data";

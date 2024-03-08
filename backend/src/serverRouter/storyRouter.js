@@ -86,6 +86,30 @@ router.delete('/:repo_id/:_id', async (req, res) => {
 	}
 });
 
+//Import new project
+router.post('/upload/import/', upload.single('file'), async (req, res) => {
+	try {
+		if (req.query.projectName) {
+			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName);
+			res.status(200).json(result);
+		} else res.status(200).json('');
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+//Import into existing project
+router.put('/upload/import/', upload.single('file'), async (req, res) => {
+	try {
+		if (req.query.repo_id) {
+			const result = pmHelper.importProject(req.file, req.query.repo_id);
+			res.status(200).json(result);
+		} else res.status(200).json('');
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 // update only Scenariolist
 router.patch('/:story_id', async (req, res) => {
 	try {
@@ -173,29 +197,6 @@ router.get('/download/export/:repo_id', async (req, res) => {
 		const version = req.query.version_id ? req.query.version_id : '';
 		const file = await pmHelper.exportProject(req.params.repo_id, version);
 		res.send(file);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-router.post('/upload/import/', upload.single('file'), async (req, res) => {
-	try {
-		if (req.query.projectName) {
-			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName);
-			res.status(200).json(result);
-		} else res.status(200).json('');
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-router.put('/upload/import/', upload.single('file'), async (req, res) => {
-	try {
-		console.log("Routing a PUT")
-		if (req.query.repo_id) {
-			const result = pmHelper.importProject(req.file, req.query.repo_id);
-			res.status(200).json(result);
-		} else res.status(200).json('');
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
