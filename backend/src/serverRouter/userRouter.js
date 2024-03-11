@@ -455,7 +455,7 @@ async function handleTestIssue(issue, options, Host) {
 		for (const step of steps) {
 			const { fields } = step;
 			// add story description
-			const stepInfo = [`\n----- Scenario ${step.index} -----`];
+			const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
 			stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
 			stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
 			stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
@@ -471,15 +471,15 @@ async function handleTestIssue(issue, options, Host) {
 					const testRunDetails = await (await fetch(`http://${Host}/rest/raven/2.0/api/testrun/${testRun.id}`, options)).json();
 					for (const testRunStep of testRunDetails.steps) {
 						// compare given, action and expected field
-						const givenNormalized = fields.Given ? fields.Given.value : '';
-						const actionNormalized = fields.Action ? fields.Action.value.raw : '';
-						const expectedResultNormalized = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
-						const testRunGivenNormalized = testRunStep.fields.Given ? extractRaw(testRunStep.fields.Given.value) : '';
-						const testRunActionNormalized = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
-						const testRunExpectedResultNormalized = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
-						if (givenNormalized === testRunGivenNormalized
-							&& actionNormalized === testRunActionNormalized
-							&& expectedResultNormalized === testRunExpectedResultNormalized) {
+						const stepGiven = fields.Given ? fields.Given.value : '';
+						const stepAction = fields.Action ? fields.Action.value.raw : '';
+						const stepExpected = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
+						const testRunGiven = testRunStep.fields.Given ? extractRaw(testRunStep.fields.Given.value) : '';
+						const testRunAction = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
+						const testRunExpected = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
+						if (stepGiven === testRunGiven
+							&& stepGiven === testRunAction
+							&& stepExpected === testRunExpected) {
 							// add equal steps to list
 							matchingSteps.push({
 								testRunId: testRun.id,
