@@ -29,3 +29,8 @@
 .error-message {
   font-size: 18px;
 }
+
+.warning-text {
+  color: red;
+}
+

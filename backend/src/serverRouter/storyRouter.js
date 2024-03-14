@@ -90,7 +90,7 @@ router.delete('/:repo_id/:_id', async (req, res) => {
 router.post('/upload/import/', upload.single('file'), async (req, res) => {
 	try {
 		if (req.query.projectName) {
-			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName);
+			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName, req.query.importMode);
 			res.status(200).json(result);
 		} else res.status(200).json('');
 	} catch (error) {
@@ -102,7 +102,7 @@ router.post('/upload/import/', upload.single('file'), async (req, res) => {
 router.put('/upload/import/', upload.single('file'), async (req, res) => {
 	try {
 		if (req.query.repo_id) {
-			const result = pmHelper.importProject(req.file, req.query.repo_id);
+			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName, req.query.importMode);
 			res.status(200).json(result);
 		} else res.status(200).json('');
 	} catch (error) {

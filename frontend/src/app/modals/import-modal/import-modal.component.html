@@ -16,7 +16,6 @@
 </div>
 <div mat-dialog-content>
   <form (ngSubmit)="importTestCases(file)" #importForm="ngForm">
-
     <div class="error-container" *ngIf="errorMessage">
       <mat-icon class="error-icon">error</mat-icon>
       <div class="error-message">{{ errorMessage }}</div>
@@ -50,7 +49,7 @@
       (ngModelChange)="onProjectChange()"
     />
 
-    <!-- Zeige das Eingabefeld für die Suche basierend auf isNewProject -->
+    <!-- Zeige das Eingabefeld für die Suche basierend auf !isNewProject -->
 
     <div [hidden]="isNewProject">
       <input
@@ -60,9 +59,17 @@
       />
 
       <mat-form-field appearance="standard" class="filterFormField">
-        <mat-label [hidden]="(filterRepositories(searchTerm).length === 0)">Project</mat-label>
-        <mat-label [hidden]="!(filterRepositories(searchTerm).length === 0)">No Projects found</mat-label>
-        <mat-select #ngSelect [(ngModel)]="importingRepoId" (ngModelChange)="onProjectChange()">
+        <mat-label [hidden]="filterRepositories(searchTerm).length === 0"
+          >Project</mat-label
+        >
+        <mat-label [hidden]="!(filterRepositories(searchTerm).length === 0)"
+          >No Projects found</mat-label
+        >
+        <mat-select
+          #ngSelect
+          [(ngModel)]="importingRepoId"
+          (ngModelChange)="onProjectChange()"
+        >
           <mat-option
             *ngFor="let repo of filterRepositories(searchTerm)"
             [value]="repo._id"
@@ -70,11 +77,35 @@
           >
         </mat-select>
       </mat-form-field>
+      <div class="toggle-container">
+        <span class="import-label">Import mode:</span>
+        <mat-slide-toggle
+          [(ngModel)]="importMode"
+          color="primary"
+          (ngModelChange)="onImportToggleChange()"
+        >
+        </mat-slide-toggle>
+        <span class="toggle-label" [ngClass]="{ 'text-primary': !importMode }">
+          {{ importMode ? "Rename mode" : "Overwrite mode" }}
+        </span>
+        <span class="warning-text" *ngIf="!importMode">
+          Caution: Overwriting existing test cases cannot be undone!
+        </span>
+      </div>
     </div>
     <br />
-    <button mat-raised-button class="normalButton" color="primary" type="submit">Import</button>
+    <button
+      mat-raised-button
+      class="normalButton"
+      color="primary"
+      type="submit"
+    >
+      Import
+    </button>
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button mat-dialog-close class="normalButton" color="warn">Cancel</button>
+  <button mat-button mat-dialog-close class="normalButton" color="warn">
+    Cancel
+  </button>
 </div>

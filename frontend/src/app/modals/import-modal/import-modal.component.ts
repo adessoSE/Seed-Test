@@ -12,6 +12,7 @@ import { ApiService } from "../../Services/api.service";
 })
 export class ImportModalComponent implements OnInit {
   isNewProject: boolean = false; // default value, overwritten by user toggle
+  importMode: boolean = true; //default value (Renaming)
   projectName: string = "";
   searchTerm: string = "";
   inputData: any;
@@ -37,8 +38,8 @@ export class ImportModalComponent implements OnInit {
       this.errorMessage = "Please enter a project name.";
       return;
     }
-    const toRename = this.managmentService
-      .importProject(file, this.importingRepoId, this.projectName)
+    this.managmentService
+      .importProject(file, this.importingRepoId, this.projectName, this.importMode)
       .subscribe((ret) => {
         console.log(ret);
       });
@@ -86,6 +87,12 @@ export class ImportModalComponent implements OnInit {
     } else {
       this.projectName = "";
     }
+    this.isNewProject = !this.isNewProject; // Toggle isNewProject
+  }
+
+  onImportToggleChange() {
+    this.importMode = !this.importMode; // Toggle importMode
+    console.log(this.importMode ? "We are in the renaming mode" : "We are in the overwriting mode");
   }
 
   onProjectChange() {

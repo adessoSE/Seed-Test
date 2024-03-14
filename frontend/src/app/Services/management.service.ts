@@ -128,9 +128,10 @@ export class ManagementService {
    * @param repo_id: ID of the existing project
    * @param projectName: If a new project is being created, this is the name used
    * @param file: File which should be imported
+   * @param import: Determines mode of duplicationHandling true for renaming, false for overwriting
    * @returns
    */
-  importProject(file: File, repo_id: string, projectName: string): Observable<Blob> {
+  importProject(file: File, repo_id: string, projectName: string, importMode: boolean): Observable<Blob> {
     const formData: FormData = new FormData();
     formData.append("file", file, file.name);
 
@@ -141,7 +142,7 @@ export class ManagementService {
         {
           withCredentials: true,
           responseType: "json",
-          params: { projectName: projectName, repo_id: repo_id },
+          params: { projectName: projectName },
         }
       );
     } else {
@@ -150,8 +151,8 @@ export class ManagementService {
         formData,
         {
           withCredentials: true,
-          responseType: "json", //Array of strings expected, if story title changes are needed
-          params: { projectName: projectName, repo_id: repo_id },
+          responseType: "json",
+          params: { projectName: projectName, repo_id: repo_id, importMode: importMode },
         }
       );
     }
