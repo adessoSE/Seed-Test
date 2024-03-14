@@ -128,7 +128,7 @@ export class ManagementService {
    * @param repo_id: ID of the existing project
    * @param projectName: If a new project is being created, this is the name used
    * @param file: File which should be imported
-   * @param import: Determines mode of duplicationHandling true for renaming, false for overwriting
+   * @param importMode: Determines mode of duplicationHandling true for renaming, false for overwriting
    * @returns
    */
   importProject(file: File, repo_id: string, projectName: string, importMode: boolean): Observable<Blob> {
