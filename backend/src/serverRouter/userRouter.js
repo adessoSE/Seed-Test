@@ -478,7 +478,7 @@ async function handleTestIssue(issue, options, Host) {
 						const testRunAction = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
 						const testRunExpected = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
 						if (stepGiven === testRunGiven
-							&& stepGiven === testRunAction
+							&& stepAction === testRunAction
 							&& stepExpected === testRunExpected) {
 							// add equal steps to list
 							matchingSteps.push({
