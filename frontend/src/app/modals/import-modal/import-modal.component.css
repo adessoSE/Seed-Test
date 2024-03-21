@@ -34,3 +34,38 @@
   color: red;
 }
 
+.searchInputProject, .projectNameInput{
+  border: none;
+  border-bottom: 1px solid var(--brown-grey);
+  font-weight: normal;
+  width: 50%;
+  max-height: 2em;
+  margin-top: 1.75em;
+}
+.searchInputProject:focus, .projectNameInput:focus{
+  outline: none;
+}
+.searchProject{
+  display: flex;
+  align-items: end;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+.searchFieldContainer, .projectDropDownContainer{
+  flex: 1;
+}
+.searchFieldContainer{
+  display: flex;
+  align-items: end;
+}
+.searchFieldContainer .searchInputProject{
+  width: 100%;
+}
+.searchInputProject{
+  border: none;
+  border-bottom: 1px solid var(--brown-grey);
+  font-weight: normal;
+  width: 50%;
+  max-height: 2em;
+  margin-top: 1.75em;
+}

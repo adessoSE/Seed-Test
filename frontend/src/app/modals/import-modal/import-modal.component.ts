@@ -1,8 +1,13 @@
-import { Component, OnInit, Inject } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { AfterViewChecked, AfterViewInit, Component, ContentChild, ElementRef, OnInit, Output, ViewChild, ViewChildren } from "@angular/core";
 import { RepositoryContainer } from "../../model/RepositoryContainer";
 import { ManagementService } from "../../Services/management.service";
 import { ApiService } from "../../Services/api.service";
+import { FormControl, NgForm, UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
+import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
+import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
+import { ProjectService } from "../../Services/project.service";
+import { MatSelect } from "@angular/material/select";
 //import AdmZip from "adm-zip";
 
 @Component({
@@ -10,34 +15,56 @@ import { ApiService } from "../../Services/api.service";
   templateUrl: "./import-modal.component.html",
   styleUrls: ["./import-modal.component.css"],
 })
-export class ImportModalComponent implements OnInit {
-  isNewProject: boolean = false; // default value, overwritten by user toggle
-  importMode: boolean = true; //default value (Renaming)
+export class ImportModalComponent implements AfterViewChecked {
+
+
+  /**
+ * Model Reference for open/closing
+ */
+  modalReference: NgbModalRef;
+
+  isNewProject: boolean; // default value, overwritten by user toggle
+  importMode: boolean; //default value (Renaming)
   projectName: string = "";
   searchTerm: string = "";
-  inputData: any;
+
   importingRepoId: string;
   repoList: RepositoryContainer[];
+  searchList: RepositoryContainer[] = [];
+  
+
   errorMessage: string;
   file: File;
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private ref: MatDialogRef<ImportModalComponent>,
-    private apiService: ApiService,
-    private managmentService: ManagementService
-  ) {
-    this.repoList = data.repoList;
-  }
 
-  ngOnInit(): void {
-    this.inputData = this.data;
-  }
+  @ViewChild('importProjectModal', { static: true }) importProjectModal: ImportModalComponent;
 
-  importTestCases(file) {
-    if (this.isNewProject && !this.projectName) {
-      this.errorMessage = "Please enter a project name.";
-      return;
+  toggleNewProject = new UntypedFormControl(false);
+  toggleImportMode = new UntypedFormControl(false);
+
+  constructor( private apiService: ApiService, 
+    private modalService: NgbModal, 
+    private managmentService: ManagementService,
+    public router: Router,
+    public projectService: ProjectService) {
     }
+
+
+  
+  ngAfterViewChecked() {
+    this.isNewProject = this.toggleNewProject.value;
+    this.importMode = this.toggleImportMode.value;
+  }
+  /**
+   * Opens the import projects modal
+   */
+  openImportProjectModal(repositories) {
+    this.repoList = repositories;
+    this.modalReference = this.modalService.open(this.importProjectModal, { ariaLabelledBy: 'modal-basic-titles' });
+  }
+
+ 
+  importTestCases(file, form: NgForm) {
+    this.projectName = form.value.projectName;
     this.managmentService
       .importProject(file, this.importingRepoId, this.projectName, this.importMode)
       .subscribe((ret) => {
@@ -47,10 +74,9 @@ export class ImportModalComponent implements OnInit {
 
   handleFileInput(event: any) {
     const file = event.target.files[0];
-    const maxSizeInBytes = 10485760; // 10 MB (10 * 1024 * 1024 Bytes)
+    const maxSizeInBytes = 10485760;
 
     if (file) {
-      // Überprüfen Sie die Dateigröße
       if (file.size > maxSizeInBytes) {
         this.errorMessage =
           "The file is too large. Please select a smaller file.";
@@ -58,7 +84,6 @@ export class ImportModalComponent implements OnInit {
         this.errorMessage =
           "Invalid file format. Please select a valid .zip file.";
       } else {
-        // Dateiformat und Größe sind gültig, setzen Sie die Fehlermeldung auf null (kein Fehler)
         this.errorMessage = null;
         console.log("Import - RepoID: ", this.importingRepoId);
         console.log("Import - File name: ", file.name);
@@ -70,15 +95,6 @@ export class ImportModalComponent implements OnInit {
     }
   }
 
-  filterRepositories(searchTerm: string) {
-    if (!searchTerm) {
-      return this.repoList;
-    }
-    return this.repoList.filter((repo) =>
-      repo.value.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-
   onSlideToggleChange() {
     //Zurücksetzung der Eingaben bei Projekttoggle
     if (this.isNewProject) {
@@ -87,12 +103,27 @@ export class ImportModalComponent implements OnInit {
     } else {
       this.projectName = "";
     }
-    this.isNewProject = !this.isNewProject; // Toggle isNewProject
+    // this.isNewProject = this.importForm.get('isNewProject').value;
   }
 
   onImportToggleChange() {
-    this.importMode = !this.importMode; // Toggle importMode
     console.log(this.importMode ? "We are in the renaming mode" : "We are in the overwriting mode");
+  }
+
+  searchRepos(form?: NgForm) {
+    const matSelectElement = document.getElementById("projectDropDownSelect");
+
+    if (matSelectElement && this.searchTerm) {
+      matSelectElement.click();
+    }
+
+    const inputElement = document.querySelector('.searchInputProject') as HTMLInputElement;
+    inputElement.focus();
+
+    this.searchTerm = form.value.searchTerm.trim().toLowerCase();
+    this.searchList = this.repoList.filter(repo => repo.value.toLowerCase().includes(this.searchTerm));
+ 
+    return this.searchList;
   }
 
   onProjectChange() {
