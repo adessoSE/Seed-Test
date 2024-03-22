@@ -130,10 +130,10 @@ router.post('/uploadFile/:repoId/:filename', async (req, res) => {
 
 		// Readable stream end event
 		req.on('end', async () => {
-			const fileId = await mongo.fileUpload(filename, repoId, data);
+			const file = await mongo.fileUpload(filename, repoId, data);
 
 			// Respond to the client
-			res.status(200).json({filename: filename, _id:fileId });
+			res.status(200).json(file);
 		});
 	} catch (error) {
 		handleError(res, error, error, 500);

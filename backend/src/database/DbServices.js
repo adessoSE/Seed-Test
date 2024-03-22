@@ -1337,17 +1337,35 @@ async function fileUpload(filename, repoId, file) {
 	try {
 		const db = dbConnection.getConnection();
 		const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+		const repoObjId = new ObjectId(repoId);
 		const id = new ObjectId();
+		//base filename may be the same as filename, excluding extension
+		const baseFilename = filename.replace(/\s?(\(\d+\))?\.\w+$/, '');
+		// the regex searches for files <filename> and any <filename> (0-9)
+		// eslint-disable-next-line no-useless-escape
+		const existingFiles = await db.collection('GridFS.files').find({ filename: { $regex: `^${baseFilename}` }, metadata: { repoId: repoObjId } }, { filename: 1 }).toArray();
+		const existingFilenames = existingFiles.map((file) => file.filename);
+		const newFilename = generateUniqueFilename(existingFilenames, baseFilename, filename);
+
 		return new Promise((resolve, reject) => {
 			str(JSON.stringify(file))
-				.pipe(bucket.openUploadStreamWithId(id, filename, { metadata: { repoId: new ObjectId(repoId) } }))
+				.pipe(bucket.openUploadStreamWithId(id, newFilename, { metadata: { repoId: repoObjId } }))
 				.on('error', async (error) => reject(error))
-				.on('finish', async () => resolve(id));
+				.on('finish', async () => resolve({_id: id, filename: newFilename, uploadDate: new Date(Date.now()).toISOString(), metadata: { repoId: repoObjId } }));
 		});
 	} catch (e) {
 		console.log('ERROR in file upload: ', e);
 		throw e;
 	}
+}
+
+function generateUniqueFilename(existingFilenames, baseFilename, filename) {
+	let newFilename = filename;
+	let count = 2;
+	while (existingFilenames.includes(newFilename)) {
+		newFilename = baseFilename + ' (' + count++ + ').' + filename.split('.').pop();
+	}
+	return newFilename;
 }
 
 async function deleteFile(fileId) {
