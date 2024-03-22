@@ -78,15 +78,6 @@ function getExamples(steps) {
 	return `${data}\n`;
 }
 
-// parse Steps from stepDefinition container to feature content
-async function parseSteps(steps) {
-	let data = '';
-	if (steps.given !== undefined) data += `${getSteps(steps.given, Object.keys(steps)[0])}\n`;
-	if (steps.when !== undefined) data += `${getSteps(steps.when, Object.keys(steps)[1])}\n`;
-	if (steps.then !== undefined) data += `${getSteps(steps.then, Object.keys(steps)[2])}\n`;
-	return data;
-}
-
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, storyID) {
 	let data = '';
@@ -311,15 +302,17 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 				...additionalParams
 			});
 		} else {
-			scenario.stepDefinitions.example.forEach((index) => {
-				if (index > 0) {
-					parameters.scenarios.push({
-						oneDriver: driver,
-						...additionalParams
-					});
-				}
-			});
+			// eslint-disable-next-line guard-for-in
+			for (const exampleIndex in scenario.stepDefinitions.example) {
+				console.log('examples');
+				if (exampleIndex === 0) continue;
+				parameters.scenarios.push({
+					oneDriver: driver,
+					...additionalParams
+				});
+			}
 		}
+		console.log('my Params ', parameters)
 	});
 	return { scenarios, parameters };
 }
