@@ -593,10 +593,11 @@ When(
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
-			await driver.sleep(100 + currentParameters.waitTime);
-		});
-	}
-);
+        if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
+					throw Error(e);
+			  await driver.sleep(100 + currentParameters.waitTime);
+		  });
+  });
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
