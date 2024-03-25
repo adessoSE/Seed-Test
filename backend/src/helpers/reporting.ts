@@ -286,6 +286,7 @@ function featureResult(featureReport: any, feature: any) {
     console.log(`NUMBER OF SCENARIOS IN REPORT: ${featureReport.elements.length}`);
     for (const scenReport of featureReport.elements) {
         const scenario = feature.scenarios[featureReport.elements.indexOf(scenReport)];
+        if (!scenario) continue;
         let result = scenarioResult(scenReport, scenario)
 
         //increment FeatureSteps
