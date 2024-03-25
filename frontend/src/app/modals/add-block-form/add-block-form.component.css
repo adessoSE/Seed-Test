@@ -99,13 +99,6 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     flex-direction: row;
 }
 
-
-.infoIcon{
-    color: var(--white);
-    margin-left: 5px;
-    margin-right: 5px;
-}
-
 #addBlockFooter{
     justify-content: space-between;
 }

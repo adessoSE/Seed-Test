@@ -53,10 +53,4 @@
 :host ::ng-deep .darkTheme.uk-dropdown {
   background-color: #60767b;
   color: var(--light-blue);
-}  
-
-.infoIconHeader{
-    color: var(--white);
-    margin-left: 5px;
-    margin-right: 5px;
-}
+} 
