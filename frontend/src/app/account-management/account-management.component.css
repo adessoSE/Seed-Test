@@ -252,7 +252,7 @@ h2, h1{
     color: var(--light-blue);
 }
 
-#downloadInfo {
+#downloadInfo #exportInfo #importInfo {
     width: 14px;
     height: 15px;
 }

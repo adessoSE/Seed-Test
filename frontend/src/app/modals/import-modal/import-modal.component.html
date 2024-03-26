@@ -1,0 +1,85 @@
+<!---Modal for delete Account------>
+<ng-template #importProjectModal let-modal>
+  <app-layout-modal></app-layout-modal>
+  <div class="modal-header">
+    <span class="MediumSubline1H4 modal-title">Import project</span>
+    <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
+      <span rel="def">You are about to import test cases into either an existing project or a
+        new project. Select the .zip file you want to upload and choose if you
+        want to import into an existing project or create a new project.
+      </span>
+    </dfn>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <form #importForm="ngForm" novalidate (ngSubmit)="importTestCases(file, importForm)">
+    <div class="modal-body">
+      <div class="error-container" *ngIf="errorMessage">
+        <mat-icon class="error-icon">error</mat-icon>
+        <div class="error-message">{{ errorMessage }}</div>
+      </div>
+      <input type="file" [(ngModel)]="chooseFile" name="fileInput" (change)="handleFileInput($event)" accept=".zip"
+        required />
+      <div class="submitForm">
+        <div class="form-group" id="deleteText">
+          <div class="modalsContent">
+            <div class="toggle-container">
+              <span class="import-label">Import into:</span>
+              <mat-slide-toggle [formControl]="toggleNewProject" color="primary" (ngModelChange)="onSlideToggleChange()"></mat-slide-toggle>
+              <span class="toggle-label" [ngClass]="{ 'text-primary': isNewProject }">{{ isNewProject ? "New Project" :
+                "Existing Project" }}
+              </span>
+            </div>
+
+            <!-- Zeige das Eingabefeld für den Projektname basierend auf isNewProject -->
+
+            <input *ngIf="isNewProject" type="text" name="projectName" class="projectNameInput" [(ngModel)]="projectName"
+              placeholder="Project name" (input)="onProjectChange(importForm)" required />
+
+            <!-- Zeige das Eingabefeld für die Suche basierend auf !isNewProject -->
+
+            <div *ngIf="!isNewProject">
+              <div class="searchProject">
+                <div class="searchFieldContainer">
+                  <em class="material-icons" id="searchBarIcons">search</em>
+                  <input class="searchInputProject" type="text" [(ngModel)]="searchTerm" name="searchTerm" (input)="searchRepos(importForm)"
+                    placeholder="Search for project" />
+                </div>
+                <div class="projectDropDownContainer">
+                    <mat-form-field appearance="standard" style="width: 100%;">
+                      <mat-label>Project</mat-label>
+                      <mat-select id="projectDropDownSelect" [(ngModel)]="selectedProject" name="selectedProject">
+                        <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" 
+                          [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.value}}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                </div>
+              </div>
+              <div class="toggle-container">
+                <span class="import-label">Import mode:</span>
+                <mat-slide-toggle [formControl]="toggleImportMode" color="primary"
+                  (ngModelChange)="onImportToggleChange()"></mat-slide-toggle>
+                <span class="toggle-label" [ngClass]="{ 'text-primary': !importMode }">
+                  {{ importMode ? "Rename mode" : "Overwrite mode" }}
+                </span>
+                <span class="warning-text" *ngIf="!importMode">
+                  Caution: Overwriting existing test cases cannot be undone!
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button mat-raised-button class="normalButton" color="primary" type="submit" [disabled]="!importForm.valid"
+        [ngStyle]="{'opacity': !importForm.valid ? '50%': '100%'}">
+        Import
+      </button>
+      <button mat-button (click)="modal.dismiss('Cross click')" class="normalButton" color="warn">
+        Cancel
+      </button>
+    </div>
+  </form>
+</ng-template>
