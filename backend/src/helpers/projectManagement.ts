@@ -691,7 +691,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           await importGroups(true, newRepo.toHexString());
         });
 
-        return ""; //As we are in POST, we just return an empty String, e.g. no names have to be changed
+        return "";
       }
   } catch (error) {
     console.error("Import failed:", error);
