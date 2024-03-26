@@ -40,6 +40,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     @ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
     @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
     @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
+    @ViewChild('importProjectModal') importProjectModal: ImportModalComponent;
 
     /**
      * Viewchild to auto open mat-select
@@ -342,13 +343,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     openImportPopup() {
-        this.dialog.open(ImportModalComponent,{
-            width: '60%',
-            enterAnimationDuration: '180ms',
-            exitAnimationDuration: '180ms',
-            data:{
-                repoList: this.repositories
-            }
-        })
+        this.importProjectModal.openImportProjectModal(this.repositories);
     }
 }
