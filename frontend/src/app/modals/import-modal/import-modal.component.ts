@@ -31,7 +31,7 @@ export class ImportModalComponent implements AfterViewChecked {
   importingRepoId: string;
   repoList: RepositoryContainer[];
   searchList: RepositoryContainer[] = [];
-  
+
 
   errorMessage: string;
   file: File;
@@ -41,15 +41,15 @@ export class ImportModalComponent implements AfterViewChecked {
   toggleNewProject = new UntypedFormControl(false);
   toggleImportMode = new UntypedFormControl(false);
 
-  constructor( private apiService: ApiService, 
-    private modalService: NgbModal, 
+  constructor(private apiService: ApiService,
+    private modalService: NgbModal,
     private managmentService: ManagementService,
     public router: Router,
     public projectService: ProjectService) {
-    }
+  }
 
 
-  
+
   ngAfterViewChecked() {
     this.isNewProject = this.toggleNewProject.value;
     this.importMode = this.toggleImportMode.value;
@@ -62,9 +62,9 @@ export class ImportModalComponent implements AfterViewChecked {
     this.modalReference = this.modalService.open(this.importProjectModal, { ariaLabelledBy: 'modal-basic-titles' });
   }
 
- 
+
   importTestCases(file, form: NgForm) {
-    this.projectName = form.value.projectName;
+    this.importingRepoId = form.value.selectedProject;
     this.managmentService
       .importProject(file, this.importingRepoId, this.projectName, this.importMode)
       .subscribe((ret) => {
@@ -96,14 +96,9 @@ export class ImportModalComponent implements AfterViewChecked {
   }
 
   onSlideToggleChange() {
-    //Zurücksetzung der Eingaben bei Projekttoggle
     if (this.isNewProject) {
-      this.searchTerm = "";
-      this.importingRepoId = "";
-    } else {
-      this.projectName = "";
+      delete this.projectName;
     }
-    // this.isNewProject = this.importForm.get('isNewProject').value;
   }
 
   onImportToggleChange() {
@@ -122,16 +117,16 @@ export class ImportModalComponent implements AfterViewChecked {
 
     this.searchTerm = form.value.searchTerm.trim().toLowerCase();
     this.searchList = this.repoList.filter(repo => repo.value.toLowerCase().includes(this.searchTerm));
- 
+
     return this.searchList;
   }
 
-  onProjectChange() {
-    console.log("Import - RepoID: ", this.importingRepoId);
-    console.log("Import - File name: ", this.file.name);
-    console.log("Import - File type: ", this.file.type);
-    console.log("Import - File size: ", this.file.size, " bytes");
-    console.log(this.projectName);
+  onProjectChange(form: NgForm) {
+    this.projectName = form.value.projectName;
+    // console.log("Import - RepoID: ", this.importingRepoId);
+    // console.log("Import - File name: ", this.file.name);
+    // console.log("Import - File type: ", this.file.type);
+    // console.log("Import - File size: ", this.file.size, " bytes");
   }
 
   isValidFileFormat(file: File): boolean {

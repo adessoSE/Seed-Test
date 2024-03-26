@@ -26,7 +26,7 @@
           <div class="modalsContent">
             <div class="toggle-container">
               <span class="import-label">Import into:</span>
-              <mat-slide-toggle [formControl]="toggleNewProject" color="primary"></mat-slide-toggle>
+              <mat-slide-toggle [formControl]="toggleNewProject" color="primary" (ngModelChange)="onSlideToggleChange()"></mat-slide-toggle>
               <span class="toggle-label" [ngClass]="{ 'text-primary': isNewProject }">{{ isNewProject ? "New Project" :
                 "Existing Project" }}
               </span>
@@ -34,8 +34,8 @@
 
             <!-- Zeige das Eingabefeld für den Projektname basierend auf isNewProject -->
 
-            <input *ngIf="isNewProject" type="text" name="projectNameInput" class="projectNameInput" [(ngModel)]="projectName"
-              placeholder="Project name" (keyup)="onProjectChange()" required />
+            <input *ngIf="isNewProject" type="text" name="projectName" class="projectNameInput" [(ngModel)]="projectName"
+              placeholder="Project name" (input)="onProjectChange(importForm)" required />
 
             <!-- Zeige das Eingabefeld für die Suche basierend auf !isNewProject -->
 
@@ -49,8 +49,8 @@
                 <div class="projectDropDownContainer">
                     <mat-form-field appearance="standard" style="width: 100%;">
                       <mat-label>Project</mat-label>
-                      <mat-select id="projectDropDownSelect">
-                        <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id"
+                      <mat-select id="projectDropDownSelect" [(ngModel)]="selectedProject" name="selectedProject">
+                        <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" 
                           [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.value}}</mat-option>
                       </mat-select>
                     </mat-form-field>
