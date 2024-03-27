@@ -251,7 +251,7 @@ async function executeTest(req, mode, story) {
 		'--exit'
 	];
 
-	const cmd = os.platform().includes('win') ? '.cmd' : '';
+	const cmd = os.platform().includes('win32') ? '.cmd' : '';
 	const cucumberCommand = `cucumber-js${cmd}`;
 	const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
 
