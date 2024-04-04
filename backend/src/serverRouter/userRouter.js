@@ -354,7 +354,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		// send request to Jira API
 		try {
 			await fetch(
-				`http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+(labels=Seed-Test+OR+issuetype=Test)&startAt=0&maxResults=200`,
+				`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test)&startAt=0&maxResults=200`,
+				// `http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+(labels=Seed-Test+OR+issuetype=Test)&startAt=0&maxResults=200`,
 				options
 			)
 				.then(async (response) => response.json())
@@ -374,10 +375,12 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 						for (const [index, issue] of json.issues.entries()) {
 							const { scenarioList, testStepDescription } = lstDesc[index];
 
+							const issueDescription = issue.fields.description ? issue.fields.description : '';
+
 							const story = {
 								story_id: issue.id,
 								title: issue.fields.summary,
-								body: issue.fields.description + testStepDescription,
+								body: issueDescription + testStepDescription,
 								scenarios: scenarioList,
 								state: issue.fields.status.name,
 								issue_number: issue.key,
@@ -443,85 +446,85 @@ function extractRaw(givenField) {
 	return '';
 }
 
-// extract test executions and step details for given test issue
-async function handleTestIssue(issue, options, Host) {
+function processTestSteps(steps, resolvedTestRuns) {
 	const scenarioList = [];
 	let testStepDescription = '\n\nTest-Steps:\n';
 
-	try {
-		// api to get all testruns of corresponding test issue
-		const testrunResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
-		const testRuns = await testrunResponse.json();
-
-		// api to get all steps defined in the corresponding test issue
-		const testStepsResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
-		const testSteps = await testStepsResponse.json();
-		const { steps } = testSteps;
-
-		/* iterate through steps and for each step add story description
-		*  and test execution steps
-		*/
-		for (const step of steps) {
-			const { fields } = step;
-			// add story description
-			const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
-			stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
-			stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
-			stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
-			testStepDescription += stepInfo.join('');
-
-			const matchingSteps = [];
-
-			/* run through each testrun and for each test run step that is equal
-			*  to the original test step -> add to matchingStep list
-			*/
-			for (const testRun of testRuns) {
-				try {
-					const testRunDetails = await (await fetch(`http://${Host}/rest/raven/2.0/api/testrun/${testRun.id}`, options)).json();
-					for (const testRunStep of testRunDetails.steps) {
-						// compare given, action and expected field
-						const stepGiven = fields.Given ? fields.Given.value : '';
-						const stepAction = fields.Action ? fields.Action.value.raw : '';
-						const stepExpected = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
-						const testRunGiven = testRunStep.fields.Given ? extractRaw(testRunStep.fields.Given.value) : '';
-						const testRunAction = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
-						const testRunExpected = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
-						if (stepGiven === testRunGiven
-							&& stepAction === testRunAction
-							&& stepExpected === testRunExpected) {
-							// add equal steps to list
-							matchingSteps.push({
-								testRunId: testRun.id,
-								testRunStepId: testRunStep.id
-							});
-						}
-					}
-				} catch (e) {
-					console.error(`Error while fetching details for testrun ${testRun.id}: `, e);
-				}
-			}
-			/* pass matching list to the scenario so each scenario
-			*  comes with a list of steps of test executions
-			*/
-			const scenario = {
-				scenario_id: step.id,
-				name: `${step.id}`,
-				comment: null,
-				stepDefinitions: {
-					given: [],
-					when: [],
-					then: [],
-					example: []
-				},
-				testRunSteps: matchingSteps
-			};
-
-			scenarioList.push(scenario);
+	// iterate through steps and add step description
+	steps.forEach((step) => {
+		if (!step.fields) {
+			console.error(`Fields missing for step ${step.id}`);
+			return;
 		}
-	} catch (e) {
-		console.error('Error while getting test steps', e);
-	}
-	// return list of new scenarios and story description
+
+		const { fields } = step;
+		const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
+		stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
+		stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
+		stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
+		testStepDescription += stepInfo.join('');
+
+		const matchingSteps = [];
+
+		// iterate through all resolved test runs
+		resolvedTestRuns.forEach((testRunDetails) => {
+			if (!testRunDetails.steps) {
+				console.error(`Steps missing for test run ${testRunDetails.id}`);
+				return;
+			}
+			// map test steps to testrun steps
+			testRunDetails.steps.forEach((testRunStep) => {
+				const stepGiven = fields.Given ? fields.Given.value : '';
+				const stepAction = fields.Action ? fields.Action.value.raw : '';
+				const stepExpected = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
+				const testRunGiven = testRunStep.fields.Given ? testRunStep.fields.Given.value : '';
+				const testRunAction = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
+				const testRunExpected = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
+
+				if (stepGiven === testRunGiven && stepAction === testRunAction
+					&& stepExpected === testRunExpected) {
+					matchingSteps.push({
+						testRunId: testRunDetails.id,
+						testRunStepId: testRunStep.id
+					});
+				}
+			});
+		});
+
+		const scenario = {
+			scenario_id: step.id,
+			name: `${step.id}`,
+			stepDefinitions: {
+				given: [],
+				when: [],
+				then: [],
+				example: []
+			},
+			testRunSteps: matchingSteps
+		};
+
+		scenarioList.push(scenario);
+	});
+
+	return { scenarioList, testStepDescription };
+}
+
+async function handleTestIssue(issue, options, Host) {
+	// Fetch all test runs for the given issue
+	const testrunResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
+	const testRuns = await testrunResponse.json();
+
+	// Fetch details for all test runs
+	const testRunDetailsPromises = testRuns.map((testRun) => fetch(`http://${Host}/rest/raven/2.0/api/testrun/${testRun.id}`, options).then(response => response.json()));
+	const resolvedTestRuns = await Promise.all(testRunDetailsPromises);
+
+	// Fetch all test steps defined for the given issue
+	const testStepsResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
+	const testSteps = await testStepsResponse.json();
+
+	// Process the test steps with corresponding testrun
+	const { scenarioList, testStepDescription } = processTestSteps(testSteps.steps, resolvedTestRuns);
+
 	return { scenarioList, testStepDescription };
 }
 
