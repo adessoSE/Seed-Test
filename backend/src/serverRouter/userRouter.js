@@ -361,11 +361,18 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 				.then(async (json) => {
 					try {
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
-						for (const issue of json.issues) {
-							let testStepDescription = [];
-							let scenarioList = [];
-							// eslint-disable-next-line curly
-							if (issue.fields.issuetype.name === 'Test') ({ scenarioList, testStepDescription } = await handleTestIssue(issue, options, Host));
+
+						const asyncHandleTestIssue = json.issues.map((issue) => {
+							if (issue.fields.issuetype.name === 'Test') return handleTestIssue(issue, options, Host);
+							return { scenarioList: [], testStepDescription: '' };
+						});
+
+						const lstDesc = await Promise.all(asyncHandleTestIssue);
+
+						const stories = [];
+
+						for (const [index, issue] of json.issues.entries()) {
+							const { scenarioList, testStepDescription } = lstDesc[index];
 
 							const story = {
 								story_id: issue.id,
@@ -383,11 +390,13 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 								story.assignee = 'unassigned';
 								story.assignee_avatar_url = null;
 							}
-
-							const entry = await projectMng.fuseStoryWithDb(story, issue.id);
+							stories.push(story);
+						}
+						const fusing = stories.map((story) => projectMng.fuseStoryWithDb(story, story.story_id))
+						await Promise.all(fusing).then((entries) => entries.forEach((entry) => {
 							tmpStories.set(entry._id.toString(), entry);
 							storiesArray.push(entry._id);
-						}
+						}));
 					} catch (e) {
 						console.error('Error while getting Jira issues:', e);
 					}
