@@ -72,7 +72,7 @@ function getExamples(steps) {
 	for (let i = 0; i < steps.length; i++) {
 		// jump if disabled or no valid values
 		// eslint-disable-next-line no-continue
-		if (steps[i].deactivated || !steps[i].values.find((it) => it !== '')) continue;
+		if (steps[i].deactivated || steps[i].values.every((it) => it.trim() === '' || it === 'value')) continue;
 		data += '\n | ';
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
 	}
