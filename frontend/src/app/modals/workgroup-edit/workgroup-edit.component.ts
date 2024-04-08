@@ -197,7 +197,7 @@ export class WorkgroupEditComponent {
     this.loadGlobalSettings();
     this.modalReference = this.modalService.open(this.workgroupEditModal, { ariaLabelledBy: 'modal-basic-titles' });
     this.projectName = project.value;
-
+    if(project.source==='db')
     this.projectService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
       this.workgroupList = res.member;
       this.workgroupOwner = res.owner.email;
