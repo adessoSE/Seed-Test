@@ -11,7 +11,7 @@ export interface MultipleScenario{
     /**
      * example value
      */
-    value: string[];
+    values: string[];
 
     /**
      * checked 
