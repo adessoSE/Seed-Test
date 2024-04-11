@@ -305,7 +305,7 @@ async function updateStory(
 ) {
   try {
     const db = session
-      ? client.db("Seed", session)
+      ? client.db('Seed', session)
       : dbConnection.getConnection();
     const collection = await db.collection(storiesCollection);
     updatedStory._id = new ObjectId(updatedStory._id.toString());
@@ -357,7 +357,7 @@ async function createStoryGroup(
 ) {
   try {
     const db = session
-      ? client.db("Seed", session)
+      ? client.db('Seed', session)
       : dbConnection.getConnection();
     const groups = await db.collection(repositoriesCollection).findOneAndUpdate(
       { _id: new ObjectId(repoID) },
@@ -388,7 +388,7 @@ async function updateStoryGroup(
 ) {
   try {
     const db = session
-      ? client.db("Seed", session)
+      ? client.db('Seed', session)
       : dbConnection.getConnection();
     updatedGroup._id = new ObjectId(updatedGroup._id);
     const collection = await db.collection(repositoriesCollection);
@@ -523,7 +523,7 @@ async function createStory(
 	console.log(session);
 	console.log(client);
     const db = session
-      ? client.db("Seed", session)
+      ? client.db('Seed', session)
       : dbConnection.getConnection();
     const repo = await db
       .collection(repositoriesCollection)
@@ -612,7 +612,7 @@ async function insertStoryIdIntoRepo(
 ) {
   try {
     const db = session
-      ? client.db("Seed", session)
+      ? client.db('Seed', session)
       : dbConnection.getConnection();
     return await db
       .collection(repositoriesCollection)
@@ -924,7 +924,7 @@ async function createRepo(
       groups: [],
     };
     const db = session
-      ? client.db("Seed", session)
+      ? client.db('Seed', session)
       : dbConnection.getConnection();
 	console.log(session, "In DB: ", db);
     const collection = await db.collection(repositoriesCollection);
@@ -1468,7 +1468,7 @@ async function saveBlock(block, session = undefined, client = undefined) {
     block.repositoryId = new ObjectId(block.repositoryId);
     block.owner = new ObjectId(block.owner.toString());
     const db = session
-      ? client.db("Seed", session)
+      ? client.db('Seed', session)
       : dbConnection.getConnection();
     return await db.collection(CustomBlocksCollection).insertOne(block);
   } catch (e) {
@@ -1488,7 +1488,7 @@ async function updateBlock(
     updatedBlock.repositoryId = new ObjectId(updatedBlock.repositoryId);
     updatedBlock.owner = new ObjectId(updatedBlock.owner);
     const db = session
-      ? client.db("Seed", session)
+      ? client.db('Seed', session)
       : dbConnection.getConnection();
     updatedBlock._id = new ObjectId(updatedBlock._id);
     updatedBlock.repositoryId = new ObjectId(updatedBlock.repositoryId);
