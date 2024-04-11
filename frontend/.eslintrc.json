@@ -45,9 +45,7 @@
       "extends": [
         "plugin:@angular-eslint/template/recommended"
       ],
-      "rules": {
-        // "@angular-eslint/template/eqeqeq": "off"
-      }
+      "rules": {}
     }
   ]
 }
