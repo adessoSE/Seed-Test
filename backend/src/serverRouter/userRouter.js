@@ -216,7 +216,6 @@ router.post('/createRepository', async (req, res) => {
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const { repoName, settings } = req.body;
 	try {
-		console.log('update repo (settings) ',repoName, settings)
 		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings);
 		res.status(200).json(repo);
 	} catch (error) {

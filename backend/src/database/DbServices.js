@@ -806,7 +806,7 @@ async function updateRepository(repoID, newName, globalSettings) {
 			repoFilter,
 			{ $set: updateFields },
 			{ returnDocument: 'after' }
-		).catch((err) => console.log('in call error: ', err));
+		)
 
 		return updatedRepo.value;
 	} catch (e) {
