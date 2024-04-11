@@ -5,6 +5,8 @@ import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { Story } from '../model/Story';
+import { HttpHeaders } from '@angular/common/http';
+
 
 /**
  * Service for communication between scenario component and the backend
@@ -36,8 +38,8 @@ export class ScenarioService {
   /**
     * Emits the delete scenario event
   */
-  public deleteScenarioEmitter() {
-    this.deleteScenarioEvent.emit();
+  public deleteScenarioEmitter(xrayEnabled: boolean) {
+    this.deleteScenarioEvent.emit(xrayEnabled);
   }
   /* Emits scenario changed event */
   public scenarioChangedEmitter() {
@@ -63,7 +65,7 @@ export class ScenarioService {
   /* Updating scenario list */
   public updateScenarioList(story_id, scenario_list: Scenario[]): Observable<any> {
     return this.http
-      .patch(this.apiService.apiServer + '/story/' + story_id , scenario_list, ApiService.getOptions())
+      .patch(this.apiService.apiServer + '/story/' + story_id, scenario_list, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -82,14 +84,14 @@ export class ScenarioService {
         console.log('Add new scenario in story ' + storyID + '!', resp);
       }));
   }
-    /**
-    * Add the First Scenario
-    * @param storyID
-    * @returns
-  */
+  /**
+  * Add the First Scenario
+  * @param storyID
+  * @returns
+*/
   public addFirstScenario(storyID): Observable<Scenario> {// not used ?
     return this.http
-      .get<any>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID , ApiService.getOptions())// route doesn't exist
+      .get<any>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions())// route doesn't exist
       .pipe(tap(resp => {
         console.log('Add new scenario in story ' + storyID + '!', resp);
       }));
@@ -125,11 +127,23 @@ export class ScenarioService {
     * @param scenario
     * @returns
   */
-  deleteScenario(storyID: any, scenario: Scenario): Observable<Story> {
-    return this.http
-      .delete<any>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
-      .pipe(tap(() => {
-        //
-      }));
+  deleteScenario(storyID: any, scenario: Scenario, xrayEnabled: boolean): Observable<Story> {
+    if (xrayEnabled) {
+      const headers = new HttpHeaders()
+        .set('x-xray-enabled', xrayEnabled.toString())
+        .set('x-test-key', scenario.testKey.toString());
+      const options = { headers: headers, ...ApiService.getOptions() };
+      return this.http
+        .delete<any>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, options)
+        .pipe(tap(() => {
+          //
+        }));
+    } else {
+      return this.http
+        .delete<any>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
+        .pipe(tap(() => {
+          //
+        }));
+    }
   }
 }

@@ -39,6 +39,7 @@ import { CarouselModule } from "ngx-owl-carousel-o";
 import { ResetPasswordComponent } from "./reset-password/reset-password.component";
 import { ConfirmResetPasswordComponent } from "./confirm-reset-password/confirm-reset-password.component";
 import { DeleteToast } from "./delete-toast";
+import { XrayToast } from "./delete-toast-xray";
 import {
   DEFAULT_TIMEOUT,
   TimeoutInterceptor,
@@ -133,6 +134,7 @@ import { WindowSizeComponent } from './modals/window-size/window-size.component'
     NewExampleComponent,
     ExampleComponent,
     DeleteToast,
+    XrayToast,
     TransferOwnershipToast,
     ConfirmResetPasswordPopupComponent,
     WindowSizeComponent

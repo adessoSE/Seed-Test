@@ -446,7 +446,7 @@ function extractRaw(givenField) {
 	return '';
 }
 
-function processTestSteps(steps, resolvedTestRuns) {
+function processTestSteps(steps, resolvedTestRuns, issueKey) {
 	const scenarioList = [];
 	let testStepDescription = '\n\nTest-Steps:\n';
 
@@ -473,7 +473,6 @@ function processTestSteps(steps, resolvedTestRuns) {
 			}
 			// map test steps to testrun steps
 			testRunDetails.steps.forEach((testRunStep) => {
-				console.log("TESTRUNSTEP", testRunStep.fields);
 				const stepGiven = fields.Given ? fields.Given.value : '';
 				const stepAction = fields.Action ? fields.Action.value.raw : '';
 				const stepExpected = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
@@ -501,7 +500,7 @@ function processTestSteps(steps, resolvedTestRuns) {
 				example: []
 			},
 			testRunSteps: matchingSteps,
-			isXrayScenario: true
+			testKey: issueKey
 		};
 		scenarioList.push(scenario);
 	});
@@ -523,7 +522,7 @@ async function handleTestIssue(issue, options, Host) {
 	const testSteps = await testStepsResponse.json();
 
 	// Process the test steps with corresponding testrun
-	const { scenarioList, testStepDescription } = processTestSteps(testSteps.steps, resolvedTestRuns);
+	const { scenarioList, testStepDescription } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key);
 
 	return { scenarioList, testStepDescription };
 }

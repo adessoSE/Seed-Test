@@ -199,8 +199,8 @@ function updateTestrunSteps(dbScenarios, storyScenarios) {
                     dbScenario.testRunSteps.push(testRunStep);
                 }
             });
-			if(storyScenario.isXrayScenario){
-				dbScenario.isXrayScenario = storyScenario.isXrayScenario;
+			if(storyScenario.testKey){
+				dbScenario.testKey = storyScenario.testKey;
 			}
         }
     });

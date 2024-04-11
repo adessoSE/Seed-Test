@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const pmHelper = require('../../dist/helpers/projectManagement');
+const issueTracker = require('../../dist/models/IssueTracker');
 
 const router = express.Router();
 
@@ -127,14 +128,66 @@ router.put('/:story_id/:_id', async (req, res) => {
 
 // delete scenario
 router.delete('/scenario/:story_id/:_id', async (req, res) => {
+	let dbError = null;
+	let xrayError = null;
+
 	try {
-		await mongo
-			.deleteScenario(req.params.story_id, parseInt(req.params._id, 10));
+		await mongo.deleteScenario(req.params.story_id, parseInt(req.params._id, 10));
 		await helper.updateFeatureFile(req.params.story_id);
-		res.status(200)
-			.json({ text: 'success' });
 	} catch (error) {
-		handleError(res, error, error, 500);
+		console.error('Database error:', error);
+		dbError = error;
+	}
+
+	// if xray enabled, delete xray step in jira
+	const xrayEnabled = req.headers['x-xray-enabled'] === 'true';
+	if (xrayEnabled) {
+		const testKey = req.headers['x-test-key'];
+		try {
+			if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
+				const jiraTracker = issueTracker.IssueTracker
+					.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+				const clearPass = jiraTracker.decryptPassword(req.user.jira);
+				const {
+					AccountName, AuthMethod, Host
+				} = req.user.jira;
+				let authString = `Bearer ${clearPass}`;
+				if (AuthMethod === 'basic') {
+					const auth = Buffer.from(`${AccountName}:${clearPass}`).toString('base64');
+					authString = `Basic ${auth}`;
+				}
+
+				const stepId = req.params._id;
+				const url = `https://${Host}/rest/raven/1.0/api/test/${testKey}/step/${stepId}/`;
+
+				const options = {
+					method: 'DELETE',
+					headers: {
+						'cache-control': 'no-cache',
+						'Content-Type': 'application/json',
+						'Authorization': authString
+					}
+				};
+
+				const response = await fetch(url, options);
+				if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+			} else {
+				console.log('No Jira user provided. (Got undefined)');
+				xrayError = new Error('No Jira user provided.');
+			}
+		} catch (error) {
+			console.error('Error while deleting XRay step:', error);
+			xrayError = error;
+		}
+	}
+
+	if (!dbError && !xrayError) {
+		res.status(200).json({ text: 'Scenario successfully deleted.' });
+	} else {
+		let errorMessage = 'Error during deletion: ';
+		if (dbError) errorMessage += 'Database error. ';
+		if (xrayError) errorMessage += 'Error deleting XRay step.';
+		res.status(500).json({ message: errorMessage });
 	}
 });
 

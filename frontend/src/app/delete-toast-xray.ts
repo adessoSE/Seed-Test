@@ -52,6 +52,9 @@ import { StoryService } from './Services/story.service';
         <a *ngIf="!options.closeButton" class="deleteButton btn btn-pink btn-sm" (click)="deleteToast($event)">
             {{ deleteString }}
         </a>
+        <a *ngIf="!options.closeButton" class="deleteButton btn btn-pink btn-sm" (click)="xrayEnabled = true; deleteToast($event)">
+             Delete with xRay
+        </a>
         <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="remove()">
         {{ cancelString }}
         </a>
@@ -100,7 +103,7 @@ import { StoryService } from './Services/story.service';
     ],
     preserveWhitespaces: false,
   })
-  export class DeleteToast extends Toast implements OnInit {
+  export class XrayToast extends Toast implements OnInit {
     /**
      * Name of the delete button
      */

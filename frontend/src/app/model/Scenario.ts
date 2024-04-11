@@ -72,7 +72,12 @@ export interface Scenario {
     height?: number;
 
     /**
-     * id of corresponding test run in xray
+     * Id of corresponding test run in xray
      */
     testRunSteps?: { testRunId: number; testRunStepId: number }[];
+
+    /*
+    * Xray test key
+    */
+    testKey?: String;
 }

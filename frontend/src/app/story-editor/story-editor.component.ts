@@ -15,6 +15,7 @@ import { StepType } from "../model/StepType";
 import { Background } from "../model/Background";
 import { ToastrService } from "ngx-toastr";
 import { DeleteToast } from "../delete-toast";
+import { XrayToast } from "../delete-toast-xray";
 import { saveAs } from "file-saver";
 import { ThemingService } from "../Services/theming.service";
 import { RenameStoryComponent } from "../modals/rename-story/rename-story.component";
@@ -474,8 +475,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     );
 
     this.deleteScenarioObservable =
-      this.scenarioService.deleteScenarioEvent.subscribe(() => {
-        this.deleteScenario(this.selectedScenario);
+      this.scenarioService.deleteScenarioEvent.subscribe((xrayEnabled: boolean) => {
+        this.deleteScenario(this.selectedScenario, xrayEnabled);
       });
 
     this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(
@@ -688,24 +689,33 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * Opens the delete scenario toast
    * @param scenario
    */
-  showDeleteScenarioToast() {
+  showDeleteScenarioToast($event: any) {
+   
     this.apiService.nameOfComponent("scenario");
+    if($event.testKey){
     this.toastr.warning(
       "Are your sure you want to delete this scenario?  It cannot be restored.",
       "Delete Scenario?",
       {
-        toastComponent: DeleteToast,
+        toastComponent: XrayToast,
       }
-    );
+    );} else {
+      this.toastr.warning(
+        "Are your sure you want to delete this scenario?  It cannot be restored.",
+        "Delete Scenario?",
+        {
+          toastComponent: DeleteToast,
+        }
+    );}
   }
 
   /**
    * Deletes scenario
    * @param scenario
    */
-  deleteScenario(scenario: Scenario) {
+  deleteScenario(scenario: Scenario, xrayEnabled) {
     this.scenarioService
-      .deleteScenario(this.selectedStory._id, scenario)
+      .deleteScenario(this.selectedStory._id, scenario, xrayEnabled)
       .subscribe((_) => {
         this.scenarioDeleted();
         this.toastr.error("", "Scenario deleted");
