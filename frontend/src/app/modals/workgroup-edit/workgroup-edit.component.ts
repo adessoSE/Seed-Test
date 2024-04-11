@@ -154,7 +154,7 @@ export class WorkgroupEditComponent {
             this.emulator = settings.emulator;
           }
           this.waitBetweenSteps = settings.stepWaitTime || 0;
-          this.reportComment = settings.reportComment || true;
+          this.reportComment = settings.reportComment !== undefined ? settings.reportComment : true;
           this.browser = settings.browser || 'Chrome';
           this.repoHeight = settings.height || undefined;
           this.repoWidth = settings.width || undefined;
