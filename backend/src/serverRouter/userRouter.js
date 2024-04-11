@@ -453,7 +453,7 @@ function processTestSteps(steps, resolvedTestRuns) {
 	// iterate through steps and add step description
 	steps.forEach((step) => {
 		if (!step.fields) {
-			console.error(`Fields missing for step ${step.id}`);
+			console.log(`Fields missing for step ${step.id}`);
 			return;
 		}
 
@@ -465,19 +465,19 @@ function processTestSteps(steps, resolvedTestRuns) {
 		testStepDescription += stepInfo.join('');
 
 		const matchingSteps = [];
-
 		// iterate through all resolved test runs
 		resolvedTestRuns.forEach((testRunDetails) => {
 			if (!testRunDetails.steps) {
-				console.error(`Steps missing for test run ${testRunDetails.id}`);
+				console.log(`Steps missing for test run ${testRunDetails.id}`);
 				return;
 			}
 			// map test steps to testrun steps
 			testRunDetails.steps.forEach((testRunStep) => {
+				console.log("TESTRUNSTEP", testRunStep.fields);
 				const stepGiven = fields.Given ? fields.Given.value : '';
 				const stepAction = fields.Action ? fields.Action.value.raw : '';
 				const stepExpected = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
-				const testRunGiven = testRunStep.fields.Given ? testRunStep.fields.Given.value : '';
+				const testRunGiven = testRunStep.fields.Given ? extractRaw(testRunStep.fields.Given.value) : '';
 				const testRunAction = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
 				const testRunExpected = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
 
@@ -500,9 +500,9 @@ function processTestSteps(steps, resolvedTestRuns) {
 				then: [],
 				example: []
 			},
-			testRunSteps: matchingSteps
+			testRunSteps: matchingSteps,
+			isXrayScenario: true
 		};
-
 		scenarioList.push(scenario);
 	});
 
