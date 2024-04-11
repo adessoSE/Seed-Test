@@ -346,12 +346,38 @@ async function exportProject(repo_id, versionID) {
   }
 }
 
+//General function to check for possible Renaming suffixes
+function checkAndAddSuffix(name, conflictingNameList) {
+  let suffix = 1;
+  let newName = name;
+
+  // Check for existing titles with suffix
+  while (conflictingNameList.includes(newName)) {
+    newName = name + suffix;
+    suffix++;
+  }
+
+  // Add the new name (with or without suffix) to the list
+  conflictingNameList.push(newName);
+  console.log(conflictingNameList);
+  return newName;
+}
+
+//Get the associatedId from conflict list
+function findAssociatedID(name, data) {
+  for (const { conflictingName, associatedID } of data) {
+    if (conflictingName === name) {
+      return associatedID;
+    }
+  }
+  return null; // Indicate ID not found
+}
+
 async function importProject(file, repo_id?, projectName?, importMode?) {
   // Create a MongoDB client and start a session
   const client = await dbConnector.establishConnection();
   //client.runCommand( { killAllSessions: [] })
   const session = await client.startSession();
-  console.log(session.inTransaction());
   const zip = new AdmZip(file.buffer);
   importMode == "false" ? (importMode = false) : (importMode = true);
   try {
@@ -404,296 +430,224 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
       };
       groupMapping.push(mappingObject);
     }
-    // Function to insert newID based on oldID
-    function insertNewId(oldID, newID) {
-      for (const mapping of groupMapping) {
-        if (mapping.oldID === oldID) {
-          mapping.newID = newID;
-          return; // Exit the loop after successful insertion
-        }
-      }
-      console.error(
-        `Mapping with oldID: ${oldID} not found for newID insertion.`
-      );
-    }
 
-    //General function to check for possible Renaming suffixes
-    function checkAndAddSuffix(name, conflictingNameList) {
-      let suffix = 1;
-      let newName = name;
-
-      // Check for existing titles with suffix
-      while (conflictingNameList.includes(newName)) {
-        newName = name + suffix;
-        suffix++;
-      }
-
-      // Add the new name (with or without suffix) to the list
-      conflictingNameList.push(newName);
-      console.log(conflictingNameList);
-      return newName;
-    }
-
-    //Get the associatedId from conflict list
-    function findAssociatedID(name, data) {
-      for (const { conflictingName, associatedID } of data) {
-        if (conflictingName === name) {
-          return associatedID;
-        }
-      }
-      return null; // Indicate ID not found
-    }
-
-    //Function to add stories
-    async function importStories(
-      post: Boolean,
-      importRepo: String,
-      allConflicts?
-    ) {
-      // Iterate through each story file
+    async function nameCheckStory() {
+      let conflictingNames = [];
+      const existingStories = await mongo.getAllStoriesOfRepo(repo_id);
+      const existingNames = existingStories.map(({ title, _id }) => ({
+        existingName: title,
+        associatedID: _id.toHexString(),
+      }));
+      console.log(existingNames);
+      const newData = existingNames.map(({ existingName }) => existingName);
+      existingNameList = existingNameList.concat(newData);
       for (const storyFile of storyFiles) {
         const storyData = zip.readAsText(storyFile.entryName);
         const storyObject = JSON.parse(storyData);
-        let name = storyObject.title;
-        if (!post && importMode) {
-          name = checkAndAddSuffix(storyObject.title, existingNameList);
-          storyObject.title = name;
-        }
-
-        if (post || importMode) {
-          const newStory = await mongo.createStory(
-            name,
-            storyObject.body === null ? undefined : storyObject.body,
-            importRepo
-          );
-          //Insert new ID corresponding to old one
-          insertNewId(
-            groupMapping[storyFiles.indexOf(storyFile)].oldID,
-            newStory.toHexString()
-          );
-          //Get newly created StoryID and paste it into "old" story to replace newly generated one with same id
-          storyObject._id = newStory;
-          const importedStory = await mongo.updateStory(storyObject);
-          const insertedId = await mongo.insertStoryIdIntoRepo(
-            newStory,
-            importRepo
-          );
-        }
-        //Apply same logic for override
-        if (!post && !importMode && findAssociatedID(name, allConflicts)) {
-          storyObject._id = findAssociatedID(name, allConflicts);
-          const importedStory = await mongo.updateStory(storyObject);
+        for (const { existingName, associatedID } of existingNames) {
+          if (storyObject.title === existingName) {
+            conflictingNames.push({
+              conflictingName: storyObject.title,
+              associatedID: associatedID,
+            });
+            break;
+          }
         }
       }
+      return conflictingNames;
     }
 
-      //RepoBlocks creation and assignment function
-      async function importBlocks(
-        post: Boolean,
-        importRepo: String,
-        repoName: String,
-        allConflicts?
-      ) {
-        for (const singularBlock of repoBlocksData) {
-          if (!post && importMode)
-            singularBlock.name = checkAndAddSuffix(
-              singularBlock.name,
-              existingNameList
-            );
-          singularBlock.repository = repoName;
-          singularBlock.repositoryId = importRepo;
-          if (!post && !importMode && singularBlock._id) {
-            singularBlock._id = findAssociatedID(
-              singularBlock.name,
-              allConflicts
-            );
-            await mongo.updateBlock(singularBlock._id, singularBlock);
-          } else {
-            await mongo.saveBlock(singularBlock);
+    async function nameCheckBlock() {
+      let conflictingNames = [];
+      const existingRepoBlocks = await mongo.getBlocks(repo_id);
+      const existingNames = existingRepoBlocks.map(({ name, _id }) => ({
+        existingName: name,
+        associatedID: _id.toHexString(),
+      }));
+      console.log(existingNames);
+      const newData = existingNames.map(({ existingName }) => existingName);
+      existingNameList = existingNameList.concat(newData);
+      for (const singularBlock of repoBlocksData) {
+        for (const { existingName, associatedID } of existingNames) {
+          if (singularBlock.name === existingName) {
+            conflictingNames.push({
+              conflictingName: singularBlock.name,
+              associatedID: associatedID,
+            });
+            break;
           }
         }
       }
+      return conflictingNames;
+    }
 
-      //Group creation and assignment function
-      // TODO: Ggf. Export anpassen -> Ersatz von StoryIds durch indices vermutlich unnötig
-      async function importGroups(
-        post: Boolean,
-        importRepo: String,
-        allConflicts?
-      ) {
-        for (const groupFile of groupFiles) {
-          const groupData = zip.readAsText(groupFile.entryName);
-          const groupObject = JSON.parse(groupData);
-          for (let i = 0; i < groupObject.member_stories.length; i++) {
-            groupObject.member_stories[i] =
-              groupMapping[groupObject.member_stories[i]].newID;
-          }
-          let name = groupObject.name;
-          if (!post && importMode)
-            name = checkAndAddSuffix(name, existingNameList);
-          if (!post && !importMode && findAssociatedID(name, allConflicts)) {
-            groupObject._id = findAssociatedID(name, allConflicts);
-            let oldGroup = await mongo.getOneStoryGroup(
-              repo_id,
-              groupObject._id
-            );
-            groupObject.member_stories = oldGroup.member_stories;
-            const updatedGroup = await mongo.updateStoryGroup(
-              repo_id,
-              groupObject._id,
-              groupObject
-            );
-            console.log("Group " + name + " has been updated: " + updatedGroup);
-          } else {
-            const newGroup = await mongo.createStoryGroup(
-              importRepo,
-              name,
-              groupObject.member_stories,
-              groupObject.isSequential
-            );
-            console.log("Group " + name + " inserted into: " + importRepo);
+    async function nameCheckGroup() {
+      let conflictingNames = [];
+      const existingGroups = await mongo.getAllStoryGroups(repo_id);
+      const existingNames = existingGroups.groups.map(({ name, _id }) => ({
+        existingName: name,
+        associatedID: _id.toHexString(),
+      }));
+      console.log(existingNames);
+      const newData = existingNames.map(({ existingName }) => existingName);
+      existingNameList = existingNameList.concat(newData);
+      for (const groupFile of groupFiles) {
+        const groupData = zip.readAsText(groupFile.entryName);
+        const groupObject = JSON.parse(groupData);
+        for (const { existingName, associatedID } of existingNames) {
+          if (groupObject.name === existingName) {
+            conflictingNames.push({
+              conflictingName: groupObject.name,
+              associatedID: associatedID,
+            });
+            break;
           }
         }
       }
+      return conflictingNames;
+    }
 
-      async function nameCheckStory() {
-        let conflictingNames = [];
-        const existingStories = await mongo.getAllStoriesOfRepo(repo_id);
-        const existingNames = existingStories.map(({ title, _id }) => ({
-          existingName: title,
-          associatedID: _id.toHexString(),
-        }));
-        console.log(existingNames);
-        const newData = existingNames.map(({ existingName }) => existingName);
-        existingNameList = existingNameList.concat(newData);
-        for (const storyFile of storyFiles) {
-          const storyData = zip.readAsText(storyFile.entryName);
-          const storyObject = JSON.parse(storyData);
-          for (const { existingName, associatedID } of existingNames) {
-            if (storyObject.title === existingName) {
-              conflictingNames.push({
-                conflictingName: storyObject.title,
-                associatedID: associatedID,
-              });
-              break;
-            }
-          }
-        }
-        return conflictingNames;
-      }
+    if (repo_id && repo_id != "undefined") {
+      // Perform a PUT request for an existing project
+      //TODO: Return Array of Strings/Ids needed for name change? but needs async validator in frontend => still not final thought; as of now predetermined modes
+      console.log("Performing a PUT request for an existing project");
+      console.log(
+        importMode == true
+          ? "We are renaming. State: " + importMode
+          : "We are overwriting. State: " + importMode
+      );
 
-      async function nameCheckBlock() {
-        let conflictingNames = [];
-        const existingRepoBlocks = await mongo.getBlocks(repo_id);
-        const existingNames = existingRepoBlocks.map(({ name, _id }) => ({
-          existingName: name,
-          associatedID: _id.toHexString(),
-        }));
-        console.log(existingNames);
-        const newData = existingNames.map(({ existingName }) => existingName);
-        existingNameList = existingNameList.concat(newData);
-        for (const singularBlock of repoBlocksData) {
-          for (const { existingName, associatedID } of existingNames) {
-            if (singularBlock.name === existingName) {
-              conflictingNames.push({
-                conflictingName: singularBlock.name,
-                associatedID: associatedID,
-              });
-              break;
-            }
-          }
-        }
-        return conflictingNames;
-      }
+      //Begin Transaction!
+      await session.withTransaction(async (session) => {
+        // Check for duplicate names
+        const storyConflicts = await nameCheckStory();
+        const blockConflicts = await nameCheckBlock();
+        const groupConflicts = await nameCheckGroup();
 
-      async function nameCheckGroup() {
-        let conflictingNames = [];
-        const existingGroups = await mongo.getAllStoryGroups(repo_id);
-        const existingNames = existingGroups.groups.map(({ name, _id }) => ({
-          existingName: name,
-          associatedID: _id.toHexString(),
-        }));
-        console.log(existingNames);
-        const newData = existingNames.map(({ existingName }) => existingName);
-        existingNameList = existingNameList.concat(newData);
-        for (const groupFile of groupFiles) {
-          const groupData = zip.readAsText(groupFile.entryName);
-          const groupObject = JSON.parse(groupData);
-          for (const { existingName, associatedID } of existingNames) {
-            if (groupObject.name === existingName) {
-              conflictingNames.push({
-                conflictingName: groupObject.name,
-                associatedID: associatedID,
-              });
-              break;
-            }
-          }
-        }
-        return conflictingNames;
-      }
-
-      if (repo_id && repo_id != "undefined") {
-        // Perform a PUT request for an existing project
-        //TODO: Return Array of Strings/Ids needed for name change? but needs async validator in frontend => still not final thought; as of now predetermined modes
-        console.log("Performing a PUT request for an existing project");
-        console.log(
-          importMode == true
-            ? "We are renaming. State: " + importMode
-            : "We are overwriting. State: " + importMode
+        // Concatenate the results into a single array
+        const allConflicts = storyConflicts.concat(
+          blockConflicts,
+          groupConflicts
         );
 
-        //Begin Transaction!
-        await session.withTransaction(async (session) => {
-          // Check for duplicate names
-          const storyConflicts = await nameCheckStory();
-          const blockConflicts = await nameCheckBlock();
-          const groupConflicts = await nameCheckGroup();
+        console.log("All conflicting names:", allConflicts);
 
-          // Concatenate the results into a single array
-          const allConflicts = storyConflicts.concat(
-            blockConflicts,
-            groupConflicts
-          );
+        await mongo.importStories(
+          false,
+          repo_id,
+          allConflicts,
+          session,
+          storyFiles,
+          groupMapping,
+          existingNameList,
+          importMode,
+          checkAndAddSuffix,
+          findAssociatedID,
+          client,
+          file
+        );
+        await mongo.importBlocks(
+          false,
+          repo_id,
+          await mongo.getOneRepositoryById(repo_id).repoName,
+          allConflicts,
+          session,
+          existingNameList,
+          repoBlocksData,
+          importMode,
+          checkAndAddSuffix,
+          findAssociatedID,
+          client
+        );
+        await mongo.importGroups(
+          false,
+          repo_id,
+          allConflicts,
+          session,
+          groupFiles,
+          groupMapping,
+          existingNameList,
+          importMode,
+          repo_id,
+          checkAndAddSuffix,
+          findAssociatedID,
+          client,
+          file
+        );
+      });
 
-          console.log("All conflicting names:", allConflicts);
+      return "";
+    } else {
+      // Perform a POST request for a new project
+      console.log("Performing a POST request for a new project");
 
-          await importStories(false, repo_id, allConflicts);
-          await importBlocks(
-            false,
-            repo_id,
-            await mongo.getOneRepositoryById(repo_id).repoName,
-            allConflicts
-          );
-          await importGroups(false, repo_id, allConflicts);
-        });
+      //Begin Transaction!
+      await session.withTransaction(async (session) => {
+        //Create new repo with some exported information
+        const newRepo = await mongo.createRepo(
+          repoData.owner,
+          projectName,
+          session, 
+          client
+        );
+        if (
+          typeof newRepo === "string" &&
+          newRepo.startsWith(
+            "Sie besitzen bereits ein Repository mit diesem Namen!"
+          )
+        ) {
+          console.log("Repository already existing!");
+          throw new Error(newRepo); // Throw an error with the message
+        }
+        await mongo.importStories(
+          true,
+          newRepo.toHexString(),
+          [],
+          session,
+          storyFiles,
+          groupMapping,
+          existingNameList,
+          importMode,
+          checkAndAddSuffix,
+          findAssociatedID,
+          client,
+          file
+        );
+        console.log(groupMapping);
+        await mongo.importBlocks(
+          true,
+          newRepo.toHexString(),
+          projectName,
+          [],
+          session,
+          existingNameList,
+          repoBlocksData,
+          importMode,
+          checkAndAddSuffix,
+          findAssociatedID,
+          client
+        );
+        await mongo.importGroups(
+          true,
+          newRepo.toHexString(),
+          [],
+          session,
+          groupFiles,
+          groupMapping,
+          existingNameList,
+          importMode,
+          repo_id,
+          checkAndAddSuffix,
+          findAssociatedID,
+          client,
+          file
+        );
+      });
 
-        return "";
-      } else {
-        // Perform a POST request for a new project
-        console.log("Performing a POST request for a new project");
-
-        //Begin Transaction!
-        await session.withTransaction(async (session) => {
-          //Create new repo with some exported information
-          const newRepo = await mongo.createRepo(repoData.owner, projectName);
-          if (
-            typeof newRepo === "string" &&
-            newRepo.startsWith(
-              "Sie besitzen bereits ein Repository mit diesem Namen!"
-            )
-          ) {
-            console.log("Repository already existing!");
-            throw new Error(newRepo); // Throw an error with the message
-          }
-          await importStories(true, newRepo.toHexString());
-          console.log(groupMapping);
-          await importBlocks(true, newRepo.toHexString(), projectName);
-          await importGroups(true, newRepo.toHexString());
-        });
-
-        return "";
-      }
+      return "";
+    }
   } catch (error) {
+    console.log(session.inTransaction());
     console.error("Import failed:", error);
     if (session.inTransaction()) {
       console.log(session);
@@ -717,4 +671,6 @@ module.exports = {
   fuseStoryWithDb,
   exportProject,
   importProject,
+  checkAndAddSuffix,
+  findAssociatedID,
 };
