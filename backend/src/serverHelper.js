@@ -68,23 +68,18 @@ function getSteps(steps, stepType) {
 
 // adds content of each values to output
 function getExamples(steps) {
-	let data = 'Examples:';
+	let data = '';
 	for (let i = 0; i < steps.length; i++) {
+		// jump if disabled or no valid values
 		// eslint-disable-next-line no-continue
-		if (steps[i].deactivated) continue;
+		if (steps[i].deactivated || steps[i].values.every((it) => it.trim() === '' || it === 'value')) continue;
 		data += '\n | ';
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
 	}
+	// if no lines other than value line, return empty
+	if (data.split('\n').length > 2) data = 'Examples:' + data;
+	else {console.log('ha'); return '';};
 	return `${data}\n`;
-}
-
-// parse Steps from stepDefinition container to feature content
-async function parseSteps(steps) {
-	let data = '';
-	if (steps.given !== undefined) data += `${getSteps(steps.given, Object.keys(steps)[0])}\n`;
-	if (steps.when !== undefined) data += `${getSteps(steps.when, Object.keys(steps)[1])}\n`;
-	if (steps.then !== undefined) data += `${getSteps(steps.then, Object.keys(steps)[2])}\n`;
-	return data;
 }
 
 // Building feature file scenario-name-content
@@ -260,7 +255,7 @@ async function executeTest(req, mode, story) {
 		'--exit'
 	];
 
-	const cmd = os.platform().includes('win') ? '.cmd' : '';
+	const cmd = os.platform().includes('win32') ? '.cmd' : '';
 	const cucumberCommand = `cucumber-js${cmd}`;
 	const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
 
@@ -311,15 +306,17 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 				...additionalParams
 			});
 		} else {
-			scenario.stepDefinitions.example.forEach((index) => {
-				if (index > 0) {
-					parameters.scenarios.push({
-						oneDriver: driver,
-						...additionalParams
-					});
-				}
-			});
+			// eslint-disable-next-line guard-for-in
+			for (const exampleIndex in scenario.stepDefinitions.example) {
+				console.log('examples');
+				if (exampleIndex === 0) continue;
+				parameters.scenarios.push({
+					oneDriver: driver,
+					...additionalParams
+				});
+			}
 		}
+		console.log('my Params ', parameters)
 	});
 	return { scenarios, parameters };
 }
