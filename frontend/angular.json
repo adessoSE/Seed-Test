@@ -79,19 +79,19 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "cucumber-frontend:build",
-            "poll": 2000
+            "poll": 2000,
+            "buildTarget": "cucumber-frontend:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "cucumber-frontend:build:production"
+              "buildTarget": "cucumber-frontend:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "cucumber-frontend:build"
+            "buildTarget": "cucumber-frontend:build"
           }
         },
         "lint": {
