@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService } from '../Services/login.service';
 
+
+/** TODO: canActivate is deprecated and was removed from Angular 15.2 and above - we might need to adjust the AuthGuard!
+ * As of now, it seems that you can login and do things; but might be dysfunctional!
+ */
 /**
  * Guard to check if the user is logged in
  */
