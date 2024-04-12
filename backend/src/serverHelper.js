@@ -68,17 +68,13 @@ function getSteps(steps, stepType) {
 
 // adds content of each values to output
 function getExamples(steps) {
-	let data = '';
+	let data = 'Examples:';
 	for (let i = 0; i < steps.length; i++) {
-		// jump if disabled or no valid values
 		// eslint-disable-next-line no-continue
-		if (steps[i].deactivated || steps[i].values.every((it) => it.trim() === '' || it === 'value')) continue;
+		if (steps[i].deactivated) continue;
 		data += '\n | ';
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
 	}
-	// if no lines other than value line, return empty
-	if (data.split('\n').length > 2) data = 'Examples:' + data;
-	else {console.log('ha'); return '';};
 	return `${data}\n`;
 }
 
@@ -255,7 +251,7 @@ async function executeTest(req, mode, story) {
 		'--exit'
 	];
 
-	const cmd = os.platform().includes('win32') ? '.cmd' : '';
+	const cmd = os.platform().includes('win') ? '.cmd' : '';
 	const cucumberCommand = `cucumber-js${cmd}`;
 	const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
 
