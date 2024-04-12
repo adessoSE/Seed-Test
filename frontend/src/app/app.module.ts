@@ -172,6 +172,7 @@ import { WindowSizeComponent } from './modals/window-size/window-size.component'
     MatInputModule,
     MatMenuModule
   ],
+  entryComponents: [InfoWarningToast],
   providers: [
     ApiService,
     AuthGuard,
