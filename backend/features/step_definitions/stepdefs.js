@@ -16,7 +16,20 @@ const { applySpecialCommands } = require('../../src/serverHelper');
 
 let driver;
 
-const downloadDirectory = !(/^win/i.test(process.platform)) ? '/home/public/Downloads/' : 'C:\\Users\\Public\\seed_Downloads\\';
+let downloadDirectory;
+switch (os.platform()) {
+	// Windows
+	case 'win32':
+		downloadDirectory = 'C:\\Users\\Public\\seed_Downloads\\';
+		break;
+	// macOS
+	case 'darwin':
+		downloadDirectory = `/Users/${os.userInfo().username}/Downloads/`;
+		break;
+	default:
+		downloadDirectory = '/home/public/Downloads/';
+}
+
 if (!fs.existsSync(downloadDirectory)) fs.mkdirSync(downloadDirectory, { recursive: true });
 const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
 	// Set to 2 for the "custom" folder
@@ -25,7 +38,7 @@ const firefoxOptions = new firefox.Options().setPreference('browser.download.dir
 const chromeOptions = new chrome.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
 const edgeOptions = new edge.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
 
-if (!os.platform().includes('win')) {
+if (!os.platform().includes('win32')) {
 	chromeOptions.addArguments('--headless');
 	chromeOptions.addArguments('--no-sandbox');
 	firefoxOptions.addArguments('--headless');
@@ -290,12 +303,6 @@ When('I click the button: {string}', async function clickButton(button) {
 	await handleError(async () => {
 		const world = this;
 		const identifiers = [`//*[@id='${button}']`, `//*[contains(@id,'${button}')]`, `//*[text()='${button}' or @*='${button}']`, `//*[contains(text(),'${button}')]`, `${button}`];
-		await driver.getCurrentUrl()
-			.then(async (currentUrl) => {
-				// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-				if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-					.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-			});
 		const promises = [];
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
