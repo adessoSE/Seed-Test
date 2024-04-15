@@ -4,11 +4,6 @@
 export interface MultipleScenario{
 
     /**
-    * example key/name
-    */
-    key: string;
-
-    /**
      * example value
      */
     values: string[];
@@ -19,7 +14,7 @@ export interface MultipleScenario{
     checked?: boolean;
 
     /**
-     * deactivated currently not used
+     * deactivate scenario(the entire row)
      */
     deactivated?: boolean;
 }

@@ -234,12 +234,12 @@ export class ExampleTableComponent implements OnInit {
    */
   addRowToExamples() {
     let row = JSON.parse(
-      JSON.stringify(this.selectedScenario.stepDefinitions.example[0])
+      JSON.stringify(this.selectedScenario.multipleScenarios[0])
     );
     row.values.forEach((value, index) => {
       row.values[index] = "value";
     });
-    this.selectedScenario.stepDefinitions.example.push(row);
+    this.selectedScenario.multipleScenarios.push(row);
     this.updateTable();
     this.selectedScenario.saved = false;
   }
@@ -254,31 +254,17 @@ export class ExampleTableComponent implements OnInit {
     //});
     //this.selectedScenario.stepDefinitions.example[0].values = Array.from(seen);
     this.displayedColumns = [" "].concat(
-      this.selectedScenario.stepDefinitions.example[0].values
+      this.selectedScenario.multipleScenarios[0].values
     );
     const formArray: UntypedFormGroup[] = [];
-    for (
-      let i = 1;
-      i < this.selectedScenario.stepDefinitions.example.length;
-      i++
-    ) {
+    for ( let i = 1; i < this.selectedScenario.multipleScenarios.length; i++) {
       let toGroups = new UntypedFormGroup({}, { updateOn: "blur" });
-      for (
-        let j = 0;
-        j < this.selectedScenario.stepDefinitions.example[i].values.length;
-        j++
-      ) {
-        let cont1 = new UntypedFormControl(
-          this.selectedScenario.stepDefinitions.example[i].values[j]
-        );
-        toGroups.addControl(
-          this.selectedScenario.stepDefinitions.example[0].values[j],
-          cont1
-        );
+      for (let j = 0; j < this.selectedScenario.multipleScenarios[i].values.length; j++) {
+        let cont1 = new UntypedFormControl( this.selectedScenario.multipleScenarios[i].values[j]);
+        toGroups.addControl( this.selectedScenario.multipleScenarios[0].values[j], cont1);
       }
       formArray.push(toGroups);
     }
-
     this.controls = new UntypedFormArray(formArray);
   }
 
@@ -287,19 +273,10 @@ export class ExampleTableComponent implements OnInit {
    */
   initializeTable() {
     this.data = [];
-    for (
-      let i = 1;
-      i < this.selectedScenario.stepDefinitions.example.length;
-      i++
-    ) {
+    for ( let i = 1; i < this.selectedScenario.multipleScenarios.length; i++) {
       let js = {};
-      for (
-        let j = 0;
-        j < this.selectedScenario.stepDefinitions.example[i].values.length;
-        j++
-      ) {
-        js[this.selectedScenario.stepDefinitions.example[0].values[j]] =
-          this.selectedScenario.stepDefinitions.example[i].values[j];
+      for ( let j = 0; j < this.selectedScenario.multipleScenarios[i].values.length; j++) {
+        js[this.selectedScenario.multipleScenarios[0].values[j]] = this.selectedScenario.multipleScenarios[i].values[j];
       }
       this.data.push(js);
     }
@@ -350,11 +327,11 @@ export class ExampleTableComponent implements OnInit {
    * Updates the table controls and data
    */
   updateTable() {
-    if (this.selectedScenario.stepDefinitions.example[1]) {
+    if (this.selectedScenario.multipleScenarios[1]) {
       this.exampleThere = true;
       this.initializeTable();
       this.initializeTableControls();
-      this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
+      this.lastRow = this.selectedScenario.multipleScenarios.slice(-1)[0];
       this.scenarioService.scenarioChangedEmitter();
     } else {
       this.exampleThere = false;
@@ -402,18 +379,18 @@ export class ExampleTableComponent implements OnInit {
 
   deleteExampleFunction() {
     let oldName =
-      this.selectedScenario.stepDefinitions.example[0].values[
+      this.selectedScenario.multipleScenarios[0].values[
         this.indexOfExampleToDelete
       ];
-    this.selectedScenario.stepDefinitions.example.forEach((value, index) => {
-      this.selectedScenario.stepDefinitions.example[index].values.splice(
+    this.selectedScenario.multipleScenarios.forEach((value, index) => {
+      this.selectedScenario.multipleScenarios[index].values.splice(
         this.indexOfExampleToDelete,
         1
       );
     });
 
-    if (this.selectedScenario.stepDefinitions.example[0].values.length == 0) {
-      this.selectedScenario.stepDefinitions.example = [];
+    if (this.selectedScenario.multipleScenarios[0].values.length == 0) {
+      this.selectedScenario.multipleScenarios = [];
     }
 
     this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
@@ -475,10 +452,10 @@ export class ExampleTableComponent implements OnInit {
     });
     for (
       let i = 1;
-      i < this.selectedScenario.stepDefinitions.example.length;
+      i < this.selectedScenario.multipleScenarios.length;
       i++
     ) {
-      this.selectedScenario.stepDefinitions.example[i].values = newData[i - 1];
+      this.selectedScenario.multipleScenarios[i].values = newData[i - 1];
     }
   }
 
@@ -494,7 +471,7 @@ export class ExampleTableComponent implements OnInit {
     const inputValue: string = el.textContent;
 
     if (!initialCall) {
-      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[
+      this.selectedScenario.multipleScenarios[rowIndex + 1].values[
         columnIndex - 1
       ] = inputValue;
       this.selectedScenario.saved = false;

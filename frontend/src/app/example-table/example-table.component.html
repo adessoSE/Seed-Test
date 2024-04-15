@@ -28,12 +28,12 @@ cdkDropListData="data"
 					</span>
 				</div>
 			</th>
-			<td [class.deactivated]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
+			<td [class.deactivated]="this.selectedScenario.multipleScenarios[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
 				<div *ngIf="first" class="checkboxWrapper">
 					<div class="dragIconContainer" cdkDragHandle (mousedown)="dragDisabled = false;">
                         <em class="material-icons dragIcon">drag_indicator</em>
                       </div>
-					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
+					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.multipleScenarios[rowIndex + 1].checked">
 					&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
 				</div>
 				<div *ngIf="!first">

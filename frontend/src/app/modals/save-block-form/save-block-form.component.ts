@@ -120,7 +120,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.parentComponent = comp;
     this.backgroundName = backgroundName;
     this.isBackground = isBackground;
-    if (block.stepDefinitions.example && block.stepDefinitions.example.length > 0) {
+    if (block.multipleScenarios && block.multipleScenarios.length > 0) {
       this.exampleBlock = true;
     }
     this.createStepList();
@@ -243,7 +243,8 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     }
     //saving block if contain examples
     if(this.exampleChecked){
-      this.block.stepDefinitions = {given: [], when: [], then: [], example: this.stepListSaveBlockExample}
+      this.block.stepDefinitions = {given: [], when: [], then: []}
+      this.block.multipleScenarios = this.stepListSaveBlockExample;
     }
     //saving block central as a background(won't be displayed when adding a block, only in the list of backgrounds)
     if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){
