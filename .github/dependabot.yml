@@ -1,0 +1,28 @@
+# `dependabot.yml` file with updates
+
+version: 2
+
+# Configuration for npm updates in frontend
+- package-ecosystem: "npm"
+  directory: "/frontend"
+  schedule:
+    interval: "weekly"
+    # Raise pull requests for version updates
+    # to npm against the `dev` branch
+    target-branch: "dev"
+    groups:
+        - name: angular-packages
+          packages:
+            - "@angular/*"  # This includes all sub-packages starting with "@angular/"
+            - "@ng*"  # any other Angular-related packages here
+          schedule:
+            interval: "monthly"
+
+# Configuration for npm updates in backend
+- package-ecosystem: "npm"
+  directory: "/backend"
+  # Raise pull requests for version updates
+  # to npm against the `dev` branch
+  target-branch: "dev"
+  schedule:
+    interval: "weekly"
