@@ -1333,6 +1333,17 @@ async function updateOneDriver(id, driver) {
 	}
 }
 
+async function updateStoryKi(id, scenarioList) {
+	try {
+		const db = dbConnection.getConnection();
+		const collection = await db.collection(storiesCollection);
+		return await collection.findOneAndUpdate({ _id: new ObjectId(id.toString()) }, { $set: {scenarios: scenarioList}}, { returnDocument: 'after' });
+	} catch (e) {
+		console.log(`ERROR updateStory: ${e}`);
+		throw e;
+	}
+}
+
 function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	if (v instanceof Object) {
 		for (const key in v) {
@@ -1377,6 +1388,7 @@ module.exports = {
 	getOneStory,
 	upsertEntry,
 	updateStory,
+	updateStoryKi,
 	deleteUser,
 	updateUser,
 	getUserData,

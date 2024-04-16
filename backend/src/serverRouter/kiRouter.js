@@ -1,6 +1,6 @@
 var pfs = require('fs/promises');
 var path = require('path');
-var db = require('../database/DbServices')
+var mongo = require('../database/DbServices')
 
 const KI_Exchange = process.env.KI_Exchange
 
@@ -41,7 +41,7 @@ console.log('watch ki-exchange output');
 
 
 async function placeKiOrder(storyId) {
-    const story = await db.getOneStory(storyId, null);
+    const story = await mongo.getOneStory(storyId, null);
     placeFile('input', story._id+'.json', JSON.stringify(story));
     console.log('place kI Order');
 }
@@ -59,9 +59,18 @@ async function getFile(dir){
     return await pfs.readFile(dir)
 }
 
-function consumeKiOutput(story){
-    console.log('consume KI Output: ' + JSON.stringify(story));
-    //db.updateStory(story)
+function consumeKiOutput(data){
+  let kiStory
+  try {
+    kiStory = JSON.parse(data);
+  } catch (err) {
+    console.error('parsing failed: ', err);
+  }
+
+  const id = kiStory._idMap.$oid;
+  delete kiStory._idMap;
+  console.log('consume KI Output: ' + JSON.stringify(kiStory) + id);
+  mongo.updateStoryKi(id, kiStory.scenarios);
 }
 
 function placeFile(dir, filename, file){
