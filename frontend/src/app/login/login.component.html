@@ -13,7 +13,9 @@
     </div>
   </div>
   <div class="formular">
-    <p class="wrongLogin" *ngIf="error">{{error}}</p>
+    <div *ngIf="error" class="alert alert-danger text-center" style="margin-bottom: 15px; width: 210px;">
+      <b>Login Failed: </b>{{error}}
+    </div>
     <!-- Formular -->
     <h1 class="LargeHeadline2 loginFont">Login</h1>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
@@ -31,46 +33,41 @@
       <br>
       <br>
       <!-- Button Login -->
-      <button class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
+      <button id="Login" class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
       <div id="loadingSpinner" *ngIf="this.isLoadingRepositories">
         <mat-spinner [diameter]="40" id="loadingSpinnerlogin" class="loadingSpinner"></mat-spinner>
       </div>
     </form>
+    <br>
     <div>
-      <button class="linkButton" routerLink='/resetpassword'>Forgot Password?</button>
+      <button class="linkButton" routerLink='/resetpassword' style="margin: 10px;">Forgot Password?</button>
     </div>
-    <p>or</p>
-    <hr>
+    <p style="margin: 0px">or</p>
+    <hr style="margin-bottom: 10px;">
     <!--<p class="noAccount">No account?
       <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
     </p>-->
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
-    <a class="githubLoginContainer" (click)="githubLogin();">
-      <div class="githubLogin" >
-         <img src ="../assets/github-logo.png" alt="github">
-         <p style="margin-bottom: 0px;">Login via GitHub</p>
-      </div>
-   </a>
-   <br>
-   <div class="uk-card default" id="noAccountDiv">
-    <span class="noAccount">No account yet? <br>
-    <button class="linkButton" routerLink="/register">Register</button>
+    <div class="githubLoginContainer">
+      <button class="githubLogin" (click)="githubLogin();" [disabled]="this.clientId === '' || this.clientId === 'undefined'">
+          <img src ="../assets/github-logo.png" alt="github">
+          Login via GitHub
+      </button>
+    </div>
+    <div class="vertical-container" *ngIf="this.clientId === '' || this.clientId === 'undefined'">
+      <div style="opacity:0.5">GitHub Integration not set up.</div>
+      <dfn id="defaultVersionWarning" class="def">
+        <span uk-icon="question" style="width:65%"></span>
+        <span rel="def" class="smallToolTip">
+          Refer to the README for configuration instructions.
+        </span>
+      </dfn>
+    </div>
+    <br>
+    <div class="uk-card default" id="noAccountDiv">
+      <span class="noAccount">No account yet? <br>
+      <button class="linkButton" routerLink="/register">Register</button>
     </span>
-   </div>
-  </div>
-  <!-- Repositories -->
-  <div class="repositories" *ngIf="repositories">
-    <div id="repositoriesList">
-      <label class="MediumSubline1H4">Select Your Project:</label>
-      <br>
-      <ul class="repositoryList">
-        <li *ngFor="let repository of repositories; let i = index" >
-          <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png" alt="github">
-          <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
-          <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png" alt="database">
-          <a class="MediumBody2 repoLink" id="{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-        </li>
-      </ul>
     </div>
   </div>
 </div>

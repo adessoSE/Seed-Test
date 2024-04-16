@@ -1,9 +1,9 @@
-import { Cipher, Decipher, scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
+import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 const passport = require('passport');
 
 const mongo = require('../../src/database/DbServices');
 const cryptoAlgorithm = 'aes-256-ccm';
-const key = scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
+const key = scryptSync(process.env.JIRA_SECRET || "anotherUnsaveSecret", process.env.JIRA_SALT || "9bNyV23AbaC7", 32);
 
 
 function jiraEncryptPassword(pass: string): Buffer[] {
@@ -31,18 +31,25 @@ function jiraDecryptPassword(ciphertext: Buffer, nonce: Buffer, tag: Buffer): st
     }
 }
 
-async function updateJiraCredential(UserID: string, username: string, jiraClearPassword: string, host: string) {
+async function updateJiraCredential(UserID: string, username: string, jiraClearPassword: string, host: string, jiraAuthMethod: string) {
     const [password, nonce, tag] = jiraEncryptPassword(jiraClearPassword);
     const jira = {
         AccountName: username,
         Password: password,
         Password_Nonce: nonce,
         Password_Tag: tag,
-        Host: host
+        Host: host,
+		AuthMethod: jiraAuthMethod
     };
     const user = await mongo.getUserData(UserID);
     user.jira = jira;
     await mongo.updateUser(UserID, user);
+}
+
+async function disconnectJira(UserID: string) {
+	const user = await mongo.getUserData(UserID);
+	delete user.jira;
+	await mongo.updateUser(UserID, user);
 }
 
 const getGithubData = (res, req, accessToken) => {
@@ -59,8 +66,6 @@ const getGithubData = (res, req, accessToken) => {
 	)
 		.then((response) => response.json())
 		.then(async (json) => {
-			console.log('JSON in GetGitHubData');
-			console.log(json);
 			req.body = json;
 			req.body.githubToken = accessToken;
 			try {
@@ -104,6 +109,7 @@ export {
     jiraDecryptPassword,
     jiraEncryptPassword,
     updateJiraCredential,
+	disconnectJira,
     checkValidGithub,
     getGithubData
 };

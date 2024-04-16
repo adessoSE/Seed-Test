@@ -1,0 +1,23 @@
+name: Post Teams Message Action
+description: Sends a message to a teams channel
+
+inputs:
+  title:
+    description: 'The title for the message'
+    required: true
+  text:
+    description: 'The text for the message'
+    required: true
+  buttons:
+    description: 'The buttons for the message'
+    required: true
+  style:
+    description: 'The style of message'
+    required: true
+  webhook:
+    description: 'The webhook URL for posting the message'
+    required: true
+
+runs:
+  using: 'node16'
+  main: 'indexNotify.js'

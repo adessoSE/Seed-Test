@@ -83,6 +83,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
     isActualRepoToDelete: boolean;
 
+    clientId: string;
+
     /**
      * Subscribtions for all EventEmitter
      */
@@ -245,6 +247,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                     (document.getElementById("disconnect-jira") as HTMLButtonElement).style.removeProperty('display');
                 }
+                this.clientId = localStorage.getItem('clientId')
             });
             this.getSessionStorage();
         }
@@ -284,11 +287,22 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         if (repo_id) {
             const userRepo = this.searchList.find(repo => repo._id == repo_id);
             console.log(userRepo);
+            const id = userRepo._id;
+            this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
+                this.versionInput ? saveAs(ret, userRepo.value + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '.zip');
+            })
+        }
+    }
+
+    exportProject(repo_id) {
+        if (repo_id) {
+            const userRepo = this.searchList.find(repo => repo._id == repo_id);
+            console.log(userRepo);
             const source = userRepo.source;
             const id = userRepo._id;
-            this.managmentService.downloadProjectFeatureFiles(source, id, this.versionInput).subscribe(ret => {
-                this.versionInput ? saveAs(ret, userRepo.value + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '.zip');
-            });
+            this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {
+                this.versionInput ? saveAs(ret, userRepo.value + '-export' + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '-export' + '.zip');
+            })
         }
     }
 

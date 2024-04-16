@@ -1,8 +1,5 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-#deploy on heroku
-heroku_push.bat
-
 # compiled output
 /dist
 /tmp
@@ -68,8 +65,6 @@ backend/features/reporting_html*.html
 *.bat
 *.sh
 *.ps1
-!runDocker.bat
-!runDocker.sh
 
 # Website Deployment with IIS
 **/web.config
@@ -80,3 +75,5 @@ backend/logs/
 
 # local testing for step-definition development
 backend/features/step_definitions/testing.js
+
+/act

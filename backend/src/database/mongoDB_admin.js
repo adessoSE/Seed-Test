@@ -7,7 +7,7 @@ const mongo = require('./DbServices');
 const stepTypes = require('./stepTypes');
 require('dotenv').config();
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017';
 const dbName = 'Seed';
 
 // ///////////////////////////////////////////    ADMIN  METHODS  ////////////////////////////////////////////
@@ -83,7 +83,7 @@ async function createContent() {
 
 // show all Collections
 function getCollections() {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.listCollections().toArray((error, result) => {
@@ -94,18 +94,10 @@ function getCollections() {
 	});
 }
 
-async function installDatabase() {
-	console.log (`Setting Up DB in: ${uri}`);
-	await makeCollection('stepTypes');
-	await makeCollection('Stories');
-	await makeCollection('User');
-	await insertMore('stepTypes', stepTypes());
-}
-
 // create Collection
 async function makeCollection(name) {
 	let connection = [];
-	await MongoClient.connect(uri, { poolSize: 20, useNewUrlParser: true, useUnifiedTopology: true }, async (err, dbo) => {
+	await MongoClient.connect(uri, { maxPoolSize: 20 }, async (err, dbo) => {
 		if (err) throw err;
 		connection = dbo.db('Seed');
 	});
@@ -120,7 +112,7 @@ async function makeCollection(name) {
 
 // insert One document (collectionname, {document})
 function insertOne(collection, content) {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.collection(collection).insertOne(content, (error) => {
@@ -156,7 +148,7 @@ async function backupScenarios() {
 
 // insert Many documents ("collectionname", [{documents},{...}] )
 function insertMore(name, content) {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.collection(name).insertMany(content, (error, res) => {
@@ -168,7 +160,7 @@ function insertMore(name, content) {
 }
 
 function update(story_id, updatedStuff) {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.collection(collection).updateOne({ story_id }, { $set: updatedStuff }, (error, res) => {
@@ -180,7 +172,7 @@ function update(story_id, updatedStuff) {
 
 // doesnt work yet
 function eraseAllStories() {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.collection(collection).deleteOne({}, (error) => {
@@ -192,7 +184,7 @@ function eraseAllStories() {
 
 // shows single story
 function showStory(story_id) {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		const myObjt = { story_id };
@@ -206,7 +198,7 @@ function showStory(story_id) {
 
 // delete collection
 function dropCollection() {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.collection(collection).drop((error, delOK) => {
@@ -217,9 +209,8 @@ function dropCollection() {
 	});
 }
 
-
 function deleteOldReports() {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.collection('TestReport').deleteMany({ reportTime: { $lt: 1622505600000 } });
@@ -229,20 +220,28 @@ function deleteOldReports() {
 }
 
 function fixOldReports() {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+	MongoClient.connect(uri, (err, db) => {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.collection('TestReport')
 			// use updateMany for all reports
 			.updateOne({}, {
 				$rename: {
-					'testStatus': 'overallTestStatus',
-					'jsonReport': 'json'
+					testStatus: 'overallTestStatus',
+					jsonReport: 'json'
 				}
 			});
 		console.log('Updated Something');
 		db.close();
 	});
+}
+
+async function installDatabase() {
+	console.log(`Setting Up DB in: ${uri}`);
+	await makeCollection('stepTypes');
+	await makeCollection('Stories');
+	await makeCollection('User');
+	await insertMore('stepTypes', stepTypes());
 }
 
 module.exports = {

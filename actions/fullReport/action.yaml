@@ -1,0 +1,83 @@
+name: Post Teams Message Action
+description: Sends a message to a teams channel with all resulsts of the workflow
+
+inputs:
+  prnumber:
+    description: 'The pull request number'
+    required: true
+  prlink: 
+    description: 'The link to the pull request'
+    required: true
+  originBranch:
+    description: 'The origin brnach that will be merged'
+    required: true
+  destinationBranch:
+    description: 'The destination branch taht will be merged into'
+    required: true  
+  requestor:
+    description: 'The name of the account who created the pull request'
+    required: true
+  date:
+    description: 'The timestamp the pull request has been created'
+    required: true
+  description:
+    description: 'The desription of the pull request'
+    required: true
+  dockerStatus:
+    description: 'The status of the docker deployment e.g. failed, success'
+    required: true
+  frontendSuitsPassed:
+    description: 'The amount of Test Suits passed for the frontend'
+    required: false
+  frontendSuitsFailed:
+    description: 'The amount of Test Suits failed for the frontend'
+    required: false
+  frontendTestsPassed:
+    description: 'The amount of Tests passed for the frontend'
+    required: false
+  frontendTestsFailed:
+    description: 'The amount of Tests failed for the frontend'
+    required: false
+  frontendBottomText:
+    description: 'The text for the bottom message of the frontend'
+    required: false
+  backendSuitsPassed:
+    description: 'The amount of Test Suits passed for the backend'
+    required: false
+  backendSuitsFailed:
+    description: 'The amount of Test Suits failed for the backend'
+    required: false
+  backendTestsPassed:
+    description: 'The amount of Tests passed for the backend'
+    required: false
+  backendTestsFailed:
+    description: 'The amount of Tests failed for the backend'
+    required: false
+  backendBottomText:
+    description: 'The text for the bottom message of the backend'
+    required: false
+  sanityScenariosPassed:
+    description: 'The amount of scenarios passed of the sanity test'
+    required: false
+  sanityScenariosFailed:
+    description: 'The amount of scenarios failed of the sanity test'
+    required: false
+  sanityStepsPassed:
+    description: 'The amount of steps passed of the sanity test'
+    required: false
+  sanityStepsFailed:
+    description: 'The amount of steps failed of the sanity test'
+    required: false
+  sanityStepsSkipped:
+    description: 'The amount of steps skipped of the sanity test'
+    required: false
+  workflowLink:
+    description: 'The link to the workflow'
+    required: true
+  webhook:
+    description: 'The webhook URL for posting the message'
+    required: true
+
+runs:
+  using: 'node16'
+  main: 'indexReport.js'

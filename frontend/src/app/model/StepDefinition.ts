@@ -12,7 +12,7 @@ export interface StepDefinition {
     /**
      * When Steps
      */
-    when: StepType[];
+    when: StepType [];
 
     /**
      * Then Steps

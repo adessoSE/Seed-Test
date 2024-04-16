@@ -28,7 +28,7 @@ export class ProjectService {
   public createRepositoryEmitter: EventEmitter<any> = new EventEmitter();
   /**
     * Event emitter to update the repository
-  */ 
+  */
   public updateRepositoryEvent: EventEmitter<any> = new EventEmitter();
   /**
     * Event emitter to delete the repository
@@ -58,36 +58,36 @@ export class ProjectService {
   createRepositoryEvent(repository) {
     this.createRepositoryEmitter.emit(repository);
   }
-  
+
   public transferOwnershipEvent = new EventEmitter();
-  
-  transferOwnershipEmitter(){
+
+  transferOwnershipEmitter() {
     this.transferOwnershipEvent.emit();
   }
-  changeOwner(repoId, email): Observable<RepositoryContainer>{
+  changeOwner(repoId, email): Observable<RepositoryContainer> {
     const url = this.apiService.apiServer + '/user/repository/' + repoId;
     return this.http
-    .put<any>(url, {email: email}, ApiService.getOptions())
-    .pipe(tap(_ => {
-      //
-    }),
-    catchError(this.apiService.handleError));
+      .put<any>(url, { email: email }, ApiService.getOptions())
+      .pipe(tap(_ => {
+        //
+      }),
+        catchError(this.apiService.handleError));
 
   }
 
-  
+
   /**
     * Emits if repositories changed
   */
   public updateRepositoryEmitter() {
     this.updateRepositoryEvent.emit();
   }
-      /**
-     * Emits if repositories should be reloaded
-     */
-      public getRepositoriesEmitter() {
-        this.getRepositoriesEvent.emit();
-    }
+  /**
+ * Emits if repositories should be reloaded
+ */
+  public getRepositoriesEmitter() {
+    this.getRepositoriesEvent.emit();
+  }
 
 
   /**
@@ -99,21 +99,28 @@ export class ProjectService {
   createRepository(name: string, _id: string): Observable<any> {
     const body = { 'name': name, '_id': _id };
     return this.http
-      .post<RepositoryContainer>( this.apiService.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
+      .post<RepositoryContainer>(this.apiService.apiServer + '/user/createRepository/', body, ApiService.getOptions())
       .pipe(tap(_ => {
         //
-    }));
+      }));
   }
   /**
    * Updates repo
    * @param repoID
    * @param newRepoName
+   * @param settings
    * @param user
    * @returns
   */
-  public updateRepository(repoID, newRepoName: string, user: any): Observable<any> {
+  public updateRepository(repoID, newRepoName: string, user: any, settings: any = null): Observable<any> {
+    let updateData = { repoName: newRepoName };
+
+    if (settings != null) {
+      updateData['settings'] = settings;
+    }
+    console.log(updateData)
     return this.http
-      .put<RepositoryContainer>( this.apiService.apiServer + '/user/repository/' + repoID + '/' + user, { repoName: newRepoName }, ApiService.getOptions())
+      .put<RepositoryContainer>(this.apiService.apiServer + '/user/repository/' + repoID + '/' + user, updateData, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -123,14 +130,30 @@ export class ProjectService {
    * @returns
   */
   getRepositories(): Observable<RepositoryContainer[]> {
-    const str =  this.apiService.apiServer + '/user/repositories';
+    const str = this.apiService.apiServer + '/user/repositories';
 
     return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
       .pipe(tap(resp => {
         sessionStorage.setItem('repositories', JSON.stringify(resp));
         this.updateRepositoryEmitter();
       }),
-      catchError(this.apiService.handleError));
+        catchError(this.apiService.handleError));
+  }
+
+  /**
+ * Retrieves the global settings from the repository
+ * @returns
+*/
+  getRepositorySettings(repoId: string) {
+    const str = this.apiService.apiServer + '/user/repository/settings/' + repoId;
+
+    return this.http.get<any>(str, ApiService.getOptions())
+      .pipe(
+        tap(settings => {
+          console.log('received settings:', settings);
+        }),
+        catchError(this.apiService.handleError) 
+      );
   }
 
   /**
@@ -140,12 +163,12 @@ export class ProjectService {
    * @returns
   */
   deleteRepository(repo: RepositoryContainer, user) {
-    const str =  this.apiService.apiServer + '/user/repositories/' + repo._id + '/' + user;
+    const str = this.apiService.apiServer + '/user/repositories/' + repo._id + '/' + user;
     return this.http.delete<any>(str, ApiService.getOptions())
       .pipe(tap(() => {
         //
       }),
-      catchError(this.apiService.handleError));
+        catchError(this.apiService.handleError));
   }
   /**
    * Adds a user to a workgroup
@@ -155,7 +178,7 @@ export class ProjectService {
   */
   addToWorkgroup(_id: string, user) {
     return this.http
-      .post<any>( this.apiService.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
+      .post<any>(this.apiService.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -169,7 +192,7 @@ export class ProjectService {
    */
   updateWorkgroupUser(_id: string, user) {
     return this.http
-      .put<any>( this.apiService.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
+      .put<any>(this.apiService.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -181,7 +204,7 @@ export class ProjectService {
   */
   getWorkgroup(_id: string) {
     return this.http
-      .get<any>( this.apiService.apiServer + '/workgroups/wgmembers/' + _id, ApiService.getOptions())
+      .get<any>(this.apiService.apiServer + '/workgroups/wgmembers/' + _id, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -196,7 +219,7 @@ export class ProjectService {
   removeFromWorkgroup(_id: string, email: string) {
     const user = { email };
     return this.http
-      .post<any>( this.apiService.apiServer + '/workgroups/deletemember/' + _id, user, ApiService.getOptions())
+      .post<any>(this.apiService.apiServer + '/workgroups/deletemember/' + _id, user, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));

@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * Login error
      */
     error: string;
-    defaultErrorMessage = 'Login Failed: Wrong Username Or Password';
+    defaultErrorMessage = 'Wrong Username Or Password';
 
     /**
      * Boolean to see if the repository is loading
@@ -38,6 +38,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
     currentTheme: String;
 
     isDark: boolean;
+
+    clientId: string;
 
     /**
      * Subscribtions for all EventEmitter
@@ -50,16 +52,15 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
     slides = [{'id':'0','image': '/assets//slide0.png'},
             {'id':'1','image': '/assets//slide01.PNG','caption':'Login to Seed-Test via GitHub or create a new Seed-Test Account by registering.\nAlternatively you can try Seed-Test without an account, by trying our Demo.'},
-            {'id':'2','image': '/assets//slide02.png','caption':'After the login via GitHub you can see your projects.'},
-            {'id':'3','image': '/assets//slide03.PNG','caption':'Else you can just register yourself using your E-Mail.'},
-            {'id':'4','image': '/assets//slide04.PNG','caption':'After the first Login of your Seed-Test account, you can create your own custom Projects \nor connect an existing GitHub Account or Jira Server.'},
-            {'id':'5','image': '/assets//slide05.PNG','caption':'Name your custom Project and save it.'},
-            {'id':'6','image': '/assets//slide06.PNG','caption':'Select your newly created Project to continue.'},
-            {'id':'7','image': '/assets//slide07.png','caption':'With a new Custom Project you can create your own stories.\nIf you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.'},
-            {'id':'8','image': '/assets//slide08.PNG','caption':'Enter a name and description for your new story.'},
-            {'id':'9','image': '/assets//slide09.PNG','caption':'Now you can add steps to create your first Test!\nUsually you want to start by using the Given-Step: "Website".'},
-            {'id':'10','image': '/assets//slide10.PNG','caption':'Run your Test by clickling on "Run Scenario".'},
-            {'id':'11','image': '/assets//slide11.png','caption':'For help and further information click on Help and check out our Tutorial.'}]
+            {'id':'2','image': '/assets//slide03.PNG','caption':'Else you can just register yourself using your E-Mail.'},
+            {'id':'3','image': '/assets//slide04.PNG','caption':'After the first Login of your Seed-Test account, you can create your own custom Projects \nor connect an existing GitHub Account or Jira Server.'},
+            {'id':'4','image': '/assets//slide05.PNG','caption':'Name your custom Project and save it.'},
+            {'id':'5','image': '/assets//slide06.PNG','caption':'Select your newly created Project to continue.'},
+            {'id':'6','image': '/assets//slide07.png','caption':'With a new Custom Project you can create your own stories.\nIf you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.'},
+            {'id':'7','image': '/assets//slide08.PNG','caption':'Enter a name and description for your new story.'},
+            {'id':'8','image': '/assets//slide09.PNG','caption':'Now you can add steps to create your first Test!\nUsually you want to start by using the Given-Step: "Website".'},
+            {'id':'9','image': '/assets//slide10.PNG','caption':'Run your Test by clickling on "Run Scenario".'},
+            {'id':'10','image': '/assets//slide11.png','caption':'For help and further information click on Help and check out our Tutorial.'}]
 
     customOptions: OwlOptions = {
          loop: true,
@@ -97,11 +98,16 @@ export class LoginComponent implements OnInit, AfterViewInit {
         public projectServise: ProjectService
         ) {
         this.error = undefined;
+        this.clientId = localStorage.getItem('clientId');
         this.routeObservable = this.route.queryParams.subscribe((params) => {
            if (params.code) {
                 this.loginService.githubCallback(params.code).subscribe((resp) => {
                     if (resp.error) {
-                        this.error = this.defaultErrorMessage; // resp.error
+                        if (resp.status === 501) {
+                            this.error = "GitHub Integration has not been set up yet."
+                        } else {
+                            this.error = this.defaultErrorMessage; // resp.error
+                        }
                     } else {
                         localStorage.setItem('login', 'true');
                         this.getRepositories();
@@ -114,7 +120,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
                         }
                     }
                 }, 
-                (error) => {this.error = this.defaultErrorMessage;}
+                (error) => {
+                    if (error.status === 501) {
+                        this.error = "GitHub Integration has not been set up yet."
+                    } else {
+                        this.error = this.defaultErrorMessage; // resp.error
+                }}
                 )
             }
         });
@@ -205,6 +216,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * Retrieves the repositories / projects of the user
      */
      getRepositories() {
+        let repoNotSet = false; 
         const value = localStorage.getItem('repository');
         const source = localStorage.getItem('source');
         const _id = localStorage.getItem('id');
@@ -222,15 +234,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
             resp.forEach((elem) => {
                 if (elem.value == repository.value && elem.source == repository.source && elem._id == repository._id) {
                     this.router.navigate(['']);
-            }});
+                    repoNotSet = true;
+                }
+            });
+            if(!repoNotSet){
+                this.router.navigate(['/accountManagement']);
+            }
             this.repositories = resp;
             this.isLoadingRepositories = false;
-            setTimeout(() => {
-                const repositoriesList: HTMLElement = document.getElementById('repositoriesList');
-                if (repositoriesList) {
-                    repositoriesList.scrollIntoView();
-                }
-            }, 500);
 
         }, (_) => {
             this.error = this.defaultErrorMessage;
@@ -239,23 +250,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
 
     /**
-     * Selects a repository and redirects the user to the story editor
-     * @param userRepository selected repository
-     */
-    selectRepository(userRepository: RepositoryContainer) {
-        const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-        ref.href = 'https://github.com/' + userRepository.value;
-        localStorage.setItem('repository', userRepository.value);
-        localStorage.setItem('source', userRepository.source);
-        localStorage.setItem('id', userRepository._id);
-        this.router.navigate(['']);
-    }
-
-    /**
      * Loggs in the user with Github
      */
     githubLogin() {
         this.error = undefined;
+        if (localStorage.getItem('clientId') === 'undefined') {
+            this.error = "GitHub Integration has not been set up yet."
+            return
+        }
         this.isLoadingRepositories = true;
         this.loginService.githubLogin();
     }

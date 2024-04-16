@@ -62,12 +62,11 @@ export class StoryService {
   /**
     * Get's single Story by ID
     * @param _id storyID
-    * @param source repoSource
     * @return single Story object
   */
-  public getStory(_id, source): Observable<any> {
+  public getStory(_id): Observable<any> {
     return this.http
-      .get<Story>(this.apiService.apiServer + '/story/' + _id + '/' + source, ApiService.getOptions())
+      .get<Story>(this.apiService.apiServer + '/story/' + _id , ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -145,29 +144,27 @@ export class StoryService {
   /**
    * Runs a test of a scenario or story
    * @param storyID
-   * @param storySource
    * @param scenarioID
    * @param params
    * @returns
   */
-  runTests(storyID: any, storySource: string, scenarioID: number, params) {
+  runTests(storyID: any, scenarioID: number, params) {
     const timeout = 900000;
     if (scenarioID) {
       return this.http
-        .post(this.apiService.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+        .post(this.apiService.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
     }
     return this.http
-      .post(this.apiService.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+      .post(this.apiService.apiServer + '/run/Feature/' + storyID , params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
   }
   /**
     * Download a file with story feature
-    * @param source
     * @param _id
     * @returns
   */
-  downloadStoryFeatureFile(source, _id): Observable<Blob> {
+  downloadStoryFeatureFile(_id): Observable<Blob> {
     return this.http
-      .get<Blob>(this.apiService.apiServer + '/story/download/story/' + source + '/' + _id, { withCredentials: true, responseType: 'blob' as 'json' });
+      .get<Blob>(this.apiService.apiServer + '/story/download/story/' + _id, { withCredentials: true, responseType: 'blob' as 'json' });
   }
 
   /**
@@ -178,7 +175,7 @@ export class StoryService {
   */
   public changeOneDriver(oneDriver: boolean, storyID: any) {
     return this.http
-      .post(this.apiService.apiServer + '/mongo/oneDriver/' + storyID, { oneDriver });
+      .post(this.apiService.apiServer + '/story/oneDriver/' + storyID, { oneDriver }, ApiService.getOptions());
   }
   /**
     * Checking the same name of the story
@@ -205,7 +202,7 @@ export class StoryService {
    */
   getStepTypes(): Observable<StepType[]> {
     return this.http
-      .get<StepType[]>(this.apiService.apiServer + '/mongo/stepTypes', ApiService.getOptions())
+      .get<StepType[]>(this.apiService.apiServer + '/stepTypes', ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -218,7 +215,8 @@ export class StoryService {
   */
   public goToTicket(storyId: string, repository: RepositoryContainer) {
     if (repository.source === 'github') {
-      const AUTHORIZE_URL = 'https://github.com/adessoSE/Seed-Test/issues/';
+      const AUTHORIZE_URL = 'https://github.com/' + repository.value + '/issues/';
+      console.log("AUTHORIZE_UR",AUTHORIZE_URL)
       const s = `${AUTHORIZE_URL}${storyId}`;
       return window.open(s);
     } else if (repository.source === 'jira') {

@@ -17,7 +17,7 @@ app.use(express.static(ngPath));
 
 app.get('/backendInfo', (_, res) => {
   res.json({
-    url: process.env.API_SERVER,
+    url: process.env.API_SERVER || "http://localhost:8080/api",
     clientId: process.env.GITHUB_CLIENT_ID,
     version: process.env.VERSION || "",
     gecko_enabled: process.env.GECKO_ENABLED || false,

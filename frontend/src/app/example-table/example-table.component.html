@@ -10,15 +10,22 @@ cdkDropListData="data"
 
 	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;" matColumnDef={{column}}> 
 			<th class="headerRow MediumHeadline5" mat-header-cell *matHeaderCellDef scope="col"> 
-				<span *ngIf="first"></span>
+				<span *ngIf="first" class="slide-toggle-container">
+					<label class="edit-mode" [class.icon]="editMode" [ngClass]="{'darkTheme': isDark && editMode}">Edit</label>
+					<mat-slide-toggle [formControl]="toggleControl" [color]="color"
+					[ngClass]="{'mat-accent': isDark}"
+					title="Switch on/off edit mode"></mat-slide-toggle>
+				</span>
 				<div *ngIf="!first">
 					{{column}}
-					<button id="inputExample" class="scenarioTitle" (click)="renameExample(columnIndex)">
-						<em class="material-icons">edit</em>
-					</button>
-					<button id="inputExample" class="scenarioTitle" (click)="deleteExample($event, columnIndex)">
-						<em class="material-icons">delete</em>
-					</button>
+					<span *ngIf="editMode">
+						<button id="rename_example" class="scenarioTitle" (click)="renameExample(columnIndex)">
+							<em class="material-icons">edit</em>
+						</button>
+						<button id="delete_example" class="scenarioTitle" (click)="deleteExample($event, columnIndex)">
+							<em class="material-icons">delete</em>
+						</button>
+					</span>
 				</div>
 			</th>
 			<td [class.deactivated]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
@@ -29,15 +36,15 @@ cdkDropListData="data"
 					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
 					&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
 				</div>
-				<editable *ngIf="!first" (update)="updateField(columnIndex, rowIndex, column)">
-						<ng-template viewMode>
-							{{element[column]}}
-							<label *ngIf="element[column]===''" id="nullValue">[--null--]</label>
-						</ng-template>
-						<ng-template editMode >
-							<input [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
-						</ng-template>
-				</editable> 
+				<div *ngIf="!first">
+						<!--ng-template viewMode-->
+							<div class="contentEditableElement" contenteditable="true" #example_input (input)="highlightRegex(example_input, columnIndex, rowIndex, false)">{{element[column]}}</div>
+							<!--label *ngIf="element[column]===''" id="nullValue">[--null--]</label-->
+						<!--/ng-template-->
+						<!--ng-template editMode >
+							<input [formControl]="getControl(rowIndex, column)" focusable editableOnEnter regexHighlight="@@[^ ]+">
+						</ng-template-->
+					</div> 
 			</td>
 	</ng-container>			
 	

@@ -16,6 +16,7 @@ import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ReportService } from '../Services/report.service';
+import { BackgroundService } from '../Services/background.service';
 
 /**
  * Component of the Stories bar
@@ -51,7 +52,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * If it is the daisy version
      */
     daisyVersion = true;
-    hideCreateScenario = false;
 
     /**
      * Subscription element if a custom story should be created
@@ -126,7 +126,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     storyString: string;
 
-        /**
+    /**
      * SearchTerm for group title search
      */
     groupString: string;
@@ -135,7 +135,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     filteredStories: Story[];
 
-        /**
+    /**
      * Groups filtered for searchterm
      */
     filteredGroups: Group[];
@@ -187,7 +187,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         public storyService: StoryService,
         public groupService: GroupService,
         public scenarioService: ScenarioService,
-        public reportService: ReportService) {
+        public reportService: ReportService,
+        public backgroundService: BackgroundService) {
         this.groupService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
             this.liGroupList = new Array(this.groups.length).fill("")
@@ -265,9 +266,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.scenarioStatusChangeObservable = this.scenarioService.scenarioStatusChangeEvent.subscribe(custom => {
-            const storyIndex = this.filteredStories.findIndex(story => story._id === custom.storyId);
-            const scenarioIndex = this.filteredStories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
-            this.filteredStories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed;
+            const storyIndex = this.stories.findIndex(story => story._id === custom.storyId);
+            const scenarioIndex = this.stories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
+            this.stories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed;
         });
 
 
@@ -340,14 +341,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.groupService.runGroup(id, group._id, params).subscribe((ret: any) => {
             this.report.emit(ret);
             this.testRunningGroup.emit(false);
-            const report_id = ret.reportId;
-            this.reportService.getReport(report_id)
-            .subscribe((report: GroupReport) => {
-                report.storyStatuses.forEach(story => {
-                    story.scenarioStatuses.forEach(scenario => {
-                        this.scenarioService.scenarioStatusChangeEmit(
-                            story.storyId, scenario.scenarioId, scenario.status);
-                    });
+            const report = ret.report;
+            report.storyStatuses.forEach(story => {
+                story.scenarioStatuses.forEach(scenario => {
+                    this.scenarioService.scenarioStatusChangeEmit(
+                        story.storyId, scenario.scenarioId, scenario.status);
                 });
             });
         });
@@ -380,11 +378,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.selectedStory = story;
         this.initialyAddIsExample();
         this.storyChosen.emit(story);
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        if (this.stories[storyIndex].scenarios[0]) {
-            this.selectScenario(this.stories[storyIndex].scenarios[0]);
-        }
-        this.toggleShows();
+        if (story.scenarios.length > 0) {
+            this.selectScenario(story.scenarios[0]);
+        } else this.selectScenario(null);
+        this.backgroundService.backgroundReplaced = undefined;
     }
 
     /**
@@ -408,18 +405,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     addScenario(scenarioName) {
-        this.scenarioService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+        this.scenarioService.addScenario(this.selectedStory._id, scenarioName)
             .subscribe((resp: Scenario) => {
                 this.selectScenario(resp);
                 this.selectedStory.scenarios.push(resp);
                 this.toastr.info('Successfully added', 'Scenario');
-                this.hideCreateScenario = true;
             });
-    }
-
-    toggleShows(): boolean {
-        this.hideCreateScenario = this.selectedStory.scenarios.length !== 0;
-        return this.hideCreateScenario;
     }
 
     /**
@@ -443,18 +434,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     dropStory(event: CdkDragDrop<string[]>) {
         const repo_id = localStorage.getItem('id');
         moveItemInArray(this.stories, event.previousIndex, event.currentIndex);
-        this.storyService.updateStoryList(repo_id, this.stories.map(s => s._id)).subscribe(_ => {
-            // console.log(ret)
-        });
+        this.storyService.updateStoryList(repo_id, this.stories.map(s => s._id)).subscribe(_ => {});
     }
 
     dropScenario(event: CdkDragDrop<string[]>, s) {
-        const source = localStorage.getItem('source');
         const index = this.stories.findIndex(o => o._id === s._id);
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
-        this.scenarioService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(_ => {
-            // console.log(ret)
-        });
+        this.scenarioService.updateScenarioList(this.stories[index]._id, this.stories[index].scenarios).subscribe(_ => {});
     }
 
     dropGroup(event: CdkDragDrop<string[]>) {
@@ -464,9 +450,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         for (const groupIndex in pass_arr) {
             pass_arr[groupIndex].member_stories = pass_arr[groupIndex].member_stories.map(o => o._id);
         }
-        this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe(ret => {
-            console.log(ret);
-        });
+        this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe(_ => {});
     }
 
     dropGroupStory(event: CdkDragDrop<string[]>, group) {
@@ -475,9 +459,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
         const pass_gr = this.groups[index];
         pass_gr.member_stories = this.groups[index].member_stories.map(o => o._id);
-        this.groupService.updateGroup(repo_id, group._id, pass_gr).subscribe(_ => {
-            // console.log(ret)
-        });
+        this.groupService.updateGroup(repo_id, group._id, pass_gr).subscribe(_ => {});
     }
 
   /**

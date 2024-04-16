@@ -21,19 +21,6 @@ function stepDefs() {
 		mid: 'into the field ',
 		values: ['', '']
 	}, {
-		id: 0,
-		stepType: 'DISABLED_FOR_NOW',
-		type: 'Role',
-		pre: 'As a',
-		mid: '',
-		values: [
-			''
-		],
-		selection: [
-			'Guest',
-			'User'
-		]
-	}, {
 		id: 500,
 		stepType: 'given',
 		type: 'New Step',
@@ -218,6 +205,25 @@ function stepDefs() {
 		],
 		type: 'Remove Cookie'
 	}, {
+		id: 3,
+		mid: 'and value ',
+		pre: 'I add a session-storage with the name',
+		stepType: 'given',
+		values: [
+			'',
+			''
+		],
+		type: 'Add Session-Storage'
+	}, {
+		id: 4,
+		mid: '',
+		pre: 'I remove a session-storage with the name',
+		stepType: 'given',
+		values: [
+			''
+		],
+		type: 'Remove Session-Storage'
+	}, {
 		id: 300,
 		stepType: 'when',
 		type: 'Upload File',
@@ -304,7 +310,43 @@ function stepDefs() {
 			'unchecked'
 		],
 		selectionValue: 1
-	}, {
+	},
+	{
+		id: 20,
+		stepType: 'then',
+		type: 'Check Tooltip',
+		pre: 'So the element',
+		mid: 'has the tooltip ',
+		values: [
+			'',
+			''
+		]
+	},
+	{
+		id: 31,
+		stepType: 'then',
+		type: 'CSS-Property',
+		pre: 'So on element',
+		mid: 'the css property ',
+		post: 'is',
+		values: [
+			'',
+			'',
+			''
+		]
+	},
+	{
+		id: 40,
+		stepType: 'then',
+		type: 'Check Image Name',
+		pre: 'So the image',
+		mid: 'has the name ',
+		values: [
+			'',
+			''
+		]
+	},
+	{
 		id: 3,
 		stepType: 'then',
 		type: 'Empty Textbox',
@@ -422,19 +464,6 @@ function stepDefs() {
 		pre: 'The site should wait for',
 		mid: 'milliseconds',
 		values: [
-			''
-		]
-	},
-	{
-		id: 501,
-		stepType: 'then',
-		type: 'CSS-Value',
-		pre: 'So on element',
-		mid: 'the css property',
-		post: 'is',
-		values: [
-			'',
-			'',
 			''
 		]
 	}

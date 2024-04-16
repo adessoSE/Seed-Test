@@ -1,4 +1,4 @@
-FROM node:17
+FROM node:18.13
 
 RUN apt-get update
 RUN yes | apt-get install wget
@@ -13,8 +13,9 @@ RUN rm -f google-chrome-stable_current_amd64.deb
 
 # install chromedriver
 RUN apt-get install -yqq unzip curl
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+RUN wget -O /tmp/chromedriverzip.zip https://storage.googleapis.com/chrome-for-testing-public/$(curl https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE)/linux64/chromedriver-linux64.zip
+RUN unzip /tmp/chromedriverzip.zip chromedriver-linux64/chromedriver -d /usr/local/bin/
+RUN mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
 
 # install firefox
 RUN wget -O ~/FirefoxSetup.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64"
@@ -33,22 +34,18 @@ RUN export PATH=$PATH:/opt/microsoft/msedge/
 ENV PATH="${PATH}:/opt/microsoft/msedge/"
 
 # install msedgedriver
-# Download the HTML of the driver download page
-RUN curl https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/ > driver-page.html
+# # Extract the latest stable version of edge
+RUN msedge --version | sed 's/.*Edge \([0-9.]*\).*/\1/' > latest_stable.txt
 
-# Extract the latest stable version of the driver
-RUN grep -oP 'version \K[0-9.]+\">Linux' driver-page.html | sed -n 1p | sed -r 's/^(.*)">Linux$/\1/' > latest_stable.txt
-
-# Remove the driver-pagehtml
+# # Remove the driver-pagehtml
 RUN wget -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip
 RUN unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/
-RUN rm -f driver-page.html
 RUN rm -f latest_stable.txt
 
 # Bundle app source
 COPY . .
 
-RUN npm install
+RUN npm ci
 # If you are building your code for production
 # RUN npm ci --only=production
 

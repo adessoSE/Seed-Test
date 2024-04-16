@@ -3,33 +3,52 @@
     <!--left-->
     <div class="uk-inline dropdown">
       <button *ngIf="this.loginService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
-      <div #dropdownMenu [class.closedMenu] = "closed">
+      <div #dropdownMenu [class.closedMenu]="closed">
         <ul uk-dropdown="mode: hover" *ngIf="this.loginService.isLoggedIn()" class="dropdown-list">
           <li>
             <div *ngIf="this.repositories" class="dropdown">
               <button class="menuSelection" title="Select Project">Projects</button>
-                <div uk-dropdown="mode: click" id="static">
-                  <ul class="dropdown-list">
-                   <li *ngFor="let repository of repositories; let i = index" class="list-item">
-                     <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png" alt="github">
-                     <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
-                     <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png" alt="database">
-                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
+              <div uk-dropdown="mode: click" id="static">
+                <ul class="dropdown-list">
+                  <li *ngFor="let repository of repositories; let i = index" class="list-item">
+                    <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)"
+                      src="../assets/GitHub-Mark-32px.png" alt="github">
+                    <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)"
+                      src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
+                    <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
+                      src="../assets/database-5-32.png" alt="database">
+                    <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
                       routerLink=''>{{repository.value}}</a>
-                   </li>
-                  </ul>
-                </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </li>
           <li>
-            <button id="manageAccount" class="menuSelection" title="Account Settings" routerLink='/accountManagement'>Account Settings</button>
+            <button id="manageAccount" class="menuSelection" title="Account Settings"
+              routerLink='/accountManagement'>Account Settings</button>
           </li>
           <li>
-            <button class="menuSelection"  id="logout" title="Logout" (click)="logout();">Logout</button>
+            <button class="menuSelection" id="logout" title="Logout" (click)="logout();">Logout</button>
           </li>
         </ul>
       </div>
-      <p id="version" class="Largecaption">Version 1.6.2</p>
+      <div class="vertical-container">
+        <div id="version" class="Largecaption">
+          Version 1.7.1 {{version === '' ? " (demo)" : ""}}
+        </div>
+        <dfn *ngIf="this.version === ''" id="defaultVersionWarning" class="def">
+          <span uk-icon="warning"></span>
+          <span rel="def" style="font-weight: normal">
+            This is a demo version of Seed-Test.
+            Please note that to use it in production, you need to make some configurations to ensure it's fully
+            functional.
+            Certain features may not work until you complete the installation process.
+            <b>We strongly advise against using this unconfigured version in a production environment.</b>
+            For more information, please refer to the README.
+          </span>
+        </dfn>
+      </div>
     </div>
 
 
@@ -45,20 +64,19 @@
     <div class="topnavRight">
       <div class="slide-toggle-container">
         <mat-icon>brightness_5</mat-icon>
-        <mat-slide-toggle [formControl]="toggleControl"
-        [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}"
-        [ngClass] = "{'mat-checked mat-slide-toggle-bar':isDark}"
-
-        title="Switch to dark/light mode"></mat-slide-toggle>
+        <mat-slide-toggle [formControl]="toggleControl" [ngClass]="{'mat-checked mat-slide-toggle-thumb':isDark}"
+          [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark}" title="Switch to dark/light mode"></mat-slide-toggle>
         <mat-icon>bedtime</mat-icon>
       </div>
       <div>
         <div class="dropdown">
           <button class="rightButton">Help</button>
-          <div #helpMenu [class.closedMenu] = "closed">
+          <div #helpMenu [class.closedMenu]="closed">
             <div class="dropdown-list">
-              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
-              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
+              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
+                target="_blank">Tutorial (german)</a>
+              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
+                target="_blank">Tutorial (english)</a>
             </div>
           </div>
         </div>
@@ -77,18 +95,21 @@
     <div class="footerCenter">
       <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
       <p class="terms" (click)="openTerms()">Terms</p>
-      <p><a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test"  rel="noopener noreferrer" target="_blank" uk-icon="github"></a></p>
+      <p><a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" rel="noopener noreferrer"
+          target="_blank" uk-icon="github"></a></p>
     </div>
     <div class="expendable">
       <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
         <p>Seed-Test</p>
-        <p>Email: seed-test@adesso.de</p>
-        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test" target="_blank">https://github.com/adessoAG/Seed-Test</a>
+        <p>Email: seed-test&#64;adesso.de</p>
+        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test"
+          target="_blank">https://github.com/adessoAG/Seed-Test</a>
       </div>
       <div id="termsContent" class="termsContent" *ngIf="showTerms">
         <p>This is only a demo version of an open source application</p>
         <p>The maker of this service is not liable for the user and its data</p>
-        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/blob/master/LICENSE" target="_blank">It is licenced under the MIT Licence</a>
+        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/blob/master/LICENSE" target="_blank">It
+          is licenced under the MIT Licence</a>
         <p><a routerLink="/terms" target="_blank">For more information</a></p>
       </div>
     </div>

@@ -1,73 +1,64 @@
 const { MongoClient } = require('mongodb');
-const { resolve } = require('path');
 const { exit } = require('process');
 const stepTypes = require('./stepTypes');
 require('dotenv').config();
 
-const uri = process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017";
+const uri = process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@localhost:27017';
 
-async function checkConnection() {
-	var fails = 1;
-	await MongoClient.connect(uri, { poolSize: 20, useNewUrlParser: true, useUnifiedTopology: true }, async (err, dbo) => {
-		if (err) {
-			console.log("Connection failed ! retrying ... " + fails);
-			fails++;
-			checkConnection()
+async function getConnection(attempt) {
+	const attempts = attempt || 1;
+	if (attempt > 3) throw new Error('\x1b[31mFailed to connect to the database after multiple retries.\x1b[0m');
+
+	try {
+		const client = await MongoClient.connect(uri, { maxPoolSize: 20 });
+		return client;
+	} catch (err) {
+		console.log(`\x1b[38;5;208mConnection failed! Retrying... ${attempts}\x1b[0m`);
+		return getConnection(attempts + 1);
+	}
+}
+
+async function makeCollection(dbo, name) {
+	const exists = (await dbo.listCollections({ name }).toArray()).length > 0;
+	if (exists) {
+		console.log(`Collection: ${name} already exists and will be skipped.\n`);
+		return;
+	}
+	const collection = dbo.collection(name);
+
+	try {
+		await dbo.createCollection(name);
+		if (name === 'stepTypes') {
+			console.log('Inserting stepType documents:');
+			const insertionResult = await collection.insertMany(stepTypes(), { ordered: false });
+			console.log(`Number of documents inserted: ${insertionResult.insertedCount}`);
 		}
-	});
+		console.log(`Collection ${name} created!\n`);
+	} catch (error) {
+		console.error(`\x1b[31m Error creating collection: ${name}\n\x1b[0m`, error.message);
+	}
 }
 
 async function installDatabase() {
-	console.log (`Setting Up DB in: ${uri}`);
-	await checkConnection()
-	console.log("Starting: steps");
-	await makeCollection('stepTypes');
-	console.log("Starting: stories");
-	await makeCollection('Stories');
-	console.log("Starting: user");
-	await makeCollection('User');
+	console.log(`\x1b[33m Setting Up DB in: ${uri}\n\x1b[0m`);
+	const client = await getConnection();
+	const dbo = client.db('Seed');
+
+	console.log('Starting: steps');
+	await makeCollection(dbo, 'stepTypes');
+	console.log('Starting: stories');
+	await makeCollection(dbo, 'Stories');
+	console.log('Starting: user');
+	await makeCollection(dbo, 'User');
+
+	console.log('\x1b[32m Database set up! \x1b[0m');
+	client.close();
 }
 
-// create Collection
-async function makeCollection(name) {
-	let connection = [];
-	// eslint-disable-next-line max-len
-	await MongoClient.connect(uri, { poolSize: 20, useNewUrlParser: true, useUnifiedTopology: true }, async (err, dbo) => {
-		if (err) throw err;
-		connection = dbo.db('Seed');
+installDatabase().then(() => {
+	exit();
+})
+	.catch((err) => {
+		console.error(err);
+		exit(1);
 	});
-	// sleep 3000 ms
-	const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-	await delay(3000);
-	await new Promise((resolve) => { connection.createCollection(name, (error) => {
-		if (error) {
-			if (error.message.includes("already exists")) {
-				console.log("Collection: " + name + " already exists and will be skipped.");
-				resolve();
-				return;
-			} else {
-				throw error;
-			}
-		};
-		console.log(`Collection ${name} created!`);
-		if (name === "stepTypes") {
-			console.log("Adding StepTypes: ");
-			insertMore('stepTypes', stepTypes());
-		}
-		resolve();
-	})});
-}
-
-// insert Many documents ("collectionname", [{documents},{...}] )
-function insertMore(name, content) {
-	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-		if (err) throw err;
-		const dbo = db.db('Seed');
-		dbo.collection(name).insertMany(content, (error, res) => {
-			if (error) throw error;
-			console.log(`Number of documents inserted: ${res.insertedCount}`);
-		});
-	});
-}
-
-installDatabase().then(() => {exit()})

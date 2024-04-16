@@ -9,12 +9,16 @@ const MongoStore = require('connect-mongo')(session);
 const scriptRouter = require('./serverRouter/scriptRouter');
 const runReportRouter = require('./serverRouter/runReportRouter');
 const githubRouter = require('./serverRouter/githubRouter');
-const mongoRouter = require('./serverRouter/mongoRouter');
+const mongo = require('./database/DbServices');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
 const groupRouter = require('./serverRouter/groupRouter');
 const workgroupsRouter = require('./serverRouter/workgroups');
 const storyRouter = require('./serverRouter/storyRouter');
+const blockRouter = require('./serverRouter/blockRouter');
+const reportRouter = require('./serverRouter/reportRouter');
+const backgroundRouter = require('./serverRouter/backgroundRouter');
+const sanityTest = require('./serverRouter/sanityTest');
 const logging = require('./logging');
 require('./database/DbServices');
 
@@ -36,11 +40,11 @@ if (process.env.NODE_ENV) app
 	.use(flash())
 	.use(session({
 		store: new MongoStore({
-			url: process.env.DATABASE_URI,
+			url: process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
 			dbName: 'Seed',
 			collection: 'Sessions'
 		}),
-		secret: process.env.SESSION_SECRET,
+		secret: process.env.SESSION_SECRET || 'unsaveSecret',
 		resave: false,
 		saveUninitialized: false,
 		proxy: true,
@@ -52,7 +56,7 @@ if (process.env.NODE_ENV) app
 else app
 	.use(flash())
 	.use(session({
-		secret: process.env.SESSION_SECRET,
+		secret: process.env.SESSION_SECRET || 'unsaveSecret',
 		resave: false,
 		saveUninitialized: false,
 		proxy: true
@@ -70,17 +74,31 @@ app
 	.use(passport.initialize())
 	.use(passport.session())
 	.use((_, __, next) => {
-		logging.httpLog(_, __, next)
+		logging.httpLog(_, __, next);
 	})
 	.use('/api/script', scriptRouter)
 	.use('/api/run', runReportRouter)
 	.use('/api/github', githubRouter)
-	.use('/api/mongo', mongoRouter)
 	.use('/api/jira', jiraRouter)
 	.use('/api/user', userRouter)
 	.use('/api/group', groupRouter)
 	.use('/api/workgroups', workgroupsRouter)
 	.use('/api/story', storyRouter)
+	.use('/api/block', blockRouter)
+	.use('/api/report', reportRouter)
+	.use('/api/background', backgroundRouter)
+	.use('/api/sanity', sanityTest)
+	.get('/api/stepTypes', async (_, res) => {
+		try {
+			const result = await mongo.showSteptypes();
+			res.status(200)
+				.json(result);
+		} catch (error) {
+			console.error(`ERROR: ${error}`);
+			res.status(500)
+				.json({ error });
+		}
+	})
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
