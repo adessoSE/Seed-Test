@@ -1,5 +1,4 @@
 async function postMessage() {
-  const fetch = await import('node-fetch').then((module) => module.default);
   const title = process.env.INPUT_TITLE || "";
   const text = process.env.INPUT_TEXT || "";
   const buttons = JSON.parse(process.env.INPUT_BUTTONS || "[]");
