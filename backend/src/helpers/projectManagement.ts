@@ -376,10 +376,9 @@ function findAssociatedID(name, data) {
 async function importProject(file, repo_id?, projectName?, importMode?) {
   // Create a MongoDB client and start a session
   const client = await dbConnector.establishConnection();
-  //client.runCommand( { killAllSessions: [] })
   const session = await client.startSession();
   const zip = new AdmZip(file.buffer);
-  importMode == "false" ? (importMode = false) : (importMode = true);
+  importMode = importMode === "false" ? false : true;
   try {
     // Extract the stories and groups data
     const storiesFolder = "stories_data";
@@ -391,12 +390,6 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
     const groupFiles = zip
       .getEntries()
       .filter((entry) => entry.entryName.startsWith(groupsFolder));
-
-    /* console.log(zip.getEntries().toString());
-    console.log(storyFiles[0]);
-    console.log(storyFiles.map((entry) => entry.entryName));
-    console.log(groupFiles[0]);
-    console.log(groupFiles.map((entry) => entry.entryName)); */
 
     // Sort Files by filename - important for keyStoryId assignment
     storyFiles.sort((a, b) => {
@@ -419,7 +412,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
     const repoBlocksData = JSON.parse(repoBlocksJsonData);
     let groupMapping = [];
     //Needed for automatic renaming
-    let existingNameList: String[] = [];
+    let existingNameList: string[] = [];
 
     //Füllen der KeyStoryIds in Array -> ArrayIndex für Gruppenzuweisung wichtig!
     for (const singularMapping of mappingData) {
@@ -509,12 +502,11 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
 
     if (repo_id && repo_id != "undefined") {
       // Perform a PUT request for an existing project
-      //TODO: Return Array of Strings/Ids needed for name change? but needs async validator in frontend => still not final thought; as of now predetermined modes
       console.log("Performing a PUT request for an existing project");
       console.log(
-        importMode == true
-          ? "We are renaming. State: " + importMode
-          : "We are overwriting. State: " + importMode
+        importMode
+          ? "We are renaming."
+          : "We are overwriting."
       );
 
       //Begin Transaction!

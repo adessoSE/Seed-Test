@@ -1724,8 +1724,8 @@ async function importStories(
       );
       //Get newly created StoryID and paste it into "old" story to replace newly generated one with same id
       storyObject._id = newStory;
-      const importedStory = await updateStory(storyObject, session, client);
-      const insertedId = await insertStoryIdIntoRepo(
+      await updateStory(storyObject, session, client);
+      await insertStoryIdIntoRepo(
         newStory,
         importRepo,
         session,
@@ -1735,7 +1735,7 @@ async function importStories(
     //Apply same logic for override
     if (!post && !importMode && findAssociatedID(name, allConflicts)) {
       storyObject._id = findAssociatedID(name, allConflicts);
-      const importedStory = await updateStory(storyObject, session, client);
+      await updateStory(storyObject, session, client);
     }
   }
 }
@@ -1811,7 +1811,7 @@ async function importGroups(
       );
       console.log("Group " + name + " has been updated: " + updatedGroup);
     } else {
-      const newGroup = await createStoryGroup(
+      await createStoryGroup(
         importRepo,
         name,
         groupObject.member_stories,
