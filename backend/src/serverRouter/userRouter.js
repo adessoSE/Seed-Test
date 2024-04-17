@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');

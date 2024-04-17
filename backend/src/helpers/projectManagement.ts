@@ -6,7 +6,6 @@ import { writeFile } from '../../src/serverHelper';
 import { XMLHttpRequest } from 'xmlhttprequest';
 import AdmZip from 'adm-zip';
 import path from 'path';
-import fetch from "node-fetch";
 
 enum Sources {
     GITHUB = "github",
@@ -30,6 +29,31 @@ class Repository {
     customBlocks: Array<string>
     groups: Array<Group>
 }
+
+type Project = {
+  expand: string;
+  self: string;
+  id: string;
+  key: string;
+  name: string;
+  avatarUrls: {
+    "48x48": string;
+    "24x24": string;
+    "16x16": string;
+    "32x32": string;
+  };
+  projectTypeKey?: string; // Optional property
+  archived: boolean;
+  projectCategory?: ProjectCategory; // Optional property
+};
+
+type ProjectCategory = {
+  self: string;
+  id: string;
+  name: string;
+  description?: string; // Optional property
+};
+
 
 /**
  * get repo names from jira
@@ -73,8 +97,8 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
     // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
     return await fetch(`http://${host}/rest/api/2/project`, reqoptions)
     .then((response) => response.json())
-    .then(async (json) => {
-        const projects = [];
+    .then(async (json: Project[]) => {
+        const projects: string[] = [];
         for (const project of json) {
             projects.push(project["name"])
         }
