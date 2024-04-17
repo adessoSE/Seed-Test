@@ -1,5 +1,3 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
 const base_url = 'http://localhost:8080/api';
 
 describe('Server', () => {
