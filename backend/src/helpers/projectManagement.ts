@@ -527,7 +527,6 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         await mongo.importStories(
           false,
           repo_id,
-          allConflicts,
           session,
           storyFiles,
           groupMapping,
@@ -536,25 +535,25 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           checkAndAddSuffix,
           findAssociatedID,
           client,
-          file
+          file,
+          allConflicts
         );
         await mongo.importBlocks(
           false,
           repo_id,
           await mongo.getOneRepositoryById(repo_id).repoName,
-          allConflicts,
           session,
           existingNameList,
           repoBlocksData,
           importMode,
           checkAndAddSuffix,
           findAssociatedID,
-          client
+          client,
+          allConflicts
         );
         await mongo.importGroups(
           false,
           repo_id,
-          allConflicts,
           session,
           groupFiles,
           groupMapping,
@@ -564,7 +563,8 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           checkAndAddSuffix,
           findAssociatedID,
           client,
-          file
+          file,
+          allConflicts
         );
       });
 

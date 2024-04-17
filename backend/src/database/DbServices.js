@@ -1673,7 +1673,6 @@ async function updateOneDriver(id, driver) {
 async function importStories(
   post,
   importRepo,
-  allConflicts = [],
   session,
   storyFiles,
   groupMapping,
@@ -1682,7 +1681,8 @@ async function importStories(
   checkAndAddSuffix,
   findAssociatedID,
   client,
-  file
+  file,
+  allConflicts = []
 ) {
   const zip = new AdmZip(file.buffer);
   // Function to insert newID based on oldID
@@ -1745,14 +1745,14 @@ async function importBlocks(
   post,
   importRepo,
   repoName,
-  allConflicts = [],
   session,
   existingNameList,
   repoBlocksData,
   importMode,
   checkAndAddSuffix,
   findAssociatedID,
-  client
+  client,
+  allConflicts = []
 ) {
   for (const singularBlock of repoBlocksData) {
     if (!post && importMode)
@@ -1776,7 +1776,6 @@ async function importBlocks(
 async function importGroups(
   post,
   importRepo,
-  allConflicts = [],
   session,
   groupFiles,
   groupMapping,
@@ -1786,7 +1785,8 @@ async function importGroups(
   checkAndAddSuffix,
   findAssociatedID,
   client,
-  file
+  file,
+  allConflicts = []
 ) {
   const zip = new AdmZip(file.buffer);
   for (const groupFile of groupFiles) {
