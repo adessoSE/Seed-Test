@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
+const MongoStore = require('connect-mongo');
 const scriptRouter = require('./serverRouter/scriptRouter');
 const runReportRouter = require('./serverRouter/runReportRouter');
 const githubRouter = require('./serverRouter/githubRouter');
@@ -39,10 +39,10 @@ server.setTimeout(600000);
 if (process.env.NODE_ENV) app
 	.use(flash())
 	.use(session({
-		store: new MongoStore({
-			url: process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
+		store: MongoStore.create({
+			mongoUrl: process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
 			dbName: 'Seed',
-			collection: 'Sessions'
+			collectionName: 'Sessions'
 		}),
 		secret: process.env.SESSION_SECRET || 'unsaveSecret',
 		resave: false,
