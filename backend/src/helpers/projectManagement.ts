@@ -587,7 +587,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         const newRepo = await mongo.createRepo(
           repoData.owner,
           projectName,
-          session, 
+          session,
           client
         );
         if (
@@ -647,14 +647,10 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
       return "";
     }
   } catch (error) {
-    console.log(session.inTransaction());
     console.error("Import failed:", error);
     if (session.inTransaction()) {
-      console.log(session);
-      console.log(session.inTransaction());
       console.log("Import transaction is being aborted.");
       await session.abortTransaction();
-      console.log(session.inTransaction());
     }
   } finally {
     await session.endSession();

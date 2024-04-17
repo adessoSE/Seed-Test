@@ -312,7 +312,7 @@ async function updateStory(
     return await collection.findOneAndReplace(
       { _id: new ObjectId(updatedStory._id.toString()) },
       updatedStory,
-      { returnDocument: "after" }
+      { returnDocument: "after", session: session || undefined }
     );
   } catch (e) {
     console.log(`ERROR updateStory: ${e}`);
@@ -371,7 +371,7 @@ async function createStoryGroup(
           },
         },
       },
-      { upsert: true, projection: { groups: 1 } }
+      { upsert: true, projection: { groups: 1 }, session: session || undefined }
     );
     return groups.groups.slice(-1)._id;
   } catch (e) {
@@ -396,7 +396,7 @@ async function updateStoryGroup(
     // leave with double equal:
     const index = repo.groups.findIndex((o) => o._id == groupId);
     repo.groups[index] = updatedGroup;
-    await collection.updateOne({ _id: new ObjectId(repoId) }, { $set: repo });
+    await collection.updateOne({ _id: new ObjectId(repoId) }, { $set: repo }, { session: session || undefined });
     return updatedGroup;
   } catch (e) {
     console.log(`ERROR in updateStoryGroup: ${e}`);
@@ -541,7 +541,7 @@ async function createStory(
     }
     const story = emptyStory(storyTitle, storyDescription);
     story.issue_number = finalIssueNumber;
-    const result = await db.collection(storiesCollection).insertOne(story);
+    const result = await db.collection(storiesCollection).insertOne(story, { session: session || undefined });
     return result.insertedId;
   } catch (e) {
     console.log(`ERROR in createStory: ${e}`);
@@ -618,7 +618,8 @@ async function insertStoryIdIntoRepo(
       .collection(repositoriesCollection)
       .findOneAndUpdate(
         { _id: new ObjectId(repoId) },
-        { $push: { stories: new ObjectId(storyId) } }
+        { $push: { stories: new ObjectId(storyId) } },
+        { session: session || undefined }
       );
   } catch (e) {
     console.log(`ERROR in insertStoryIdIntoRepo: ${e}`);
@@ -932,7 +933,7 @@ async function createRepo(
     const existingRepo = await collection.findOne(query);
     if (existingRepo !== null || !name)
       return "Sie besitzen bereits ein Repository mit diesem Namen!"; // existing or empty name
-    return collection.insertOne(emptyRepo).then((ret) => ret.insertedId);
+    return collection.insertOne(emptyRepo, { session: session || undefined }).then((ret) => ret.insertedId);
   } catch (e) {
     console.log(`ERROR in createRepo${e}`);
   }
@@ -1470,7 +1471,7 @@ async function saveBlock(block, session = undefined, client = undefined) {
     const db = session
       ? client.db('Seed', session)
       : dbConnection.getConnection();
-    return await db.collection(CustomBlocksCollection).insertOne(block);
+    return await db.collection(CustomBlocksCollection).insertOne(block, {session: session || undefined});
   } catch (e) {
     console.log(`ERROR in saveBlock: ${e}`);
     throw e;
@@ -1495,7 +1496,7 @@ async function updateBlock(
     updatedBlock.owner = new ObjectId(updatedBlock.owner);
     await db
       .collection(CustomBlocksCollection)
-      .findOneAndReplace({ _id: new ObjectId(blockId) }, updatedBlock);
+      .findOneAndReplace({ _id: new ObjectId(blockId) }, updatedBlock, {session: session || undefined});
   } catch (e) {
     console.log(`ERROR in updateBlock: ${e}`);
     throw e;
@@ -1806,7 +1807,7 @@ async function importGroups(
         groupObject._id,
         groupObject,
         session,
-		client
+        client
       );
       console.log("Group " + name + " has been updated: " + updatedGroup);
     } else {
