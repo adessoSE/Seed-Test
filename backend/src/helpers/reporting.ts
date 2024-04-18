@@ -286,6 +286,7 @@ function featureResult(featureReport: any, feature: any) {
     console.log(`NUMBER OF SCENARIOS IN REPORT: ${featureReport.elements.length}`);
     for (const scenReport of featureReport.elements) {
         const scenario = feature.scenarios[featureReport.elements.indexOf(scenReport)];
+        if (!scenario) continue;
         let result = scenarioResult(scenReport, scenario)
 
         //increment FeatureSteps
@@ -395,7 +396,9 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 		setTimeout(deleteReport, deletionTime, `${reportName}.json`);
 		setTimeout(deleteReport, deletionTime, `${reportName}.html`);
 	}
-
+    console.log("repoParam ", reportResults.settings);
+    if (parameters.source === IssueTrackerOption.NONE) return;
+    if (reportResults.settings && reportResults.settings.reportComment !== true) return;//setting only with globalsetting activated
 	// if possible separate function
 	for (const story of stories) {
         const issueTracker = IssueTracker.getIssueTracker(story.storySource)

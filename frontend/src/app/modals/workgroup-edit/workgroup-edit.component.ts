@@ -66,6 +66,8 @@ export class WorkgroupEditComponent {
 
   waitBetweenSteps: number;
 
+  reportComment: boolean;
+
   repoWidth: number;
 
   repoHeight: number;
@@ -152,6 +154,7 @@ export class WorkgroupEditComponent {
             this.emulator = settings.emulator;
           }
           this.waitBetweenSteps = settings.stepWaitTime || 0;
+          this.reportComment = settings.reportComment !== undefined ? settings.reportComment : true;
           this.browser = settings.browser || 'Chrome';
           this.repoHeight = settings.height || undefined;
           this.repoWidth = settings.width || undefined;
@@ -174,6 +177,7 @@ export class WorkgroupEditComponent {
   applyDefaultSettings() {
     this.applyGlobalSettings = false;
     this.waitBetweenSteps = 0;
+    this.reportComment = true;
     this.browser = 'Chrome';
     this.emulator_enabled = false;
     this.emulator = undefined;
@@ -197,7 +201,7 @@ export class WorkgroupEditComponent {
     this.loadGlobalSettings();
     this.modalReference = this.modalService.open(this.workgroupEditModal, { ariaLabelledBy: 'modal-basic-titles' });
     this.projectName = project.value;
-
+    if(project.source==='db')
     this.projectService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
       this.workgroupList = res.member;
       this.workgroupOwner = res.owner.email;
@@ -296,6 +300,7 @@ export class WorkgroupEditComponent {
     project.settings = {
       ...project.settings,
       stepWaitTime: this.waitBetweenSteps,
+      reportComment: this.reportComment,
       browser: this.browser,
       emulator: this.emulator,
       activated: this.applyGlobalSettings,
