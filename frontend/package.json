@@ -2,7 +2,7 @@
   "name": "seed-test-frontend",
   "version": "1.7.1",
   "engines": {
-    "node": "^18.13.0 || ^20.9.00"
+    "node": "^18.13.0 || ^20.9.0"
   },
   "scripts": {
     "ng": "ng",
