@@ -37,6 +37,7 @@ import { InfoWarningToast } from "../info-warning-toast";
 import { MatDialog } from "@angular/material/dialog";
 import { WorkgroupEditComponent } from "../modals/workgroup-edit/workgroup-edit.component";
 import { ManagementService } from "../Services/management.service";
+import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
 
 /**
  * Empty background
@@ -327,6 +328,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   @ViewChild("renameBackgroundModal")
   renameBackgroundModal: RenameBackgroundComponent;
   @ViewChild("workgroupEditModal") workgroupEditModal: WorkgroupEditComponent;
+  @ViewChild('executionListModal') executionListModal: ExecutionListComponent;
 
   /**
    * Event emitter to change to the report history component
@@ -1021,11 +1023,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.showEditor = true;
     } else this.showEditor = false;
   }
-
   /**
    * Make the API Request to run the tests and display the results as a chart
    * @param scenario_id
    */
+
+  testRun(selectedTesRunIds: number[]){
+    console.log('Running tests for id:', selectedTesRunIds)
+  }
   runTests(scenario_id) {
     if (this.storySaved()) {
       this.reportIsSaved = false;
@@ -1485,4 +1490,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   setShowDaisy(event) {
     this.showDaisy = event;
   }
+
+  testExecutions(){
+    this.executionListModal.openExecutionListModal()
+}
 }

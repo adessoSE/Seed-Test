@@ -11,6 +11,7 @@ import { CreateScenarioComponent } from '../modals/create-scenario/create-scenar
 import { ScenarioService } from '../Services/scenario.service';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { BlockService } from '../Services/block.service';
+import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
 
 
 /**
@@ -120,6 +121,7 @@ export class ScenarioEditorComponent implements OnInit{
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
     @ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
     @ViewChild('baseEditor') baseEditor: BaseEditorComponent;
+    @ViewChild('executionListModal') executionListModal: ExecutionListComponent;
 
     /**
      * Original step types not sorted or changed
@@ -461,5 +463,9 @@ export class ScenarioEditorComponent implements OnInit{
     blockSelectTrigger(block) {
         this.selectedBlock =  this.blocks.find(i => i._id == block._blockReferenceId);
         block.stepDefinitions = this.selectedBlock.stepDefinitions;
+    }
+
+    testExecutions(){
+        this.executionListModal.openExecutionListModal()
     }
 }

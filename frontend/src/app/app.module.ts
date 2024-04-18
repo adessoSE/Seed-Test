@@ -84,6 +84,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { WindowSizeComponent } from './modals/window-size/window-size.component';
+import { ExecutionListComponent } from './modals/execution-list/execution-list.component';
 
 
 @NgModule({
@@ -137,7 +138,8 @@ import { WindowSizeComponent } from './modals/window-size/window-size.component'
     XrayToast,
     TransferOwnershipToast,
     ConfirmResetPasswordPopupComponent,
-    WindowSizeComponent
+    WindowSizeComponent,
+    ExecutionListComponent
   ],
   imports: [
     NgbModule,
