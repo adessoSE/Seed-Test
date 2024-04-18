@@ -9,8 +9,8 @@ const pmHelper = require('../../dist/helpers/projectManagement');
 const router = express.Router();
 const upload = multer({
 	storage: multer.memoryStorage(),
-	// 7 MB limit
-	limits: { fileSize: 7 * 1024 * 1024 }
+	// 5 MB limit
+	limits: { fileSize: 5000000 }
 });
 
 router
