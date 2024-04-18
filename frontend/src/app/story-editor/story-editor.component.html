@@ -315,7 +315,7 @@
           <em class="material-icons-outlined">cancel</em></button>
         <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test"
           [class.disabledButton]="testRunning" [disabled]="testRunning" type="button"
-          (click)="executionListModal.openExecutionListModal();">
+          (click)="evaluateTestRun(this.selectedScenario.scenario_id);">
           Run Scenario</button>
       </div>
     </div>
@@ -341,4 +341,4 @@
   <app-save-block-form #saveBlockModal [templateName]="TEMPLATE_NAME"></app-save-block-form>
 </div>
 <app-workgroup-edit #workgroupEditModal (globalSettingsChanged)="updateGlobalSettings($event)"> </app-workgroup-edit>
-<app-execution-list #executionListModal [inputScenario]="this.selectedScenario" (selectedExecutions)="testRun($event)"></app-execution-list>
+<app-execution-list #executionListModal [inputScenario]="this.selectedScenario" (selectedExecutions)="runTests(this.selectedScenario.scenario_id, $event)"></app-execution-list>

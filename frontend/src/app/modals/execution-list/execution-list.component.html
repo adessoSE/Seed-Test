@@ -1,21 +1,19 @@
 <ng-template #executionListModal let-modal>
-    <div class="modal-header">
-      <span id="modalHeader" class="MediumSubline1H4 modal-title">Select Test Executions</span>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <ul class="list-group">
-        <li *ngFor="let testRunStep of inputScenario.testRunSteps" class="list-group-item d-flex justify-content-between align-items-center">
-          Test Execution ID: {{ testRunStep.testRunId }}
-          <input type="checkbox" (change)="toggleSelection(testRunStep.testRunId, $event.target.checked)">
-        </li>
-      </ul>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')">Cancel</button>
-      <button type="button" class="btn btn-primary" (click)="submitSelection()">Run Scenario</button>
-    </div>
-  </ng-template>
-  
+  <div class="modal-header">
+    <span id="modalHeader" class="MediumSubline1H4 modal-title">Select Test Executions</span>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <ul class="list-group">
+      <li *ngFor="let testRunStep of inputScenario.testRunSteps" class="list-group-item d-flex justify-content-between align-items-center">
+        {{ testRunStep.testExecKey }}
+        <input type="checkbox" [(ngModel)]="testRunStep.selected" (change)="toggleSelection(testRunStep.testRunId, testRunStep.selected)">
+      </li>
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="normalButton" (click)="submitSelection()">Run Executions</button>
+  </div>
+</ng-template>

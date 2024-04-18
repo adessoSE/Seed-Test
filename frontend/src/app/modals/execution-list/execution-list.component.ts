@@ -24,8 +24,7 @@ export class ExecutionListComponent {
   }
 
   openExecutionListModal() {
-    console.log('Scenario:', this.inputScenario);
-    this.modalReference = this.modalService.open(this.executionListModal);
+    this.modalReference = this.modalService.open(this.executionListModal, { size: 'mysize' });
   }
 
   toggleSelection(testRunId: number, isChecked: boolean) {

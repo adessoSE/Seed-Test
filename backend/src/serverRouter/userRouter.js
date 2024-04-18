@@ -484,7 +484,8 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 					&& stepExpected === testRunExpected) {
 					matchingSteps.push({
 						testRunId: testRunDetails.id,
-						testRunStepId: testRunStep.id
+						testRunStepId: testRunStep.id,
+						testExecKey: testRunDetails.testExecKey
 					});
 				}
 			});

@@ -1028,10 +1028,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param scenario_id
    */
 
-  testRun(selectedTesRunIds: number[]){
-    console.log('Running tests for id:', selectedTesRunIds)
-  }
-  runTests(scenario_id) {
+  runTests(scenario_id, selectedTestRunIds?: number[]) {
     if (this.storySaved()) {
       this.reportIsSaved = false;
       this.testRunning = true;
@@ -1088,20 +1085,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             const val = report.status;
             // Update xray status
             if (this.selectedScenario.testRunSteps) {
-              console.log(this.selectedScenario.testRunSteps);
-              const testStatus = val ? "PASS" : "FAIL";
-              
               // run through the list of test execution step and update their status
               for (const testRun of this.selectedScenario.testRunSteps) {
-                this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, testStatus)
-                  .subscribe({
-                    next: () => {
-                      console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId);
-                    },
-                    error: (error) => {
-                      console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
-                    }
-                  });
+                if (selectedTestRunIds.includes(testRun.testRunId)) {
+                  const testStatus = val ? "PASS" : "FAIL";
+                  this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, testStatus)
+                    .subscribe({
+                      next: () => {
+                        console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId);
+                      },
+                      error: (error) => {
+                        console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+                      }
+                    });
+                }
               }
             } 
 
@@ -1153,7 +1150,23 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       );
     }
   }
-  
+
+    /**
+   * Evaluates whether to open the modal for test execution selection
+   * or run tests directly based on xray field in scenario.
+   * @param scenario_id 
+   */
+  evaluateTestRun(scenario_id) {
+
+    if (this.selectedScenario && this.selectedScenario.testKey && this.selectedScenario.testRunSteps.length > 0) {
+      // Open the modal if there are test execution steps
+      this.executionListModal.openExecutionListModal();
+    } else {
+      // Run tests directly if there are no test execution steps
+      this.runTests(scenario_id);
+    }
+  }
+
   /**
    * Download the test report
    */
