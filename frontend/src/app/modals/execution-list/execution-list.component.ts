@@ -2,6 +2,8 @@ import { Component, ViewChild, Input, Output, EventEmitter } from '@angular/core
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Scenario } from '../../model/Scenario';
 import { Story } from '../../model/Story';
+import { ThemingService } from '../../Services/theming.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-execution-list',
@@ -19,12 +21,21 @@ export class ExecutionListComponent {
   modalReference: NgbModalRef;
 
   executionContext: Scenario | Story;
+  
+  isDark: boolean;
+  themeObservable: Subscription;
 
   testExecutions: { testRunId: number, testExecKey: string, selected: boolean }[] = [];
 
-  constructor(private modalService: NgbModal) {
-  
+  constructor(private modalService: NgbModal, public themeService: ThemingService) {}
+
+  ngOnInit() {
+    this.isDark = this.themeService.isDarkMode();
+    this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
+        this.isDark = this.themeService.isDarkMode();
+    });
   }
+
 
   openExecutionListModal(context: Scenario | Story) {
     this.selectedTestRunIds = [];
