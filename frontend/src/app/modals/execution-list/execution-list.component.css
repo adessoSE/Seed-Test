@@ -1,0 +1,16 @@
+.list-group-item:first-child {
+    background-color: #f8f8f8; 
+}
+
+.list-group-item {
+    font-weight: normal;
+}
+
+.select-all-text {
+    margin-right: 10px;
+}
+
+.list-group-item:first-child > div {
+    display: flex;
+    align-items: center;
+}

@@ -20,10 +20,10 @@ export class ExecutionListComponent {
 
   executionContext: Scenario | Story;
 
-  testExecutions: { testRunId: number, testExecKey: string }[] = [];
+  testExecutions: { testRunId: number, testExecKey: string, selected: boolean }[] = [];
 
   constructor(private modalService: NgbModal) {
-
+  
   }
 
   openExecutionListModal(context: Scenario | Story) {
@@ -50,25 +50,47 @@ export class ExecutionListComponent {
     this.modalReference.close();
   }
 
-  getTestExecutions(executionContext) {
-
+  getTestExecutions(executionContext: Scenario | Story) {
     this.testExecutions = [];
-
+  
     if (this.isScenario(executionContext)) {
-      this.testExecutions = executionContext.testRunSteps.map(step => ({ testRunId: step.testRunId, testExecKey: step.testExecKey }));
+      this.testExecutions = executionContext.testRunSteps.map(step => ({
+        testRunId: step.testRunId,
+        testExecKey: step.testExecKey,
+        selected: false
+      }));
     } else if (this.isStory(executionContext)) {
       executionContext.scenarios.forEach(scenario => {
-          scenario.testRunSteps.forEach(step => {
-              this.testExecutions.push({ testRunId: step.testRunId, testExecKey: step.testExecKey });
+        scenario.testRunSteps.forEach(step => {
+          this.testExecutions.push({
+            testRunId: step.testRunId,
+            testExecKey: step.testExecKey,
+            selected: false
           });
+        });
       });
-      
-      //remove dublicates
+  
+      // Remove dubpliactes
       this.testExecutions = this.testExecutions.filter((execution, index, self) =>
-          index === self.findIndex(t => t.testExecKey === execution.testExecKey && t.testRunId === execution.testRunId)
+        index === self.findIndex(t => t.testExecKey === execution.testExecKey && t.testRunId === execution.testRunId)
       );
     }
   }
+
+  toggleAll(isChecked: boolean) {
+    if (this.testExecutions.length > 0) {
+      this.testExecutions.forEach(testExecution => {
+        testExecution.selected = isChecked;
+      });
+  
+      if (isChecked) {
+        this.selectedTestRunIds = this.testExecutions.map(te => te.testRunId);
+      } else {
+        this.selectedTestRunIds = [];
+      }
+    }
+  }
+  
 
   isScenario(context: any): context is Scenario {
     return context && Array.isArray(context.testRunSteps);

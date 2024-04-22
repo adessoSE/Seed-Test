@@ -7,6 +7,13 @@
   </div>
   <div class="modal-body">
     <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span class="list-title">Test Execution Key</span>
+        <div>
+          <span class="select-all-text">Select All</span>
+          <input class="select-all-checkbox" type="checkbox" (change)="toggleAll($event.target.checked)" title="Select All">
+        </div>
+      </li>
       <li *ngFor="let testExecution of this.testExecutions" class="list-group-item d-flex justify-content-between align-items-center">
         {{ testExecution.testExecKey }}
         <input type="checkbox" [(ngModel)]="testExecution.selected" (change)="toggleSelection(testExecution.testRunId, testExecution.selected)">
