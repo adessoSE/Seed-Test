@@ -39,10 +39,11 @@
     "selenium-webdriver": "^4.19.0",
     "stream-to-string": "^1.2.1",
     "string-to-stream": "^3.0.1",
-    "tar": "^7.0.1",
-    "uuid": "^9.0.1",
-    "winston": "^3.13.0",
-    "xmlhttprequest": "^1.8.0"
+    "tar": "^6.1.11",
+    "unzipper": "^0.10.11",
+    "uuid": "^8.3.1",
+    "winston": "^3.3.3",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.5",
