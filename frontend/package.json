@@ -50,7 +50,7 @@
     "ngx-toastr": "18.0.0",
     "request": "^2.88.2",
     "rxjs": "^7.4.0",
-    "uikit": "^3.19.4",
+    "uikit": "^3.20.1",
     "zone.js": "^0.14.4"
   },
   "devDependencies": {
@@ -60,7 +60,7 @@
     "@angular-eslint/schematics": "17.3.0",
     "@angular-eslint/template-parser": "17.3.0",
     "@angular/compiler-cli": "^17.3.5",
-    "@compodoc/compodoc": "^1.1.23",
+    "@compodoc/compodoc": "^1.1.24",
     "@popperjs/core": "^2.11.8",
     "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
