@@ -3,10 +3,8 @@ import { jiraDecryptPassword } from './userManagement';
 import emptyScenario from '../../src/models/emptyScenario';
 import emptyBackground from '../../src/models/emptyBackground';
 import { writeFile } from '../../src/serverHelper';
-import { XMLHttpRequest } from 'xmlhttprequest';
 import AdmZip from 'adm-zip';
 import path from 'path';
-import fetch from "node-fetch";
 
 enum Sources {
     GITHUB = "github",
@@ -30,6 +28,31 @@ class Repository {
     customBlocks: Array<string>
     groups: Array<Group>
 }
+
+type Project = {
+  expand: string;
+  self: string;
+  id: string;
+  key: string;
+  name: string;
+  avatarUrls: {
+    "48x48": string;
+    "24x24": string;
+    "16x16": string;
+    "32x32": string;
+  };
+  projectTypeKey?: string; // Optional property
+  archived: boolean;
+  projectCategory?: ProjectCategory; // Optional property
+};
+
+type ProjectCategory = {
+  self: string;
+  id: string;
+  name: string;
+  description?: string; // Optional property
+};
+
 
 /**
  * get repo names from jira
@@ -73,8 +96,8 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
     // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
     return await fetch(`http://${host}/rest/api/2/project`, reqoptions)
     .then((response) => response.json())
-    .then(async (json) => {
-        const projects = [];
+    .then(async (json: Project[]) => {
+        const projects: string[] = [];
         for (const project of json) {
             projects.push(project["name"])
         }
@@ -143,37 +166,37 @@ function uniqueRepositories(repositories) {
 
 function execRepositoryRequests(link, user, password, ownerId, githubId) {
 	return new Promise((resolve, reject) => {
-		const request = new XMLHttpRequest(); // use fetch
-		// get Issues from GitHub
-		request.open('GET', link, true, user, password);
-		request.send();
-		request.onreadystatechange = async () => {
-			if (request.readyState !== 4) return;
-			//if (request.status == 401) resolve([]);
-			//if (request.status == 403) resolve([]);
-			if (request.status !== 200) { reject(request.status); return; }
-			const data = JSON.parse(request.responseText);
-			const projects = [];
-			const gitReposFromDb = await mongo.getAllSourceReposFromDb('github');
-			let mongoRepo;
-			for (const repo of data) {
-				// if this Repository is not in the DB create one in DB
-				if (!gitReposFromDb.some((entry) => entry.repoName === repo.full_name)) {
-					mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
-				} else {
-					mongoRepo = gitReposFromDb.find((element) => element.repoName === repo.full_name); // await mongo.getOneGitRepository(repo.full_name)
-					if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(mongoRepo._id, ownerId, mongoRepo.owner);
+		const reqOptions = {headers: {'Authorization': 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64')}}
+		fetch(link, reqOptions)
+			.then((response) => {
+				if (response.status === 401) resolve([]); 
+				return response})
+			.then((response) => {
+				if (response.status !== 200) reject(response.status); 
+				return response})
+			.then((response) => response.json())
+			.then(async (response) => {
+				const projects = [];
+				const gitReposFromDb = await mongo.getAllSourceReposFromDb('github');
+				let mongoRepo;
+				for (const repo of response) {
+					// if this Repository is not in the DB create one in DB
+					if (!gitReposFromDb.some((entry) => entry.repoName === repo.full_name)) {
+						mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
+					} else {
+						mongoRepo = gitReposFromDb.find((element) => element.repoName === repo.full_name); // await mongo.getOneGitRepository(repo.full_name)
+						if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(mongoRepo._id, ownerId, mongoRepo.owner);
+					}
+					const repoName = repo.full_name;
+					const proj = {
+						_id: mongoRepo._id,
+						value: repoName,
+						source: 'github'
+					};
+					projects.push(proj);
 				}
-				const repoName = repo.full_name;
-				const proj = {
-					_id: mongoRepo._id,
-					value: repoName,
-					source: 'github'
-				};
-				projects.push(proj);
-			}
-			resolve(projects);
-		};
+				resolve(projects);
+			})
 	});
 }
 

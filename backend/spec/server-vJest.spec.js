@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 const base_url = 'http://localhost:8080/api';
 
 describe('Server', () => {
