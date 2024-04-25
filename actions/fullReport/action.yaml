@@ -79,5 +79,5 @@ inputs:
     required: true
 
 runs:
-  using: 'node20'
+  using: 'node16'
   main: 'indexReport.js'

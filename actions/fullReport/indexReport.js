@@ -33,6 +33,7 @@ function calcTotal(dockerStatus, num1, num2) {
 }
 
 async function postMessage() {
+    const fetch = await import('node-fetch').then((module) => module.default);
     const webhook = process.env.INPUT_WEBHOOK;
     const prnumber = process.env.INPUT_PRNUMBER;
     const prlink = process.env.INPUT_PRLINK;
