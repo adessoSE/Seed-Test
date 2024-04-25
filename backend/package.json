@@ -17,7 +17,7 @@
   },
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "^7.3.2",
+    "@cucumber/cucumber": "^9.6.0",
     "@types/promise-fs": "^2.1.5",
     "adm-zip": "^0.5.12",
     "bcrypt": "^5.1.1",
