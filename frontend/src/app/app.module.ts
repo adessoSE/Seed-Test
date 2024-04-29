@@ -175,7 +175,6 @@ import { FileExplorerModalComponent } from "./modals/file-explorer-modal/file-ex
     MatInputModule,
     MatMenuModule
   ],
-  entryComponents: [InfoWarningToast],
   providers: [
     ApiService,
     AuthGuard,
