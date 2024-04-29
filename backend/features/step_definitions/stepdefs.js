@@ -17,17 +17,21 @@ const { applySpecialCommands } = require('../../src/serverHelper');
 let driver;
 
 let downloadDirectory;
+let tmpUploadDir
 switch (os.platform()) {
 	// Windows
 	case 'win32':
 		downloadDirectory = 'C:\\Users\\Public\\seed_Downloads\\';
+		tmpUploadDir = 'C:\\Users\\Public\\SeedTmp\\'
 		break;
 	// macOS
 	case 'darwin':
 		downloadDirectory = `/Users/${os.userInfo().username}/Downloads/`;
+		tmpUploadDir = `/Users/${os.userInfo().username}/SeedTmp/`
 		break;
 	default:
 		downloadDirectory = '/home/public/Downloads/';
+		tmpUploadDir = '/home/public/SeedTmp/';
 }
 
 if (!fs.existsSync(downloadDirectory)) fs.mkdirSync(downloadDirectory, { recursive: true });
@@ -593,7 +597,7 @@ When(
 		const identifiers = [`//input[@*='${input}']`, `${input}`];
 		const promises = [];
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
-		const path = !(/^win/i.test(process.platform)) ? `/home/public/seedExec/${file}` : `C:\\Users\\Public\\seedExec\\${file}`;
+		const path =  tmpUploadDir + file
 		await Promise.any(promises)
 			.then((elem) => elem.sendKeys(`${path}`))
 			.catch(async (e) => {

@@ -1399,16 +1399,28 @@ async function getFileList(repoId) {
 async function getFiles(fileTitles, repoId) {
 	const db = dbConnection.getConnection();
 	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
-	const destinationDirectory = '/Users/public/SeedExec';
+
+	let destinationDirectory;
+	switch (process.platform) {
+		case 'win32': // Windows
+			destinationDirectory = 'C:\\Users\\Public\\SeedTmp\\';
+			break;
+		case 'darwin': // macOS
+			destinationDirectory = `/Users/${os.userInfo().username}/SeedTmp/`;
+			break;
+		default:
+			destinationDirectory = '/home/public/SeedTmp/';
+	}
+	console.log('destination: ', destinationDirectory)
+	if (!fs.existsSync(destinationDirectory)) {
+		fs.mkdirSync(destinationDirectory, { recursive: true });
+	}
 
 	for (const fileTitle of fileTitles) {
 		const fileInfo = await bucket.find({ 'metadata.repoId': new ObjectId(repoId), filename: fileTitle }).toArray((err, file) => file[0]);
 		console.log(fileInfo);
 		const downloadStream = bucket.openDownloadStream(fileInfo[0]._id);
-		const destinationPath = `${destinationDirectory}/${fileInfo[0].filename}`;
-		if (!fs.existsSync(destinationDirectory)) {
-			fs.mkdirSync(destinationDirectory, { recursive: true });
-		}
+		const destinationPath = destinationDirectory + fileInfo[0].filename;
 		const fileWriteStream = fs.createWriteStream(destinationPath);
 
 		setTimeout(() => {
