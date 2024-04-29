@@ -1432,7 +1432,6 @@ async function getFiles(fileTitles, repoId) {
 
 		await new Promise((resolve, reject) => {
 			downloadStream.pipe(fileWriteStream);
-			//downloadStream.on('end', resolve);
 			downloadStream.on('error', reject);
 			fileWriteStream.on('finish', resolve);
 			fileWriteStream.on('error', reject);
