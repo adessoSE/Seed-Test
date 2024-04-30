@@ -446,9 +446,15 @@ function extractRaw(givenField) {
 	return '';
 }
 
+
 function processTestSteps(steps, resolvedTestRuns, issueKey) {
 	const scenarioList = [];
+	const scenPre = [];
 	let testStepDescription = '\n\nTest-Steps:\n';
+
+	const xRayStepRead = (steps) => steps.split(/\r?\n/)
+		.filter(step => step.trim() !== '' && step.trim() !== '-')
+		.map(step => step.trim());
 
 	// iterate through steps and add step description
 	steps.forEach((step) => {
@@ -457,38 +463,40 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 			return;
 		}
 
+		let scenSteps = {};
+
 		const { fields } = step;
 		const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
-		stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
-		stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
-		stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
+
+		if (fields.Given) {
+			stepInfo.push(`(GIVEN): ${fields.Given.value}\n`);
+			const given = xRayStepRead(fields.Given.value);
+			if (given.length) scenSteps.given = given;
+		} else {
+			stepInfo.push('(GIVEN): Not used\n');
+		}
+		
+		if (fields.Action && fields.Action.value.raw) {
+			stepInfo.push(`(WHEN): ${fields.Action.value.raw}\n`);
+			const when = xRayStepRead(fields.Action.value.raw);
+			if (when.length) scenSteps.when = when
+		} else {
+			stepInfo.push('(WHEN): Not steps used\n');
+		}
+		
+		if (fields['Expected Result'] && fields['Expected Result'].value.raw) {
+			stepInfo.push(`(THEN): ${fields['Expected Result'].value.raw}\n`);
+			const then = xRayStepRead(fields['Expected Result'].value.raw);
+			if (then.length) scenSteps.then = then;
+		} else {
+			stepInfo.push('(THEN): No steps used\n');
+		}
+
+		console.log('scenstep: ', scenSteps);
+
 		testStepDescription += stepInfo.join('');
 
-		const matchingSteps = [];
-		// iterate through all resolved test runs
-		resolvedTestRuns.forEach((testRunDetails) => {
-			if (!testRunDetails.steps) {
-				console.log(`Steps missing for test run ${testRunDetails.id}`);
-				return;
-			}
-			// map test steps to testrun steps
-			testRunDetails.steps.forEach((testRunStep) => {
-				const stepGiven = fields.Given ? fields.Given.value : '';
-				const stepAction = fields.Action ? fields.Action.value.raw : '';
-				const stepExpected = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
-				const testRunGiven = testRunStep.fields.Given ? extractRaw(testRunStep.fields.Given.value) : '';
-				const testRunAction = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
-				const testRunExpected = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
-
-				if (stepGiven === testRunGiven && stepAction === testRunAction
-					&& stepExpected === testRunExpected) {
-					matchingSteps.push({
-						testRunId: testRunDetails.id,
-						testRunStepId: testRunStep.id
-					});
-				}
-			});
-		});
+		const matchingSteps = executionMapping(resolvedTestRuns, fields)
 
 		const scenario = {
 			scenario_id: step.id,
@@ -508,6 +516,35 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 	return { scenarioList, testStepDescription };
 }
 
+function executionMapping(runs, fields) {
+	const matchingSteps = [];
+	// iterate through all resolved test runs
+	runs.forEach((testRunDetails) => {
+		if (!testRunDetails.steps) {
+			console.log(`Steps missing for test run ${testRunDetails.id}`);
+			return;
+		}
+		// map test steps to testrun steps
+		testRunDetails.steps.forEach((testRunStep) => {
+			const stepGiven = fields.Given ? fields.Given.value : '';
+			const stepAction = fields.Action ? fields.Action.value.raw : '';
+			const stepExpected = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
+			const testRunGiven = testRunStep.fields.Given ? extractRaw(testRunStep.fields.Given.value) : '';
+			const testRunAction = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
+			const testRunExpected = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
+
+			if (stepGiven === testRunGiven && stepAction === testRunAction
+				&& stepExpected === testRunExpected) {
+				matchingSteps.push({
+					testRunId: testRunDetails.id,
+					testRunStepId: testRunStep.id
+				});
+			}
+		});
+	});
+	return matchingSteps;
+}
+
 async function handleTestIssue(issue, options, Host) {
 	// Fetch all test runs for the given issue
 	const testrunResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
@@ -525,6 +562,43 @@ async function handleTestIssue(issue, options, Host) {
 	const { scenarioList, testStepDescription } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key);
 
 	return { scenarioList, testStepDescription };
+}
+
+function preprocessComment(comment) {
+	const lines = comment.split(/\r?\n/).filter(line => line.trim() !== '');
+	return lines;
+}
+
+
+function preprocessFormatComment(comment){
+	const featureRegex = /(?<=\r?\n\r?\n|^)([^:\r\n]+):\r?\n((?:.+\r?\n?)+)(?=\r?\n\r?\n|$)/g;
+	const scenarioRegex = /Scenario (\d+): ([^\r\n]+)\r?\n((?: # .+\r?\n?)+)/g;
+
+	const features = [];
+
+	let match;
+	while ((match = featureRegex.exec(comment)) !== null) {
+		const feature = match[1].trim();
+		const scenarioText = match[2].trim();
+
+		const scenarios = [];
+		let scenarioMatch;
+		while ((scenarioMatch = scenarioRegex.exec(scenarioText)) !== null) {
+			const scenarioNumber = scenarioMatch[1];
+			const scenarioTitle = scenarioMatch[2];
+			const steps = scenarioMatch[3].trim().split('\r?\n').map(step => step.trim());
+			scenarios.push({ number: scenarioNumber, title: scenarioTitle, steps });
+		}
+
+		features.push({ feature, scenarios });
+	}
+}
+
+function preprocessXRay(comment) {
+	// const strXray = comment.match(/(?<=\{code:\w+\}).+?(?=\{code\})/g)
+	// const xRay = JSON.parse(strXray)
+	
+	
 }
 
 // delete user
