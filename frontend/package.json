@@ -33,7 +33,7 @@
     "@angular/router": "^17.3.4",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "@ngneat/until-destroy": "^10.0.0",
-    "canvg": "^4.0.1",
+    "canvg": "^4.0.2",
     "core-js": "^3.36.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
