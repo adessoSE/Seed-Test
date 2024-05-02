@@ -7,16 +7,27 @@ updates:
   directory: "/frontend"
   schedule:
     interval: "weekly"
+    day: "thursday"
     # Raise pull requests for version updates
     # to npm against the `dev` branch
-    target-branch: "dev"
-    groups:
-        - name: angular-packages
-          packages:
-            - "@angular/*"  # This includes all sub-packages starting with "@angular/"
-            - "@ng*"  # any other Angular-related packages here
-          schedule:
-            interval: "monthly"
+  target-branch: "dev"
+  groups:
+      angular:
+        applies-to: version-updates
+        patterns:
+          - "@angular*"  # This includes all sub-packages starting with "@angular"
+          - "@ng*"  # any other Angular-related packages here
+      minor-and-patch:
+        applies-to: security-updates
+        patterns:
+          - "@angular*"  # This includes all sub-packages starting with "@angular"
+          - "@ng*"  # any other Angular-related packages here
+        update-types:
+        - "patch"
+        - "minor"
+  ignore:
+  - dependency-name: "@angular*"
+    update-types: ["version-update:semver-major"]
 
 # Configuration for npm updates in backend
 - package-ecosystem: "npm"
@@ -26,3 +37,5 @@ updates:
   target-branch: "dev"
   schedule:
     interval: "weekly"
+    day: "thursday"
+
