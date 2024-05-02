@@ -17,6 +17,9 @@ updates:
         patterns:
           - "@angular*"  # This includes all sub-packages starting with "@angular"
           - "@ng*"  # any other Angular-related packages here
+        update-types:
+        - "patch"
+        - "minor"
       angular-security-updates:
         applies-to: security-updates
         patterns:
