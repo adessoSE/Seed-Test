@@ -1,7 +1,7 @@
 # `dependabot.yml` file with updates
 
 version: 2
-
+updates:
 # Configuration for npm updates in frontend
 - package-ecosystem: "npm"
   directory: "/frontend"
