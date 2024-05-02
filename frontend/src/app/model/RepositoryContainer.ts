@@ -28,6 +28,7 @@ export interface RepositoryContainer {
      */
     settings?: {
         stepWaitTime?: number;
+        reportComment?: boolean;
         browser?: string;
         emulator?: string;
         width?: number;
