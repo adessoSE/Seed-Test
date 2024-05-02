@@ -396,7 +396,9 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 		setTimeout(deleteReport, deletionTime, `${reportName}.json`);
 		setTimeout(deleteReport, deletionTime, `${reportName}.html`);
 	}
-
+    console.log("repoParam ", reportResults.settings);
+    if (parameters.source === IssueTrackerOption.NONE) return;
+    if (reportResults.settings && reportResults.settings.reportComment !== true) return;//setting only with globalsetting activated
 	// if possible separate function
 	for (const story of stories) {
         const issueTracker = IssueTracker.getIssueTracker(story.storySource)

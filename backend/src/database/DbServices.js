@@ -962,34 +962,35 @@ async function getRepoSettingsById(repoId) {
  * @param {*} repoID
  * @param {*} newName
  * @param {*} globalSettings
- * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, globalSettings, user) {
-  try {
-    const repoFilter = { owner: new ObjectId(user), _id: new ObjectId(repoID) };
-    const db = dbConnection.getConnection();
-    const collection = await db.collection(repositoriesCollection);
-    if (newName !== undefined) {
-      await collection.findOneAndUpdate(
-        repoFilter,
-        { $set: { repoName: newName } },
-        { returnDocument: "after" }
-      );
-    }
-    if (globalSettings !== undefined) {
-      await collection.findOneAndUpdate(
-        repoFilter,
-        { $set: { settings: globalSettings } },
-        { returnDocument: "after" }
-      );
-    }
-    return await collection.findOne(repoFilter);
-  } catch (e) {
-    console.log(`ERROR updateRepository: ${e}`);
-    throw e;
-  }
+async function updateRepository(repoID, newName, globalSettings) {
+	try {
+		const repoFilter = { _id: new ObjectId(repoID) };
+		const db = dbConnection.getConnection();
+		const collection = await db.collection(repositoriesCollection);
+
+		const updateFields = {};
+		if (newName !== undefined) {
+			updateFields.repoName = newName;
+		}
+		if (globalSettings !== undefined) {
+			updateFields.settings = globalSettings;
+		}
+
+		const updatedRepo = await collection.findOneAndUpdate(
+			repoFilter,
+			{ $set: updateFields },
+			{ returnDocument: 'after' }
+		)
+
+		return updatedRepo.value;
+	} catch (e) {
+		console.log(`ERROR updateRepository: ${e}`);
+		throw e;
+	}
 }
+
 
 async function createJiraRepo(repoName) {
   try {
