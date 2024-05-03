@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 // const process = require('process');
-const fetch = require('node-fetch');
 const mongo = require('../database/DbServices');
 
 const router = express.Router();

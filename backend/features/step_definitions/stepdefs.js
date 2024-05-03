@@ -17,17 +17,21 @@ const { applySpecialCommands } = require('../../src/serverHelper');
 let driver;
 
 let downloadDirectory;
+let tmpUploadDir
 switch (os.platform()) {
 	// Windows
 	case 'win32':
 		downloadDirectory = 'C:\\Users\\Public\\seed_Downloads\\';
+		tmpUploadDir = 'C:\\Users\\Public\\SeedTmp\\'
 		break;
 	// macOS
 	case 'darwin':
 		downloadDirectory = `/Users/${os.userInfo().username}/Downloads/`;
+		tmpUploadDir = `/Users/${os.userInfo().username}/SeedTmp/`
 		break;
 	default:
 		downloadDirectory = '/home/public/Downloads/';
+		tmpUploadDir = '/home/public/SeedTmp/';
 }
 
 if (!fs.existsSync(downloadDirectory)) fs.mkdirSync(downloadDirectory, { recursive: true });
@@ -588,26 +592,23 @@ When('I switch to the next tab', async function switchToNewTab() {
 
 When(
 	'I want to upload the file from this path: {string} into this uploadfield: {string}',
-	async function uploadFile(path, input) {
-		await handleError(async () => {
-			const world = this;
-			const identifiers = [`//input[@*='${input}']`, `${input}`];
-			const promises = [];
-			for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
-
-			await Promise.any(promises)
-				.then((elem) => elem.sendKeys(`${path}`))
-				.catch(async (e) => {
-					await driver.takeScreenshot().then(async (buffer) => {
-						world.attach(buffer, 'image/png');
-					});
-					if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
-					throw Error(e);
+	async function uploadFile(file, input) {
+		const world = this;
+		const identifiers = [`//input[@*='${input}']`, `${input}`];
+		const promises = [];
+		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+		const path =  tmpUploadDir + file
+		await Promise.any(promises)
+			.then((elem) => elem.sendKeys(`${path}`))
+			.catch(async (e) => {
+				await driver.takeScreenshot().then(async (buffer) => {
+					world.attach(buffer, 'image/png');
 				});
-			await driver.sleep(100 + currentParameters.waitTime);
-		});
-	}
-);
+        if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
+					throw Error(e);
+			  await driver.sleep(100 + currentParameters.waitTime);
+		  });
+  });
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
