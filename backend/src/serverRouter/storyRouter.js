@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const pmHelper = require('../../dist/helpers/projectManagement');
+const multer = require('multer')
 
 const router = express.Router();
 
@@ -116,25 +117,18 @@ router.post('/oneDriver/:storyID', async (req, res) => {
 	}
 });
 
-router.post('/uploadFile/:repoId/:filename', async (req, res) => {
+router.post('/uploadFile/:repoId/', multer().single('file'), async (req, res) => {
 	try {
 		console.log('uploadfile');
-		let data = '';
 
-		const { repoId, filename } = req.params;
+		const { repoId } = req.params;
 
-		// Readable stream data event
-		req.on('data', (chunk) => {
-		data += chunk;
-		});
+		console.log(req.file)
 
-		// Readable stream end event
-		req.on('end', async () => {
-			const file = await mongo.fileUpload(filename, repoId, data);
-
-			// Respond to the client
-			res.status(200).json(file);
-		});
+		const file = await mongo.fileUpload(req.file.originalname, repoId, req.file.buffer)
+		if(file) res.status(200).json(file);
+		else res.status(500)
+		
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}

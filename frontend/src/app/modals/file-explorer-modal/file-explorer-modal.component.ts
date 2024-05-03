@@ -49,15 +49,22 @@ export class FileExplorerModalComponent implements OnInit {
     this.fileElements = this.fileService.queryFiles(this.repoId);
   }
 
+  arrayBufferToBase64(buffer) {
+    const binary = new Uint8Array(buffer);
+    let base64 = '';
+    for (let i = 0; i < binary.length; i++) {
+        base64 += String.fromCharCode(binary[i]);
+    }
+    return window.btoa(base64);
+  }
+
   selectUploadFile(event: any) {
-    const file = event.target.files[0];
-    file.arrayBuffer().then(arrayBuffer => {
-      this.fileService.uploadFile(this.repoId, arrayBuffer, file.name)
+    const file: File = event.target.files.item(0);
+    this.fileService.uploadFile(this.repoId, file)
         .subscribe((res: FileElement) => {
           this.updateFileElementQuery();
           delete this.selectedFile;
         });
-    });
   }
 
   selected(event: MouseEvent, element: FileElement) {

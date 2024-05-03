@@ -270,9 +270,11 @@ export class ProjectService {
   /**
    * uploadFile
    */
-  public uploadFile(repoId: string, file: ArrayBuffer, filename:string) {
+  public uploadFile(repoId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file, file.name)
     return this.http
-      .post(`${this.apiService.apiServer}/story/uploadFile/${repoId}/${filename}`, file ,ApiService.getOptions())
+      .post(`${this.apiService.apiServer}/story/uploadFile/${repoId}`, formData ,ApiService.getOptions())
       .pipe(tap((result: FileElement) => {
         const currentDate = new Date();
         const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;

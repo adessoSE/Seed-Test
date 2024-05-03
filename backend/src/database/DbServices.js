@@ -1348,7 +1348,7 @@ async function fileUpload(filename, repoId, file) {
 		const newFilename = generateUniqueFilename(existingFilenames, baseFilename, filename);
 
 		return new Promise((resolve, reject) => {
-			str(JSON.stringify(file))
+			str(file,'base64')
 				.pipe(bucket.openUploadStreamWithId(id, newFilename, { metadata: { repoId: repoObjId } }))
 				.on('error', async (error) => reject(error))
 				.on('finish', async () => resolve({_id: id, filename: newFilename, uploadDate: new Date(Date.now()).toISOString(), metadata: { repoId: repoObjId } }));
