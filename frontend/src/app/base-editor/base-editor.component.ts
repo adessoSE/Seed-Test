@@ -1,20 +1,6 @@
 import { ApiService } from "src/app/Services/api.service";
-import {
-  CdkDragDrop,
-  CdkDragStart,
-  DragRef,
-  moveItemInArray,
-} from "@angular/cdk/drag-drop";
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  Output,
-  QueryList,
-  ViewChild,
-  ViewChildren,
-} from "@angular/core";
+import { CdkDragDrop,CdkDragEnter,CdkDragExit,CdkDragStart,CdkDropList,DragRef, moveItemInArray, transferArrayItem} from "@angular/cdk/drag-drop";
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren} from "@angular/core";
 import { ToastrService } from "ngx-toastr";
 import { AddBlockFormComponent } from "../modals/add-block-form/add-block-form.component";
 import { NewStepRequestComponent } from "../modals/new-step-request/new-step-request.component";
@@ -192,6 +178,7 @@ export class BaseEditorComponent {
 
   @Input() isDark: boolean;
 
+  @ViewChild('todoList', {read: ElementRef}) todoList: ElementRef;
   /**
    * Subscribtions for all EventEmitter
    */
@@ -690,18 +677,30 @@ export class BaseEditorComponent {
 
       //   }
       // }
+
       this.originalStepTypes.sort((a, b) => a.id - b.id);
       // when.sort((a, b) => a.id - b.id);
       // then.sort((a, b) => a.id - b.id);
 
-      return [
-        { type: 'Header', label: '' },
-        ...this.originalStepTypes
-      ];
+      return this.originalStepTypes;
     }
     return [];
   }
+  dragPosition = {x: 0, y: 0};
 
+  changePosition() {
+    this.dragPosition = {x: this.dragPosition.x + 50, y: this.dragPosition.y + 50};
+  }
+
+
+  drop(event: CdkDragDrop<string[]>) {
+    const eventDrop = event;
+    console.log("eventDrop", eventDrop);
+    // let newStep = this.createNewStep(event.item.data, this.selectedScenario.stepDefinitions, this.selectedScenario.multipleScenarios);
+    // console.log("Hallo", newStep,  event.currentIndex);
+    // const currentIndex = event.currentIndex;
+    // this.selectedScenario.stepDefinitions.given.splice(1, 0, newStep); 
+  }
 
   getUniqueSteps(): StepType[] {
     let uniqueStepTypes: StepType[] = [];
@@ -1876,7 +1875,12 @@ export class BaseEditorComponent {
       });
     });
   }
+  displaySteps: boolean = false;
 
+  // Function to toggle the visibility of the dropdown
+  displayStepsList() {
+    this.displaySteps = !this.displaySteps;
+  }
   /**
    * Inserts copied steps with examples
    * Checks for unique example names

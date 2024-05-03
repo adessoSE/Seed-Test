@@ -43,8 +43,8 @@ const exampleScenario = {
 				]
 			}
 		],
-		example: []
 	},
+	multipleScenarios: [],
 	browser: 'chrome',
 	lastTestPassed: null
 };

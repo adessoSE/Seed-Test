@@ -18,6 +18,19 @@
 	margin-left: 3px;
 	margin-top: 5px
 }
+#stepListDragContainer{
+	cursor: grab;
+}
+.dragging {
+	border: 0.5px solid var(--border);
+	border-radius: 6px;
+	font-size: 20px;
+	padding: 5px 0px 20px 5px;
+	height: 100%;
+	position: relative;
+	background-color: white;
+	z-index: 9999;
+}
 
 :host ::ng-deep .checkbox:hover {
 	cursor: pointer;
@@ -147,16 +160,68 @@ em.dragIcon {
 }
 
 .addStepButton {
-	border: inherit;
-	background: inherit;
-	color: var(--ocean-blue);
-	float: right;
-	transform: translate(0, -45px);
+	background: transparent;
+	border: none;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
+.stepListContainer {
+	position: fixed;
+	bottom: 3vw;
+	right: 2vw;
+	display: grid;
+	justify-items: end;
+	z-index: 2;
+}
+
+.addStepButton:hover {
+	transform: scale(1.1);
+}
+
+.addStepButton.openStepList {
+	transform: rotate(135deg);
 }
 
 em.addStep {
-	color: var(--ocean-blue);
+	color: #ffffff;
+	font-size: 60px;
+	background: var(--ocean-blue);
+	box-shadow: 0 0 10px var(--marine-blue);
+	border-radius: 2rem;
+}
+
+em.addStep:hover {
+	box-shadow: 0 0 20px var(--light-blue);
+}
+
+.dropdown-container-opened {
+	height: 25rem;
+	opacity: 1;
+	overflow: scroll;
+	box-shadow: 2px 3px 10px 0 rgba(81, 81, 81, 0.1);
+	border: 1px solid #e4e4e4;
+	padding: 10px;
+	background: #fff;
+	width: 100%;
+	border-radius: 5px;
+	transform: translateY(0%);
+	transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out, heigth 0.4s ease-in-out;
+}
+
+.dropdown-container {
+	opacity: 0;
+	transform: translateY(10%);
+	height: 0px;
+	display: flex;
+}
+
+.dropdown-container.opened .step-box:hover {
+	cursor: pointer;
+}
+
+.highlighted-container {
+	border: 2px dashed red;
+	/* Example border style */
 }
 
 .pencil_icon {
@@ -451,11 +516,11 @@ input.background {
 }
 
 .dropdownHeader {
-    font-weight: bold;
-    padding: 10px 20px 10px 0;
-    border-top: 1px solid #ddd;
-    margin-top: 5px;
-    position: relative;
+	font-weight: bold;
+	padding: 10px 20px 10px 0;
+	border-top: 1px solid #ddd;
+	margin-top: 5px;
+	position: relative;
 }
 
 .dropdownHeader:first-of-type {
@@ -506,9 +571,9 @@ input.background {
 }
 
 @media screen and (max-height: 700px) {
-    ul.stepsList{
-        height: 250px;
-        overflow: scroll;
-        margin-right: -25px;
-    }
+	ul.stepsList {
+		height: 250px;
+		overflow: scroll;
+		margin-right: -25px;
+	}
 }
