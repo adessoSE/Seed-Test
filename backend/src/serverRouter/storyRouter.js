@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const pmHelper = require('../../dist/helpers/projectManagement');
-const multer = require('multer')
 
 const router = express.Router();
 const upload = multer({

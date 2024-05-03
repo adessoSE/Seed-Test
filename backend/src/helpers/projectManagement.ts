@@ -4,7 +4,6 @@ import { jiraDecryptPassword } from "./userManagement";
 import emptyScenario from "../../src/models/emptyScenario";
 import emptyBackground from "../../src/models/emptyBackground";
 import { writeFile } from "../../src/serverHelper";
-import { XMLHttpRequest } from "xmlhttprequest";
 import AdmZip from "adm-zip";
 import path from "path";
 import fetch from "node-fetch";
