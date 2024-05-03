@@ -1824,20 +1824,6 @@ async function importGroups(
   }
 }
 
-function mongoSanitize(v) {
-  // from https://github.com/vkarpov15/mongo-sanitize
-  if (v instanceof Object) {
-    for (const key in v) {
-      if (/^\$/.test(key)) {
-        delete v[key];
-      } else {
-        mongoSanitize(v[key]);
-      }
-    }
-  }
-  return v;
-}
-
 async function fileUpload(filename, repoId, file) {
 	try {
 		const db = dbConnection.getConnection();
