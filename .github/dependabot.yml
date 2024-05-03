@@ -1,0 +1,44 @@
+# `dependabot.yml` file with updates
+
+version: 2
+updates:
+# Configuration for npm updates in frontend
+- package-ecosystem: "npm"
+  directory: "/frontend"
+  schedule:
+    interval: "weekly"
+    day: "thursday"
+    # Raise pull requests for version updates
+    # to npm against the `dev` branch
+  target-branch: "dev"
+  groups:
+      angular:
+        applies-to: version-updates
+        patterns:
+          - "@angular*"  # This includes all sub-packages starting with "@angular"
+          - "@ng*"  # any other Angular-related packages here
+        update-types:
+        - "patch"
+        - "minor"
+      angular-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "@angular*"  # This includes all sub-packages starting with "@angular"
+          - "@ng*"  # any other Angular-related packages here
+        update-types:
+        - "patch"
+        - "minor"
+  ignore:
+  - dependency-name: "@angular*"
+    update-types: ["version-update:semver-major"]
+
+# Configuration for npm updates in backend
+- package-ecosystem: "npm"
+  directory: "/backend"
+  # Raise pull requests for version updates
+  # to npm against the `dev` branch
+  target-branch: "dev"
+  schedule:
+    interval: "weekly"
+    day: "thursday"
+
