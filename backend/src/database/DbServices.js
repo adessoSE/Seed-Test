@@ -1342,6 +1342,120 @@ async function updateOneDriver(id, driver) {
 	}
 }
 
+async function fileUpload(filename, repoId, file) {
+	try {
+		const db = dbConnection.getConnection();
+		const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+		const repoObjId = new ObjectId(repoId);
+		const id = new ObjectId();
+		//base filename may be the same as filename, excluding extension
+		const baseFilename = filename.replace(/\s?(\(\d+\))?\.\w+$/, '');
+		// the regex searches for files <filename> and any <filename> (0-9)
+		// eslint-disable-next-line no-useless-escape
+		const existingFiles = await db.collection('GridFS.files').find({ filename: { $regex: `^${baseFilename}` }, metadata: { repoId: repoObjId } }, { filename: 1 }).toArray();
+		const existingFilenames = existingFiles.map((file) => file.filename);
+		const newFilename = generateUniqueFilename(existingFilenames, baseFilename, filename);
+
+		return new Promise((resolve, reject) => {
+			str(file,'base64')
+				.pipe(bucket.openUploadStreamWithId(id, newFilename, { metadata: { repoId: repoObjId } }))
+				.on('error', async (error) => reject(error))
+				.on('finish', async () => resolve({_id: id, filename: newFilename, uploadDate: new Date(Date.now()).toISOString(), metadata: { repoId: repoObjId } }));
+		});
+	} catch (e) {
+		console.log('ERROR in file upload: ', e);
+		throw e;
+	}
+}
+
+function generateUniqueFilename(existingFilenames, baseFilename, filename) {
+	let newFilename = filename;
+	let count = 2;
+	while (existingFilenames.includes(newFilename)) {
+		newFilename = baseFilename + ' (' + count++ + ').' + filename.split('.').pop();
+	}
+	return newFilename;
+}
+
+async function deleteFile(fileId) {
+	try {
+		const db = dbConnection.getConnection();
+		console.log('Delete FileId: ', fileId);
+		const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+		await bucket.delete(new ObjectId(fileId));
+	} catch (e) {
+		console.log('ERROR in file delete: ', e);
+		throw e;
+	}
+}
+
+async function getFileList(repoId) {
+	try {
+		const db = dbConnection.getConnection();
+		const files = await db.collection('GridFS.files').find({ 'metadata.repoId': new ObjectId(repoId) })
+			.toArray();
+		return files;
+	} catch (e) {
+		console.log('ERROR in get file list: ', e);
+		throw e;
+	}
+}
+
+/**
+ * Store Files Temporarily in the File System
+ * @param {string} fileIds 
+ */
+async function getFiles(fileTitles, repoId) {
+	const db = dbConnection.getConnection();
+	const bucket = new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
+
+	let destinationDirectory;
+	switch (process.platform) {
+		case 'win32': // Windows
+			destinationDirectory = 'C:\\Users\\Public\\SeedTmp\\';
+			break;
+		case 'darwin': // macOS
+			destinationDirectory = `/Users/${os.userInfo().username}/SeedTmp/`;
+			break;
+		default:
+			destinationDirectory = '/home/public/SeedTmp/';
+	}
+	console.log('destination: ', destinationDirectory)
+	if (!fs.existsSync(destinationDirectory)) {
+		fs.mkdirSync(destinationDirectory, { recursive: true });
+	}
+
+	for (const fileTitle of fileTitles) {
+		try {
+			const fileInfo = await bucket.find({ 'metadata.repoId': new ObjectId(repoId), filename: fileTitle }).toArray((err, file) => file[0]);
+			console.log(fileInfo);
+			const downloadStream = bucket.openDownloadStream(fileInfo[0]._id);
+			const destinationPath = destinationDirectory + fileInfo[0].filename;
+			const fileWriteStream = fs.createWriteStream(destinationPath);
+	
+			setTimeout(() => {
+				fs.unlink(destinationPath, (err) => {
+					if (err) console.log(err);
+					else console.log(`${fileInfo[0].filename} deleted.`);
+				});
+			}, 18000000); // 5h Timeout
+	
+			await new Promise((resolve, reject) => {
+				downloadStream.pipe(fileWriteStream);
+				downloadStream.on('error', reject);
+				fileWriteStream.on('finish', resolve);
+				fileWriteStream.on('error', reject);
+			}).catch((e) => {
+				console.error(e);
+			});
+	
+			console.log('Datei erfolgreich heruntergeladen:', destinationPath);
+		} catch (error) {
+			console.error('Datei nicht gefunden:', error.message);
+		}
+	}
+}
+
 function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	if (v instanceof Object) {
 		for (const key in v) {
@@ -1356,6 +1470,10 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 }
 
 module.exports = {
+	getFileList,
+	getFiles,
+	fileUpload,
+	deleteFile,
 	setIsSavedTestReport,
 	deleteReport,
 	getTestReports,
