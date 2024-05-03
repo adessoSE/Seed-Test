@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
+const fetch = require('node-fetch');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
