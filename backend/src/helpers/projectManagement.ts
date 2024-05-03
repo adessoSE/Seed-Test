@@ -580,7 +580,6 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         await mongo.importStories(
           true,
           newRepo.toHexString(),
-          [],
           session,
           storyFiles,
           groupMapping,
@@ -596,7 +595,6 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           true,
           newRepo.toHexString(),
           projectName,
-          [],
           session,
           existingNameList,
           repoBlocksData,
@@ -608,7 +606,6 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         await mongo.importGroups(
           true,
           newRepo.toHexString(),
-          [],
           session,
           groupFiles,
           groupMapping,

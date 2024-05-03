@@ -1699,7 +1699,6 @@ async function importStories(
     );
   }
 
-  console.log(storyFiles)
   // Iterate through each story file
   for (const storyFile of storyFiles) {
     const storyData = zip.readAsText(storyFile.entryName);
@@ -1810,7 +1809,7 @@ async function importGroups(
         session,
         client
       );
-      console.log("Group " + name + " has been updated: " + updatedGroup);
+      console.log("Group " + name + " has been updated. ID: " + updatedGroup._id);
     } else {
       await createStoryGroup(
         importRepo,
