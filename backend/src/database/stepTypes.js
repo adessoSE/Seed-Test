@@ -271,14 +271,6 @@ function stepDefs() {
 		values: [
 			''
 		]
-	}, {
-		id: 500,
-		type: 'New Step',
-		pre: 'Recommended Title:',
-		mid: '',
-		values: [
-			''
-		]
 	},
 	];
 }
