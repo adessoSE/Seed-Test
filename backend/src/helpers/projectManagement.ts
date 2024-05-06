@@ -7,28 +7,29 @@ import { XMLHttpRequest } from 'xmlhttprequest';
 import AdmZip from 'adm-zip';
 import path from 'path';
 import fetch from "node-fetch";
+import test from 'node:test';
 
 enum Sources {
-    GITHUB = "github",
-    JIRA = "jira",
-    DB = "db"
+	GITHUB = "github",
+	JIRA = "jira",
+	DB = "db"
 }
 
 class Group {
-    _id: string
-    name: string
-    member_stories: Array<string>
-    isSequential: boolean
+	_id: string
+	name: string
+	member_stories: Array<string>
+	isSequential: boolean
 }
 
 class Repository {
-    _id: string
-    owner: string
-    gitOwner: string
-    stories: Array<string>
-    repoType: Enumerator<Sources>
-    customBlocks: Array<string>
-    groups: Array<Group>
+	_id: string
+	owner: string
+	gitOwner: string
+	stories: Array<string>
+	repoType: Enumerator<Sources>
+	customBlocks: Array<string>
+	groups: Array<Group>
 }
 
 /**
@@ -37,11 +38,11 @@ class Repository {
  * @returns 
  */
 async function getJiraRepos(jiraUser: any) {
-    if(!jiraUser)return []
-    let { Host, AccountName, Password, Password_Nonce, Password_Tag , AuthMethod} = jiraUser;
-    const jiraClearPassword = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
-    const repos = await requestJiraRepos(Host, AccountName, jiraClearPassword, AuthMethod);
-    return await storeJiraRepos(repos)
+	if (!jiraUser) return []
+	let { Host, AccountName, Password, Password_Nonce, Password_Tag, AuthMethod } = jiraUser;
+	const jiraClearPassword = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
+	const repos = await requestJiraRepos(Host, AccountName, jiraClearPassword, AuthMethod);
+	return await storeJiraRepos(repos)
 }
 
 /**
@@ -53,33 +54,33 @@ async function getJiraRepos(jiraUser: any) {
  */
 async function requestJiraRepos(host: string, username: string, jiraClearPassword: string, authMethod: string) {
 	let authString: string = `Bearer ${jiraClearPassword}`
-	if(authMethod === 'basic'){ 
+	if (authMethod === 'basic') {
 		const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
 		authString = `Basic ${auth}`
 	}
 	console.log('auth ', authString);
-    const reqoptions = {
-        method: 'GET',
-        qs: {
-            type: 'page',
-            title: 'title'
-        },
-        headers: {
-            'cache-control': 'no-cache',
+	const reqoptions = {
+		method: 'GET',
+		qs: {
+			type: 'page',
+			title: 'title'
+		},
+		headers: {
+			'cache-control': 'no-cache',
 			'Authorization': authString
-        }
-    };
-    // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
-    // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
-    return await fetch(`http://${host}/rest/api/2/project`, reqoptions)
-    .then((response) => response.json())
-    .then(async (json) => {
-        const projects = [];
-        for (const project of json) {
-            projects.push(project["name"])
-        }
-        return projects
-    }).catch((error) => { console.error(error); return [] })
+		}
+	};
+	// use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
+	// https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
+	return await fetch(`http://${host}/rest/api/2/project`, reqoptions)
+		.then((response) => response.json())
+		.then(async (json) => {
+			const projects = [];
+			for (const project of json) {
+				projects.push(project["name"])
+			}
+			return projects
+		}).catch((error) => { console.error(error); return [] })
 }
 
 /**
@@ -87,27 +88,27 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
  * @param projects 
  * @returns 
  */
-async function storeJiraRepos(projects:Array<any>){
-    const source = Sources.JIRA
-    let repos = [];
-    let jiraRepo;
-    const jiraReposFromDb = await mongo.getAllSourceReposFromDb(source);
-    if (projects.length !== 0) {
-        for (const projectName of projects) {
-            if (!jiraReposFromDb.some((entry) => entry.repoName === projectName)) {
-                jiraRepo = await mongo.createJiraRepo(projectName);
-            } else {
-                jiraRepo = jiraReposFromDb.find((element) => element.repoName === projectName);
-            }
-            repos.push({ name: projectName, _id: jiraRepo._id });
-        }
-        return repos.map<{_id:string, value:string, source:string}>
-        ((value) => ({
-            _id: value._id,
-            value: value.name,
-            source
-        }));
-    } else return [];
+async function storeJiraRepos(projects: Array<any>) {
+	const source = Sources.JIRA
+	let repos = [];
+	let jiraRepo;
+	const jiraReposFromDb = await mongo.getAllSourceReposFromDb(source);
+	if (projects.length !== 0) {
+		for (const projectName of projects) {
+			if (!jiraReposFromDb.some((entry) => entry.repoName === projectName)) {
+				jiraRepo = await mongo.createJiraRepo(projectName);
+			} else {
+				jiraRepo = jiraReposFromDb.find((element) => element.repoName === projectName);
+			}
+			repos.push({ name: projectName, _id: jiraRepo._id });
+		}
+		return repos.map<{ _id: string, value: string, source: string }>
+			((value) => ({
+				_id: value._id,
+				value: value.name,
+				source
+			}));
+	} else return [];
 }
 function dbProjects(userId: string) {
 	return new Promise((resolve) => {
@@ -188,30 +189,30 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 }
 
 function updateTestrunSteps(dbScenarios, storyScenarios) {
-    dbScenarios.forEach(dbScenario => {
-        const storyScenario = storyScenarios.find(scenario => scenario.scenario_id === dbScenario.scenario_id);
-        if (storyScenario) {
-            storyScenario.testRunSteps.forEach(testRunStep => {
-                const exists = dbScenario.testRunSteps.some(dbTestRunStep =>
-                    dbTestRunStep.testRunId === testRunStep.testRunId && dbTestRunStep.testRunStepId === testRunStep.testRunStepId);
+	dbScenarios.forEach(dbScenario => {
+		const storyScenario = storyScenarios.find(scenario => scenario.scenario_id === dbScenario.scenario_id);
+		if (storyScenario) {
+			storyScenario.testRunSteps.forEach(testRunStep => {
+				const exists = dbScenario.testRunSteps.some(dbTestRunStep =>
+					dbTestRunStep.testRunId === testRunStep.testRunId && dbTestRunStep.testRunStepId === testRunStep.testRunStepId);
 
-                if (!exists) {
-                    dbScenario.testRunSteps.push(testRunStep);
-                }
-            });
-			if(storyScenario.testKey){
+				if (!exists) {
+					dbScenario.testRunSteps.push(testRunStep);
+				}
+			});
+			if (storyScenario.testKey) {
 				dbScenario.testKey = storyScenario.testKey;
 			}
-        }
-    });
+		}
+	});
 }
 
 function addScenariosToDb(dbScenarios, storyScenarios) {
-    const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
-    const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
-    if (newScenarios.length > 0) {
-        dbScenarios.push(...newScenarios);
-    }
+	const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
+	const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
+	if (newScenarios.length > 0) {
+		dbScenarios.push(...newScenarios);
+	}
 }
 
 async function fuseStoryWithDb(story) {
@@ -222,8 +223,8 @@ async function fuseStoryWithDb(story) {
 		updateTestrunSteps(result.scenarios, story.scenarios);
 
 		// add scenarios for new xray steps
-        addScenariosToDb(result.scenarios, story.scenarios);
- 
+		addScenariosToDb(result.scenarios, story.scenarios);
+
 		story.scenarios = result.scenarios;
 		story.background = result.background;
 		story.lastTestPassed = result.lastTestPassed;
@@ -264,7 +265,7 @@ async function exportProject(repo_id, versionID) {
 
 		//Collect blocks for export
 		let repoBlocks = await mongo.getBlocks(repo_id);
-		
+
 		//Falls sich die getBlocks Blöcke wider Erwarten von den customBlocks in dem repo unterscheiden, müssen wir ggf. anders loopen und zwischenabfragen
 		for (let index = 0; index < repoBlocks.length; index++) {
 			delete repoBlocks[index]._id;
@@ -282,17 +283,17 @@ async function exportProject(repo_id, versionID) {
 
 		const zip = new AdmZip();
 		// Create separate folders for stories and groups
-        const storiesFolder = 'stories_data';
-        for (let index = 0; index < exportStories.length; index++) {
-            zip.addFile(path.join(`${storiesFolder}/story_${index}.json`), Buffer.from(JSON.stringify(exportStories[index]), 'utf8'));
-        }
+		const storiesFolder = 'stories_data';
+		for (let index = 0; index < exportStories.length; index++) {
+			zip.addFile(path.join(`${storiesFolder}/story_${index}.json`), Buffer.from(JSON.stringify(exportStories[index]), 'utf8'));
+		}
 
-        const groupsFolder = 'groups_data';
-        for (let index = 0; index < repoGroups.length; index++) {
-            zip.addFile(path.join(`${groupsFolder}/group_${index}.json`), Buffer.from(JSON.stringify(repoGroups[index]), 'utf8'));
-        }
+		const groupsFolder = 'groups_data';
+		for (let index = 0; index < repoGroups.length; index++) {
+			zip.addFile(path.join(`${groupsFolder}/group_${index}.json`), Buffer.from(JSON.stringify(repoGroups[index]), 'utf8'));
+		}
 
-        // Write the rest of the data as individual JSON files
+		// Write the rest of the data as individual JSON files
 		zip.addFile('repo.json', Buffer.from(JSON.stringify(repo), 'utf8'));
 		zip.addFile('repoBlocks.json', Buffer.from(JSON.stringify(repoBlocks), 'utf8'));
 		zip.addFile('keyStoryIds.json', Buffer.from(JSON.stringify(keyStoryIds), 'utf8'));
@@ -305,7 +306,52 @@ async function exportProject(repo_id, versionID) {
 	}
 }
 
+async function updateTestSets(testSets, repo_id) {
+	for (const testSet of testSets) {
+		try {
+			const storyIds = await getStorysByIssue(testSet.tests);
 
+			if (storyIds.length === 0) {
+				console.log(`No stories found for Test Set ${testSet.testSetKey}. Skipping group creation.`);
+				continue;
+			}
+
+			// Get repository to update groups
+			const repository = await mongo.getOneRepositoryById(repo_id);
+
+			// Find existing group by testSetKey
+			let existingGroup = repository.groups.find(group => group.name === testSet.testSetKey);
+
+			if (existingGroup) {
+                // Update existing group
+                const updatedGroup = { ...existingGroup, member_stories: storyIds }; 
+                await mongo.updateStoryGroup(repo_id, existingGroup._id.toString(), updatedGroup);
+                console.log(`Updated group for Test Set: ${testSet.testSetKey}`);
+            } else {
+                // Create a new group if it does not exist
+                const groupId = await mongo.createStoryGroup(
+                    repo_id,
+                    testSet.testSetKey,
+                    storyIds,
+                    true  
+                );
+                console.log(`Group created for Test Set: ${testSet.testSetKey}`);
+            }
+        } catch (e) {
+            console.error(`Error processing group for Test Set: ${testSet.testSetKey}:`, e);
+        }
+    }
+}
+
+async function getStorysByIssue(issueKeys) {
+	try {
+		const storiesIds = await mongo.getStoriesByIssueKeys(issueKeys);
+		return storiesIds
+	} catch (error) {
+		console.error("Error fetching stories by issue keys:", error);
+		return [];
+	}
+}
 
 module.exports = {
 	getJiraRepos,
@@ -314,5 +360,6 @@ module.exports = {
 	starredRepositories,
 	ownRepositories,
 	fuseStoryWithDb,
-	exportProject
+	exportProject,
+	updateTestSets
 };

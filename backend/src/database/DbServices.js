@@ -1355,6 +1355,27 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	return v;
 }
 
+async function getStoriesByIssueKeys(issueKeys) {
+    try {
+        const db = dbConnection.getConnection();
+        const stories = await db.collection(storiesCollection).find({
+            'issue_number': { $in: issueKeys }
+        }).project({_id: 1}).toArray();
+
+        if (!stories.length) {
+            console.log("No stories found for the provided issue keys.");
+            return [];
+        }
+
+        const storyIds = stories.map(story => story._id.toString());
+        console.log("Fetched story IDs:", storyIds);
+        return storyIds;
+    } catch (error) {
+        console.error('Error retrieving stories by issue keys:', error);
+        throw error;
+    }
+}
+
 module.exports = {
 	setIsSavedTestReport,
 	deleteReport,
@@ -1428,5 +1449,6 @@ module.exports = {
 	updateOwnerInRepo,
 	updateRepository,
 	getOneRepositoryById,
-	getRepoSettingsById
+	getRepoSettingsById,
+	getStoriesByIssueKeys
 };
