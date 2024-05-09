@@ -70,7 +70,7 @@
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.7.0",
     "tslib": "^2.6.2",
-    "typescript": ">=5.2.0 <5.4.0"
+    "typescript": ">=5.2.0 <5.5.0"
   },
   "jest": {
     "preset": "jest-preset-angular",
