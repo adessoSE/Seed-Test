@@ -50,7 +50,7 @@
     "ngx-toastr": "18.0.0",
     "request": "^2.88.2",
     "rxjs": "^7.8.1",
-    "uikit": "^3.20.8",
+    "uikit": "^3.20.9",
     "zone.js": "^0.14.5"
   },
   "devDependencies": {
