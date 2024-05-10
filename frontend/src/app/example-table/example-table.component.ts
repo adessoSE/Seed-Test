@@ -174,7 +174,7 @@ export class ExampleTableComponent implements OnInit {
     public apiService: ApiService,
     public themeService: ThemingService,
     public highlightInputService: HighlightInputService
-  ) {}
+  ) { }
 
   /**
    * @ignore
@@ -192,7 +192,16 @@ export class ExampleTableComponent implements OnInit {
 
     this.toggleObservable = this.toggleControl.valueChanges.subscribe((val) => {
       this.editMode = val;
+      let exampleValues = document.getElementsByClassName("exampleValueContainer");
+      if (exampleValues.length > 0) {
+        for (let i = 0; i < exampleValues.length; i++) {
+          let exampleValue = exampleValues[i] as HTMLElement;
+          if (exampleValue) this.editMode ? exampleValue.setAttribute("contenteditable", "true") : exampleValue.setAttribute("contenteditable", "false");
+        }
+      }
+
     });
+
     this.isDark = this.themeService.isDarkMode();
     this.themeObservable = this.themeService.themeChanged.subscribe(
       (changedTheme) => {
@@ -257,11 +266,11 @@ export class ExampleTableComponent implements OnInit {
       this.selectedScenario.multipleScenarios[0].values
     );
     const formArray: UntypedFormGroup[] = [];
-    for ( let i = 1; i < this.selectedScenario.multipleScenarios.length; i++) {
+    for (let i = 1; i < this.selectedScenario.multipleScenarios.length; i++) {
       let toGroups = new UntypedFormGroup({}, { updateOn: "blur" });
       for (let j = 0; j < this.selectedScenario.multipleScenarios[i].values.length; j++) {
-        let cont1 = new UntypedFormControl( this.selectedScenario.multipleScenarios[i].values[j]);
-        toGroups.addControl( this.selectedScenario.multipleScenarios[0].values[j], cont1);
+        let cont1 = new UntypedFormControl(this.selectedScenario.multipleScenarios[i].values[j]);
+        toGroups.addControl(this.selectedScenario.multipleScenarios[0].values[j], cont1);
       }
       formArray.push(toGroups);
     }
@@ -273,9 +282,9 @@ export class ExampleTableComponent implements OnInit {
    */
   initializeTable() {
     this.data = [];
-    for ( let i = 1; i < this.selectedScenario.multipleScenarios.length; i++) {
+    for (let i = 1; i < this.selectedScenario.multipleScenarios.length; i++) {
       let js = {};
-      for ( let j = 0; j < this.selectedScenario.multipleScenarios[i].values.length; j++) {
+      for (let j = 0; j < this.selectedScenario.multipleScenarios[i].values.length; j++) {
         js[this.selectedScenario.multipleScenarios[0].values[j]] = this.selectedScenario.multipleScenarios[i].values[j];
       }
       this.data.push(js);
@@ -289,28 +298,28 @@ export class ExampleTableComponent implements OnInit {
    * @param rowIndex index of the row of the changed value
    * @param column name of the changed value column
    */
-  /*updateField(columnIndex: number, rowIndex: number, column) {
-    const control = this.getControl(rowIndex, column);
-    if (control.valid) {
-      const getCircularReplacer = () => {
-        const seen = new WeakSet;
-        return (key, value) => {
-          if (typeof value === "object" && value !== null) {
-            if (seen.has(value)) {
-              return;
-            }
-            seen.add(value);
-          }
-          return value;
-        };
-      };
-      let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
-      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = reference._pendingValue;
-      this.initializeTable();
-    } else {
-      console.log('CONTROL NOT VALID');
-    }
-   }*/
+  // updateField(columnIndex: number, rowIndex: number, column) {
+  //   const control = this.getControl(rowIndex, column);
+  //   if (control.valid) {
+  //     const getCircularReplacer = () => {
+  //       const seen = new WeakSet;
+  //       return (key, value) => {
+  //         if (typeof value === "object" && value !== null) {
+  //           if (seen.has(value)) {
+  //             return;
+  //           }
+  //           seen.add(value);
+  //         }
+  //         return value;
+  //       };
+  //     };
+  //     let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
+  //     this.selectedScenario.multipleScenarios[rowIndex + 1].values[columnIndex-1] = reference._pendingValue;
+  //     this.initializeTable();
+  //   } else {
+  //     console.log('CONTROL NOT VALID');
+  //   }
+  //  }
 
   /**
    * Get the controls of a specific cell
@@ -318,10 +327,10 @@ export class ExampleTableComponent implements OnInit {
    * @param fieldName name of the cell column
    * @returns FormControl of the cell
    */
-  /*getControl(rowIndex: number, fieldName: string): UntypedFormControl {
-    this.selectedScenario.saved = false;
-    return this.controls.at(rowIndex).get(fieldName) as UntypedFormControl;
-  }*/
+  // getControl(rowIndex: number, fieldName: string): UntypedFormControl {
+  //   this.selectedScenario.saved = false;
+  //   return this.controls.at(rowIndex).get(fieldName) as UntypedFormControl;
+  // }
 
   /**
    * Updates the table controls and data
@@ -378,15 +387,11 @@ export class ExampleTableComponent implements OnInit {
   }
 
   deleteExampleFunction() {
-    let oldName =
-      this.selectedScenario.multipleScenarios[0].values[
-        this.indexOfExampleToDelete
-      ];
+
+    let oldName = this.selectedScenario.multipleScenarios[0].values[this.indexOfExampleToDelete];
+
     this.selectedScenario.multipleScenarios.forEach((value, index) => {
-      this.selectedScenario.multipleScenarios[index].values.splice(
-        this.indexOfExampleToDelete,
-        1
-      );
+      this.selectedScenario.multipleScenarios[index].values.splice(this.indexOfExampleToDelete, 1);
     });
 
     if (this.selectedScenario.multipleScenarios[0].values.length == 0) {
@@ -395,20 +400,19 @@ export class ExampleTableComponent implements OnInit {
 
     this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
       value.values.forEach((val, i) => {
+        console.log("hallo",val )
         if (val == "<" + oldName + ">") {
           this.selectedScenario.stepDefinitions.given[index].values[i] = "";
-          this.selectedScenario.stepDefinitions.given[index].isExample[i] =
-            undefined;
+          this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined;
         }
       });
     });
-
+  
     this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
       value.values.forEach((val, i) => {
         if (val == "<" + oldName + ">") {
           this.selectedScenario.stepDefinitions.when[index].values[i] = "";
-          this.selectedScenario.stepDefinitions.when[index].isExample[i] =
-            undefined;
+          this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined;
         }
       });
     });
@@ -417,8 +421,7 @@ export class ExampleTableComponent implements OnInit {
       value.values.forEach((val, i) => {
         if (val == "<" + oldName + ">") {
           this.selectedScenario.stepDefinitions.then[index].values[i] = "";
-          this.selectedScenario.stepDefinitions.then[index].isExample[i] =
-            undefined;
+          this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined;
         }
       });
     });
@@ -467,13 +470,13 @@ export class ExampleTableComponent implements OnInit {
    * @param rowIndex index of changed value in example
    * @param initialCall if call is from ngDoCheck
    */
-  private highlightRegex(el, columnIndex, rowIndex, initialCall) {
+  exampleNullValue: boolean;
+
+  private highlightRegex(el, columnIndex, rowIndex, initialCall, element?, column?) {
     const inputValue: string = el.textContent;
 
     if (!initialCall) {
-      this.selectedScenario.multipleScenarios[rowIndex + 1].values[
-        columnIndex - 1
-      ] = inputValue;
+      this.selectedScenario.multipleScenarios[rowIndex + 1].values[columnIndex - 1] = inputValue;
       this.selectedScenario.saved = false;
     }
     if (!initialCall) {
@@ -492,7 +495,13 @@ export class ExampleTableComponent implements OnInit {
     if (initialCall && regexDetected) {
       this.regexInStory = true;
     }
+    if (element && column) {
+      element[column] = inputValue;
+
+    }
+
   }
+
 
   /**
    * Helper for inital hightlighting
@@ -511,6 +520,6 @@ export class ExampleTableComponent implements OnInit {
    * Helper for DOM change subscription
    */
   regexDOMChangesHelper() {
-    this.example_input.changes.subscribe((_) => {});
+    this.example_input.changes.subscribe((_) => { });
   }
 }

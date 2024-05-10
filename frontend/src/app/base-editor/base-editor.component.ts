@@ -450,54 +450,28 @@ export class BaseEditorComponent {
   ) {
     switch (stepType) {
       case "given":
-        if (
-          this.selectedScenario.stepDefinitions.given[stepIndex].isExample[
-          valueIndex
-          ]
-        ) {
-          this.selectedScenario.stepDefinitions.given[stepIndex].values[
-            valueIndex
-          ] = "<" + input + ">";
+        if ( this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]) {
+          this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = "<" + input + ">";
         } else {
-          this.selectedScenario.stepDefinitions.given[stepIndex].values[
-            valueIndex
-          ] = input;
+          this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
         }
         break;
       case "when":
-        if (
-          this.selectedScenario.stepDefinitions.when[stepIndex].isExample[
-          valueIndex
-          ]
-        ) {
-          this.selectedScenario.stepDefinitions.when[stepIndex].values[
-            valueIndex
-          ] = "<" + input + ">";
+        if (this.selectedScenario.stepDefinitions.when[stepIndex].isExample[valueIndex]) {
+          this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = "<" + input + ">";
         } else {
-          this.selectedScenario.stepDefinitions.when[stepIndex].values[
-            valueIndex
-          ] = input;
+          this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input;
         }
         break;
       case "then":
-        if (
-          this.selectedScenario.stepDefinitions.then[stepIndex].isExample[
-          valueIndex
-          ]
-        ) {
-          this.selectedScenario.stepDefinitions.then[stepIndex].values[
-            valueIndex
-          ] = "<" + input + ">";
+        if ( this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex]) {
+          this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = "<" + input + ">";
         } else {
-          this.selectedScenario.stepDefinitions.then[stepIndex].values[
-            valueIndex
-          ] = input;
+          this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
         }
         break;
       case "example":
-        this.selectedScenario.multipleScenarios[stepIndex].values[
-          valueIndex
-        ] = input;
+        this.selectedScenario.multipleScenarios[stepIndex].values[valueIndex] = input;
         this.markUnsaved();
     }
   }
