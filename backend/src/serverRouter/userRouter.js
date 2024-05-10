@@ -597,7 +597,6 @@ function sentenceSeperation(comment) {
     // Loop through matches
     let match;
     while ((match = regex.exec(text)) !== null) {
-        console.log(match)
         const punctuation = match[0];
         const index = match.index;
         const isQuote = punctuation === '"';
@@ -606,7 +605,6 @@ function sentenceSeperation(comment) {
             positionsList.push(index + punctuation.length); // Store end position
         }
     }
-    console.log(positionsList)
 
     // Add the end position of the text
     positionsList.push(text.length);
