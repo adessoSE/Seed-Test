@@ -587,16 +587,41 @@ function preprocessFormatComment(comment) {
     return resultMap;
 }
 
-function stepSeperation(comment) {
-	
+function sentenceSeperation(comment) {
+	// Regular expression to match quotes and punctuation [.!?]
+    const regex = /"|[.!?$]\s+/g;
+
+    // Array to store end positions of matches
+    const positionsList = [];
+
+    // Loop through matches
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        console.log(match)
+        const punctuation = match[0];
+        const index = match.index;
+        const isQuote = punctuation === '"';
+
+        if (!isQuote) {
+            positionsList.push(index + punctuation.length); // Store end position
+        }
+    }
+    console.log(positionsList)
+
+    // Add the end position of the text
+    positionsList.push(text.length);
+
+    // Construct list of substrings
+    const substringsList = [];
+    let startIndex = 0;
+    for (const position of positionsList) {
+        substringsList.push(text.substring(startIndex, position).trim());
+        startIndex = position;
+    }
+
+    return substringsList;
 }
 
-function preprocessXRay(comment) {
-	// const strXray = comment.match(/(?<=\{code:\w+\}).+?(?=\{code\})/g)
-	// const xRay = JSON.parse(strXray)
-	
-	
-}
 
 // delete user
 router.delete('/', async (req, res) => {
