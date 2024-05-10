@@ -416,8 +416,8 @@ async function replaceRefBlocks(scenarios) {
 			const promised = await scen.stepDefinitions[steps].map(async (elem) => {
 				if (!elem._blockReferenceId) return [elem];
 				return mongo.getBlock(elem._blockReferenceId).then((block) => {
-					// Get an array of the values of the given, when, then and example properties
-					const steps = Object.values(block.stepDefinitions);
+					// Get an array of the values of the given, when, then properties
+					const steps = [...block.stepDefinitions.given, ...block.stepDefinitions.when, ...block.stepDefinitions.then]
 					// Flatten array
 					return steps.flat(1);
 				});
