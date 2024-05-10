@@ -48,42 +48,45 @@ import { HttpLoggerInterceptor } from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from "./report-history/report-history.component";
 import { ClipboardModule } from "@angular/cdk/clipboard";
 import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import {MatSelectModule} from '@angular/material/select';
+import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
+import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
+import { CreateCustomProjectComponent } from './modals/create-custom-project/create-custom-project.component';
+import { DisconnectJiraAccountComponent} from './modals/disconnect-jira-account/disconnect-jira-account.component';
+import { DeleteAccountComponent } from './modals/delete-account/delete-account.component';
+import { AddBlockFormComponent } from './modals/add-block-form/add-block-form.component';
+import { SaveBlockFormComponent } from './modals/save-block-form/save-block-form.component';
+import { NewStepRequestComponent } from './modals/new-step-request/new-step-request.component';
+import { RenameScenarioComponent } from './modals/rename-scenario/rename-scenario.component';
+import { RenameStoryComponent } from './modals/rename-story/rename-story.component';
+import { WorkgroupEditComponent } from './modals/workgroup-edit/workgroup-edit.component';
+import { CreateNewStoryComponent } from './modals/create-new-story/create-new-story.component';
+import { UpdateGroupComponent } from './modals/update-group/update-group.component';
+import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-jira-account.component';
+import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
+import {MatExpansionModule} from '@angular/material/expansion';
+import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
+import { ResizeInputDirective } from './directives/resize-input.directive';
+import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
+import { BaseEditorComponent } from './base-editor/base-editor.component';
+import { NewExampleComponent } from './modals/new-example/new-example.component';
+import { TransferOwnershipToast } from './transferOwnership-toastr';
+import { InfoWarningToast } from './info-warning-toast';
+import { ImportModalComponent } from './modals/import-modal/import-modal.component';
 import { EditBlockComponent } from './modals/edit-block/edit-block.component';
 import { ThemingService } from "./Services/theming.service";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
-import { MatIconModule } from "@angular/material/icon";
-import { MatTabsModule } from "@angular/material/tabs";
-import { MatTooltipModule } from "@angular/material/tooltip";
-import { MatSelectModule } from "@angular/material/select";
-import { LayoutModalComponent } from "./modals/layout-modal/layout-modal.component";
-import { CreateNewGroupComponent } from "./modals/create-new-group/create-new-group.component";
-import { CreateCustomProjectComponent } from "./modals/create-custom-project/create-custom-project.component";
-import { DisconnectJiraAccountComponent } from "./modals/disconnect-jira-account/disconnect-jira-account.component";
-import { DeleteAccountComponent } from "./modals/delete-account/delete-account.component";
-import { AddBlockFormComponent } from "./modals/add-block-form/add-block-form.component";
-import { SaveBlockFormComponent } from "./modals/save-block-form/save-block-form.component";
-import { NewStepRequestComponent } from "./modals/new-step-request/new-step-request.component";
-import { RenameScenarioComponent } from "./modals/rename-scenario/rename-scenario.component";
-import { RenameStoryComponent } from "./modals/rename-story/rename-story.component";
-import { WorkgroupEditComponent } from "./modals/workgroup-edit/workgroup-edit.component";
-import { CreateNewStoryComponent } from "./modals/create-new-story/create-new-story.component";
-import { UpdateGroupComponent } from "./modals/update-group/update-group.component";
-import { ChangeJiraAccountComponent } from "./modals/change-jira-account/change-jira-account.component";
-import { RepoSwichComponent } from "./modals/repo-swich/repo-swich.component";
-import { MatExpansionModule } from "@angular/material/expansion";
-import { CreateScenarioComponent } from "./modals/create-scenario/create-scenario.component";
-import { ResizeInputDirective } from "./directives/resize-input.directive";
-import { RenameBackgroundComponent } from "./modals/rename-background/rename-background.component";
-import { BaseEditorComponent } from "./base-editor/base-editor.component";
-import { NewExampleComponent } from "./modals/new-example/new-example.component";
-import { TransferOwnershipToast } from "./transferOwnership-toastr";
-import { InfoWarningToast } from "./info-warning-toast";
 import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-popup/confirm-reset-password-popup.component";
 import { MatInputModule} from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { WindowSizeComponent } from './modals/window-size/window-size.component';
+import { FileExplorerModalComponent } from "./modals/file-explorer-modal/file-explorer-modal.component";
+
 
 
 @NgModule({
@@ -136,8 +139,10 @@ import { WindowSizeComponent } from './modals/window-size/window-size.component'
     DeleteToast,
     XrayToast,
     TransferOwnershipToast,
+    ImportModalComponent,
     ConfirmResetPasswordPopupComponent,
-    WindowSizeComponent
+    WindowSizeComponent,
+    FileExplorerModalComponent,
   ],
   imports: [
     NgbModule,
@@ -168,13 +173,13 @@ import { WindowSizeComponent } from './modals/window-size/window-size.component'
     MatIconModule,
     MatExpansionModule,
     MatTabsModule,
+    MatDialogModule,
     MatTooltipModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatMenuModule
   ],
-  entryComponents: [InfoWarningToast],
   providers: [
     ApiService,
     AuthGuard,

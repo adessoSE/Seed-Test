@@ -3,83 +3,84 @@
 <!-- Action Bar and Steps Template for Background, Scenarios & Examples -->
 <ng-template #actionBarAndStepsTemplate let-name="templateName">
 
-  <!-- Action Bar -->
-  <ng-template #actionBar>
-    <div class="scenarioBarContainer" [ngStyle]="{'margin': (name==='example') ? '0px' : ''}">
-      <div class="actionBarButtonGroup">
-        <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()"
-          [checked]="this.allChecked" uk-tooltip title="Check All Steps" />
-        <div [class.disabled]="!this.activeActionBar" class="actionBarButtons">
-          <button *ngIf="name !== 'example' && name !== 'block-editor'" id="{{name+'_addBlock_step_'}}"
-            class="actionButton" uk-tooltip title="Save Steps as Block" (click)="saveBlock();"
-            [disabled]="!this.activeActionBar || this.isReferenceBlock" [class.disabled]="this.isReferenceBlock">
-            <em *ngIf="name === 'background'" class="material-icons">queue</em>
-            <img *ngIf="name === 'scenario'" class="icons-img" alt="saveStepsAsBlock" style="width: 20px; color: #333"
-              src="..\..\assets\saveAsBlock.png">
-          </button>
-          <button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="De-/Activate Step"
-            (click)="deactivateStep();" [disabled]="!this.activeActionBar">
-            <em class="material-icons">do_not_touch</em>
-          </button>
-          <button id="{{name+'_delete_step'}}" class="actionButton" uk-tooltip title="Delete Step"
-            (click)="removeStep();" [disabled]="!this.activeActionBar">
-            <em class="material-icons">delete</em>
-          </button>
-          <button id="{{name+'_copy_step'}}" class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-            (click)="copyBlock();" [disabled]="!this.activeActionBar">
-            <em class="material-icons">content_copy</em>
-          </button>
-        </div>
-        <button *ngIf="name==='example'" id="{{name+'_add_column'}}" uk-tooltip title="Add new Variable"
-          (click)="openNewExample(step)">
-          <div class="actionButton" style="display:grid;">
-            <em class="material-icons-outlined"
-              style="transform: rotate(90deg); grid-column: 1; grid-row: 1">view_stream</em>
-            <em class="material-icons" id="tableAddButton">add_circle</em>
-            <em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
-          </div>
-        </button>
-        <button *ngIf="name==='example'" id="{{name+'_add_row'}}" uk-tooltip title="Add Example"
-          (click)="addExampleValueRow()">
-          <div class="actionButton" style="display: grid;">
-            <em class="material-icons-outlined" style="grid-column: 1; grid-row: 1;">view_stream</em>
-            <em class="material-icons" id="tableAddButton">add_circle</em>
-            <em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
-          </div>
-        </button>
-      </div>
-      <div class="scenarioButtonGroup SmallHeadline5">
-        <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock === null"
-          [disabled]="this.clipboardBlock === null" uk-tooltip="Add Step from Clipboard" (click)="insertCopiedBlock()">
-          <em class="material-icons">copy_all</em>
-        </button>
-        <button *ngIf="name !== 'example' && name !== 'block-editor'" id="add_block" class="scenarioButton"
-          [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button"
-          (click)="addBlock()">
-          <em class="material-icons-outlined">queue</em>
-        </button>
-        <button *ngIf="name === 'block-editor'" id="block_add_step" class="scenarioButton" title="Add New Step"
-          uk-tooltip>
-          <em class="material-icons-outlined">add_circle_outline</em>
-        </button>
-        <div *ngIf="name === 'block-editor'" uk-dropdown="pos: right-bottom">
-          <ul class="uk-nav uk-dropdown-nav">
-            <ng-template ngFor let-item [ngForOf]="sortedStepTypes()" let-i="index">
-              <li *ngIf="item.type === 'Header'" class="dropdownHeader">
-                {{item.label}}
-              </li>
-              <li
-                *ngIf="item.type !== 'Header' && item.type !== this.newStepName && item.type !== 'Role' && item.type !== 'Add Variable'">
-                <span id="{{'background_add_step_type' + i}}" class="dropdownStep" (click)="addStepToBlock(item);">
-                  {{item.type}}
-                </span>
-              </li>
-            </ng-template>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </ng-template>
+	<!-- Action Bar -->
+	<ng-template #actionBar>
+		<div class="scenarioBarContainer" [ngStyle]="{'margin': (name==='example') ? '0px' : ''}">
+			<div class="actionBarButtonGroup">
+				<input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()"
+					[checked]="this.allChecked" uk-tooltip title="Check All Steps" />
+				<div [class.disabled]="!this.activeActionBar" class="actionBarButtons">
+					<button *ngIf="name !== 'example' && name !== 'block-editor'" id="{{name+'_addBlock_step_'}}"
+						class="actionButton" uk-tooltip title="Save Steps as Block" (click)="saveBlock();"
+						[disabled]="!this.activeActionBar || this.isReferenceBlock"
+						[class.disabled]="this.isReferenceBlock">
+						<em *ngIf="name === 'background'" class="material-icons">queue</em>
+						<img *ngIf="name === 'scenario'" class="icons-img" alt="saveStepsAsBlock"
+							style="width: 20px; color: #333" src="..\..\assets\saveAsBlock.png">
+					</button>
+					<button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="De-/Activate Step"
+						(click)="deactivateStep();" [disabled]="!this.activeActionBar">
+						<em class="material-icons">do_not_touch</em>
+					</button>
+					<button id="{{name+'_delete_step'}}" class="actionButton" uk-tooltip title="Delete Step"
+						(click)="removeStep();" [disabled]="!this.activeActionBar">
+						<em class="material-icons">delete</em>
+					</button>
+					<button id="{{name+'_copy_step'}}" class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+						(click)="copyBlock();" [disabled]="!this.activeActionBar">
+						<em class="material-icons">content_copy</em>
+					</button>
+				</div>
+				<button *ngIf="name==='example'" id="{{name+'_add_column'}}" uk-tooltip title="Add new Variable"
+					(click)="openNewExample(step)">
+					<div class="actionButton" style="display:grid;">
+						<em class="material-icons-outlined"
+							style="transform: rotate(90deg); grid-column: 1; grid-row: 1">view_stream</em>
+						<em class="material-icons" id="tableAddButton">add_circle</em>
+						<em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
+					</div>
+				</button>
+				<button *ngIf="name==='example'" id="{{name+'_add_row'}}" uk-tooltip title="Add Example"
+					(click)="addExampleValueRow()">
+					<div class="actionButton" style="display: grid;">
+						<em class="material-icons-outlined" style="grid-column: 1; grid-row: 1;">view_stream</em>
+						<em class="material-icons" id="tableAddButton">add_circle</em>
+						<em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
+					</div>
+				</button>
+			</div>
+			<div class="scenarioButtonGroup SmallHeadline5">
+				<button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock === null"
+					[disabled]="this.clipboardBlock === null" uk-tooltip="Add Step from Clipboard"
+					(click)="insertCopiedBlock()">
+					<em class="material-icons">copy_all</em>
+				</button>
+				<button *ngIf="name !== 'example' && name !== 'block-editor'" id="add_block" class="scenarioButton"
+					[class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button"
+					(click)="addBlock()">
+					<em class="material-icons-outlined">queue</em>
+				</button>
+				<button *ngIf="name === 'block-editor'" id="block_add_step" class="scenarioButton" title="Add New Step"
+					uk-tooltip>
+					<em class="material-icons-outlined">add_circle_outline</em>
+				</button>
+				<div *ngIf="name === 'block-editor'" uk-dropdown="pos: right-top; shift: false; flip: false">
+					<ul class="uk-nav uk-dropdown-nav">
+						<li *ngFor="let header of ['Given', 'When', 'Then']; let i = index" class="dropdownHeader">
+							<span (click)="toggleHeader(header)">{{header}}</span>
+							<ul *ngIf="isHeaderActive(header)" class="stepsList uk-nav uk-dropdown-nav">
+								<li *ngFor="let step of originalStepTypes"
+									[hidden]="step.stepType !== header.toLowerCase() || step.type === this.newStepName || step.type === 'Role' || step.type === 'Add Variable'"
+									class="dropdownStep">
+									<span (click)="addStepToBlock(step)">{{step.type}}</span>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>				
+			</div>
+		</div>
+	</ng-template>
 
   <ng-container
     *ngIf="name === 'background' || name === 'scenario' || name === 'block-editor' ; then actionBar; else ''"></ng-container>
@@ -390,16 +391,17 @@
                       class="material-icons">table_chart</em>
                     <em style="grid-column: 1; grid-row: 1; font-size: 15px !important; margin-top: 12px; margin-left: 12px; background-color: white;
                   border-radius: 30px;" class="material-icons">add_circle_outline</em>
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <ng-container *ngIf="getExampleList()!=undefined; then actionBar; else ''"></ng-container>
-        <app-example-table #exampleChildView *ngIf="getExampleList()!=undefined"
-          [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>
-      </ng-container>
+									</div>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<ng-container *ngIf="getExampleList()!=undefined; then actionBar; else ''"></ng-container>
+				<app-example-table #exampleChildView *ngIf="getExampleList()!=undefined"
+					[newSelectedScenario]="selectedScenario"
+					(checkRowIndex)="checkRowIndex($event)"></app-example-table>
+			</ng-container>
 
       <!-- Background steps -->
       <ng-container *ngIf="name === 'background'">
@@ -541,34 +543,35 @@
         <div *ngFor="let currentStep of getStepsListBlockPreview(blockStep.stepDefinitions); let j = index;">
           <ng-template *ngTemplateOutlet="blockstep;
             context: {$implicit: currentStep , index:j}">
-          </ng-template>
-        </div>
-      </div>
-    </mat-expansion-panel>
-  </ng-template>
+					</ng-template>
+				</div>
+			</div>
+		</mat-expansion-panel>
+	</ng-template>
 
-  <ng-template #blockstep let-currentStep let-j="index" class="text-inline SmallBody1regularLH">
-    <div class="stepInBlock">
-      {{j+1}}.&nbsp;{{currentStep.pre}}&nbsp;
-      <div *ngIf="currentStep.values[0]" style="height: 0; ">
-        <p id="{{'blockStep_' + j + '_value1'}}">
-          {{currentStep.values[0]}}&nbsp;
-        </p>
-      </div>
-      {{currentStep.mid }}&nbsp;
-      <div *ngIf="currentStep.values[1]" style="overflow: hidden;">
-        <p id="{{'blockStep_' + j + '_value2'}}">
-          {{currentStep.values[1]}}&nbsp;
-        </p>
-      </div>
-      {{currentStep.post}}&nbsp;
-    </div>
-  </ng-template>
+	<ng-template #blockstep let-currentStep let-j="index" class="text-inline SmallBody1regularLH">
+		<div class="stepInBlock">
+			{{j+1}}.&nbsp;{{currentStep.pre}}&nbsp;
+			<div *ngIf="currentStep.values[0]" style="height: 0; ">
+				<p id="{{'blockStep_' + j + '_value1'}}">
+					{{currentStep.values[0]}}&nbsp;
+				</p>
+			</div>
+			{{currentStep.mid }}&nbsp;
+			<div *ngIf="currentStep.values[1]" style="overflow: hidden;">
+				<p id="{{'blockStep_' + j + '_value2'}}">
+					{{currentStep.values[1]}}&nbsp;
+				</p>
+			</div>
+			{{currentStep.post}}&nbsp;
+		</div>
+	</ng-template>
 
   <app-edit-block #editBlockModal [originalStepTypes]="originalStepTypes"
     [selectedBlock]="selectedBlock"></app-edit-block>
   <app-new-example #newExampleModal></app-new-example>
   <app-new-step-request #newStepRequest></app-new-step-request>
-  <app-add-block-form #addBlockModal [templateName]="name"></app-add-block-form>
-  <app-save-block-form #saveBlockModal [templateName]="name"></app-save-block-form>
+  <app-add-block-form #addBlockModal [templateName]="name" ></app-add-block-form>
+  <app-save-block-form #saveBlockModal [templateName]="name" ></app-save-block-form>
+  <app-file-explorer-modal #fileExplorerModal></app-file-explorer-modal>
 </ng-template>

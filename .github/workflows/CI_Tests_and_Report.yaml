@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Dependencies
-        run: npm install node-fetch
+        run: npm install node-fetch #TODO: Remove node-fetch as not needed (probably)
 
       - name: Use Docker
         uses: actions-hub/docker/cli@master
@@ -89,7 +89,7 @@ jobs:
 
       - name: Upload Artifact Backend
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-backend
           path: |
@@ -123,7 +123,7 @@ jobs:
 
       - name: Upload Artifact Frontend
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-frontend
           path: |
@@ -159,7 +159,7 @@ jobs:
 
       - name: Upload Artifact Sanity
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sanity-report
           path: |

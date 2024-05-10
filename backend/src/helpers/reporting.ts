@@ -286,6 +286,7 @@ function featureResult(featureReport: any, feature: any) {
     console.log(`NUMBER OF SCENARIOS IN REPORT: ${featureReport.elements.length}`);
     for (const scenReport of featureReport.elements) {
         const scenario = feature.scenarios[featureReport.elements.indexOf(scenReport)];
+        if (!scenario) continue;
         let result = scenarioResult(scenReport, scenario)
 
         //increment FeatureSteps
@@ -348,10 +349,22 @@ function deleteReport(jsonReport: string) {
     });
 }
 
+async function fetchFiles(stories, repoId){
+    const neededFiles = stories
+			.flatMap(story => story.scenarios)
+			.flatMap(scen => scen.stepDefinitions.when)
+			.filter(step => step.type === "Upload File")
+			.map(step => step.values[0]);
+    console.log(neededFiles)
+	if (neededFiles) return mongo.getFiles(neededFiles, repoId)
+}
+
 async function runReport(req, res, stories: any[], mode: ExecutionMode, parameters) {
+
 	let reportObj;
 	try {
 		if (mode === ExecutionMode.GROUP) {
+            await fetchFiles(stories, parameters.repositoryId)
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			if (parameters.isSequential == undefined || !parameters.isSequential)
@@ -363,12 +376,14 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			}
 		} else {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+            await fetchFiles([story], parameters.repositoryId).catch((err)=>console.error(err))
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {
 		res.status(404).send(error);
 		return;
 	}
+    
 
 	const { reportResults, reportName } = await resolveReport(reportObj, mode, stories, req);
 	// generate HTML Report
@@ -395,7 +410,9 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 		setTimeout(deleteReport, deletionTime, `${reportName}.json`);
 		setTimeout(deleteReport, deletionTime, `${reportName}.html`);
 	}
-
+    console.log("repoParam ", reportResults.settings);
+    if (parameters.source === IssueTrackerOption.NONE) return;
+    if (reportResults.settings && reportResults.settings.reportComment !== true) return;//setting only with globalsetting activated
 	// if possible separate function
 	for (const story of stories) {
         const issueTracker = IssueTracker.getIssueTracker(story.storySource)

@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch');
 const userHelper = require('../../dist/helpers/userManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
 

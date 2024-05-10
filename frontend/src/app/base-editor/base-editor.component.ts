@@ -1,42 +1,29 @@
-import { ApiService } from "src/app/Services/api.service";
-import {
-  CdkDragDrop,
-  CdkDragStart,
-  DragRef,
-  moveItemInArray,
-} from "@angular/cdk/drag-drop";
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  Output,
-  QueryList,
-  ViewChild,
-  ViewChildren,
-} from "@angular/core";
-import { ToastrService } from "ngx-toastr";
-import { AddBlockFormComponent } from "../modals/add-block-form/add-block-form.component";
-import { NewStepRequestComponent } from "../modals/new-step-request/new-step-request.component";
-import { SaveBlockFormComponent } from "../modals/save-block-form/save-block-form.component";
-import { Block } from "../model/Block";
-import { Scenario } from "../model/Scenario";
-import { StepDefinition } from "../model/StepDefinition";
-import { StepDefinitionBackground } from "../model/StepDefinitionBackground";
-import { StepType } from "../model/StepType";
-import { Story } from "../model/Story";
-import { BlockService } from "../Services/block.service";
-import { Subscription } from "rxjs";
-import { ExampleTableComponent } from "../example-table/example-table.component";
-import { NewExampleComponent } from "../modals/new-example/new-example.component";
-import { ExampleService } from "../Services/example.service";
-import { ScenarioService } from "../Services/scenario.service";
-import { BackgroundService } from "../Services/background.service";
-import { InfoWarningToast } from "../info-warning-toast";
-import { EditBlockComponent } from "../modals/edit-block/edit-block.component";
-import { DeleteToast } from "../delete-toast";
-import { ThemingService } from "../Services/theming.service";
-import { HighlightInputService } from "../Services/highlight-input.service";
+import { ApiService } from 'src/app/Services/api.service';
+import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
+import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
+import { Block } from '../model/Block';
+import { Scenario } from '../model/Scenario';
+import { StepDefinition } from '../model/StepDefinition';
+import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
+import { StepType } from '../model/StepType';
+import { Story } from '../model/Story';
+import { BlockService } from '../Services/block.service';
+import { Subscription } from 'rxjs';
+import { ExampleTableComponent } from '../example-table/example-table.component';
+import { NewExampleComponent } from '../modals/new-example/new-example.component';
+import { ExampleService } from '../Services/example.service';
+import { ScenarioService } from '../Services/scenario.service';
+import { BackgroundService } from '../Services/background.service';
+import { InfoWarningToast } from '../info-warning-toast';
+import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
+import { DeleteToast } from '../delete-toast';
+import { ThemingService } from '../Services/theming.service';
+import { HighlightInputService } from '../Services/highlight-input.service';
+import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
 
 @Component({
   selector: "app-base-editor",
@@ -61,13 +48,16 @@ export class BaseEditorComponent {
   exampleChildren: QueryList<ExampleTableComponent>;
 
   /**
-   * View child of the modals component
-   */
-  @ViewChild("saveBlockModal") saveBlockModal: SaveBlockFormComponent;
-  @ViewChild("addBlockModal") addBlockModal: AddBlockFormComponent;
-  @ViewChild("newStepRequest") newStepRequest: NewStepRequestComponent;
-  @ViewChild("newExampleModal") newExampleModal: NewExampleComponent;
-  @ViewChild("editBlockModal") editBlockModal: EditBlockComponent;
+    * View child of the modals component
+    */
+  @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+  @ViewChild('addBlockModal') addBlockModal: AddBlockFormComponent;
+  @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
+  @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
+  @ViewChild('editBlockModal') editBlockModal: EditBlockComponent;
+  @ViewChild('fileExplorerModal') fileExplorerModal: FileExplorerModalComponent;
+
+
 
   selectedStory: Story;
 
@@ -187,6 +177,8 @@ export class BaseEditorComponent {
   regexInStory: boolean = false;
   initialRegex: boolean = true;
 
+  activeHeader: string | null = null;
+
   @Input() isDark: boolean;
 
   /**
@@ -284,6 +276,8 @@ export class BaseEditorComponent {
         this.blocks = resp;
       });
     });
+
+    
   }
 
   ngOnDestroy(): void {
@@ -503,25 +497,38 @@ export class BaseEditorComponent {
   }
 
   /**
-   * Adds step
-   * @param step
-   * @param selectedScenario
-   * @param templateName
-   * @param step_idx Optional argument
-   */
-  addStep(step: StepType, selectedScenario: any, templateName, step_idx?: any) {
+    * Adds step
+    * @param step 
+    * @param selectedScenario 
+    * @param templateName
+    * @param step_idx Optional argument
+    */
+  async addStep(step: StepType, selectedScenario: any, templateName, step_idx?: any) {
     let lastEl;
     let newStep;
-    if (templateName == "background") {
-      newStep = this.createNewStep(
-        step,
-        selectedScenario.background.stepDefinitions
-      );
+    const stepLocation = templateName !== 'background' ? selectedScenario.stepDefinitions: selectedScenario.background.stepDefinitions;
+    if (step.type == 'Upload File'){
+        try {
+            const result = await this.fileExplorerModal.openFileExplorerModal();
+            if(!result) return;
+            console.log("Upload modal return: ", result);
+            const preSelectValues = [result.filename];
+            newStep = this.createNewStep(step, stepLocation);
+            preSelectValues.forEach((value, index) => {
+                if (value) {
+                    newStep.values[index] = value;
+                }
+            });
+        } catch (error) {
+            console.error("Error while opening file explorer modal:", error);
+        }
     } else {
-      newStep = this.createNewStep(step, selectedScenario.stepDefinitions);
+      newStep = this.createNewStep(step, stepLocation);
     }
-    if (newStep["type"] === this.newStepName) {
-      this.newStepRequest.openNewStepRequestModal(newStep["stepType"]);
+    console.log('newstep ',newStep);
+
+    if (newStep['type'] === this.newStepName) {
+      this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
     } else {
       switch (newStep.stepType) {
         case "given":
@@ -739,8 +746,17 @@ export class BaseEditorComponent {
     return uniqueStepTypes;
   }
 
-
-
+  toggleHeader(header: string): void {
+	  if (this.activeHeader === header) {
+		  this.activeHeader = null;
+	  } else {
+		  this.activeHeader = header;
+	  }
+  }
+  
+  isHeaderActive(header: string): boolean {
+	  return this.activeHeader === header;
+  }
 
 
   /**
