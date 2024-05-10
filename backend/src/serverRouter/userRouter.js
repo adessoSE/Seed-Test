@@ -602,22 +602,21 @@ function sentenceSeperation(comment) {
         const index = match.index;
         const isQuote = punctuation === '"';
 
-        if (isQuote) {
-            quoteOpened = !quoteOpened; // Toggle the flag for opening/closing quotes
-        } else if (!quoteOpened) {
-            positionsList.push(index + punctuation.length); // Store end position if not inside a quote
+        if (isQuote || quoteOpened) {
+            quoteOpened = isQuote ? !quoteOpened : quoteOpened; 
+            continue; //jump if inside quote
         }
+        positionsList.push(index + punctuation.length); // Store match end position
     }
-
     // Add the end position of the text
     positionsList.push(comment.length);
 
     // Construct list of substrings
     const substringsList = [];
-    let startIndex = 0;
+    let substringStartIndex = 0; 
     for (const position of positionsList) {
-        substringsList.push(comment.substring(startIndex, position).trim());
-        startIndex = position;
+        substringsList.push(comment.substring(substringStartIndex, position).trim());
+        substringStartIndex = position;
     }
 
     return substringsList;
