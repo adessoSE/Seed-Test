@@ -596,24 +596,27 @@ function sentenceSeperation(comment) {
 
     // Loop through matches
     let match;
-    while ((match = regex.exec(text)) !== null) {
+    let quoteOpened = false; // Flag to track if a quote has been opened
+    while ((match = regex.exec(comment)) !== null) {
         const punctuation = match[0];
         const index = match.index;
         const isQuote = punctuation === '"';
 
-        if (!isQuote) {
-            positionsList.push(index + punctuation.length); // Store end position
+        if (isQuote) {
+            quoteOpened = !quoteOpened; // Toggle the flag for opening/closing quotes
+        } else if (!quoteOpened) {
+            positionsList.push(index + punctuation.length); // Store end position if not inside a quote
         }
     }
 
     // Add the end position of the text
-    positionsList.push(text.length);
+    positionsList.push(comment.length);
 
     // Construct list of substrings
     const substringsList = [];
     let startIndex = 0;
     for (const position of positionsList) {
-        substringsList.push(text.substring(startIndex, position).trim());
+        substringsList.push(comment.substring(startIndex, position).trim());
         startIndex = position;
     }
 
