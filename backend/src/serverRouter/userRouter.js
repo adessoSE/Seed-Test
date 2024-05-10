@@ -373,7 +373,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 						const stories = [];
 
 						for (const [index, issue] of json.issues.entries()) {
-							const { scenarioList, testStepDescription } = lstDesc[index];
+							const { scenarioList, testStepDescription, commentScens } = lstDesc[index];
+							console.log('preProcessed: ', issue.key, commentScens)
 
 							const issueDescription = issue.fields.description ? issue.fields.description : '';
 
@@ -382,6 +383,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 								title: issue.fields.summary,
 								body: issueDescription + testStepDescription,
 								scenarios: scenarioList,
+								commentPre: commentScens, 
 								state: issue.fields.status.name,
 								issue_number: issue.key,
 								storySource: 'jira'
@@ -449,7 +451,7 @@ function extractRaw(givenField) {
 
 function processTestSteps(steps, resolvedTestRuns, issueKey) {
 	const scenarioList = [];
-	const scenPre = [];
+	const commentScens = [];
 	let testStepDescription = '\n\nTest-Steps:\n';
 
 	const xRayStepRead = (steps) => steps.split(/\r?\n/)
@@ -492,8 +494,6 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 			stepInfo.push('(THEN): No steps used\n');
 		}
 
-		console.log('scenstep: ', scenSteps);
-
 		testStepDescription += stepInfo.join('');
 
 		const matchingSteps = executionMapping(resolvedTestRuns, fields)
@@ -510,10 +510,12 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 			testRunSteps: matchingSteps,
 			testKey: issueKey
 		};
+		commentScens.push(scenSteps)
 		scenarioList.push(scenario);
 	});
+	//console.log('all scen Comm: ', commentScens);
 
-	return { scenarioList, testStepDescription };
+	return { scenarioList, testStepDescription , commentScens};
 }
 
 function executionMapping(runs, fields) {
@@ -559,9 +561,10 @@ async function handleTestIssue(issue, options, Host) {
 	const testSteps = await testStepsResponse.json();
 
 	// Process the test steps with corresponding testrun
-	const { scenarioList, testStepDescription } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key);
+	const { scenarioList, testStepDescription, commentScens } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key);
+	//console.log('handel test issue Comment pre: ', commentScens)
 
-	return { scenarioList, testStepDescription };
+	return { scenarioList, testStepDescription , commentScens};
 }
 
 function preprocessComment(comment) {
@@ -570,28 +573,22 @@ function preprocessComment(comment) {
 }
 
 
-function preprocessFormatComment(comment){
-	const featureRegex = /(?<=\r?\n\r?\n|^)([^:\r\n]+):\r?\n((?:.+\r?\n?)+)(?=\r?\n\r?\n|$)/g;
-	const scenarioRegex = /Scenario (\d+): ([^\r\n]+)\r?\n((?: # .+\r?\n?)+)/g;
+function preprocessFormatComment(comment) {
+    const regex = /(\b(?:pre|given|when|then)(?::+)?\s*\r?\n)([\s\S]+?)(?=\r?\n(?:pre|given|when|then)|$)/gi;
+    const resultMap = new Map();
 
-	const features = [];
+    let match;
+    while ((match = regex.exec(comment)) !== null) {
+        const keyword = match[1].toLowerCase().replace(/[:\s]+/g, ''); // Extract the keyword and remove colons/spaces
+        const content = match[2].trim(); // Extract the content and remove leading/trailing spaces
+        resultMap.set(keyword, content);
+    }
 
-	let match;
-	while ((match = featureRegex.exec(comment)) !== null) {
-		const feature = match[1].trim();
-		const scenarioText = match[2].trim();
+    return resultMap;
+}
 
-		const scenarios = [];
-		let scenarioMatch;
-		while ((scenarioMatch = scenarioRegex.exec(scenarioText)) !== null) {
-			const scenarioNumber = scenarioMatch[1];
-			const scenarioTitle = scenarioMatch[2];
-			const steps = scenarioMatch[3].trim().split('\r?\n').map(step => step.trim());
-			scenarios.push({ number: scenarioNumber, title: scenarioTitle, steps });
-		}
-
-		features.push({ feature, scenarios });
-	}
+function stepSeperation(comment) {
+	
 }
 
 function preprocessXRay(comment) {
