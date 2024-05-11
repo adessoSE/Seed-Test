@@ -450,7 +450,7 @@ export class BaseEditorComponent {
   ) {
     switch (stepType) {
       case "given":
-        if ( this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]) {
+        if (this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]) {
           this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = "<" + input + ">";
         } else {
           this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
@@ -464,7 +464,7 @@ export class BaseEditorComponent {
         }
         break;
       case "then":
-        if ( this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex]) {
+        if (this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex]) {
           this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = "<" + input + ">";
         } else {
           this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
@@ -574,8 +574,12 @@ export class BaseEditorComponent {
     console.log(this.selectedBlock);
   }
 
-  openNewExample() {
-    this.newExampleModal.openNewExampleModal(this.selectedScenario);
+  /**
+   * Open an examples modal
+   * @param useCaseString
+   */
+  openExampleModal(useCaseString) {
+    this.newExampleModal.openNewExampleModal(this.selectedScenario, useCaseString);
   }
 
   /**
@@ -1805,7 +1809,7 @@ export class BaseEditorComponent {
   }
 
   insertExampleBlock(): void {
-    this.clipboardBlock.multipleScenarios.forEach(example=>{
+    this.clipboardBlock.multipleScenarios.forEach(example => {
       this.selectedScenario.multipleScenarios.push(example);
     })
     this.exampleService.updateExampleTableEmit();

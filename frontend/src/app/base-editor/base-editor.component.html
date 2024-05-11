@@ -31,7 +31,7 @@
           </button>
         </div>
         <button *ngIf="name==='example'" id="{{name+'_add_column'}}" uk-tooltip title="Add new Variable"
-          (click)="openNewExample()">
+          (click)="openExampleModal('createNew')">
           <div class="actionButton" style="display:grid;">
             <em class="material-icons-outlined"
               style="transform: rotate(90deg); grid-column: 1; grid-row: 1">view_stream</em>
@@ -379,7 +379,7 @@
                 </span--></dfn>
           </div>
           <div *ngIf="this.selectedScenario.multipleScenarios.length === 0">
-            <button id="{{name+'_add_step' + i}}" (click)="openNewExample()" title="Activate Multiple Scenarios"
+            <button id="{{name+'_add_step' + i}}" (click)="openExampleModal('createFirst')" title="Activate Multiple Scenarios"
               uk-tooltip>
               <div style="display:grid">
                 <em style="grid-column: 1; grid-row: 1; font-size: 26px !important"

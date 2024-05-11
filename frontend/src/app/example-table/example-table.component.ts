@@ -357,7 +357,8 @@ export class ExampleTableComponent implements OnInit {
   }
 
   renameExample(columnIndex) {
-    this.newExampleModal.renameExample(this.selectedScenario, columnIndex - 1);
+    this.newExampleModal.openNewExampleModal(this.selectedScenario, 'rename', columnIndex-1);
+    // this.newExampleModal.renameExample(this.selectedScenario, columnIndex - 1);
     this.updateTable();
   }
 
