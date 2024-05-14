@@ -20,6 +20,7 @@ class Group {
 	name: string
 	member_stories: Array<string>
 	isSequential: boolean
+	xrayTestSet: boolean
 }
 
 class Repository {
@@ -333,7 +334,8 @@ async function updateTestSets(testSets, repo_id) {
                     repo_id,
                     testSet.testSetKey,
                     storyIds,
-                    true  
+                    true,
+					testSet.xrayTestSet
                 );
                 console.log(`Group created for Test Set: ${testSet.testSetKey}`);
             }

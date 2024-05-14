@@ -17,6 +17,7 @@ import { GroupService } from '../Services/group.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ReportService } from '../Services/report.service';
 import { BackgroundService } from '../Services/background.service';
+import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
 
 /**
  * Component of the Stories bar
@@ -171,6 +172,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     @ViewChild('createNewStory') createNewStory: CreateNewStoryComponent;
     @ViewChild('updateGroup') updateGroup: UpdateGroupComponent;
     @ViewChild('createNewScenario') createNewScenario: CreateScenarioComponent;
+    @ViewChild('executionListModal') executionListModal: ExecutionListComponent;
 
     /**
      * Constructor
@@ -334,7 +336,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         return ret;
     }
 
-    runGroup(group: Group) {
+    runGroup(group: Group) {    
         const id = localStorage.getItem('id');
         this.testRunningGroup.emit(true);
         const params = { repository: localStorage.getItem('repository'), source: localStorage.getItem('source') }

@@ -373,7 +373,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 								 testSets.push({
 									testSetKey: issue.key,
 									testSetId: issue.id,
-									tests: testsInSet
+									tests: testsInSet,
+									xrayTestSet: true 
 								});
 								return null						
 							}

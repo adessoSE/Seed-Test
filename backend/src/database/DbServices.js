@@ -313,16 +313,24 @@ async function getOneStory(storyId) {
 	}
 }
 
-async function createStoryGroup(repoID, name, members, sequence) {
+async function createStoryGroup(repoID, name, members, sequence, xrayTestSet) {
 	try {
 		const db = dbConnection.getConnection();
+		const group = {
+			_id: new ObjectId(),
+			name,
+			member_stories: members,
+			isSequential: sequence,
+		}
+
+		if(xrayTestSet) {
+			group.xrayTestSet = true;
+		}
 		const groups = await db.collection(repositoriesCollection).findOneAndUpdate(
 			{ _id: new ObjectId(repoID) },
 			{
 				$push: {
-					groups: {
-						_id: new ObjectId(), name, member_stories: members, isSequential: sequence
-					}
+					groups: group
 				}
 			},
 			{ upsert: true, projection: { groups: 1 } }
