@@ -365,7 +365,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 
 						const asyncHandleTestIssue = json.issues.map((issue) => {
 							if (issue.fields.issuetype.name === 'Test') return handleTestIssue(issue, options, Host);
-							return { scenarioList: [], testStepDescription: '' };
+							return { scenarioList: [], testStepDescription: '', commentScens: [] };
 						});
 
 						const lstDesc = await Promise.all(asyncHandleTestIssue);
@@ -373,16 +373,18 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 						const stories = [];
 
 						for (const [index, issue] of json.issues.entries()) {
-							const { scenarioList, testStepDescription, commentScens } = lstDesc[index];
-							console.log('preProcessed: ', issue.key, commentScens)
+							let {scenarioList, testStepDescription, commentScens} = lstDesc[index];
 
 							const issueDescription = issue.fields.description ? issue.fields.description : '';
+							if(!commentScens.length>0) { commentScens = preprocessFormatComment(issueDescription);}
+							if(!commentScens.length>0) { commentScens = preprocessComment(issueDescription);}
+							console.log('preProcessed: ', issue.key, commentScens)
 
 							const story = {
 								story_id: issue.id,
 								title: issue.fields.summary,
 								body: issueDescription + testStepDescription,
-								scenarios: scenarioList,
+								scenarios: scenarioList || [],
 								commentPre: commentScens, 
 								state: issue.fields.status.name,
 								issue_number: issue.key,
@@ -560,16 +562,41 @@ async function handleTestIssue(issue, options, Host) {
 	const testStepsResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
 	const testSteps = await testStepsResponse.json();
 
+	let scenarioList, testStepDescription, commentScens;
 	// Process the test steps with corresponding testrun
-	const { scenarioList, testStepDescription, commentScens } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key);
+	if (testSteps) {
+		({ scenarioList, testStepDescription, commentScens } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key));
+	} else {
+		({ scenarioList, testStepDescription, commentScens } = { scenarioList: [], testStepDescription: '', commentScens: [] });
+	}
+
 	//console.log('handel test issue Comment pre: ', commentScens)
 
 	return { scenarioList, testStepDescription , commentScens};
 }
 
 function preprocessComment(comment) {
-	const lines = comment.split(/\r?\n/).filter(line => line.trim() !== '');
-	return lines;
+    const lines = comment.split(/\r?\n/);
+    const result = [];
+    let currentObject = { when: [] };
+
+    for (const line of lines) {
+        if (line.trim() === '') {
+            if (currentObject.when.length > 0) {
+                result.push(currentObject);
+                currentObject = { when: [] };
+            }
+        } else {
+            currentObject.when.push(...sentenceSeperation(line));
+        }
+    }
+
+    // Push the last currentObject if it's not empty
+    if (currentObject.when.length > 0) {
+        result.push(currentObject);
+    }
+
+    return result;
 }
 
 
@@ -580,16 +607,16 @@ function preprocessFormatComment(comment) {
     let match;
     while ((match = regex.exec(comment)) !== null) {
         const keyword = match[1].toLowerCase().replace(/[:\s]+/g, ''); // Extract the keyword and remove colons/spaces
-        const content = match[2].trim(); // Extract the content and remove leading/trailing spaces
+        const content = sentenceSeperation(match[2].trim()); // Extract the content and remove leading/trailing spaces
         resultMap.set(keyword, content);
     }
 
-    return resultMap;
+    return resultMap.size !== 0 ? Object.fromEntries(resultMap) : [];
 }
 
 function sentenceSeperation(comment) {
 	// Regular expression to match quotes and punctuation [.!?]
-    const regex = /"|[.!?$]\s+/g;
+    const regex = /"|[.!?$\r\n]\s+/g;
 
     // Array to store end positions of matches
     const positionsList = [];
