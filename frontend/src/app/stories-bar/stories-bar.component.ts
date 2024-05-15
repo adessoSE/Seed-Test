@@ -336,20 +336,69 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         return ret;
     }
 
-    runGroup(group: Group) {    
+        /**
+     * Evaluates whether to open xray execution list modal in run group.
+     * @param group
+     */
+    evaluateAndRunGroup(group) {
+        if (group.xrayTestSet) {
+        this.selectedGroup = group;
+        this.executionListModal.openExecutionListModal(group);
+        } else {
+        // Run group directly if group is no xray test set
+        this.runGroup(group);
+        }
+    }
+
+    /**
+     * Run this function if we close execution list modal
+     */
+    executeTests(event: { scenarioId: number | null, selectedExecutions: number[] }){
+        this.runGroup(this.selectedGroup, event.selectedExecutions);
+    }
+
+    runGroup(group: Group, selectedExecutions?: number[]) {
         const id = localStorage.getItem('id');
         this.testRunningGroup.emit(true);
         const params = { repository: localStorage.getItem('repository'), source: localStorage.getItem('source') }
-        this.groupService.runGroup(id, group._id, params).subscribe((ret: any) => {
-            this.report.emit(ret);
-            this.testRunningGroup.emit(false);
-            const report = ret.report;
-            report.storyStatuses.forEach(story => {
-                story.scenarioStatuses.forEach(scenario => {
-                    this.scenarioService.scenarioStatusChangeEmit(
-                        story.storyId, scenario.scenarioId, scenario.status);
+        this.groupService.runGroup(id, group._id, params).subscribe({
+            next: (ret: any) => {
+                this.report.emit(ret);
+                this.testRunningGroup.emit(false);
+                const report = ret.report;
+                report.storyStatuses.forEach(story => {
+                    story.scenarioStatuses.forEach(scenario => {
+                        this.scenarioService.scenarioStatusChangeEmit(
+                            story.storyId, scenario.scenarioId, scenario.status);
+
+                        this.scenarioService.getScenario(story.storyId, scenario.scenarioId).subscribe({
+                            next: (fullScenario) => {
+                                if (fullScenario && fullScenario.testRunSteps) {
+                                    for (const testRun of fullScenario.testRunSteps) {
+                                        if (selectedExecutions && selectedExecutions.includes(testRun.testRunId)) {
+                                            this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
+                                                .subscribe({
+                                                    next: () => {
+                                                        console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
+                                                    },
+                                                    error: (error) => {
+                                                        console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+                                                    }
+                                                });
+                                        }
+                                    }
+                                }
+                            },
+                            error: (error) => {
+                                console.error('Error fetching scenario details', error);
+                            }
+                        });
+                    });
                 });
-            });
+            },
+            error: (error) => {
+                console.error('Error running group', error);
+            }
         });
     }
 
