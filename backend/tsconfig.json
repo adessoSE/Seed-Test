@@ -1,15 +1,14 @@
 {
     "compilerOptions": {
-      "module": "commonjs",
+      "module": "node16",
+      "moduleResolution": "node16",
       "esModuleInterop": true,
       "declaration": true,
       "declarationMap": true,
       "target": "es2022",
-      "moduleResolution": "node",
       "sourceMap": true,
       "outDir": "dist",
       //"allowJs": true,
       //"checkJs": true
-    },
-    "lib": ["es2022"]
+    }
   }

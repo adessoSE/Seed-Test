@@ -1,9 +1,9 @@
-import mongo from "../../src/database/DbServices";
-import dbConnector from "../../src/database/dbConnector";
-import { jiraDecryptPassword } from "./userManagement";
-import emptyScenario from "../../src/models/emptyScenario";
-import emptyBackground from "../../src/models/emptyBackground";
-import { writeFile } from "../../src/serverHelper";
+import mongo from "../../src/database/DbServices.js";
+import dbConnector from "../../src/database/dbConnector.js";
+import { jiraDecryptPassword } from "./userManagement.js";
+import emptyScenario from "../../src/models/emptyScenario.js";
+import emptyBackground from "../../src/models/emptyBackground.js";
+import { writeFile } from "../../src/serverHelper.js";
 import AdmZip from "adm-zip";
 import path from "path";
 import fetch from "node-fetch";
@@ -633,7 +633,18 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
   }
 }
 
-module.exports = {
+export {getJiraRepos};
+export {dbProjects};
+export {uniqueRepositories};
+export {starredRepositories};
+export {ownRepositories};
+export {fuseStoryWithDb};
+export {exportProject};
+export {importProject};
+export {checkAndAddSuffix};
+export {findAssociatedID};
+
+export default {
   getJiraRepos,
   dbProjects,
   uniqueRepositories,

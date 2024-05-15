@@ -2,10 +2,10 @@ import reporter from 'cucumber-html-reporter';
 import pfs from 'fs/promises';
 import fs  from 'fs';
 import path from 'path';
-const mongo = require('../../src/database/DbServices');
-const testExecutor = require('../../src/serverHelper')
-import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus} from '../models/models';
-import { Github, IssueTracker, IssueTrackerOption } from '../models/IssueTracker';
+import mongo from '../../src/database/DbServices.js';
+import testExecutor from '../../src/serverHelper.js';
+import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus} from '../models/models.js';
+import { Github, IssueTracker, IssueTrackerOption } from '../models/IssueTracker.js';
 
 
 // this is needed for the html report

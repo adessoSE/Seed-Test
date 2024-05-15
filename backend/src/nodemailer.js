@@ -1,34 +1,31 @@
-const { log } = require('console');
-const nodemailer = require('nodemailer');
-
+import { log } from "console";
+import * as nodemailer from "nodemailer";
 async function sendResetLink(email, id) {
-	if (process.env.EMAIL_HOST === undefined || process.env.EMAIL_PORT === undefined) {
-		log('To send emails please provide a email server and port. You can see how to do it in the README.');
-		throw new Error('Bad email config');
-	}
-	if (process.env.EMAIL_AUTH === undefined || process.env.EMAIL_PW === undefined) {
-		log('To send emails please provide a valid email account. You can see how to do it in the README.');
-		throw new Error('Bad email config');
-	}
-
-	const transporter = nodemailer.createTransport({
-		host: process.env.EMAIL_HOST,
-		port: process.env.EMAIL_PORT,
-		secureConnection: false,
-		auth: {
-			user: process.env.EMAIL_AUTH,
-			pass: process.env.EMAIL_PW
-		},
-		tls: {
-			ciphers: 'SSLv3'
-		}
-	});
-
-	const mailOptions = {
-		from: 'seed-test@mail.de',
-		to: email,
-		subject: 'Seed-Test-Password-Reset',
-		html: `<!DOCTYPE html>
+    if (process.env.EMAIL_HOST === undefined || process.env.EMAIL_PORT === undefined) {
+        log('To send emails please provide a email server and port. You can see how to do it in the README.');
+        throw new Error('Bad email config');
+    }
+    if (process.env.EMAIL_AUTH === undefined || process.env.EMAIL_PW === undefined) {
+        log('To send emails please provide a valid email account. You can see how to do it in the README.');
+        throw new Error('Bad email config');
+    }
+    const transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        secureConnection: false,
+        auth: {
+            user: process.env.EMAIL_AUTH,
+            pass: process.env.EMAIL_PW
+        },
+        tls: {
+            ciphers: 'SSLv3'
+        }
+    });
+    const mailOptions = {
+        from: 'seed-test@mail.de',
+        to: email,
+        subject: 'Seed-Test-Password-Reset',
+        html: `<!DOCTYPE html>
 <html>
 
 <head></head>
@@ -109,14 +106,15 @@ async function sendResetLink(email, id) {
 </body>
 
 </html>`
-	};
-
-	transporter.sendMail(mailOptions, (error, info) => {
-		if (error) console.log(error);
-		else console.log(`Email sent: ${info.response}`);
-	});
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error)
+            console.log(error);
+        else
+            console.log(`Email sent: ${info.response}`);
+    });
 }
-
-module.exports = {
-	sendResetLink
+export { sendResetLink };
+export default {
+    sendResetLink
 };

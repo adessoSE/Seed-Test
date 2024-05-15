@@ -9,7 +9,6 @@ function emptyBlock() {
                 then: [],
             },
         ],
-    }
+    };
 }
-
-module.exports = emptyBlock;
+export default emptyBlock;

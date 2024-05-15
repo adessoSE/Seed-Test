@@ -1,13 +1,14 @@
 {
   "name": "seed-test-backend",
   "version": "1.7.2",
+  "type": "module",
   "engines": {
     "node": "^18.13.0 || ^20.9.0"
   },
   "scripts": {
     "start": "tsc && node src/server.js",
-    "test": "jest --verbose",
-    "test-coverage": "jest --coverage",
+    "test": "jest --experimental-vm-modules --verbose",
+    "test-coverage": "jest --experimental-vm-modules --coverage",
     "database": "node src/database/installDatabase.js",
     "database-examples": "node src/database/insertExampleData.js",
     "clean": "rimraf ./dist",
@@ -21,7 +22,7 @@
     "adm-zip": "^0.5.12",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
-    "chai": "^4.4.1",
+    "chai": "^5.1.1",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
     "cucumber-html-reporter": "^7.1.1",
@@ -52,7 +53,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.29.1",
     "jest": "^29.7.0",
-    "rimraf": "^5.0.5",
+    "rimraf": "^5.0.6",
     "typescript": ">=5.2.0 <5.4.0"
   },
   "jest": {
@@ -63,6 +64,7 @@
     ],
     "setupFiles": [
       "./spec/setupTest.js"
-    ]
+    ],
+    "transform": {}
   }
 }

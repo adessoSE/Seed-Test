@@ -1,1 +1,2 @@
-require('dotenv').config();
+import { config } from "dotenv";
+({ config }.config());

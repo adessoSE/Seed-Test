@@ -1,18 +1,17 @@
 /* eslint-disable func-names */
-const os = require('os');
-const {
+import os from 'os';
+import {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
-} = require('@cucumber/cucumber');
-const { expect } = require('chai');
-const fs = require('fs');
-const { match, doesNotMatch } = require('assert');
-const webdriver = require('../../node_modules/selenium-webdriver');
-const { By, until, Key } = require('../../node_modules/selenium-webdriver');
-require('geckodriver');
-const firefox = require('../../node_modules/selenium-webdriver/firefox');
-const chrome = require('../../node_modules/selenium-webdriver/chrome');
-const edge = require('../../node_modules/selenium-webdriver/edge');
-const { applySpecialCommands } = require('../../src/serverHelper');
+} from '@cucumber/cucumber';
+import { expect } from 'chai';
+import fs from 'fs';
+import { match, doesNotMatch } from 'assert';
+import webdriver, { By, until, Key } from 'selenium-webdriver';
+import 'geckodriver';
+import firefox from 'selenium-webdriver/firefox';
+import chrome from 'selenium-webdriver/chrome';
+import edge from 'selenium-webdriver/edge';
+import { applySpecialCommands } from '../../src/serverHelper';
 
 let driver;
 

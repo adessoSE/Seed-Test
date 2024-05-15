@@ -1,7 +1,7 @@
 import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
-const passport = require('passport');
+import passport from 'passport';
 
-const mongo = require('../../src/database/DbServices');
+import mongo from '../../src/database/DbServices.js';
 const cryptoAlgorithm = 'aes-256-ccm';
 const key = scryptSync(process.env.JIRA_SECRET || "anotherUnsaveSecret", process.env.JIRA_SALT || "9bNyV23AbaC7", 32);
 

@@ -1,6 +1,6 @@
 
-import { checkValidGithub, jiraDecryptPassword } from "../helpers/userManagement";
-import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from "./models";
+import { checkValidGithub, jiraDecryptPassword } from "../helpers/userManagement.js";
+import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from "./models.js";
 
 enum IssueTrackerOption{
     JIRA = 'jira',
