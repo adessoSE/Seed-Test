@@ -14,7 +14,6 @@ services:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
-    image: seed-test-frontend:latest
     ports:
       - 4200:4200
     container_name: "Seed-frontend"
