@@ -68,6 +68,9 @@ RUN npm ci
 # If you are building your code for production
 # RUN npm ci --only=production
 
+# Print out the content of package.json
+RUN cat package.json
+
 EXPOSE 8080
 
 # Start dbus-daemon for google-chrome
@@ -80,6 +83,9 @@ WORKDIR /usr/src/app/frontend
 
 # Copy package.json and package-lock.json
 COPY ./frontend/package*.json ./
+
+# Print out the content of package.json
+RUN cat package.json
 
 # Install dependencies
 RUN npm ci --ignore-scripts
