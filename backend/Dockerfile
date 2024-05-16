@@ -4,7 +4,7 @@ RUN apt-get update
 RUN yes | apt-get install wget
 
 # Install the latest version of npm
-RUN npm install -g npm@latest
+RUN npm install -g npm@latest --ignore-scripts
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -48,7 +48,7 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
-RUN npm install
+RUN npm install --ignore-scripts
 #RUN npm ci
 # If you are building your code for production
 # RUN npm ci --only=production

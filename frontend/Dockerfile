@@ -1,7 +1,7 @@
  FROM node:20.9
 
 # Install the latest version of npm
-RUN npm install -g npm@latest
+RUN npm install -g npm@latest --ignore-scripts
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -17,10 +17,10 @@ RUN cat package.json
 
 # Install dependencies
 #RUN npm ci --ignore-scripts
-RUN npm install
+RUN npm install --force --ignore-scripts
 
 # Install Angular CLI
-RUN npm install --ignore-scripts -g @angular/cli
+RUN npm install --force --ignore-scripts -g @angular/cli
 
 COPY . .
 
