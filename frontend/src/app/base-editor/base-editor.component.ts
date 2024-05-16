@@ -485,7 +485,7 @@ export class BaseEditorComponent {
             if(!result) return;
             console.log("Upload modal return: ", result);
             const preSelectValues = [result.filename];
-            newStep = this.createNewStep(step, stepLocation);
+            newStep = this.createNewStep(step, stepLocation, selectedScenario.multipleScenarios);
             preSelectValues.forEach((value, index) => {
                 if (value) {
                     newStep.values[index] = value;
@@ -495,7 +495,7 @@ export class BaseEditorComponent {
             console.error("Error while opening file explorer modal:", error);
         }
     } else {
-      newStep = this.createNewStep(step, stepLocation);
+      newStep = this.createNewStep(step, stepLocation, selectedScenario.multipleScenarios);
     }
     console.log('newstep ',newStep);
 
