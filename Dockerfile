@@ -1,4 +1,4 @@
-FROM node:18.13
+FROM node:20.9
 
 RUN apt-get update && apt-get -y install wget
 
