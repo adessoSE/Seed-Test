@@ -13,9 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        run: npm install node-fetch #TODO: Remove node-fetch as not needed (probably)
-
       - name: Use Docker
         uses: actions-hub/docker/cli@master
         env:
