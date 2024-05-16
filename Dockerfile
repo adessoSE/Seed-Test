@@ -2,6 +2,9 @@ FROM node:20.9
 
 RUN apt-get update && apt-get -y install wget
 
+# Install the latest version of npm
+RUN npm install -g npm@latest
+
 # Set DATABASE_URI to be localhost
 ENV DATABASE_URI=mongodb://localhost:27017
 

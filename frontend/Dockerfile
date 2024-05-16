@@ -1,5 +1,8 @@
  FROM node:20.9
 
+# Install the latest version of npm
+RUN npm install -g npm@latest
+
 # Create app directory
 WORKDIR /usr/src/app
 

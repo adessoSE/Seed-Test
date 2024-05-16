@@ -3,6 +3,9 @@ FROM node:20.9
 RUN apt-get update
 RUN yes | apt-get install wget
 
+# Install the latest version of npm
+RUN npm install -g npm@latest
+
 # Create app directory
 WORKDIR /usr/src/app
 
