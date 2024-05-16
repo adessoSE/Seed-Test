@@ -5,7 +5,6 @@ import emptyBackground from '../../src/models/emptyBackground';
 import { writeFile } from '../../src/serverHelper';
 import AdmZip from 'adm-zip';
 import path from 'path';
-import fetch from "node-fetch";
 
 enum Sources {
     GITHUB = "github",
@@ -56,29 +55,22 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
 		const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
 		authString = `Basic ${auth}`
 	}
-	console.log('auth ', authString);
-    const reqoptions = {
+	
+    const reqOptions = {
         method: 'GET',
-        qs: {
-            type: 'page',
-            title: 'title'
-        },
         headers: {
             'cache-control': 'no-cache',
 			'Authorization': authString
         }
     };
+	const url = `https://${host}/rest/api/2/project`
     // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
     // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
-    return await fetch(`http://${host}/rest/api/2/project`, reqoptions)
-    .then((response) => response.json())
-    .then(async (json) => {
-        const projects = [];
-        for (const project of json) {
-            projects.push(project["name"])
-        }
-        return projects
-    }).catch((error) => { console.error(error); return [] })
+    const jiraProjects =  await fetch(url, reqOptions)
+		.then((response) => response.json())
+		.catch((error) => { console.error(error.stack); return [] })
+	const projects = jiraProjects.map((project) => project.name)
+	return projects
 }
 
 /**
