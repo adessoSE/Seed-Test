@@ -58,7 +58,7 @@ export class HighlightInputService {
         this.highlightSpecialCommands(highlightedText, isDark));
     }
 
-    const examplesRegex = /<[^>]+>/;
+    const examplesRegex = /<[^>]*>/;
     const match = textContent.match(examplesRegex);
     if (match && match.length > 0) {
       return match.input
@@ -159,8 +159,7 @@ export class HighlightInputService {
     // TODO: Hardcoded Styles
     highlightedText = textContent.replace(specialCommandsPattern, (match) => {
       specialCommandDetected = true;
-      var identifier = `specialInputId${Date.now().toString(36) + Math.random().toString(36).substr(2)
-        }`;
+      var identifier = `specialInputId${Date.now().toString(36) + this.getRandomString(10)}`;
       this.apiService.resolveSpecialCommand(match).subscribe({
         next: (resolvedCommand) => {
           if (resolvedCommand === match) {
@@ -189,6 +188,11 @@ export class HighlightInputService {
     return { specialCommandDetected, highlightedText };
   }
 
+  getRandomString(length) {
+    const array = new Uint8Array(length);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, dec => ('0' + dec.toString(36)).substr(-1)).join('');
+  }
   /**
    * Helper for Regex Highlighter, find right node and index for current cursor position
    * @param element HTMLElement
