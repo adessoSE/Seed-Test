@@ -1372,9 +1372,7 @@ export class BaseEditorComponent {
         break;
 
       case "scenario":
-        saveBlock = this.addStepsToBlockOnIteration(
-          JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions))
-        );
+        saveBlock = this.addStepsToBlockOnIteration(JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions)), JSON.parse(JSON.stringify(this.selectedScenario.multipleScenarios)));
         /* for (const prop in this.selectedScenario.stepDefinitions) {
             if (prop !== 'example') {
                 for (const s in this.selectedScenario.stepDefinitions[prop]) {
@@ -1644,7 +1642,7 @@ export class BaseEditorComponent {
         break;
 
       case "scenario":
-        block = this.addStepsToBlockOnIteration(this.selectedScenario.stepDefinitions);
+        block = this.addStepsToBlockOnIteration(this.selectedScenario.stepDefinitions, this.selectedScenario.multipleScenarios);
         /* for (const prop in this.selectedScenario.stepDefinitions) {
           if (prop !== 'example') {
             for (const s in this.selectedScenario.stepDefinitions[prop]) {
@@ -1695,7 +1693,7 @@ export class BaseEditorComponent {
    * @param stepsList Step Definitions or examples
    * @returns
    */
-  addStepsToBlockOnIteration(stepList) {
+  addStepsToBlockOnIteration(stepList, multipleScenarios?: MultipleScenario[]) {
     let stepsList = JSON.parse(JSON.stringify(stepList));
     const copyBlock = { given: [], when: [], then: [], example: [] };
     const stepsListIterate = { given: [], when: [], then: [] };
@@ -1715,12 +1713,12 @@ export class BaseEditorComponent {
     });
     if (examplesToBeCopied.length > 0) {
       let indexList = [];
-      stepsList["example"][0].values.forEach((value, index) => {
+      multipleScenarios[0].values.forEach((value, index) => {
         if (examplesToBeCopied.includes(value)) {
           indexList.push(index);
         }
       });
-      stepsList["example"].forEach((element) => {
+      multipleScenarios.forEach((element) => {
         const filteredExamples = element.values.filter((val, index) =>
           indexList.includes(index)
         );
@@ -1728,7 +1726,7 @@ export class BaseEditorComponent {
         copyBlock["example"].push(element);
       });
     }
-
+    
     return copyBlock;
   }
   /**

@@ -19,13 +19,6 @@ table {
 
 }
 
-#nullValue {
-  font-style: italic;
-  color: gray;
-
-  transform: translate(6px, -7px);
-}
-
 span,
 .checkboxWrapper {
   position: -webkit-sticky;
@@ -159,6 +152,12 @@ td.mat-footer-cell:first-of-type {
   color: blue;
 }
 
+.examplesNameLabel {
+  white-space: break-spaces;
+  word-break: break-word;
+  max-width: 11em;
+}
+
 .exampleValueContainer {
   /*needed for trailing whitespaces*/
   white-space: pre-wrap;
@@ -176,14 +175,18 @@ td.mat-footer-cell:first-of-type {
   z-index: 1;
 }
 
-.exampleValueContainerNull {
+.nullValue {
   transform: translate(0px, 12px);
 }
 
-.exampleValueContainerEdit {
+.editMode {
   transition: border 0.3s ease, border-radius 0.3s ease;
 }
 
-.exampleValueContainerEdit:hover {
+.editMode:hover {
   border: 1px solid var(--light-blue);
+}
+
+#exampleTableNullValue{
+  transform: translate(6px, -7px);
 }

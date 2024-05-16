@@ -142,7 +142,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     let toastrShown = false;
     Object.keys(this.block.stepDefinitions).forEach((key, _) => {
         this.block.stepDefinitions[key].forEach((step: StepType) => {
-          if(step.stepType != 'example'){
+          if(step.stepType !== undefined){
             if(step._blockReferenceId && !toastrShown){
               this.toastr.info("Please Note: To avoid complexity issues embedded blocks aren't allowed to be saved in another blocks ","You've selected at least one reference block to save in another block.", {
                 timeOut: 8000,

@@ -16,7 +16,7 @@
 					title="Switch on/off edit mode"></mat-slide-toggle>
 			</span>
 			<div *ngIf="!first">
-				{{column}}
+				<label class="examplesNameLabel">{{column}}</label>
 				<span *ngIf="editMode">
 					<button id="rename_example" class="scenarioTitle" (click)="renameExample(columnIndex)">
 						<em class="material-icons">edit</em>
@@ -39,10 +39,10 @@
 				&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
 			</div>
 			<div *ngIf="!first">
-				<div class="exampleValueContainer" [ngClass]="{'exampleValueContainerNull': !element[column]?.trim(), 'exampleValueContainerEdit': editMode}" #example_input (input)="highlightRegex(example_input, columnIndex, rowIndex, false, element, column)">
+				<div class="exampleValueContainer" [ngClass]="{'nullValue': !element[column]?.trim(), 'editMode': editMode}" #example_input (input)="highlightRegex(example_input, columnIndex, rowIndex, false, element, column)">
 					{{element[column]}}
 				</div>
-				<label *ngIf="!element[column]?.trim()" id="nullValue">[--null--]</label>
+				<label *ngIf="!element[column]?.trim()" id="exampleTableNullValue" class="nullExampleValue">[--null--]</label>
 			</div>
 		</td>
 	</ng-container>
