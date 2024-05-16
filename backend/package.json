@@ -17,7 +17,7 @@
   },
   "private": true,
   "dependencies": {
-    "@cucumber/cucumber": "^9.6.0",
+    "@cucumber/cucumber": "^10.7.0",
     "adm-zip": "^0.5.12",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
