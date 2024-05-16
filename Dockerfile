@@ -68,6 +68,9 @@ RUN npm ci
 # If you are building your code for production
 # RUN npm ci --only=production
 
+# Print out the contents of the ./backend directory
+RUN ls -l ./backend
+
 # Print out the content of package.json
 RUN cat package.json
 
@@ -84,11 +87,14 @@ WORKDIR /usr/src/app/frontend
 # Copy package.json and package-lock.json
 COPY ./frontend/package*.json ./
 
-# Print out the content of package.json
-RUN cat package.json
-
 # Install dependencies
 RUN npm ci --ignore-scripts
+
+# Print out the contents of the ./frontend directory
+RUN ls -l ./frontend
+
+# Print out the content of package.json
+RUN cat package.json
 
 # Install Angular CLI
 RUN npm install --ignore-scripts -g @angular/cli
