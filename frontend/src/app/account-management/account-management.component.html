@@ -1,4 +1,4 @@
-<div [class.darkTheme]= "isDark" class="grid-container uk-card-default">
+<div [class.darkTheme]="isDark" class="grid-container uk-card-default">
     <div>
         <a routerLink="/" class="title">
             <button class="backButton" title="Back to Projects">
@@ -6,7 +6,7 @@
             </button>
         </a>
     </div>
-    <div >
+    <div>
         <h1 class="LargeHeadline1">Account Settings</h1>
     </div>
     <div class="grid_seedTest uk-card uk-card-default">
@@ -30,11 +30,15 @@
                     <ng-container *ngFor="let repository of repositories; let i = index">
                         <li class="customRepoContainer" *ngIf="this.apiService.isCustomRepo(repository)">
                             <div class="db-item-list">
-                                <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)" src="../assets/database-5-32.png">
-                                <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                                <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
+                                    src="../assets/database-5-32.png">
+                                <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}"
+                                    (click)="selectRepository(repository);">{{repository.value}}</a>
                             </div>
                             <span class="flex-end-item">
-                            <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
+                                <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit"
+                                    id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip
+                                    title="Edit project">settings</mat-icon>
                             </span>
                         </li>
                     </ng-container>
@@ -69,8 +73,16 @@
                 </div>
                 <div>
                     <button (click)="exportProject(downloadRepoID)"  class="normalButton" style="width: 86.76px;" >Export</button>
-                    <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
+                    <dfn class="def"><span class="infoIcon" uk-icon="info" id="exportInfo"></span>
                         <span rel="def">Export Tests in Gherkin: Export your project as a .zip file containing the stories and blocks of a project importable as .json.</span>
+                    </dfn>
+                </div>
+                <br>
+                <div>
+                    <button class="normalButton" style="width: 86.76px;" (click)="openImportPopup()">Import</button>
+                    <dfn class="def">
+                        <span class="infoIcon" uk-icon="info" id="importInfo"></span>
+                        <span rel="def">Import Tests: Import test cases from a previously exported project.</span>
                     </dfn>
                 </div>
             </div>
@@ -79,7 +91,8 @@
         <!-----------------Erase your Account-------------->
         <div class="grid_eraseAccount repositories" *ngIf="loginService.isLoggedIn() && email">
             <div class="uk-form-horizontal">
-                <button class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete Seed-Test Account</button>
+                <button class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete Seed-Test
+                    Account</button>
             </div>
         </div>
     </div>
@@ -91,24 +104,25 @@
             <label class="active MediumBody2">{{github['login']}}</label>
             <div>
                 <a class="githubLoginContainer" (click)="disconnectGithub();">
-                    <div class="githubLogin" >
-                       <img src ="../assets/github-logo.png" alt="github">
-                       <p style="margin-bottom: 0px;">Disconnect GitHub</p>
+                    <div class="githubLogin">
+                        <img src="../assets/github-logo.png" alt="github">
+                        <p style="margin-bottom: 0px;">Disconnect GitHub</p>
                     </div>
-                 </a>
+                </a>
             </div>
         </div>
         <div class="grid_github" *ngIf="!github">
             <a class="githubLoginContainer" (click)="login();" *ngIf="clientId!=='undefined'">
-                <div class="githubLogin" >
-                   <img src ="../assets/github-logo.png" alt="github">
-                   <p style="margin-bottom: 0px;">Login via GitHub</p>
+                <div class="githubLogin">
+                    <img src="../assets/github-logo.png" alt="github">
+                    <p style="margin-bottom: 0px;">Login via GitHub</p>
                 </div>
             </a>
             <p class="wrongLogin" *ngIf="clientId==='undefined'">Github has not been set up yet.</p>
         </div>
         <!------------------Repositories GITHUB------------------->
-        <div class="grid_githubRepos repositories" *ngIf="repositories" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
+        <div class="grid_githubRepos repositories" *ngIf="repositories"
+            [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
             <div id="GitHubRepositoriesList">
                 <label class="MediumHeadline5">Github Projects:</label>
                 <ul class="uk-list">
@@ -141,7 +155,8 @@
                 <button class="normalButton" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
             </div>
             <div id="ChangeJiraDiv">
-                <button class="normalButton" style="display:none;" id="disconnect-jira" (click)="jiraDisconnect()">Disconnect Jira-Account</button>
+                <button class="normalButton" style="display:none;" id="disconnect-jira"
+                    (click)="jiraDisconnect()">Disconnect Jira-Account</button>
             </div>
         </div>
         <!------------------Repositories JIRA------------------->
@@ -163,9 +178,11 @@
     </div>
 </div>
 <app-change-jira-account #changeJiraModal (jiraAccountResponse)="updateSite($event)"></app-change-jira-account>
-<app-disconnect-jira-account #disconnectJiraModal (jiraAccountResponse)="updateSite($event)"></app-disconnect-jira-account>
+<app-disconnect-jira-account #disconnectJiraModal
+    (jiraAccountResponse)="updateSite($event)"></app-disconnect-jira-account>
 <app-create-custom-project #createCustomProject></app-create-custom-project>
 <app-delete-account #deleteAccountModal></app-delete-account>
 <app-workgroup-edit #workgroupEditModal></app-workgroup-edit>
+<app-import-modal #importProjectModal></app-import-modal>
 <app-repo-swich #repoSwitchModal></app-repo-swich>
 <app-rename-project #renameProjectModal></app-rename-project>

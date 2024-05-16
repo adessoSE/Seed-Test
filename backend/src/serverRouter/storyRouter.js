@@ -1,12 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const pmHelper = require('../../dist/helpers/projectManagement');
-const multer = require('multer')
 
 const router = express.Router();
+const upload = multer({
+	storage: multer.memoryStorage(),
+	// 5 MB limit
+	limits: { fileSize: 5000000 }
+});
 
 router
 	.use(cors())
@@ -171,6 +176,30 @@ router.delete('/:repo_id/:_id', async (req, res) => {
 		res.status(200).json({ text: 'success' });
 	} catch (e) {
 		handleError(res, e, e, 500);
+	}
+});
+
+// Import into new project
+router.post('/upload/import/', upload.single('file'), async (req, res) => {
+	try {
+		if (req.query.projectName) {
+			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName, req.query.importMode);
+			res.status(200).json(result);
+		} else res.status(200).json('');
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+// Import into existing project
+router.put('/upload/import/', upload.single('file'), async (req, res) => {
+	try {
+		if (req.query.repo_id) {
+			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName, req.query.importMode);
+			res.status(200).json(result);
+		} else res.status(200).json('');
+	} catch (error) {
+		handleError(res, error, error, 500);
 	}
 });
 
