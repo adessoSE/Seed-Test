@@ -370,7 +370,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.storiesError = false;
     }
     const version = localStorage.getItem("version");
-    if (version === "DAISY" || version === "HEROKU" || !version) {
+    if (version === "DAISY" || !version) {
       this.daisyVersion = true;
     } else {
       this.daisyVersion = false;

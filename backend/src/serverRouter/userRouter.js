@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
+const bodyParser = require('body-parser');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
@@ -216,7 +216,7 @@ router.post('/createRepository', async (req, res) => {
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const { repoName, settings } = req.body;
 	try {
-		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings, req.user._id);
+		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings);
 		res.status(200).json(repo);
 	} catch (error) {
 		console.error(error);
