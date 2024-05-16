@@ -13,7 +13,8 @@ RUN ls -l .
 RUN cat package.json
 
 # Install dependencies
-RUN npm ci --ignore-scripts
+#RUN npm ci --ignore-scripts
+RUN npm install
 
 # Install Angular CLI
 RUN npm install --ignore-scripts -g @angular/cli

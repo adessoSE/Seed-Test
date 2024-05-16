@@ -45,7 +45,8 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
-RUN npm ci
+RUN npm install
+#RUN npm ci
 # If you are building your code for production
 # RUN npm ci --only=production
 
