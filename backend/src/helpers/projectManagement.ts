@@ -74,16 +74,16 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
 	}
 	
     const reqOptions = {
-        method: 'GET',
-        headers: {
-            'cache-control': 'no-cache',
-			'Authorization': authString
-        }
+      method: 'GET',
+      headers: {
+        'cache-control': 'no-cache',
+        'Authorization': authString
+      }
     };
 	const url = `https://${host}/rest/api/2/project`
     // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
     // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
-    const jiraProjects =  await fetch(url, reqOptions)
+  const jiraProjects =  await fetch(url, reqOptions)
 		.then((response) => response.json())
 		.catch((error) => { console.error(error.stack); return [] })
 	const projects = jiraProjects.map((project) => project.name)
