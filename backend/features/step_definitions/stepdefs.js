@@ -874,7 +874,7 @@ Then('So on element {string} the css property {string} is {string}', async funct
 	});
 });
 
-Then('So the element {string} has the tool-tip {string}', async function toolTipIs(element, value) {
+Then('So the element {string} has the tooltip {string}', async function toolTipIs(element, value) {
 	await handleError(async () => {
 		const world = this;
 		const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `\\*[@*='${element} and @role=tooltip]`, `//*[contains(@*, '${element}')]`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
