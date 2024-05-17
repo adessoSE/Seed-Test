@@ -1,6 +1,3 @@
-// Install express server
-const request = require('request')
-
 if(!process.env.NODE_ENV){
   require('dotenv').config();
 }
