@@ -67,7 +67,7 @@ export class ExecutionListComponent {
   async getTestExecutions(executionContext: Scenario | Story | Group) {
     this.testExecutions = [];
   
-    if (this.isScenario(executionContext)) {
+    if (this.isScenario(executionContext)) {  
       this.testExecutions = executionContext.testRunSteps.map(step => ({
         testRunId: step.testRunId,
         testExecKey: step.testExecKey,
@@ -75,6 +75,9 @@ export class ExecutionListComponent {
       }));
     } else if (this.isStory(executionContext)) {
       executionContext.scenarios.forEach(scenario => {
+        if (!scenario.testRunSteps) {
+          return;
+        }
         scenario.testRunSteps.forEach(step => {
           this.testExecutions.push({
             testRunId: step.testRunId,
