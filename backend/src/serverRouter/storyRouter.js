@@ -65,21 +65,6 @@ router.post('/', async (req, res) => {
 	}
 });
 
-
-
-// delete scenario
-router.delete('/scenario/:story_id/:_id', async (req, res) => {
-	try {
-		await mongo
-			.deleteScenario(req.params.story_id, parseInt(req.params._id, 10));
-		await helper.updateFeatureFile(req.params.story_id);
-		res.status(200)
-			.json({ text: 'success' });
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
 router.get('/download/story/:_id', async (req, res) => {
 	try {
 		console.log('download feature-file', req.params._id);
@@ -262,8 +247,10 @@ router.delete('/scenario/:story_id/:_id', async (req, res) => {
 		dbError = error;
 	}
 
+	
 	// if xray enabled, delete xray step in jira
 	const xrayEnabled = req.headers['x-xray-enabled'] === 'true';
+	console.log('XRay enabled:', xrayEnabled);
 	if (xrayEnabled) {
 		const testKey = req.headers['x-test-key'];
 		try {

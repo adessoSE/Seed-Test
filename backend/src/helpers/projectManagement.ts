@@ -725,6 +725,6 @@ module.exports = {
   exportProject,
   importProject,
   checkAndAddSuffix,
-  findAssociatedID,,
+  findAssociatedID,
 	updateTestSets
 };

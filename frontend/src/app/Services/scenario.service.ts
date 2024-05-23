@@ -39,6 +39,7 @@ export class ScenarioService {
     * Emits the delete scenario event
   */
   public deleteScenarioEmitter(xrayEnabled: boolean) {
+    console.log('Xray enabled: ' + xrayEnabled)
     this.deleteScenarioEvent.emit(xrayEnabled);
   }
   /* Emits scenario changed event */
@@ -129,6 +130,7 @@ export class ScenarioService {
   */
   deleteScenario(storyID: any, scenario: Scenario, xrayEnabled: boolean): Observable<Story> {
     if (xrayEnabled) {
+      console.log('Xray enabled no 2: ' + xrayEnabled)
       const headers = new HttpHeaders()
         .set('x-xray-enabled', xrayEnabled.toString())
         .set('x-test-key', scenario.testKey.toString());
