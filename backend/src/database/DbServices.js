@@ -353,22 +353,27 @@ async function createStoryGroup(
   members,
   sequence,
   session = undefined,
-  client = undefined
+  client = undefined,
+  xayTestSet = false
 ) {
   try {
     const db = session
       ? client.db('Seed', session)
       : dbConnection.getConnection();
+    const group = {
+      _id: new ObjectId(),
+      name,
+      member_stories: members,
+      isSequential: sequence,
+    };
+    if (xayTestSet) {
+      group.xayTestSet = true;
+    }
     const groups = await db.collection(repositoriesCollection).findOneAndUpdate(
       { _id: new ObjectId(repoID) },
       {
         $push: {
-          groups: {
-            _id: new ObjectId(),
-            name,
-            member_stories: members,
-            isSequential: sequence,
-          },
+          groups: group
         },
       },
       { upsert: true, projection: { groups: 1 }, session: session || undefined }
@@ -1951,6 +1956,27 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	return v;
 }
 
+async function getStoriesByIssueKeys(issueKeys) {
+    try {
+        const db = dbConnection.getConnection();
+        const stories = await db.collection(storiesCollection).find({
+            'issue_number': { $in: issueKeys }
+        }).project({_id: 1}).toArray();
+
+        if (!stories.length) {
+            console.log("No stories found for the provided issue keys.");
+            return [];
+        }
+
+        const storyIds = stories.map(story => story._id.toString());
+        console.log("Fetched story IDs:", storyIds);
+        return storyIds;
+    } catch (error) {
+        console.error('Error retrieving stories by issue keys:', error);
+        throw error;
+    }
+}
+
 module.exports = {
 	getFileList,
 	getFiles,
@@ -2031,5 +2057,6 @@ module.exports = {
 	getRepoSettingsById,
 	importStories,
 	importBlocks,
-	importGroups
+	importGroups,
+	getStoriesByIssueKeys
 };

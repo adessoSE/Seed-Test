@@ -7,18 +7,20 @@ import { writeFile } from "../../src/serverHelper";
 import AdmZip from "adm-zip";
 import path from "path";
 import fetch from "node-fetch";
+import test from 'node:test';
 
 enum Sources {
-  GITHUB = "github",
-  JIRA = "jira",
-  DB = "db",
+	GITHUB = "github",
+	JIRA = "jira",
+	DB = "db"
 }
 
 class Group {
-  _id: string;
-  name: string;
-  member_stories: Array<string>;
-  isSequential: boolean;
+	_id: string
+	name: string
+	member_stories: Array<string>
+	isSequential: boolean
+	xrayTestSet: boolean
 }
 
 class Repository {
@@ -231,45 +233,51 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 }
 
 function updateTestrunSteps(dbScenarios, storyScenarios) {
-    dbScenarios.forEach(dbScenario => {
-        const storyScenario = storyScenarios.find(scenario => scenario.scenario_id === dbScenario.scenario_id);
-        if (storyScenario) {
-            storyScenario.testRunSteps.forEach(testRunStep => {
-                const exists = dbScenario.testRunSteps.some(dbTestRunStep =>
-                    dbTestRunStep.testRunId === testRunStep.testRunId && dbTestRunStep.testRunStepId === testRunStep.testRunStepId);
+	dbScenarios.forEach(dbScenario => {
+		const storyScenario = storyScenarios.find(scenario => scenario.scenario_id === dbScenario.scenario_id);
+		if (storyScenario) {
+			storyScenario.testRunSteps.forEach(testRunStep => {
+				const exists = dbScenario.testRunSteps.some(dbTestRunStep =>
+					dbTestRunStep.testRunId === testRunStep.testRunId && dbTestRunStep.testRunStepId === testRunStep.testRunStepId);
 
-                if (!exists) {
-                    dbScenario.testRunSteps.push(testRunStep);
-                }
-            });
-			if(storyScenario.testKey){
+				if (!exists) {
+					dbScenario.testRunSteps.push(testRunStep);
+				}
+			});
+			if (storyScenario.testKey) {
 				dbScenario.testKey = storyScenario.testKey;
 			}
-        }
-    });
+		}
+	});
 }
 
 function addScenariosToDb(dbScenarios, storyScenarios) {
-    const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
-    const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
-    if (newScenarios.length > 0) {
-        dbScenarios.push(...newScenarios);
-    }
+	const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
+	const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
+	if (newScenarios.length > 0) {
+		dbScenarios.push(...newScenarios);
+	}
 }
 
 async function fuseStoryWithDb(story) {
-  const result = await mongo.getOneStory(parseInt(story.story_id, 10));
-  if (result !== null) {
-    story.scenarios = result.scenarios;
-    story.background = result.background;
-    story.lastTestPassed = result.lastTestPassed;
-  } else {
-    story.scenarios = [emptyScenario()];
-    story.background = emptyBackground();
-  }
-  story.story_id = parseInt(story.story_id, 10);
-  if (story.storySource !== "jira")
-    story.issue_number = parseInt(story.issue_number, 10);
+	const result = await mongo.getOneStory(parseInt(story.story_id, 10));
+	if (result !== null) {
+
+		// update scenarios in db in case new testruns have been added
+		updateTestrunSteps(result.scenarios, story.scenarios);
+
+		// add scenarios for new xray steps
+		addScenariosToDb(result.scenarios, story.scenarios);
+
+		story.scenarios = result.scenarios;
+		story.background = result.background;
+		story.lastTestPassed = result.lastTestPassed;
+	} else {
+		story.scenarios = [emptyScenario()];
+		story.background = emptyBackground();
+	}
+	story.story_id = parseInt(story.story_id, 10);
+	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number, 10);
 
   const finalStory = await mongo.upsertEntry(story.story_id, story);
   story._id = finalStory._id;
@@ -659,6 +667,53 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
     await client.close();
   }
 }
+async function updateTestSets(testSets, repo_id) {
+	for (const testSet of testSets) {
+		try {
+			const storyIds = await getStorysByIssue(testSet.tests);
+
+			if (storyIds.length === 0) {
+				console.log(`No stories found for Test Set ${testSet.testSetKey}. Skipping group creation.`);
+				continue;
+			}
+
+			// Get repository to update groups
+			const repository = await mongo.getOneRepositoryById(repo_id);
+
+			// Find existing group by testSetKey
+			let existingGroup = repository.groups.find(group => group.name === testSet.testSetKey);
+
+			if (existingGroup) {
+                // Update existing group
+                const updatedGroup = { ...existingGroup, member_stories: storyIds }; 
+                await mongo.updateStoryGroup(repo_id, existingGroup._id.toString(), updatedGroup);
+                console.log(`Updated group for Test Set: ${testSet.testSetKey}`);
+            } else {
+                // Create a new group if it does not exist
+                const groupId = await mongo.createStoryGroup(
+                    repo_id,
+                    testSet.testSetKey,
+                    storyIds,
+                    true,
+					testSet.xrayTestSet
+                );
+                console.log(`Group created for Test Set: ${testSet.testSetKey}`);
+            }
+        } catch (e) {
+            console.error(`Error processing group for Test Set: ${testSet.testSetKey}:`, e);
+        }
+    }
+}
+
+async function getStorysByIssue(issueKeys) {
+	try {
+		const storiesIds = await mongo.getStoriesByIssueKeys(issueKeys);
+		return storiesIds
+	} catch (error) {
+		console.error("Error fetching stories by issue keys:", error);
+		return [];
+	}
+}
 
 module.exports = {
   getJiraRepos,
@@ -670,5 +725,6 @@ module.exports = {
   exportProject,
   importProject,
   checkAndAddSuffix,
-  findAssociatedID,
+  findAssociatedID,,
+	updateTestSets
 };

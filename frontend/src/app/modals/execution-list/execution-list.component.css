@@ -1,0 +1,25 @@
+.list-group-item:first-child {
+    background-color: #f8f8f8; 
+}
+
+.darkTheme .list-group-item:first-child {
+    background: #526b76;
+}
+
+.darkTheme .list-group-item{
+    background: #57717d;
+    color: white;
+}
+
+.list-group-item {
+    font-weight: normal;
+}
+
+.select-all-text {
+    margin-right: 10px;
+}
+
+.list-group-item:first-child > div {
+    display: flex;
+    align-items: center;
+}

@@ -74,7 +74,7 @@ export interface Scenario {
     /**
      * Id of corresponding test run in xray
      */
-    testRunSteps?: { testRunId: number; testRunStepId: number }[];
+    testRunSteps?: { testRunId: number; testRunStepId: number, testExecKey: string}[];
 
     /*
     * Xray test key

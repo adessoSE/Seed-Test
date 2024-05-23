@@ -87,6 +87,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { WindowSizeComponent } from './modals/window-size/window-size.component';
 import { FileExplorerModalComponent } from "./modals/file-explorer-modal/file-explorer-modal.component";
 
+import { ExecutionListComponent } from './modals/execution-list/execution-list.component';
 
 
 @NgModule({
@@ -143,6 +144,7 @@ import { FileExplorerModalComponent } from "./modals/file-explorer-modal/file-ex
     ConfirmResetPasswordPopupComponent,
     WindowSizeComponent,
     FileExplorerModalComponent,
+    ExecutionListComponent
   ],
   imports: [
     NgbModule,

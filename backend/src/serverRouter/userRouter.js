@@ -332,6 +332,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
+		const { id } = req.query;
 		const jiraTracker = issueTracker.IssueTracker.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
 		const clearPass = jiraTracker.decryptPassword(req.user.jira);
 		const { AccountName, AuthMethod, Host } = req.user.jira;
@@ -351,28 +352,44 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 			}
 		};
 		let repo;
+		let testSets = []
 		// send request to Jira API
+		// 	testSetResponse = await fetch(`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+issuetype="${testSetString}"`, options)
 		try {
 			await fetch(
-				`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test)&startAt=0&maxResults=200`,
+				`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test+OR+issuetype="Test Set")&startAt=0&maxResults=200`,
 				// `http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+(labels=Seed-Test+OR+issuetype=Test)&startAt=0&maxResults=200`,
 				options
 			)
 				.then(async (response) => response.json())
 				.then(async (json) => {
 					try {
+
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
 
 						const asyncHandleTestIssue = json.issues.map((issue) => {
+							if (issue.fields.issuetype.name === 'Test Set'){
+								 const testsInSet = issue.fields.customfield_14233 || [];
+								 testSets.push({
+									testSetKey: issue.key,
+									testSetId: issue.id,
+									tests: testsInSet,
+									xrayTestSet: true 
+								});
+								return null						
+							}
 							if (issue.fields.issuetype.name === 'Test') return handleTestIssue(issue, options, Host);
 							return { scenarioList: [], testStepDescription: '' };
 						});
-
+						
 						const lstDesc = await Promise.all(asyncHandleTestIssue);
 
 						const stories = [];
 
 						for (const [index, issue] of json.issues.entries()) {
+							
+							if (!lstDesc[index]) continue
+							
 							const { scenarioList, testStepDescription } = lstDesc[index];
 
 							const issueDescription = issue.fields.description ? issue.fields.description : '';
@@ -403,7 +420,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 					} catch (e) {
 						console.error('Error while getting Jira issues:', e);
 					}
-
+					projectMng.updateTestSets(testSets, id)
 					Promise.all(storiesArray)
 						.then((array) => {
 							const orderedStories = matchOrder(array, tmpStories, repo);
@@ -484,7 +501,8 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 					&& stepExpected === testRunExpected) {
 					matchingSteps.push({
 						testRunId: testRunDetails.id,
-						testRunStepId: testRunStep.id
+						testRunStepId: testRunStep.id,
+						testExecKey: testRunDetails.testExecKey
 					});
 				}
 			});

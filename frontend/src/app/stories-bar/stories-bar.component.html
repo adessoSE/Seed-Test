@@ -125,7 +125,7 @@
                 {{g.name}}
               </a>
               <span class="groupIconSpan">
-                <em class="material-icons" uk-tooltip title="Run Tests in Group" (click)="selectFirstStoryOfGroup(g);runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
+                <em class="material-icons" uk-tooltip title="Run Tests in Group" (click)="selectFirstStoryOfGroup(g);evaluateAndRunGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
                 <em class="material-icons" uk-tooltip title="Update Group" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
               </span>
             </div>
@@ -151,3 +151,4 @@
 <app-create-new-story #createNewStory></app-create-new-story>
 <app-update-group #updateGroup></app-update-group>
 <app-create-scenario #createNewScenario (createScenarioEvent)="addScenario($event)"></app-create-scenario>
+<app-execution-list #executionListModal (selectedExecutions)="executeTests($event)"></app-execution-list>

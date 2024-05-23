@@ -269,7 +269,7 @@
           <em class="material-icons-outlined">cancel</em>
         </button>
         <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning"
-          uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">
+          uk-tooltip="Runs all scenario tests for the story" type="button" (click)="evaluateAndRunStory()">
           Run Story
         </button>
         <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()"
@@ -315,7 +315,7 @@
           <em class="material-icons-outlined">cancel</em></button>
         <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test"
           [class.disabledButton]="testRunning" [disabled]="testRunning" type="button"
-          (click)="runTests(this.selectedScenario.scenario_id);">
+          (click)="evaluateAndRunScenario(this.selectedScenario.scenario_id);">
           Run Scenario</button>
       </div>
     </div>
@@ -341,3 +341,4 @@
   <app-save-block-form #saveBlockModal [templateName]="TEMPLATE_NAME"></app-save-block-form>
 </div>
 <app-workgroup-edit #workgroupEditModal (globalSettingsChanged)="updateGlobalSettings($event)"> </app-workgroup-edit>
+<app-execution-list #executionListModal (selectedExecutions)="executeTests($event)"></app-execution-list>

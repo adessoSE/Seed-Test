@@ -37,6 +37,7 @@ import { InfoWarningToast } from "../info-warning-toast";
 import { MatDialog } from "@angular/material/dialog";
 import { WorkgroupEditComponent } from "../modals/workgroup-edit/workgroup-edit.component";
 import { ManagementService } from "../Services/management.service";
+import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
 
 /**
  * Empty background
@@ -327,6 +328,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   @ViewChild("renameBackgroundModal")
   renameBackgroundModal: RenameBackgroundComponent;
   @ViewChild("workgroupEditModal") workgroupEditModal: WorkgroupEditComponent;
+  @ViewChild('executionListModal') executionListModal: ExecutionListComponent;
 
   /**
    * Event emitter to change to the report history component
@@ -1015,18 +1017,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   selectStoryScenario(story: Story) {
     this.showResults = false;
     this.selectedStory = story;
-    console.log("log aus story editor selectStoryScen", story);
     if (story.scenarios.length > 0) {
       this.selectScenario(story.scenarios[0]);
       this.showEditor = true;
     } else this.showEditor = false;
   }
-
   /**
    * Make the API Request to run the tests and display the results as a chart
    * @param scenario_id
    */
-  runTests(scenario_id) {
+
+  runTests(scenario_id, selectedExecutions?: number[]) {
     if (this.storySaved()) {
       this.reportIsSaved = false;
       this.testRunning = true;
@@ -1078,27 +1079,27 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           }, 10);
           this.toastr.info("", "Test is done");
           this.runUnsaved = false;
+
           if (scenario_id) {
             // ScenarioReport
             const val = report.status;
             // Update xray status
-            if (this.selectedScenario.testRunSteps) {
-              console.log(this.selectedScenario.testRunSteps);
-              const testStatus = val ? "PASS" : "FAIL";
-              
-              // run through the list of test execution step and update their status
-              for (const testRun of this.selectedScenario.testRunSteps) {
-                this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, testStatus)
-                  .subscribe({
-                    next: () => {
-                      console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId);
-                    },
-                    error: (error) => {
-                      console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
-                    }
-                  });
+            if(selectedExecutions){
+              for(const testRun of this.selectedScenario.testRunSteps){
+                if (selectedExecutions.includes(testRun.testRunId)) {
+                  const testStatus = val ? "PASS" : "FAIL";
+                  this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, testStatus)
+                    .subscribe({
+                      next: () => {
+                        console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey );
+                      },
+                      error: (error) => {
+                        console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+                      }
+                    });
+                }
               }
-            } 
+            }
 
             this.scenarioService.scenarioStatusChangeEmit(
               this.selectedStory._id,
@@ -1108,7 +1109,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           } else {
             // StoryReport
             report.scenarioStatuses.forEach((scenario) => {
-              console.log(scenario)
               this.scenarioService.scenarioStatusChangeEmit(
                 this.selectedStory._id,
                 scenario.scenarioId,
@@ -1118,17 +1118,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
               // run through testruns of currenct scenario and update xray status
               const currentScenarioId = scenario.scenarioId
               const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
-              if (currentScenario.testRunSteps){
-                for (const testRun of currentScenario.testRunSteps) {
-                  this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
-                    .subscribe({
-                      next: () => {
-                        console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId);
-                      },
-                      error: (error) => {
-                        console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
-                      }
-                    });
+              if(selectedExecutions){
+                for(const testRun of currentScenario.testRunSteps){
+                  if (selectedExecutions.includes(testRun.testRunId)) {
+                    this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
+                      .subscribe({
+                        next: () => {
+                          console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey );
+                        },
+                        error: (error) => {
+                          console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+                        }
+                      });
+                  }
                 }
               }
             });
@@ -1148,7 +1150,48 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       );
     }
   }
+
+    /**
+   * Evaluates whether to open xray execution list modal in run scenario.
+   * @param scenario_id 
+   */
+  evaluateAndRunScenario(scenario_id) {
+    if (this.selectedScenario && this.selectedScenario.testKey && this.selectedScenario.testRunSteps.length > 0) {
+      // Open the modal if there are test execution steps
+      this.executionListModal.openExecutionListModal(this.selectedScenario);
+    } else {
+      // Run tests directly if there are no test execution steps
+      this.runTests(scenario_id);
+    }
+  }
+
+   /**
+   * Evaluates whether to open xray execution list modal in run story.
+   */
+   evaluateAndRunStory() {
+    // Check if there is at least one scenario in the story with xray key and execution
+    const executableTests = this.selectedStory.scenarios.some(scenario =>
+    scenario.testKey && scenario.testRunSteps && scenario.testRunSteps.length > 0);
+    if (executableTests) {
+      this.executionListModal.openExecutionListModal(this.selectedStory);
+    } else {
+      this.runTests(null);
+    }
+  }
   
+  /**
+   * Run this function if we close execution list modal
+   */
+  executeTests(event: { scenarioId: number | null, selectedExecutions: number[] }){
+    if(event.scenarioId != null){
+      this.runTests(event.scenarioId,event.selectedExecutions);
+    } else {
+      this.runTests(null, event.selectedExecutions);
+    }
+  }
+
+
+
   /**
    * Download the test report
    */
@@ -1206,8 +1249,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
 
   findSelectedRepository(id) {
-    console.log(this.repositories);
-    console.log(this.repoId);
     return this.repositories.find((repo) => repo._id === id);
   }
 
@@ -1216,8 +1257,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param project
    */
   workGroupEdit(project: RepositoryContainer) {
-    console.log(this.workgroupEditModal);
-    console.log(project, this.email, this.id);
     this.workgroupEditModal.openWorkgroupEditModal(
       project,
       this.email,
