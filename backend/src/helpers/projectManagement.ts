@@ -251,23 +251,54 @@ function updateTestrunSteps(dbScenarios, storyScenarios) {
 	});
 }
 
-function addScenariosToDb(dbScenarios, storyScenarios) {
-	const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
-	const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
-	if (newScenarios.length > 0) {
-		dbScenarios.push(...newScenarios);
-	}
+// Update the step definitions of a scenario
+function updateStepDefinitions(dbScenario, storyScenario) {
+  const sections = ['given', 'when', 'then', 'example'];
+
+  sections.forEach(section => {
+      if (storyScenario.stepDefinitions[section]) {
+          storyScenario.stepDefinitions[section].forEach(step => {
+              const existingStepIndex = dbScenario.stepDefinitions[section].findIndex(s => s.id === step.id);
+              if (existingStepIndex === -1) {
+                  // Add new step
+                  dbScenario.stepDefinitions[section].push(step);
+              } else {
+                  // Update existing step
+                  dbScenario.stepDefinitions[section][existingStepIndex] = step;
+              }
+          });
+      }
+  });
+}
+
+// Update scenarios
+function updateScenarios(dbScenarios, storyScenarios) {
+  const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
+  const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
+
+  // Update existing scenarios
+  dbScenarios.forEach(dbScenario => {
+      const storyScenario = storyScenarios.find(s => s.scenario_id === dbScenario.scenario_id);
+      if (storyScenario) {
+          updateStepDefinitions(dbScenario, storyScenario);
+      }
+  });
+
+  // Add new scenarios
+  if (newScenarios.length > 0) {
+      dbScenarios.push(...newScenarios);
+  }
 }
 
 async function fuseStoryWithDb(story) {
 	const result = await mongo.getOneStory(parseInt(story.story_id, 10));
 	if (result !== null) {
-
+    
 		// update scenarios in db in case new testruns have been added
 		updateTestrunSteps(result.scenarios, story.scenarios);
 
 		// add scenarios for new xray steps
-		addScenariosToDb(result.scenarios, story.scenarios);
+		updateScenarios(result.scenarios, story.scenarios);
 
 		story.scenarios = result.scenarios;
 		story.background = result.background;

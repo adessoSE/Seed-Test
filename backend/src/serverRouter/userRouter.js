@@ -543,6 +543,8 @@ function processTestSteps(steps, resolvedTestRuns, issueKey, stepTypes) {
 // the function checks if the given step is identical to one of the step definitions
 function checkIdenticalSteps(stepInput) {
     const matches = [];
+
+	// create a set to store distinct matched texts
     const matchedTexts = new Set();
 
 	// get all step types except 'Add Variable' as it is not relevant for the test steps
@@ -562,7 +564,7 @@ function checkIdenticalSteps(stepInput) {
 				console.log('Additional Screenshot value', additionalValue)
                 matches.push({
                     type: 'Screenshot',
-                    values: additionalValue ? [additionalValue] : [],
+                    values: additionalValue ? [additionalValue] : [''],
 					pre: 'I take a screenshot. Optionally: Focus the page on the element',
                     mid: '',
                     post: '',
@@ -575,7 +577,12 @@ function checkIdenticalSteps(stepInput) {
 		// iterate through all step types and check if the given step matches one of the step definitions
         stepTypes.forEach(def => {
             if (!matchedTexts.has(text) && def.type !== 'Screenshot') {
-                const pattern = `${escapeRegExp(def.pre)}(.*)${def.mid ? escapeRegExp(def.mid) + '(.*)' : ''}`;
+				// create a pattern based on the pre, mid and post values of the step definition
+				// store the strings after the pre, mid and post values by (.*) in the pattern
+                let pattern = `${escapeRegExp(def.pre)}(.*)${def.mid ? escapeRegExp(def.mid) + '(.*)' : ''}`;
+				if (def.post) {
+                    pattern += `${escapeRegExp(def.post)}(.*)`;
+                }
                 const regex = new RegExp(pattern, 'i');
                 const match = text.match(regex);
                 if (match) {
@@ -597,20 +604,19 @@ function checkIdenticalSteps(stepInput) {
     }
 
 	// separate the given, action and expected result sections and select the relevant text
+	// split the text by new line
     ['Given', 'Action', 'Expected Result'].forEach(section => {
 		if (stepInput[section] && stepInput[section].value) {
 			let texts;
 			if (section === 'Given') {
 				texts = stepInput[section].value.split('\n');
-				console.log(texts) 
 			} else if (section === 'Action') {
 				texts = stepInput[section].value.raw.split('\n');
-				console.log(texts) 
 			} else if (section === 'Expected Result') {
 				texts = stepInput[section].value.raw.split('\n');
-				console.log(texts)
 			}
 			
+			// analyze each seperated text against patterns
 			texts.forEach(text => {
 				if (text.trim()) { 
 					analyzeText(text.trim(), section);
@@ -622,16 +628,24 @@ function checkIdenticalSteps(stepInput) {
     return matches;
 }
 
-// escape special characters in a string for regex in xrays identical step matching
+// replace special characters in a string with escape characters
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // function to clean value and extract email or link
+// e.g. 
+// [http://www.google.com] -> http://www.google.com
+// "test" -> test
+// [mailto:test@test.de] -> test@test.de
 function cleanValue(value) {
     const linkPattern = /^\[http:\/\/[^\]]+\]$/;
     const emailPattern = /^\[([^\]]+@[^\]]+)\|mailto:[^\]]+\]$/;
+	const quotesPattern = /^"(.*)"$/;
 
+	if (quotesPattern.test(value)) {
+        value = value.match(quotesPattern)[1]; // remove quotes
+    }
     if (linkPattern.test(value)) {
         return value.slice(1, -1); // remove square brackets for links
     } else if (emailPattern.test(value)) {
@@ -640,7 +654,7 @@ function cleanValue(value) {
     return value;
 }
 
-// create scenario steps from the matching steps
+// create scenario steps for identical steps between step definitions and xrays test steps
 function createScenarioSteps(matchingSteps){
 	givenSteps = []
 	whenSteps = []
