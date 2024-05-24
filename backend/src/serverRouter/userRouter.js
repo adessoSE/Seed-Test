@@ -559,6 +559,7 @@ function checkIdenticalSteps(stepInput) {
             if (!matchedTexts.has(text)) {
                 matchedTexts.add(text);
                 const additionalValue = matchScreenshot[1].trim();
+				console.log('Additional Screenshot value', additionalValue)
                 matches.push({
                     type: 'Screenshot',
                     values: additionalValue ? [additionalValue] : [],
@@ -578,10 +579,10 @@ function checkIdenticalSteps(stepInput) {
                 const regex = new RegExp(pattern, 'i');
                 const match = text.match(regex);
                 if (match) {
-                    matchedTexts.add(text);
+					matchedTexts.add(text);
                     const values = match.slice(1).map(value => {
-						return value.trim().replace(/\.$/, '');
-					}).filter(v => v);
+                        return validateAndCleanValue(value.trim().replace(/\.$/, ''));
+                    }).filter(v => v);
                     matches.push({
                         type: def.type,
                         values: values,
@@ -600,11 +601,14 @@ function checkIdenticalSteps(stepInput) {
 		if (stepInput[section] && stepInput[section].value) {
 			let texts;
 			if (section === 'Given') {
-				texts = stepInput[section].value.split('\n'); 
+				texts = stepInput[section].value.split('\n');
+				console.log(texts) 
 			} else if (section === 'Action') {
-				texts = stepInput[section].value.raw.split('\n'); 
+				texts = stepInput[section].value.raw.split('\n');
+				console.log(texts) 
 			} else if (section === 'Expected Result') {
 				texts = stepInput[section].value.raw.split('\n');
+				console.log(texts)
 			}
 			
 			texts.forEach(text => {
@@ -621,6 +625,19 @@ function checkIdenticalSteps(stepInput) {
 // escape special characters in a string for regex in xrays identical step matching
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// function to validate and clean extracted values
+function validateAndCleanValue(value) {
+    const linkPattern = /^\[http:\/\/[^\]]+\]$/;
+    const emailPattern = /^\[([^\]]+@[^\]]+)\|mailto:[^\]]+\]$/;
+
+    if (linkPattern.test(value)) {
+        return value.slice(1, -1); // Remove the square brackets
+    } else if (emailPattern.test(value)) {
+        return value.match(emailPattern)[1]; // Extract the email
+    }
+    return value;
 }
 
 // create scenario steps from the matching steps
