@@ -660,32 +660,59 @@ export class BaseEditorComponent {
   */
 
   sortedStepTypes(): any[] {
-    if (this.originalStepTypes) {
-      // const given = [];
-      // const when = [];
-      // const then = [];
+    const given = [];
+    const when = [];
+    const then = [];
 
-      // for (const step of this.originalStepTypes) {
-      //   if (step.stepType === "given") {
-      //     given.push(step);
-      //   } else if (step.stepType === "when") {
-      //     when.push(step);
+    for (const step of this.originalStepTypes) {
+      if (step.stepType === "given") {
+        given.push(step);
+      } else if (step.stepType === "when") {
+        when.push(step);
 
-      //   } else if (step.stepType === 'then') {
-      //     then.push(step);
+      } else if (step.stepType === 'then') {
+        then.push(step);
 
-      //   }
-      // }
-      this.originalStepTypes.sort((a, b) => a.id - b.id);
-      // when.sort((a, b) => a.id - b.id);
-      // then.sort((a, b) => a.id - b.id);
-
-      return [
-        { type: 'Header', label: '' },
-        ...this.originalStepTypes
-      ];
+      }
     }
-    return [];
+    given.sort((a, b) => a.id - b.id);
+    when.sort((a, b) => a.id - b.id);
+    then.sort((a, b) => a.id - b.id);
+
+    return [
+      { type: 'Header', label: 'Given' },
+      ...given,
+      { type: 'Header', label: 'When' },
+      ...when,
+      { type: 'Header', label: 'Then' },
+      ...then
+    ];
+    // if (this.originalStepTypes) {
+    //   // const given = [];
+    //   // const when = [];
+    //   // const then = [];
+
+    //   // for (const step of this.originalStepTypes) {
+    //   //   if (step.stepType === "given") {
+    //   //     given.push(step);
+    //   //   } else if (step.stepType === "when") {
+    //   //     when.push(step);
+
+    //   //   } else if (step.stepType === 'then') {
+    //   //     then.push(step);
+
+    //   //   }
+    //   // }
+    //   this.originalStepTypes.sort((a, b) => a.id - b.id);
+    //   // when.sort((a, b) => a.id - b.id);
+    //   // then.sort((a, b) => a.id - b.id);
+
+    //   return [
+    //     { type: 'Header', label: '' },
+    //     ...this.originalStepTypes
+    //   ];
+    // }
+    // return [];
   }
 
 
