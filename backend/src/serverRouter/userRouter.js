@@ -581,7 +581,7 @@ function checkIdenticalSteps(stepInput) {
                 if (match) {
 					matchedTexts.add(text);
                     const values = match.slice(1).map(value => {
-                        return validateAndCleanValue(value.trim().replace(/\.$/, ''));
+                        return cleanValue(value.trim().replace(/\.$/, ''));
                     }).filter(v => v);
                     matches.push({
                         type: def.type,
@@ -627,15 +627,15 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// function to validate and clean extracted values
-function validateAndCleanValue(value) {
+// function to clean value and extract email or link
+function cleanValue(value) {
     const linkPattern = /^\[http:\/\/[^\]]+\]$/;
     const emailPattern = /^\[([^\]]+@[^\]]+)\|mailto:[^\]]+\]$/;
 
     if (linkPattern.test(value)) {
-        return value.slice(1, -1); // Remove the square brackets
+        return value.slice(1, -1); // remove square brackets for links
     } else if (emailPattern.test(value)) {
-        return value.match(emailPattern)[1]; // Extract the email
+        return value.match(emailPattern)[1]; // extract the email
     }
     return value;
 }
