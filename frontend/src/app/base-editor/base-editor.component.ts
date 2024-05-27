@@ -340,7 +340,7 @@ export class BaseEditorComponent {
   }
 
   ngAfterViewChecked() {
-    this.regexDOMChangesHelper();
+    // this.regexDOMChangesHelper();
     if (this.initialRegex) {
       this.highlightInputOnInit();
     }

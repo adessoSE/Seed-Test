@@ -192,14 +192,7 @@ export class ExampleTableComponent implements OnInit {
 
     this.toggleObservable = this.toggleControl.valueChanges.subscribe((val) => {
       this.editMode = val;
-      let exampleValues = document.getElementsByClassName("exampleValueContainer");
-      if (exampleValues.length > 0) {
-        for (let i = 0; i < exampleValues.length; i++) {
-          let exampleValue = exampleValues[i] as HTMLElement;
-          if (exampleValue) this.editMode ? exampleValue.setAttribute("contenteditable", "true") : exampleValue.setAttribute("contenteditable", "false");
-        }
-      }
-
+      this.activateEditableValues();
     });
 
     this.isDark = this.themeService.isDarkMode();
@@ -222,6 +215,9 @@ export class ExampleTableComponent implements OnInit {
     if (!this.themeObservable.closed) {
       this.themeObservable.unsubscribe();
     }
+    if (!this.toggleObservable.closed) {
+      this.toggleObservable.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {
@@ -236,8 +232,18 @@ export class ExampleTableComponent implements OnInit {
     if (this.initialRegex) {
       this.regexHighlightOnInit();
     }
+    this.activateEditableValues();
   }
 
+  activateEditableValues(){
+    const exampleValues = document.getElementsByClassName("exampleValueContainer editMode");
+    if (exampleValues.length > 0) {
+      for (let i = 0; i < exampleValues.length; i++) {
+        let exampleValue = exampleValues[i] as HTMLElement;
+        if (exampleValue) this.editMode ? exampleValue.setAttribute("contenteditable", "true") : exampleValue.setAttribute("contenteditable", "false");
+      }
+    }
+  }
   /**
    * Adds a value to every example
    */
@@ -401,10 +407,9 @@ export class ExampleTableComponent implements OnInit {
 
     this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
       value.values.forEach((val, i) => {
-        console.log("hallo",val )
         if (val == "<" + oldName + ">") {
           this.selectedScenario.stepDefinitions.given[index].values[i] = "";
-          this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined;
+          this.selectedScenario.stepDefinitions.given[index].isExample[i] = false;
         }
       });
     });
@@ -413,7 +418,7 @@ export class ExampleTableComponent implements OnInit {
       value.values.forEach((val, i) => {
         if (val == "<" + oldName + ">") {
           this.selectedScenario.stepDefinitions.when[index].values[i] = "";
-          this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined;
+          this.selectedScenario.stepDefinitions.when[index].isExample[i] = false;
         }
       });
     });
@@ -422,7 +427,7 @@ export class ExampleTableComponent implements OnInit {
       value.values.forEach((val, i) => {
         if (val == "<" + oldName + ">") {
           this.selectedScenario.stepDefinitions.then[index].values[i] = "";
-          this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined;
+          this.selectedScenario.stepDefinitions.then[index].isExample[i] = false;
         }
       });
     });

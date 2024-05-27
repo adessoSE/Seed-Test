@@ -163,22 +163,22 @@ export class HighlightInputService {
       this.apiService.resolveSpecialCommand(match).subscribe({
         next: (resolvedCommand) => {
           if (resolvedCommand === match) {
-            document
-              .querySelector(`#${identifier}`)
-              .setAttribute(
-                "uk-tooltip",
-                `title: Unknown command: ${resolvedCommand}`
-              );
+            const findIdentifier = document.querySelector(`#${identifier}`);
+            if (findIdentifier) {
+              findIdentifier.setAttribute("uk-tooltip", `title: Unknown command: ${resolvedCommand}`);
+            }
           } else {
-            document
-              .querySelector(`#${identifier}`)
-              .setAttribute("uk-tooltip", `title:${resolvedCommand}`);
+            const findIdentifier = document.querySelector(`#${identifier}`);
+            if (findIdentifier) {
+              findIdentifier.setAttribute("uk-tooltip", `title:${resolvedCommand}`);
+            }
           }
         },
         error: (error) => {
-          document
-            .querySelector(`#${identifier}`)
-            .setAttribute("uk-tooltip", `title:Error: ${error.error.error}`);
+          const findIdentifier = document.querySelector(`#${identifier}`);
+          if (findIdentifier) {
+            findIdentifier.setAttribute("uk-tooltip", `title:Error: ${error.error.error}`);
+          }
         },
       });
       return `<span uk-tooltip="title:Resolving Command ..." id="${identifier}" style="color: ${isDark ? "var(--light-blue)" : "var(--ocean-blue)"

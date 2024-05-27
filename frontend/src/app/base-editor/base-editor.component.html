@@ -146,8 +146,7 @@
                       </ng-template>
                     </div>
                     &nbsp;<div #step_type_pre>{{currentStep.pre}}</div>
-                    <div style="display: flex; overflow: hidden; align-items: center;"
-                      *ngIf="currentStep.values.length > 0">
+                    <div style="display: flex; overflow: hidden; align-items: center;" *ngIf="currentStep.values.length > 0">
                       <div
                         *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0"
                         style="display: flex; overflow: hidden; align-items: center;">
@@ -179,6 +178,7 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
+           
                         <button
                           *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === false && name!=='block-editor'"
                           class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType)"
