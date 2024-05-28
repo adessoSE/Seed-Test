@@ -1,11 +1,13 @@
-// require('dotenv').config();
+require('dotenv').config();
 const { MongoClient, BSON } = require("mongodb");
 
 // MongoDB URI and database details
 const mongoURI = process.env.DATABASE_URI;
 const dbName = "Seed";
-const collectionNames = ["CustomBlocks"]; // Add other collection names here
+const collectionNames = ["Stories", "Repositories", "CustomBlocks", "User", "Workgroups"];
 
+const jiraBaseUrl = "https://jira.adesso.de/rest/api/2";
+const jiraProjKey = 'CUC'
 const bearerToken = process.env.JIRA_TOKEN
 
 async function connectToMongoDB() {
@@ -28,17 +30,59 @@ async function queryMongoData(client) {
     for (const collectionName of collectionNames) {
       const collection = db.collection(collectionName);
       const collectionData = await collection.find().toArray();
-      const collectionBSON = collectionData.map(o => BSON.serialize(o)); // Serialize each object
+      const collectionBSON = collectionData.map(o => BSON.serialize(o)); // Serialize each (individual)object
       data.push(new File(collectionBSON, `${collectionName}.json`));
     }
 
-    //console.log("Retrieved MongoDB data:", data); // TODO: comment out pre-upload
+    console.log("Retrieved MongoDB data:", data);
     return data;
   } catch (error) {
     console.error("Error querying MongoDB data:", error.message);
     throw error;
   }
 }
+
+async function createJiraIssue(projectKey) {
+  try {
+    const attachmentUrl = `${jiraBaseUrl}/issue`;
+
+    const today = new Date()
+    
+    // Append issue details to formData
+    const issueData = { fields: {
+      project: { key: projectKey },
+      summary: `DB-Backup ${today.toLocaleDateString()}`,
+      description: `Backup of Database Collections for Project Seed-Test`,
+      // fixVersion: {id:1002},
+      labels: ['DB-Backup'],
+      issuetype: {
+        name: "Service Request"
+      }
+    }};
+
+    // Make the POST request
+    const response = await fetch(attachmentUrl, {
+      method: 'POST',
+      headers: {
+        "Authorization": `Bearer ${bearerToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(issueData)
+    });
+
+    if(response.ok){
+      const content = await response.json();
+      console.log("Issue created: ", content.key);
+      return content.key;
+    }
+    throw Error(`creating Issue no ok ${response.status}`)
+
+  } catch (error) {
+    console.error("Failed Creating Issue. Reason:", error.message);
+  }
+}
+
+
 /**
  * 
  * @param {String} issueKey 
@@ -46,7 +90,6 @@ async function queryMongoData(client) {
  */
 async function sendToJiraIssue(issueKey, data) {
   try {
-    const jiraBaseUrl = "https://jira.adesso.de/rest/api/2";
     const attachmentUrl = `${jiraBaseUrl}/issue/${issueKey}/attachments`;
 
     const formData = new FormData();
@@ -59,13 +102,14 @@ async function sendToJiraIssue(issueKey, data) {
       method: 'POST',
       headers: {
         "Authorization": `Bearer ${bearerToken}`, // Include your bearer token
-        "X-Atlassian-Token": "nocheck",
-        // Add any other necessary headers (e.g., authentication)
+        "X-Atlassian-Token": "nocheck"
       },
       body: formData
     }).then(async res => await res.json());
+    delete response?.author
 
-    console.log("Attachment added successfully:", response);
+    if(!response.errorMessages) return response;
+    throw Error(`add attachment no ok ${response.errorMessages}, Issue: ${issueKey}`)
   } catch (error) {
     console.error("Error adding attachment:", error.message);
   }
@@ -77,9 +121,10 @@ async function main() {
   try {
     client = await connectToMongoDB();
     const data = await queryMongoData(client);
-    await sendToJiraIssue('CUC-654', data)
-    // Handle the data as needed (e.g., create a JSON object)
-    console.log("Processed data:", data);
+    const issueKey = await createJiraIssue(jiraProjKey);
+    const attachResult = await sendToJiraIssue(issueKey, data)
+    if(attachResult&&data) console.log("Successfully created DB Backup: ", issueKey);
+    throw Error("Something went wrong see earlier errors")
   } catch (error) {
     console.error("Error:", error.message);
   } finally {
