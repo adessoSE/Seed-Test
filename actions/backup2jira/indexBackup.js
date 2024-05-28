@@ -1,11 +1,10 @@
 // require('dotenv').config();
 const { MongoClient, BSON } = require("mongodb");
-const axios = require("axios");
 
 // MongoDB URI and database details
 const mongoURI = process.env.DATABASE_URI;
 const dbName = "Seed";
-const collectionNames = ["Stories", "Repositories", "CustomBlocks", "User", "Workgroups"]; // Add other collection names here
+const collectionNames = ["CustomBlocks"]; // Add other collection names here
 
 const bearerToken = process.env.JIRA_TOKEN
 
@@ -33,7 +32,7 @@ async function queryMongoData(client) {
       data.push(new File(collectionBSON, `${collectionName}.json`));
     }
 
-    console.log("Retrieved MongoDB data:", data); // TODO: comment out pre-upload
+    //console.log("Retrieved MongoDB data:", data); // TODO: comment out pre-upload
     return data;
   } catch (error) {
     console.error("Error querying MongoDB data:", error.message);
@@ -56,20 +55,22 @@ async function sendToJiraIssue(issueKey, data) {
     
 
     // Make the POST request
-    const response = await axios.post(attachmentUrl, formData, {
+    const response = await fetch(attachmentUrl, {
+      method: 'POST',
       headers: {
-        "Content-Type": "multipart/form-data",
-        "Authorization": `Bearer ${bearerToken}`,
+        "Authorization": `Bearer ${bearerToken}`, // Include your bearer token
         "X-Atlassian-Token": "nocheck",
         // Add any other necessary headers (e.g., authentication)
       },
-    });
+      body: formData
+    }).then(async res => await res.json());
 
-    console.log("Attachment added successfully:", response.data);
+    console.log("Attachment added successfully:", response);
   } catch (error) {
     console.error("Error adding attachment:", error.message);
   }
 }
+
 
 async function main() {
   let client;
