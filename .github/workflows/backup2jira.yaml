@@ -1,6 +1,10 @@
 name: Backup and Upload
 
 on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * 0" # Every Sunday at midnight (UTC)
