@@ -20,15 +20,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Install dependencies
         run: |
-          cd ../../actions/backup2jira
+          pwd
+          cd actions/backup2jira
           npm install
 
       - name: Run Backup and Upload
-        run: node ../../actions/backup2jira/indexBackup.js
+        run: node actions/backup2jira/indexBackup.js
         env: 
           DATABASE_URI: ${{ secrets.DATABASE_URI }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
