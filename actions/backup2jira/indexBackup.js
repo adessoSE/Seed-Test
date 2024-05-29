@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { MongoClient, BSON } = require("mongodb");
+const { MongoClient } = require("mongodb");
+const { EJSON } = require('bson')
 
 // MongoDB URI and database details
 const mongoURI = process.env.DATABASE_URI;
@@ -30,8 +31,10 @@ async function queryMongoData(client) {
     for (const collectionName of collectionNames) {
       const collection = db.collection(collectionName);
       const collectionData = await collection.find().toArray();
-      const collectionBSON = collectionData.map(o => BSON.serialize(o)); // Serialize each (individual)object
-      data.push(new File(collectionBSON, `${collectionName}.json`));
+      const collectionBSON = collectionData.map(o => EJSON.stringify(o)); // Serialize each (individual)object
+      //console.log(collectionData)
+      const file = new File(collectionBSON, `${collectionName}.json`);
+      data.push(file);
     }
 
     console.log("Retrieved MongoDB data:", data);
@@ -108,8 +111,9 @@ async function sendToJiraIssue(issueKey, data) {
     }).then(async res => await res.json());
     delete response?.author
 
-    if(!response.errorMessages) return response;
-    throw Error(`add attachment no ok ${response.errorMessages}, Issue: ${issueKey}`)
+    if(response.errorMessages) throw Error(`add attachment no ok ${response.errorMessages}, Issue: ${issueKey}`);
+    return response;
+    
   } catch (error) {
     console.error("Error adding attachment:", error.message);
   }
