@@ -19,10 +19,12 @@ jobs:
           node-version: '16'
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd ../../actions/backup2jira
+          npm install
 
       - name: Run Backup and Upload
-        run: node indexBackup.js
+        run: node ../../actions/backup2jira/indexBackup.js
         env: 
           DATABASE_URI: ${{ secrets.DATABASE_URI }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
