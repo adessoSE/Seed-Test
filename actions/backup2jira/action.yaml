@@ -1,9 +1,9 @@
 name: Backup and Upload
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # Every Sunday at midnight (UTC)
 
 jobs:
   backup-and-upload:
