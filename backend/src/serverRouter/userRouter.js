@@ -540,100 +540,80 @@ function processTestSteps(steps, resolvedTestRuns, issueKey, stepTypes) {
 	return { scenarioList, testStepDescription };
 }
 
-// the function checks if the given step is identical to one of the step definitions
+// Function to check if the given step is identical to one of the step definitions
 function checkIdenticalSteps(stepInput) {
     const matches = [];
-
-	// create a set to store distinct matched texts
-    const matchedTexts = new Set();
-
-	// get all step types except 'Add Variable' as it is not relevant for the test steps
-	stepTypes = stepDefs().filter(def => def.type !== 'Add Variable')
-
-    function analyzeText(text, context) {
-		
-		// special case for screenshots
-        const screenshotPattern = 'I take a screenshot. Optionally: Focus the page on the element';
-        const regexScreenshot = new RegExp(`^${escapeRegExp(screenshotPattern)}(.*)$`, 'i');
-        const matchScreenshot = text.match(regexScreenshot);
-
-        if (matchScreenshot) {
-            if (!matchedTexts.has(text)) {
-                matchedTexts.add(text);
-                const additionalValue = matchScreenshot[1].trim();
-				console.log('Additional Screenshot value', additionalValue)
-                matches.push({
-                    type: 'Screenshot',
-                    values: additionalValue ? [additionalValue] : [''],
-					pre: 'I take a screenshot. Optionally: Focus the page on the element',
-                    mid: '',
-                    post: '',
-                    context: context
-                });
-            }
-            return; 
-        }
-
-		// iterate through all step types and check if the given step matches one of the step definitions
-        stepTypes.forEach(def => {
-            if (!matchedTexts.has(text) && def.type !== 'Screenshot') {
-				// create a pattern based on the pre, mid and post values of the step definition
-				// store the strings after the pre, mid and post values by (.*) in the pattern
-                let pattern = `${escapeRegExp(def.pre)}(.*)${def.mid ? escapeRegExp(def.mid) + '(.*)' : ''}`;
-				if (def.post) {
-                    pattern += `${escapeRegExp(def.post)}(.*)`;
-                }
-                const regex = new RegExp(pattern, 'i');
-                const match = text.match(regex);
-                if (match) {
-					matchedTexts.add(text);
-                    const values = match.slice(1).map(value => {
-                        return cleanValue(value.trim().replace(/\.$/, ''));
-                    }).filter(v => v);
-                    matches.push({
-                        type: def.type,
-                        values: values,
-                        pre: def.pre,
-                        mid: def.mid,
-                        post: def.post ? def.post : undefined,
-                        context: context
-                    });
-                }
-            }
-        });
-    }
-
-	// separate the given, action and expected result sections and select the relevant text
-	// split the text by new line
+	let context;
+    // Separate the given, action, and expected result sections and select the relevant text
+    // Split the text by new line
     ['Given', 'Action', 'Expected Result'].forEach(section => {
-		if (stepInput[section] && stepInput[section].value) {
-			let texts;
-			if (section === 'Given') {
-				texts = stepInput[section].value.split('\n');
-			} else if (section === 'Action') {
+        if (stepInput[section] && stepInput[section].value) {
+            let texts;
+            if (section === 'Given') {
+                texts = stepInput[section].value.split('\n');
+				context = 'given';
+            } else if (section === 'Action') {
 				texts = stepInput[section].value.raw.split('\n');
+				context = 'when';
 			} else if (section === 'Expected Result') {
 				texts = stepInput[section].value.raw.split('\n');
-			}
-			
-			// analyze each seperated text against patterns
-			texts.forEach(text => {
-				if (text.trim()) { 
-					analyzeText(text.trim(), section);
-				}
-			});
-		}
-	});
+				context = 'then';
+                
+            }
+
+            // Analyze each separated text against patterns
+            texts.forEach(text => {
+                if (text.trim()) {
+                    const match = analyzeText(text.trim(), context);
+                    if (match) {
+                        matches.push(match);
+                    }
+                }
+            });
+        }
+    });
 
     return matches;
+	
 }
 
-// replace special characters in a string with escape characters
+// Function to analyze text and match with step definitions
+function analyzeText(text, context) {
+    // Get all step types except 'Add Variable' as it is not relevant for the test steps
+    const stepTypes = stepDefs().filter(def => def.type !== 'Add Variable');
+
+    for (let stepType of stepTypes) {
+        if (stepType.stepType === context) {
+            // Create a pattern based on the pre, mid, and post values of the step definition
+            // Store the strings after the pre, mid, and post values by (.*) in the pattern
+            let pattern = `${escapeRegExp(stepType.pre)}(.*)${stepType.mid ? escapeRegExp(stepType.mid) + '(.*)' : ''}`;
+            if (stepType.post) {
+                pattern += `${escapeRegExp(stepType.post)}(.*)`;
+            }
+            const regex = new RegExp(pattern, 'i');
+            const match = text.match(regex);
+            if (match) {
+                const values = match.slice(1).map(value => cleanValue(value.trim().replace(/\.$/, ''))).filter(v => v);
+
+                return {
+                    type: stepType.type,
+                    values: values,
+                    pre: stepType.pre,
+                    mid: stepType.mid ? stepType.mid : undefined,
+                    post: stepType.post ? stepType.post : undefined,
+                    context: context
+                };
+            }
+        }
+    }
+    return null;
+}
+// Replace special characters in a string with escape characters
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// function to clean value and extract email or link
+// Function to clean value and extract email or link
 // e.g. 
 // [http://www.google.com] -> http://www.google.com
 // "test" -> test
@@ -641,9 +621,9 @@ function escapeRegExp(string) {
 function cleanValue(value) {
     const linkPattern = /^\[http:\/\/[^\]]+\]$/;
     const emailPattern = /^\[([^\]]+@[^\]]+)\|mailto:[^\]]+\]$/;
-	const quotesPattern = /^"(.*)"$/;
+    const quotesPattern = /^"(.*)"$/;
 
-	if (quotesPattern.test(value)) {
+    if (quotesPattern.test(value)) {
         value = value.match(quotesPattern)[1]; // remove quotes
     }
     if (linkPattern.test(value)) {
@@ -666,6 +646,7 @@ function createScenarioSteps(matchingSteps){
 		
 		let newStep = {
 			id: id++,
+			stepType: scenarioStep.context,
 			deactivated: false
 		};
 
@@ -682,20 +663,21 @@ function createScenarioSteps(matchingSteps){
 			newStep.values = scenarioStep.values;
 		}
 
-
-		if (scenarioStep.context === 'Given') {
-				newStep.stepType = 'given';
-                givenSteps.push(newStep);
-            } else if (scenarioStep.context === 'Action') {
-				newStep.stepType = 'when';
-                whenSteps.push(newStep);
-            } else if (scenarioStep.context === 'Expected Result') {
-				newStep.stepType = 'then';
-                thenSteps.push(newStep);
-            }
+		if (scenarioStep.context === 'given') {
+			givenSteps.push(newStep)
+		}
+		else if (scenarioStep.context === 'when') {
+			whenSteps.push(newStep)
+		}
+		else if (scenarioStep.context === 'then') {
+			thenSteps.push(newStep)
+		}	
 	}
-
+	console.log('givenSteps:', givenSteps)
+	console.log('whenSteps:', whenSteps)
+	console.log('thenSteps:', thenSteps)
 	return { givenSteps, whenSteps, thenSteps }
+	
 }
 
 async function handleTestIssue(issue, options, Host) {

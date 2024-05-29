@@ -251,44 +251,35 @@ function updateTestrunSteps(dbScenarios, storyScenarios) {
 	});
 }
 
-// Update the step definitions of a scenario
-function updateStepDefinitions(dbScenario, storyScenario) {
-  const sections = ['given', 'when', 'then', 'example'];
-
-  sections.forEach(section => {
-      if (storyScenario.stepDefinitions[section]) {
-          storyScenario.stepDefinitions[section].forEach(step => {
-              const existingStepIndex = dbScenario.stepDefinitions[section].findIndex(s => s.id === step.id);
-              if (existingStepIndex === -1) {
-                  // Add new step
-                  dbScenario.stepDefinitions[section].push(step);
-              } else {
-                  // Update existing step
-                  dbScenario.stepDefinitions[section][existingStepIndex] = step;
-              }
-          });
-      }
-  });
-}
-
 // Update scenarios
 function updateScenarios(dbScenarios, storyScenarios) {
   const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
   const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
-
-  // Update existing scenarios
-  dbScenarios.forEach(dbScenario => {
-      const storyScenario = storyScenarios.find(s => s.scenario_id === dbScenario.scenario_id);
-      if (storyScenario) {
-          updateStepDefinitions(dbScenario, storyScenario);
-      }
+  
+  // map of existing scenarios by scenario_id
+  const dbScenarioMap = new Map();
+  dbScenarios.forEach(scenario => {
+    dbScenarioMap.set(scenario.scenario_id, scenario);
   });
 
-  // Add new scenarios
-  if (newScenarios.length > 0) {
-      dbScenarios.push(...newScenarios);
-  }
+  // create updated scenarios array
+  const updatedScenarios = storyScenarios.map(storyScenario => {
+    const dbScenario = dbScenarioMap.get(storyScenario.scenario_id);
+    if (dbScenario) {
+      return { ...dbScenario, ...storyScenario };
+    } else {
+      return storyScenario;
+    }
+  });
+
+  // Add any new scenarios that were not already in dbScenarios
+  updatedScenarios.push(...newScenarios);
+
+  // Update dbScenarios to match the updated order and content
+  dbScenarios.length = 0; // Clear the original array
+  dbScenarios.push(...updatedScenarios); // Push updated scenarios back into dbScenarios
 }
+
 
 async function fuseStoryWithDb(story) {
 	const result = await mongo.getOneStory(parseInt(story.story_id, 10));
