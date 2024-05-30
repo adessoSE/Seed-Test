@@ -53,11 +53,11 @@
     "zone.js": "^0.14.6"
   },
   "devDependencies": {
-    "@angular-eslint/builder": "17.5.1",
-    "@angular-eslint/eslint-plugin": "17.5.1",
-    "@angular-eslint/eslint-plugin-template": "17.5.1",
-    "@angular-eslint/schematics": "17.5.1",
-    "@angular-eslint/template-parser": "17.5.1",
+    "@angular-eslint/builder": "17.5.2",
+    "@angular-eslint/eslint-plugin": "17.5.2",
+    "@angular-eslint/eslint-plugin-template": "17.5.2",
+    "@angular-eslint/schematics": "17.5.2",
+    "@angular-eslint/template-parser": "17.5.2",
     "@angular/compiler-cli": "^17.3.10",
     "@compodoc/compodoc": "^1.1.16",
     "@popperjs/core": "^2.11.8",
