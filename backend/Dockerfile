@@ -8,6 +8,9 @@ RUN apt-get update && \
 # Create app directory
 WORKDIR /usr/src/app
 
+# Print out the contents of the ./ directory
+RUN ls -l .
+
 # install chrome 
 RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN yes | apt install -qq ./google-chrome-stable_current_amd64.deb
