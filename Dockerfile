@@ -1,6 +1,7 @@
 FROM node:20.9
 
-RUN apt-get update && apt-get -y install wget
+RUN apt-get update && \
+    apt-get install -qq -y wget
 
 # Install the latest version of npm
 RUN npm install -g npm@latest --ignore-scripts

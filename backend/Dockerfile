@@ -2,8 +2,8 @@
 ARG NODE_VERSION=20.9
 FROM node:${NODE_VERSION}
 
-RUN apt-get update
-RUN yes | apt-get install wget
+RUN apt-get update && \
+    apt-get install -qq -y wget
 
 # Install the latest version of npm
 RUN npm install -g npm@latest --ignore-scripts
