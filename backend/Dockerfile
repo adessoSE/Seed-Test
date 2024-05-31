@@ -51,7 +51,7 @@ RUN rm -f latest_stable.txt
 COPY . .
 
 RUN npm install --ignore-scripts
-RUN npm install esbuild --ignore-scripts
+RUN npm install @esbuild/linux-x64 --ignore-scripts
 #RUN npm ci
 # If you are building your code for production
 # RUN npm ci --only=production
