@@ -2,9 +2,6 @@
 ARG NODE_VERSION=20.9
 FROM node:${NODE_VERSION}
 
-# Install the latest version of npm
-RUN npm install -g npm@latest --ignore-scripts
-
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -14,8 +11,11 @@ COPY package*.json ./
 # Print out the contents of the ./ directory
 RUN ls -l .
 
+# Print out the contents of the ./frontend directory
+RUN ls -l ./frontend
+
 # Print out the content of package.json
-RUN cat package.json
+RUN cat ./frontend/package.json
 
 # Install dependencies
 #RUN npm ci --ignore-scripts
