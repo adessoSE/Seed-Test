@@ -50,13 +50,11 @@ jobs:
               --build-arg NODE_VERSION=$NODE_VERSION \
               -t myimage-backend:node-$NODE_VERSION \
               -f backend/Dockerfile \
-              --output type=docker \
               .
             docker buildx build --platform $PLATFORMS \
               --build-arg NODE_VERSION=$NODE_VERSION \
               -t myimage-frontend:node-$NODE_VERSION \
               -f frontend/Dockerfile \
-              --output type=docker \
               .
           done
 
