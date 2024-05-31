@@ -1,4 +1,4 @@
- FROM node:20.9
+FROM node:20.9
 
 # Install the latest version of npm
 RUN npm install -g npm@latest --ignore-scripts
