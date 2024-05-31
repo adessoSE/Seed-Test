@@ -15,7 +15,7 @@
 				<mat-slide-toggle [formControl]="toggleControl" [color]="color" [ngClass]="{'mat-accent': isDark}"
 					title="Switch on/off edit mode"></mat-slide-toggle>
 			</span>
-			<div *ngIf="!first">
+			<div *ngIf="!first" style="display: flex;">
 				<label class="examplesNameLabel">{{column}}</label>
 				<span *ngIf="editMode">
 					<button id="rename_example" class="scenarioTitle" (click)="renameExample(columnIndex)">

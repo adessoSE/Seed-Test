@@ -153,9 +153,9 @@ td.mat-footer-cell:first-of-type {
 }
 
 .examplesNameLabel {
-  white-space: break-spaces;
-  word-break: break-word;
-  max-width: 11em;
+  max-width: 18em;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .exampleValueContainer {
@@ -173,6 +173,11 @@ td.mat-footer-cell:first-of-type {
   border-radius: 5px;
   position: relative;
   z-index: 1;
+  max-width: 20rem;
+  word-break: break-all;
+  min-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .nullValue {
@@ -187,6 +192,6 @@ td.mat-footer-cell:first-of-type {
   border: 1px solid var(--light-blue);
 }
 
-#exampleTableNullValue{
-  transform: translate(6px, -7px);
+.exampleValueContainer.editMode.nullValue + .nullExampleValue {
+  transform: translate(6px, -7px) !important;
 }

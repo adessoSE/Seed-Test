@@ -160,7 +160,7 @@
                           <div class="scenario contentEditableElement inputEditableDiv" #step_type_input1
                             id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightInput(step_type_input1, j, 0, currentStep.stepType, currentStep,
                             currentStep.pre, undefined, sd)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
-                            1px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{{currentStep.values[0]}}</div>
+                            1px; white-space: nowrap; overflow: hidden;">{{currentStep.values[0]}}</div>
                         </div>
                         <div *ngIf="currentStep.isExample[0] == true && name!=='block-editor'"
                           class="exampleListContainer">
@@ -216,7 +216,7 @@
                             id="{{name+'_' + i + '_input_mid_' + j}}" contenteditable="true"
                             (input)="highlightInput(step_type_input2, j, 1, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
                             style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 
-                              1px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{{currentStep.values[1]}}</div>
+                              1px; white-space: nowrap; overflow: hidden;">{{currentStep.values[1]}}</div>
                         </div>
                         <div *ngIf="currentStep.isExample[1] == true && name!=='block-editor'"
                           class="exampleListContainer">
