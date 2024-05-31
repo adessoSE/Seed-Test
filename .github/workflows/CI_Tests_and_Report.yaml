@@ -43,7 +43,7 @@ jobs:
         run: |
           # Define your Node.js versions and platforms
           NODE_VERSIONS="18 20 22"
-          PLATFORMS="linux/amd64,linux/arm64"
+          PLATFORMS="linux/amd64"
 
           for NODE_VERSION in $NODE_VERSIONS; do
             docker buildx build --platform $PLATFORMS \
