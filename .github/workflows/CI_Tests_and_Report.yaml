@@ -9,14 +9,16 @@ on:
 jobs:
   start-docker-stack:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Use Docker
-        uses: actions-hub/docker/cli@master
-        env:
-          SKIP_LOGIN: true
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Create .env file backend
         run: |
@@ -30,16 +32,39 @@ jobs:
           echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> backend/.env
           echo "PASSPORT_GITHUB_LOCAL_PW_FIELD=${{secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD}}" >> backend/.env
 
-      - name: Create .env file fronted
+      - name: Create .env file frontend
         run: |
           echo "API_SERVER=${{secrets.API_SERVER}}" > frontend/.env
           echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> frontend/.env
           echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
           echo "VERSION=SET" >> frontend/.env
 
-      - name: Build and start Docker stack
+      - name: Build Docker images
         run: |
-          docker compose -f docker-test.yml up -d
+          # Define your Node.js versions and platforms
+          NODE_VERSIONS="18 20 22"
+          PLATFORMS="linux/amd64,linux/arm64"
+
+          for NODE_VERSION in $NODE_VERSIONS; do
+            docker buildx build --platform $PLATFORMS \
+              --build-arg NODE_VERSION=$NODE_VERSION \
+              -t myimage-backend:node-$NODE_VERSION \
+              -f backend/Dockerfile \
+              --output type=docker \
+              .
+            docker buildx build --platform $PLATFORMS \
+              --build-arg NODE_VERSION=$NODE_VERSION \
+              -t myimage-frontend:node-$NODE_VERSION \
+              -f frontend/Dockerfile \
+              --output type=docker \
+              .
+          done
+
+      - name: List built images
+        run: docker images
+
+      - name: Build and start Docker stack
+        run: docker compose -f docker-test.yml up -d
 
       - name: Send failure notification
         if: ${{ failure() }}
@@ -58,7 +83,7 @@ jobs:
       - name: Wait for 1/2 minute
         run: sleep 30
 
-      # execute npm test in the backend container ---------------------------------------------------------------
+      # Execute npm test in the backend container
       - name: Run npm test backend
         run: |
           docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
@@ -92,7 +117,7 @@ jobs:
           path: |
             testResultsBackend.txt
 
-      # execute npm test in the frontend container --------------------------------------------------------------
+      # Execute npm test in the frontend container
       - name: Run npm test frontend
         run: |
           docker exec Seed-frontend npm test > testResultsFrontend.txt 2>&1
@@ -126,10 +151,9 @@ jobs:
           path: |
             testResultsFrontend.txt
 
-      # SANITY CHECK --------------------------------------------------------------------------------------------
+      # SANITY CHECK
       - name: Send sanity POST request and store response
         env:
-          # <-- api url for sanity test -->/<---- repository_id --->/<------ group_id ------>
           API_URL: localhost:8080/api/sanity/test/${{ secrets.SANITY_REPO_ID }}/${{ secrets.SANITY_GROUP_ID }}
         run: |
           curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
@@ -162,7 +186,7 @@ jobs:
           path: |
             sanityReport.txt
 
-      # SEND FULL REPORT ---------------------------------------------------------------------------------------
+      # SEND FULL REPORT
       - name: Send Teams Message
         uses: ./actions/fullReport
         with:

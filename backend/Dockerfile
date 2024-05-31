@@ -1,4 +1,6 @@
-FROM node:20.9
+# Use build argument for Node.js version
+ARG NODE_VERSION=20.9
+FROM node:${NODE_VERSION}
 
 RUN apt-get update
 RUN yes | apt-get install wget

@@ -1,4 +1,6 @@
-FROM node:20.9
+# Use build argument for Node.js version
+ARG NODE_VERSION=20.9
+FROM node:${NODE_VERSION}
 
 # Install the latest version of npm
 RUN npm install -g npm@latest --ignore-scripts
