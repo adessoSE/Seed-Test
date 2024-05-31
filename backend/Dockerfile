@@ -58,11 +58,8 @@ RUN npm install --ignore-scripts
 # Print out the contents of the ./ directory
 RUN ls -l .
 
-# Print out the contents of the ./backend directory
-RUN ls -l ./backend
-
 # Print out the content of package.json
-RUN cat ./backend/package.json
+RUN cat ./package.json
 
 EXPOSE 8080
 
