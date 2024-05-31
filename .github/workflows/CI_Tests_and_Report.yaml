@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Create .env file backend
         run: |
@@ -48,12 +48,12 @@ jobs:
           for NODE_VERSION in $NODE_VERSIONS; do
             docker buildx build --platform $PLATFORMS \
               --build-arg NODE_VERSION=$NODE_VERSION \
-              -t myimage-backend:node-$NODE_VERSION \
+              -t Seed-backend:node-$NODE_VERSION \
               -f backend/Dockerfile \
               .
             docker buildx build --platform $PLATFORMS \
               --build-arg NODE_VERSION=$NODE_VERSION \
-              -t myimage-frontend:node-$NODE_VERSION \
+              -t Seed-frontend:node-$NODE_VERSION \
               -f frontend/Dockerfile \
               .
           done
