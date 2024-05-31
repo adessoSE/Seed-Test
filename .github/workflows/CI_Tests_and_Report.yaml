@@ -48,12 +48,12 @@ jobs:
           for NODE_VERSION in $NODE_VERSIONS; do
             docker buildx build --platform $PLATFORMS \
               --build-arg NODE_VERSION=$NODE_VERSION \
-              -t Seed-backend:node-$NODE_VERSION \
+              -t seed-backend:node-$NODE_VERSION \
               -f backend/Dockerfile \
               .
             docker buildx build --platform $PLATFORMS \
               --build-arg NODE_VERSION=$NODE_VERSION \
-              -t Seed-frontend:node-$NODE_VERSION \
+              -t seed-frontend:node-$NODE_VERSION \
               -f frontend/Dockerfile \
               .
           done
