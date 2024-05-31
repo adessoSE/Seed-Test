@@ -83,6 +83,8 @@ jobs:
 
       # Execute npm test in the backend container
       - name: Run npm test backend
+        env:
+          ACTIONS_STEP_DEBUG: true  # Enable debug logging for this step TODO: remove again!
         run: |
           docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
         continue-on-error: true
@@ -117,6 +119,8 @@ jobs:
 
       # Execute npm test in the frontend container
       - name: Run npm test frontend
+        env:
+          ACTIONS_STEP_DEBUG: true  # Enable debug logging for this step TODO: remove again!
         run: |
           docker exec Seed-frontend npm test > testResultsFrontend.txt 2>&1
         continue-on-error: true
@@ -153,6 +157,7 @@ jobs:
       - name: Send sanity POST request and store response
         env:
           API_URL: localhost:8080/api/sanity/test/${{ secrets.SANITY_REPO_ID }}/${{ secrets.SANITY_GROUP_ID }}
+          ACTIONS_STEP_DEBUG: true  # Enable debug logging for this step TODO: remove again!
         run: |
           curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
 
