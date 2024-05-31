@@ -19,4 +19,7 @@ services:
     container_name: "Seed-frontend"
     depends_on:
       - backend
+    environment:
+      - BACKEND_HOST=backend
+      - BACKEND_PORT=8080
     restart: always
