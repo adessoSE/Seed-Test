@@ -7,7 +7,8 @@
     padding: 30px 26px 15px;
     display: flex;
 }
-.uploadFile.normalButton{
+
+.uploadFile.normalButton {
     height: 37px;
 }
 
@@ -30,10 +31,22 @@ label.label input[type="file"] {
     translate: -26px;
 }
 
-.modal-body.storage-empty {
+.bodyContainer.storage-empty {
     margin: 20px 10px;
     box-shadow: 1px 1px 9px gray;
     padding: 120px 220px 120px;
+}
+
+.empty-storage-message {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 7rem;
+}
+
+.empty-storage-message .normalButton {
+    width: 6rem;
 }
 
 .fileTableContainer {
@@ -49,22 +62,29 @@ tr.file-or-folder:hover {
     background-color: #f1f1f1;
 }
 
-.highlight,
-.selectedFile {
-    background-color: #f1f1f1;
-}
-
 .mat-mdc-table .mat-mdc-cell:first-child,
 .mat-mdc-table .mat-mdc-header-cell:first-child {
     border-right: 1px solid #e0e0e0;
 }
 
 .selectedFile td {
+    font-weight: 600;
     color: var(--ocean-blue);
+}
+
+.fileCell {
+    border-right: 1px solid #e0e0e0;
 }
 
 .noResultFound {
     text-align: center;
+}
+
+.noResultFound>p {
+    color: gray;
+    font-style: italic;
+    font-size: 18px;
+    padding: 2rem;
 }
 
 .fileNameCell {
@@ -106,11 +126,6 @@ tr.file-or-folder:hover {
     background-color: #506772 !important;
 }
 
-.darkTheme .highlight,
-.darkTheme .selectedFile {
-    background-color: #506772;
-}
-
 .darkTheme .normalButton {
     cursor: pointer;
     background: var(--button);
@@ -121,8 +136,8 @@ tr.file-or-folder:hover {
     background: var(--buttonHover);
 }
 
-.body-footer{
+.body-footer {
     display: flex;
     justify-content: end;
-    margin-right: 1.8rem;
+    padding: 2rem;
 }

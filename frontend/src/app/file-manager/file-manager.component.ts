@@ -19,9 +19,10 @@ export class FileManagerComponent implements OnInit {
   repoId: string;
   allFiles: FileElement[] = [];
   searchedFiles: FileElement[] = [];
-  selectedFile: FileElement | null = null;
   searchText: string = '';
-  public fileElements: Observable<FileElement[]>;
+  fileElements: Observable<FileElement[]>;
+  selection = new Set<any>();
+  isAllSelected: boolean = false;
 
   themeObservable: Subscription;
   /**
@@ -39,25 +40,28 @@ export class FileManagerComponent implements OnInit {
       this.isDark = this.themeService.isDarkMode();
     });
     this.updateFileElementQuery();
-    this.fileElements.subscribe((file: FileElement[]) => {
-      this.allFiles = file;
+    this.fileElements.subscribe((files: FileElement[]) => {
+      this.allFiles = files;
       this.searchFile();
-    })
+    });
     this.repoId = localStorage.getItem('id');
   }
 
-  /**
-   * Returns to story editor
-   */
-  goBackToStoryEditor() {
+  goBackToStoryEditor(): void {
     this.storyService.changeStoryViewEvent("storyView");
   }
 
-  updateFileElementQuery() {
+  /**
+   * Updates the file elements by querying the file service with the repository ID.
+   */
+  updateFileElementQuery(): void {
     this.fileElements = this.fileService.queryFiles(this.repoId);
   }
 
-  searchFile() {
+  /**
+   * Filters the files based on the search text.
+   */
+  searchFile(): void {
     if (this.searchText.trim() === '') {
       this.searchedFiles = this.allFiles;
     } else {
@@ -67,27 +71,67 @@ export class FileManagerComponent implements OnInit {
     }
   }
 
-  deleteFile() {
-    console.log("delete: ", this.selectedFile)
-    this.fileService.deleteUploadedFile(this.selectedFile._id).subscribe(() => {
-      this.updateFileElementQuery();
+  /**
+   * all checkboxes are selected
+   */
+  toggleAllSelection(event: Event): void {
+    this.selection.size === this.searchedFiles.length ? this.selection.clear() : this.searchedFiles.forEach(file => this.selection.add(file));
+    this.isAllSelected = !this.isAllSelected;
+  }
+
+  /**
+   * Deletes the selected files
+   */
+  deleteFile(): void {
+    this.allFiles = this.allFiles.filter(file => !this.selection.has(file));
+    Array.from(this.selection).map(file => {
+      this.fileService.deleteUploadedFile(file._id).subscribe(() => {
+        this.updateFileElementQuery();
+      });
     });
-    this.updateFileElementQuery();
-    delete this.selectedFile;
+    this.selection.clear();
+    this.isAllSelected = false;
   }
 
-  selected(event: MouseEvent, element: FileElement) {
-    this.selectedFile = element;
+  /**
+   * Set checkbox to selected file
+   * @param element
+   */
+  selectedRow(element) {
+    this.selection.has(element) ? this.selection.delete(element) : this.selection.add(element);
+    this.isAllSelected = this.selection.size === this.searchedFiles.length;
   }
 
-
-  selectUploadFile(event: any) {
+  /**
+   * Uploads a selected file
+   * @param event
+   */
+  selectUploadFile(event: any): void {
     const file: File = event.target.files.item(0);
     this.fileService.uploadFile(this.repoId, file)
       .subscribe((res: FileElement) => {
         this.updateFileElementQuery();
-        delete this.selectedFile;
       });
   }
 
+  /**
+   * Converts an ArrayBuffer to a Base64 string
+   * @param buffer
+   */
+  arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const binary = new Uint8Array(buffer);
+    let base64 = '';
+    for (let i = 0; i < binary.length; i++) {
+      base64 += String.fromCharCode(binary[i]);
+    }
+    return window.btoa(base64);
+  }
+
+  /**
+   * Checks if a file is selected and highlights it
+   * @param file
+   */
+  isFileSelected(file: FileElement): boolean {
+    return this.selection.has(file);
+  }
 }
