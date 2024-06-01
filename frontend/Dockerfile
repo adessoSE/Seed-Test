@@ -21,6 +21,9 @@ RUN npm install --force --ignore-scripts
 # Install Angular CLI
 RUN npm install --force --ignore-scripts -g @angular/cli
 
+# Install esbuild
+RUN npm install esbuild --ignore-scripts
+
 COPY . .
 
 EXPOSE 4200
