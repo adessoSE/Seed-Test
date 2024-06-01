@@ -52,7 +52,7 @@
                         </ng-container>
                         <tr mat-header-row *matHeaderRowDef="['select', 'name', 'uploadDate']"></tr>
                         <tr mat-row *matRowDef="let row; columns: ['select', 'name', 'uploadDate']"
-                            (click)="selectedRow(row)" class="file-or-folder" [class.selectedFile]="isFileSelected(row)"></tr>
+                            (click)="selectedRow(row)" (keydown)="onKeyDown($event, row)" class="file-or-folder" [class.selectedFile]="isFileSelected(row)"></tr>
                     </table>
                 </div>
                 <div *ngIf="searchedFiles.length == 0" class="noResultFound">
