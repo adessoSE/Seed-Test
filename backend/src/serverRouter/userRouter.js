@@ -594,14 +594,17 @@ function analyzeText(text, context) {
             const match = text.match(regex);
             if (match) {
                 const values = match.slice(1).map(value => cleanValue(value.trim().replace(/\.$/, ''))).filter(v => v);
-
+				if (stepType.type === "Screenshot" && values.length === 0) {
+                    values.push('');
+                }
                 return {
                     type: stepType.type,
                     values: values,
                     pre: stepType.pre,
                     mid: stepType.mid ? stepType.mid : undefined,
                     post: stepType.post ? stepType.post : undefined,
-                    context: context
+                    context: context,
+					origin: "congruent"
                 };
             }
         }
@@ -647,7 +650,8 @@ function createScenarioSteps(matchingSteps){
 		let newStep = {
 			id: id++,
 			stepType: scenarioStep.context,
-			deactivated: false
+			deactivated: false,
+			origin: scenarioStep.origin,
 		};
 
 		if (scenarioStep.pre !== undefined) {
@@ -673,9 +677,7 @@ function createScenarioSteps(matchingSteps){
 			thenSteps.push(newStep)
 		}	
 	}
-	console.log('givenSteps:', givenSteps)
-	console.log('whenSteps:', whenSteps)
-	console.log('thenSteps:', thenSteps)
+
 	return { givenSteps, whenSteps, thenSteps }
 	
 }

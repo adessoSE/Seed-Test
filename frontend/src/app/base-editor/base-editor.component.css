@@ -505,6 +505,19 @@ input.background {
 	filter: invert(54%) brightness(92%);
 }
 
+.origin-container {
+    margin-left: 10px;  
+    padding: 5px 5px;  
+    border: 3px solid var(--ocean-blue);
+	font-size: 12px; 
+    border-radius: 10px; 
+    display: inline-block; 
+    background-color: #f9f9f9; 
+    font-style: italic;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+
 @media screen and (max-height: 700px) {
     ul.stepsList{
         height: 250px;
