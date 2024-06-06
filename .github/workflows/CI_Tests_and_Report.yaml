@@ -8,7 +8,7 @@ on:
 
 jobs:
   start-docker-stack:
-    name: Start Docker Stack (Node.js ${{ matrix.node-version }})
+    name: (Node.js ${{ matrix.node-version }}) - Start Docker Stack
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -94,8 +94,8 @@ jobs:
           workflowLink: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
 
-      - name: Wait for 1 minute
-        run: sleep 60
+      - name: Wait for 1/2 minute
+        run: sleep 30
 
       - name: Check Docker services status
         run: docker-compose ps
@@ -106,8 +106,8 @@ jobs:
       - name: Upload Docker logs
         uses: actions/upload-artifact@v4
         with:
-          name: docker-logs
-          path: docker_logs.txt
+          name: docker-logs-${{ matrix.node-version }}
+          path: docker_logs_${{ matrix.node-version }}.txt
 
       # Execute npm test in the backend container
       - name: Run npm test backend
@@ -139,9 +139,8 @@ jobs:
         if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-backend
-          path: |
-            testResultsBackend.txt
+          name: test-results-backend-${{ matrix.node-version }}
+          path: testResultsBackend_${{ matrix.node-version }}.txt
 
       # Execute npm test in the frontend container
       - name: Run npm test frontend
@@ -173,9 +172,8 @@ jobs:
         if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-frontend
-          path: |
-            testResultsFrontend.txt
+          name: test-results-frontend-${{ matrix.node-version }}
+          path: testResultsFrontend_${{ matrix.node-version }}.txt
 
       # SANITY CHECK
       - name: Send sanity POST request and store response
