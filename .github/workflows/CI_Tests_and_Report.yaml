@@ -107,7 +107,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: docker-logs-${{ matrix.node-version }}
-          path: docker_logs_${{ matrix.node-version }}.txt
+          path: docker_logs.txt
 
       # Execute npm test in the backend container
       - name: Run npm test backend
@@ -140,7 +140,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-backend-${{ matrix.node-version }}
-          path: testResultsBackend_${{ matrix.node-version }}.txt
+          path: testResultsBackend.txt
 
       # Execute npm test in the frontend container
       - name: Run npm test frontend
@@ -173,7 +173,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-frontend-${{ matrix.node-version }}
-          path: testResultsFrontend_${{ matrix.node-version }}.txt
+          path: testResultsFrontend.txt
 
       # SANITY CHECK
       - name: Send sanity POST request and store response
@@ -206,7 +206,7 @@ jobs:
         if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v4
         with:
-          name: sanity-report
+          name: sanity-report-${{ matrix.node-version }}
           path: |
             sanityReport.txt
 
