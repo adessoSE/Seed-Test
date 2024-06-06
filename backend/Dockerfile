@@ -5,8 +5,12 @@ FROM node:${NODE_VERSION}
 RUN apt-get update && \
     apt-get install -qq -y wget
 
-# Create app directory
+# Create a non-root user
+RUN useradd --user-group --create-home --shell /bin/false appuser
+
+# Create app directory and set permissions
 WORKDIR /usr/src/app
+RUN chown -R appuser:appuser /usr/src/app
 
 # Print out the contents of the ./ directory
 RUN ls -l .
@@ -49,6 +53,12 @@ RUN rm -f latest_stable.txt
 
 # Bundle app source
 COPY . .
+
+# Change ownership to the non-root user
+RUN chown -R appuser:appuser /usr/src/app
+
+# Switch to non-root user
+USER appuser
 
 # Install dependencies and rebuild native modules
 RUN npm install --ignore-scripts && npm rebuild bcrypt
