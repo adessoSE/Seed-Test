@@ -46,7 +46,7 @@
     "jspdf": "^2.5.1",
     "ngx-cookie-service": "^17.1.0",
     "ngx-logger": "~5.0.12",
-    "ngx-owl-carousel-o": "^17.0.0",
+    "ngx-owl-carousel-o": "^18.0.0",
     "ngx-toastr": "18.0.0",
     "rxjs": "^7.8.1",
     "uikit": "^3.21.5",
