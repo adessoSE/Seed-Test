@@ -9,6 +9,11 @@ on:
 jobs:
   start-docker-stack:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    env:
+      PLATFORMS: "linux/amd64"
 
     steps:
       - name: Checkout code
@@ -66,15 +71,12 @@ jobs:
 
       - name: Build and start Docker stack
         env:
-          NODE_VERSIONS: "18 20 22"
-          PLATFORMS: "linux/amd64"
+          NODE_VERSION: ${{ matrix.node-version }}
         run: |
-          for NODE_VERSION in $NODE_VERSIONS; do
-            docker-compose -f docker-test.yml build \
-              --build-arg NODE_VERSION=$NODE_VERSION \
-              --platform $PLATFORMS
-            docker-compose up
-          done
+          docker-compose -f docker-test.yml build \
+            --build-arg NODE_VERSION=$NODE_VERSION \
+            --platform $PLATFORMS
+          docker-compose -f docker-test.yml up -d
           
 
       - name: Send failure notification
