@@ -70,10 +70,12 @@ jobs:
           PLATFORMS: "linux/amd64"
         run: |
           for NODE_VERSION in $NODE_VERSIONS; do
-            docker-compose -f docker-test.yml up -d \
+            docker-compose -f docker-test.yml build \
               --build-arg NODE_VERSION=$NODE_VERSION \
               --platform $PLATFORMS
+            docker-compose up
           done
+          
 
       - name: Send failure notification
         if: ${{ failure() }}
