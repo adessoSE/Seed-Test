@@ -78,8 +78,8 @@ jobs:
           workflowLink: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
 
-      - name: Wait for 1/2 minute
-        run: sleep 30
+      - name: Wait for 1 minute
+        run: sleep 60
 
       # Execute npm test in the backend container
       - name: Run npm test backend
