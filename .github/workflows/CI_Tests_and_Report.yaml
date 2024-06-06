@@ -8,6 +8,7 @@ on:
 
 jobs:
   start-docker-stack:
+    name: Start Docker Stack (Node.js ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
