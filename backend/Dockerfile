@@ -50,7 +50,7 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
-RUN npm install --ignore-scripts
+RUN npm run clean | rm -rf node_modules | npm install --ignore-scripts
 
 #RUN npm ci
 # If you are building your code for production

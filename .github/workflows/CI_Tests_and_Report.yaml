@@ -61,8 +61,19 @@ jobs:
       # - name: List built images
       #   run: docker images
 
+      # - name: Build and start Docker stack
+      #   run: docker compose -f docker-test.yml up -d
+
       - name: Build and start Docker stack
-        run: docker compose -f docker-test.yml up -d
+        env:
+          NODE_VERSIONS: "18 20 22"
+          PLATFORMS: "linux/amd64"
+        run: |
+          for NODE_VERSION in $NODE_VERSIONS; do
+            docker-compose -f docker-test.yml up -d \
+              --build-arg NODE_VERSION=$NODE_VERSION \
+              --platform $PLATFORMS
+          done
 
       - name: Send failure notification
         if: ${{ failure() }}
