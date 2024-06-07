@@ -88,13 +88,13 @@ function getScenarioContent(scenarios, storyID) {
 	for (const scenario of scenarios) {
 		data += `@${storyID}_${scenario.scenario_id}\n`;
 		// if there are examples
-		if ((scenario.stepDefinitions.example && scenario.stepDefinitions.example.length > 0) || (scenario.multipleScenario && scenario.multipleScenario.length > 0)) data += `Scenario Outline: ${scenario.name}\n\n`;
+		if ((scenario.stepDefinitions.example && scenario.stepDefinitions.example.length > 0) || (scenario.multipleScenarios && scenario.multipleScenarios.length > 0)) data += `Scenario Outline: ${scenario.name}\n\n`;
 		else data += `Scenario: ${scenario.name}\n\n`;
 		// Get Stepdefinitions
 		if (scenario.stepDefinitions.given !== undefined) data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
 		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
-		if ((scenario.stepDefinitions.example && scenario.stepDefinitions.example.length > 0) || (scenario.multipleScenario && scenario.multipleScenario.length > 0)) data += `${getExamples(scenario.stepDefinitions.example || scenario.multipleScenario)}\n\n`;
+		if ((scenario.stepDefinitions.example && scenario.stepDefinitions.example.length > 0) || (scenario.multipleScenarios && scenario.multipleScenarios.length > 0)) data += `${getExamples(scenario.stepDefinitions.example || scenario.multipleScenarios)}\n\n`;
 		if (scenario.comment !== null) {
 			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
@@ -214,7 +214,7 @@ async function executeTest(req, mode, story) {
 	if (mode === 'scenario') {
 		const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioId, 10));
 
-		const scenarioCount = Math.max((scenario.stepDefinitions.example || scenario.multipleScenario).length, 1);
+		const scenarioCount = Math.max((scenario.stepDefinitions.example || scenario.multipleScenarios).length, 1);
 
 		const additionalParams = getSettings(scenario, globalSettings);
 
@@ -304,14 +304,14 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 
 		const additionalParams = getSettings(scenario, globalSettings);
 
-		if ((scenario.stepDefinitions.example || scenario.multipleScenario).length <= 0) {
+		if ((scenario.stepDefinitions.example || scenario.multipleScenarios).length <= 0) {
 			parameters.scenarios.push({
 				oneDriver: driver,
 				...additionalParams
 			});
 		} else {
 			// eslint-disable-next-line guard-for-in
-			for (const exampleIndex in scenario.stepDefinitions.example || scenario.multipleScenario) {
+			for (const exampleIndex in scenario.stepDefinitions.example || scenario.multipleScenarios) {
 				console.log('examples');
 				if (exampleIndex === 0) continue;
 				parameters.scenarios.push({
