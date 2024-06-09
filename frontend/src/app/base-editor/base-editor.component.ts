@@ -1893,15 +1893,15 @@ export class BaseEditorComponent {
    * Checks for unique example names
    */
   insertStepsWithExamples(block) {
-    if (this.selectedScenario.stepDefinitions["example"].length != 0) {
-      let indices = this.selectedScenario.stepDefinitions["example"][0].values
+    if (this.selectedScenario.multipleScenarios.length != 0) {
+      let indices = this.selectedScenario.multipleScenarios[0].values
         .map((x) => block.stepDefinitions["example"][0].values.indexOf(x))
         .filter((x) => x != -1);
       let num = 1;
       while (indices.length > 0) {
         this.changeExampleName(block, indices, num);
         num++;
-        indices = this.selectedScenario.stepDefinitions["example"][0].values
+        indices = this.selectedScenario.multipleScenarios[0].values
           .map((x) => block.stepDefinitions["example"][0].values.indexOf(x))
           .filter((x) => x != -1);
       }
@@ -1955,36 +1955,22 @@ export class BaseEditorComponent {
    * checks for example names and adds ' - Copy' in case of double names
    */
   insertCopiedExamples(block) {
-    const selectedExampleDefs =
-      this.selectedScenario.stepDefinitions["example"];
+    const selectedExampleDefs = this.selectedScenario.multipleScenarios;
     const blockExampleDefs = block.stepDefinitions["example"];
 
     if (selectedExampleDefs.length === 0) {
-      this.selectedScenario.stepDefinitions["example"] = blockExampleDefs;
+      this.selectedScenario.multipleScenarios = blockExampleDefs;
       return;
     }
 
     if (selectedExampleDefs.length === blockExampleDefs.length) {
-      this.insertValuesIntoSelectedExamples(
-        selectedExampleDefs,
-        blockExampleDefs
-      );
+      this.insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs);
     } else if (selectedExampleDefs.length < blockExampleDefs.length) {
-      this.insertValuesIntoSelectedExamples(
-        selectedExampleDefs,
-        blockExampleDefs,
-        true
-      );
+      this.insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs, true);
       this.insertNewExamples(selectedExampleDefs, blockExampleDefs);
     } else {
-      this.insertValuesIntoSelectedExamples(
-        selectedExampleDefs,
-        blockExampleDefs
-      );
-      this.insertPlaceholderValues(
-        selectedExampleDefs,
-        selectedExampleDefs[0].values.length
-      );
+      this.insertValuesIntoSelectedExamples( selectedExampleDefs, blockExampleDefs);
+      this.insertPlaceholderValues(selectedExampleDefs, selectedExampleDefs[0].values.length);
     }
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved();
