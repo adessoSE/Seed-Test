@@ -327,11 +327,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   renameBackgroundModal: RenameBackgroundComponent;
   @ViewChild("workgroupEditModal") workgroupEditModal: WorkgroupEditComponent;
 
-  /**
-   * Event emitter to change to the report history component
-   */
-  @Output()
-  changeEditor: EventEmitter<any> = new EventEmitter();
 
   @Output()
   deleteStoryEvent: EventEmitter<any> = new EventEmitter();
@@ -586,9 +581,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           this.applyChangesToBackgrounds(this.selectedStory.background);
         }
       });
-      this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block => 
-          this.blockService.convertSelectedStepsToRef(block, this.selectedScenario)
-      );
+    this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block =>
+      this.blockService.convertSelectedStepsToRef(block, this.selectedScenario)
+    );
   }
 
   ngOnDestroy() {
@@ -661,10 +656,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Change to the report history component
+   * Change the active view of a story
    */
-  openReportHistory() {
-    this.changeEditor.emit();
+  changeActiveView(viewName) {
+    this.storyService.changeStoryViewEvent(viewName);
   }
 
   /**

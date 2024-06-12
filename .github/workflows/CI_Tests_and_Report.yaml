@@ -61,7 +61,7 @@ jobs:
       - name: Wait for 1/2 minute
         run: sleep 30
 
-      # execute npm test in the backend container ----------------------------------------------------------------
+      # execute npm test in the backend container ---------------------------------------------------------------
       - name: Run npm test backend
         run: |
           docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
