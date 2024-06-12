@@ -39,12 +39,13 @@ export class FileManagerComponent implements OnInit {
     this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
       this.isDark = this.themeService.isDarkMode();
     });
-    this.updateFileElementQuery();
+    this.repoId = localStorage.getItem('id');
+    this.updateFileElementQuery(this.repoId);
     this.fileElements.subscribe((files: FileElement[]) => {
       this.allFiles = files;
       this.searchFile();
     });
-    this.repoId = localStorage.getItem('id');
+
   }
 
   goBackToStoryEditor(): void {
@@ -54,8 +55,8 @@ export class FileManagerComponent implements OnInit {
   /**
    * Updates the file elements by querying the file service with the repository ID.
    */
-  updateFileElementQuery(): void {
-    this.fileElements = this.fileService.queryFiles(this.repoId);
+  updateFileElementQuery(repoId): void {
+    this.fileElements = this.fileService.queryFiles(repoId);
   }
 
   /**
@@ -86,7 +87,7 @@ export class FileManagerComponent implements OnInit {
     this.allFiles = this.allFiles.filter(file => !this.selection.has(file));
     Array.from(this.selection).map(file => {
       this.fileService.deleteUploadedFile(file._id).subscribe(() => {
-        this.updateFileElementQuery();
+        this.updateFileElementQuery(this.repoId);
       });
     });
     this.selection.clear();
@@ -110,7 +111,7 @@ export class FileManagerComponent implements OnInit {
     const file: File = event.target.files.item(0);
     this.fileService.uploadFile(this.repoId, file)
       .subscribe((res: FileElement) => {
-        this.updateFileElementQuery();
+        this.updateFileElementQuery(this.repoId);
       });
   }
 
