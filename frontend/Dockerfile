@@ -2,13 +2,8 @@
 ARG NODE_VERSION=20.9
 FROM node:${NODE_VERSION}
 
-# Create a non-root user
-RUN useradd --user-group --create-home --shell /bin/false appuser
-
-# Create app directory and set permissions
+# Create app directory
 WORKDIR /usr/src/app
-RUN chown -R appuser:appuser /usr/src/app
-
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
@@ -30,12 +25,6 @@ RUN npm install --force --ignore-scripts -g @angular/cli
 RUN npm install esbuild --ignore-scripts
 
 COPY . .
-
-# Change ownership to the non-root user
-RUN chown -R appuser:appuser /usr/src/app
-
-# Switch to non-root user
-USER appuser
 
 EXPOSE 4200
 
