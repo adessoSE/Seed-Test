@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Story } from '../model/Story';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { catchError, tap } from 'rxjs/operators';
+import {catchError, tap} from 'rxjs/operators';
 import { StepType } from '../model/StepType';
 
 /**
@@ -34,10 +34,6 @@ export class StoryService {
   */
   public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
   /*
-  * Event emitter to change the active story view
-  */
-  public changeStoryViewEmitter: EventEmitter<any> = new EventEmitter();
-  /*
   * Event emitter to rename the description
   */
   public renameDescriptionEvent = new EventEmitter();
@@ -47,15 +43,6 @@ export class StoryService {
   public deleteStoryEmitter() {
     this.deleteStoryEvent.emit();
   }
-
-  /**
-  * Emits the change the active view
-  * @param viewName
-  */
-  changeStoryViewEvent(viewName) {
-    this.changeStoryViewEmitter.emit(viewName);
-  }
-
   /**
   * Emits the rename story event
   * @param newStoryTitle
@@ -79,7 +66,7 @@ export class StoryService {
   */
   public getStory(_id): Observable<any> {
     return this.http
-      .get<Story>(this.apiService.apiServer + '/story/' + _id, ApiService.getOptions())
+      .get<Story>(this.apiService.apiServer + '/story/' + _id , ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -168,7 +155,7 @@ export class StoryService {
         .post(this.apiService.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
     }
     return this.http
-      .post(this.apiService.apiServer + '/run/Feature/' + storyID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+      .post(this.apiService.apiServer + '/run/Feature/' + storyID , params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
   }
   /**
     * Download a file with story feature
@@ -229,7 +216,7 @@ export class StoryService {
   public goToTicket(storyId: string, repository: RepositoryContainer) {
     if (repository.source === 'github') {
       const AUTHORIZE_URL = 'https://github.com/' + repository.value + '/issues/';
-      console.log("AUTHORIZE_UR", AUTHORIZE_URL)
+      console.log("AUTHORIZE_UR",AUTHORIZE_URL)
       const s = `${AUTHORIZE_URL}${storyId}`;
       return window.open(s);
     } else if (repository.source === 'jira') {

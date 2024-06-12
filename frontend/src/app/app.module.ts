@@ -85,8 +85,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { WindowSizeComponent } from './modals/window-size/window-size.component';
 import { FileExplorerModalComponent } from "./modals/file-explorer-modal/file-explorer-modal.component";
-import { FileManagerComponent } from "./file-manager/file-manager.component";
-import {MatCheckboxModule} from '@angular/material/checkbox';
+
 
 
 @NgModule({
@@ -142,7 +141,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     ConfirmResetPasswordPopupComponent,
     WindowSizeComponent,
     FileExplorerModalComponent,
-    FileManagerComponent,
   ],
   imports: [
     NgbModule,
@@ -178,8 +176,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatMenuModule,
-    MatCheckboxModule
+    MatMenuModule
   ],
   providers: [
     ApiService,
