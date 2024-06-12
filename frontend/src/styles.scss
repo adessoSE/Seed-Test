@@ -1185,38 +1185,6 @@ mat-expansion-panel.stepBlockContainer #blockContent {
   font-weight: normal !important;
 }
 
-.changedStoryViewContainer{
-  margin-top: 24px;
-  border-left: 1px solid #999;
-  border-top: 1px solid #999;
-  border-bottom: 1px solid #999;
-  background: var(--white);
-}
-
-.darkTheme.changedStoryViewContainer {
-  border-left: 1px solid #60767b;
-  border-top: 1px solid #60767b;
-  border-bottom: 1px solid #60767b;
-  background: #455A64;
-}
-
-.changedStoryViewTitle{
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin: 10px;
-}
-
-.backButton{
-  background: none;
-  width: 70px;
-  height: 60px;
-  margin-left: 20px;
-  margin-right: 20px;
-  font-size: 15px;
-  cursor: pointer;
-  border: none;
-}
 mat-expansion-panel.stepBlockContainer .mat-expansion-panel-body{
   padding: 0px !important;
 }

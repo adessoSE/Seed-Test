@@ -8,7 +8,6 @@ import {Group} from '../model/Group';
 import {ScenarioReport} from '../model/ScenarioReport';
 import {GroupReport} from '../model/GroupReport';
 import { ReportService } from '../Services/report.service';
-import { StoryService } from '../Services/story.service';
 
 
 type Report = ScenarioReport | StoryReport | GroupReport;
@@ -40,12 +39,17 @@ export class ReportHistoryComponent implements OnInit {
 
   isDark: boolean;
   updatedReports;
+  /**
+   * Event emiter to change the editor to story editor
+   */
+  @Output()
+  changeEditor: EventEmitter<any> = new EventEmitter();
 
 
   /**
    * @ignore
    */
-  constructor(private themeService: ThemingService, public reportService: ReportService, public storyService: StoryService) { }
+  constructor(private themeService: ThemingService, public reportService: ReportService) { }
 
   /**
    * @ignore
@@ -113,7 +117,7 @@ export class ReportHistoryComponent implements OnInit {
    * Returns to story editor
    */
   goBackToStoryEditor() {
-    this.storyService.changeStoryViewEvent('storyView');
+    this.changeEditor.emit();
   }
 
   /**
