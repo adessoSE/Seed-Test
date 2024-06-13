@@ -13,7 +13,6 @@ const reporter = require('../../dist/helpers/reporting');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
-const __dirname = './';
 
 // Configure Winston logger
 const logger = winston.createLogger({
