@@ -4,12 +4,27 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
+const winston = require('winston');
 const initializePassport = require('../passport-config');
-const mongo = require('../database/DbServices')
+const mongo = require('../database/DbServices');
 const reporter = require('../../dist/helpers/reporting');
+
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
+
+// Configure Winston logger
+const logger = winston.createLogger({
+	level: 'info',
+	format: winston.format.combine(
+		winston.format.timestamp(),
+		winston.format.printf(({ timestamp, level, message }) => `${timestamp} [${level}]: ${message}`)
+	),
+	transports: [
+		new winston.transports.Console(),
+		new winston.transports.File({ filename: 'app.log' })
+	]
+});
 
 // Handling response errors
 function handleError(res, reason, statusMessage, code) {
@@ -39,21 +54,21 @@ router
 	});
 
 router.post('/test/:repoID/:groupID', passport.authenticate('normal-local', { session: false }), async (req, res) => {
-    try {
-        req.body.email = req.body.email.toLowerCase(); 
-		// Extract repoID and groupID from the request parameters
-        const { repoID, groupID } = req.params;
-        
-        // Log repoID and groupID
-        console.log(`We are Testing for repoID: ${repoID}, groupID: ${groupID}`);
-        await test(req, res);
-    } catch (error) {
-        res.status(401).json(error);
-    }
+	try {
+		req.body.email = req.body.email.toLowerCase();
+		const { repoID, groupID } = req.params;
+		logger.info(`Received test request for repoID: ${repoID} and groupID: ${groupID}`);
+		logger.info(`Request body: ${JSON.stringify(req.body)}`);
+
+		await test(req, res);
+	} catch (error) {
+		logger.error(`Error processing request: ${error.message}`);
+		res.status(401).json(error);
+	}
 });
 
 async function test(req, res) {
-    const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
+	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
 	const mystories = [];
 	for (const ms of group.member_stories) {
 		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
