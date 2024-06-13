@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const winston = require('winston');
+const path = require('path');
 const initializePassport = require('../passport-config');
 const mongo = require('../database/DbServices');
 const reporter = require('../../dist/helpers/reporting');
@@ -12,6 +13,7 @@ const reporter = require('../../dist/helpers/reporting');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
+const __dirname = './';
 
 // Configure Winston logger
 const logger = winston.createLogger({
@@ -22,7 +24,7 @@ const logger = winston.createLogger({
 	),
 	transports: [
 		new winston.transports.Console(),
-		new winston.transports.File({ filename: 'app.log' })
+		new winston.transports.File({ filename: path.join(__dirname, 'app.log') })
 	]
 });
 
