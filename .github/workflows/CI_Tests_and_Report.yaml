@@ -214,6 +214,10 @@ jobs:
           path: |
             sanityReport.txt
 
+      - name: Check Application Logs
+        run: cat ./app.log
+
+
       - name: Upload Application Logs
         uses: actions/upload-artifact@v4
         with:
