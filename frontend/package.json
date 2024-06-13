@@ -50,7 +50,7 @@
     "ngx-toastr": "18.0.0",
     "rxjs": "^7.8.1",
     "uikit": "^3.21.5",
-    "zone.js": "^0.14.6"
+    "zone.js": "^0.14.7"
   },
   "devDependencies": {
     "@angular-eslint/builder": "17.5.2",
