@@ -41,6 +41,11 @@ router
 router.post('/test/:repoID/:groupID', passport.authenticate('normal-local', { session: false }), async (req, res) => {
     try {
         req.body.email = req.body.email.toLowerCase(); 
+		// Extract repoID and groupID from the request parameters
+        const { repoID, groupID } = req.params;
+        
+        // Log repoID and groupID
+        console.log(`We are Testing for repoID: ${repoID}, groupID: ${groupID}`);
         await test(req, res);
     } catch (error) {
         res.status(401).json(error);
