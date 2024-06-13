@@ -215,7 +215,7 @@ jobs:
             sanityReport.txt
 
       - name: Check Application Logs
-        run: ls -l && ls -l backend && ls -l backend/src && ls -l backend/features && cat ./app.log
+        run: ls -l && ls -l backend && ls -l backend/src && ls -l backend/src/serverRouter && cat ./app.log
 
 
       - name: Upload Application Logs
