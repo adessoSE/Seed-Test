@@ -45,31 +45,6 @@ jobs:
           echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
           echo "VERSION=SET" >> frontend/.env
 
-      # - name: Build Docker images
-      #   run: |
-      #     # Define your Node.js versions and platforms
-      #     NODE_VERSIONS="18 20 22"
-      #     PLATFORMS="linux/amd64"
-
-      #     for NODE_VERSION in $NODE_VERSIONS; do
-      #       docker buildx build --platform $PLATFORMS \
-      #         --build-arg NODE_VERSION=$NODE_VERSION \
-      #         -t seed-backend:node-$NODE_VERSION \
-      #         -f backend/Dockerfile \
-      #         .
-      #       docker buildx build --platform $PLATFORMS \
-      #         --build-arg NODE_VERSION=$NODE_VERSION \
-      #         -t seed-frontend:node-$NODE_VERSION \
-      #         -f frontend/Dockerfile \
-      #         .
-      #     done
-
-      # - name: List built images
-      #   run: docker images
-
-      # - name: Build and start Docker stack
-      #   run: docker compose -f docker-test.yml up -d
-
       - name: Build and start Docker stack
         env:
           NODE_VERSION: ${{ matrix.node-version }}
