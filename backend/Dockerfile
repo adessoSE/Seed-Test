@@ -57,12 +57,6 @@ RUN npm install --ignore-scripts && npm rebuild bcrypt
 # If you are building your code for production
 # RUN npm ci --only=production
 
-# Print out the contents of the ./ directory
-RUN ls -l .
-
-# Print out the content of package.json
-RUN cat ./package.json
-
 EXPOSE 8080
 
 # Start dbus-daemon for google-chrome
