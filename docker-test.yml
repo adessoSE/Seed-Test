@@ -14,13 +14,14 @@ services:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
+    image: seed-test-frontend:latest
     ports:
       - 4200:4200
     container_name: "Seed-frontend"
     depends_on:
       - backend
     environment:
-      - BACKEND_HOST=backend
+      - BACKEND_HOST=localhost # might need to be changed to backend
       - BACKEND_PORT=8080
-      - API_SERVER="http://backend:8080/api"
+      - API_SERVER="http://localhost:8080/api"
     restart: always
