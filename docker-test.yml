@@ -5,6 +5,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        NODE_VERSION: ${NODE_VERSION}
     ports:
       - 8080:8080
     container_name: "Seed-backend"
@@ -14,6 +16,8 @@ services:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NODE_VERSION: ${NODE_VERSION}
     image: seed-test-frontend:latest
     ports:
       - 4200:4200
