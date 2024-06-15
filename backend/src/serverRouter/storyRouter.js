@@ -53,6 +53,21 @@ router.get('/:_id', async (req, res) => {
 	}
 });
 
+// get one Story by issue key
+router.get('/issueKey/:issue_key', async (req, res) => {
+    try {
+        const story = await mongo.getOneStoryByIssueKey(req.params.issue_key);
+        if (!story) {
+            return res.status(404).send('Story not found');
+        }
+        res.status(200).json(story);
+    } catch (e) {
+        console.error(e);
+        handleError(res, e);
+    }
+});
+
+
 // create Story
 router.post('/', async (req, res) => {
 	try {

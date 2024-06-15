@@ -1977,6 +1977,31 @@ async function getStoriesByIssueKeys(issueKeys) {
     }
 }
 
+/**
+ * Get single story by issue key
+ */
+
+async function getOneStoryByIssueKey(issueKey) {
+    try {
+        const db = dbConnection.getConnection();
+        const story = await db.collection(storiesCollection).findOne({
+            'issue_number': issueKey
+        });
+
+        if (!story) {
+            console.log("No story found for the provided issue key.");
+            return null;
+        }
+
+        return story;
+    } catch (error) {
+        console.error('Error retrieving story by issue key:', error);
+        throw error;
+    }
+
+    console.log("Fetched story:", story);
+}
+
 module.exports = {
 	getFileList,
 	getFiles,
@@ -2058,5 +2083,6 @@ module.exports = {
 	importStories,
 	importBlocks,
 	importGroups,
-	getStoriesByIssueKeys
+	getStoriesByIssueKeys,
+  getOneStoryByIssueKey
 };

@@ -50,6 +50,10 @@
 				</button>
 			</div>
 			<div class="scenarioButtonGroup SmallHeadline5">
+        <button *ngIf="name === 'scenario' && this.selectedScenario.testKey" class="xray-button">
+          <span>Sync with</span>
+          <img src="../../assets/xray-logo.png" alt="XRay Logo">
+        </button>
 				<button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock === null"
 					[disabled]="this.clipboardBlock === null" uk-tooltip="Add Step from Clipboard"
 					(click)="insertCopiedBlock()">

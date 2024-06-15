@@ -66,4 +66,17 @@ export interface Story {
      * If the last test was successful or not
      */
     lastTestPassed?: boolean;
-}
+
+    /*
+    * Xray preconditions
+    */
+    preConditions?: {
+        preConditionKey: string;
+        testSet: string[];
+    }[];
+
+    /*
+    * Host
+    */
+    host: string;
+}   

@@ -71,6 +71,16 @@ export class StoryService {
         //
       }));
   }
+
+  /**
+   * Get's single Story by Issue Key
+   * @param issueKey
+   * @return single Story object
+  */
+  public getStoryByIssueKey(issueKey: string): Observable<Story> {
+    return this.http.get<Story>(`${this.apiService.apiServer}/story/issueKey/${issueKey}`, ApiService.getOptions());
+  }
+
   /**
     * Creates a story
     * @param title

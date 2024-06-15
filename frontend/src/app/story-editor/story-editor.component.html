@@ -90,6 +90,70 @@
       </mat-accordion>
     </div>
 
+<!-- Preconditions -->
+<ng-container *ngIf="preConditionResults && preConditionResults.length > 0">
+  <br>
+  <div>
+    <mat-accordion>
+      <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="Smallnavigation1">Pre-Conditions</div>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <br>
+        <!-- Nested Expansion Panels for Each Precondition Result -->
+        <mat-accordion multi="true">
+          <mat-expansion-panel *ngFor="let precondition of preConditionResults">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Precondition: {{ precondition.preConditionKey }}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <!-- Nested Table for displaying test details -->
+            <div *ngIf="precondition.stories && precondition.stories.length > 0">
+              <table mat-table [dataSource]="precondition.stories" class="mat-elevation-z8">
+                <!-- CUC Key Column -->
+                <ng-container matColumnDef="cucKey">
+                  <th mat-header-cell *matHeaderCellDef>CUC Key</th>
+                  <td mat-cell *matCellDef="let story">{{ story.issue_number }}</td>
+                </ng-container>
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Name</th>
+                  <td mat-cell *matCellDef="let story">{{ story.title }}</td>
+                </ng-container>
+                <!-- Story Name-->
+                <ng-container matColumnDef="storyId">
+                <th mat-header-cell *matHeaderCellDef>Seed-Story</th>
+                <td mat-cell *matCellDef="let story">
+                {{ story.issue_number }}. {{ story.title }}
+                </td>
+                </ng-container>
+                 <!-- Story Name-->
+                 <!-- Link to Jira Column -->
+                <ng-container matColumnDef="jiraLink">
+                  <th mat-header-cell *matHeaderCellDef>Jira</th>
+                  <td mat-cell *matCellDef="let story">
+                    <a [href]="'https://' + selectedStory.host + '/browse/' + story.issue_number" target="_blank">Link</a>
+                  </td>
+                </ng-container>
+                <!-- Row Definitions -->
+                <tr mat-header-row *matHeaderRowDef="['cucKey', 'name', 'storyId', 'jiraLink']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['cucKey', 'name', 'storyId', 'jiraLink'];"></tr>
+              </table>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</ng-container>
+
+
+
+
+
     <!--Background-->
     <br>
     <mat-accordion>

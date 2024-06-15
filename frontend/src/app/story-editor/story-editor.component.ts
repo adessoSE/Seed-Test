@@ -86,6 +86,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   @Input()
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
+    if(this.selectedStory.preConditions) {
+      this.preConditionResults = [];
+      this.getPreconditionStories(); 
+  }
 
     // hide if no scenarios in story
     this.showEditor = !!story.scenarios.length;
@@ -292,6 +296,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   showDaisy = false;
 
+  /**
+   * Mapping for Precondition Stories
+   */
+  preConditionResults = [];
+
   readonly TEMPLATE_NAME = "background";
 
   /**
@@ -338,6 +347,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   @Output()
   deleteStoryEvent: EventEmitter<any> = new EventEmitter();
+
+  @Output()
+  storyChosen: EventEmitter<any> = new EventEmitter();
 
   /**
    * Event emitter to show or hide global TestResult
@@ -1017,7 +1029,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   selectStoryScenario(story: Story) {
     this.showResults = false;
     this.selectedStory = story;
-    if (story.scenarios.length > 0) {
+    if (story.scenarios && story.scenarios.length > 0) {
       this.selectScenario(story.scenarios[0]);
       this.showEditor = true;
     } else this.showEditor = false;
@@ -1524,4 +1536,31 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   setShowDaisy(event) {
     this.showDaisy = event;
   }
+
+  /**
+ * Get all stories in xray preconditions
+ */
+  getPreconditionStories() {
+    for (const precondition of this.selectedStory.preConditions) {
+      // Sammeln aller Promises für das aktuelle TestSet
+      const testSetPromises = precondition.testSet.map(testKey =>
+        this.storyService.getStoryByIssueKey(testKey).toPromise()
+      );
+
+      // Verwenden von Promise.all, um alle Anfragen parallel auszuführen
+      Promise.all(testSetPromises)
+        .then(stories => {
+          // stories enthält nun alle Story-Objekte, die zu testKey gehören
+          const results = {
+            preConditionKey: precondition.preConditionKey,
+            stories: stories  // Direkt als Array von Story-Objekten
+          };
+          this.preConditionResults.push(results);
+          console.log("PreCondition and Stories fetched:", results);
+        })
+        .catch(error => {
+          console.error('Failed to fetch stories for a test set:', error);
+        });
+    }
+  } 
 }

@@ -353,11 +353,12 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		};
 		let repo;
 		let testSets = []
+		let preConditionMap = []
 		// send request to Jira API
 		// 	testSetResponse = await fetch(`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+issuetype="${testSetString}"`, options)
 		try {
 			await fetch(
-				`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test+OR+issuetype="Test Set")&startAt=0&maxResults=200`,
+				`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test+OR+issuetype="Test Set"+OR+issuetype="Pre-Condition")&startAt=0&maxResults=200`,
 				// `http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+(labels=Seed-Test+OR+issuetype=Test)&startAt=0&maxResults=200`,
 				options
 			)
@@ -367,28 +368,65 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
 
-						const asyncHandleTestIssue = json.issues.map((issue) => {
-							if (issue.fields.issuetype.name === 'Test Set'){
-								 const testsInSet = issue.fields.customfield_14233 || [];
-								 testSets.push({
+						const asyncHandleTestIssue = json.issues.map(async (issue) => {
+							// If the issue is a "Test Set" issue
+							if (issue.fields.issuetype.name === 'Test Set') {
+								const testsInSet = issue.fields.customfield_14233 || [];
+								testSets.push({
 									testSetKey: issue.key,
 									testSetId: issue.id,
 									tests: testsInSet,
 									xrayTestSet: true 
 								});
-								return null						
+								return null; // Return null to indicate that this path does not continue further processing
 							}
-							if (issue.fields.issuetype.name === 'Test') return handleTestIssue(issue, options, Host);
+						
+							// If the issue is a "Pre-Condition" issue
+							else if (issue.fields.issuetype.name === 'Pre-Condition') {
+								let preCondition = {
+									"preConditionKey": issue.key,
+									"testSet": []
+								};
+								// Iterate through the issue links to find the test sets that are linked to the pre-condition
+								for (const link of issue.fields.issuelinks) {
+									if(link.inwardIssue && link.type.inward === "tested by") {
+										preCondition["testSet"].push(link.inwardIssue.key); 
+									
+								}
+							}
+								preConditionMap.push(preCondition);
+								return null; // Similarly, return null for this path
+							}
+							
+							// If the issue is a "Test" issue
+							else if (issue.fields.issuetype.name === 'Test') {
+								return handleTestIssue(issue, options, Host);
+							}
+
 							return { scenarioList: [], testStepDescription: '' };
+
 						});
 						
+				
 						const lstDesc = await Promise.all(asyncHandleTestIssue);
 
 						const stories = [];
 
 						for (const [index, issue] of json.issues.entries()) {
-							
+
 							if (!lstDesc[index]) continue
+
+							let preConditions = [];
+
+							// Check if the custom field for preconditions exists in issue.fields
+							if (issue.fields.customfield_14229) {
+								preConditions = issue.fields.customfield_14229;
+							}
+
+							// Compare the preconditions with preConditionMap to get the final preconditions
+							const finalPreConditions = preConditionMap.filter(preCondition => 
+								preConditions.includes(preCondition["preConditionKey"])
+							);
 							
 							const { scenarioList, testStepDescription } = lstDesc[index];
 
@@ -401,7 +439,9 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 								scenarios: scenarioList,
 								state: issue.fields.status.name,
 								issue_number: issue.key,
-								storySource: 'jira'
+								storySource: 'jira',
+								host: Host,
+								preConditions: finalPreConditions
 							};
 							if (issue.fields.assignee !== null) {
 								story.assignee = issue.fields.assignee.name;
@@ -485,7 +525,6 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 		// iterate through all resolved test runs
 		resolvedTestRuns.forEach((testRunDetails) => {
 			if (!testRunDetails.steps) {
-				console.log(`Steps missing for test run ${testRunDetails.id}`);
 				return;
 			}
 			// map test steps to testrun steps
