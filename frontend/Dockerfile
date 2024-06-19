@@ -8,12 +8,6 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Print out the contents of the ./ directory
-RUN ls -l .
-
-# Print out the content of package.json
-RUN cat ./package.json
-
 # Install dependencies
 RUN npm ci --ignore-scripts
 #RUN npm install --force --ignore-scripts
