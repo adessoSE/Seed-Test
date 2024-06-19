@@ -181,7 +181,7 @@ jobs:
         run: ls -l && ls -l actions && cat ./app.log
 
 
-      - name: Upload Application Logs
+      - name: Upload Application Logs.
         uses: actions/upload-artifact@v4
         with:
           name: application-logs
