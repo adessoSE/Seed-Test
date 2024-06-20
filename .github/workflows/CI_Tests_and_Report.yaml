@@ -143,11 +143,15 @@ jobs:
         env:
           API_URL: localhost:8080/api/sanity/test/${{ secrets.SANITY_REPO_ID }}/${{ secrets.SANITY_GROUP_ID }}
         run: |
-          curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
+          echo "Sending POST request to $API_URL"
+          curl -v -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt 2>&1
+          echo "Response:"
+          cat sanityReport.txt
 
       - name: print sanity
         run: |
-          echo $(cat sanityReport.txt)
+          echo "Sanity report content:"
+          cat sanityReport.txt
 
       - name: Get passed and total sanity
         run: |
@@ -172,6 +176,16 @@ jobs:
           name: sanity-report-${{ matrix.node-version }}
           path: |
             sanityReport.txt
+
+      - name: Check Application Logs
+        run: ls ./backend/src/serverRouter && cat ./backend/src/serverRouter/app.log
+
+
+      - name: Upload Application Logs.
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-logs
+          path: ./backend/src/serverRouter/app.log
 
       # SEND FULL REPORT
       - name: Send Teams Message
