@@ -5,6 +5,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        NODE_VERSION: ${NODE_VERSION}
     ports:
       - 8080:8080
     container_name: "Seed-backend"
@@ -14,10 +16,16 @@ services:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NODE_VERSION: ${NODE_VERSION}
     image: seed-test-frontend:latest
     ports:
       - 4200:4200
     container_name: "Seed-frontend"
     depends_on:
       - backend
+    environment:
+      - BACKEND_HOST=localhost # might need to be changed to backend
+      - BACKEND_PORT=8080
+      - API_SERVER="http://localhost:8080/api"
     restart: always

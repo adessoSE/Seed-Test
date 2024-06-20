@@ -1,11 +1,15 @@
 const steps = require('../src/database/stepTypes');
 
-const base_url = 'http://localhost:8080/api';
+const backendHost = process.env.BACKEND_HOST || 'localhost';
+const backendPort = process.env.BACKEND_PORT || '8080';
+
+const baseUrl = `http://${backendHost}:${backendPort}/api`;
+
 
 describe('Server', () => {
 	describe('GET /api', () => {
 		it('returns status code 200', async () => {
-			await fetch(base_url).then((response) => {
+			await fetch(baseUrl).then((response) => {
 				expect(response.status).toBe(200);
 			})
 		});
@@ -13,7 +17,7 @@ describe('Server', () => {
 	describe('GET /api/stepTypes', () => {
 		it('returns status code 200', async () => {
 			const result = steps(); // import steps from definition
-			await fetch(`${base_url}/stepTypes`)
+			await fetch(`${baseUrl}/stepTypes`)
 			.then((response) => {
 				expect(response.status).toBe(200);
 				return response.json()
