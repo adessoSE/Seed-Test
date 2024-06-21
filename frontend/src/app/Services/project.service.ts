@@ -39,8 +39,8 @@ export class ProjectService {
     * Event Emitter to distribute the repositories to all components
   */
   public getRepositoriesEvent = new EventEmitter();
-    /**
-        * Emits the delete repository event
+  /**
+    * Emits the delete repository event
   */
   public deleteRepositoryEmitter() {
     this.deleteRepositoryEvent.emit();
@@ -59,7 +59,7 @@ export class ProjectService {
   createRepositoryEvent(repository) {
     this.createRepositoryEmitter.emit(repository);
   }
-  
+
   public transferOwnershipEvent = new EventEmitter();
 
   transferOwnershipEmitter() {
@@ -153,7 +153,7 @@ export class ProjectService {
         tap(settings => {
           console.log('received settings:', settings);
         }),
-        catchError(this.apiService.handleError) 
+        catchError(this.apiService.handleError)
       );
   }
 
@@ -226,7 +226,7 @@ export class ProjectService {
       }));
   }
 
-  
+
   private querySubject: BehaviorSubject<FileElement[]> = new BehaviorSubject<FileElement[]>([]);
 
   public getUploadedFiles(repoId: string): Observable<FileElement[]> {
@@ -241,18 +241,16 @@ export class ProjectService {
   }
 
   public queryFiles(repoId: string): Observable<FileElement[]> {
-    if (!this.querySubject.value.length) {
-      // Perform API call if querySubject is empty
-      this.getUploadedFiles(repoId).subscribe(
-        response => {
-          this.querySubject.next(response);
-        },
-        error => {
-          console.error('Error fetching uploaded files:', error);
-          this.querySubject.error(error);
-        }
-      );
-    }
+    // Perform API call if querySubject is empty
+    this.getUploadedFiles(repoId).subscribe(
+      response => {
+        this.querySubject.next(response);
+      },
+      error => {
+        console.error('Error fetching uploaded files:', error);
+        this.querySubject.error(error);
+      }
+    );
     return this.querySubject.asObservable();
   }
 
@@ -274,7 +272,7 @@ export class ProjectService {
     const formData = new FormData();
     formData.append('file', file, file.name)
     return this.http
-      .post(`${this.apiService.apiServer}/story/uploadFile/${repoId}`, formData ,ApiService.getOptions())
+      .post(`${this.apiService.apiServer}/story/uploadFile/${repoId}`, formData, ApiService.getOptions())
       .pipe(tap((result: FileElement) => {
         const currentDate = new Date();
         const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
