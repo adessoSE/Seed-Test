@@ -1,5 +1,5 @@
 import mongo from "../../src/database/DbServices";
-import dbConnector from "../../src/database/dbConnector";
+import dbConnector from "../../src/database/DbConnector";
 import { jiraDecryptPassword } from "./userManagement";
 import emptyScenario from "../../src/models/emptyScenario";
 import emptyBackground from "../../src/models/emptyBackground";
