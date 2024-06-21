@@ -8,8 +8,8 @@ function emptyScenario() {
       given: [],
       when: [],
       then: [],
-      example: [],
     },
+    multipleScenarios: []
   };
 }
 module.exports = emptyScenario;

@@ -1,57 +1,56 @@
-<table aria-describedby="mydesc" #table *ngIf="exampleThere" mat-table [dataSource]="data" class="mat-elevation-z8 mat-table"
-cdkDropList
-(cdkDropListDropped)="dropExample($event)"
-cdkDropListData="data"
-[cdkDropListDisabled]="dragDisabled" >
+<table aria-describedby="mydesc" #table *ngIf="exampleThere" mat-table [dataSource]="data"
+	class="mat-elevation-z8 mat-table" cdkDropList (cdkDropListDropped)="dropExample($event)" cdkDropListData="data"
+	[cdkDropListDisabled]="dragDisabled">
 
 	<!--- Note that these columns can be defined in any order.
         The actual rendered columns are set as a property on the row definition" -->
 
 
-	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;" matColumnDef={{column}}> 
-			<th class="headerRow MediumHeadline5" mat-header-cell *matHeaderCellDef scope="col"> 
-				<span *ngIf="first" class="slide-toggle-container">
-					<label class="edit-mode" [class.icon]="editMode" [ngClass]="{'darkTheme': isDark && editMode}">Edit</label>
-					<mat-slide-toggle [formControl]="toggleControl" [color]="color"
-					[ngClass]="{'mat-accent': isDark}"
+	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;"
+		matColumnDef={{column}}>
+		<th class="headerRow MediumHeadline5" mat-header-cell *matHeaderCellDef scope="col">
+			<span *ngIf="first" class="slide-toggle-container">
+				<label class="edit-mode" [class.icon]="editMode"
+					[ngClass]="{'darkTheme': isDark && editMode}">Edit</label>
+				<mat-slide-toggle [formControl]="toggleControl" [color]="color" [ngClass]="{'mat-accent': isDark}"
 					title="Switch on/off edit mode"></mat-slide-toggle>
+			</span>
+			<div *ngIf="!first" style="display: flex;">
+				<label class="examplesNameLabel">{{column}}</label>
+				<span *ngIf="editMode">
+					<button id="rename_example" class="scenarioTitle" (click)="renameExample(columnIndex)">
+						<em class="material-icons">edit</em>
+					</button>
+					<button id="delete_example" class="scenarioTitle" (click)="deleteExample($event, columnIndex)">
+						<em class="material-icons">delete</em>
+					</button>
 				</span>
-				<div *ngIf="!first">
-					{{column}}
-					<span *ngIf="editMode">
-						<button id="rename_example" class="scenarioTitle" (click)="renameExample(columnIndex)">
-							<em class="material-icons">edit</em>
-						</button>
-						<button id="delete_example" class="scenarioTitle" (click)="deleteExample($event, columnIndex)">
-							<em class="material-icons">delete</em>
-						</button>
-					</span>
+			</div>
+		</th>
+		<td [class.deactivated]="this.selectedScenario.multipleScenarios[rowIndex + 1].deactivated" class="valueRow"
+			mat-cell *matCellDef="let element;let rowIndex = index;">
+			<div *ngIf="first" class="checkboxWrapper">
+				<div class="dragIconContainer" cdkDragHandle (mousedown)="dragDisabled = false;">
+					<em class="material-icons dragIcon">drag_indicator</em>
 				</div>
-			</th>
-			<td [class.deactivated]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
-				<div *ngIf="first" class="checkboxWrapper">
-					<div class="dragIconContainer" cdkDragHandle (mousedown)="dragDisabled = false;">
-                        <em class="material-icons dragIcon">drag_indicator</em>
-                      </div>
-					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
-					&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
+				<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}"
+					(change)="this.checkExample($event, rowIndex)"
+					[checked]="this.selectedScenario.multipleScenarios[rowIndex + 1].checked">
+				&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
+			</div>
+			<div *ngIf="!first">
+				<div class="exampleValueContainer" [ngClass]="{'nullValue': !element[column]?.trim(), 'editMode': editMode}" #example_input (input)="highlightRegex(example_input, columnIndex, rowIndex, false, element, column)">
+					{{element[column]}}
 				</div>
-				<div *ngIf="!first">
-						<!--ng-template viewMode-->
-							<div class="contentEditableElement" contenteditable="true" #example_input (input)="highlightRegex(example_input, columnIndex, rowIndex, false)">{{element[column]}}</div>
-							<!--label *ngIf="element[column]===''" id="nullValue">[--null--]</label-->
-						<!--/ng-template-->
-						<!--ng-template editMode >
-							<input [formControl]="getControl(rowIndex, column)" focusable editableOnEnter regexHighlight="@@[^ ]+">
-						</ng-template-->
-					</div> 
-			</td>
-	</ng-container>			
-	
+				<label *ngIf="!element[column]?.trim()" id="exampleTableNullValue" class="nullExampleValue">[--null--]</label>
+			</div>
+		</td>
+	</ng-container>
+
 	<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-	<tr mat-row *matRowDef="let row; columns: displayedColumns;" cdkDragBoundary=".mdc-data-table__content" cdkDrag [cdkDragData]="row"></tr>
+	<tr mat-row *matRowDef="let row; columns: displayedColumns;" cdkDragBoundary=".mdc-data-table__content" cdkDrag
+		[cdkDragData]="row"></tr>
 
 </table>
 
 <app-new-example #newExampleModal></app-new-example>
-
