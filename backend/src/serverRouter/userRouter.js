@@ -385,6 +385,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 							else if (issue.fields.issuetype.name === 'Pre-Condition') {
 								let preCondition = {
 									"preConditionKey": issue.key,
+									"preConditionName": issue.fields.summary,
 									"testSet": []
 								};
 								// Iterate through the issue links to find the test sets that are linked to the pre-condition

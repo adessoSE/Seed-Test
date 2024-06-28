@@ -1023,18 +1023,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Selects a story and scenario
-   * @param story
-   */
-  selectStoryScenario(story: Story) {
-    this.showResults = false;
-    this.selectedStory = story;
-    if (story.scenarios && story.scenarios.length > 0) {
-      this.selectScenario(story.scenarios[0]);
-      this.showEditor = true;
-    } else this.showEditor = false;
-  }
-  /**
    * Make the API Request to run the tests and display the results as a chart
    * @param scenario_id
    */
@@ -1091,7 +1079,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           }, 10);
           this.toastr.info("", "Test is done");
           this.runUnsaved = false;
-
+          
           if (scenario_id) {
             // ScenarioReport
             const val = report.status;
@@ -1119,6 +1107,24 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
               val
             ); //filteredStories in stories-bar.component is undefined causing an error same file 270
           } else {
+
+            if (this.preConditionResults.length > 0) {
+              let preConditionStories = [];
+              for (let precondition of this.preConditionResults) {
+                for (let story of precondition.stories) {
+                  preConditionStories.push(story);
+                }
+              }
+          
+              const temp_group = {
+                  _id: 0,
+                  name: 'Pre-Conditions',
+                  member_stories: preConditionStories,
+                  isSequential: true
+              };
+              console.log('Pre-Condition Group:', temp_group);
+              //runGroup here
+            }
             // StoryReport
             report.scenarioStatuses.forEach((scenario) => {
               this.scenarioService.scenarioStatusChangeEmit(
@@ -1553,6 +1559,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           // stories enthält nun alle Story-Objekte, die zu testKey gehören
           const results = {
             preConditionKey: precondition.preConditionKey,
+            preConditionName: precondition.preConditionName,
             stories: stories  // Direkt als Array von Story-Objekten
           };
           this.preConditionResults.push(results);
@@ -1563,4 +1570,56 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         });
     }
   } 
+
+  toTicket(issue_number: string) {
+    const host = this.selectedStory.host
+    const url = `https://${host}/browse/${issue_number}`;
+    window.open(url, "_blank");
+  }
+
+  /**
+     * Selects a new Story and with it a new scenario
+     * @param story
+     */
+  selectStoryScenario(story: Story) {
+    this.selectedStory = story;
+    console.log("Selected Story:", this.selectedStory);
+    this.initialyAddIsExample();
+    this.preConditionResults = [];
+    this.storyChosen.emit(story);
+    if (story.scenarios.length > 0) {
+        this.selectScenario(story.scenarios[0]);
+    } else this.selectScenario(null);
+    this.backgroundService.backgroundReplaced = undefined;
+  }
+
+  initialyAddIsExample(){
+    this.selectedStory.scenarios.forEach(scenario => {
+        scenario.stepDefinitions.given.forEach((value, index) =>{
+            if(!scenario.stepDefinitions.given[index].isExample){
+                scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
+                value.values.forEach((val,i) => {
+                    scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                })
+            }
+        })
+        scenario.stepDefinitions.when.forEach((value, index) =>{
+            if(!scenario.stepDefinitions.when[index].isExample){
+                scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
+                value.values.forEach((val,i) => {
+                    scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                })
+            }
+        })
+        scenario.stepDefinitions.then.forEach((value, index) =>{
+            if(!scenario.stepDefinitions.then[index].isExample){
+                scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
+                value.values.forEach((val,i) => {
+                    scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                })
+            }
+        })
+
+    })
+  }
 }

@@ -72,6 +72,7 @@ export interface Story {
     */
     preConditions?: {
         preConditionKey: string;
+        preConditionName: string;
         testSet: string[];
     }[];
 

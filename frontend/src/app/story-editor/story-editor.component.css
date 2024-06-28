@@ -624,3 +624,18 @@ button#background_up {
 .button-4:before {
   display: none;
 }
+
+.toTicket{
+  color: var(--ocean-blue);
+  font-size: 17px;
+  transform: translate(1px, 2px);
+  border: none;
+  background: transparent;
+  margin-left: 1px;
+}
+
+.toTicket > em{
+  background: transparent;
+  border: none;
+  margin-right: 2px;
+}
