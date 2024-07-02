@@ -63,7 +63,7 @@
       <hr>
       <div [class.itemListDiv]="this.stories?.length !== 0 && isCustomStory" [class.storyListDivNotCustom]="this.stories?.length !== 0 && !isCustomStory" [class.storyListDivWithFilter]="showFilter">   
         <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
-          <li *ngFor="let s of getSortedStories(); let i = index" cdkDrag>
+          <li #storyElement *ngFor="let s of getSortedStories(); let i = index" cdkDrag [id]="'story' + s.issue_number">
             <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" [class.selected]="s.issue_number === selectedStory?.issue_number">
               <span *ngIf="!isCustomStory" class="jiraGithubStoryIcons">
                 <button uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
