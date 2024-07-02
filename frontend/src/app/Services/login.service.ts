@@ -1,8 +1,9 @@
 import { EventEmitter, Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, from, of } from "rxjs";
 import { ApiService } from "../Services/api.service";
-import { HttpClient } from "@angular/common/http";
-import { catchError, tap } from "rxjs/operators";
+import { HttpClient, HttpResponse } from "@angular/common/http";
+import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
+
 
 /**
  * Service for communication between login component and the backend
@@ -85,16 +86,51 @@ export class LoginService {
    * @param user
    * @returns
    */
-  loginUser(user): Observable<any> {
+  loginUserLegacy(user): Observable<any> {
+    console.log('legacy Login')
     const str = this.apiService.apiServer + "/user/login";
 
-    return this.http.post<any>(str, user, ApiService.getOptions()).pipe(
-      tap((_) => {
-        //
-      }),
+    const req1: Observable<any> = this.http.post<any>(str, user, ApiService.getOptions())
+    req1.pipe(
+      map(response=>JSON.parse(response)),
       catchError(this.apiService.handleError)
     );
+
+
+    return req1;
   }
+  /**
+   * Loggs in a user
+   * @param user
+   * @returns
+   */
+  loginUser(user: any): Observable<any> {
+    const str = this.apiService.apiServer + "/user/login";
+    return from(this.sha256(user.password)).pipe(
+      switchMap(hash => {
+        console.log('hashed', hash)
+        const req1: Observable<any> = this.http.post<any>(str, { ...user, password: hash }, ApiService.getOptions());
+        return req1.pipe(
+          tap(ab=> {if(ab._id)return ab; else throw Error('unsuccessfull')}),
+          catchError((err, caught)=> {console.log('err', err); return this.loginUserLegacy(user)})
+        );
+      }),
+      catchError(error => {
+        console.log('error in login process', error)
+        // handle error when login fails
+        return of(null);
+      })
+    );
+  }
+
+sha256 = async (data) => {
+    const textAsBuffer = new TextEncoder().encode(data);
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', textAsBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const digest = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return digest;
+}
+
   /**
    * Loggs in the user into jira
    * @param jiraName

@@ -12,6 +12,7 @@ const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
+const crypto = require('crypto');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -91,6 +92,7 @@ router.patch('/reset', async (req, res) => {
 
 // login user
 router.post('/login', (req, res, next) => {
+	//console.log('login-data', user)
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
 	req.body.email = req.body.email.toLowerCase();
 	try {
@@ -102,7 +104,10 @@ router.post('/login', (req, res, next) => {
 			}
 			req.logIn(user, async (err) => {
 				if (err) throw err;
-				else res.json(user);
+				else {
+					res.json(user);
+					//mongo.updateUser(user._id, {...user}) // user.password to sha256
+				}
 			});
 		})(req, res, next);
 	} catch (error) {

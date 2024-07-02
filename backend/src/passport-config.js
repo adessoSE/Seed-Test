@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 
 function initialize(passport, getUserByEmail, getUserById, getUserByGithub) {
 	const authenticateUser = async (email, password, done) => {
+		//console.log('login-info', email, password, done)
 		// not working yet , needs callback, or database change to Promises
 		const user = await getUserByEmail(email);
 		if (!user) return done(null, false, { message: 'No user with this email' });
