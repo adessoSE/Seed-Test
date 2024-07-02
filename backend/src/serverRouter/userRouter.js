@@ -105,8 +105,16 @@ router.post('/login', (req, res, next) => {
 			req.logIn(user, async (err) => {
 				if (err) throw err;
 				else {
+					if(user.transitioned === false) {
+						const hasher = crypto.createHash('sha256');
+						hasher.update(user.password)
+						const passHash = hasher.digest()
+						const finalHash = bcrypt.hashSync(passHash, salt)
+						user.password = finalHash
+						user.transitioned = true
+						mongo.updateUser(user._id, user)
+					}
 					res.json(user);
-					//mongo.updateUser(user._id, {...user}) // user.password to sha256
 				}
 			});
 		})(req, res, next);
@@ -160,6 +168,7 @@ router.post('/mergeGithub', async (req, res) => {
 router.post('/register', async (req, res) => {
 	req.body.email = req.body.email.toLowerCase();
 	req.body.password = bcrypt.hashSync(req.body.password, salt);
+	req.body.transitioned = true;
 	try {
 		const user = await mongo.registerUser(req.body);
 		res.json(user);
