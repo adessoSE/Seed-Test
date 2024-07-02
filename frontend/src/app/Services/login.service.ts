@@ -219,13 +219,17 @@ sha256 = async (data) => {
    */
   registerUser(email: string, password: string, userId: any): Observable<any> {
     const user = { email, password, userId };
-    return this.http
-      .post<any>(this.apiService.apiServer + "/user/register", user)
-      .pipe(
-        tap((_) => {
-          //
-        }),
-        catchError(this.apiService.handleError)
-      );
+    return from(this.sha256(user.password)).pipe(
+      switchMap(hash => {
+        console.log('hashed', hash)
+        const req1: Observable<any> = this.http.post<any>(this.apiService.apiServer + "/user/register", { ...user, password: hash }, ApiService.getOptions());
+        return req1.pipe(
+          tap((_) => {
+            //
+          }),
+        );
+      }),
+      catchError(this.apiService.handleError)
+    );
   }
 }
