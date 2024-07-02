@@ -121,6 +121,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     @Input() isDark: boolean;
 
+    @Input() newSelectedStory: Story;
 
     /**
      * SearchTerm for story title search
@@ -275,6 +276,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
 
     }
+
+    ngOnChanges() {
+        
+        
+        if (this.newSelectedStory) {
+            console.log("Hey I got a new story", this.newSelectedStory.issue_number);
+            this.selectedStory = this.newSelectedStory;
+            this.selectStoryScenario(this.selectedStory);
+        }
+    }
+
     /* TODO */
     ngOnDestroy() {
         this.createStoryEmitter.unsubscribe();
@@ -709,5 +721,4 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         this.storyService.goToTicket(story, repositoryContainer);
     }
-
 }

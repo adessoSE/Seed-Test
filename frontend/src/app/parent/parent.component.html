@@ -1,10 +1,10 @@
 <div [class.darkTheme] ="isDark" class="grid">
     <div class="storiesBar">
-        <app-stories-bar [isDark] ="isDark" #storiesBar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);" (report)="viewReport($event);" (testRunningGroup)="testRunningGroup($event)"></app-stories-bar>
+        <app-stories-bar [isDark] ="isDark" [newSelectedStory]="selectedStory" #storiesBar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);" (report)="viewReport($event);" (testRunningGroup)="testRunningGroup($event)"></app-stories-bar>
     </div>
     <div class="storyEditor">
         <!-- TODO: storiesBar property binding seems not beeing used-->
-        <app-story-editor [isDark] ="isDark" *ngIf="this.isStoryEditorActive" (report)="viewReport($event);" (changeEditor)="setEditor($event);"  [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario" [newStories]="stories" [testRunningForGroup]="testRunningForGroup"></app-story-editor>
+        <app-story-editor [isDark] ="isDark" *ngIf="this.isStoryEditorActive" (report)="viewReport($event);" (storyChosen)="setSelectedStory($event);" (changeEditor)="setEditor($event);"  [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario" [newStories]="stories" [testRunningForGroup]="testRunningForGroup"></app-story-editor>
         <app-report-history [isDark] ="isDark" *ngIf="!this.isStoryEditorActive" (changeEditor)="setEditor($event);" [newSelectedStory]="selectedStory" ></app-report-history>
         <app-report [isDark] ="isDark" *ngIf="report" [report]="report"></app-report>
     </div>

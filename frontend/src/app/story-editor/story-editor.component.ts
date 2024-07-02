@@ -10,6 +10,7 @@ import {
 } from "@angular/core";
 import { ApiService } from "../Services/api.service";
 import { Story } from "../model/Story";
+import { Group } from "../model/Group";
 import { Scenario } from "../model/Scenario";
 import { StepType } from "../model/StepType";
 import { Background } from "../model/Background";
@@ -25,6 +26,7 @@ import { RenameBackgroundComponent } from "../modals/rename-background/rename-ba
 import { BackgroundService } from "../Services/background.service";
 import { StoryService } from "../Services/story.service";
 import { ScenarioService } from "../Services/scenario.service";
+import { GroupService } from '../Services/group.service';
 import { ReportService } from "../Services/report.service";
 import { ProjectService } from "../Services/project.service";
 import { LoginService } from "../Services/login.service";
@@ -86,13 +88,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   @Input()
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
-    if(this.selectedStory.preConditions) {
+    if (this.selectedStory !== undefined && this.selectedStory.preConditions) {
       this.preConditionResults = [];
-      this.getPreconditionStories(); 
-  }
-
-    // hide if no scenarios in story
-    this.showEditor = !!story.scenarios.length;
+      this.getPreconditionStories();
+      if (!this.selectedStory.scenarios) {
+        // hide if no scenarios in story
+        this.showEditor = false;
+      }
+    }
   }
 
   /**
@@ -372,7 +375,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     public loginService: LoginService,
     public blockService: BlockService,
     public managmentService: ManagementService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public groupService: GroupService,
   ) {
     if (this.apiService.urlReceived) {
       this.loadStepTypes();
@@ -601,9 +605,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           this.applyChangesToBackgrounds(this.selectedStory.background);
         }
       });
-      this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block => 
-          this.blockService.convertSelectedStepsToRef(block, this.selectedScenario)
-      );
+    this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block =>
+      this.blockService.convertSelectedStepsToRef(block, this.selectedScenario)
+    );
   }
 
   ngOnDestroy() {
@@ -704,23 +708,25 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param scenario
    */
   showDeleteScenarioToast($event: any) {
-   
+
     this.apiService.nameOfComponent("scenario");
-    if($event.testKey){
-    this.toastr.warning(
-      "Are your sure you want to delete this scenario?  It cannot be restored.",
-      "Delete Scenario?",
-      {
-        toastComponent: XrayToast,
-      }
-    );} else {
+    if ($event.testKey) {
+      this.toastr.warning(
+        "Are your sure you want to delete this scenario?  It cannot be restored.",
+        "Delete Scenario?",
+        {
+          toastComponent: XrayToast,
+        }
+      );
+    } else {
       this.toastr.warning(
         "Are your sure you want to delete this scenario?  It cannot be restored.",
         "Delete Scenario?",
         {
           toastComponent: DeleteToast,
         }
-    );}
+      );
+    }
   }
 
   /**
@@ -1079,19 +1085,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           }, 10);
           this.toastr.info("", "Test is done");
           this.runUnsaved = false;
-          
+
           if (scenario_id) {
             // ScenarioReport
             const val = report.status;
             // Update xray status
-            if(selectedExecutions){
-              for(const testRun of this.selectedScenario.testRunSteps){
+            if (selectedExecutions) {
+              for (const testRun of this.selectedScenario.testRunSteps) {
                 if (selectedExecutions.includes(testRun.testRunId)) {
                   const testStatus = val ? "PASS" : "FAIL";
                   this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, testStatus)
                     .subscribe({
                       next: () => {
-                        console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey );
+                        console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
                       },
                       error: (error) => {
                         console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
@@ -1108,50 +1114,57 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             ); //filteredStories in stories-bar.component is undefined causing an error same file 270
           } else {
 
+            // If xray precondition exists, create temporary group for preconditions and run group
             if (this.preConditionResults.length > 0) {
-              let preConditionStories = [];
+              const member_stories = [];
+
+              // get all stories from preconditions
               for (let precondition of this.preConditionResults) {
                 for (let story of precondition.stories) {
-                  preConditionStories.push(story);
+                  member_stories.push(story);
                 }
               }
-          
+
+              member_stories.push(this.selectedStory);
+
+              // create temporary group for preconditions
               const temp_group = {
-                  _id: 0,
-                  name: 'Pre-Conditions',
-                  member_stories: preConditionStories,
-                  isSequential: true
+                _id: 0,
+                name: 'Pre-Conditions',
+                member_stories: member_stories,
+                isSequential: true
               };
               console.log('Pre-Condition Group:', temp_group);
-              //runGroup here
-            }
-            // StoryReport
-            report.scenarioStatuses.forEach((scenario) => {
-              this.scenarioService.scenarioStatusChangeEmit(
-                this.selectedStory._id,
-                scenario.scenarioId,
-                scenario.status
-              );
+              this.runGroup(temp_group);
+            } else {
+              // StoryReport
+              report.scenarioStatuses.forEach((scenario) => {
+                this.scenarioService.scenarioStatusChangeEmit(
+                  this.selectedStory._id,
+                  scenario.scenarioId,
+                  scenario.status
+                );
 
-              // run through testruns of currenct scenario and update xray status
-              const currentScenarioId = scenario.scenarioId
-              const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
-              if(selectedExecutions){
-                for(const testRun of currentScenario.testRunSteps){
-                  if (selectedExecutions.includes(testRun.testRunId)) {
-                    this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
-                      .subscribe({
-                        next: () => {
-                          console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey );
-                        },
-                        error: (error) => {
-                          console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
-                        }
-                      });
+                // run through testruns of currenct scenario and update xray status
+                const currentScenarioId = scenario.scenarioId
+                const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
+                if (selectedExecutions) {
+                  for (const testRun of currentScenario.testRunSteps) {
+                    if (selectedExecutions.includes(testRun.testRunId)) {
+                      this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
+                        .subscribe({
+                          next: () => {
+                            console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
+                          },
+                          error: (error) => {
+                            console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+                          }
+                        });
+                    }
                   }
                 }
-              }
-            });
+              });
+            }
           }
         });
     } else {
@@ -1169,10 +1182,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-    /**
-   * Evaluates whether to open xray execution list modal in run scenario.
-   * @param scenario_id 
-   */
+  /**
+ * Evaluates whether to open xray execution list modal in run scenario.
+ * @param scenario_id 
+ */
   evaluateAndRunScenario(scenario_id) {
     if (this.selectedScenario && this.selectedScenario.testKey && this.selectedScenario.testRunSteps.length > 0) {
       // Open the modal if there are test execution steps
@@ -1183,26 +1196,26 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-   /**
-   * Evaluates whether to open xray execution list modal in run story.
-   */
-   evaluateAndRunStory() {
+  /**
+  * Evaluates whether to open xray execution list modal in run story.
+  */
+  evaluateAndRunStory() {
     // Check if there is at least one scenario in the story with xray key and execution
     const executableTests = this.selectedStory.scenarios.some(scenario =>
-    scenario.testKey && scenario.testRunSteps && scenario.testRunSteps.length > 0);
+      scenario.testKey && scenario.testRunSteps && scenario.testRunSteps.length > 0);
     if (executableTests) {
       this.executionListModal.openExecutionListModal(this.selectedStory);
     } else {
       this.runTests(null);
     }
   }
-  
+
   /**
    * Run this function if we close execution list modal
    */
-  executeTests(event: { scenarioId: number | null, selectedExecutions: number[] }){
-    if(event.scenarioId != null){
-      this.runTests(event.scenarioId,event.selectedExecutions);
+  executeTests(event: { scenarioId: number | null, selectedExecutions: number[] }) {
+    if (event.scenarioId != null) {
+      this.runTests(event.scenarioId, event.selectedExecutions);
     } else {
       this.runTests(null, event.selectedExecutions);
     }
@@ -1563,13 +1576,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             stories: stories  // Direkt als Array von Story-Objekten
           };
           this.preConditionResults.push(results);
-          console.log("PreCondition and Stories fetched:", results);
         })
         .catch(error => {
           console.error('Failed to fetch stories for a test set:', error);
         });
     }
-  } 
+  }
 
   toTicket(issue_number: string) {
     const host = this.selectedStory.host
@@ -1583,43 +1595,88 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
      */
   selectStoryScenario(story: Story) {
     this.selectedStory = story;
-    console.log("Selected Story:", this.selectedStory);
     this.initialyAddIsExample();
     this.preConditionResults = [];
     this.storyChosen.emit(story);
     if (story.scenarios.length > 0) {
-        this.selectScenario(story.scenarios[0]);
+      this.selectScenario(story.scenarios[0]);
     } else this.selectScenario(null);
     this.backgroundService.backgroundReplaced = undefined;
   }
 
-  initialyAddIsExample(){
+  initialyAddIsExample() {
     this.selectedStory.scenarios.forEach(scenario => {
-        scenario.stepDefinitions.given.forEach((value, index) =>{
-            if(!scenario.stepDefinitions.given[index].isExample){
-                scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
-                value.values.forEach((val,i) => {
-                    scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                })
-            }
-        })
-        scenario.stepDefinitions.when.forEach((value, index) =>{
-            if(!scenario.stepDefinitions.when[index].isExample){
-                scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
-                value.values.forEach((val,i) => {
-                    scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                })
-            }
-        })
-        scenario.stepDefinitions.then.forEach((value, index) =>{
-            if(!scenario.stepDefinitions.then[index].isExample){
-                scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
-                value.values.forEach((val,i) => {
-                    scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                })
-            }
-        })
+      scenario.stepDefinitions.given.forEach((value, index) => {
+        if (!scenario.stepDefinitions.given[index].isExample) {
+          scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
+          value.values.forEach((val, i) => {
+            scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+          })
+        }
+      })
+      scenario.stepDefinitions.when.forEach((value, index) => {
+        if (!scenario.stepDefinitions.when[index].isExample) {
+          scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
+          value.values.forEach((val, i) => {
+            scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+          })
+        }
+      })
+      scenario.stepDefinitions.then.forEach((value, index) => {
+        if (!scenario.stepDefinitions.then[index].isExample) {
+          scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
+          value.values.forEach((val, i) => {
+            scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+          })
+        }
+      })
 
     })
+  }
+
+  runGroup(group: Group, selectedExecutions?: number[]) {
+    console.log('Running Group:', group)
+    const id = localStorage.getItem('id');
+    this.testRunningGroup = true;
+    const params = { repository: localStorage.getItem('repository'), source: localStorage.getItem('source') }
+    this.groupService.runGroup(id, group._id, params).subscribe({
+      next: (ret: any) => {
+        this.report.emit(ret);
+        this.testRunningGroup = false;
+        const report = ret.report;
+        report.storyStatuses.forEach(story => {
+          story.scenarioStatuses.forEach(scenario => {
+            this.scenarioService.scenarioStatusChangeEmit(
+              story.storyId, scenario.scenarioId, scenario.status);
+
+            this.scenarioService.getScenario(story.storyId, scenario.scenarioId).subscribe({
+              next: (fullScenario) => {
+                if (fullScenario && fullScenario.testRunSteps) {
+                  for (const testRun of fullScenario.testRunSteps) {
+                    if (selectedExecutions && selectedExecutions.includes(testRun.testRunId)) {
+                      this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
+                        .subscribe({
+                          next: () => {
+                            console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
+                          },
+                          error: (error) => {
+                            console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+                          }
+                        });
+                    }
+                  }
+                }
+              },
+              error: (error) => {
+                console.error('Error fetching scenario details', error);
+              }
+            });
+          });
+        });
+      },
+      error: (error) => {
+        console.error('Error running group', error);
+      }
+    });
   }
 }
