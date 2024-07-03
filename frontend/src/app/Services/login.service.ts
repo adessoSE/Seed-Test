@@ -179,15 +179,18 @@ sha256 = async (data) => {
    * @returns
    */
   confirmReset(uuid: string, password: string): Observable<any> {
-    const body = { uuid: uuid, password: password };
-    return this.http
-      .patch<any>(this.apiService.apiServer + "/user/reset", body)
-      .pipe(
-        tap((_) => {
-          //
-        }),
-        catchError(this.apiService.handleError)
-      );
+    return from(this.sha256(password)).pipe(
+      switchMap(hash => {
+        console.log('hashed', hash)
+        const req1: Observable<any> = this.http.patch<any>(this.apiService.apiServer + "/user/reset", { uuid: uuid, password: hash });
+        return req1.pipe(
+          tap((_) => {
+            //
+          }),
+        );
+      }),
+      catchError(this.apiService.handleError)
+    );
   }
   /**
    * If the user is logged in
