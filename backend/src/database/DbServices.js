@@ -19,6 +19,7 @@ const emptyStory = require("../models/emptyStory");
 const emptyScenario = require("../models/emptyScenario");
 const emptyBackground = require("../models/emptyBackground");
 const AdmZip = require("adm-zip");
+const os = require('os');
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();

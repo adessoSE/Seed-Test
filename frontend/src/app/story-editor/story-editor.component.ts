@@ -247,6 +247,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   reportId;
 
+  /*
+  * Report of the test
+  */
+  testReport;
+
   /**
    * Name for a new step
    */
@@ -1031,143 +1036,68 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
    * Make the API Request to run the tests and display the results as a chart
    * @param scenario_id
+   * @param selectedExecutions - optional parameter to update xray status
    */
-
   runTests(scenario_id, selectedExecutions?: number[]) {
     if (this.storySaved()) {
+      // if story is saved
       this.reportIsSaved = false;
       this.testRunning = true;
       this.report.emit(false);
-      const iframe: HTMLIFrameElement = document.getElementById(
-        "testFrame"
-      ) as HTMLIFrameElement;
       const loadingScreen: HTMLElement = document.getElementById("loading");
 
-      let browserSelect = null;
-      let emulatorSelect = null;
-
-      if (!this.globalSettingsActivated) {
-        browserSelect = document.getElementById(
-          "browserSelect"
-        ) as HTMLSelectElement;
-        emulatorSelect = document.getElementById(
-          "emulatorSelect"
-        ) as HTMLSelectElement;
-      }
-
-      // const browser = browserSelect ? browserSelect.value : undefined;
-      const emulator = emulatorSelect ? emulatorSelect.value : undefined;
-      // are these values already saved in the Scenario / Story?
-      // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
-      // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
       loadingScreen.scrollIntoView();
-      this.storyService
-        .runTests(this.selectedStory._id, scenario_id, {
-          browser: browserSelect,
-          emulator: emulator,
-          width: this.selectedScenario.width || undefined,
-          height: this.selectedScenario.height || undefined,
-          repository: localStorage.getItem("repository"),
-          repositoryId: localStorage.getItem("id"),
-          source: localStorage.getItem("source"),
-          oneDriver: this.selectedStory.oneDriver,
-        })
-        .subscribe((resp: any) => {
-          this.reportId = resp.reportId;
-          iframe.srcdoc = resp.htmlFile;
-          this.htmlReport = resp.htmlFile;
-          const report = resp.report;
-          this.testDone = true;
-          this.showResults = true;
-          this.testRunning = false;
-          setTimeout(function () {
-            iframe.scrollIntoView();
-          }, 10);
-          this.toastr.info("", "Test is done");
-          this.runUnsaved = false;
 
-          if (scenario_id) {
-            // ScenarioReport
-            const val = report.status;
-            // Update xray status
-            if (selectedExecutions) {
-              for (const testRun of this.selectedScenario.testRunSteps) {
-                if (selectedExecutions.includes(testRun.testRunId)) {
-                  const testStatus = val ? "PASS" : "FAIL";
-                  this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, testStatus)
-                    .subscribe({
-                      next: () => {
-                        console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
-                      },
-                      error: (error) => {
-                        console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
-                      }
-                    });
-                }
-              }
-            }
+      const params = this.testRunParams();
 
-            this.scenarioService.scenarioStatusChangeEmit(
-              this.selectedStory._id,
-              scenario_id,
-              val
-            ); //filteredStories in stories-bar.component is undefined causing an error same file 270
-          } else {
+      // CASE: run single scenario
+      if (scenario_id) {
+        // Run single scenario
+        this.storyService.runTests(this.selectedStory._id, scenario_id, params).subscribe((resp: any) => {
+          this.testRunResponse(resp);
+          // Get test status
+          const val = this.testReport.status;
+          const testStatus = val ? "PASS" : "FAIL";
 
-            // If xray precondition exists, create temporary group for preconditions and run group
-            if (this.preConditionResults.length > 0) {
-              const member_stories = [];
-
-              // get all stories from preconditions
-              for (let precondition of this.preConditionResults) {
-                for (let story of precondition.stories) {
-                  member_stories.push(story);
-                }
-              }
-
-              member_stories.push(this.selectedStory);
-
-              // create temporary group for preconditions
-              const temp_group = {
-                _id: 0,
-                name: 'Pre-Conditions',
-                member_stories: member_stories,
-                isSequential: true
-              };
-              console.log('Pre-Condition Group:', temp_group);
-              this.runGroup(temp_group);
-            } else {
-              // StoryReport
-              report.scenarioStatuses.forEach((scenario) => {
-                this.scenarioService.scenarioStatusChangeEmit(
-                  this.selectedStory._id,
-                  scenario.scenarioId,
-                  scenario.status
-                );
-
-                // run through testruns of currenct scenario and update xray status
-                const currentScenarioId = scenario.scenarioId
-                const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
-                if (selectedExecutions) {
-                  for (const testRun of currentScenario.testRunSteps) {
-                    if (selectedExecutions.includes(testRun.testRunId)) {
-                      this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
-                        .subscribe({
-                          next: () => {
-                            console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
-                          },
-                          error: (error) => {
-                            console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
-                          }
-                        });
-                    }
-                  }
-                }
-              });
-            }
+          // If user selected xray executions, update xray status
+          if (selectedExecutions) {
+            this.updateXrayStatus(this.selectedScenario, selectedExecutions, testStatus);
           }
         });
+
+      } else {
+        // CASE: Pre-Conditions exist, we run story as a group
+        if (this.preConditionResults && this.preConditionResults.length > 0) {
+          // run as temp group if there are preconditions
+          const temp_group = this.createTempGroup();
+          this.groupService.runTempGroup(temp_group).subscribe((resp: any) => {
+            this.testRunResponse(resp);
+            console.log('Pre-Condition Group Response:', resp);
+          });
+
+        } else {
+          // CASE: No Pre-Conditions exist, we run story normally
+          this.storyService.runTests(this.selectedStory._id, null, params).subscribe((resp: any) => {
+            this.testRunResponse(resp);
+            this.testReport.scenarioStatuses.forEach((scenario) => {
+              this.scenarioService.scenarioStatusChangeEmit(
+                this.selectedStory._id,
+                scenario.scenarioId,
+                scenario.status
+              );
+
+              // if user selected xray executions, update xray status
+              const currentScenarioId = scenario.scenarioId
+              const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
+              if (selectedExecutions) {
+                this.updateXrayStatus(currentScenario, selectedExecutions, scenario.status);
+              }
+            });
+          });
+        }
+      }
     } else {
+      // if story is not saved, inform user
       this.currentTestScenarioId = scenario_id;
       this.currentTestStoryId = this.selectedStory.story_id;
       this.apiService.nameOfComponent("runSaveToast");
@@ -1180,6 +1110,91 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         }
       );
     }
+  }
+
+  /*
+  * Creates temporary group for preconditions storys + current selected story
+  */
+  createTempGroup() {
+    const member_stories = [];
+
+    for (let precondition of this.preConditionResults) {
+      for (let story of precondition.stories) {
+        member_stories.push(story);
+      }
+    }
+    member_stories.push(this.selectedStory);
+    const temp_group = {
+      _id: -1,
+      name: 'Pre-Conditions',
+      member_stories: member_stories,
+      isSequential: true
+    };
+
+    return temp_group;
+  }
+
+  /*
+   * Updates xray status for selected test execution for single scenario
+   * @param scenario - the scenario containing the test run steps
+   * @param selectedExecutions - list of selected test executions
+   * @param status - status to update
+   */
+  async updateXrayStatus(scenario: Scenario, selectedExecutions: number[], status: string) {
+    for (const testRun of scenario.testRunSteps) {
+      if (selectedExecutions.includes(testRun.testRunId)) {
+        try {
+          await this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, status).toPromise();
+          console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
+        } catch (error) {
+          console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+        }
+      }
+    }
+  }
+
+  /*
+  * Prepare parameters for test run
+  */
+  testRunParams() {
+    let browserSelectValue = null;
+    let emulatorSelectValue = null;
+
+    if (!this.globalSettingsActivated) {
+      const browserSelect = document.getElementById("browserSelect") as HTMLSelectElement;
+      const emulatorSelect = document.getElementById("emulatorSelect") as HTMLSelectElement;
+      browserSelectValue = browserSelect ? browserSelect.value : null;
+      emulatorSelectValue = emulatorSelect ? emulatorSelect.value : null;
+    }
+
+    return {
+      browser: browserSelectValue,
+      emulator: emulatorSelectValue,
+      width: this.selectedScenario.width || undefined,
+      height: this.selectedScenario.height || undefined,
+      repository: localStorage.getItem("repository"),
+      repositoryId: localStorage.getItem("id"),
+      source: localStorage.getItem("source"),
+      oneDriver: this.selectedStory.oneDriver,
+    };
+  }
+
+
+  /*
+  * Response from test run
+  */
+  testRunResponse(resp) {
+    const iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
+    iframe.srcdoc = resp.htmlFile;
+    this.reportId = resp.reportId;
+    this.htmlReport = resp.htmlFile;
+    this.testReport = resp.report;
+    this.testDone = true;
+    this.showResults = true;
+    this.testRunning = false;
+    setTimeout(() => iframe.scrollIntoView(), 10);
+    this.toastr.info("", "Test is done");
+    this.runUnsaved = false;
   }
 
   /**
@@ -1220,7 +1235,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.runTests(null, event.selectedExecutions);
     }
   }
-
 
 
   /**
@@ -1632,51 +1646,5 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       })
 
     })
-  }
-
-  runGroup(group: Group, selectedExecutions?: number[]) {
-    console.log('Running Group:', group)
-    const id = localStorage.getItem('id');
-    this.testRunningGroup = true;
-    const params = { repository: localStorage.getItem('repository'), source: localStorage.getItem('source') }
-    this.groupService.runGroup(id, group._id, params).subscribe({
-      next: (ret: any) => {
-        this.report.emit(ret);
-        this.testRunningGroup = false;
-        const report = ret.report;
-        report.storyStatuses.forEach(story => {
-          story.scenarioStatuses.forEach(scenario => {
-            this.scenarioService.scenarioStatusChangeEmit(
-              story.storyId, scenario.scenarioId, scenario.status);
-
-            this.scenarioService.getScenario(story.storyId, scenario.scenarioId).subscribe({
-              next: (fullScenario) => {
-                if (fullScenario && fullScenario.testRunSteps) {
-                  for (const testRun of fullScenario.testRunSteps) {
-                    if (selectedExecutions && selectedExecutions.includes(testRun.testRunId)) {
-                      this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
-                        .subscribe({
-                          next: () => {
-                            console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
-                          },
-                          error: (error) => {
-                            console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
-                          }
-                        });
-                    }
-                  }
-                }
-              },
-              error: (error) => {
-                console.error('Error fetching scenario details', error);
-              }
-            });
-          });
-        });
-      },
-      error: (error) => {
-        console.error('Error running group', error);
-      }
-    });
   }
 }

@@ -320,7 +320,6 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 				});
 			}
 		}
-		console.log('my Params ', parameters)
 	});
 	return { scenarios, parameters };
 }

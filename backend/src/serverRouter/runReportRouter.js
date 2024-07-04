@@ -43,7 +43,6 @@ router.post('/Scenario/:issueID/:scenarioId', (req, res) => {
 // run one Group and return report
 router.post('/Group/:repoID/:groupID', async (req, res) => {
 	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
-	const mystories = [];
 	for (const ms of group.member_stories) {
 		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
 		mystories.push(await mongo.getOneStory(id));
@@ -53,6 +52,16 @@ router.post('/Group/:repoID/:groupID', async (req, res) => {
 	params.repoId = req.params.repoID;
 	req.body = group;
 	reporter.runReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
+});
+
+// run one temporary group and return report
+router.post('/TempGroup', async (req, res) => {
+	const tempGroup = req.body;
+	const mystories = tempGroup.member_stories;
+	reporter.runReport(req, res, mystories, 'group', tempGroup).then(() => {
+		console.log('Report for temporary group created');
+	})
+	.catch((reason) => res.send(reason).status(500));
 });
 
 // generate older Report
