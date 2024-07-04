@@ -92,7 +92,6 @@ router.patch('/reset', async (req, res) => {
 
 // login user
 router.post('/login', (req, res, next) => {
-	//console.log('login-data', user)
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
 	req.body.email = req.body.email.toLowerCase();
 	try {
@@ -107,9 +106,9 @@ router.post('/login', (req, res, next) => {
 				else {
 					if(user.transitioned === false) {
 						const hasher = crypto.createHash('sha256');
-						hasher.update(user.password)
+						hasher.update(req.body.password)
 						const passHash = hasher.digest()
-						const finalHash = bcrypt.hashSync(passHash, salt)
+						const finalHash = bcrypt.hashSync(passHash.toString('hex'), salt)
 						user.password = finalHash
 						user.transitioned = true
 						mongo.updateUser(user._id, user)
