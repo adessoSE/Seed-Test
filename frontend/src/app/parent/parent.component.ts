@@ -1,10 +1,10 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import {Group} from '../model/Group';
-import {ActivatedRoute} from '@angular/router';
+import { Group } from '../model/Group';
+import { ActivatedRoute } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
 import { Subscription } from 'rxjs';
 import { StoryService } from '../Services/story.service';
@@ -53,14 +53,15 @@ export class ParentComponent implements OnInit, OnDestroy {
 
   isDark: boolean;
 
+  activeView: string = "storyView";
+
   /**
      * Subscribtions for all EventEmitter
      */
-   getBackendUrlObservable: Subscription;
-   themeObservable: Subscription;
-   getRepositoriesObservable: Subscription;
-
-
+  getBackendUrlObservable: Subscription;
+  themeObservable: Subscription;
+  getRepositoriesObservable: Subscription;
+  activeViewObservable: Subscription;
 
   /**
    * Constructor
@@ -77,7 +78,7 @@ export class ParentComponent implements OnInit, OnDestroy {
     public storyService: StoryService,
     public groupService: GroupService,
     public projectService: ProjectService,
-    ) {
+  ) {
   }
 
   /**
@@ -96,6 +97,10 @@ export class ParentComponent implements OnInit, OnDestroy {
     this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
       this.isDark = this.themeService.isDarkMode();
     });
+    this.activeViewObservable = this.storyService.changeStoryViewEmitter.subscribe((viewName) => {
+      this.activeView = viewName;
+      console.log("this.activeView", this.activeView, viewName)
+    });
 
     // needs to be after getBackendUrlEvent subscribtion to work properly
     if (this.apiService.urlReceived) {
@@ -103,20 +108,23 @@ export class ParentComponent implements OnInit, OnDestroy {
     } else {
       this.apiService.getBackendInfo();
     }
-    
+
   }
 
-  ngOnDestroy(){
-    if(!this.themeObservable.closed){
+  ngOnDestroy() {
+    if (!this.themeObservable.closed) {
       this.themeObservable.unsubscribe();
     }
-    if(!this.getBackendUrlObservable.closed){
+    if (!this.getBackendUrlObservable.closed) {
       this.getBackendUrlObservable.unsubscribe();
     }
-    if(this.getRepositoriesObservable){
-      if(!this.getRepositoriesObservable.closed){
+    if (this.getRepositoriesObservable) {
+      if (!this.getRepositoriesObservable.closed) {
         this.getRepositoriesObservable.unsubscribe();
       }
+    }
+    if (!this.activeViewObservable.closed) {
+      this.activeViewObservable.unsubscribe();
     }
   }
 
@@ -127,18 +135,18 @@ export class ParentComponent implements OnInit, OnDestroy {
     const value: string = localStorage.getItem('repository');
     const source: string = localStorage.getItem('source');
     const _id: string = localStorage.getItem('id');
-    const repository: RepositoryContainer = {value, source, _id};
+    const repository: RepositoryContainer = { value, source, _id };
     this.storyService
       .getStories(repository)
       .subscribe((resp: Story[]) => {
         this.stories = resp;
         this.routing();
-    });
+      });
     this.groupService
-        .getGroups(_id)
-        .subscribe((resp: Group[]) => {
-          this.groups = resp;
-        });
+      .getGroups(_id)
+      .subscribe((resp: Group[]) => {
+        this.groups = resp;
+      });
   }
 
   routing() {
