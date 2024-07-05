@@ -43,6 +43,7 @@ router.post('/Scenario/:issueID/:scenarioId', (req, res) => {
 // run one Group and return report
 router.post('/Group/:repoID/:groupID', async (req, res) => {
 	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
+	const mystories = [];
 	for (const ms of group.member_stories) {
 		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
 		mystories.push(await mongo.getOneStory(id));
