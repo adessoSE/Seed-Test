@@ -139,9 +139,9 @@ export class GroupService {
   /*
   * Running a temporary group with precondition storys
   */
-  runTempGroup(group): Observable<any> { 
+  runTempGroup(params): Observable<any> { 
     const timeout = 6000000;
     return this.http
-      .post(this.apiService.apiServer + '/run/TempGroup', group, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+      .post(this.apiService.apiServer + '/run/TempGroup', params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
   }
 }

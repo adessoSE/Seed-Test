@@ -52,13 +52,19 @@ router.post('/Group/:repoID/:groupID', async (req, res) => {
 	params.repository = req.body.repository;
 	params.repoId = req.params.repoID;
 	req.body = group;
+	console.log('Mystories', mystories);
 	reporter.runReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
 });
 
 // run one temporary group and return report
 router.post('/TempGroup', async (req, res) => {
-	const tempGroup = req.body;
+	const tempGroup = req.body.group;
 	const mystories = tempGroup.member_stories;
+
+	const params = tempGroup;
+	params.repository = req.body.repository;
+	params.repoId = req.body.id;
+	req.body = tempGroup;
 	reporter.runReport(req, res, mystories, 'group', tempGroup).then(() => {
 		console.log('Report for temporary group created');
 	})

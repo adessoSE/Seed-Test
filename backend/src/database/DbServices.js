@@ -946,19 +946,25 @@ async function createRepo(
 }
 
 async function getRepoSettingsById(repoId) {
+  if (!repoId || repoId.length !== 24) {
+    console.error(`Invalid repository ID: ${repoId}. Must be a 24-character hex string.`);
+    return null;
+  }
+
   try {
     const db = dbConnection.getConnection();
     const collection = await db.collection(repositoriesCollection);
 
-    const repo = await collection.findOne({ _id: new ObjectId(repoId) });
+    // Safely create ObjectId from validated hex string
+    const repo = await collection.findOne({ _id: ObjectId.createFromHexString(repoId) });
 
     if (!repo) {
-      console.log(`Kein Repository gefunden mit der ID: ${repoId}`);
+      console.log(`No repository found with the ID: ${repoId}`);
       return null;
     }
     return repo.settings;
   } catch (e) {
-    console.error(`Fehler beim Abrufen der Repository-Einstellungen: ${e}`);
+    console.error(`Error retrieving repository settings: ${e}`);
     throw e;
   }
 }
@@ -1970,7 +1976,6 @@ async function getStoriesByIssueKeys(issueKeys) {
         }
 
         const storyIds = stories.map(story => story._id.toString());
-        console.log("Fetched story IDs:", storyIds);
         return storyIds;
     } catch (error) {
         console.error('Error retrieving stories by issue keys:', error);
@@ -1999,8 +2004,6 @@ async function getOneStoryByIssueKey(issueKey) {
         console.error('Error retrieving story by issue key:', error);
         throw error;
     }
-
-    console.log("Fetched story:", story);
 }
 
 module.exports = {

@@ -1070,7 +1070,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         if (this.preConditionResults && this.preConditionResults.length > 0) {
           // run as temp group if there are preconditions
           const temp_group = this.createTempGroup();
-          this.groupService.runTempGroup(temp_group).subscribe((resp: any) => {
+          const params = { id : localStorage.getItem('id'), repository: localStorage.getItem('repository'), source: localStorage.getItem('source'), group: temp_group}
+          this.groupService.runTempGroup(params).subscribe((resp: any) => {
             this.testRunResponse(resp);
             console.log('Pre-Condition Group Response:', resp);
           });
@@ -1126,7 +1127,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     member_stories.push(this.selectedStory);
     const temp_group = {
       _id: -1,
-      name: 'Pre-Conditions',
+      name: this.selectedStory.title,
       member_stories: member_stories,
       isSequential: true
     };
