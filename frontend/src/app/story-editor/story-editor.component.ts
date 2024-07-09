@@ -20,7 +20,7 @@ import { XrayToast } from "../delete-toast-xray";
 import { saveAs } from "file-saver";
 import { ThemingService } from "../Services/theming.service";
 import { RenameStoryComponent } from "../modals/rename-story/rename-story.component";
-import { Subscription } from "rxjs";
+import { firstValueFrom, Subscription } from "rxjs";
 import { CreateScenarioComponent } from "../modals/create-scenario/create-scenario.component";
 import { RenameBackgroundComponent } from "../modals/rename-background/rename-background.component";
 import { BackgroundService } from "../Services/background.service";
@@ -90,7 +90,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.selectedStory = story;
     if (this.selectedStory !== undefined && this.selectedStory.preConditions) {
       this.preConditionResults = [];
-      this.getPreconditionStories();
+      this.getPreconditionStories(this.selectedStory.preConditions);
       if (!this.selectedStory.scenarios) {
         // hide if no scenarios in story
         this.showEditor = false;
@@ -1038,7 +1038,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param scenario_id
    * @param selectedExecutions - optional parameter to update xray status
    */
-  runTests(scenario_id, selectedExecutions?: number[]) {
+  async runTests(scenario_id, selectedExecutions?: number[]) {
     if (this.storySaved()) {
       // if story is saved
       this.reportIsSaved = false;
@@ -1069,12 +1069,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         // CASE: Pre-Conditions exist, we run story as a group
         if (this.preConditionResults && this.preConditionResults.length > 0) {
           // run as temp group if there are preconditions
-          const temp_group = this.createTempGroup();
-          const params = { id : localStorage.getItem('id'), repository: localStorage.getItem('repository'), source: localStorage.getItem('source'), group: temp_group}
-          this.groupService.runTempGroup(params).subscribe((resp: any) => {
-            this.testRunResponse(resp);
-            console.log('Pre-Condition Group Response:', resp);
-          });
+          try {
+            const temp_group = await this.createTempGroup();
+            console.log("Temporäre Gruppe erfolgreich erstellt:", temp_group);
+            const params = { id: localStorage.getItem('id'), repository: localStorage.getItem('repository'), source: localStorage.getItem('source'), group: temp_group }
+            this.groupService.runTempGroup(params).subscribe((resp: any) => {
+              this.testRunResponse(resp);
+            });
+            // Weitere Verarbeitung mit temp_group hier
+          } catch (error) {
+            console.error("Fehler beim Erstellen der temporären Gruppe:", error);
+          }
 
         } else {
           // CASE: No Pre-Conditions exist, we run story normally
@@ -1113,18 +1118,23 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     }
   }
 
+
   /*
   * Creates temporary group for preconditions storys + current selected story
   */
-  createTempGroup() {
+  async createTempGroup() {
     const member_stories = [];
+    const seenStories = new Set();
 
-    for (let precondition of this.preConditionResults) {
-      for (let story of precondition.stories) {
-        member_stories.push(story);
-      }
-    }
+    // add current story to seen stories
+    seenStories.add(this.selectedStory.issue_number);
+
+    // collect all pre-stories
+    const { member_stories: preStories } = await this.collectPreStories(this.selectedStory, seenStories, []);
+    member_stories.push(...preStories);
+
     member_stories.push(this.selectedStory);
+
     const temp_group = {
       _id: -1,
       name: this.selectedStory.title,
@@ -1132,8 +1142,40 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       isSequential: true
     };
 
+    console.log('Temp Group:', temp_group);
+
     return temp_group;
   }
+
+  /*
+  * Collects all pre-stories for a given story recursively
+  */
+  async collectPreStories(story, seenStories, member_stories) {
+    if (story.preConditions && story.preConditions.length > 0) {
+      for (let precondition of story.preConditions) {
+        for (let innerStoryKey of precondition.testSet) {
+          if (!seenStories.has(innerStoryKey)) {
+            seenStories.add(innerStoryKey);
+
+            try {
+              const innerStory = await firstValueFrom(this.storyService.getStoryByIssueKey(innerStoryKey));
+              member_stories.unshift(innerStory);
+              seenStories.add(innerStory.issue_number);
+
+              // run recursively for inner story
+              if (innerStory.preConditions) {
+                await this.collectPreStories(innerStory, seenStories, member_stories);
+              }
+            } catch (error) {
+              console.error('Error fetching story details:', error);
+            }
+          }
+        }
+      }
+    }
+    return { member_stories, seenStories };
+  }
+
 
   /*
    * Updates xray status for selected test execution for single scenario
@@ -1574,21 +1616,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
  * Get all stories in xray preconditions
  */
-  getPreconditionStories() {
-    for (const precondition of this.selectedStory.preConditions) {
-      // Sammeln aller Promises für das aktuelle TestSet
+  getPreconditionStories(preConditions) {
+    for (const precondition of preConditions) {
+
       const testSetPromises = precondition.testSet.map(testKey =>
         this.storyService.getStoryByIssueKey(testKey).toPromise()
       );
 
-      // Verwenden von Promise.all, um alle Anfragen parallel auszuführen
       Promise.all(testSetPromises)
         .then(stories => {
-          // stories enthält nun alle Story-Objekte, die zu testKey gehören
           const results = {
             preConditionKey: precondition.preConditionKey,
             preConditionName: precondition.preConditionName,
-            stories: stories  // Direkt als Array von Story-Objekten
+            stories: stories
           };
           this.preConditionResults.push(results);
         })

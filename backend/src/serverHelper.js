@@ -197,7 +197,7 @@ function getSettings(scenario, globalSettings) {
 }
 
 async function executeTest(req, mode, story) {
-	const repoId = req.body.repositoryId;
+	const repoId = req.body.repositoryId || req.body.repoId;
 
 	let globalSettings;
 
