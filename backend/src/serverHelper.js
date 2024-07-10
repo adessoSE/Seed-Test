@@ -95,7 +95,7 @@ function getScenarioContent(scenarios, storyID) {
 		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
 		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
-		if (scenario.comment !== null) {
+		if (Boolean(scenario.comment)) {
 			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
 	}
@@ -105,7 +105,7 @@ function getScenarioContent(scenarios, storyID) {
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
 	let body = '';
-	if (story.body !== null && story.body !== undefined) {
+	if (Boolean(story.body)) {
 		body = story.body.replaceAll('#', '').replaceAll('(/)', '');
 	}
 	let data = `Feature: ${story.title}\n\n${body}\n\n`;
