@@ -54,33 +54,41 @@ router
 		next();
 	});
 
-router.post('/test/:repoID/:groupID', passport.authenticate('normal-local', { session: false }), async (req, res) => {
-	try {
-		req.body.email = req.body.email.toLowerCase();
-		const { repoID, groupID } = req.params;
-		logger.info(`Received test request for repoID: ${repoID} and groupID: ${groupID}`);
-		logger.info(`Request body: ${JSON.stringify(req.body)}`);
-
-		await test(req, res);
-	} catch (error) {
-		logger.error(`Error processing request: ${error.message}`);
-		res.status(401).json(error);
-	}
-});
-
-async function test(req, res) {
-	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
-	const mystories = [];
-	console.log('We are testing the group! ', group);
-	for (const ms of group.member_stories) {
-		console.log('We are testing the story! ', ms);
-		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
-		mystories.push(await mongo.getOneStory(id, 'db'));
-	}
-	const params = group;
-	params.repository = req.body.repository;
-	req.body = group;
-	reporter.runSanityReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
-}
+	router.post('/test/:repoID/:groupID', passport.authenticate('normal-local', { session: false }), async (req, res) => {
+		try {
+		  logger.info('Sanity test route hit');
+		  req.body.email = req.body.email.toLowerCase();
+		  const { repoID, groupID } = req.params;
+		  logger.info(`Received test request for repoID: ${repoID} and groupID: ${groupID}`);
+		  logger.info(`Request body: ${JSON.stringify(req.body)}`);
+	  
+		  await test(req, res);
+		} catch (error) {
+		  logger.error(`Error processing request: ${error.message}`);
+		  res.status(401).json(error);
+		}
+	  });
+	  
+	  async function test(req, res) {
+		try {
+		  const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
+		  if (!group) {
+			logger.error('Group not found');
+			return res.status(404).json({ error: 'Group not found' });
+		  }
+		  const mystories = [];
+		  for (const ms of group.member_stories) {
+			const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
+			mystories.push(await mongo.getOneStory(id, 'db'));
+		  }
+		  const params = group;
+		  params.repository = req.body.repository;
+		  req.body = group;
+		  await reporter.runSanityReport(req, res, mystories, 'group', req.body);
+		} catch (error) {
+		  logger.error(`Test function error: ${error.message}`);
+		  res.status(500).json({ error: error.message });
+		}
+	  }
 
 module.exports = router;
