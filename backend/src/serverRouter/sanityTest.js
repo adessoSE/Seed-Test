@@ -71,7 +71,9 @@ router.post('/test/:repoID/:groupID', passport.authenticate('normal-local', { se
 async function test(req, res) {
 	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
 	const mystories = [];
+	console.log('We are testing the group! ', group);
 	for (const ms of group.member_stories) {
+		console.log('We are testing the story! ', ms);
 		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
 		mystories.push(await mongo.getOneStory(id, 'db'));
 	}
