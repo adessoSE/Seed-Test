@@ -177,8 +177,8 @@ jobs:
           path: |
             sanityReport.txt
 
-      - name: Check Application Logs
-        run: ls ./backend/src/serverRouter && cat ./backend/src/serverRouter/app.log
+      # - name: Check Application Logs
+      #   run: ls ./backend/src/serverRouter && cat ./backend/src/serverRouter/app.log
 
 
       - name: Upload Application Logs.
