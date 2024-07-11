@@ -601,7 +601,7 @@ function analyzeText(text, context) {
                     type: stepType.type,
                     values: values,
                     pre: stepType.pre,
-                    mid: stepType.mid ? stepType.mid : undefined,
+                    mid: stepType.mid ? stepType.mid : '',
                     post: stepType.post ? stepType.post : undefined,
                     context: context,
 					origin: "congruent"
