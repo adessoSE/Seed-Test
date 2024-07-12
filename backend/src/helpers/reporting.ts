@@ -380,6 +380,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {
+        console.log('Error in runReport');
 		res.status(404).send(error);
 		return;
 	}
@@ -434,13 +435,16 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 }
 
 async function runSanityReport(req, res, stories: any[], mode: ExecutionMode, parameters) {
+    console.log('Here is the body content:', req.body);
 	let reportObj;
 	try {
 		if (mode === ExecutionMode.GROUP) {
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
-			if (parameters.isSequential == undefined || !parameters.isSequential)
+			if (parameters.isSequential == undefined || !parameters.isSequential){
 				reportObj = await Promise.all(stories.map((story) => testExecutor.executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());
+                console.log('not isSequential - execute Tests fulfilled');
+            }
 			else {
 				for (const story of stories) {
 					reportObj = await testExecutor.executeTest(req, mode, story);
@@ -451,6 +455,7 @@ async function runSanityReport(req, res, stories: any[], mode: ExecutionMode, pa
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {
+        console.log('Error in runSanityReport');
 		res.status(404).send(error);
 		return;
 	}

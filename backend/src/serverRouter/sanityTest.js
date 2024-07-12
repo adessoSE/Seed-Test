@@ -81,8 +81,9 @@ async function test(req, res) {
         logger.warn(`Story with id ${id} not found`);
       }
     }
-    const params = { ...group, repository: req.body.repository };
+    const params = { ...group, repository: req.body.repository, repositoryId: req.params.repoID };
     req.body = params;
+	logger.info('Method runSanityReport is starting now');
     await reporter.runSanityReport(req, res, mystories, 'group', req.body);
   } catch (error) {
     logger.error(`Test function error: ${error.message}`);
