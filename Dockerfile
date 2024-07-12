@@ -23,7 +23,7 @@ RUN mkdir /data
 RUN mkdir /data/db
 RUN mongod --fork --logpath /var/log/mongodb.log
 
-# ----- BACKEND (from /backend dockerfile) -----------------------------------------------------------------------
+# ----- BACKEND (from /backend dockerfile) ------------------------------------------------------------------------
 
 # install chrome 
 RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
