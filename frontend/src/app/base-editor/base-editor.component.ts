@@ -24,6 +24,7 @@ import { DeleteToast } from '../delete-toast';
 import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
 import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
+import { MultipleScenario } from '../model/MuiltipleScenario';
 
 @Component({
   selector: "app-base-editor",
