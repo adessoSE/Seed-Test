@@ -94,7 +94,7 @@ function getScenarioContent(scenarios, storyID) {
 		if (scenario.stepDefinitions.given !== undefined) data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
 		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
-		if ((scenario.stepDefinitions.example && scenario.stepDefinitions.example.length > 0) || (scenario.multipleScenario && scenario.multipleScenario.length > 0)) data += `${getExamples(scenario.stepDefinitions.example || scenario.multipleScenario)}\n\n`;
+		if ((scenario.stepDefinitions.example && scenario.stepDefinitions.example.length > 0) || (scenario.multipleScenarios && scenario.multipleScenarios.length > 0)) data += `${getExamples(scenario.stepDefinitions.example || scenario.multipleScenarios)}\n\n`;
 		if (scenario.comment) {
 			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
@@ -264,7 +264,7 @@ async function executeTest(req, mode, story) {
 	console.log(`Command: "${cucumberCommand}"`);
 	console.log(`Args: [${cucumberArgs}]\n`);
 
-	const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
+	const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath, shell: true });
 
 	runner.stdout.on('data', (data) => {
 		console.log(`stdout: ${data}`);
@@ -304,14 +304,14 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 
 		const additionalParams = getSettings(scenario, globalSettings);
 
-		if ((scenario.stepDefinitions.example || scenario.multipleScenario).length <= 0) {
+		if ((scenario.stepDefinitions.example || scenario.multipleScenarios).length <= 0) {
 			parameters.scenarios.push({
 				oneDriver: driver,
 				...additionalParams
 			});
 		} else {
 			// eslint-disable-next-line guard-for-in
-			for (const exampleIndex in scenario.stepDefinitions.example || scenario.multipleScenario) {
+			for (const exampleIndex in scenario.stepDefinitions.example || scenario.multipleScenarios) {
 				console.log('examples');
 				if (exampleIndex === 0) continue;
 				parameters.scenarios.push({

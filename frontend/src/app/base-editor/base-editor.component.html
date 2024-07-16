@@ -178,19 +178,20 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
-           
-                        <button
-                          *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === false && name!=='block-editor'"
-                          class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType)"
-                          uk-tooltip="title: Use Multiple Scenarios; pos: right">
-                          &nbsp;<p class="exampleButton">1+</p>&nbsp;
-                        </button>
-                        <button
-                          *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === true && name!=='block-editor'"
-                          class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType)"
-                          uk-tooltip="title: Use Textfield; pos: right">
-                          &nbsp;<p class="exampleButton">1</p>&nbsp;
-                        </button>&nbsp;
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === true && name!=='block-editor'; else fallbackBlock">
+                          <button
+                            class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType)"
+                            uk-tooltip="title: Use Textfield; pos: right">
+                            &nbsp;<p class="exampleButton">1</p>&nbsp;
+                          </button>&nbsp;
+                        </ng-container>
+                        <ng-template #fallbackBlock>
+                          <button
+                            class="scenarioTitle" (click)="addIsExample('example', j, i, currentStep.stepType)"
+                            uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                            &nbsp;<p class="exampleButton">1+</p>&nbsp;
+                          </button>
+                        </ng-template>
                       </div>
                       <div *ngIf="currentStep.selectionValue==0">
                         <mat-form-field appearance="standard">
@@ -234,20 +235,14 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
-                        <button
-                          *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === false && name!=='block-editor'"
-                          class="scenarioTitle" (click)="addIsExample('example', j, 1, currentStep.stepType)"
-                          uk-tooltip="title: Use Multiple Scenarios; pos: right">
-                          &nbsp;<p class="exampleButton">1+</p>&nbsp;
-                        </button>
-                        <button
-                          *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && name!=='block-editor'"
-                          class="scenarioTitle" (click)="addIsExample('text input', j, 1,currentStep.stepType)"
-                          uk-tooltip="title: Use Textfield; pos: right">
-                          &nbsp;<p class="exampleButton">1</p>&nbsp;
-                        </button>&nbsp;
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && name!=='block-editor'; else fallbackBlock">
+                          <button
+                            class="scenarioTitle" (click)="addIsExample('text input', j, i, currentStep.stepType)"
+                            uk-tooltip="title: Use Textfield; pos: right">
+                            &nbsp;<p class="exampleButton">1</p>&nbsp;
+                          </button>&nbsp;
+                        </ng-container>
                       </div>
-
                       <div *ngIf="currentStep.selectionValue==1">
                         <mat-form-field appearance="standard">
                           <mat-select [(ngModel)]="currentStep.values[1]"
@@ -295,18 +290,13 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
-                        <button
-                          *ngIf="getExampleList() !== undefined && currentStep.isExample[2] === false && name!=='block-editor'"
-                          class="scenarioTitle" (click)="addIsExample('example', j, 2, currentStep.stepType)"
-                          uk-tooltip="title: Use Multiple Scenarios; pos: right">
-                          &nbsp;<p class="exampleButton">1+</p>&nbsp;
-                        </button>
-                        <button
-                          *ngIf="getExampleList() !== undefined && currentStep.isExample[2] === true && name!=='block-editor'"
-                          class="scenarioTitle" (click)="addIsExample('text input', j, 2,currentStep.stepType)"
-                          uk-tooltip="title: Use Textfield; pos: right">
-                          &nbsp;<p class="exampleButton">1</p>&nbsp;
-                        </button>&nbsp;
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && name!=='block-editor'; else fallbackBlock">
+                          <button
+                            class="scenarioTitle" (click)="addIsExample('text input', j, i, currentStep.stepType)"
+                            uk-tooltip="title: Use Textfield; pos: right">
+                            &nbsp;<p class="exampleButton">1</p>&nbsp;
+                          </button>&nbsp;
+                        </ng-container>
                       </div>
                     </div>
                     <div *ngIf="currentStep.selectionValue==2">
