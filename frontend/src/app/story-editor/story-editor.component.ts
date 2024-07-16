@@ -1154,17 +1154,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     if (story.preConditions && story.preConditions.length > 0) {
       for (let precondition of story.preConditions) {
         for (let innerStoryKey of precondition.testSet) {
-          if (!seenStories.has(innerStoryKey)) {
-            seenStories.add(innerStoryKey);
+
+          let newSeenStories = new Set(seenStories);
+
+          if (!newSeenStories.has(innerStoryKey)) {
+          newSeenStories.add(innerStoryKey);
 
             try {
               const innerStory = await firstValueFrom(this.storyService.getStoryByIssueKey(innerStoryKey));
               member_stories.unshift(innerStory);
-              seenStories.add(innerStory.issue_number);
+              newSeenStories.add(innerStory.issue_number);
 
               // run recursively for inner story
               if (innerStory.preConditions) {
-                await this.collectPreStories(innerStory, seenStories, member_stories);
+                await this.collectPreStories(innerStory, newSeenStories, member_stories);
               }
             } catch (error) {
               console.error('Error fetching story details:', error);
