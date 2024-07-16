@@ -178,20 +178,16 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === true && name!=='block-editor'; else fallbackBlock">
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === true && name!=='block-editor'">
                           <button
                             class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType)"
                             uk-tooltip="title: Use Textfield; pos: right">
                             &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
                         </ng-container>
-                        <ng-template #fallbackBlock>
-                          <button
-                            class="scenarioTitle" (click)="addIsExample('example', j, i, currentStep.stepType)"
-                            uk-tooltip="title: Use Multiple Scenarios; pos: right">
-                            &nbsp;<p class="exampleButton">1+</p>&nbsp;
-                          </button>
-                        </ng-template>
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[0] !== true && name!=='block-editor'">
+                          <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 0}"></ng-container>
+                        </ng-container>
                       </div>
                       <div *ngIf="currentStep.selectionValue==0">
                         <mat-form-field appearance="standard">
@@ -235,12 +231,15 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && name!=='block-editor'; else fallbackBlock">
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && name!=='block-editor'">
                           <button
-                            class="scenarioTitle" (click)="addIsExample('text input', j, i, currentStep.stepType)"
+                            class="scenarioTitle" (click)="addIsExample('text input', j, 1, currentStep.stepType)"
                             uk-tooltip="title: Use Textfield; pos: right">
                             &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
+                        </ng-container>
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[1] !== true && name!=='block-editor'">
+                          <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 1}"></ng-container>
                         </ng-container>
                       </div>
                       <div *ngIf="currentStep.selectionValue==1">
@@ -290,12 +289,15 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && name!=='block-editor'; else fallbackBlock">
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[2] === true && name!=='block-editor'">
                           <button
-                            class="scenarioTitle" (click)="addIsExample('text input', j, i, currentStep.stepType)"
+                            class="scenarioTitle" (click)="addIsExample('text input', j, 2, currentStep.stepType)"
                             uk-tooltip="title: Use Textfield; pos: right">
                             &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
+                        </ng-container>
+                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[2] !== true && name!=='block-editor'">
+                          <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 2}"></ng-container>
                         </ng-container>
                       </div>
                     </div>
@@ -319,6 +321,16 @@
                         </span>
                       </dfn>
                     </div>
+
+                    <!-- Fallback block -->
+                    <ng-template #fallbackBlock let-index="index">
+                      <button
+                        class="scenarioTitle" (click)="addIsExample('example', j, index, currentStep.stepType)"
+                        uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                        &nbsp;<p class="exampleButton">1+</p>&nbsp;
+                      </button>
+                    </ng-template>
+                    
                   </div>
                 </div>
               </div>
@@ -343,8 +355,6 @@
           </div>
         </ng-template>
       </ng-container>
-
-
 
       <!-- Example steps -->
       <ng-container *ngIf="name === 'example'">

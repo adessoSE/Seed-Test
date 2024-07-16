@@ -336,7 +336,6 @@ export class BlockService {
           scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
         });
         
-        console.log(s, block, stepReference);
         // Remove the block reference among the steps
         this.removeBlocksAmongSteps(scenario.stepDefinitions[s], block, stepReference);
 

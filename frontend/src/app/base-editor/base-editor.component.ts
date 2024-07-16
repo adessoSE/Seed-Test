@@ -608,7 +608,7 @@ export class BaseEditorComponent {
       stepType: obj.stepType,
       type: obj.type,
       values: obj.values,
-      isExample: examples && examples.length > 0 ? (obj.mid && obj.pre ? [false, false] : [false]) : [],
+      isExample: [...Array(obj.values.length)].fill(false),
     };
     return newStep;
   }
@@ -2107,10 +2107,9 @@ export class BaseEditorComponent {
   /**
    * Checks the input if an example should be generated or removed
    * @param input
-   * @param stepType
-   * @param step
    * @param stepIndex
    * @param valueIndex
+   * @param stepType
    */
   addIsExample(input, stepIndex: number, valueIndex: number, stepType: string) {
     switch (stepType) {
