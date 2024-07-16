@@ -356,7 +356,7 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 		await Promise.any(promises)
 			.then(async (elem) => {
 				await elem.clear()
-				await typing(elem, value)
+				typing(elem, value)
 			})
 			.catch(async (e) => {
 				await driver.takeScreenshot().then(async (buffer) => {
@@ -370,8 +370,9 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 });
 
 const typing = async(elem, inputString) => {
-	const promises = inputString.split('').map((char) => elem.sendKeys(char))
-	return Promise.all(promises)
+	for (const char of inputString.split('')){
+		await elem.sendKeys(char)
+	}
 }
 
 // "Radio"
