@@ -26,6 +26,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      
+      - name: Run ESLint Formatting
+        run: eslint . --ext .js,.jsx,.ts,.tsx
+
+
       - name: Create .env file backend
         run: |
           echo "DATABASE_URI=${{secrets.DB_URI}}" > backend/.env
@@ -44,9 +49,6 @@ jobs:
           echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> frontend/.env
           echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
           echo "VERSION=SET" >> frontend/.env
-
-      - name: Run ESLint Formatting
-        run: eslint . --ext .js,.jsx,.ts,.tsx
 
       - name: Build and start Docker stack
         env:
