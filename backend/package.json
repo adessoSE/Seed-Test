@@ -2,7 +2,7 @@
   "name": "seed-test-backend",
   "version": "1.7.2",
   "engines": {
-    "node": "^18.13.0 || ^20.9.0"
+    "node": "^18.19.1 || ^20.11.1 || ^22.0.0"
   },
   "scripts": {
     "start": "tsc && node src/server.js",
