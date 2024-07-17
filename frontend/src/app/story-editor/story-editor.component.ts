@@ -1071,14 +1071,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           // run as temp group if there are preconditions
           try {
             const temp_group = await this.createTempGroup();
-            console.log("Temporäre Gruppe erfolgreich erstellt:", temp_group);
+            console.log("Temp group created:", temp_group);
             const params = { id: localStorage.getItem('id'), repository: localStorage.getItem('repository'), source: localStorage.getItem('source'), group: temp_group }
             this.groupService.runTempGroup(params).subscribe((resp: any) => {
               this.testRunResponse(resp);
             });
             // Weitere Verarbeitung mit temp_group hier
           } catch (error) {
-            console.error("Fehler beim Erstellen der temporären Gruppe:", error);
+            console.error("Error while creating temp group", error);
           }
 
         } else {
@@ -1123,17 +1123,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   * Creates temporary group for preconditions storys + current selected story
   */
   async createTempGroup() {
-    const member_stories = [];
+    let member_stories = [];
     const seenStories = new Set();
 
     // add current story to seen stories
     seenStories.add(this.selectedStory.issue_number);
 
     // collect all pre-stories
-    const { member_stories: preStories } = await this.collectPreStories(this.selectedStory, seenStories, []);
-    member_stories.push(...preStories);
-
+    member_stories = await this.collectPreStories(this.selectedStory, seenStories, []);
+    
     member_stories.push(this.selectedStory);
+
+    for (let story of member_stories) {
+      console.log("Temp group story:", story.issue_number);
+    }
 
     const temp_group = {
       _id: -1,
@@ -1142,8 +1145,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       isSequential: true
     };
 
-    console.log('Temp Group:', temp_group);
-
     return temp_group;
   }
 
@@ -1151,32 +1152,40 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   * Collects all pre-stories for a given story recursively
   */
   async collectPreStories(story, seenStories, member_stories) {
+    console.log("Collecting pre-conditions for story:", story.issue_number);
+    // do pre-conditions exist?
     if (story.preConditions && story.preConditions.length > 0) {
       for (let precondition of story.preConditions) {
-        for (let innerStoryKey of precondition.testSet) {
+        // do tests within pre-conditions exist?
+        if (precondition.testSet && precondition.testSet.length > 0) {
 
-          let newSeenStories = new Set(seenStories);
+          // run for each inner story of pre-condition
+          for (let innerStoryKey of precondition.testSet) {
 
-          if (!newSeenStories.has(innerStoryKey)) {
-          newSeenStories.add(innerStoryKey);
+            let newSeenStories = new Set(seenStories);
+            console.log("Seen storys so far:", newSeenStories);
+            if (!newSeenStories.has(innerStoryKey)) {
+              console.log("This nested story is not seen yet:", innerStoryKey);
+              newSeenStories.add(innerStoryKey);
 
-            try {
-              const innerStory = await firstValueFrom(this.storyService.getStoryByIssueKey(innerStoryKey));
-              member_stories.unshift(innerStory);
-              newSeenStories.add(innerStory.issue_number);
+              try {
+                // fetch whole story object
+                const innerStory = await firstValueFrom(this.storyService.getStoryByIssueKey(innerStoryKey));
+                member_stories.unshift(innerStory);
 
-              // run recursively for inner story
-              if (innerStory.preConditions) {
-                await this.collectPreStories(innerStory, newSeenStories, member_stories);
+                // run recursively for inner story if pre-conditions exist
+                if (innerStory.preConditions && innerStory.preConditions.length > 0) {
+                  await this.collectPreStories(innerStory, newSeenStories, member_stories);
+                }
+              } catch (error) {
+                console.error('Error fetching story details:', error);
               }
-            } catch (error) {
-              console.error('Error fetching story details:', error);
             }
           }
         }
       }
     }
-    return { member_stories, seenStories };
+    return member_stories;
   }
 
 
