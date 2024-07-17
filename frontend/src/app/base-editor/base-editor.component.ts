@@ -230,6 +230,20 @@ export class BaseEditorComponent {
             _blockReferenceId: block[1]._id, id: 0, type: block[1].name,
             stepType: block[2].toLowerCase(), pre: '', mid: '', post: '', values: []
           };
+          // Initialzes Examples Table when Selected Scenario doesn't have any Examples 
+          if (this.selectedScenario?.multipleScenarios?.length === undefined || this.selectedScenario.multipleScenarios.length === 0) {
+            this.selectedScenario.multipleScenarios[0] = block[1].stepDefinitions['example'][0]
+            this.selectedScenario.multipleScenarios[1] = {values: [...Array(block[1].stepDefinitions['example'][0].values.length)].fill('value')}
+          }
+          // Adds new Example if non-existent
+          else {
+            let missingValues = block[1].stepDefinitions['example'][0].values
+            .map((x) => {return x})
+            .filter((x) => this.selectedScenario.multipleScenarios[0].values.indexOf(x) == -1);
+            missingValues.forEach(v => {
+              this.exampleService.newExampleEmit(v) 
+            });
+          }
           this.addStep(blockReference, this.selectedScenario, 'scenario');
         } else {
           block = block[1];
@@ -485,7 +499,7 @@ export class BaseEditorComponent {
             if(!result) return;
             console.log("Upload modal return: ", result);
             const preSelectValues = [result.filename];
-            newStep = this.createNewStep(step, stepLocation, selectedScenario.multipleScenarios);
+            newStep = this.createNewStep(step, stepLocation);
             preSelectValues.forEach((value, index) => {
                 if (value) {
                     newStep.values[index] = value;
@@ -495,7 +509,7 @@ export class BaseEditorComponent {
             console.error("Error while opening file explorer modal:", error);
         }
     } else {
-      newStep = this.createNewStep(step, stepLocation, selectedScenario.multipleScenarios);
+      newStep = this.createNewStep(step, stepLocation);
     }
     console.log('newstep ',newStep);
 
@@ -596,7 +610,7 @@ export class BaseEditorComponent {
    * @param stepDefinitions
    * @returns
    */
-  createNewStep(step: StepType, stepDefinitions: StepDefinition | StepDefinitionBackground, examples?: MultipleScenario[]): StepType {
+  createNewStep(step: StepType, stepDefinitions: StepDefinition | StepDefinitionBackground): StepType {
     const obj = JSON.parse(JSON.stringify(step));
     const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
     const newStep: StepType = {
@@ -2262,7 +2276,7 @@ export class BaseEditorComponent {
    */
   addExampleStep(step: StepType) {
     console.log("addExampleStep");
-    const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, this.selectedScenario.multipleScenarios);
+    const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
     this.selectedScenario.multipleScenarios.push(newStep);
     const len = this.selectedScenario.multipleScenarios[0].values.length;
     for (let j = 1; j < len; j++) {
@@ -2437,6 +2451,15 @@ export class BaseEditorComponent {
       this.lastToFocus = '';
     });*/
 
+  }
+
+  matchString (element) {
+    const textContent = element.textContent;
+    const examplesRegex = /<[^>]*>/;
+    const match = textContent.match(examplesRegex);
+    if (match && this.templateName === 'block-editor') {
+      element.contentEditable = false
+    } 
   }
 
 }
