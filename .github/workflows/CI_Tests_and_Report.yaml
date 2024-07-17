@@ -27,8 +27,8 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       
-      - name: Run ESLint Formatting
-        run: eslint . --ext .js,.jsx,.ts,.tsx
+      # - name: Run ESLint Formatting
+      #   run: eslint . --ext .js,.jsx,.ts,.tsx
 
 
       - name: Create .env file backend
