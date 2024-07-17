@@ -355,8 +355,8 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 
 		await Promise.any(promises)
 			.then(async (elem) => {
-				await elem.clear();
-				await elem.sendKeys(value);
+				await elem.clear()
+				typing(elem, value)
 			})
 			.catch(async (e) => {
 				await driver.takeScreenshot().then(async (buffer) => {
@@ -368,6 +368,12 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
 });
+
+const typing = async(elem, inputString) => {
+	for (const char of inputString.split('')){
+		await elem.sendKeys(char)
+	}
+}
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
