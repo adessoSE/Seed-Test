@@ -60,7 +60,7 @@
     "@angular-eslint/schematics": "18.1.0",
     "@angular-eslint/template-parser": "18.1.0",
     "@angular/compiler-cli": "^18.1.0",
-    "@compodoc/compodoc": "^1.1.16",
+    "@compodoc/compodoc": "^1.1.25",
     "@popperjs/core": "^2.11.8",
     "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
