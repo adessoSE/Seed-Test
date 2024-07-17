@@ -45,6 +45,9 @@ jobs:
           echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
           echo "VERSION=SET" >> frontend/.env
 
+      - name: Run ESLint Formatting
+        run: eslint . --ext .js,.jsx,.ts,.tsx
+
       - name: Build and start Docker stack
         env:
           NODE_VERSION: ${{ matrix.node-version }}
