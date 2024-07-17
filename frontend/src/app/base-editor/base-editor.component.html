@@ -151,7 +151,7 @@
                         *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0"
                         style="display: flex; overflow: hidden; align-items: center;">
                         <div
-                          *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] == undefined) || !this.selectedScenario.multipleScenarios[i]" style="overflow: hidden;">
+                          *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] == undefined) || !this.selectedScenario?.multipleScenarios[i]" style="overflow: hidden;">
                           <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl"
                             elFocus class="{{ name }}" id="{{name+'_' + i + '_input_pre_' + j}}" #step_type_input1
                             type="text" value="{{currentStep.values[0]}}"
@@ -203,7 +203,7 @@
                       </div>
                       <div>{{currentStep.mid}}</div>
                       <div *ngIf="((currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1) && currentStep.values[1] != null" style="display: flex; align-items: center; overflow: hidden;">
-                        <div *ngIf="currentStep.isExample[1] == false || ((!currentStep.values[1] || currentStep.values[1]) && currentStep.isExample[1] != true) || !this.selectedScenario.multipleScenarios[i]" style="overflow: hidden;">
+                        <div *ngIf="currentStep.isExample[1] == false || ((!currentStep.values[1] || currentStep.values[1]) && currentStep.isExample[1] != true) || !this.selectedScenario?.multipleScenarios[i]" style="overflow: hidden;">
                           <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl"
                               class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2 type="text"
                               value="{{currentStep.values[1]}}"
@@ -261,7 +261,7 @@
                       style="display:flex">
                       <div *ngIf="currentStep.values[2] != null" style="display: flex;">
                         <div
-                          *ngIf="currentStep.isExample[2] == false || ((!currentStep.values[2] || currentStep.values[2]) && currentStep.isExample[2] != true) || !this.selectedScenario.multipleScenarios[i]">
+                          *ngIf="currentStep.isExample[2] == false || ((!currentStep.values[2] || currentStep.values[2]) && currentStep.isExample[2] != true) || !this.selectedScenario?.multipleScenarios[i]">
                           <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl"
                             class="{{name}}" id="{{name+'_' + i + '_input_post_' + j}}" #step_type_input3 type="text"
                             value="{{currentStep.values[2]}}"
@@ -374,7 +374,7 @@
                   Each test case created by this will be carried out individually and independent.
                 </span--></dfn>
           </div>
-          <div *ngIf="this.selectedScenario.multipleScenarios.length === 0">
+          <div *ngIf="this.selectedScenario?.multipleScenarios.length === 0">
             <button id="{{name+'_add_step' + i}}" (click)="openExampleModal('createFirst')" title="Activate Multiple Scenarios" uk-tooltip>
               <div style="display:grid">
                 <em style="grid-column: 1; grid-row: 1; font-size: 26px !important"

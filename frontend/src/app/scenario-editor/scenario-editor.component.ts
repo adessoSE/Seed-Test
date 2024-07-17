@@ -460,6 +460,6 @@ export class ScenarioEditorComponent implements OnInit{
 
     blockSelectTrigger(block) {
         this.selectedBlock =  this.blocks.find(i => i._id == block._blockReferenceId);
-        block.stepDefinitions = this.selectedBlock.stepDefinitions;
+        block.stepDefinitions = this.selectedBlock?.stepDefinitions;
     }
 }
