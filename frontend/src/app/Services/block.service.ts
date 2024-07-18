@@ -333,7 +333,13 @@ export class BlockService {
       
         block.stepDefinitions[s].forEach((step: StepType) => {
           step.checked = false;
-          scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
+          if (scenario.stepDefinitions[s]) {
+            scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
+          }
+          else {
+            scenario.multipleScenarios.push(JSON.parse(JSON.stringify(step)));
+          }
+          
         });
         
         // Remove the block reference among the steps
