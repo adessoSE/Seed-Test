@@ -120,7 +120,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.parentComponent = comp;
     this.backgroundName = backgroundName;
     this.isBackground = isBackground;
-    if (block.multipleScenarios && block.multipleScenarios.length > 0) {
+    if (block.stepDefinitions.example && block.stepDefinitions.example.length > 0) {
       this.exampleBlock = true;
     }
     this.createStepList();
@@ -142,7 +142,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     let toastrShown = false;
     Object.keys(this.block.stepDefinitions).forEach((key, _) => {
         this.block.stepDefinitions[key].forEach((step: StepType) => {
-          if(step.stepType !== undefined){
+          if(step.stepType != 'example'){
             if(step._blockReferenceId && !toastrShown){
               this.toastr.info("Please Note: To avoid complexity issues embedded blocks aren't allowed to be saved in another blocks ","You've selected at least one reference block to save in another block.", {
                 timeOut: 8000,
@@ -243,8 +243,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     }
     //saving block if contain examples
     if(this.exampleChecked){
-      this.block.stepDefinitions = {given: [], when: [], then: []}
-      this.block.multipleScenarios = this.stepListSaveBlockExample;
+      this.block.stepDefinitions = {given: [], when: [], then: [], example: this.stepListSaveBlockExample}
     }
     //saving block central as a background(won't be displayed when adding a block, only in the list of backgrounds)
     if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){

@@ -329,16 +329,10 @@ export class BlockService {
   unpackStepsFromBlock(block: Block, scenario: Scenario, stepReference?: StepType) {
     if (block && block.stepDefinitions) {
       for (const s in block.stepDefinitions) {
-      
         block.stepDefinitions[s].forEach((step: StepType) => {
           step.checked = false;
-          if (scenario.stepDefinitions[s]) {
-            const idxs = step.values.map(v => {return scenario.multipleScenarios[0].values.indexOf(v.replace('<', "").replace('>', ""))})
-            step.isExample = idxs.map( i => { return i != -1}) 
-            scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
-          }
+          scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
         });
-        
         // Remove the block reference among the steps
         this.removeBlocksAmongSteps(scenario.stepDefinitions[s], block, stepReference);
 
@@ -371,10 +365,9 @@ export class BlockService {
    * @param stepReference
    */
   removeBlocksAmongSteps(stepToSplice, block, stepReference? : StepType) {
-    
     const index = stepReference !== undefined
-      ? stepToSplice?.findIndex((element) => element.stepType === stepReference.stepType && element.id === stepReference.id )
-      : stepToSplice?.findIndex((element) => element._blockReferenceId === block._id);
+      ? stepToSplice.findIndex((element) => element.stepType === stepReference.stepType && element.id === stepReference.id )
+      : stepToSplice.findIndex((element) => element._blockReferenceId === block._id);
 
     if (index > -1) {
       stepToSplice.splice(index, 1);

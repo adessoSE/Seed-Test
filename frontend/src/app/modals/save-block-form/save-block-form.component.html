@@ -1,88 +1,85 @@
-<!--Save Block Form Modal-->
-<ng-template #saveBlockFormModal let-modal style="transform: translate(-3%, 0);
+  <!--Save Block Form Modal-->
+  <ng-template #saveBlockFormModal let-modal style="transform: translate(-3%, 0);
   width: 110%;">
-  <!-- If no block name given submits placeholder title -->
-  <app-layout-modal></app-layout-modal>
-  <div class="modal-header">
-    <span id="modalHeader" class="MediumSubline1H4 modal-title">Save Steps as Block</span>
-    <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-      <span id="infoSpan" rel="def">
-        Save multiple Steps as a Block. Use Blocks to create reusable processes that are saved project-wide.
-        Changes to a Block will affect other Scenarios using the same Block.
-      </span>
-    </dfn>
-    <button type="button" class="close" aria-label="Close" (click)="closeModal()">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <form #saveBlockForm="ngForm" novalidate (ngSubmit)="onSubmit(saveBlockForm)">
-    <div class="modal-body modal-xl">
-      <div class="uk-card-title submitForm">
-        <div class="blockNameContainer modalsContent">
-          <div *ngIf="isBackground === false || isBackground === undefined" class="uk-form-label" id="inputLabels">
-            <label class="block">Enter name*</label>
-            <input type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
-          </div>
-          <div *ngIf="isBackground === true" class="uk-form-label" id="inputLabels" style="padding-right: 30px;
+    <!-- If no block name given submits placeholder title -->
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+      <span id="modalHeader" class="MediumSubline1H4 modal-title">Save Steps as Block</span>
+      <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+        <span id="infoSpan" rel="def">
+          Save multiple Steps as a Block. Use Blocks to create reusable processes that are saved project-wide.
+          Changes to a Block will affect other Scenarios using the same Block.
+        </span>
+      </dfn>
+      <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+          <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <form #saveBlockForm="ngForm" novalidate (ngSubmit)="onSubmit(saveBlockForm)">
+      <div class="modal-body modal-xl">
+        <div class="uk-card-title submitForm">
+          <div class="blockNameContainer modalsContent">
+              <div *ngIf="isBackground === false || isBackground === undefined" class="uk-form-label" id="inputLabels">
+                <label class="block">Enter name*</label>
+                <input type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
+              </div>
+              <div *ngIf="isBackground === true" class="uk-form-label" id="inputLabels" style="padding-right: 30px;
               font-size: 16px;">
-            <label>Background Name:</label>
-            {{this.backgroundName}}
+                <label>Background Name:</label>
+                {{this.backgroundName}}
+              </div>
           </div>
-        </div>
-        <div *ngIf="!this.exampleChecked" class="tableContainer">
-          <span class="blockNameHeader blockNameHeader">Selected Steps</span>
-          <table id="blockStepTable" mat-table [dataSource]="stepListSaveBlock" class="mat-elevation-z8" aria-describedby="mydesc2">
-            <ng-container matColumnDef="stepType">
-              <td mat-cell *matCellDef="let element" style="text-transform: capitalize">
-                <ng-container *ngIf="element.stepType!='example'">{{element.stepType}}</ng-container>
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="pre">
-              <td mat-cell *matCellDef="let element">
-                <ng-container *ngIf="element.stepType!='example'">{{element.pre}} {{element.values[0]}} {{element.mid}} {{element.values[1]}} {{element.values[2]}} {{element.values[3]}}</ng-container>
-              </td>
-            </ng-container>
-            <tr mat-row *matRowDef="let row; columns: displayedColumnsSaveBlock;"></tr>
-          </table>
-        </div>
-        <div id="multipleScenarioDiv" class="tableContainer">
-          <span class="blockNameHeader blockNameHeader">Selected Multiple Scenarios</span>
-          <table id="blockStepTable" mat-table [dataSource]="stepListSaveBlockExample" class="mat-elevation-z8" aria-describedby="mydesc2">
-            <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumnsSaveBlockExample">
-              <td mat-cell *matCellDef="let element; let i=index">
-                <ng-container *ngIf="column=='stepType' && i==0">Variable</ng-container>
-                <ng-container *ngIf="column=='stepType' && i!=0">Value</ng-container>
-                <ng-container *ngIf="column!='stepType'">{{element.values[column]}}</ng-container>
-                <ng-container>
-                  <label *ngIf="!element.values[column]?.trim() && column!='stepType'" class="nullExampleValue">[--null--]</label>
-                </ng-container>
-              </td>
-            </ng-container>
-            <tr mat-row *matRowDef="let row; columns: displayedColumnsSaveBlockExample;"></tr>
-          </table>
-        </div>
-        <div class="exampleCheckboxContainer" *ngIf="exampleBlock">
-          <label class="uk-form-label">Save only Mutliple Scenario</label>
-          <input class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck()">
+          <div *ngIf="!this.exampleChecked" class="tableContainer">
+            <span class="blockNameHeader blockNameHeader">Selected Steps</span>
+            <table id="blockStepTable" mat-table [dataSource]="stepListSaveBlock" class="mat-elevation-z8" aria-describedby="mydesc2">
+              <ng-container matColumnDef="stepType">
+                <td mat-cell *matCellDef="let element" style="text-transform: capitalize"> 
+                  <ng-container *ngIf="element.stepType!='example'">{{element.stepType}}</ng-container>
+                  </td>
+              </ng-container>
+              <ng-container matColumnDef="pre">
+                <td mat-cell *matCellDef="let element"> 
+                  <ng-container *ngIf="element.stepType!='example'">{{element.pre}} {{element.values[0]}} {{element.mid}} {{element.values[1]}} {{element.values[2]}} {{element.values[3]}}</ng-container>
+                  </td>
+              </ng-container>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsSaveBlock;"></tr>
+            </table>
+          </div>
+          <div id="multipleScenarioDiv" class="tableContainer">
+            <span class="blockNameHeader blockNameHeader">Selected Multiple Scenarios</span>
+            <table id="blockStepTable" mat-table [dataSource]="stepListSaveBlockExample" class="mat-elevation-z8" aria-describedby="mydesc2">
+              <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumnsSaveBlockExample">
+                <td mat-cell *matCellDef="let element; let i=index"> 
+                  <ng-container *ngIf="column=='stepType' && i==0">Variable</ng-container>
+                  <ng-container *ngIf="column=='stepType' && i!=0">Value</ng-container>
+                  <ng-container *ngIf="column!='stepType'">{{element.values[column]}}</ng-container>
+                   </td>
+              </ng-container>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsSaveBlockExample;"></tr>
+            </table>
+          </div>
+          <div class="exampleCheckboxContainer" *ngIf="exampleBlock">
+            <label class="uk-form-label">Save only Mutliple Scenario</label>
+            <input class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck()">
+          </div>
         </div>
       </div>
-    </div>
-    <div id="saveBlockFooter" class="modal-footer">
-      <form *ngIf="blocks.length !== 0 && !isBackground" class="saveAsSingleSteps">
-        <label id="saveAsSingleStepsLabel">Keep Steps separated: </label>
-        <input type="checkbox" [checked]="this.saveAsSingleSteps" [disabled]="this.selectedTemplate === 'background'" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
-        <dfn class="def">
-          <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999; transform: translate(0px, 2px);"></span>
-          <span rel="def">
-            Use this Option to keep the Steps separated in the current Scenario.
-            Otherwise the selected Steps will be turned into a Block automatically.
-            The Block can later be added in both ways - as a Block or as regular Steps.
-          </span>
-        </dfn>
-      </form>
-      <button *ngIf="isBackground === true" class="normalButton deleteButton" type="button" (click)="closeModal()">Discard Background</button>
-      <button class="normalButton" type="submit" [disabled]="!saveBlockForm.valid"
+      <div id="saveBlockFooter" class="modal-footer">
+        <form *ngIf="blocks.length !== 0 && !isBackground" class="saveAsSingleSteps">
+          <label id="saveAsSingleStepsLabel">Keep Steps separated: </label>
+          <input type="checkbox" [checked]="this.saveAsSingleSteps" [disabled]="this.selectedTemplate === 'background'" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
+          <dfn class="def">
+            <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999; transform: translate(0px, 2px);"></span>
+            <span rel="def">
+              Use this Option to keep the Steps separated in the current Scenario. 
+              Otherwise the selected Steps will be turned into a Block automatically.
+              The Block can later be added in both ways - as a Block or as regular Steps.
+            </span>
+          </dfn>
+        </form>
+        <button *ngIf="isBackground === true" class="normalButton deleteButton" type="button" (click)="closeModal()">Discard Background</button>
+        <button class="normalButton" type="submit" [disabled]="!saveBlockForm.valid"
         [ngStyle]="{'opacity': !saveBlockForm.valid ?  '50%' : '100%'}">Submit</button>
-    </div>
-  </form>
-</ng-template>
+      </div>
+    </form>
+  </ng-template>

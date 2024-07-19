@@ -62,7 +62,7 @@ input[type=checkbox] {
 .stepLine {
 	box-sizing: border-box;
 	width: fit-content;
-	max-width: -webkit-fill-available;
+	max-width: inherit;
 	padding: 1px 20px 1px 20px;
 	align-items: center;
 }
