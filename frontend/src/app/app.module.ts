@@ -86,8 +86,9 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { WindowSizeComponent } from './modals/window-size/window-size.component';
 import { FileExplorerModalComponent } from "./modals/file-explorer-modal/file-explorer-modal.component";
-
 import { ExecutionListComponent } from './modals/execution-list/execution-list.component';
+import { FileManagerComponent } from "./file-manager/file-manager.component";
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -144,7 +145,8 @@ import { ExecutionListComponent } from './modals/execution-list/execution-list.c
     ConfirmResetPasswordPopupComponent,
     WindowSizeComponent,
     FileExplorerModalComponent,
-    ExecutionListComponent
+    ExecutionListComponent,
+    FileManagerComponent,
   ],
   imports: [
     NgbModule,
@@ -180,7 +182,8 @@ import { ExecutionListComponent } from './modals/execution-list/execution-list.c
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCheckboxModule
   ],
   providers: [
     ApiService,

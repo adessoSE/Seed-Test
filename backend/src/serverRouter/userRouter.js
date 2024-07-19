@@ -2,7 +2,6 @@
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
-const fetch = require('node-fetch');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
@@ -331,8 +330,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		// get Jira Repo / Projects
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
-		const { projectKey } = req.query;
-		const { id } = req.query;
+		const { projectKey, id } = req.query;
 		const jiraTracker = issueTracker.IssueTracker.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
 		const clearPass = jiraTracker.decryptPassword(req.user.jira);
 		const { AccountName, AuthMethod, Host } = req.user.jira;
@@ -344,6 +342,10 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 
 		const tmpStories = new Map();
 		const storiesArray = [];
+
+		// need https so request is not redirected
+		// when the request is redirected, the Authorization Header is removed
+		// https://developer.mozilla.org/en-US/docs/Web/API/fetch#headers
 		const options = {
 			method: 'GET',
 			headers: {
@@ -358,8 +360,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		// 	testSetResponse = await fetch(`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+issuetype="${testSetString}"`, options)
 		try {
 			await fetch(
-				`http://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test+OR+issuetype="Test Set"+OR+issuetype="Pre-Condition")&startAt=0&maxResults=200`,
-				// `http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+(labels=Seed-Test+OR+issuetype=Test)&startAt=0&maxResults=200`,
+				`https://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test+OR+issuetype="Test Set"+OR+issuetype="Pre-Condition")&startAt=0&maxResults=200`,
 				options
 			)
 				.then(async (response) => response.json())
@@ -367,6 +368,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 					try {
 
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
+						console.log('hey my json', json)
 
 						const asyncHandleTestIssue = json.issues.map(async (issue) => {
 							// If the issue is a "Test Set" issue
@@ -473,7 +475,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 						});
 				});
 		} catch (e) {
-			console.error('Jira Error during API call:', e);
+			console.error(' #### Error while parsing Jira issues:\n', e);
 		}
 		// get DB Repo / Projects
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
@@ -568,15 +570,16 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 
 async function handleTestIssue(issue, options, Host) {
 	// Fetch all test runs for the given issue
-	const testrunResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
+	const testrunResponse = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
+	console.log(testrunResponse)
 	const testRuns = await testrunResponse.json();
 
 	// Fetch details for all test runs
-	const testRunDetailsPromises = testRuns.map((testRun) => fetch(`http://${Host}/rest/raven/2.0/api/testrun/${testRun.id}`, options).then(response => response.json()));
+	const testRunDetailsPromises = testRuns.map((testRun) => fetch(`https://${Host}/rest/raven/2.0/api/testrun/${testRun.id}`, options).then(response => response.json()));
 	const resolvedTestRuns = await Promise.all(testRunDetailsPromises);
 
 	// Fetch all test steps defined for the given issue
-	const testStepsResponse = await fetch(`http://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
+	const testStepsResponse = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
 	const testSteps = await testStepsResponse.json();
 
 	// Process the test steps with corresponding testrun

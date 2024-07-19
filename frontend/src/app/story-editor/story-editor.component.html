@@ -229,9 +229,13 @@
     <!--Buttons Run Story-->
     <div class="storyInfoContainer">
       <div class="storyInfoLeft">
-        <button class="button" (click)="openReportHistory()" uk-tooltip="Switch to Report View">
+        <button class="button" (click)="changeActiveView('reportHistoryView')" uk-tooltip="Switch to Report View">
           <em class="material-icons">insert_chart_outlined</em>
           View Reports
+        </button>
+        <button class="button" (click)="changeActiveView('fileManagerView')" uk-tooltip="Switch to File Manager">
+          <em class="material-icons">folder_open</em>
+         File Manager
         </button>
         <div class="storyInOneSessionDiv">
           <label class="selectLabel SmallIcontext">Run Story in one Session:</label>

@@ -1,13 +1,11 @@
 import mongo from "../../src/database/DbServices";
-import dbConnector from "../../src/database/dbConnector";
+import dbConnector from "../../src/database/DbConnector";
 import { jiraDecryptPassword } from "./userManagement";
 import emptyScenario from "../../src/models/emptyScenario";
 import emptyBackground from "../../src/models/emptyBackground";
 import { writeFile } from "../../src/serverHelper";
 import AdmZip from "adm-zip";
 import path from "path";
-import fetch from "node-fetch";
-import test from 'node:test';
 
 enum Sources {
 	GITHUB = "github",
@@ -69,46 +67,28 @@ async function getJiraRepos(jiraUser: any) {
  * @param jiraClearPassword
  * @returns
  */
-async function requestJiraRepos(
-  host: string,
-  username: string,
-  jiraClearPassword: string,
-  authMethod: string
-) {
-  let authString: string = `Bearer ${jiraClearPassword}`;
-  if (authMethod === "basic") {
-    const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString(
-      "base64"
-    );
-    authString = `Basic ${auth}`;
-  }
-  console.log("auth ", authString);
-  const reqoptions = {
-    method: "GET",
-    qs: {
-      type: "page",
-      title: "title",
-    },
-    headers: {
-      "cache-control": "no-cache",
-      Authorization: authString,
-    },
-  };
-  // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
-  // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
-  return await fetch(`http://${host}/rest/api/2/project`, reqoptions)
-    .then((response) => response.json())
-    .then(async (json) => {
-      const projects = [];
-      for (const project of json) {
-        projects.push(project["name"]);
+async function requestJiraRepos(host: string, username: string, jiraClearPassword: string, authMethod: string) {
+	let authString: string = `Bearer ${jiraClearPassword}`
+	if(authMethod === 'basic'){ 
+		const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
+		authString = `Basic ${auth}`
+	}
+	
+    const reqOptions = {
+      method: 'GET',
+      headers: {
+        'cache-control': 'no-cache',
+        'Authorization': authString
       }
-      return projects;
-    })
-    .catch((error) => {
-      console.error(error);
-      return [];
-    });
+    };
+	const url = `https://${host}/rest/api/2/project`
+    // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
+    // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
+  const jiraProjects =  await fetch(url, reqOptions)
+		.then((response) => response.json())
+		.catch((error) => { console.error(error.stack); return [] })
+	const projects = jiraProjects.map((project) => project.name)
+	return projects
 }
 
 /**

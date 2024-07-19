@@ -65,6 +65,7 @@ router.post('/TempGroup', async (req, res) => {
 	params.repository = req.body.repository;
 	params.repoId = req.body.id;
 	req.body = tempGroup;
+	console.log(tempGroup)
 	reporter.runReport(req, res, mystories, 'group', tempGroup).then(() => {
 		console.log('Report for temporary group created');
 	})

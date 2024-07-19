@@ -347,11 +347,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   @ViewChild("workgroupEditModal") workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('executionListModal') executionListModal: ExecutionListComponent;
 
-  /**
-   * Event emitter to change to the report history component
-   */
-  @Output()
-  changeEditor: EventEmitter<any> = new EventEmitter();
 
   @Output()
   deleteStoryEvent: EventEmitter<any> = new EventEmitter();
@@ -685,10 +680,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Change to the report history component
+   * Change the active view of a story
    */
-  openReportHistory() {
-    this.changeEditor.emit();
+  changeActiveView(viewName) {
+    this.storyService.changeStoryViewEvent(viewName);
   }
 
   /**
