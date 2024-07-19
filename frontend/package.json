@@ -32,7 +32,7 @@
     "@angular/platform-browser": "^17.3.11",
     "@angular/platform-browser-dynamic": "^17.3.11",
     "@angular/router": "^17.3.11",
-    "@material/checkbox": "^15.0.0-canary.7f224ddd4.0",
+    "@material/checkbox": "^15.0.0-canary.fff4066c6.0",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "@ngneat/until-destroy": "^10.0.0",
     "canvg": "^4.0.2",
@@ -50,7 +50,7 @@
     "ngx-owl-carousel-o": "^17.0.0",
     "ngx-toastr": "18.0.0",
     "rxjs": "^7.8.1",
-    "uikit": "^3.21.5",
+    "uikit": "^3.21.6",
     "zone.js": "^0.14.7"
   },
   "devDependencies": {
@@ -63,8 +63,8 @@
     "@compodoc/compodoc": "^1.1.16",
     "@popperjs/core": "^2.11.8",
     "@types/jest": "^29.5.12",
-    "@typescript-eslint/eslint-plugin": "^7.13.1",
-    "@typescript-eslint/parser": "^7.13.1",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
     "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "jest-canvas-mock": "^2.5.2",
