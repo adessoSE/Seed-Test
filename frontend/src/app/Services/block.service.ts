@@ -9,6 +9,7 @@ import { Story } from '../model/Story';
 import { StepType } from '../model/StepType';
 import { StoryService } from './story.service';
 import { Scenario } from '../model/Scenario';
+import { log } from '@angular-devkit/build-angular/src/builders/ssr-dev-server';
 
 /**
  * Service for communication between block component and the backend
@@ -332,11 +333,7 @@ export class BlockService {
       
         block.stepDefinitions[s].forEach((step: StepType) => {
           step.checked = false;
-          if (scenario.stepDefinitions[s]) {
-            const idxs = step.values.map(v => {return scenario.multipleScenarios[0].values.indexOf(v.replace('<', "").replace('>', ""))})
-            step.isExample = idxs.map( i => { return i != -1}) 
-            scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
-          }
+          scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
         });
         
         // Remove the block reference among the steps
