@@ -50,8 +50,8 @@
     "ngx-owl-carousel-o": "^17.0.0",
     "ngx-toastr": "18.0.0",
     "rxjs": "^7.8.1",
-    "uikit": "^3.21.6",
-    "zone.js": "^0.14.7"
+    "uikit": "^3.21.7",
+    "zone.js": "^0.14.8"
   },
   "devDependencies": {
     "@angular-eslint/builder": "17.5.2",
@@ -63,8 +63,8 @@
     "@compodoc/compodoc": "^1.1.16",
     "@popperjs/core": "^2.11.8",
     "@types/jest": "^29.5.12",
-    "@typescript-eslint/eslint-plugin": "^7.16.0",
-    "@typescript-eslint/parser": "^7.16.0",
+    "@typescript-eslint/eslint-plugin": "^7.16.1",
+    "@typescript-eslint/parser": "^7.16.1",
     "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "jest-canvas-mock": "^2.5.2",
