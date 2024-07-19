@@ -273,7 +273,7 @@
                         </mat-form-field>
                       </div>
                       {{currentStep.post}}
-                    </div>
+                    </div> 
                     <div
                       *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=2"
                       style="display:flex">
@@ -321,6 +321,9 @@
                           &nbsp;<p class="exampleButton">1</p>&nbsp;
                         </button>&nbsp;
                       </div>
+                    </div>
+                    <div *ngIf="this.selectedScenario.testKey" class="origin-container">
+                      {{ currentStep.origin || 'Unknown Origin' }}
                     </div>
                     <div *ngIf="currentStep.selectionValue==2">
                       <mat-form-field appearance="standard">

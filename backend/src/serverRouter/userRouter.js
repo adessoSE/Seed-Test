@@ -13,6 +13,7 @@ const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
+const stepDefs = require('../database/stepTypes')
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -413,6 +414,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 				
 						const lstDesc = await Promise.all(asyncHandleTestIssue);
 
+
 						const stories = [];
 
 						for (const [index, issue] of json.issues.entries()) {
@@ -446,6 +448,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 								host: Host,
 								preConditions: finalPreConditions
 							};
+
 							if (issue.fields.assignee !== null) {
 								story.assignee = issue.fields.assignee.name;
 								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
@@ -506,8 +509,9 @@ function extractRaw(givenField) {
 	return '';
 }
 
-function processTestSteps(steps, resolvedTestRuns, issueKey) {
+function processTestSteps(steps, resolvedTestRuns, issueKey, stepTypes) {
 	const scenarioList = [];
+	
 	let testStepDescription = '\n\nTest-Steps:\n';
 
 	// iterate through steps and add step description
@@ -516,8 +520,17 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 			console.log(`Fields missing for step ${step.id}`);
 			return;
 		}
+		
 
 		const { fields } = step;
+
+		// check if xray step is identical to one step from the step definitions
+		identicalMatches = checkIdenticalSteps(fields);
+
+		// create scenario steps from identical matches
+		const { givenSteps, whenSteps, thenSteps } = createScenarioSteps(identicalMatches);
+
+		// create scenario object
 		const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
 		stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
 		stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
@@ -554,18 +567,161 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 			scenario_id: step.id,
 			name: `${step.id}`,
 			stepDefinitions: {
-				given: [],
-				when: [],
-				then: [],
+				given: givenSteps || [],
+				when: whenSteps	|| [],
+				then: thenSteps || [],
 				example: []
 			},
 			testRunSteps: matchingSteps,
 			testKey: issueKey
 		};
+
 		scenarioList.push(scenario);
 	});
 
 	return { scenarioList, testStepDescription };
+}
+
+// Function to check if the given step is identical to one of the step definitions
+function checkIdenticalSteps(stepInput) {
+    const matches = [];
+	let context;
+    // Separate the given, action, and expected result sections and select the relevant text
+    // Split the text by new line
+    ['Given', 'Action', 'Expected Result'].forEach(section => {
+        if (stepInput[section] && stepInput[section].value) {
+            let texts;
+            if (section === 'Given') {
+                texts = stepInput[section].value.split('\n');
+				context = 'given';
+            } else if (section === 'Action') {
+				texts = stepInput[section].value.raw.split('\n');
+				context = 'when';
+			} else if (section === 'Expected Result') {
+				texts = stepInput[section].value.raw.split('\n');
+				context = 'then';
+                
+            }
+
+            // Analyze each separated text against patterns
+            texts.forEach(text => {
+                if (text.trim()) {
+                    const match = analyzeText(text.trim(), context);
+                    if (match) {
+                        matches.push(match);
+                    }
+                }
+            });
+        }
+    });
+
+    return matches;
+	
+}
+
+// Function to analyze text and match with step definitions
+function analyzeText(text, context) {
+    // Get all step types except 'Add Variable' as it is not relevant for the test steps
+    const stepTypes = stepDefs().filter(def => def.type !== 'Add Variable');
+
+    for (let stepType of stepTypes) {
+        if (stepType.stepType === context) {
+            // Create a pattern based on the pre, mid, and post values of the step definition
+            // Store the strings after the pre, mid, and post values by (.*) in the pattern
+            let pattern = `${escapeRegExp(stepType.pre)}(.*)${stepType.mid ? escapeRegExp(stepType.mid) + '(.*)' : ''}`;
+            if (stepType.post) {
+                pattern += `${escapeRegExp(stepType.post)}(.*)`;
+            }
+            const regex = new RegExp(pattern, 'i');
+            const match = text.match(regex);
+            if (match) {
+                const values = match.slice(1).map(value => cleanValue(value.trim().replace(/\.$/, ''))).filter(v => v);
+				if (stepType.type === "Screenshot" && values.length === 0) {
+                    values.push('');
+                }
+                return {
+                    type: stepType.type,
+                    values: values,
+                    pre: stepType.pre,
+                    mid: stepType.mid ? stepType.mid : '',
+                    post: stepType.post ? stepType.post : undefined,
+                    context: context,
+					origin: "congruent"
+                };
+            }
+        }
+    }
+    return null;
+}
+// Replace special characters in a string with escape characters
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Function to clean value and extract email or link
+// e.g. 
+// [http://www.google.com] -> http://www.google.com
+// "test" -> test
+// [mailto:test@test.de] -> test@test.de
+function cleanValue(value) {
+    const linkPattern = /^\[http:\/\/[^\]]+\]$/;
+    const emailPattern = /^\[([^\]]+@[^\]]+)\|mailto:[^\]]+\]$/;
+    const quotesPattern = /^"(.*)"$/;
+
+    if (quotesPattern.test(value)) {
+        value = value.match(quotesPattern)[1]; // remove quotes
+    }
+    if (linkPattern.test(value)) {
+        return value.slice(1, -1); // remove square brackets for links
+    } else if (emailPattern.test(value)) {
+        return value.match(emailPattern)[1]; // extract the email
+    }
+    return value;
+}
+
+// create scenario steps for identical steps between step definitions and xrays test steps
+function createScenarioSteps(matchingSteps){
+	givenSteps = []
+	whenSteps = []
+	thenSteps = []
+
+	let id = 0;
+
+	for (let scenarioStep of matchingSteps) {
+		
+		let newStep = {
+			id: id++,
+			stepType: scenarioStep.context,
+			deactivated: false,
+			origin: scenarioStep.origin,
+		};
+
+		if (scenarioStep.pre !== undefined) {
+			newStep.pre = scenarioStep.pre;
+		}
+		if (scenarioStep.mid !== undefined) {
+			newStep.mid = scenarioStep.mid;
+		}
+		if (scenarioStep.post !== undefined) {
+			newStep.post = scenarioStep.post;
+		}
+		if (scenarioStep.values !== undefined) {
+			newStep.values = scenarioStep.values;
+		}
+
+		if (scenarioStep.context === 'given') {
+			givenSteps.push(newStep)
+		}
+		else if (scenarioStep.context === 'when') {
+			whenSteps.push(newStep)
+		}
+		else if (scenarioStep.context === 'then') {
+			thenSteps.push(newStep)
+		}	
+	}
+
+	return { givenSteps, whenSteps, thenSteps }
+	
 }
 
 async function handleTestIssue(issue, options, Host) {
@@ -582,8 +738,9 @@ async function handleTestIssue(issue, options, Host) {
 	const testStepsResponse = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
 	const testSteps = await testStepsResponse.json();
 
-	// Process the test steps with corresponding testrun
-	const { scenarioList, testStepDescription } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key);
+	// Process the test steps with corresponding testrun and scenario details
+	const stepTypes = stepDefs()
+	const { scenarioList, testStepDescription } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key, stepTypes);
 
 	return { scenarioList, testStepDescription };
 }

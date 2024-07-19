@@ -49,17 +49,18 @@ function jsUcfirst(string) {
 // Building feature file step-content
 function getSteps(steps, stepType) {
 	let data = '';
+	console.log(steps)
 	for (const step of steps) {
 		// eslint-disable-next-line no-continue
 		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-			data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] !== undefined ? `'${step.values[1]}'` : ''}`;
-			if (step.post !== undefined) data += ` ${step.post}${step.values[2] !== undefined ? `'${step.values[2]}'` : ''}`;
+			data += `${step.pre} '${step.values[0]}' ${Boolean(step.mid) ? step.mid : ''}${Boolean(step.values[1]) ? `'${step.values[1]}'` : ''}`;
+			if (Boolean(step.post)) data += ` ${step.post}${Boolean(step.values[2]) ? `'${step.values[2]}'` : ''}`;
 		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
 		else {
 			data += `${step.pre} ${step.mid}${getValues(step.values)}`;
-			if (step.post !== undefined) data += ` ${step.post}`;
+			if (Boolean(step.post)) data += ` ${step.post}`;
 		}
 		data += '\n';
 	}

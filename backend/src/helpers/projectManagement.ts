@@ -212,44 +212,112 @@ function starredRepositories(ownerId, githubId, githubName, token) {
   );
 }
 
-function updateTestrunSteps(dbScenarios, storyScenarios) {
-	dbScenarios.forEach(dbScenario => {
-		const storyScenario = storyScenarios.find(scenario => scenario.scenario_id === dbScenario.scenario_id);
-		if (storyScenario) {
-			storyScenario.testRunSteps.forEach(testRunStep => {
-				const exists = dbScenario.testRunSteps.some(dbTestRunStep =>
-					dbTestRunStep.testRunId === testRunStep.testRunId && dbTestRunStep.testRunStepId === testRunStep.testRunStepId);
-
-				if (!exists) {
-					dbScenario.testRunSteps.push(testRunStep);
-				}
-			});
-			if (storyScenario.testKey) {
-				dbScenario.testKey = storyScenario.testKey;
-			}
-		}
-	});
+function mergeTestRunSteps(dbTestRunSteps, jiraTestRunSteps) {
+  if (dbTestRunSteps !== jiraTestRunSteps) {
+      return jiraTestRunSteps; }
+  else {
+      return dbTestRunSteps;
+  }
 }
 
-function addScenariosToDb(dbScenarios, storyScenarios) {
-	const existingScenarioIds = dbScenarios.map(s => s.scenario_id);
-	const newScenarios = storyScenarios.filter(scenario => !existingScenarioIds.includes(scenario.scenario_id));
-	if (newScenarios.length > 0) {
-		dbScenarios.push(...newScenarios);
-	}
+function mergeStepDefinitions(dbStepDefinitions, jiraStepDefinitions) {
+  const mergedStepDefinitions = {};
+  ['given', 'when', 'then', 'example'].forEach(stepType => {
+    const dbSteps = dbStepDefinitions[stepType] || [];
+    const jiraSteps = jiraStepDefinitions[stepType] || [];
+
+    const allJiraInDb = jiraSteps.every(jiraStep => 
+      dbSteps.some(dbStep => dbStep.id === jiraStep.id)
+    );
+
+    if (allJiraInDb) {
+      mergedStepDefinitions[stepType] = dbSteps.map(dbStep => {
+        const jiraStep = jiraSteps.find(jStep => jStep.id === dbStep.id);
+        return jiraStep ? {...dbStep, ...jiraStep} : dbStep;
+      });
+    } else {
+      mergedStepDefinitions[stepType] = [
+        ...jiraSteps, 
+        ...dbSteps.filter(dbStep => !jiraSteps.some(jStep => jStep.id === dbStep.id))
+      ];
+    }
+  });
+
+  return mergedStepDefinitions;
 }
+
+
+function mergeStories(dbStory, jiraStory) {
+  const mergedStory = { ...dbStory };
+  const dbScenarios = dbStory.scenarios;
+  const jiraScenarios = jiraStory.scenarios;
+
+  const dbScenarioMap = new Map();
+  dbScenarios.forEach(scenario => dbScenarioMap.set(scenario.scenario_id, scenario));
+
+  const jiraScenarioMap = new Map();
+  jiraScenarios.forEach(scenario => jiraScenarioMap.set(scenario.scenario_id, scenario));
+
+  // inidicates if all xray jira scenarios are in db
+  const allJiraInDb = jiraScenarios.every(jiraScenario => dbScenarioMap.has(jiraScenario.scenario_id));
+
+  const mergedScenarios = [];
+
+  // if all jira scenarios are in db, we keep db order and merge jira scenarios
+  if (allJiraInDb) {
+  
+    dbScenarios.forEach(dbScenario => {
+      const jiraScenario = jiraScenarioMap.get(dbScenario.scenario_id);
+      if (jiraScenario) {
+        mergedScenarios.push({
+          ...dbScenario,
+          name: jiraScenario.name,
+          stepDefinitions: mergeStepDefinitions(dbScenario.stepDefinitions, jiraScenario.stepDefinitions),
+          testRunSteps: mergeTestRunSteps(dbScenario.testRunSteps, jiraScenario.testRunSteps),
+          testKey: jiraScenario.testKey
+        });
+      } else {
+        mergedScenarios.push(dbScenario);
+      }
+    });
+    // if not all jira scenarios are in db, we keep jira order first and add db scenarios
+  } else {
+    jiraScenarios.forEach(jiraScenario => {
+      const dbScenario = dbScenarioMap.get(jiraScenario.scenario_id);
+      if (dbScenario) {
+        mergedScenarios.push({
+          ...dbScenario,
+          name: jiraScenario.name,
+          stepDefinitions: mergeStepDefinitions(dbScenario.stepDefinitions, jiraScenario.stepDefinitions),
+          testRunSteps: mergeTestRunSteps(dbScenario.testRunSteps, jiraScenario.testRunSteps),
+          testKey: jiraScenario.testKey
+        });
+      } else {
+        mergedScenarios.push(jiraScenario);
+      }
+    });
+
+    // add remaining db scenarios that were not processed
+    dbScenarios.forEach(dbScenario => {
+      if (!jiraScenarioMap.has(dbScenario.scenario_id)) {
+        mergedScenarios.push(dbScenario);
+      }
+    });
+  }
+
+  mergedStory.scenarios = mergedScenarios;
+
+  return mergedStory;
+}
+
 
 async function fuseStoryWithDb(story) {
 	const result = await mongo.getOneStory(parseInt(story.story_id, 10));
+
 	if (result !== null) {
-
-		// update scenarios in db in case new testruns have been added
-		updateTestrunSteps(result.scenarios, story.scenarios);
-
-		// add scenarios for new xray steps
-		addScenariosToDb(result.scenarios, story.scenarios);
-
-		story.scenarios = result.scenarios;
+    
+		const mergedStory = mergeStories(result, story);
+		story.scenarios = mergedStory.scenarios;
 		story.background = result.background;
 		story.lastTestPassed = result.lastTestPassed;
 	} else {
