@@ -8,8 +8,8 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install global dependencies TODO: This was needed by 19.07.2024 - may be removeable in the future
-RUN npm install -g @mapbox/node-pre-gyp --ignore-scripts
+# Update npm to the latest version
+RUN npm install -g npm@latest
 
 # Install dependencies
 RUN npm ci --ignore-scripts

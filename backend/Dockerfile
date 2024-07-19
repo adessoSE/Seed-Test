@@ -50,6 +50,9 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
+# Update npm to the latest version
+RUN npm install -g npm@latest
+
 # Install global dependencies TODO: This was needed by 19.07.2024 - may be removeable in the future
 RUN npm install -g @mapbox/node-pre-gyp --ignore-scripts
 
