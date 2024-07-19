@@ -50,8 +50,8 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
-# Install global dependencies
-RUN npm install -g node-pre-gyp
+# Install global dependencies TODO: This was needed by 19.07.2024 - may be removeable in the future
+RUN npm install -g @mapbox/node-pre-gyp --ignore-scripts
 
 # Install dependencies and rebuild native modules
 RUN npm install --ignore-scripts && npm rebuild bcrypt
