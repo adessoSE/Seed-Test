@@ -50,7 +50,7 @@ jobs:
           NODE_VERSION: ${{ matrix.node-version }}
         run: |
           docker-compose -f docker-test.yml build \
-
+            --build-arg NODE_VERSION=$NODE_VERSION \
             --platform $PLATFORMS
           docker-compose -f docker-test.yml up -d
           
