@@ -1,4 +1,3 @@
-import { MultipleScenario } from './MuiltipleScenario';
 import {StepDefinition} from './StepDefinition';
 
 /**
@@ -71,10 +70,4 @@ export interface Scenario {
      */
 
     height?: number;
-
-     /**
-     * Multiple scenarios
-     */
-
-    multipleScenarios?: MultipleScenario[];
 }

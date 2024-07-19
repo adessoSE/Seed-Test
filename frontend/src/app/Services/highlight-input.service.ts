@@ -6,7 +6,7 @@ import { ApiService } from "./api.service";
   providedIn: "root",
 })
 export class HighlightInputService {
-  constructor(public toastr: ToastrService, public apiService: ApiService) { }
+  constructor(public toastr: ToastrService, public apiService: ApiService) {}
   targetOffset: number = 0;
 
   /**
@@ -57,14 +57,7 @@ export class HighlightInputService {
       ({ specialCommandDetected, highlightedText } =
         this.highlightSpecialCommands(highlightedText, isDark));
     }
-
-    const examplesRegex = /<[^>]*>/;
-    const match = textContent.match(examplesRegex);
-    if (match && match.length > 0) {
-      return match.input
-    } else {
-      textField.innerHTML = highlightedText ? highlightedText : textContent;
-    }
+    textField.innerHTML = highlightedText ? highlightedText : textContent;
 
     // Set cursor to correct position
     if (!initialCall) {
@@ -130,11 +123,14 @@ export class HighlightInputService {
         regexDetected = true;
         return (
           `<span>` +
-          `<span style="color: ${isDark ? "var(--light - grey)" : "var(--brown-grey)"
+          `<span style="color: ${
+            isDark ? "var(--light - grey)" : "var(--brown-grey)"
           }; font-weight: bold">${match1}</span>` +
-          `<span style="color: ${isDark ? "#ffbae1" : "#a71768"
+          `<span style="color: ${
+            isDark ? "#ffbae1" : "#a71768"
           }; font-weight: bold">${match2}</span>` +
-          `<span style="color: ${isDark ? "var(--light-grey)" : "var(--brown-grey)"
+          `<span style="color: ${
+            isDark ? "var(--light-grey)" : "var(--brown-grey)"
           }; font-weight: bold">${match3}</span></span>${match4}`
         );
       }
@@ -159,40 +155,38 @@ export class HighlightInputService {
     // TODO: Hardcoded Styles
     highlightedText = textContent.replace(specialCommandsPattern, (match) => {
       specialCommandDetected = true;
-      var identifier = `specialInputId${Date.now().toString(36) + this.getRandomString(10)}`;
+      var identifier = `specialInputId${
+        Date.now().toString(36) + Math.random().toString(36).substr(2)
+      }`;
       this.apiService.resolveSpecialCommand(match).subscribe({
         next: (resolvedCommand) => {
           if (resolvedCommand === match) {
-            const findIdentifier = document.querySelector(`#${identifier}`);
-            if (findIdentifier) {
-              findIdentifier.setAttribute("uk-tooltip", `title: Unknown command: ${resolvedCommand}`);
-            }
+            document
+              .querySelector(`#${identifier}`)
+              .setAttribute(
+                "uk-tooltip",
+                `title: Unknown command: ${resolvedCommand}`
+              );
           } else {
-            const findIdentifier = document.querySelector(`#${identifier}`);
-            if (findIdentifier) {
-              findIdentifier.setAttribute("uk-tooltip", `title:${resolvedCommand}`);
-            }
+            document
+              .querySelector(`#${identifier}`)
+              .setAttribute("uk-tooltip", `title:${resolvedCommand}`);
           }
         },
         error: (error) => {
-          const findIdentifier = document.querySelector(`#${identifier}`);
-          if (findIdentifier) {
-            findIdentifier.setAttribute("uk-tooltip", `title:Error: ${error.error.error}`);
-          }
+          document
+            .querySelector(`#${identifier}`)
+            .setAttribute("uk-tooltip", `title:Error: ${error.error.error}`);
         },
       });
-      return `<span uk-tooltip="title:Resolving Command ..." id="${identifier}" style="color: ${isDark ? "var(--light-blue)" : "var(--ocean-blue)"
-        }; font-weight: bold">${match}</span>`;
+      return `<span uk-tooltip="title:Resolving Command ..." id="${identifier}" style="color: ${
+        isDark ? "var(--light-blue)" : "var(--ocean-blue)"
+      }; font-weight: bold">${match}</span>`;
     });
 
     return { specialCommandDetected, highlightedText };
   }
 
-  getRandomString(length) {
-    const array = new Uint8Array(length);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, dec => ('0' + dec.toString(36)).substr(-1)).join('');
-  }
   /**
    * Helper for Regex Highlighter, find right node and index for current cursor position
    * @param element HTMLElement

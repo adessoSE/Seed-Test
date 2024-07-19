@@ -86,7 +86,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.selectedStory = story;
 
     // hide if no scenarios in story
-    this.showEditor = !!story?.scenarios.length;
+    this.showEditor = !!story.scenarios.length;
   }
 
   /**
@@ -976,6 +976,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       const stepDefs: StepDefinition = {
         given: [],
         then: [],
+        example: [],
         when: unsavedBackground.stepDefinitions.when,
       };
       const block: Block = {
