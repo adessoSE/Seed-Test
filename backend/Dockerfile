@@ -50,6 +50,9 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
+# Install global dependencies
+RUN npm install -g node-pre-gyp
+
 # Install dependencies and rebuild native modules
 RUN npm install --ignore-scripts && npm rebuild bcrypt
 
