@@ -637,6 +637,7 @@ export class BaseEditorComponent {
       type: obj.type,
       values: stepType === "example" ? ["value"] : obj.values,
       isExample: stepType === "example" ? [true] : [false],
+      origin: "created-by-user",
     };
     return newStep;
   }

@@ -135,9 +135,8 @@ router.put('/update-xray-status', async (req, res) => {
 			authString = `Basic ${auth}`;
 		}
 		const { testRunId, stepId, status } = req.body;
-		const testStatus = status ? 'PASS' : 'FAIL';
 		const url = new URL(`https://${Host}/rest/raven/1.0/api/testrun/${testRunId}/step/${stepId}/status`);
-		url.searchParams.append('status', testStatus);
+		url.searchParams.append('status', status);
 
 		const options = {
 			method: 'PUT',

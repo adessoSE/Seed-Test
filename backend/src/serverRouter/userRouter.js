@@ -369,7 +369,6 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 					try {
 
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
-						console.log('hey my json', json)
 
 						const asyncHandleTestIssue = json.issues.map(async (issue) => {
 							// If the issue is a "Test Set" issue
@@ -727,7 +726,6 @@ function createScenarioSteps(matchingSteps){
 async function handleTestIssue(issue, options, Host) {
 	// Fetch all test runs for the given issue
 	const testrunResponse = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
-	console.log(testrunResponse)
 	const testRuns = await testrunResponse.json();
 
 	// Fetch details for all test runs

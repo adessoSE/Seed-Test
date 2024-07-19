@@ -151,7 +151,6 @@ function analyzeScenarioReport(stories: Array<any>, reportName: string, scenario
             console.log(`NUMBER OF SCENARIOS IN THE REPORT (must be 1): ${storyReport.elements.length}`);
             const story = stories[0];
             console.log(`Story ID: ${story._id}`);
-            console.log(story);
             reportResults.storyId = story._id;
             const scenarioReport = storyReport.elements[0]
 
@@ -364,17 +363,12 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 	let reportObj;
 	try {
 		if (mode === ExecutionMode.GROUP) {
-            console.log('the req: ', req.body)
             await fetchFiles(stories, parameters.repositoryId)
 			req.body.name = req.body.name.replace(/[ <>&]/g, '_') + Date.now();
-            console.log('failed at name replace?')
 			fs.mkdirSync(`./features/${req.body.name}`);
-            console.log('do i reach this?')
 			if (parameters.isSequential == undefined || !parameters.isSequential){
-                console.log('not seq')
 				reportObj = await Promise.all(stories.map((story) => testExecutor.executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());}
 			else {
-                console.log('is seq')
 				for (const story of stories) {
 					reportObj = await testExecutor.executeTest(req, mode, story);
 				}
