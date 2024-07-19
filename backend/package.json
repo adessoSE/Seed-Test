@@ -5,7 +5,7 @@
     "node": "^18.13.0 || ^20.9.0"
   },
   "scripts": {
-    "start": "tsc && node src/server.js",
+    "start": "tsc && node src/server.js && node updateDB.js",
     "test": "jest --verbose",
     "test-coverage": "jest --coverage",
     "database": "node src/database/installDatabase.js",

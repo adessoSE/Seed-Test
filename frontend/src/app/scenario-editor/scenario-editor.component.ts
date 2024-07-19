@@ -228,7 +228,7 @@ export class ScenarioEditorComponent implements OnInit{
         let steps = this.scenarioToUpdate.stepDefinitions['given'];
         steps = steps.concat(this.scenarioToUpdate.stepDefinitions['when']);
         steps = steps.concat(this.scenarioToUpdate.stepDefinitions['then']);
-        steps = steps.concat(this.scenarioToUpdate.stepDefinitions['example']);
+        // steps = steps.concat(this.scenarioToUpdate.stepDefinitions['example']);
 
         let undefined_steps = [];
         for (const element of steps) {
@@ -460,6 +460,6 @@ export class ScenarioEditorComponent implements OnInit{
 
     blockSelectTrigger(block) {
         this.selectedBlock =  this.blocks.find(i => i._id == block._blockReferenceId);
-        block.stepDefinitions = this.selectedBlock.stepDefinitions;
+        block.stepDefinitions = this.selectedBlock?.stepDefinitions;
     }
 }

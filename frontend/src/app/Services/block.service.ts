@@ -9,6 +9,7 @@ import { Story } from '../model/Story';
 import { StepType } from '../model/StepType';
 import { StoryService } from './story.service';
 import { Scenario } from '../model/Scenario';
+import { log } from '@angular-devkit/build-angular/src/builders/ssr-dev-server';
 
 /**
  * Service for communication between block component and the backend
@@ -329,10 +330,12 @@ export class BlockService {
   unpackStepsFromBlock(block: Block, scenario: Scenario, stepReference?: StepType) {
     if (block && block.stepDefinitions) {
       for (const s in block.stepDefinitions) {
+      
         block.stepDefinitions[s].forEach((step: StepType) => {
           step.checked = false;
           scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
         });
+        
         // Remove the block reference among the steps
         this.removeBlocksAmongSteps(scenario.stepDefinitions[s], block, stepReference);
 
@@ -365,9 +368,10 @@ export class BlockService {
    * @param stepReference
    */
   removeBlocksAmongSteps(stepToSplice, block, stepReference? : StepType) {
+    
     const index = stepReference !== undefined
-      ? stepToSplice.findIndex((element) => element.stepType === stepReference.stepType && element.id === stepReference.id )
-      : stepToSplice.findIndex((element) => element._blockReferenceId === block._id);
+      ? stepToSplice?.findIndex((element) => element.stepType === stepReference.stepType && element.id === stepReference.id )
+      : stepToSplice?.findIndex((element) => element._blockReferenceId === block._id);
 
     if (index > -1) {
       stepToSplice.splice(index, 1);
