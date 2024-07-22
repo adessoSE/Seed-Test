@@ -356,7 +356,7 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 		await Promise.any(promises)
 			.then(async (elem) => {
 				await elem.clear()
-				typing(elem, value)
+				await typing(elem, value)
 			})
 			.catch(async (e) => {
 				await driver.takeScreenshot().then(async (buffer) => {
