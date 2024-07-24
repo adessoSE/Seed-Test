@@ -1050,6 +1050,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         // Run single scenario
         this.storyService.runTests(this.selectedStory._id, scenario_id, params).subscribe((resp: any) => {
           this.testRunResponse(resp);
+          console.log("Test Report:", this.testReport);
           // Get test status
           const val = this.testReport.status;
           const testStatus = val ? "PASS" : "FAIL";
@@ -1066,12 +1067,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           // run as temp group if there are preconditions
           try {
             const temp_group = await this.createTempGroup();
-            console.log("Temp group created:", temp_group);
             const params = { id: localStorage.getItem('id'), repository: localStorage.getItem('repository'), source: localStorage.getItem('source'), group: temp_group }
             this.groupService.runTempGroup(params).subscribe((resp: any) => {
               this.testRunResponse(resp);
+              if (selectedExecutions) {
+                const testStatus = this.testReport.status ? "PASS" : "FAIL";
+                const testedStory = this.testReport.storiesTested[this.testReport.storiesTested.length - 1];
+                testedStory.scenarios.forEach((scenario) => {
+                  this.updateXrayStatus(scenario, selectedExecutions, testStatus);
+                });
+              }
             });
-            // Weitere Verarbeitung mit temp_group hier
           } catch (error) {
             console.error("Error while creating temp group", error);
           }
@@ -1126,7 +1132,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
     // collect all pre-stories
     member_stories = await this.collectPreStories(this.selectedStory, seenStories, []);
-    
+
     member_stories.push(this.selectedStory);
 
     for (let story of member_stories) {
@@ -1158,9 +1164,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           for (let innerStoryKey of precondition.testSet) {
 
             let newSeenStories = new Set(seenStories);
-            console.log("Seen storys so far:", newSeenStories);
+
             if (!newSeenStories.has(innerStoryKey)) {
-              console.log("This nested story is not seen yet:", innerStoryKey);
+
               newSeenStories.add(innerStoryKey);
 
               try {
@@ -1191,13 +1197,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param status - status to update
    */
   async updateXrayStatus(scenario: Scenario, selectedExecutions: number[], status: string) {
-    for (const testRun of scenario.testRunSteps) {
-      if (selectedExecutions.includes(testRun.testRunId)) {
-        try {
-          await this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, status).toPromise();
-          console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
-        } catch (error) {
-          console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+    if (scenario.testRunSteps && scenario.testRunSteps.length > 0) {
+      for (const testRun of scenario.testRunSteps) {
+        if (selectedExecutions.includes(testRun.testRunId)) {
+          try {
+            await this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, status).toPromise();
+            console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
+          } catch (error) {
+            console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
+          }
         }
       }
     }
