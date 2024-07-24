@@ -202,10 +202,11 @@ function analyzeGroupReport(grpName: string, stories: any[], reportOptions: any)
                     reportResults.storyStatuses.push(result);
                 }
                 // end of for each story
-                reportResults.status = testPassed(overallPassedSteps, overallFailedSteps);
+                reportResults.status = testPassed(overallFailedSteps, overallPassedSteps);
                 reportResults.groupTestResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
                 reportResults.scenariosTested = scenariosTested;
                 reportResults.reportName = grpName;
+                reportResults.storiesTested = stories;
                 return reportResults 
             } catch (error) {
                 reportResults.status = false;
