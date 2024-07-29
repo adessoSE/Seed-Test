@@ -105,7 +105,7 @@ function getScenarioContent(scenarios, storyID) {
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
 	let body = '';
-	if (story.body !== null && story.body !== undefined) {
+	if (Boolean(story.body)) {
 		body = story.body.replaceAll('#', '').replaceAll('(/)', '');
 	}
 	let data = `Feature: ${story.title}\n\n${body}\n\n`;
