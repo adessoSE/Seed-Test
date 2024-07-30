@@ -2,7 +2,6 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
@@ -216,7 +215,7 @@ router.post('/createRepository', async (req, res) => {
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const { repoName, settings } = req.body;
 	try {
-		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings, req.user._id);
+		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings);
 		res.status(200).json(repo);
 	} catch (error) {
 		console.error(error);
@@ -331,7 +330,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		const jiraTracker = issueTracker.IssueTracker.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+		const jiraTracker = issueTracker.IssueTracker
+			.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
 		const clearPass = jiraTracker.decryptPassword(req.user.jira);
 		const { AccountName, AuthMethod, Host } = req.user.jira;
 		let authString = `Bearer ${clearPass}`;
@@ -342,6 +342,11 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 
 		const tmpStories = new Map();
 		const storiesArray = [];
+
+		// need https so request is not redirected
+		// when the request is redirected, the Authorization Header is removed
+		// https://developer.mozilla.org/en-US/docs/Web/API/fetch#headers
+		const url = `https://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`;
 		const options = {
 			method: 'GET',
 			headers: {
@@ -350,53 +355,47 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 			}
 		};
 		let repo;
-		// send request to Jira API
+		let jiraIssues;
 		try {
-			await fetch(
-				`http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`,
-				options
-			)
-				.then(async (response) => response.json())
-				.then(async (json) => {
-					try {
-						repo = await mongo.getOneJiraRepository(req.query.projectKey);
-						for (const issue of json.issues) if (issue.fields.labels.includes('Seed-Test')) {
-							const story = {
-								story_id: issue.id,
-								title: issue.fields.summary,
-								body: issue.fields.description,
-								state: issue.fields.status.name,
-								issue_number: issue.key,
-								storySource: 'jira'
-							};
-							if (issue.fields.assignee !== null) {
-								// skip in case of "unassigned"
-								story.assignee = issue.fields.assignee.name;
-								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
-							} else {
-								story.assignee = 'unassigned';
-								story.assignee_avatar_url = null;
-							}
-							const entry = await projectMng.fuseStoryWithDb(story, issue.id);
-							tmpStories.set(entry._id.toString(), entry);
-							storiesArray.push(entry._id);
-						}
-					} catch (e) {
-						console.error('Error while getting Jira issues:', e);
-					}
-					Promise.all(storiesArray)
-						.then((array) => {
-							const orderedStories = matchOrder(array, tmpStories, repo);
-							res.status(200)
-								.json(orderedStories);
-						})
-						.catch((e) => {
-							console.error(e);
-						});
-				});
+			jiraIssues = await fetch(url, options)
+				.then((response) => response.json());
+		} catch (e) { console.error(' #### Error during Jira API call: \n', e); }
+
+		try {
+			repo = await mongo.getOneJiraRepository(req.query.projectKey);
+			for (const issue of jiraIssues.issues) if (issue.fields.labels.includes('Seed-Test')) {
+				const story = {
+					story_id: issue.id,
+					title: issue.fields.summary,
+					body: issue.fields.description,
+					state: issue.fields.status.name,
+					issue_number: issue.key,
+					storySource: 'jira'
+				};
+				if (issue.fields.assignee !== null) {
+					// skip in case of "unassigned"
+					story.assignee = issue.fields.assignee.name;
+					story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
+				} else {
+					story.assignee = 'unassigned';
+					story.assignee_avatar_url = null;
+				}
+				const entry = await projectMng.fuseStoryWithDb(story, issue.id);
+				tmpStories.set(entry._id.toString(), entry);
+				storiesArray.push(entry._id);
+			}
 		} catch (e) {
-			console.error('Jira Error during API call:', e);
+			console.error(' #### Error while parsing Jira issues:\n', e);
 		}
+		Promise.all(storiesArray)
+			.then((array) => {
+				const orderedStories = matchOrder(array, tmpStories, repo);
+				res.status(200)
+					.json(orderedStories);
+			})
+			.catch((e) => {
+				console.error(e);
+			});
 
 		// get DB Repo / Projects
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {

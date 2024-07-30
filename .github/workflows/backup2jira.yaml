@@ -1,0 +1,31 @@
+name: Backup and Upload
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # Every Sunday at midnight (UTC)
+    - cron: "0 5 * * 5"   # Every Friday at 5 AM (UTC)
+
+jobs:
+  backup-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd actions/backup2jira
+          npm install
+
+      - name: Run Backup and Upload
+        run: node actions/backup2jira/indexBackup.js
+        env: 
+          DATABASE_URI: ${{ secrets.DATABASE_URI }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}

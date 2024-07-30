@@ -88,14 +88,14 @@ function getScenarioContent(scenarios, storyID) {
 	for (const scenario of scenarios) {
 		data += `@${storyID}_${scenario.scenario_id}\n`;
 		// if there are examples
-		if ((scenario.stepDefinitions.example.length) > 0) data += `Scenario Outline: ${scenario.name}\n\n`;
+		if ((scenario.stepDefinitions.example?.length) > 0) data += `Scenario Outline: ${scenario.name}\n\n`;
 		else data += `Scenario: ${scenario.name}\n\n`;
 		// Get Stepdefinitions
 		if (scenario.stepDefinitions.given !== undefined) data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
 		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
-		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
-		if (scenario.comment !== null) {
+		if ((scenario.stepDefinitions.example?.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
+		if (Boolean(scenario.comment)) {
 			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
 	}
@@ -105,7 +105,7 @@ function getScenarioContent(scenarios, storyID) {
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
 	let body = '';
-	if (story.body !== null && story.body !== undefined) {
+	if (Boolean(story.body)) {
 		body = story.body.replaceAll('#', '').replaceAll('(/)', '');
 	}
 	let data = `Feature: ${story.title}\n\n${body}\n\n`;
@@ -214,7 +214,7 @@ async function executeTest(req, mode, story) {
 	if (mode === 'scenario') {
 		const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioId, 10));
 
-		const scenarioCount = Math.max(scenario.stepDefinitions.example.length, 1);
+		const scenarioCount = Math.max(scenario.stepDefinitions.example?.length, 1);
 
 		const additionalParams = getSettings(scenario, globalSettings);
 
@@ -270,12 +270,16 @@ async function executeTest(req, mode, story) {
 		console.log(`stdout: ${data}`);
 	});
 	runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
-
+	// eslint-disable-next-line consistent-return
 	return new Promise((resolve) => {
 		runner.on('error', (error) => {
 			console.error(`exec error: ${error}`);
 			resolve({
-				reportTime, story, scenarioId: req.params.scenarioId, reportName
+				reportTime,
+				story,
+				scenarioId: req.params.scenarioId,
+				reportName,
+				settings: (globalSettings && globalSettings.activated ? globalSettings : null)
 			});
 		});
 		runner.on('exit', () => {
@@ -300,7 +304,7 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 
 		const additionalParams = getSettings(scenario, globalSettings);
 
-		if (scenario.stepDefinitions.example.length <= 0) {
+		if (scenario.stepDefinitions.example?.length <= 0) {
 			parameters.scenarios.push({
 				oneDriver: driver,
 				...additionalParams
@@ -412,8 +416,8 @@ async function replaceRefBlocks(scenarios) {
 			const promised = await scen.stepDefinitions[steps].map(async (elem) => {
 				if (!elem._blockReferenceId) return [elem];
 				return mongo.getBlock(elem._blockReferenceId).then((block) => {
-					// Get an array of the values of the given, when, then and example properties
-					const steps = Object.values(block.stepDefinitions);
+					// Get an array of the values of the given, when, then properties
+					const steps = [...block.stepDefinitions.given, ...block.stepDefinitions.when, ...block.stepDefinitions.then]
 					// Flatten array
 					return steps.flat(1);
 				});

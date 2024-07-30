@@ -115,16 +115,6 @@ function stepDefs() {
 		]
 	}, {
 		id: 0,
-		stepType: 'DISABLED_FOR_NOW',
-		type: 'ListSelection',
-		pre: 'I select from the',
-		mid: 'multiple selection, the values ',
-		values: [
-			'',
-			''
-		]
-	}, {
-		id: 0,
 		stepType: 'then',
 		type: 'Correct Website / URL',
 		pre: 'So I will be navigated to the website:',

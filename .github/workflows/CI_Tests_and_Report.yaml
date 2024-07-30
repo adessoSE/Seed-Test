@@ -8,18 +8,23 @@ on:
 
 jobs:
   start-docker-stack:
+    name: (Node.js ${{ matrix.node-version }}) - Start Docker Stack
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    env:
+      PLATFORMS: "linux/amd64"
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        run: npm install node-fetch
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: Use Docker
-        uses: actions-hub/docker/cli@master
-        env:
-          SKIP_LOGIN: true
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Create .env file backend
         run: |
@@ -33,7 +38,7 @@ jobs:
           echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> backend/.env
           echo "PASSPORT_GITHUB_LOCAL_PW_FIELD=${{secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD}}" >> backend/.env
 
-      - name: Create .env file fronted
+      - name: Create .env file frontend
         run: |
           echo "API_SERVER=${{secrets.API_SERVER}}" > frontend/.env
           echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> frontend/.env
@@ -41,8 +46,14 @@ jobs:
           echo "VERSION=SET" >> frontend/.env
 
       - name: Build and start Docker stack
+        env:
+          NODE_VERSION: ${{ matrix.node-version }}
         run: |
-          docker compose -f docker-test.yml up -d
+          docker-compose -f docker-test.yml build \
+            --build-arg NODE_VERSION=$NODE_VERSION \
+            --platform $PLATFORMS
+          docker-compose -f docker-test.yml up -d
+          
 
       - name: Send failure notification
         if: ${{ failure() }}
@@ -61,7 +72,7 @@ jobs:
       - name: Wait for 1/2 minute
         run: sleep 30
 
-      # execute npm test in the backend container ---------------------------------------------------------------
+      # Execute npm test in the backend container
       - name: Run npm test backend
         run: |
           docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
@@ -89,13 +100,12 @@ jobs:
 
       - name: Upload Artifact Backend
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results-backend
-          path: |
-            testResultsBackend.txt
+          name: test-results-backend-${{ matrix.node-version }}
+          path: testResultsBackend.txt
 
-      # execute npm test in the frontend container --------------------------------------------------------------
+      # Execute npm test in the frontend container
       - name: Run npm test frontend
         run: |
           docker exec Seed-frontend npm test > testResultsFrontend.txt 2>&1
@@ -123,16 +133,14 @@ jobs:
 
       - name: Upload Artifact Frontend
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results-frontend
-          path: |
-            testResultsFrontend.txt
+          name: test-results-frontend-${{ matrix.node-version }}
+          path: testResultsFrontend.txt
 
-      # SANITY CHECK --------------------------------------------------------------------------------------------
+      # SANITY CHECK
       - name: Send sanity POST request and store response
         env:
-          # <-- api url for sanity test -->/<---- repository_id --->/<------ group_id ------>
           API_URL: localhost:8080/api/sanity/test/${{ secrets.SANITY_REPO_ID }}/${{ secrets.SANITY_GROUP_ID }}
         run: |
           curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
@@ -159,13 +167,13 @@ jobs:
 
       - name: Upload Artifact Sanity
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: sanity-report
+          name: sanity-report-${{ matrix.node-version }}
           path: |
             sanityReport.txt
 
-      # SEND FULL REPORT ---------------------------------------------------------------------------------------
+      # SEND FULL REPORT
       - name: Send Teams Message
         uses: ./actions/fullReport
         with:
