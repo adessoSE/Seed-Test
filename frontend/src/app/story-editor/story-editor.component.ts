@@ -1086,6 +1086,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           // CASE: No Pre-Conditions exist, we run story normally
           this.storyService.runTests(this.selectedStory._id, null, params).subscribe((resp: any) => {
             this.testRunResponse(resp);
+            const testStatus = this.testReport.status ? "PASS" : "FAIL";
             this.testReport.scenarioStatuses.forEach((scenario) => {
               this.scenarioService.scenarioStatusChangeEmit(
                 this.selectedStory._id,
@@ -1097,7 +1098,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
               const currentScenarioId = scenario.scenarioId
               const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
               if (selectedExecutions) {
-                this.updateXrayStatus(currentScenario, selectedExecutions, scenario.status);
+                this.updateXrayStatus(currentScenario, selectedExecutions, testStatus);
               }
             });
           });
