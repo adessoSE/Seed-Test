@@ -43,6 +43,7 @@ ENV PATH="${PATH}:/opt/microsoft/msedge/"
 RUN msedge --version | sed 's/.*Edge \([0-9.]*\).*/\1/' > latest_stable.txt
 
 # # Remove the driver-pagehtml
+RUN cat latest_stable.txt
 RUN wget -q -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip
 RUN unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/
 RUN rm -f latest_stable.txt
