@@ -35,6 +35,10 @@ label.label input[type="file"] {
     padding: 120px 220px 120px;
 }
 
+span.infoIcon {
+    color: white;
+}
+
 .fileTableContainer {
     margin: 10px 25px 25px;
     text-align: left;
