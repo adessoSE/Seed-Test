@@ -120,7 +120,7 @@
                     [class.deactivated]="stepDefs[currentStep.stepType][j].deactivated"
                     [ngClass]="{'blockReference': currentStep._blockReferenceId}" [ngStyle]="{
                       'width': (currentStep.isExample !== undefined && (currentStep.isExample[0] == true || currentStep.isExample[1] === true)) ? '100%' : ''
-                     }">
+                     }" style="max-width: 100%;">
                     <div class="dragIconContainer" cdkDragHandle>
                       <em class="material-icons dragIcon">drag_indicator</em>
                     </div>
@@ -300,7 +300,7 @@
                         <div class="scenario contentEditableElement inputEditableDiv" #step_type_input1
                           id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightInput(step_type_input1, j, index, currentStep.stepType, currentStep,
                           currentStep.pre, undefined, sd)" (click)="matchString(step_type_input1)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
-                          1px; white-space: nowrap">
+                          1px; white-space: nowrap; overflow: hidden;">
                           {{ currentStep.values[index].indexOf('<') !== -1 && currentStep.values[index].indexOf('>') !== -1 ? '<  ' + currentStep.values[index].replace('<', '').replace('>', '') + '  >' : currentStep.values[index]}}
                         </div>                  
                       </div>
