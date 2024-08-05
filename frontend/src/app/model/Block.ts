@@ -1,3 +1,4 @@
+import { MultipleScenario } from "./MuiltipleScenario";
 import { StepDefinition } from "./StepDefinition";
 
 /**
@@ -46,5 +47,7 @@ export interface Block {
      * If the block is used as a reference
      */
     usedAsReference?: boolean;
+
+    multipleScenarios?: MultipleScenario[];
 
 }

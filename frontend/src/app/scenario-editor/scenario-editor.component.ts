@@ -232,8 +232,10 @@ export class ScenarioEditorComponent implements OnInit{
 
         let undefined_steps = [];
         for (const element of steps) {
-            if (String(element['type']).includes('Undefined Step')) {
-                undefined_steps = undefined_steps.concat(element);
+            if(element !== undefined) {
+                if (String(element['type']).includes('Undefined Step')) {
+                    undefined_steps = undefined_steps.concat(element);
+                }
             }
         }
 
@@ -460,6 +462,6 @@ export class ScenarioEditorComponent implements OnInit{
 
     blockSelectTrigger(block) {
         this.selectedBlock =  this.blocks.find(i => i._id == block._blockReferenceId);
-        block.stepDefinitions = this.selectedBlock.stepDefinitions;
+        block.stepDefinitions = this.selectedBlock?.stepDefinitions;
     }
 }
