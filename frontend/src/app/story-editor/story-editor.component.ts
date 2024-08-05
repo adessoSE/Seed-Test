@@ -26,6 +26,7 @@ import { RenameBackgroundComponent } from "../modals/rename-background/rename-ba
 import { BackgroundService } from "../Services/background.service";
 import { StoryService } from "../Services/story.service";
 import { ScenarioService } from "../Services/scenario.service";
+import { XrayService } from "../Services/xray.service";
 import { GroupService } from '../Services/group.service';
 import { ReportService } from "../Services/report.service";
 import { ProjectService } from "../Services/project.service";
@@ -89,8 +90,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
     if (this.selectedStory !== undefined && this.selectedStory.preConditions) {
-      this.preConditionResults = [];
-      this.getPreconditionStories(this.selectedStory.preConditions);
+      this.preConditionResults = this.xrayService.getPreconditionStories(this.selectedStory.preConditions);
       if (!this.selectedStory.scenarios) {
         // hide if no scenarios in story
         this.showEditor = false;
@@ -369,6 +369,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     public backgroundService: BackgroundService,
     public storyService: StoryService,
     public scenarioService: ScenarioService,
+    public xrayService: XrayService,
     public reportService: ReportService,
     public router: Router,
     public projectService: ProjectService,
@@ -1057,7 +1058,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
           // If user selected xray executions, update xray status
           if (selectedExecutions) {
-            this.updateXrayStatus(this.selectedScenario, selectedExecutions, testStatus);
+            this.xrayService.updateXrayStatus(this.selectedScenario, selectedExecutions, testStatus);
           }
         });
 
@@ -1074,7 +1075,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
                 const testStatus = this.testReport.status ? "PASS" : "FAIL";
                 const testedStory = this.testReport.storiesTested[this.testReport.storiesTested.length - 1];
                 testedStory.scenarios.forEach((scenario) => {
-                  this.updateXrayStatus(scenario, selectedExecutions, testStatus);
+                  this.xrayService.updateXrayStatus(scenario, selectedExecutions, testStatus);
                 });
               }
             });
@@ -1098,7 +1099,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
               const currentScenarioId = scenario.scenarioId
               const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
               if (selectedExecutions) {
-                this.updateXrayStatus(currentScenario, selectedExecutions, testStatus);
+                this.xrayService.updateXrayStatus(currentScenario, selectedExecutions, testStatus);
               }
             });
           });
@@ -1188,28 +1189,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       }
     }
     return member_stories;
-  }
-
-
-  /*
-   * Updates xray status for selected test execution for single scenario
-   * @param scenario - the scenario containing the test run steps
-   * @param selectedExecutions - list of selected test executions
-   * @param status - status to update
-   */
-  async updateXrayStatus(scenario: Scenario, selectedExecutions: number[], status: string) {
-    if (scenario.testRunSteps && scenario.testRunSteps.length > 0) {
-      for (const testRun of scenario.testRunSteps) {
-        if (selectedExecutions.includes(testRun.testRunId)) {
-          try {
-            await this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, status).toPromise();
-            console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
-          } catch (error) {
-            console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
-          }
-        }
-      }
-    }
   }
 
   /*
@@ -1627,31 +1606,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   setShowDaisy(event) {
     this.showDaisy = event;
-  }
-
-  /**
- * Get all stories in xray preconditions
- */
-  getPreconditionStories(preConditions) {
-    for (const precondition of preConditions) {
-
-      const testSetPromises = precondition.testSet.map(testKey =>
-        this.storyService.getStoryByIssueKey(testKey).toPromise()
-      );
-
-      Promise.all(testSetPromises)
-        .then(stories => {
-          const results = {
-            preConditionKey: precondition.preConditionKey,
-            preConditionName: precondition.preConditionName,
-            stories: stories
-          };
-          this.preConditionResults.push(results);
-        })
-        .catch(error => {
-          console.error('Failed to fetch stories for a test set:', error);
-        });
-    }
   }
 
   toTicket(issue_number: string) {

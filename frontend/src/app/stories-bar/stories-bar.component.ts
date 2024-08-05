@@ -1,6 +1,7 @@
 import { GroupReport } from './../model/GroupReport';
 import { Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges } from '@angular/core';
 import { Story } from '../model/Story';
+import { XrayService } from '../Services/xray.service';
 import { Scenario } from '../model/Scenario';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { Group } from '../model/Group';
@@ -189,6 +190,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         public toastr: ToastrService,
         public themeService: ThemingService,
         public storyService: StoryService,
+        public xrayService: XrayService,
         public groupService: GroupService,
         public scenarioService: ScenarioService,
         public reportService: ReportService,
@@ -387,7 +389,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                                 if (fullScenario && fullScenario.testRunSteps) {
                                     for (const testRun of fullScenario.testRunSteps) {
                                         if (selectedExecutions && selectedExecutions.includes(testRun.testRunId)) {
-                                            this.storyService.updateXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
+                                            this.xrayService.sendXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
                                                 .subscribe({
                                                     next: () => {
                                                         console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, " and Test Execution:", testRun.testExecKey);
