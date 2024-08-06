@@ -228,15 +228,19 @@ async function executeTest(req, mode, story) {
 		story.scenarios = prep.scenarios;
 		parameters = prep.parameters;
 	}
-
+	console.log("We are in group!, Prep accomplished")
 	const reportTime = Date.now();
 	const cucePath = 'node_modules/.bin/';
 	const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
+	console.log("We are in group!, Path and date accomplished")
 
 	try {
 		await fs.promises.access(featurePath, fs.constants.F_OK);
+		console.log(featurePath);
 	} catch (err) {
+		console.log(err);
+		console.log('Feature file is being updated! ', featurePath);
 		await updateFeatureFile(story._id, req.params.storySource);
 	}
 
