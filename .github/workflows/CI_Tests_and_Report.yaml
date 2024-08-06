@@ -21,9 +21,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Cleanup cache
-        run: docker compose down --volumes
-
       - name: Create .env file backend
         run: |
           echo "DATABASE_URI=${{secrets.DB_URI}}" > backend/.env
