@@ -238,6 +238,10 @@ th.mat-mdc-header-cell:first-of-type {
   margin-right: 3px;
 }
 
+span.infoIcon {
+  color: white;
+}
+
 #emulatorInfoIcon {
   width: 13px;
   vertical-align: baseline;
