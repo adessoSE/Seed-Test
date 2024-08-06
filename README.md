@@ -69,12 +69,12 @@ Once you have Docker installed, the process of setting up Seed is straightforwar
 1. **Download the Release:**
 
    - Go to the [releases page](https://github.com/adessoSE/Seed-Test/releases) of Seed on GitHub.
-   - Download the `docker compose.yml` file from the assets for the specific release you want.
+   - Download the `docker-compose.yml` file from the assets for the specific release you want.
 
 2. **Navigate and Execute:**
 
    - Open a terminal.
-   - Navigate to the directory where you placed the `docker compose.yml` file using the `cd` command. For instance:
+   - Navigate to the directory where you placed the `docker-compose.yml` file using the `cd` command. For instance:
      ```
      cd C:/seed-test
      ```
@@ -83,7 +83,7 @@ Once you have Docker installed, the process of setting up Seed is straightforwar
      docker compose up -d
      ```
 
-With these steps, you'll have Seed up and running using Docker with the downloaded `docker compose.yml` file. This will initiate the necessary services, volumes and configurations for the application (mongoDB, seed-test-frontend, seed-test-backend).
+With these steps, you'll have Seed up and running using Docker with the downloaded `docker-compose.yml` file. This will initiate the necessary services, volumes and configurations for the application (mongoDB, seed-test-frontend, seed-test-backend).
 
 Seed-Test can now be accessed via `http://localhost:4200/login`
 
@@ -103,7 +103,7 @@ To know how to change this look at the configure section below.
 
 #### ⚙️ Configuration:
 
-To configure anything when running seed via docker, you can simply adjust the environment variables for each container in the docker compose.yml file and rerun the command:
+To configure anything when running seed via docker, you can simply adjust the environment variables for each container in the docker-compose.yml file and rerun the command:
 
 ##### Backend
 
@@ -124,7 +124,7 @@ To configure anything when running seed via docker, you can simply adjust the en
 | PASSPORT_GITHUB_LOCAL_PW_FIELD | GitHub integration. Check out GitHub´s Guide on Autorizing OAuth Apps.                                                                                                                                                  |
 | MAX_SAVED_REPORTS              | The amount of maximum saved reports.                                                                                                                                                                                    |
 
-\*If you are not using the mongoDB provided by this docker compose you can completely delete the seedmongodb section from the docker compose.yml and remove the depends on part of the backend service.
+\*If you are not using the mongoDB provided by this docker compose you can completely delete the seedmongodb section from the docker-compose.yml and remove the depends on part of the backend service.
 
 ##### Frontend
 
