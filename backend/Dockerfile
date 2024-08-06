@@ -46,8 +46,7 @@ RUN msedge --version | sed 's/.*Edge \([0-9.]*\).*/\1/' > latest_stable.txt
 RUN cat latest_stable.txt
 
 # Install the latest stable EdgeDriver for Linux
-RUN LATEST_VERSION=$(curl -s https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE) && \
-    wget -q -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/${LATEST_VERSION}/edgedriver_linux64.zip && \
+RUN wget https://msedgedriver.azureedge.net/$(curl -s https://msedgedriver.azureedge.net/LATEST)/edgedriver_linux64.zip && unzip edgedriver_linux64.zip \
     unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/ && \
     rm -f /tmp/msedgedriver.zip
 
