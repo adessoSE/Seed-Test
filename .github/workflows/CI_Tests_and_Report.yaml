@@ -183,11 +183,11 @@ jobs:
       #   run: ls ./backend/src/serverRouter && cat ./backend/src/serverRouter/app.log
 
 
-      - name: Upload Application Logs.
-        uses: actions/upload-artifact@v4
-        with:
-          name: application-logs
-          path: ./backend/src/serverRouter/app.log
+      # - name: Upload Application Logs.
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: application-logs
+      #     path: ./backend/src/serverRouter/app.log
 
       # SEND FULL REPORT
       - name: Send Teams Message
