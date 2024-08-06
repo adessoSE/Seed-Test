@@ -13,15 +13,10 @@ jobs:
     strategy:
       matrix:
         node-version: [18, 20, 22]
-    env:
-      PLATFORMS: "linux/amd64"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -49,10 +44,9 @@ jobs:
         env:
           NODE_VERSION: ${{ matrix.node-version }}
         run: |
-          docker-compose -f docker-test.yml build \
-            --build-arg NODE_VERSION=$NODE_VERSION \
-            --platform $PLATFORMS
-          docker-compose -f docker-test.yml up -d
+          docker compose -f docker-test.yml build \
+            --build-arg NODE_VERSION=$NODE_VERSION 
+          docker compose -f docker-test.yml up -d
           
 
       - name: Send failure notification

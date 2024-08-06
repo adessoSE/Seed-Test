@@ -154,7 +154,7 @@
                         *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0"
                         style="display: flex; overflow: hidden; align-items: center;">
                         <div
-                          *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false ">
+                          *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] != true) || this.selectedScenario.stepDefinitions?.example[i].isExample[0] == false ">
                           <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl"
                             elFocus class="{{ name }}" id="{{name+'_' + i + '_input_pre_' + j}}" #step_type_input1
                             type="text" value="{{currentStep.values[0]}}"
@@ -345,8 +345,8 @@
           </div>
           <br>
           <button *ngIf="sd !== 'example' && name!=='block-editor'" id="{{name+'_add_step' + i}}" class="addStepButton"
-            [class.disabled]="(stepDefs.example.length <= 0 && sd === 'example')"
-            [disabled]="(stepDefs.example.length <= 0 && sd === 'example')" title="Add New Step" uk-tooltip>
+            [class.disabled]="(stepDefs.example?.length <= 0 && sd === 'example')"
+            [disabled]="(stepDefs.example?.length <= 0 && sd === 'example')" title="Add New Step" uk-tooltip>
             <em class="material-icons addStep">add_circle_outline</em>
           </button>
           <div *ngIf="sd !== 'example'" uk-dropdown="mode:hover">
