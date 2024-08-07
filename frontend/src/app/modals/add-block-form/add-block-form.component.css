@@ -145,6 +145,10 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     justify-content: space-between;
 }
 
+span.infoIcon {
+    color: white;
+}
+
 @media screen and (max-height: 800px) {
 
     .dividerContainer{

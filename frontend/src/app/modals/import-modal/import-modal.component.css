@@ -30,6 +30,10 @@
   font-size: 18px;
 }
 
+span.infoIcon {
+  color: white;
+}
+
 .warning-text {
   color: red;
 }
