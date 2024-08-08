@@ -32,7 +32,7 @@
     "@angular/platform-browser": "^17.3.12",
     "@angular/platform-browser-dynamic": "^17.3.12",
     "@angular/router": "^17.3.12",
-    "@material/checkbox": "^15.0.0-canary.fff4066c6.0",
+    "@material/checkbox": "^15.0.0-canary.604264203.0",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "@ngneat/until-destroy": "^10.0.0",
     "canvg": "^4.0.2",
