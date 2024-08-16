@@ -150,7 +150,7 @@
                       <div
                         *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0"
                         style="display: flex; overflow: hidden; align-items: center;">  
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === true && name!=='block-editor'">
+                        <ng-container *ngIf="currentStep.isExample[0] === true && name!=='block-editor'">
                           <div *ngIf="currentStep.isExample[0] == true && name!=='block-editor'"
                             class="exampleListContainer">
                             <mat-form-field appearance="standard" class="exampleList">
@@ -167,13 +167,13 @@
                               </mat-select>
                             </mat-form-field>
                           </div>&nbsp;
-                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === true && name!=='block-editor'"
+                          <button *ngIf="currentStep.isExample[0] === true && name!=='block-editor'"
                             class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType)"
                             uk-tooltip="title: Use Textfield; pos: right">
                             &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
                         </ng-container>
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[0] !== true && name!=='block-editor'">
+                        <ng-container *ngIf="currentStep.isExample[0] !== true && name!=='block-editor'">
                           <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 0}"></ng-container>
                         </ng-container>
                         <ng-container *ngIf="name==='block-editor'">
@@ -194,7 +194,7 @@
                       </div>
                       <div>{{currentStep.mid}}</div>
                       <div *ngIf="((currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1) && currentStep.values[1] != null" style="display: flex; align-items: center; overflow: hidden;">
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && name!=='block-editor'">
+                        <ng-container *ngIf="currentStep.isExample[1] === true && name!=='block-editor'">
                           <div *ngIf="currentStep.isExample[1] == true && name!=='block-editor'"
                           class="exampleListContainer">
                           <mat-form-field appearance="standard" class="exampleList">
@@ -211,13 +211,13 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
-                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && name!=='block-editor'"
+                          <button *ngIf="currentStep.isExample[1] === true && name!=='block-editor'"
                             class="scenarioTitle" (click)="addIsExample('text input', j, 1, currentStep.stepType)"
                             uk-tooltip="title: Use Textfield; pos: right">
                             &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
                         </ng-container>
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[1] !== true && name!=='block-editor'">
+                        <ng-container *ngIf="currentStep.isExample[1] !== true && name!=='block-editor'">
                           <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 1}"></ng-container>
                         </ng-container>
                         <ng-container *ngIf="name==='block-editor'">
@@ -242,7 +242,7 @@
                       *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=2"
                       style="display:flex">
                       <div *ngIf="currentStep.values[2] != null" style="display: flex;">
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[2] === true && name!=='block-editor'">
+                        <ng-container *ngIf="currentStep.isExample[2] === true && name!=='block-editor'">
                           <div *ngIf="currentStep.isExample[2] == true && name!=='block-editor'"
                           class="exampleListContainer">
                           <mat-form-field appearance="standard" class="exampleList">
@@ -259,13 +259,13 @@
                             </mat-select>
                           </mat-form-field>
                         </div>&nbsp;
-                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[2] === true && name!=='block-editor'"
+                          <button *ngIf="currentStep.isExample[2] === true && name!=='block-editor'"
                             class="scenarioTitle" (click)="addIsExample('text input', j, 2, currentStep.stepType)"
                             uk-tooltip="title: Use Textfield; pos: right">
                             &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
                         </ng-container>
-                        <ng-container *ngIf="getExampleList() !== undefined && currentStep.isExample[2] !== true && name!=='block-editor'">
+                        <ng-container *ngIf="currentStep.isExample[2] !== true && name!=='block-editor'">
                           <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 2}"></ng-container>
                         </ng-container>
                         <ng-container *ngIf="name==='block-editor'">

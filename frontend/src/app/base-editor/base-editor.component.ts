@@ -236,7 +236,7 @@ export class BaseEditorComponent {
             this.selectedScenario.multipleScenarios[1] = {values: [...Array(block[1].stepDefinitions['example'][0].values.length)].fill('value')}
           }
           // Adds new Example if non-existent
-          else {
+          else if (block[1].stepDefinitions['example'][0]?.values) {
             let missingValues = block[1].stepDefinitions['example'][0].values
             .map((x) => {return x})
             .filter((x) => this.selectedScenario.multipleScenarios[0].values.indexOf(x) == -1);
