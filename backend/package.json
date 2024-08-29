@@ -53,8 +53,8 @@
     "rimraf": "^6.0.1",
     "typescript": ">=5.2.0 <5.5.0"
   },
+  "_comment": "Bitte bei cucumber-html-reporter > 7.1.1 wieder entfernen!",
   "overrides": { 
-    "_comment": "Bitte bei cucumber-html-reporter > 7.1.1 wieder entfernen!",
     "cucumber-html-reporter": {
       "semver": "^7.5.2"
     }
