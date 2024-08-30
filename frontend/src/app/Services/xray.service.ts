@@ -12,13 +12,15 @@ export class XrayService {
 
   constructor(public apiService: ApiService, private http: HttpClient, public storyService: StoryService) { }
 
-  /*
-   * Updates xray status for a single scenario given selected test executions
-   * @param scenario - the scenario containing the test run steps
-   * @param selectedExecutions - list of selected test executions
-   * @param status - status to update
+  /**
+   * Updates the Xray status for a single scenario given the selected test executions.
+   * 
+   * @param {Scenario} scenario - The scenario containing the test run steps.
+   * @param {number[]} selectedExecutions - List of selected test execution IDs.
+   * @param {string} status - The status to update (e.g., 'PASS', 'FAIL').
+   * @returns {Promise<void>} A promise that resolves when the status update is complete.
    */
-  async updateXrayStatus(scenario: Scenario, selectedExecutions: number[], status: string) {
+  async updateXrayStatus(scenario: Scenario, selectedExecutions: number[], status: string): Promise<void> {
     if (scenario.testRunSteps && scenario.testRunSteps.length > 0) {
       for (const testRun of scenario.testRunSteps) {
         if (selectedExecutions.includes(testRun.testRunId)) {
@@ -34,9 +36,14 @@ export class XrayService {
   }
 
   /**
-    * Send XRay status to backend
-    */
-  sendXrayStatus(testRunId, stepId, status) {
+   * Sends the Xray status to the backend given a specific test run and step.
+   * 
+   * @param {number} testRunId - The ID of the test run.
+   * @param {number} stepId - The ID of the test run step.
+   * @param {string} status - The status to update (e.g., 'PASS', 'FAIL').
+   * @returns {Observable<any>} An observable that emits the result of the HTTP PUT request.
+   */
+  sendXrayStatus(testRunId: number, stepId: number, status: string) {
     const data = {
       testRunId: testRunId,
       stepId: stepId,
@@ -48,9 +55,12 @@ export class XrayService {
   }
 
   /**
-   * Get storys for each precondition
+   * Retrieves the stories for each precondition.
+   * 
+   * @param {any[]} preConditions - An array of preconditions, each containing test sets.
+   * @returns {any[]} An array of objects representing the results, including precondition details and associated stories.
    */
-  getPreconditionStories(preConditions) {
+  getPreconditionStories(preConditions: any[]): any[] {
     let preConditionResults = [];
     for (const precondition of preConditions) {
 

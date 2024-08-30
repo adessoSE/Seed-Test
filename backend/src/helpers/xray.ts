@@ -1,6 +1,13 @@
-const stepDefs = require('../../src/database/stepTypes')
+const stepDefs = require('../../src/database/stepTypes');
 
-// Fetches all necessary data for a given test issue
+/**
+ * Fetches all necessary data for a given test issue, including test runs and test steps.
+ * 
+ * @param {Object} issue - The test issue object containing the key.
+ * @param {Object} options - The options object for making the fetch requests (e.g., headers).
+ * @param {string} Host - The hostname or base URL for the API requests.
+ * @returns {Promise<Object>} An object containing scenarioList and testStepDescription.
+ */
 async function handleTestIssue(issue, options, Host) {
     // Fetch all test runs for the given issue
     const testrunResponse = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
@@ -20,13 +27,20 @@ async function handleTestIssue(issue, options, Host) {
     return { scenarioList, testStepDescription };
 }
 
-// Create scenarios and description given the test steps and resolved test runs
+/**
+ * Creates scenarios and description given xray test steps and resolved xray test runs.
+ * 
+ * @param {Array} steps - An array of test steps for the given issue.
+ * @param {Array} resolvedTestRuns - An array of resolved test runs containing details of each run.
+ * @param {string} issueKey - The key of the issue being processed.
+ * @returns {Object} An object containing the scenarioList and testStepDescription.
+ */
 function processTestSteps(steps, resolvedTestRuns, issueKey) {
     const scenarioList = [];
 
     let testStepDescription = '\n\nTest-Steps:\n';
 
-    // iterate through steps and add step description
+    // Iterate through steps and add step description
     steps.forEach((step) => {
         if (!step.fields) {
             console.log(`Fields missing for step ${step.id}`);
@@ -35,13 +49,13 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
 
         const { fields } = step;
 
-        // check if xray step is identical to one step from the step definitions
+        // Check if xray step is identical to one step from the step definitions
         const identicalMatches = checkIdenticalSteps(fields);
 
-        // create scenario steps from identical matches
+        // Create scenario steps from identical matches
         const { givenSteps, whenSteps, thenSteps } = createScenarioSteps(identicalMatches);
 
-        // create scenario object
+        // Create scenario object
         const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
         stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
         stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
@@ -49,12 +63,12 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
         testStepDescription += stepInfo.join('');
 
         const matchingSteps = [];
-        // iterate through all resolved test runs
+        // Iterate through all resolved test runs
         resolvedTestRuns.forEach((testRunDetails) => {
             if (!testRunDetails.steps) {
                 return;
             }
-            // map test steps to testrun steps
+            // Map test steps to testrun steps
             testRunDetails.steps.forEach((testRunStep) => {
                 const stepGiven = fields.Given ? fields.Given.value : '';
                 const stepAction = fields.Action ? fields.Action.value.raw : '';
@@ -63,8 +77,7 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
                 const testRunAction = testRunStep.fields.Action ? testRunStep.fields.Action.value.raw : '';
                 const testRunExpected = testRunStep.fields['Expected Result'] ? testRunStep.fields['Expected Result'].value.raw : '';
 
-                if (stepGiven === testRunGiven && stepAction === testRunAction
-                    && stepExpected === testRunExpected) {
+                if (stepGiven === testRunGiven && stepAction === testRunAction && stepExpected === testRunExpected) {
                     matchingSteps.push({
                         testRunId: testRunDetails.id,
                         testRunStepId: testRunStep.id,
@@ -93,23 +106,27 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
     return { scenarioList, testStepDescription };
 }
 
-// Checks if the given step is identical to one of the step definitions
-function checkIdenticalSteps(stepInput) {
+/**
+ * Checks if the given xray step is identical to one of the step definitions.
+ * 
+ * @param {Object} step - The xray step containing sections of given, actiona and expected result.
+ * @returns {Array} An array of matching step definitions.
+ */
+function checkIdenticalSteps(step) {
     const matches = [];
     let context;
     // Separate the given, action, and expected result sections and select the relevant text
-    // Split the text by new line
     ['Given', 'Action', 'Expected Result'].forEach(section => {
-        if (stepInput[section] && stepInput[section].value) {
+        if (step[section] && step[section].value) {
             let texts;
             if (section === 'Given') {
-                texts = stepInput[section].value.split('\n');
+                texts = step[section].value.split('\n');
                 context = 'given';
             } else if (section === 'Action') {
-                texts = stepInput[section].value.raw.split('\n');
+                texts = step[section].value.raw.split('\n');
                 context = 'when';
             } else if (section === 'Expected Result') {
-                texts = stepInput[section].value.raw.split('\n');
+                texts = step[section].value.raw.split('\n');
                 context = 'then';
 
             }
@@ -127,7 +144,13 @@ function checkIdenticalSteps(stepInput) {
     return matches;
 }
 
-// Function to analyze text and match with step definitions
+/**
+ * Analyzes text to match with step definitions.
+ * 
+ * @param {string} text - The text to analyze.
+ * @param {string} context - The context (given, when, then) of the step.
+ * @returns {Object|null} The matching step definition or null if no match found.
+ */
 function analyzeText(text, context) {
     // Get all step types except 'Add Variable' as it is not relevant for the test steps
     const stepTypes = stepDefs().filter(def => def.type !== 'Add Variable');
@@ -162,16 +185,22 @@ function analyzeText(text, context) {
     return null;
 }
 
-// Replace special characters in a string with escape characters
+/**
+ * Replaces special characters in a string with escape characters.
+ * 
+ * @param {string} string - The string to escape.
+ * @returns {string} The escaped string.
+ */
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// Clean value and extract email or link
-// e.g. 
-// [http://www.google.com] -> http://www.google.com
-// "test" -> test
-// [mailto:test@test.de] -> test@test.de
+/**
+ * Cleans value and extracts email or link.
+ * 
+ * @param {string} value - The value to clean.
+ * @returns {string} The cleaned value.
+ */
 function cleanValue(value) {
     const linkPattern = /^\[http:\/\/[^\]]+\]$/;
     const emailPattern = /^\[([^\]]+@[^\]]+)\|mailto:[^\]]+\]$/;
@@ -188,7 +217,12 @@ function cleanValue(value) {
     return value;
 }
 
-// Create scenario steps for identical steps
+/**
+ * Creates scenario steps for identical steps.
+ * 
+ * @param {Array} matchingSteps - An array of matching steps.
+ * @returns {Object} An object containing scenario steps for given, when, and then.
+ */
 function createScenarioSteps(matchingSteps) {
     let givenSteps = []
     let whenSteps = []
@@ -236,12 +270,16 @@ function createScenarioSteps(matchingSteps) {
     return { givenSteps, whenSteps, thenSteps }
 }
 
-// Helper function to extract raw data of given field in xray test execution field
+/**
+ * Helper function to extract the raw data of "given" section in xray steps
+ * 
+ * @param {string} givenField - The given field containing raw data.
+ * @returns {string} The extracted raw data.
+ */
 function extractRaw(givenField) {
     try {
         const givenData = JSON.parse(givenField);
         if (givenData && givenData.raw) {
-            // return normalizeText(givenData.raw);
             return givenData.raw;
         }
     } catch (e) {
