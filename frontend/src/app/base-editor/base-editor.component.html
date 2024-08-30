@@ -354,7 +354,7 @@
                   Each test case created by this will be carried out individually and independent.
                 </span--></dfn>
           </div>
-          <div *ngIf="this.selectedScenario?.multipleScenarios.length === 0">
+          <div *ngIf="this.selectedScenario?.multipleScenarios.length == 0">
             <button id="{{name+'_add_step' + i}}" (click)="openExampleModal('createFirst')" title="Activate Multiple Scenarios" uk-tooltip>
               <div style="display:grid">
                 <em style="grid-column: 1; grid-row: 1; font-size: 26px !important"
