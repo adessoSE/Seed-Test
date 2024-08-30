@@ -319,14 +319,14 @@
           <br>
           <!-- [class.disabled]="(stepDefs.example.length <= 0 && sd === 'example')"
           [disabled]="(stepDefs.example.length <= 0 && sd === 'example')" -->
-          <button *ngIf="name!=='block-editor'" id="{{name+'_add_step' + i}}" class="addStepButton" title="Add New Step"
+          <button *ngIf="name!=='block-editor' && sd !== 'example'" id="{{name+'_add_step' + i}}" class="addStepButton" title="Add New Step"
             uk-tooltip>
             <em class="material-icons addStep">add_circle_outline</em>
           </button>
           <div *ngIf="name!=='block-editor'" uk-dropdown="mode:hover">
             <ul class="uk-nav uk-dropdown-nav" style="max-height: 20rem; overflow: scroll;">
               <li *ngFor="let step of sortedStepTypes(); let j = index;">
-                <span [ngClass]="(step.type !== this.newStepName) ? 'dropdownStep' : 'dropdownStepUndefined'"
+                <span [ngClass]="(step.type!==this.newStepName) ? 'dropdownStep':'dropdownStepUndefined'"
                   id="{{name+'_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd"
                   (click)="addStep(step, this.selectedScenario, name, i);">
                   {{step.type}}</span>
