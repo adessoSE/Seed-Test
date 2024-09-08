@@ -1,3 +1,4 @@
+import { MultipleScenario } from './MuiltipleScenario';
 import {StepDefinition} from './StepDefinition';
 
 /**
@@ -80,4 +81,10 @@ export interface Scenario {
     * Xray test key
     */
     testKey?: String;
+
+     /**
+     * Multiple scenarios
+     */
+
+    multipleScenarios?: MultipleScenario[];
 }
