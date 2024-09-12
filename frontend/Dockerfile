@@ -16,7 +16,7 @@ RUN npm ci --ignore-scripts
 RUN npm install --force --ignore-scripts -g @angular/cli
 
 # Install esbuild 
-RUN npm install esbuild --ignore-scripts
+RUN npm install --ignore-scripts esbuild 
 
 COPY . .
 
