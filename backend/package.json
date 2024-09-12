@@ -20,7 +20,7 @@
     "@cucumber/cucumber": "^9.6.0",
     "adm-zip": "^0.5.16",
     "bcrypt": "^5.1.1",
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "chai": "^4.5.0",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
