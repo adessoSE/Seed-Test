@@ -4,7 +4,7 @@ RUN apt-get update && \
     apt-get install -qq -y wget
 
 # Install the latest version of npm
-RUN npm install -g npm@latest --ignore-scripts
+RUN npm install -g --ignore-scripts npm@latest
 
 # Set DATABASE_URI to be localhost
 ENV DATABASE_URI=mongodb://localhost:27017
@@ -26,7 +26,7 @@ RUN mongod --fork --logpath /var/log/mongodb.log
 # ----- BACKEND (from /backend dockerfile) ------------------------------------------------------------------------
 
 # install chrome 
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN wget -q --max-redirect=0 https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN yes | apt install -qq ./google-chrome-stable_current_amd64.deb
 RUN rm -f google-chrome-stable_current_amd64.deb
 

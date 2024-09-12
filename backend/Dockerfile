@@ -12,7 +12,7 @@ WORKDIR /usr/src/app
 RUN ls -l .
 
 # install chrome 
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN wget -q --max-redirect=0 https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN yes | apt install -qq ./google-chrome-stable_current_amd64.deb
 RUN rm -f google-chrome-stable_current_amd64.deb
 
