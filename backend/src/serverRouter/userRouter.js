@@ -12,6 +12,7 @@ const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
+const crypto = require('crypto');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -102,7 +103,18 @@ router.post('/login', (req, res, next) => {
 			}
 			req.logIn(user, async (err) => {
 				if (err) throw err;
-				else res.json(user);
+				else {
+					if(user.transitioned === false) {
+						const hasher = crypto.createHash('sha256');
+						hasher.update(req.body.password)
+						const passHash = hasher.digest()
+						const finalHash = bcrypt.hashSync(passHash.toString('hex'), salt)
+						user.password = finalHash
+						user.transitioned = true
+						mongo.updateUser(user._id, user)
+					}
+					res.json(user);
+				}
 			});
 		})(req, res, next);
 	} catch (error) {
@@ -155,6 +167,7 @@ router.post('/mergeGithub', async (req, res) => {
 router.post('/register', async (req, res) => {
 	req.body.email = req.body.email.toLowerCase();
 	req.body.password = bcrypt.hashSync(req.body.password, salt);
+	req.body.transitioned = true;
 	try {
 		const user = await mongo.registerUser(req.body);
 		res.json(user);
