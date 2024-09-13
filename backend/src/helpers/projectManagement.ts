@@ -507,12 +507,10 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           allConflicts
         );
 
-        const repoName = await mongo.getOneRepositoryById(repo_id).repoName;
-
         await mongo.importBlocks(
           false,
           repo_id,
-          repoName,
+          repoData.repoName,
           session,
           existingNameList,
           repoBlocksData,
@@ -522,6 +520,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           client,
           allConflicts
         );
+
         await mongo.importGroups(
           false,
           repo_id,
@@ -561,7 +560,8 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         ) {
           console.log("Repository already existing!");
           throw new Error(newRepo); // Throw an error with the message
-        }
+        };
+        
         await mongo.importStories(
           true,
           newRepo.toHexString(),
@@ -577,6 +577,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         );
         console.log(groupMapping);
         console.log(existingNameList);
+
         await mongo.importBlocks(
           true,
           newRepo.toHexString(),
@@ -589,6 +590,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           findAssociatedID,
           client
         );
+
         await mongo.importGroups(
           true,
           newRepo.toHexString(),

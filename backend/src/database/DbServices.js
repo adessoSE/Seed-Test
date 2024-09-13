@@ -1762,7 +1762,6 @@ async function importBlocks(
       );
     singularBlock.repository = repoName;
     singularBlock.repositoryId = importRepo;
-    console.log(repoName, post, importMode, singularBlock._id);
     if (!post && !importMode) {
       singularBlock._id = findAssociatedID(singularBlock.name, allConflicts);
       if(!singularBlock._id)
