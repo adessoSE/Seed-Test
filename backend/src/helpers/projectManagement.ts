@@ -394,6 +394,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
     async function nameCheckStory() {
       let conflictingNames = [];
       const existingStories = await mongo.getAllStoriesOfRepo(repo_id);
+      console.log(existingStories);
       const existingNames = existingStories.map(({ title, _id }) => ({
         existingName: title,
         associatedID: _id.toHexString(),
@@ -505,10 +506,13 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           file,
           allConflicts
         );
+
+        const repoName = await mongo.getOneRepositoryById(repo_id).repoName;
+
         await mongo.importBlocks(
           false,
           repo_id,
-          await mongo.getOneRepositoryById(repo_id).repoName,
+          repoName,
           session,
           existingNameList,
           repoBlocksData,
@@ -572,6 +576,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           file
         );
         console.log(groupMapping);
+        console.log(existingNameList);
         await mongo.importBlocks(
           true,
           newRepo.toHexString(),
