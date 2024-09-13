@@ -1,12 +1,5 @@
 import { Injectable } from "@angular/core";
-import {
-  HttpInterceptor,
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpErrorResponse,
-  HttpStatusCode,
-} from "@angular/common/http";
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse, HttpStatusCode } from "@angular/common/http";
 import { tap, catchError } from "rxjs/operators";
 import { NGXLogger } from "ngx-logger";
 import { Observable, throwError } from "rxjs";

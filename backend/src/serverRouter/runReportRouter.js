@@ -50,6 +50,7 @@ router.post('/Group/:repoID/:groupID', async (req, res) => {
 	}
 	const params = group;
 	params.repository = req.body.repository;
+	params.repoId = req.params.repoID;
 	req.body = group;
 	reporter.runReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
 });

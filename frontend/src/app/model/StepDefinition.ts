@@ -18,9 +18,4 @@ export interface StepDefinition {
      * Then Steps
      */
     then: StepType[];
-
-    /**
-     * Examples
-     */
-    example: StepType[];
 }

@@ -16,7 +16,24 @@ const { applySpecialCommands } = require('../../src/serverHelper');
 
 let driver;
 
-const downloadDirectory = !(/^win/i.test(process.platform)) ? '/home/public/Downloads/' : 'C:\\Users\\Public\\seed_Downloads\\';
+let downloadDirectory;
+let tmpUploadDir
+switch (os.platform()) {
+	// Windows
+	case 'win32':
+		downloadDirectory = 'C:\\Users\\Public\\seed_Downloads\\';
+		tmpUploadDir = 'C:\\Users\\Public\\SeedTmp\\'
+		break;
+	// macOS
+	case 'darwin':
+		downloadDirectory = `/Users/${os.userInfo().username}/Downloads/`;
+		tmpUploadDir = `/Users/${os.userInfo().username}/SeedTmp/`
+		break;
+	default:
+		downloadDirectory = '/home/public/Downloads/';
+		tmpUploadDir = '/home/public/SeedTmp/';
+}
+
 if (!fs.existsSync(downloadDirectory)) fs.mkdirSync(downloadDirectory, { recursive: true });
 const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
 	// Set to 2 for the "custom" folder
@@ -25,7 +42,7 @@ const firefoxOptions = new firefox.Options().setPreference('browser.download.dir
 const chromeOptions = new chrome.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
 const edgeOptions = new edge.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
 
-if (!os.platform().includes('win')) {
+if (!os.platform().includes('win32')) {
 	chromeOptions.addArguments('--headless');
 	chromeOptions.addArguments('--no-sandbox');
 	firefoxOptions.addArguments('--headless');
@@ -290,12 +307,6 @@ When('I click the button: {string}', async function clickButton(button) {
 	await handleError(async () => {
 		const world = this;
 		const identifiers = [`//*[@id='${button}']`, `//*[contains(@id,'${button}')]`, `//*[text()='${button}' or @*='${button}']`, `//*[contains(text(),'${button}')]`, `${button}`];
-		await driver.getCurrentUrl()
-			.then(async (currentUrl) => {
-				// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-				if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-					.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-			});
 		const promises = [];
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
@@ -344,8 +355,8 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 
 		await Promise.any(promises)
 			.then(async (elem) => {
-				await elem.clear();
-				await elem.sendKeys(value);
+				await elem.clear()
+				await typing(elem, value)
 			})
 			.catch(async (e) => {
 				await driver.takeScreenshot().then(async (buffer) => {
@@ -357,6 +368,12 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
 });
+
+const typing = async(elem, inputString) => {
+	for (const char of inputString.split('')){
+		await elem.sendKeys(char)
+	}
+}
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
@@ -581,26 +598,23 @@ When('I switch to the next tab', async function switchToNewTab() {
 
 When(
 	'I want to upload the file from this path: {string} into this uploadfield: {string}',
-	async function uploadFile(path, input) {
-		await handleError(async () => {
-			const world = this;
-			const identifiers = [`//input[@*='${input}']`, `${input}`];
-			const promises = [];
-			for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
-
-			await Promise.any(promises)
-				.then((elem) => elem.sendKeys(`${path}`))
-				.catch(async (e) => {
-					await driver.takeScreenshot().then(async (buffer) => {
-						world.attach(buffer, 'image/png');
-					});
-					if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
-					throw Error(e);
+	async function uploadFile(file, input) {
+		const world = this;
+		const identifiers = [`//input[@*='${input}']`, `${input}`];
+		const promises = [];
+		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+		const path =  tmpUploadDir + file
+		await Promise.any(promises)
+			.then((elem) => elem.sendKeys(`${path}`))
+			.catch(async (e) => {
+				await driver.takeScreenshot().then(async (buffer) => {
+					world.attach(buffer, 'image/png');
 				});
-			await driver.sleep(100 + currentParameters.waitTime);
-		});
-	}
-);
+        if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
+					throw Error(e);
+			  await driver.sleep(100 + currentParameters.waitTime);
+		  });
+  });
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be

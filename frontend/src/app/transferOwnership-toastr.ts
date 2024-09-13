@@ -29,7 +29,7 @@ import { ProjectService } from './Services/project.service';
         }
     `],
     template: `
-    <div class="row" [style.display]="state.value === 'inactive' ? 'none' : ''">
+    <div class="row" [style.display]="state().value === 'inactive' ? 'none' : ''">
       <div class="col-9">
         <div *ngIf="title" [class]="options.titleClass" [attr.aria-label]="title">
           {{ title }}

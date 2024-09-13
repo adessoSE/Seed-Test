@@ -31,6 +31,10 @@ input.wrongEmail {
     background: gray !important;
 }
 
+span.infoIcon {
+    color: white;
+}
+
 table {
     width: 100%;
     margin-top:5px;
@@ -99,12 +103,6 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type, th.mat-mdc-
 ::ng-deep div.mat-mdc-list-item-content.mat-mdc-list-item-content-reverse div.mat-mdc-list-text{
     display: flex;
     flex-direction: row;
-}
-
-.infoIcon{
-    color: var(--white);
-    margin-left: 5px;
-    margin-right: 5px;
 }
 
 .submitForm{

@@ -1,11 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const pmHelper = require('../../dist/helpers/projectManagement');
 
 const router = express.Router();
+const upload = multer({
+	storage: multer.memoryStorage(),
+	// 5 MB limit
+	limits: { fileSize: 5000000 }
+});
 
 router
 	.use(cors())
@@ -58,6 +64,99 @@ router.post('/', async (req, res) => {
 	}
 });
 
+
+
+// delete scenario
+router.delete('/scenario/:story_id/:_id', async (req, res) => {
+	try {
+		await mongo
+			.deleteScenario(req.params.story_id, parseInt(req.params._id, 10));
+		await helper.updateFeatureFile(req.params.story_id);
+		res.status(200)
+			.json({ text: 'success' });
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/story/:_id', async (req, res) => {
+	try {
+		console.log('download feature-file', req.params._id);
+		const file = await helper.exportSingleFeatureFile(req.params._id);
+		console.log(file);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/project/:repo_id', async (req, res) => {
+	try {
+		console.log('download project feature-files', req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
+		console.log(file);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/export/:repo_id', async (req, res) => {
+	try {
+		console.log('export project ', req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await pmHelper.exportProject(req.params.repo_id, version);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.post('/oneDriver/:storyID', async (req, res) => {
+	try {
+		const result = await mongo.updateOneDriver(req.params.storyID, req.body);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.post('/uploadFile/:repoId/', multer().single('file'), async (req, res) => {
+	try {
+		console.log('uploadfile');
+
+		const { repoId } = req.params;
+
+		console.log(req.file)
+
+		const file = await mongo.fileUpload(req.file.originalname, repoId, req.file.buffer)
+		if(file) res.status(200).json(file);
+		else res.status(500)
+		
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/uploadFile/:repoId', async (req, res) => {
+	try {
+		const result = await mongo.getFileList(req.params.repoId);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+router.delete('/uploadFile/:fileId', async (req, res) => {
+	try {
+		console.log(req.params.fileId)
+		await mongo.deleteFile(req.params.fileId);
+		res.status(200).json({ message: 'File deleted' });
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 // update Story
 router.put('/:_id', async (req, res) => {
 	try {
@@ -77,6 +176,30 @@ router.delete('/:repo_id/:_id', async (req, res) => {
 		res.status(200).json({ text: 'success' });
 	} catch (e) {
 		handleError(res, e, e, 500);
+	}
+});
+
+// Import into new project
+router.post('/upload/import/', upload.single('file'), async (req, res) => {
+	try {
+		if (req.query.projectName) {
+			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName, req.query.importMode);
+			res.status(200).json(result);
+		} else res.status(200).json('');
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+// Import into existing project
+router.put('/upload/import/', upload.single('file'), async (req, res) => {
+	try {
+		if (req.query.repo_id) {
+			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName, req.query.importMode);
+			res.status(200).json(result);
+		} else res.status(200).json('');
+	} catch (error) {
+		handleError(res, error, error, 500);
 	}
 });
 

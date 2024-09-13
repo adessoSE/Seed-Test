@@ -21,6 +21,7 @@ class GenericReport {
     reportTime: number
     mode: ExecutionMode
     smallReport: string
+    settings?: {reportComment: boolean, overwrite: boolean}
 
     constructor(){
         this.status = false

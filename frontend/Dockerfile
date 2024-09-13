@@ -1,4 +1,6 @@
- FROM node:18.13
+# Use build argument for Node.js version
+ARG NODE_VERSION=20.9
+FROM node:${NODE_VERSION}
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -8,9 +10,13 @@ COPY package*.json ./
 
 # Install dependencies
 RUN npm ci --ignore-scripts
+#RUN npm install --force --ignore-scripts
 
 # Install Angular CLI
-RUN npm install --ignore-scripts -g @angular/cli
+RUN npm install --force --ignore-scripts -g @angular/cli
+
+# Install esbuild 
+RUN npm install --ignore-scripts esbuild 
 
 COPY . .
 

@@ -86,7 +86,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.selectedStory = story;
 
     // hide if no scenarios in story
-    this.showEditor = !!story.scenarios.length;
+    this.showEditor = !!story?.scenarios.length;
   }
 
   /**
@@ -327,11 +327,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   renameBackgroundModal: RenameBackgroundComponent;
   @ViewChild("workgroupEditModal") workgroupEditModal: WorkgroupEditComponent;
 
-  /**
-   * Event emitter to change to the report history component
-   */
-  @Output()
-  changeEditor: EventEmitter<any> = new EventEmitter();
 
   @Output()
   deleteStoryEvent: EventEmitter<any> = new EventEmitter();
@@ -370,7 +365,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.storiesError = false;
     }
     const version = localStorage.getItem("version");
-    if (version === "DAISY" || version === "HEROKU" || !version) {
+    if (version === "DAISY" || !version) {
       this.daisyVersion = true;
     } else {
       this.daisyVersion = false;
@@ -586,9 +581,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           this.applyChangesToBackgrounds(this.selectedStory.background);
         }
       });
-      this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block => 
-          this.blockService.convertSelectedStepsToRef(block, this.selectedScenario)
-      );
+    this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block =>
+      this.blockService.convertSelectedStepsToRef(block, this.selectedScenario)
+    );
   }
 
   ngOnDestroy() {
@@ -661,10 +656,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Change to the report history component
+   * Change the active view of a story
    */
-  openReportHistory() {
-    this.changeEditor.emit();
+  changeActiveView(viewName) {
+    this.storyService.changeStoryViewEvent(viewName);
   }
 
   /**
@@ -981,7 +976,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       const stepDefs: StepDefinition = {
         given: [],
         then: [],
-        example: [],
         when: unsavedBackground.stepDefinitions.when,
       };
       const block: Block = {

@@ -10,6 +10,10 @@
     padding-right: 10px;
 }
 
+span.infoIcon {
+    color: white;
+}
+
 
 .blockNameContainer{
     border-bottom: 1px solid #e0e0e0;
@@ -82,12 +86,6 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
         max-height: 300px;
         overflow-y: auto;
     }
-}
-
-.infoIcon{
-    color: var(--white);
-    margin-left: 5px;
-    margin-right: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
