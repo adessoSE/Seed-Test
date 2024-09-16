@@ -5,6 +5,9 @@ on:
     types:
       - published
       - edited
+  push:
+    branches:
+      - FixBuildAndPublishImage
 
 jobs:
   build-and-publish-release:
