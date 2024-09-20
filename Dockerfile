@@ -68,10 +68,14 @@ RUN curl -q https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > 
 RUN add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main"
 RUN apt-get update && apt-get install -qq -y microsoft-edge-stable
 
-# Install msedgedriver
-RUN wget -q -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/LATEST_STABLE/msedgedriver-linux64.zip
-RUN unzip /tmp/msedgedriver.zip -d /usr/local/bin/
-RUN chmod +x /usr/local/bin/msedgedriver
+# Install npm packages for Selenium and EdgeDriver
+WORKDIR /usr/src/app/backend
+COPY ./backend/package*.json ./
+RUN npm install --ignore-scripts
+RUN npm install -g selenium-webdriver webdriver-manager
+
+# Update WebDriver Manager for Edge
+RUN webdriver-manager update --edge
 
 
 # Clean up the cache after installing all necessary packages
