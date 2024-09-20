@@ -62,13 +62,13 @@ RUN apt-get -q update && apt-get install -qq -y bzip2 libdbus-glib-1-2 libgtk-3-
 # RUN rm -f latest_stable.txt
 
 
-# install edge using package manager
-RUN apt-get install -qq -y software-properties-common
+# Install edge via package manager
+RUN apt-get update && apt-get install -qq -y software-properties-common
 RUN curl -q https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg
 RUN add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main"
 RUN apt-get update && apt-get install -qq -y microsoft-edge-stable
 
-# install msedgedriver from package manager
+# Install msedgedriver
 RUN apt-get install -yqq msedge-driver
 RUN ln -s /usr/bin/msedgedriver /usr/local/bin/msedgedriver
 
