@@ -25,7 +25,7 @@ jobs:
       - name: Get Tag Name
         id: get_tag_name
         run: |
-          version=test
+          version=$(echo $GITHUB_REF | sed 's/refs\/tags\///' | sed 's/.*_//')
           echo "version=${version}" >> ${GITHUB_OUTPUT}
 
       # BACKEND
