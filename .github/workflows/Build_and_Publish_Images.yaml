@@ -80,7 +80,7 @@ jobs:
         if: ${{ startsWith(github.event.release.name, 'Seed-Test_v') }}
         run: docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-demo:latest
 
-      - name: Post susccess message
+      - name: Post success message
         uses: ./actions/notifyTeams
         with:
           title: "Publish Release DockerHub 🐳🌐"

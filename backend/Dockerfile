@@ -45,12 +45,19 @@ RUN msedge --version | sed 's/.*Edge \([0-9.]*\).*/\1/' > latest_stable.txt
 # Return stable version (debugging purposes)
 RUN cat latest_stable.txt
 
-# Download msedgedriver (only if available)
-RUN if [ $(wget -qO- https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip) ]; then \
-  wget -q -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip && \
-  unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/ && \
-  rm -f /tmp/msedgedriver.zip; \
-fi
+# # Download msedgedriver (only if available)
+# RUN if [ $(wget -qO- https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip) ]; then \
+#   wget -q -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip && \
+#   unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/ && \
+#   rm -f /tmp/msedgedriver.zip; \
+# fi
+
+# Install msedgedriver
+RUN npm install -g edgedriver
+
+# Show Edge and EdgeDriver version
+RUN microsoft-edge --version
+RUN edgedriver --version
 
 
 # Remove temporary file (regardless of download success)

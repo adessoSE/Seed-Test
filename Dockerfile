@@ -70,6 +70,9 @@ RUN apt-get update && apt-get install -qq -y microsoft-edge-stable
 
 # Install msedgedriver
 RUN npm install -g edgedriver
+
+# Show Edge and EdgeDriver version
+RUN microsoft-edge --version
 RUN edgedriver --version
 
 # Clean up the cache after installing all necessary packages
