@@ -69,8 +69,9 @@ RUN add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/ed
 RUN apt-get update && apt-get install -qq -y microsoft-edge-stable
 
 # Install msedgedriver
-RUN apt-get install -yqq msedge-driver
-RUN ln -s /usr/bin/msedgedriver /usr/local/bin/msedgedriver
+RUN wget -q -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/LATEST_STABLE/msedgedriver-linux64.zip
+RUN unzip /tmp/msedgedriver.zip -d /usr/local/bin/
+RUN chmod +x /usr/local/bin/msedgedriver
 
 
 # Clean up the cache after installing all necessary packages
