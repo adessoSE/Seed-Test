@@ -69,8 +69,8 @@ RUN add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/ed
 RUN apt-get update && apt-get install -qq -y microsoft-edge-stable
 
 # Install msedgedriver
-# Installiere edgedriver
 RUN npm install -g edgedriver
+RUN edgedriver --version
 
 # Clean up the cache after installing all necessary packages
 RUN apt-get -q update && apt-get clean && rm -rf /var/lib/apt/lists/*
