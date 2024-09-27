@@ -63,7 +63,6 @@ edgeOptions.addArguments('--lang=de');
 edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
 
-chromeOptions.binaryLocation = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
 
 const NotFoundError = (e) => Error(`ElementNotFoundError: ${e}`);
