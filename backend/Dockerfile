@@ -1,5 +1,5 @@
 # Use build argument for Node.js version
-ARG NODE_VERSION=20.9
+ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}
 
 RUN apt-get update && \
@@ -12,7 +12,7 @@ WORKDIR /usr/src/app
 RUN ls -l .
 
 # install chrome 
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN wget -q --max-redirect=0 https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN yes | apt install -qq ./google-chrome-stable_current_amd64.deb
 RUN rm -f google-chrome-stable_current_amd64.deb
 
@@ -26,7 +26,7 @@ RUN mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedri
 RUN wget -q -O ~/FirefoxSetup.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64"
 RUN tar xjf ~/FirefoxSetup.tar.bz2 -C /opt/
 RUN ln -s /opt/firefox/firefox /usr/local/bin/
-RUN apt-get -q update && apt-get install -qq -y wget bzip2 libxtst6 libgtk-3-0 libx11-xcb-dev libdbus-glib-1-2 libxt6 libpci-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get -q update && apt-get install -qq -y bzip2 libdbus-glib-1-2 libgtk-3-0 libpci-dev libx11-xcb-dev libxt6 libxtst6 wget && rm -rf /var/lib/apt/lists/*
 
 # install edge
 RUN curl -q https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
@@ -42,9 +42,25 @@ ENV PATH="${PATH}:/opt/microsoft/msedge/"
 # # Extract the latest stable version of edge
 RUN msedge --version | sed 's/.*Edge \([0-9.]*\).*/\1/' > latest_stable.txt
 
-# # Remove the driver-pagehtml
-RUN wget -q -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip
-RUN unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/
+# Return stable version (debugging purposes)
+RUN cat latest_stable.txt
+
+# # Download msedgedriver (only if available)
+# RUN if [ $(wget -qO- https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip) ]; then \
+#   wget -q -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip && \
+#   unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/ && \
+#   rm -f /tmp/msedgedriver.zip; \
+# fi
+
+# Install msedgedriver
+RUN npm install --ignore-scripts -g edgedriver
+
+# Show Edge and EdgeDriver version
+RUN microsoft-edge --version
+RUN edgedriver --version
+
+
+# Remove temporary file (regardless of download success)
 RUN rm -f latest_stable.txt
 
 # Bundle app source

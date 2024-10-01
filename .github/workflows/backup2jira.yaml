@@ -3,8 +3,8 @@ name: Backup and Upload
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * 0" # Every Sunday at midnight (UTC)
     - cron: "0 5 * * 5"   # Every Friday at 5 AM (UTC)
+
 
 jobs:
   backup-and-upload:
