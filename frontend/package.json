@@ -19,7 +19,6 @@
   },
   "private": true,
   "dependencies": {
-    "@angular-devkit/build-angular": "^18.2.6",
     "@angular/animations": "^18.2.6",
     "@angular/cdk": "^18.2.6",
     "@angular/cli": "^18.2.6",
@@ -59,6 +58,7 @@
     "@angular-eslint/eslint-plugin-template": "18.3.1",
     "@angular-eslint/schematics": "18.3.1",
     "@angular-eslint/template-parser": "18.3.1",
+    "@angular/build": "^18.2.7",
     "@angular/compiler-cli": "^18.2.6",
     "@compodoc/compodoc": "^1.1.25",
     "@popperjs/core": "^2.11.8",

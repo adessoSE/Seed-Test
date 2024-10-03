@@ -19,12 +19,15 @@
       "schematics": {},
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/cucumber-frontend",
+            "outputPath": {
+              "base": "dist/cucumber-frontend"
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "tsConfig": "./tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
@@ -40,7 +43,8 @@
               "./node_modules/jquery/dist/jquery.min.js",
               "./node_modules/uikit/dist/js/uikit.min.js",
               "./node_modules/uikit/dist/js/uikit-icons.min.js"
-            ]
+            ],
+            "browser": "src/main.ts"
           },
           "configurations": {
             "optimization": {
@@ -70,14 +74,12 @@
               "sourceMap": false,
               "namedChunks": false,
               "aot": true,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": true
+              "extractLicenses": true
             }
           }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
             "poll": 2000,
             "buildTarget": "cucumber-frontend:build"
@@ -89,7 +91,7 @@
           }
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular/build:extract-i18n",
           "options": {
             "buildTarget": "cucumber-frontend:build"
           }
