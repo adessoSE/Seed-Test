@@ -1,13 +1,40 @@
-.button {
-    margin-right: 3px;
-    color:var(--white);
-    padding: 5px 10px;
-    font-size: 15px;
-    cursor: pointer;
-    background: var(--ocean-blue);
-    border: none;
-    line-height: 25px;
+button {
+  margin-right: 3px;
+  color: var(--white);
+  padding: 5px 10px;
+  font-size: 15px;
+  cursor: pointer;
+  background-color: var(--ocean-blue);
+  border: none;
+  line-height: 25px;
+  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2),
+              0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+              0px 1px 5px 0px rgba(0, 0, 0, 0.12); /* Schatten für Mat Raised Button */
+  
+  &:hover {
+      background-color: var(--marine-blue);
   }
+  
+  &:active {
+      background: linear-gradient(to top, rgb(2, 111, 161), #0099CC);
+  }
+  
+  &:focus {
+      outline: none !important;
+  }
+  
+  &:disabled {
+      background-color: var(--buttonDisabled);
+      cursor: not-allowed;
+  }
+  
+  button > mat-icon {
+      color: var(--white);
+      font-size: 22px;
+      vertical-align: text-top;
+  }
+}
+
 
   .uk-card-default {
     background: transparent;
@@ -21,25 +48,10 @@
     padding: 15px 0px;
   }
 
-  .button:hover {
-    background: var(--marine-blue);
-  }
-
-  .button:active {
-    background: -moz-linear-gradient(top,  rgb(2, 111, 161), #0099CC);
-  }
-
-  .button:focus {outline:0 !important;}
-
-  .uk-button-group{
+  .button-group{
     border-radius:4px;
   }
 
-  .button > em{
-    color: var(--white);
-    font-size: 22px;
-    vertical-align: text-top;
-  }
   .padding{
     padding: 20px;
   }
