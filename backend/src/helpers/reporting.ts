@@ -377,10 +377,9 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 		} else {
 			const story = await mongo.getOneStory(req.params.issueID);
             await fetchFiles([story], parameters.repositoryId).catch((err)=>console.error(err))
-			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
+			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test')});
 		}
 	} catch (error) {
-		res.status(404).send(error);
 		return;
 	}
     
