@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seed-Test : Xray Integration</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test_679052365.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test-Benutzer-Dokumentation_789703700.html">Seed-Test Benutzer Dokumentation</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Seed-Test : Xray Integration
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Meilbeck, Silas</span>, last modified on Okt 23, 2024
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <div class="contentLayout2">
+<div class="columnLayout two-equal" data-layout="two-equal">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Seed-Test verfügt über eine recht weitreichende Integration von Xray.</p><p>Diese Seite stellt die Endnutzer-Anwendung dar.</p></div></div><div class="confluence-information-macro confluence-information-macro-note"><span class="aui-icon aui-icon-small aui-iconfont-warning confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Voraussetzung für die Nutzung der Xray Funktion ist die Verknüpfung Ihres Jira Kontos mit Seed-Test und eine Programmversion &gt;= 1.8.0.</p></div></div><p class="auto-cursor-target"><style type='text/css'>/*<![CDATA[*/
+div.rbtoc1729697995336 {padding: 0px;}
+div.rbtoc1729697995336 ul {margin-left: 0px;}
+div.rbtoc1729697995336 li {margin-left: 0px;padding-left: 0px;}
+
+/*]]>*/</style><div class='toc-macro rbtoc1729697995336'>
+<ul class='toc-indentation'>
+<li><a href='#XrayIntegration-MappingderBegrifflichkeiten'>Mapping der Begrifflichkeiten</a></li>
+<li><a href='#XrayIntegration-Anwendungsfälle'>Anwendungsfälle</a>
+<ul class='toc-indentation'>
+<li><a href='#XrayIntegration-1.SynchronisierenvonTestschrittenindieBeschreibung📃'>1. Synchronisieren von Testschritten in die Beschreibung 📃</a></li>
+<li><a href='#XrayIntegration-2.SynchronisierendesTestausführungsstatus✅'>2. Synchronisieren des Testausführungsstatus ✅</a></li>
+<li><a href='#XrayIntegration-3.Test-Szenario-Anpassung:LöschenvonSchritten🗑️'>3. Test-Szenario-Anpassung: Löschen von Schritten 🗑️</a></li>
+<li><a href='#XrayIntegration-4.ÜbertragungvondeckungsgleichenSeed-Schritten📩'>4. Übertragung von deckungsgleichen Seed-Schritten 📩</a></li>
+<li><a href='#XrayIntegration-5.VerlinkungderVorbedingungenverschiedenerGrade👣'>5. Verlinkung der Vorbedingungen verschiedener Grade 👣</a></li>
+</ul>
+</li>
+</ul>
+</div></p></div>
+</div>
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<p><span class="confluence-embedded-file-wrapper"><img class="confluence-embedded-image" draggable="false" alt="Seed-Test x Xray Bild" src="attachments/895624138/895624337.png" data-image-src="attachments/895624138/895624337.png" data-unresolved-comment-count="0" data-linked-resource-id="895624337" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="XrayXSeedTest.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40"></span></p></div>
+</div>
+</div>
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<hr/><h1 style="text-align: center;" id="XrayIntegration-MappingderBegrifflichkeiten">Mapping der Begrifflichkeiten</h1><p><br/></p></div>
+</div>
+</div>
+<div class="columnLayout two-equal" data-layout="two-equal">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<div class="confluence-information-macro confluence-information-macro-tip"><span class="aui-icon aui-icon-small aui-iconfont-approve confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Xray und Seed-Test haben teils <strong>divergierende</strong>, teils <strong>überschneidende Begrifflichkeiten</strong>, die es vorab zu klären gilt, damit es Ihnen, geneigter Nutzer, hoffentlich leichter fällt, diesen Post zu lesen und mit der Integration zu arbeiten.</p></div></div></div>
+</div>
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<div class="table-wrap"><table class="wrapped confluenceTable" style="margin-left: auto;margin-right: auto;"><colgroup class=""><col class=""/><col class=""/></colgroup><tbody class=""><tr class=""><th class="highlight-#36b37e confluenceTh" title="Hintergrundfarbe: Mittelgrün 100 %" data-highlight-colour="#36b37e"><span style="color: rgb(255,255,255);">Xray Begriff</span></th><th class="highlight-#0065ff confluenceTh" title="Hintergrundfarbe: Mittelblau 100 %" data-highlight-colour="#0065ff"><span style="color: rgb(255,255,255);">Seed-Test Begriff</span></th></tr><tr class=""><td style="text-align: left;" class="confluenceTd"><strong>Test Steps</strong></td><td style="text-align: left;" class="confluenceTd"><strong>Story</strong></td></tr><tr class=""><td style="text-align: left;" class="confluenceTd"><strong>einzelner Test Step</strong></td><td style="text-align: left;" class="confluenceTd"><strong>Szenario</strong></td></tr><tr class=""><td style="text-align: left;" class="confluenceTd"><strong>Test Step Field Element</strong></td><td style="text-align: left;" class="confluenceTd"><strong>Test Step</strong></td></tr><tr class=""><td style="text-align: left;" class="confluenceTd"><strong>Test Set</strong></td><td style="text-align: left;" class="confluenceTd"><strong>Group</strong></td></tr><tr><td style="text-align: left;" class="confluenceTd"><strong>Action</strong></td><td style="text-align: left;" class="confluenceTd"><strong>When</strong></td></tr><tr><td style="text-align: left;" class="confluenceTd"><strong>Expected Result</strong></td><td style="text-align: left;" class="confluenceTd"><strong>Then</strong></td></tr></tbody></table></div></div>
+</div>
+</div>
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<p><br/></p><hr/><h1 style="text-align: center;" id="XrayIntegration-Anwendungsfälle">Anwendungsfälle</h1><p><br/></p></div>
+</div>
+</div>
+<div class="columnLayout three-equal" data-layout="three-equal">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<h2 style="text-align: center;" id="XrayIntegration-1.SynchronisierenvonTestschrittenindieBeschreibung📃">1. Synchronisieren von Testschritten in die Beschreibung 📃</h2><hr/><p>Seed Test übernimmt automatisch die Definition der Tests von Xray in die Beschreibung des verknüpften Seed-Test Story-Szenarios, um dem Testersteller als Hilfe zu dienen.<br/>So sieht das dann beispielsweise aus:</p><p><br/></p><div id="expander-2066647404" class="expand-container"><div id="expander-control-2066647404" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Beschreibung</span></div><div id="expander-content-2066647404" class="expand-content"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/895624138/895624568.png" data-image-src="attachments/895624138/895624568.png" data-unresolved-comment-count="0" data-linked-resource-id="895624568" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_14-34-53-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></div></div><p>Der (GIVEN) Abschnitt ist hierbei ein benutzerdefinierter Abschnitt, den Sie vermutlich nicht definiert haben sollten.</p></div>
+</div>
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<h2 style="text-align: center;" id="XrayIntegration-2.SynchronisierendesTestausführungsstatus✅">2. Synchronisieren des Testausführungsstatus ✅</h2><hr/><ul><li>Starten Sie die Anwendung und wählen Sie den gewünschten Testfall (z. B. EXP-089).</li><li>Wählen Sie bei der aufpoppenden Auswahlliste aus, welche Test Execution in Xray synchronisiert werden soll</li><li>Lassen Sie die Tests in Seed-Test ausführen und warten Sie, bis alle Schritte abgeschlossen sind.</li><li>Der Status sollte jetzt im Jira Test den gleichen Teststatus wie Seed-Test</li><li>Es können sowohl Gruppen- wie einzelne Status synchronisiert werden</li></ul><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Wenn ein einzelner Schritt innerhalb des Testfalls fehlschlägt/übersprungen wird, so wird in Jira der Testfall auf <strong>Failed </strong>gesetzt</p></div></div><p class="auto-cursor-target">So sollte das dann aussehen:</p><div id="expander-609931885" class="expand-container"><div id="expander-control-609931885" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Auswahlliste für Test Execution</span></div><div id="expander-content-609931885" class="expand-content"><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/895624138/895624763.png" data-image-src="attachments/895624138/895624763.png" data-unresolved-comment-count="0" data-linked-resource-id="895624763" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_15-27-3-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p></div></div><div id="expander-347523631" class="expand-container"><div id="expander-control-347523631" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Gruppen Synchronisation</span></div><div id="expander-content-347523631" class="expand-content"><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/895624138/895624665.png" data-image-src="attachments/895624138/895624665.png" data-unresolved-comment-count="0" data-linked-resource-id="895624665" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_14-56-40-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p></div></div><div id="expander-895038737" class="expand-container"><div id="expander-control-895038737" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Einzelsynchronisation</span></div><div id="expander-content-895038737" class="expand-content"><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="400" src="attachments/895624138/895624667.png" data-image-src="attachments/895624138/895624667.png" data-unresolved-comment-count="0" data-linked-resource-id="895624667" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_14-57-0-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p><p>Hier ist nun ein einzelner Schritt fehlgeschlagen</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/895624138/895624669.png" data-image-src="attachments/895624138/895624669.png" data-unresolved-comment-count="0" data-linked-resource-id="895624669" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_14-57-22-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p></div></div></div>
+</div>
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<h2 style="text-align: center;" id="XrayIntegration-3.Test-Szenario-Anpassung:LöschenvonSchritten🗑️">3. Test-Szenario-Anpassung: Löschen von Schritten 🗑️</h2><hr/><p>Wenn Sie in einer verlinkten Story in Seed ein Szeanrio löschen, so wird dies auch in Xray reflektiert, indem die jeweiligen Xray Testschritte gelöscht werden. Hierfür muss <strong>Delete with Xray</strong> ausgewählt werden. Dadurch kann man die Tests synchron halten.</p><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Dies ist Stand v1.8.0 nur einseitig möglich, das bedeutet ein Löschen von Schritten bei Xray, löscht nicht bei Seed Szenarien.</p></div></div><div id="expander-1977404645" class="expand-container"><div id="expander-control-1977404645" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Löschvorgang</span></div><div id="expander-content-1977404645" class="expand-content"><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/895624138/895624732.png" data-image-src="attachments/895624138/895624732.png" data-unresolved-comment-count="0" data-linked-resource-id="895624732" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_15-18-27-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="400" src="attachments/895624138/895624733.png" data-image-src="attachments/895624138/895624733.png" data-unresolved-comment-count="0" data-linked-resource-id="895624733" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_15-18-36-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p></div></div></div>
+</div>
+</div>
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<p><br/></p><p><br/></p></div>
+</div>
+</div>
+<div class="columnLayout three-equal" data-layout="three-equal">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<h2 style="text-align: center;" id="XrayIntegration-4.ÜbertragungvondeckungsgleichenSeed-Schritten📩">4. Übertragung von deckungsgleichen Seed-Schritten 📩</h2><hr/><div class="confluence-information-macro confluence-information-macro-note"><span class="aui-icon aui-icon-small aui-iconfont-warning confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Dieses Feature soll in Zukunft in seinen Fähigkeiten ausgebaut werden - bis jetzt wird nur <strong>vollkommen deckungsgleiche</strong> Syntax automatisch übersetzt!</p></div></div><p class="auto-cursor-target">Seed-Test versucht automatisch aus den Testschritten in Xray Szenarien, benannt nach den Schritt-Ids, zu generieren.</p><p class="auto-cursor-target">Um anzuzeigen, dass die einzelnen Seed-Szenarien-Testschritte mit den einzelnen Testpunkten in Xray übereinstimmen oder modifiziert/aus unbekannter Quelle sind, gibt es einen <strong>Marker</strong>.</p><p class="auto-cursor-target">Bei Klicken auf <strong>Sync with Xray </strong>wird das jeweilige Szenario synchronisiert, d.h. auf Xray Stand gebracht.<br/><br/></p><div id="expander-723025548" class="expand-container"><div id="expander-control-723025548" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Synchronisiertes Szenario</span></div><div id="expander-content-723025548" class="expand-content"><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/895624138/895624846.png" data-image-src="attachments/895624138/895624846.png" data-unresolved-comment-count="0" data-linked-resource-id="895624846" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_15-47-19-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p><p>Rot markiert sind die erwähnten Marker</p></div></div></div>
+</div>
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<p style="text-align: center;"><span class="confluence-embedded-file-wrapper image-center-wrapper"><img class="confluence-embedded-image image-center" draggable="false" src="attachments/895624138/895624954.png" data-image-src="attachments/895624138/895624954.png" data-unresolved-comment-count="0" data-linked-resource-id="895624954" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_16-28-0.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p></div>
+</div>
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<h2 style="text-align: center;" id="XrayIntegration-5.VerlinkungderVorbedingungenverschiedenerGrade👣">5. Verlinkung der Vorbedingungen verschiedener Grade 👣</h2><hr/><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Wir gehen hier vom Regelfall aus, dass alle relevanten Jira Xray Testfälle in Seed-Test vorhanden sind.</p></div></div><p>Häufig haben Testfälle in Xray andere Testfälle, die vorher ausgeführt werden müssen, dieses teils doch recht komplexe Problem bildet Seed-Test ebenfalls ab.</p><p>Der Seed-Test Story, die Vorbedingungen besitzt, werden eben diese sowie die Vorbedingungen höheren Grades zugeordnet und werden bei einer Testfallausführung vorab mit ausgeführt.</p><p><br/></p><div id="expander-1928052632" class="expand-container"><div id="expander-control-1928052632" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Vorbedingung in Jira</span></div><div id="expander-content-1928052632" class="expand-content"><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail" draggable="false" height="250" src="attachments/895624138/895624874.png" data-image-src="attachments/895624138/895624874.png" data-unresolved-comment-count="0" data-linked-resource-id="895624874" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_16-0-22-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p></div></div><div id="expander-19965254" class="expand-container"><div id="expander-control-19965254" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Anzeige der Vorbedingungen in Seed</span></div><div id="expander-content-19965254" class="expand-content"><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/895624138/895624872.png" data-image-src="attachments/895624138/895624872.png" data-unresolved-comment-count="0" data-linked-resource-id="895624872" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_15-58-51-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p></div></div><div id="expander-1663159821" class="expand-container"><div id="expander-control-1663159821" class="expand-control" aria-expanded="true"><span class="expand-icon aui-icon aui-icon-small aui-iconfont-chevron-down"></span><span class="expand-control-text conf-macro-render">Ausführungsstatus in Seed und Jira</span></div><div id="expander-content-1663159821" class="expand-content"><ul><li>CUC-708. Xray Sample Test 5 - Pre-condition -1 ausgeführt vor Pre-condition - 2</li><li>CUC-621. Xray Sample Test 1 - Pre-condition -2 ausgeführt nach Pre-condition – 1 und vor dem Haupt test</li><li>CUC-679 - Haupt Test (abgebildet in Execution CUC-680)</li></ul><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/895624138/895624879.png" data-image-src="attachments/895624138/895624879.png" data-unresolved-comment-count="0" data-linked-resource-id="895624879" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_16-1-44-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="106" src="attachments/895624138/895624880.png" data-image-src="attachments/895624138/895624880.png" data-unresolved-comment-count="0" data-linked-resource-id="895624880" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-10-23_16-1-51-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="895624138" data-linked-resource-container-version="40" alt=""></span></p></div></div></div>
+</div>
+</div>
+</div>
+                    </div>
+
+                                                            <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624337.png">XrayXSeedTest.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624568.png">image-2024-10-23_14-34-53-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624655.png">image-2024-10-23_14-52-5-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624665.png">image-2024-10-23_14-56-40-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624667.png">image-2024-10-23_14-57-0-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624669.png">image-2024-10-23_14-57-22-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624732.png">image-2024-10-23_15-18-27-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624733.png">image-2024-10-23_15-18-36-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624763.png">image-2024-10-23_15-27-3-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624846.png">image-2024-10-23_15-47-19-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624872.png">image-2024-10-23_15-58-51-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624874.png">image-2024-10-23_16-0-22-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624879.png">image-2024-10-23_16-1-44-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624880.png">image-2024-10-23_16-1-51-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/895624138/895624954.png">image-2024-10-23_16-28-0.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Okt 23, 2024 17:39</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
