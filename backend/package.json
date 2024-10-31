@@ -44,7 +44,7 @@
     "winston": "^3.15.0"
   },
   "devDependencies": {
-    "@types/adm-zip": "^0.5.5",
+    "@types/adm-zip": "^0.5.6",
     "@types/express": "^4.17.21",
     "@types/node": "^20.17.0",
     "eslint-config-airbnb-base": "^15.0.0",
