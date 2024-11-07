@@ -53,7 +53,7 @@ RUN cat latest_stable.txt
 # fi
 
 # Install msedgedriver
-RUN npm install --ignore-scripts -g edgedriver
+RUN npm install --ignore-scripts -g edgedriver node-fetch
 
 # Show Edge and EdgeDriver version
 RUN microsoft-edge --version
