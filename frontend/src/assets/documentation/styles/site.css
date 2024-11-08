@@ -2272,6 +2272,22 @@ table.admin th,
     color: #3a4813;
 }
 
+.confluenceTh, .confluenceTd {
+    border: 1px solid #C1C7D0;
+    padding: 7px 10px;
+    vertical-align: top;
+    text-align: left;
+    min-width: 8px;
+}
+
+.confluenceTh {
+    background-color: #a9a9a9;
+}
+
+.confluenceTable {
+    border-collapse: collapse;
+}
+
 h5, h6,
 .wiki-content h5,
 .wiki-content h6,
