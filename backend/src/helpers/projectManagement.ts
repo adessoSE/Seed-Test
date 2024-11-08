@@ -158,7 +158,7 @@ function execRepositoryRequests(link, user, password, ownerId, githubId) {
 		const reqOptions = {headers: {'Authorization': 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64')}}
 		fetch(link, reqOptions)
 			.then((response) => {
-				if (response.status === 401) resolve([]); 
+				if (response.status === 401) reject("github fetch failed (Unauthorized): " + response.status)
 				return response})
 			.then((response) => {
 				if (response.status !== 200) reject(response.status); 
@@ -185,8 +185,8 @@ function execRepositoryRequests(link, user, password, ownerId, githubId) {
 					projects.push(proj);
 				}
 				resolve(projects);
-			})
-	});
+			}).catch((reason) => {console.error("problem getting the github projects");resolve([]);return []});
+	}).catch(() => [])
 }
 
 function ownRepositories(ownerId, githubId, githubName, token) {
