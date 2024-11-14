@@ -622,7 +622,7 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 		const world = this;
 		try {
 			await driver.getCurrentUrl().then(async (currentUrl) => {
-				expect(currentUrl.replace(/\/$/, '') == url.trim().replace(/\/$/, '') , 'ERROR expected: ' + url.trim() + '; actual: ' + currentUrl).to.be.true
+				expect(currentUrl.replace(/\/$/g, '') == url.replace(/[\s]|\/\s*$/g, '') , 'ERROR expected: ' + url.replace(/[\s]|\/\s*$/g, '') + '; actual: ' + currentUrl.replace(/\/$/g, '')).to.be.true
 			});
 		} catch (e) {
 			await driver.takeScreenshot().then(async (buffer) => {
