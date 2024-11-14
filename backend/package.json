@@ -41,7 +41,7 @@
     "string-to-stream": "^3.0.1",
     "tar": "^7.4.3",
     "uuid": "^11.0.2",
-    "winston": "^3.16.0"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.6",
