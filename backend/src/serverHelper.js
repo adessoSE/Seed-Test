@@ -251,7 +251,7 @@ async function executeTest(req, mode, story) {
 		path.normalize(featurePath),
 		...(mode === 'scenario' ? ['--tags', `@${req.params.issueID}_${req.params.scenarioId}`] : []),
 		'--format', `json:${path.normalize(jsonPath)}`,
-		'--world-parameters', jsParam,
+		'--world-parameters', jsParam.replaceAll('"', '\\"'),
 		'--exit'
 	];
 
@@ -291,7 +291,7 @@ async function executeTest(req, mode, story) {
 	console.log(`Command: "${cucumberCommand}"`);
 	console.log(`Args: [${cucumberArgs}]\n`);
 
-	const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
+	const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath, shell: true });
 
 	runner.stdout.on('data', (data) => {
 		console.log(`stdout: ${data}`);
