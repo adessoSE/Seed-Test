@@ -140,12 +140,14 @@ Before(async function () {
 	// URL für Selenium Grid (im Docker)
 	const gridUrl = 'http://localhost:4444/';
 
+	// TODO: OneDriver funktioniert momentan nicht - vielleicht muss man eine globale Flag o.Ä setzen...
+	const gridBrowser = currentParameters.oneDriver ? 'chrome' : currentParameters.browser;
 	if (currentParameters.oneDriver && this.driver) console.log('Reusing existing this.driver instance');
 	else if (!currentParameters.oneDriver || !this.driver) {
 		if (this.driver) await this.driver.quit();
 		this.driver = new webdriver.Builder()
 			.usingServer(gridUrl)
-			.forBrowser(currentParameters.browser)
+			.forBrowser(gridBrowser)
 			.setChromeOptions(chromeOptions)
 			.setFirefoxOptions(firefoxOptions)
 			.setEdgeOptions(edgeOptions)
