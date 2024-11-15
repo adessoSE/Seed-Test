@@ -259,7 +259,34 @@ async function executeTest(req, mode, story) {
 	const cucumberCommand = `cucumber-js${cmd}`;
 	const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
 
-	console.log('\nExecuting:');
+	/* // Selenium Grid Initialisierung (Docker muss laufen)
+	const gridUrl = 'http://localhost:4444/';
+	let driver;
+
+	switch (parameters.browser) {
+		case 'firefox':
+			driver = new Builder()
+				.forBrowser('firefox')
+				.usingServer(gridUrl)
+				.build();
+			break;
+
+		case 'edge':
+			driver = new Builder()
+				.forBrowser('MicrosoftEdge')
+				.usingServer(gridUrl)
+				.build();
+			break;
+
+		default:
+			driver = new Builder()
+				.forBrowser('chrome')
+				.usingServer(gridUrl)
+				.build();
+			break;
+	} */
+
+	console.log('\nExecuting on Selenium Grid:');
 	console.log(`Working Dir: "${cucumberPath}"`);
 	console.log(`Command: "${cucumberCommand}"`);
 	console.log(`Args: [${cucumberArgs}]\n`);

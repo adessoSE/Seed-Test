@@ -1,0 +1,50 @@
+version: "0"
+name: selenium-server-docker
+services:
+  selenium-hub:
+    container_name: "Selenium-Hub"
+    image: selenium/hub
+    ports:
+      - "4444:4444"
+    environment:
+      - SE_ENABLE_TRACING=false
+      #- OTEL_EXPORTER_OTLP_ENDPOINT=localhost:4317
+
+  chrome:
+    container_name: "Selenium-Chrome"
+    image: selenium/node-chrome
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - SE_ENABLE_TRACING=false
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  firefox:
+    container_name: "Selenium-Firefox"
+    image: selenium/node-firefox
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - SE_ENABLE_TRACING=false
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  edge:
+    container_name: "Selenium-Edge"
+    image: selenium/node-edge
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - SE_ENABLE_TRACING=false
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
