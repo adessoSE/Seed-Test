@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seed-Test : Import aus Jira</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test_679052365.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test-Benutzer-Dokumentation_789703700.html">Seed-Test Benutzer Dokumentation</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Import-von-Stories-nach-Seed-Test_795256934.html">Import von Stories nach Seed-Test</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Seed-Test : Import aus Jira
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Stellmacher-Bergmann, Anneke</span>, last modified by <span class='editor'> Makhneva, Alena</span> on Mär 11, 2024
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <h3 id="ImportausJira-JiraTicketsinSeedanzeigen">Jira Tickets in Seed anzeigen</h3><p>Mit einem definierten Epic (&quot;Seed-Test&quot;) kann der Nutzer seine Story, in seinem nun mit Seed <a href="https://confluence.adesso.de/display/SEED/Login+mit+Jira" rel="nofollow">verbundenem</a> Jira Projekt, mit Auswahl dieses Epics versehen und in Seed-Test anzeigen lassen.</p><p><br/></p><p><strong>Schritt 1: </strong>Der Nutzer wechselt zu Jira. Nun editiert er seine bestehende Story oder befindet sich noch bei dem Erstellen der Story und wählt das Label &quot;Seed-Test&quot; aus.</p><p><br/></p><p><strong><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="1000" src="attachments/795256937/795884954.png" data-image-src="attachments/795256937/795884954.png" data-unresolved-comment-count="0" data-linked-resource-id="795884954" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="Seed-Test Label.PNG" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795256937" data-linked-resource-container-version="3" alt=""></span></strong></p><p><br/></p><p><strong>Schritt 2: </strong>Der Nutzer wechselt wieder zu Seed-Test und befindet sich auf der Account Settings Seite. Nun wählt er sein Jira Projekt aus.</p><p><br/></p><p><strong>Schritt 3: </strong>Der Nutzer befindet sich in seinem Jira Projekt und ihm wird die im Schritt 1 mit dem Epic versehene Story angezeigt.</p><p><strong><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="1000" src="attachments/795256937/795884955.png" data-image-src="attachments/795256937/795884955.png" data-unresolved-comment-count="0" data-linked-resource-id="795884955" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="Test Story.PNG" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795256937" data-linked-resource-container-version="3" alt=""></span></strong></p><p><br/></p><h3 id="ImportausJira-Bearertokeneinrichtenbearer"><strong>Bearer token einrichten <span class="confluence-anchor-link" id="ImportausJira-bearer"></span></strong></h3><p><strong>Schritt 1: </strong>Zu Jira UI navigieren.</p><p><strong>Schritt 2: </strong>Oben rechts auf das User-Icon klicken, im Dropdown-Menü &quot;Profile&quot; anklicken.<br/><br/><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/795256937/795884956.png" data-image-src="attachments/795256937/795884956.png" data-unresolved-comment-count="0" data-linked-resource-id="795884956" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-8-23_14-54-47.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795256937" data-linked-resource-container-version="3" alt=""></span></p><p><strong>Schritt 3: </strong>Im Menü links &quot;Personal Access Tokens&quot; anklicken, den Button &quot;Create Token&quot; anklicken.<br/><br/></p><p><strong>Schritt 4: </strong>Token-Namen (max. 40 Zeichen) im Input-Feld eingeben, &quot;Days until expiry&quot; Feld ggf. anpassen. Auf den Button &quot;Create&quot; klicken.</p><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p><strong>NB: </strong>&quot;Automatic expiry&quot; Checkbox abwählen ist nicht empfohlen.</p></div></div><p><br/><br/><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/795256937/795884957.png" data-image-src="attachments/795256937/795884957.png" data-unresolved-comment-count="0" data-linked-resource-id="795884957" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-8-23_14-58-24.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795256937" data-linked-resource-container-version="3" alt=""></span></p><p><strong>Schritt 5: </strong>Danach wird das Token im Bowser eingeblendet. Dieses Token kann bei Jira-Anbindung verwendet werden.</p><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p><strong>NB: </strong>Bitte das Token zur Wiederverwendung lokal speichern. Falls das Token verloren geht, kann es unter &quot;Personal Access Tokens&quot; revoziert werden. Anschließend kann ein neues Token angelegt werden.</p></div></div><p><br/><br/></p><p><br/></p>
+                    </div>
+
+                                                            <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795256937/795884954.png">Seed-Test Label.PNG</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795256937/795884955.png">Test Story.PNG</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795256937/795884956.png">image-2023-8-23_14-54-47.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795256937/795884957.png">image-2023-8-23_14-58-24.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Okt 23, 2024 17:39</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
