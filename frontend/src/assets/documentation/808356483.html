@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seed-Test : Textüberprüfung durch Regular Expressions</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test_679052365.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test-Benutzer-Dokumentation_789703700.html">Seed-Test Benutzer Dokumentation</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Test-Steps-in-Seed-Test_793084159.html">Test Steps in Seed-Test</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Seed-Test : Textüberprüfung durch Regular Expressions
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Köhler, Jonathan</span>, last modified by <span class='editor'> Sorna, Daniel</span> on Mär 21, 2024
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <h3 id="TextüberprüfungdurchRegularExpressions-NutzenvonregulärenAusdrückenzurText-Überprüfung">Nutzen von regulären Ausdrücken zur Text-Überprüfung</h3><p>In folgenden Schritten können reguläre Ausdrücke (Regex) verwendet werden:</p><ul><li>Then: &quot;<span style="color: rgb(23,43,77);">Text in Textbox&quot;</span></li><li>Then: &quot;Check Text on Page<span style="color: rgb(23,43,77);">&quot;</span></li><li>Then: &quot;<span style="color: rgb(23,43,77);">Text not on Page</span><span style="color: rgb(23,43,77);">&quot;</span></li></ul><p>Reguläre Ausdrücke helfen Ihnen dabei, die allgemeine Struktur einer Zeichenkette (Text/Wort) zu prüfen.</p><p>Um einen regulären Ausdruck in Seed-Test zu verwenden, musss diese in folgendem konkreten Format angegeben werden:</p><p><strong>{Regex:</strong>&lt;Ihr Ausdruck&gt;<strong>}</strong></p><p>Bei korrekter Formatierung wird der erkannte Regex im Eingabefeld hervorgehoben:</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-content-image-border" draggable="false" height="30" width="721" src="attachments/808356483/820426294.png" data-image-src="attachments/808356483/820426294.png" data-unresolved-comment-count="0" data-linked-resource-id="820426294" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-12-12_17-47-8.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="808356483" data-linked-resource-container-version="8" alt=""></span></p><h3 id="TextüberprüfungdurchRegularExpressions-UseCases">Use Cases</h3><ul><li>Beispielweise möchten Sie überprüfen ob eine eingegebene Telefonnummer korrekt vom Browser formatiert wird.</li></ul><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: java; gutter: false; theme: Confluence" data-theme="Confluence">{Regex:\+(?:[0-9]\s?){6,14}[0-9]}</pre>
+</div></div><ul><li class="auto-cursor-target"><p class="auto-cursor-target">Ein Regex kann z.B. verwendet werden, um zu prüfen, ob auf ein Datum in einem bestimmten Format angezeigt wird.<br/>Folgende Abschnitte werden verwendet, um das Format DD.MM.YYYY zu prüfen:</p><div class="table-wrap"><table class="confluenceTable"><colgroup><col/><col/></colgroup><tbody><tr><td class="confluenceTd">2 beliebige Ziffern</td><td class="confluenceTd">[0-9]{2}</td></tr><tr><td class="confluenceTd">ein Punkt (ein Escape-Charakter wird vor dem Punkt benötigt )</td><td class="confluenceTd"> \.</td></tr><tr><td class="confluenceTd">4 Ziffern</td><td class="confluenceTd">[0-9]{4}</td></tr></tbody></table></div><p class="auto-cursor-target">Für das gesamte Datum ergibt sich: </p></li></ul><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: java; gutter: false; theme: Confluence" data-theme="Confluence">{Regex:[0-9]{2}\.[0-9]{2}\.[0-9]{4}}</pre>
+</div></div><ul><li class="auto-cursor-target">Muss im Testfall beispielsweise geprüft werden, ob eine negative Prozentzahl mit 2 Nachkommastellen angezeigt wird (der genaue Wert ist unbekannt), kann dazu ein Regex verwendet werden.</li></ul><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: java; gutter: false; theme: Confluence" data-theme="Confluence">{Regex:-[0-9]*,[0-9]{2}%}</pre>
+</div></div><h3 class="auto-cursor-target" id="TextüberprüfungdurchRegularExpressions-ÜbersichthäufiggenutzterRegex-Ausdrücken:">Übersicht häufig genutzter Regex-Ausdrücken:</h3><div class="table-wrap"><table class="wrapped confluenceTable"><colgroup><col/><col/></colgroup><tbody><tr><th scope="col" class="confluenceTh">Symbol</th><th scope="col" class="confluenceTh">Bedeutung</th></tr><tr><td class="confluenceTd">\+</td><td class="confluenceTd">Backslash maskiert das folgende Zeichen als Text Zeichen. Also &quot;+&quot;</td></tr><tr><td class="confluenceTd">(?:</td><td class="confluenceTd">Prüft die eingeschlossenen Aussagen als teil des Gesamtausdrucks.</td></tr><tr><td class="confluenceTd">\s</td><td class="confluenceTd"><p>Hier maskiert das Backslash ein Text Zeichen als Symbol. &quot;\s&quot; erkennt Leerzeichen.</p></td></tr><tr><td class="confluenceTd">?</td><td class="confluenceTd">Erlaubt die vorige Aussage zwischen 0-1 mal.</td></tr><tr><td class="confluenceTd">)</td><td class="confluenceTd">Schließt die eingeschlossene Aussage als Gesamtaussage zusammen.</td></tr><tr><td class="confluenceTd">{6,14}</td><td class="confluenceTd">Erlaubt die vorige Aussage mindestens vier mal, maximal 14 mal aufzutreten</td></tr><tr><td class="confluenceTd">[0-9]</td><td class="confluenceTd">Erkennt eine einzelne Ziffer</td></tr><tr><td class="confluenceTd">[a-z]</td><td class="confluenceTd">Entspricht einem einzelnen Zeichen in der Liste [a-z] (Kleinbuchstaben)</td></tr><tr><td class="confluenceTd">[A-Z]</td><td class="confluenceTd">Entspricht einem einzelnen Zeichen in der Liste [A-Z] (Großbuchstaben)</td></tr><tr><td class="confluenceTd">*</td><td class="confluenceTd">Das vorherige Token (z.B. [a-z]) wird 0 bis unendlich oft erkannt</td></tr></tbody></table></div><p>Die Non-Capturing-Gruppe, die von ‹(?:⋯)› eingeschlossen ist, passt zu einer einzelnen Ziffer, gefolgt von einem optionalen Leerzeichen. Durch Wiederholen dieser Gruppierung mit dem Intervallquantifizierer ‹{6,14}› werden die Regeln für die Mindest- und Höchstanzahl von Ziffern durchgesetzt, wobei Raumtrennzeichen überall innerhalb der Nummer erlaubt sind. Die zweite Instanz der Zeichenklasse ‹[0-9]› vervollständigt die Regel für die Anzahl der Ziffern (von 6 bis 14 Ziffern auf 7 bis 15 Ziffern erhöht) und stellt sicher, dass die Telefonnummer nicht mit einem Leerzeichen endet <a href="https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s03.html" class="external-link" rel="nofollow"><sup>1</sup></a>.</p><p><br/></p><p>Für genauere Infos siehe z.B. folgende Dokumentation für RegEx:</p><p>Englisch</p><ul><li><a href="https://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html" class="external-link" rel="nofollow">https://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html</a></li><li><a href="https://regexr.com/" class="external-link" rel="nofollow">RegExr: Learn, Build, &amp; Test RegEx</a></li></ul><p>Deutsch</p><ul><li><a href="http://regexe.de/hilfe.jsp" class="external-link" rel="nofollow">http://regexe.de/hilfe.jsp</a></li></ul><p>Für das Bauen und Testen von regulären Ausdrücke wird ein Editor wie z.B. <a class="external-link" href="https://regex101.com/" rel="nofollow">https://regex101.com/</a> empfohlen.</p><p><br/></p>
+                    </div>
+
+                                                            <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/808356483/820426294.png">image-2023-12-12_17-47-8.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Okt 23, 2024 17:39</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

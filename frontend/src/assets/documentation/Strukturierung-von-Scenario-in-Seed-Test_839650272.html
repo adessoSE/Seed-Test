@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seed-Test : Strukturierung von Scenario in Seed-Test</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test_679052365.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test-Benutzer-Dokumentation_789703700.html">Seed-Test Benutzer Dokumentation</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Zentrale-Elemente-von-Seed-Test_789704614.html">Zentrale Elemente von Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Scenarios-in-Seed-Test_795886201.html">Scenarios in Seed-Test</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Seed-Test : Strukturierung von Scenario in Seed-Test
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Makhneva, Alena</span>, last modified on Mär 15, 2024
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <h2 id="StrukturierungvonScenarioinSeedTest-Overview_ScenarioÜbersichtvorhandenerScenarios"><span class="confluence-anchor-link" id="StrukturierungvonScenarioinSeedTest-Overview_Scenario"></span>Übersicht vorhandener Scenarios</h2><p><style type='text/css'>/*<![CDATA[*/
+div.rbtoc1729697992950 {padding: 0px;}
+div.rbtoc1729697992950 ul {list-style: none !important;margin-left: 0px;}
+div.rbtoc1729697992950 li {margin-left: 0px;padding-left: 0px;}
+
+/*]]>*/</style><div class='toc-macro rbtoc1729697992950'>
+<ul class='toc-indentation'>
+<li><a href='#StrukturierungvonScenarioinSeedTest-Overview_ScenarioÜbersichtvorhandenerScenarios'>Übersicht vorhandener Scenarios</a>
+<ul class='toc-indentation'>
+<li><a href='#StrukturierungvonScenarioinSeedTest-Action_BarActionBar'>Action Bar</a></li>
+<li><a href='#StrukturierungvonScenarioinSeedTest-ScenarioEditor'>Scenario Editor</a></li>
+</ul>
+</li>
+</ul>
+</div></p><p><span style="color: rgb(23,43,77);">Die in einer Story vorhandenen Scenarios sind in einer Übersicht für den User vorhanden. Sie bietet Möglichkeiten zum <a href="https://confluence.adesso.de/display/SEED/Scenarios+in+Seed-Test#ScenariosinSeedTest-SortierungvonScenariosinder%C3%9Cbersicht" rel="nofollow">Sortieren</a>, <a href="https://confluence.adesso.de/display/SEED/Scenarios+in+Seed-Test#ScenariosinSeedTest-Create_ScenarioAnlegeneinesneuenScenarios" rel="nofollow">Hinzufügen</a> und farblicher Anzeige von Status des Scenarios</span><span style="color: rgb(23,43,77);">.</span></p><p style="margin-left: 40.0px;"><span style="color: rgb(23,43,77);"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="400" src="attachments/839650272/839650277.png" data-image-src="attachments/839650272/839650277.png" data-unresolved-comment-count="0" data-linked-resource-id="839650277" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_10-38-3.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="839650272" data-linked-resource-container-version="9" alt=""></span></span></p><h3 id="StrukturierungvonScenarioinSeedTest-Action_BarActionBar"><span class="confluence-anchor-link" id="StrukturierungvonScenarioinSeedTest-Action_Bar"></span>Action Bar</h3><p>Action Bar ermöglicht das Editieren von Teststeps innerhalb des Scenarios. Es bietet folgende Funktionalität:</p><ol><li>Checkbox zum Auswählen<strong> </strong>aller Test-Steps.</li><li>Speichern der ausgewählten Steps in einen Block (s. &quot;<a href="https://confluence.adesso.de/display/SEED/Step-Block#StepBlock-step_anlegenAnlegenvonStep-Bl%C3%B6cken" rel="nofollow">Anlegen von Step-Blöcken</a>&quot;).</li><li>De-/Aktivieren der ausgewählten Steps. Diese Steps werden im Testlauf übersprungen (s. &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps#AktionenmitTestSteps-steps_deactivateDeaktivierenvonSteps" rel="nofollow">Deaktivieren von Steps</a>&quot;).</li><li>Löschen der ausgewählten Steps (s. &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps#AktionenmitTestSteps-steps_loeschenL%C3%B6schenvonSteps" rel="nofollow">Löschen von Steps</a>&quot;).</li><li>Kopieren der ausgewählten Steps in die Zwischenablage (s. &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps#AktionenmitTestSteps-steps_kopierenKopierenvonStepsindieZwischenablage" rel="nofollow">Kopieren von Steps in die Zwischenablage</a>&quot;).</li><li>Hinzufügen der ausgewählten Steps aus der Zwischenablage (s. &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps#AktionenmitTestSteps-steps_hinzufuegenHinzuf%C3%BCgenvonStepsausderZwischenablage" rel="nofollow">Hinzufügen von Steps aus der Zwischenablage</a>&quot;).</li><li>Hinzufügen des ausgewählten Blocks in ein Scenario (s. &quot;<a href="https://confluence.adesso.de/display/SEED/Step-Block#StepBlock-step_hinzufuegenHinzuf%C3%BCgenvonStep-Bl%C3%B6cken" rel="nofollow">Hinzufügen von Step-Blöcken</a>&quot;).</li></ol><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="1000" src="attachments/839650272/839650311.png" data-image-src="attachments/839650272/839650311.png" data-unresolved-comment-count="0" data-linked-resource-id="839650311" data-linked-resource-version="2" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-3-5_23-39-3.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="839650272" data-linked-resource-container-version="9" alt=""></span> </p><h3 id="StrukturierungvonScenarioinSeedTest-ScenarioEditor">Scenario Editor</h3><p>Dieses Element bietet die Möglichkeit zum Editieren und Konfigurieren einzelner Testschritte eines Testfalls. Details über die Funktionalität des Editors finden Sie unter &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps" rel="nofollow">Scenario Editor</a>&quot;.</p><p><br/></p>
+                    </div>
+
+                                                            <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/839650272/839650277.png">image-2023-10-19_10-38-3.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/839650272/839650279.png">image-2023-10-20_16-45-5.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/839650272/839650311.png">image-2024-3-5_23-39-3.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/839650272/839650312.png">image-2024-3-5_23-39-3.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/839650272/840401173.png">image-2024-3-10_10-6-36.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/839650272/840401174.png">image-2024-3-10_10-6-36.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/839650272/840401178.png">image-2024-3-10_10-21-24.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/839650272/840401180.png">image-2024-3-10_10-27-7.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Okt 23, 2024 17:39</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

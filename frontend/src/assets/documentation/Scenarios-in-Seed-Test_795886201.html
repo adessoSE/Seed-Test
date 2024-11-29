@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seed-Test : Scenarios in Seed-Test</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test_679052365.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test-Benutzer-Dokumentation_789703700.html">Seed-Test Benutzer Dokumentation</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Zentrale-Elemente-von-Seed-Test_789704614.html">Zentrale Elemente von Seed-Test</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Seed-Test : Scenarios in Seed-Test
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Stellmacher-Bergmann, Anneke</span>, last modified by <span class='editor'> Makhneva, Alena</span> on Mär 14, 2024
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p style="text-align: left;">Ein<span> </span><strong>Scenario<span> </span></strong>beschreibt ein erwartetes Verhalten des zu testenden Systems für ein Feature (Story). Eine Story kann beliebig viele Scenarios (Testfälle) haben. In jedem Scenario erfolgt die Beschreibung in einem &quot;Given (Angenommen) – When (Wenn) – Then (Dann)&quot; Schema.</p><p style="text-align: left;">Ein Scenario entspricht somit einem Testfall und spezifiziert die Vorbedingungen, zu tätigenden Eingaben und Aktionen und das erwartete Ergebnis zur Überprüfung eines bestimmten Software-Features.</p><p style="text-align: left;"><br/></p><p style="text-align: left;">Die folgenden Aktionen sind in Seed-Test für Scenarios verfügbar:</p><p style="text-align: left;"><style type='text/css'>/*<![CDATA[*/
+div.rbtoc1729697992703 {padding: 0px;}
+div.rbtoc1729697992703 ul {list-style: none !important;margin-left: 0px;}
+div.rbtoc1729697992703 li {margin-left: 0px;padding-left: 0px;}
+
+/*]]>*/</style><div class='toc-macro rbtoc1729697992703'>
+<ul class='toc-indentation'>
+<li><a href='#ScenariosinSeedTest-Create_ScenarioAnlegeneinesneuenScenarios'>Anlegen eines neuen Scenarios</a></li>
+<li><a href='#ScenariosinSeedTest-SortierungvonScenariosinderÜbersicht'>Sortierung von Scenarios in der Übersicht</a></li>
+<li><a href='#ScenariosinSeedTest-Edit_ScenarioEditiereneinesScenarios'>Editieren eines Scenarios</a>
+<ul class='toc-indentation'>
+<li><a href='#ScenariosinSeedTest-Scenario_UmbenennenUmbenenneneinesScenarios'>Umbenennen eines Scenarios</a></li>
+<li><a href='#ScenariosinSeedTest-Save_ScenarioSpeicherneinesScenarios'>Speichern eines Scenarios</a></li>
+<li><a href='#ScenariosinSeedTest-Delete_SceanrioLöscheneinesScenarios'>Löschen eines Scenarios</a></li>
+</ul>
+</li>
+<li><a href='#ScenariosinSeedTest-Funct_ScenarioWeitereFunktionalitätenfürScenarios'>Weitere Funktionalitäten für Scenarios</a>
+<ul class='toc-indentation'>
+<li><a href='#ScenariosinSeedTest-KommentiereneinesScenarios'>Kommentieren eines Scenarios</a></li>
+<li><a href='#ScenariosinSeedTest-AufnahmevonScreenshots'>Aufnahme von Screenshots</a></li>
+<li><a href='#ScenariosinSeedTest-Multiple_ScenariosMultipleScenarios'>Multiple Scenarios</a></li>
+</ul>
+</li>
+</ul>
+</div></p><p><br/></p><h2 id="ScenariosinSeedTest-Create_ScenarioAnlegeneinesneuenScenarios"><span class="confluence-anchor-link" id="ScenariosinSeedTest-Create_Scenario"></span>Anlegen eines neuen Scenarios</h2><p>Scenario (Testfall) wird über Seed-Test manuell angelegt. Ein neues Scenario kann auf zwei Wegen angelegt werden:</p><p><strong>1. Über die Schaltfläche in der Scenario-Übersicht</strong></p><p style="margin-left: 40.0px;"><strong><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="400" src="attachments/795886201/808365803.png" data-image-src="attachments/795886201/808365803.png" data-unresolved-comment-count="0" data-linked-resource-id="808365803" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_10-4-38-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></strong></p><p><strong>2.Über die Schaltfläche im Scenario-Editor</strong></p><p style="margin-left: 40.0px;"><strong><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="800" src="attachments/795886201/808366547.png" data-image-src="attachments/795886201/808366547.png" data-unresolved-comment-count="0" data-linked-resource-id="808366547" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_13-29-57-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></strong></p><p style="margin-left: 40.0px;"><br/></p><p>Das Verfahren zum Anlegen eines neuen Scenarios in Seed-Test sieht wie folgt aus:</p><p><strong>Schritt 1: </strong>In der Übersicht von Stories die Story auswählen, indem man auf den Titel klickt.<strong> </strong>Die blaue Schaltfläche <strong>&quot;+&quot;</strong> tätigen, um das Dialogfenster <strong>&quot;Create Scenario&quot;</strong> zu öffnen.</p><p style="margin-left: 40.0px;"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="400" src="attachments/795886201/808365803.png" data-image-src="attachments/795886201/808365803.png" data-unresolved-comment-count="0" data-linked-resource-id="808365803" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_10-4-38-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p><p><strong><span style="color: rgb(51,51,51);">Schritt 2: <span> </span></span></strong><span style="color: rgb(51,51,51);">Geben Sie einen bisher nicht verwendeten Titel (&quot;<strong>Enter unique scenario name</strong>&quot;) für das neue Scenario ein; bei diesem Feld handelt es sich um ein Pflichtfeld.</span></p><p style="margin-left: 40.0px;"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="150" src="attachments/795886201/808365881.png" data-image-src="attachments/795886201/808365881.png" data-unresolved-comment-count="0" data-linked-resource-id="808365881" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_10-34-47.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p><p><br/></p><p><span style="color: rgb(51,51,51);"><strong>Schritt 3: </strong><span> </span>Sind alle Angaben getätigt, kann über die Schaltfläche &quot;<strong>Submit</strong>&quot; das Scenario in Seed-Test erstellt werden. Über das &quot;<strong>X</strong>&quot; oben rechts kann der Vorgang abgebrochen werden, ohne dass das Scenario erstellt wird.</span></p><h2 id="ScenariosinSeedTest-SortierungvonScenariosinderÜbersicht">Sortierung von Scenarios in der Übersicht</h2><p>Um die Scenarios in einer für den User sinnvollen Reihenfolge darzustellen, können diese durch Drag-and-drop in die gewünschte Reihenfolge gebracht werden. Für eine solche individuelle Sortierung gehen Sie mit der Maus auf die zwei Balken links neben dem jeweiligen Scenario-Namen, wobei der Maus-Zeiger sich in ein Verschieben-Symbol verändert und Sie einfach durch Halten der linken Maus-Taste und Drag-and-drop das angewählte Scenario an die gewünschte Position in der Auflistung der Scenarios innerhalb der Story ziehen können.</p><p style="margin-left: 40.0px;"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="347" src="attachments/795886201/808366194.png" data-image-src="attachments/795886201/808366194.png" data-unresolved-comment-count="0" data-linked-resource-id="808366194" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_11-52-12-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p><p><span style="color: rgb(23,43,77);">Nach dem Verschieben per Drag-and-drop ist das Scenario dann an der entsprechenden Position innerhalb der Scenario-Übersicht vorhanden; die Nummerierung der einzelnen Scenarios wird dynamisch angepast.</span></p><p style="margin-left: 40.0px;"><span style="color: rgb(23,43,77);"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="400" src="attachments/795886201/808366219.png" data-image-src="attachments/795886201/808366219.png" data-unresolved-comment-count="0" data-linked-resource-id="808366219" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_11-59-39-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></span></p><p style="margin-left: 40.0px;"><br/></p><h2 id="ScenariosinSeedTest-Edit_ScenarioEditiereneinesScenarios"><span class="confluence-anchor-link" id="ScenariosinSeedTest-Edit_Scenario"></span>Editieren eines Scenarios</h2><p><strong>Seed-Test</strong> bietet die Möglichkeit, Scenarios zu editieren. Diese sind wie folgt:</p><ol><li>Scenario umbenennen </li><li>Neues Scenario anlegen</li><li>Scenario speichern</li><li>Scenario löschen</li><li>Step(s) als Block speichern (siehe &quot;<a href="https://confluence.adesso.de/display/SEED/Step-Block#StepBlock-step_anlegenAnlegenvonStep-Bl%C3%B6cken" rel="nofollow">Anlegen von Stepblöcken</a>&quot;)</li><li>Step(s) deaktivieren (siehe &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps#AktionenmitTestSteps-steps_deactivateDeaktivierenvonSteps" rel="nofollow">Deaktivieren von Steps</a>&quot;)</li><li>Step(s) löschen (siehe &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps#AktionenmitTestSteps-steps_loeschenL%C3%B6schenvonSteps" rel="nofollow">Löschen von Steps</a>&quot;)</li><li>Step(s) in die Zwischenablage kopieren (siehe &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps#AktionenmitTestSteps-steps_kopierenKopierenvonStepsindieZwischenablage" rel="nofollow">Kopieren von Steps aus der Zwischenablage</a>&quot;)</li><li>Step(s) aus der Zwischenablage hinzufügen (siehe &quot;<a href="https://confluence.adesso.de/display/SEED/Aktionen+mit+Test+Steps#AktionenmitTestSteps-steps_hinzufuegenHinzuf%C3%BCgenvonStepsausderZwischenablage" rel="nofollow">Hinzufügen von Steps aus der Zwischenablage</a>&quot;)</li><li>Block hinzufügen (siehe &quot;<a href="https://confluence.adesso.de/display/SEED/Step-Block#StepBlock-step_hinzufuegenHinzuf%C3%BCgenvonStep-Bl%C3%B6cken" rel="nofollow">Hinzufügen von Step-Blöcken</a>&quot;)</li></ol><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="150" src="attachments/795886201/808368935.png" data-image-src="attachments/795886201/808368935.png" data-unresolved-comment-count="0" data-linked-resource-id="808368935" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-20_13-43-47-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p><p><br/></p><h3 id="ScenariosinSeedTest-Scenario_UmbenennenUmbenenneneinesScenarios"><span class="confluence-anchor-link" id="ScenariosinSeedTest-Scenario_Umbenennen"></span>Umbenennen eines Scenarios</h3><p><strong>Schritt 1: </strong>Die Schaltfläche &quot;<strong>Stift</strong>&quot; tätigen, um das Dialogfenster &quot;Edit Scenario&quot; zu öffnen.</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="888" src="attachments/795886201/808369068.png" data-image-src="attachments/795886201/808369068.png" data-unresolved-comment-count="0" data-linked-resource-id="808369068" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-20_14-9-40-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p><p><strong><span style="color: rgb(51,51,51);">Schritt 2: <span> </span></span></strong><span style="color: rgb(51,51,51);">Geben Sie einen bisher nicht verwendeten Titel (&quot;<strong>Enter unique scenario name</strong>&quot;) für das zu umbenennende Scenario ein; bei diesem Feld handelt es sich um ein Pflichtfeld.</span></p><p style="margin-left: 40.0px;"><span style="color: rgb(51,51,51);"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/795886201/808369090.png" data-image-src="attachments/795886201/808369090.png" data-unresolved-comment-count="0" data-linked-resource-id="808369090" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-20_14-20-43.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></span></p><p><span style="color: rgb(51,51,51);"><strong>Schritt 3: </strong><span> </span>Sind alle Angaben getätigt, kann über die Schaltfläche &quot;<strong>Submit</strong>&quot; das Scenario in Seed-Test umbenannt werden. Über das &quot;<strong>X</strong>&quot; oben rechts kann der Vorgang abgebrochen werden, ohne dass das Scenario umbenannt wird.</span></p><p><span style="color: rgb(51,51,51);"><strong>Schritt 4:</strong> Scenario speichern, indem man das rote Disketten-Symbol anklickt.</span></p><p style="margin-left: 40.0px;"><span style="color: rgb(51,51,51);"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="150" src="attachments/795886201/808369093.png" data-image-src="attachments/795886201/808369093.png" data-unresolved-comment-count="0" data-linked-resource-id="808369093" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-20_14-22-21.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></span></p><h3 id="ScenariosinSeedTest-Save_ScenarioSpeicherneinesScenarios"><span class="confluence-anchor-link" id="ScenariosinSeedTest-Save_Scenario"></span>Speichern eines Scenarios</h3><p>Über die Schaltfläche &quot;<strong>Speichern</strong>&quot; (Diskette) wird das Scenario gespeichert. Das Disketten-Symbol signalisiert, ob die Änderungen des Scenarios geschpeichert sind (s. Abb.1 ).</p><p style="text-align: right;"><br/></p><div class="table-wrap"><table class="relative-table wrapped confluenceTable" style="width: 17.1429%;"><colgroup><col style="width: 46.4364%;"/><col style="width: 53.4914%;"/></colgroup><tbody><tr><th style="margin-left: 80.0px;" scope="col" class="confluenceTh">Gespeichert</th><th scope="col" class="confluenceTh">Nicht gespeichert</th></tr><tr><td class="confluenceTd"><div class="content-wrapper"><p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail image-center" draggable="false" width="50" src="attachments/795886201/808369114.png" data-image-src="attachments/795886201/808369114.png" data-unresolved-comment-count="0" data-linked-resource-id="808369114" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-20_14-27-45.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p></div></td><td class="confluenceTd"><div class="content-wrapper"><p><br/></p></div><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image confluence-thumbnail image-center" draggable="false" width="50" src="attachments/795886201/808369112.png" data-image-src="attachments/795886201/808369112.png" data-unresolved-comment-count="0" data-linked-resource-id="808369112" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-20_14-27-34.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></td></tr></tbody></table></div><p style="margin-left: 40.0px;"><strong>Abb. 1</strong> Disketten-Symbol</p><p style="margin-left: 40.0px;"><br/></p><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p><strong>NB: </strong>Nachdem das Scenario editiert/verändert wurde, <strong>muss</strong> es durch das Tätigen der Disketten-Schaltfläche gespeichert werden, sonst werden die Änderungen verworfen.</p></div></div><h3 id="ScenariosinSeedTest-Delete_SceanrioLöscheneinesScenarios"><span class="confluence-anchor-link" id="ScenariosinSeedTest-Delete_Sceanrio"></span>Löschen eines Scenarios</h3><p>Das Verfahren zum Löschen eines Scenarios in Seed-Test sieht wie folgt aus:</p><p><strong>Schritt 1: </strong>Die Schaltfläche &quot;Papierkorb&quot; tätigen. </p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="888" src="attachments/795886201/808369241.png" data-image-src="attachments/795886201/808369241.png" data-unresolved-comment-count="0" data-linked-resource-id="808369241" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-20_15-2-36-1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p><p><strong>Schritt 2: <span style="color: rgb(23,43,77);"><span> </span></span></strong><span style="color: rgb(23,43,77);">Oben rechts erscheint ein Pop-up mit der Aufforderung die Löschung zu bestätigen, indem man Delete-Button tätigt. Die Löschung kann widerrufen werden, indem man auf Cancel-Button klickt.</span></p><p style="margin-left: 40.0px;"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="888" src="attachments/795886201/808369304.png" data-image-src="attachments/795886201/808369304.png" data-unresolved-comment-count="0" data-linked-resource-id="808369304" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-20_15-21-34.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p><p><br/></p><h2 id="ScenariosinSeedTest-Funct_ScenarioWeitereFunktionalitätenfürScenarios"><span class="confluence-anchor-link" id="ScenariosinSeedTest-Funct_Scenario"></span>Weitere Funktionalitäten für Scenarios</h2><h3 id="ScenariosinSeedTest-KommentiereneinesScenarios">Kommentieren eines Scenarios</h3><p>Bei jedem Testfall können Sie einen Kommentar hinterlassen. Dafür tippen Sie Ihren Text im Textfeld &quot;<strong>Comment</strong>&quot;.</p><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="92" src="attachments/795886201/840401189.png" data-image-src="attachments/795886201/840401189.png" data-unresolved-comment-count="0" data-linked-resource-id="840401189" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2024-3-10_10-35-28.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></p><h3 id="ScenariosinSeedTest-AufnahmevonScreenshots"><strong>Aufnahme von Screenshots</strong></h3><p><span style="color: rgb(0,0,0);">Um Nachvollziehbarkeit der Testausführung zu verbessern, bietet Seed-Test den Step &quot;Screenshot&quot;. Dieser Step ermöglicht es, Schnappschüsse vom aktuellen Stand des Browser-Fensters zu machen. </span></p><p style="margin-left: 40.0px;"><span style="color: rgb(255,153,0);"><br/><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="181" src="attachments/795886201/796887375.png" data-image-src="attachments/795886201/796887375.png" data-unresolved-comment-count="0" data-linked-resource-id="796887375" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-9-1_8-51-53.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span><br/></span></p><p><br/></p><p><span style="color: rgb(0,0,0);">Außerdem kann der Fokus auf bestimmte Elemente des HTML-Dokumentes optional gerichtet werden.</span></p><p style="margin-left: 40.0px;"><span style="color: rgb(255,153,0);"><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" width="900" src="attachments/795886201/796887380.png" data-image-src="attachments/795886201/796887380.png" data-unresolved-comment-count="0" data-linked-resource-id="796887380" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-9-1_8-54-40.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="795886201" data-linked-resource-container-version="40" alt=""></span></span></p><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p><span style="color: rgb(0,0,0);"><strong>NB:</strong> Browser-Schnappschüsse sind sehr hilfreich, wenn es darum geht, bei der Remote-Testausführung den Testverlauf nachvollziehen zu können. Es soll allerdings bedacht werden, wann und ob es sinnvoll ist, einen Snapschuss in dem konkreten Testfall einzusetzen. Es ist also dem User überlassen, über die Anzahl und/oder Sinnhaftigkeit von Screenshots Entscheidung zu treffen.</span></p></div></div><p><br/></p><p>Die Beschreibung der Teststeps ist unter dem folgenden Link zu finden: <a href="https://confluence.adesso.de/display/SEED/Test+Steps+in+Seed-Test" rel="nofollow">Teststeps in Seed-Test</a></p><h3 id="ScenariosinSeedTest-Multiple_ScenariosMultipleScenarios"><span class="confluence-anchor-link" id="ScenariosinSeedTest-Multiple_Scenarios"></span>Multiple Scenarios</h3><p>Die Funktionalität &quot;Multiple Scenarios&quot; ermöglicht es, einen Testfall mit verschiedenen Eingabewerten ausführen zu lassen. Details zu Multiple Scenarios finden Sie unter &quot;<a href="https://confluence.adesso.de/display/SEED/Multiple+Scenarios" rel="nofollow">Multiple Scenarios</a>&quot;.</p><p><br/></p>
+                    </div>
+
+                                                            <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/796887375.png">image-2023-9-1_8-51-53.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/796887380.png">image-2023-9-1_8-54-40.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808365794.png">image-2023-10-19_10-2-2.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808365798.png">image-2023-10-19_10-2-50.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808365799.png">image-2023-10-19_10-2-50.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808365803.png">image-2023-10-19_10-4-38-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808365881.png">image-2023-10-19_10-34-47.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808365891.png">image-2023-10-19_10-38-3.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366176.png">Scenario-Übersicht.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366190.png">image-2023-10-19_11-51-24-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366193.png">image-2023-10-19_11-51-44-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366194.png">image-2023-10-19_11-52-12-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366219.png">image-2023-10-19_11-59-39-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366531.png">image-2023-10-19_13-25-31-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366547.png">image-2023-10-19_13-29-57-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366565.png">image-2023-10-19_13-37-29.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808366585.png">image-2023-10-19_13-43-58-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808368935.png">image-2023-10-20_13-43-47-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369067.png">image-2023-10-20_14-9-4-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369068.png">image-2023-10-20_14-9-40-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369090.png">image-2023-10-20_14-20-43.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369093.png">image-2023-10-20_14-22-21.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369112.png">image-2023-10-20_14-27-34.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369114.png">image-2023-10-20_14-27-45.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369241.png">image-2023-10-20_15-2-36-1.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369304.png">image-2023-10-20_15-21-34.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/808369681.png">image-2023-10-20_16-45-5.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401186.png">image-2024-3-10_10-6-36.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401187.png">image-2024-3-10_10-21-24.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401188.png">image-2024-3-10_10-27-7.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401189.png">image-2024-3-10_10-35-28.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401193.png">image-2024-3-10_10-42-6.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401192.png">image-2024-3-10_10-42-6.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401196.png">image-2024-3-10_10-44-8.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401195.png">image-2024-3-10_10-44-8.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401197.png">image-2024-3-10_10-47-9.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401198.png">image-2024-3-10_10-47-43.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401199.png">image-2024-3-10_10-47-43.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401200.png">image-2024-3-10_10-48-53.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401202.png">image-2024-3-10_10-51-16.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401203.png">image-2024-3-10_10-51-16.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401204.png">image-2024-3-10_10-53-10.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401205.png">image-2024-3-10_10-55-33.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401206.png">image-2024-3-10_10-56-11.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/795886201/840401207.png">image-2024-3-10_10-56-12.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Okt 23, 2024 17:39</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
