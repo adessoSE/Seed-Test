@@ -34,6 +34,9 @@ yarn-error.log
 testem.log
 /typings
 
+# Documentation Styling
+frontend/src/assets/documentation/styles/site.css
+
 # environment variables
 .env
 environment.prod.ts

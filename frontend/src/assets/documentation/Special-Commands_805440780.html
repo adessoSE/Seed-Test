@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seed-Test : Special Commands</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test_679052365.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test-Benutzer-Dokumentation_789703700.html">Seed-Test Benutzer Dokumentation</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Test-Steps-in-Seed-Test_793084159.html">Test Steps in Seed-Test</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Seed-Test : Special Commands
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Köhler, Jonathan</span>, last modified on Okt 19, 2023
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <div class="table-wrap"><table class="relative-table wrapped confluenceTable" style="width: 31.0383%;"><colgroup><col style="width: 20.2522%;"/><col style="width: 26.7043%;"/><col style="width: 36.9134%;"/><col style="width: 16.1301%;"/></colgroup><tbody><tr><th scope="col" class="confluenceTh">Command</th><th scope="col" class="confluenceTh">Beschreibung</th><th scope="col" class="confluenceTh">Beispiel</th><th scope="col" class="confluenceTh">Resultat</th></tr><tr><td class="confluenceTd">@@Date</td><td class="confluenceTd">Standart Europäisches Datum</td><td class="confluenceTd">@@Date</td><td class="confluenceTd">25.03.2021</td></tr><tr><td class="confluenceTd">@@Day</td><td class="confluenceTd">Momentaner Tag </td><td class="confluenceTd">@@Day</td><td class="confluenceTd">05</td></tr><tr><td class="confluenceTd">@@Month</td><td class="confluenceTd">Monat</td><td class="confluenceTd">@@Month</td><td class="confluenceTd">03</td></tr><tr><td class="confluenceTd">@@Year</td><td class="confluenceTd">Jahr</td><td class="confluenceTd">@@Year</td><td class="confluenceTd">2021</td></tr><tr><td class="confluenceTd">@@format</td><td class="confluenceTd"><br/></td><td class="confluenceTd">@@format:MM/DD/YYYY€€</td><td class="confluenceTd">03/25/2021</td></tr><tr><td class="confluenceTd"><p>@@Day,NN</p><p>@@Month,NN</p><p>@@Year,NN</p></td><td class="confluenceTd">Ausgewählter Tag/Monat/Jahr </td><td class="confluenceTd">@@Day,09@@Month,11@@Year,1989</td><td class="confluenceTd">09.11.1989</td></tr><tr><td class="confluenceTd"><p>@@NN,Day</p><p>@@NN,Month</p><p>@@NN,Year</p></td><td class="confluenceTd">Addiere /Subtrahiere Zeit (Tage/Monate/Jahre)</td><td class="confluenceTd"><p>\@@Date <strong><span style="color: rgb(0,0,0);">-</span>@@14,Day</strong></p><p>\@@Date <strong>+@@14,Day</strong></p><p>(Jetzt: 13.07.2022)</p></td><td class="confluenceTd"><div class="content-wrapper"><p>30.06.2022</p><p>27.06.2022</p></div></td></tr><tr><td class="confluenceTd"><br/></td><td class="confluenceTd"><br/></td><td class="confluenceTd"><br/></td><td class="confluenceTd"><br/></td></tr></tbody></table></div><p class="auto-cursor-target">Die Optionen können belibig kombiniert werden</p><h2 class="auto-cursor-target" id="SpecialCommands-Examples">Examples</h2><div class="table-wrap"><table class="wrapped confluenceTable"><colgroup><col/><col/><col/></colgroup><tbody><tr><th scope="col" class="confluenceTh">String</th><th scope="col" class="confluenceTh">Explanation</th><th scope="col" class="confluenceTh"><br/></th></tr><tr><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">@@Day,23@@Month,12@@Year,1998+@@24,Year</span></span></td><td class="confluenceTd"><br/></td><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">23.12.2022</span></span></td></tr><tr><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">@@Date+@@2,Day</span></span></td><td class="confluenceTd"><br/></td><td class="confluenceTd">15.10.2023</td></tr><tr><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">@@Date-@@25,Year@@format:YYYY-MM€€</span></span></td><td class="confluenceTd"><br/></td><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">1998-02</span></span></td></tr><tr><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">@@Day+@@2,Day-@@2,Day+@@2,Year@@format:DD.YYYY€€</span></span></td><td class="confluenceTd"><br/></td><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">14.2025</span></span></td></tr><tr><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">@@Day+@@2,Day @@format:DD.YYYY.MM€€</span></span></td><td class="confluenceTd"><br/></td><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal">16.2023.02</span></span></td></tr><tr><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal"><br/></span></span></td><td class="confluenceTd"><br/></td><td class="confluenceTd"><span><span class="ui-provider ec azd aze azf azg azh azi azj azk azl azm azn azo azp azq azr azs azt azu azv azw azx azy azz baa bab bac bae baf bag bah bai baj bak bal"><br/></span></span></td></tr></tbody></table></div>
+                    </div>
+
+                                        
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Okt 23, 2024 17:39</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seed-Test : Background in Seed-Test</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test_679052365.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test-Benutzer-Dokumentation_789703700.html">Seed-Test Benutzer Dokumentation</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Zentrale-Elemente-von-Seed-Test_789704614.html">Zentrale Elemente von Seed-Test</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Seed-Test : Background in Seed-Test
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Makhneva, Alena</span>, last modified on Mär 11, 2024
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p><span style="color: rgb(51,51,51);">Der Bereich<span> </span><strong>Background<span> </span></strong>innerhalb einer Seed-Test Story ermöglicht es, vorgegebene Schritte (When-<span style="color: rgb(33,37,41);">Schritte)</span><span> </span>festzulegen, die vor der Ausführung</span><span style="color: rgb(51,51,51);"> </span><span style="color: rgb(23,43,77);">eines jeden Szenarios der ausgewählten<span> </span></span><span style="color: rgb(51,51,51);">Story<span> </span></span><span style="color: rgb(51,51,51);">durchgeführt werden sollen; es wird somit eine Definition von Vorbedingungen ermöglicht, die für alle Szenarios dieser Story gelten. </span></p><p><span style="color: rgb(51,51,51);">Die folgenden Aktionen sind in Seed-Test für Background verfügbar:</span></p><p><span style="color: rgb(51,51,51);"><style type='text/css'>/*<![CDATA[*/
+div.rbtoc1729697992296 {padding: 0px;}
+div.rbtoc1729697992296 ul {list-style: none !important;margin-left: 0px;}
+div.rbtoc1729697992296 li {margin-left: 0px;padding-left: 0px;}
+
+/*]]>*/</style><div class='toc-macro rbtoc1729697992296'>
+<ul class='toc-indentation'>
+<li><a href='#BackgroundinSeedTest-AnlegeneinesBackgrounds'>Anlegen eines Backgrounds</a></li>
+<li><a href='#BackgroundinSeedTest-UmbenennendesBackgrounds'>Umbenennen des Backgrounds</a></li>
+<li><a href='#BackgroundinSeedTest-EditierendesBackground'>Editieren des Background</a></li>
+<li><a href='#BackgroundinSeedTest-WechseldesBackgrounds'>Wechsel des Backgrounds</a></li>
+</ul>
+</div></span></p><p><br/></p><p>Background-Schritte werden immer vor allen Szenarien der gleichen Story ausgeführt. So wie im Beispiel:</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: powershell; gutter: false; theme: Confluence" data-theme="Confluence">Feature: Search Post
+
+  Background:
+	When I hover over the element &#39;Main Panel&#39; and select the option &#39;Search&#39; 
+	And I insert &#39;post1&#39; into the field &#39;search&#39; 
+
+ Scenario: New Scenario
+
+	When I select &#39;post1&#39; from the selection &#39;list&#39;
+
+	Then So I will be navigated to the website: &#39;https://web-site.de&#39; 
+
+</pre>
+</div></div><p><br/></p><p><span style="color: rgb(0,51,102);"><strong>Beispiel:</strong></span></p><p>Es sei ein Background erstellt, dessen Schritte für die Anmeldung bei Github verwendet werden sollen.</p><p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" draggable="false" width="1000" confluence-query-params="effects=drop-shadow" src="attachments/840402752/840404384.png?effects=drop-shadow" data-image-src="attachments/840402752/840404384.png" data-unresolved-comment-count="0" data-linked-resource-id="840404384" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_19-6-52.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="840402752" data-linked-resource-container-version="3" alt=""></span></p><p>Angenommen, das Scenario besteht aus den folgenden Schritten</p><p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" draggable="false" width="1000" confluence-query-params="effects=drop-shadow" src="attachments/840402752/840404385.png?effects=drop-shadow" data-image-src="attachments/840402752/840404385.png" data-unresolved-comment-count="0" data-linked-resource-id="840404385" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_19-4-9.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="840402752" data-linked-resource-container-version="3" alt=""></span></p><p>Die Testschritte sehen dann wie folgt aus:</p><p style="text-align: center;"><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" draggable="false" width="900" confluence-query-params="effects=drop-shadow" src="attachments/840402752/840404386.png?effects=drop-shadow" data-image-src="attachments/840402752/840404386.png" data-unresolved-comment-count="0" data-linked-resource-id="840404386" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2023-10-19_19-6-21.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="840402752" data-linked-resource-container-version="3" alt=""></span></p><h2 class="auto-cursor-target" id="BackgroundinSeedTest-AnlegeneinesBackgrounds">Anlegen eines Backgrounds</h2><p><strong>Schritt 1:</strong> Wählen Sie eine Story aus.</p><p><strong>Schritt 2: </strong>Klicken Sie auf Background. (Das Panel sollte expandieren)</p><p><strong>Schritt 3: </strong>Bewegen Sie den Cursor über die Schaltfläche &quot;<strong>Add New Step</strong>&quot;.</p><p><strong>Schritt 4: </strong>Wählen Sie die gewünschten Schritte aus.</p><p><strong>Schritt 5: </strong>Geben Sie ggf. gewünschte Parameter ein.</p><p><strong>Schritt 6: </strong>Klicken Sie auf das Disketten-Symnol im Background-Bereich, um die Änderungen zu speichern.</p><p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" draggable="false" width="1200" src="attachments/840402752/840402767.gif" data-image-src="attachments/840402752/840402767.gif" data-unresolved-comment-count="0" data-linked-resource-id="840402767" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="GifBackground.gif" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/gif" data-linked-resource-container-id="840402752" data-linked-resource-container-version="3" alt=""></span></p><h2 id="BackgroundinSeedTest-UmbenennendesBackgrounds"><span style="color: rgb(0,51,102);">Umbenennen des Backgrounds</span></h2><h2 id="BackgroundinSeedTest-EditierendesBackground"><span style="color: rgb(0,51,102);">Editieren des Background</span></h2><h2 id="BackgroundinSeedTest-WechseldesBackgrounds">Wechsel des Backgrounds</h2><p>Zum Wiedeverwenden desselben Backgrounds für viele verschiedene Testfälle bietet Seed-Test die Möglichkeit, den Background aus einer anderen Story in die bestehende Story zu integrieren. Dies funktioniert wie folgt:</p><p><strong>Schritt 1:</strong> Erstellen Sie einen neuen Background, den Sie wiederverwenden möchten, falls noch nicht geschehen; der Titel des Backgrounds soll eindeutig sein.</p><p><strong>Schritt 2: </strong>Gehen Sie zur Story, in die Sie Background integrieren möchten.</p><p><strong>Schritt 3: </strong>Bewegen Sie den Cursor über die Schaltfläche &quot;<strong>Switch Background</strong>&quot;.</p><p><strong>Schritt 4: </strong>Wählen Sie das gewünschte Background aus.</p><p><br/><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" draggable="false" width="1200" src="attachments/840402752/840402816.gif" data-image-src="attachments/840402752/840402816.gif" data-unresolved-comment-count="0" data-linked-resource-id="840402816" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="httpscloudconvert.commp4-to-gif.gif" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/gif" data-linked-resource-container-id="840402752" data-linked-resource-container-version="3" alt=""></span></p><p>Falls vor dem Wechsel ein nicht leeres Background in der Story bereits gespeichert war, werden Sie aufgefordert, den aktuellen Background entweder zu speichern (Schaltfläche &quot;<strong>Submit&quot;</strong>) oder ihn zu verwerfen (Schaltfläche &quot;<strong>Discard Background</strong>&quot;). Anschließend kann der Background gewechselt werden.</p><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p><span style="color: rgb(58,72,19);">Wenn Sie das Background verwerfen  (Schaltfläche &quot;<strong>Discard Background</strong>&quot;), wird er aus dem Projekt gelöscht!</span></p></div></div><p><br/></p><p>Backgrounds mit dem Standardtitel &quot;New Background&quot; sowie leere Backgrounds (ohne Test-Steps) können nicht ausgewählt werden. </p><p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" draggable="false" width="1200" src="attachments/840402752/840404342.gif" data-image-src="attachments/840402752/840404342.gif" data-unresolved-comment-count="0" data-linked-resource-id="840404342" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="httpscloudconvert.commp4-to-gif (1).gif" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/gif" data-linked-resource-container-id="840402752" data-linked-resource-container-version="3" alt=""></span></p><p>Außerdem ermöglicht Seed-Test, Änderungen an einem Background, das in mehreren Stories integriert ist, entweder auf für alle Stories anzuwenden oder den Background neu zu speichern.</p><p><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" draggable="false" width="1200" src="attachments/840402752/840404348.gif" data-image-src="attachments/840402752/840404348.gif" data-unresolved-comment-count="0" data-linked-resource-id="840404348" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="Gif_Backgrounds.gif" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/gif" data-linked-resource-container-id="840402752" data-linked-resource-container-version="3" alt=""></span></p><p><br/></p><p><br/></p><p><br/></p>
+                    </div>
+
+                                                            <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/840402752/840402767.gif">GifBackground.gif</a> (image/gif)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/840402752/840402816.gif">httpscloudconvert.commp4-to-gif.gif</a> (image/gif)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/840402752/840404342.gif">httpscloudconvert.commp4-to-gif (1).gif</a> (image/gif)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/840402752/840404348.gif">Gif_Backgrounds.gif</a> (image/gif)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/840402752/840404384.png">image-2023-10-19_19-6-52.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/840402752/840404385.png">image-2023-10-19_19-4-9.png</a> (image/png)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/840402752/840404386.png">image-2023-10-19_19-6-21.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Okt 23, 2024 17:39</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
