@@ -1762,8 +1762,10 @@ async function importBlocks(
       );
     singularBlock.repository = repoName;
     singularBlock.repositoryId = importRepo;
-    if (!post && !importMode && singularBlock._id) {
+    if (!post && !importMode) {
       singularBlock._id = findAssociatedID(singularBlock.name, allConflicts);
+      if(!singularBlock._id)
+        console.log("Error within findAssociatedID @ importBlocks");
       await updateBlock(singularBlock._id, singularBlock, session, client);
     } else {
       await saveBlock(singularBlock, session, client);
