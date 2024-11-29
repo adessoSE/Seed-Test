@@ -1,6 +1,6 @@
 {
   "name": "seed-test-backend",
-  "version": "1.7.3",
+  "version": "1.8.0",
   "engines": {
     "node": "20.12.1"
   },
