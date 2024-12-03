@@ -55,18 +55,16 @@ router.get('/:_id', async (req, res) => {
 
 // get one Story by issue key
 router.get('/issueKey/:issue_key', async (req, res) => {
-    try {
-        const story = await mongo.getOneStoryByIssueKey(req.params.issue_key);
-        if (!story) {
-            return res.status(404).send('Story not found');
-        }
-        res.status(200).json(story);
-    } catch (e) {
-        console.error(e);
-        handleError(res, e);
-    }
-});
+	try {
+		const story = await mongo.getOneStoryByIssueKey(req.params.issue_key);
+		if (!story) return res.status(404).send('Story not found');
 
+		res.status(200).json(story);
+	} catch (e) {
+		console.error(e);
+		handleError(res, e);
+	}
+});
 
 // create Story
 router.post('/', async (req, res) => {
@@ -84,7 +82,6 @@ router.get('/download/story/:_id', async (req, res) => {
 	try {
 		console.log('download feature-file', req.params._id);
 		const file = await helper.exportSingleFeatureFile(req.params._id);
-		console.log(file);
 		res.send(file);
 	} catch (error) {
 		handleError(res, error, error, 500);
@@ -96,7 +93,6 @@ router.get('/download/project/:repo_id', async (req, res) => {
 		console.log('download project feature-files', req.params.repo_id);
 		const version = req.query.version_id ? req.query.version_id : '';
 		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
-		console.log(file);
 		res.send(file);
 	} catch (error) {
 		handleError(res, error, error, 500);
@@ -126,15 +122,11 @@ router.post('/oneDriver/:storyID', async (req, res) => {
 router.post('/uploadFile/:repoId/', multer().single('file'), async (req, res) => {
 	try {
 		console.log('uploadfile');
-
 		const { repoId } = req.params;
 
-		console.log(req.file)
-
-		const file = await mongo.fileUpload(req.file.originalname, repoId, req.file.buffer)
-		if(file) res.status(200).json(file);
-		else res.status(500)
-		
+		const file = await mongo.fileUpload(req.file.originalname, repoId, req.file.buffer);
+		if (file) res.status(200).json(file);
+		else res.status(500);
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
@@ -150,7 +142,6 @@ router.get('/uploadFile/:repoId', async (req, res) => {
 });
 router.delete('/uploadFile/:fileId', async (req, res) => {
 	try {
-		console.log(req.params.fileId)
 		await mongo.deleteFile(req.params.fileId);
 		res.status(200).json({ message: 'File deleted' });
 	} catch (error) {
@@ -262,7 +253,6 @@ router.delete('/scenario/:story_id/:_id', async (req, res) => {
 		dbError = error;
 	}
 
-	
 	// if xray enabled, delete xray step in jira
 	const xrayEnabled = req.headers['x-xray-enabled'] === 'true';
 	console.log('XRay enabled:', xrayEnabled);
@@ -290,7 +280,7 @@ router.delete('/scenario/:story_id/:_id', async (req, res) => {
 					headers: {
 						'cache-control': 'no-cache',
 						'Content-Type': 'application/json',
-						'Authorization': authString
+						Authorization: authString
 					}
 				};
 
@@ -306,9 +296,8 @@ router.delete('/scenario/:story_id/:_id', async (req, res) => {
 		}
 	}
 
-	if (!dbError && !xrayError) {
-		res.status(200).json({ text: 'Scenario successfully deleted.' });
-	} else {
+	if (!dbError && !xrayError) res.status(200).json({ text: 'Scenario successfully deleted.' });
+	 else {
 		let errorMessage = 'Error during deletion: ';
 		if (dbError) errorMessage += 'Database error. ';
 		if (xrayError) errorMessage += 'Error deleting XRay step.';
@@ -320,7 +309,6 @@ router.get('/download/story/:_id', async (req, res) => {
 	try {
 		console.log('download feature-file', req.params._id);
 		const file = await helper.exportSingleFeatureFile(req.params._id);
-		console.log(file);
 		res.send(file);
 	} catch (error) {
 		handleError(res, error, error, 500);
@@ -332,7 +320,6 @@ router.get('/download/project/:repo_id', async (req, res) => {
 		console.log('download project feature-files', req.params.repo_id);
 		const version = req.query.version_id ? req.query.version_id : '';
 		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
-		console.log(file);
 		res.send(file);
 	} catch (error) {
 		handleError(res, error, error, 500);

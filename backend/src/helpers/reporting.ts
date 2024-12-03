@@ -254,7 +254,7 @@ async function createReport(res, reportName: string) {//TODO remove res here pus
     try {
         fs.writeFileSync(resolvedPath, report.jsonReport);
     } catch (error) {
-        console.log('Error:', error);
+        console.error('Error:', error);
     }
     
     reporter.generate(setOptions(reportName));
@@ -344,7 +344,7 @@ function scenarioResult(scenarioReport: any, scenario: any) {
 function deleteReport(jsonReport: string) {
     const report = path.normalize(`${reportPath}${jsonReport}`);
     fs.unlink(report, (err) => {
-        if (err) console.log(err);
+        if (err) console.error(err);
         else console.log(`${report} deleted.`);
     });
 }
@@ -355,7 +355,6 @@ async function fetchFiles(stories, repoId){
 			.flatMap(scen => scen.stepDefinitions.when)
 			.filter(step => step.type === "Upload File")
 			.map(step => step.values[0]);
-    console.log(neededFiles)
 	if (neededFiles) return mongo.getFiles(neededFiles, repoId)
 }
 

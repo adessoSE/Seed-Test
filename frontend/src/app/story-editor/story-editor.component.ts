@@ -10,7 +10,6 @@ import {
 } from "@angular/core";
 import { ApiService } from "../Services/api.service";
 import { Story } from "../model/Story";
-import { Group } from "../model/Group";
 import { Scenario } from "../model/Scenario";
 import { StepType } from "../model/StepType";
 import { Background } from "../model/Background";
@@ -341,9 +340,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * View child of the modals component
    */
   @ViewChild("renameStoryModal") renameStoryModal: RenameStoryComponent;
-  @ViewChild("createScenarioForm") createScenarioForm: CreateScenarioComponent;
-  @ViewChild("renameBackgroundModal")
-  renameBackgroundModal: RenameBackgroundComponent;
+  @ViewChild("createNewScenario") createScenarioModal: CreateScenarioComponent;
+  @ViewChild("renameBackgroundModal") renameBackgroundModal: RenameBackgroundComponent;
   @ViewChild("workgroupEditModal") workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('executionListModal') executionListModal: ExecutionListComponent;
 
@@ -1622,10 +1620,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.initialyAddIsExample();
     this.preConditionResults = [];
     this.storyChosen.emit(story);
-    if (story.scenarios.length > 0) {
+    if (story.scenarios.length > 0 && story.scenarios[0] != null && story.scenarios[0] != undefined) {
       this.selectScenario(story.scenarios[0]);
     } else this.selectScenario(null);
     this.backgroundService.backgroundReplaced = undefined;
+  }
+
+  openCreateScenario() {
+    this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
   }
 
   initialyAddIsExample() {

@@ -1,4 +1,3 @@
-import { GroupReport } from './../model/GroupReport';
 import { Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges } from '@angular/core';
 import { Story } from '../model/Story';
 import { XrayService } from '../Services/xray.service';
@@ -72,6 +71,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     @Output()
     scenarioChosen: EventEmitter<any> = new EventEmitter();
 
+    /**
+     * Emits a new chosen scenario
+     */
+    @Output()
+    scenarioDeselected: EventEmitter<any> = new EventEmitter();
+    
     @Output()
     testRunningGroup: EventEmitter<any> = new EventEmitter();
 
@@ -284,7 +289,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         if (changes.newSelectedStory) {
             this.selectedStory = this.newSelectedStory;
             this.scrollToSelectedStory();
-            this.selectStoryScenario(this.selectedStory);
+            if (this.selectedStory){
+                this.selectStoryScenario(this.selectedStory);
+            }
         }
     }
 
@@ -435,6 +442,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Deselects Scenario - Destroys Scenario Editor
+     * @param scenario
+     */
+    deselectScenario(){
+        this.selectedScenario = undefined;
+        this.scenarioDeselected.emit();
+    }
+
+    /**
      * Selects a new Story and with it a new scenario
      * @param story
      */
@@ -442,9 +458,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.selectedStory = story;
         this.initialyAddIsExample();
         this.storyChosen.emit(story);
-        if (story.scenarios.length > 0) {
+        if (story.scenarios.length > 0 && story.scenarios[0] != null && story.scenarios[0] != undefined) {
             this.selectScenario(story.scenarios[0]);
-        } else this.selectScenario(null);
+        } else this.deselectScenario()
         this.backgroundService.backgroundReplaced = undefined;
     }
 
@@ -503,7 +519,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.updateGroup.openUpdateGroupModal(group, this.groups);
     }
 
-    openCreateNewScenarioModal() {
+    openCreateScenario() {
         this.createNewScenario.openCreateScenarioModal(this.selectedStory);
     }
 
@@ -703,33 +719,35 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     initialyAddIsExample() {
         console.log(this.selectedStory)
-        this.selectedStory.scenarios.forEach(scenario => {
-            scenario.stepDefinitions.given.forEach((value, index) => {
-                if (!scenario.stepDefinitions.given[index].isExample) {
-                    scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
-                    value.values.forEach((val, i) => {
-                        scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                    })
-                }
+        if (this.selectedStory) {
+            this.selectedStory.scenarios.forEach(scenario => {
+                scenario.stepDefinitions.given.forEach((value, index) => {
+                    if (!scenario.stepDefinitions.given[index].isExample) {
+                        scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
+                        value.values.forEach((val, i) => {
+                            scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                        })
+                    }
+                })
+                scenario.stepDefinitions.when.forEach((value, index) => {
+                    if (!scenario.stepDefinitions.when[index].isExample) {
+                        scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
+                        value.values.forEach((val, i) => {
+                            scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                        })
+                    }
+                })
+                scenario.stepDefinitions.then.forEach((value, index) => {
+                    if (!scenario.stepDefinitions.then[index].isExample) {
+                        scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
+                        value.values.forEach((val, i) => {
+                            scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                        })
+                    }
+                })
+    
             })
-            scenario.stepDefinitions.when.forEach((value, index) => {
-                if (!scenario.stepDefinitions.when[index].isExample) {
-                    scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
-                    value.values.forEach((val, i) => {
-                        scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                    })
-                }
-            })
-            scenario.stepDefinitions.then.forEach((value, index) => {
-                if (!scenario.stepDefinitions.then[index].isExample) {
-                    scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
-                    value.values.forEach((val, i) => {
-                        scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                    })
-                }
-            })
-
-        })
+        }
     }
     toTicket(story: string) {
         const value = localStorage.getItem('repository');

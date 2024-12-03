@@ -34,8 +34,8 @@
         <button id="new_scenario" class="scenarioTitle" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
           <em class="material-icons">add</em>
           </button>
-          <button *ngIf="this.selectedScenario.saved==false" name="saveScenario" id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
-          title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
+          <button *ngIf="this.scenarioUnSaved()" name="saveScenario" id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
+          title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.scenarioUnSaved()}"
           (click)="updateScenario();">
           <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
           </button>

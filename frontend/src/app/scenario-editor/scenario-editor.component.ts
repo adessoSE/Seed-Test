@@ -430,6 +430,18 @@ export class ScenarioEditorComponent implements OnInit{
     }
 
     /**
+     * if the scenario is not saved
+     * @returns
+     */
+    scenarioUnSaved() {
+        if (this.selectedScenario == null)
+            return false
+        else {
+            return !(this.testRunning || this.selectedScenario.saved === undefined  || this.selectedScenario.saved);
+        }
+    }
+
+    /**
      * Sets the daisy auto logout
      * @param $event
      * @param checkValue
@@ -456,7 +468,6 @@ export class ScenarioEditorComponent implements OnInit{
     }
 
     openCreateScenario() {
-        console.log(this.createScenarioModal)
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
     }
 

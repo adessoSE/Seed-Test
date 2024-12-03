@@ -7,6 +7,7 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
 const fs = require('fs');
+const crypto = require('crypto');
 const initializePassport = require('../passport-config');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
@@ -15,7 +16,6 @@ const projectMng = require('../../dist/helpers/projectManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
 const stepDefs = require('../database/stepTypes');
 const xray = require('../../dist/helpers/xray');
-const crypto = require('crypto');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -107,14 +107,14 @@ router.post('/login', (req, res, next) => {
 			req.logIn(user, async (err) => {
 				if (err) throw err;
 				else {
-					if(user.transitioned === false) {
+					if (user.transitioned === false) {
 						const hasher = crypto.createHash('sha256');
-						hasher.update(req.body.password)
-						const passHash = hasher.digest()
-						const finalHash = bcrypt.hashSync(passHash.toString('hex'), salt)
-						user.password = finalHash
-						user.transitioned = true
-						mongo.updateUser(user._id, user)
+						hasher.update(req.body.password);
+						const passHash = hasher.digest();
+						const finalHash = bcrypt.hashSync(passHash.toString('hex'), salt);
+						user.password = finalHash;
+						user.transitioned = true;
+						mongo.updateUser(user._id, user);
 					}
 					res.json(user);
 				}
@@ -335,8 +335,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 				const orderedStories = matchOrder(array, tmpStories, repo);
 				res.status(200).json(orderedStories);
 			})
-				.catch((e) => {
-					console.log(e);
+				.catch((error) => {
+					console.error(error);
 				});
 		}
 	} catch (err) {
@@ -369,8 +369,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 			}
 		};
 		let repo;
-		let testSets = []
-		let preConditionMap = []
+		const testSets = [];
+		const preConditionMap = [];
 		try {
 			await fetch(
 				`https://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test+OR+issuetype="Test Set"+OR+issuetype="Pre-Condition")&startAt=0&maxResults=200`,
@@ -379,7 +379,6 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 				.then(async (response) => response.json())
 				.then(async (json) => {
 					try {
-
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
 
 						const asyncHandleTestIssue = json.issues.map(async (issue) => {
@@ -390,47 +389,44 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 									testSetKey: issue.key,
 									testSetId: issue.id,
 									tests: testsInSet,
-									xrayTestSet: true 
+									xrayTestSet: true
 								});
-								return null; // Return null to indicate that this path does not continue further processing
+								// Return null to indicate that this path does not continue further processing
+								return null;
 							}
-						
+
 							// If the issue is a "Pre-Condition" issue
-							else if (issue.fields.issuetype.name === 'Pre-Condition') {
-								let preCondition = {
-									"preConditionKey": issue.key,
-									"preConditionName": issue.fields.summary,
-									"testSet": []
+							if (issue.fields.issuetype.name === 'Pre-Condition') {
+								const preCondition = {
+									preConditionKey: issue.key,
+									preConditionName: issue.fields.summary,
+									testSet: []
 								};
 								// Iterate through the issue links to find the test sets that are linked to the pre-condition
 								for (const link of issue.fields.issuelinks) {
-									if(link.inwardIssue && link.type.inward === "tested by") {
-										preCondition["testSet"].push(link.inwardIssue.key); 
-									
+									if (link.inwardIssue && link.type.inward === 'tested by') {
+										preCondition.testSet.push(link.inwardIssue.key);
+									}
 								}
-							}
 								preConditionMap.push(preCondition);
-								return null; // Similarly, return null for this path
+								// Similarly, return null for this path
+								return null;
 							}
-							
+
 							// If the issue is a "Test" issue
-							else if (issue.fields.issuetype.name === 'Test') {
+							if (issue.fields.issuetype.name === 'Test') {
 								return xray.handleTestIssue(issue, options, Host);
 							}
 
 							return { scenarioList: [], testStepDescription: '' };
-
 						});
-						
-				
-						const lstDesc = await Promise.all(asyncHandleTestIssue);
 
+						const lstDesc = await Promise.all(asyncHandleTestIssue);
 
 						const stories = [];
 
 						for (const [index, issue] of json.issues.entries()) {
-
-							if (!lstDesc[index]) continue
+							if (!lstDesc[index]) continue;
 
 							let preConditions = [];
 
@@ -440,10 +436,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 							}
 
 							// Compare the preconditions with preConditionMap to get the final preconditions
-							const finalPreConditions = preConditionMap.filter(preCondition => 
-								preConditions.includes(preCondition["preConditionKey"])
-							);
-							
+							const finalPreConditions = preConditionMap.filter((preCondition) => preConditions.includes(preCondition.preConditionKey));
+
 							const { scenarioList, testStepDescription } = lstDesc[index];
 
 							const issueDescription = issue.fields.description ? issue.fields.description : '';
@@ -469,7 +463,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 							}
 							stories.push(story);
 						}
-						const fusing = stories.map((story) => projectMng.fuseStoryWithDb(story, story.story_id))
+						const fusing = stories.map((story) => projectMng.fuseStoryWithDb(story, story.story_id));
 						await Promise.all(fusing).then((entries) => entries.forEach((entry) => {
 							tmpStories.set(entry._id.toString(), entry);
 							storiesArray.push(entry._id);
@@ -477,7 +471,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 					} catch (e) {
 						console.error('Error while getting Jira issues:', e);
 					}
-					projectMng.updateTestSets(testSets, id)
+					projectMng.updateTestSets(testSets, id);
 					Promise.all(storiesArray)
 						.then((array) => {
 							const orderedStories = matchOrder(array, tmpStories, repo);

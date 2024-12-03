@@ -428,7 +428,6 @@ function checkAndAddSuffix(name, conflictingNameList) {
 
   // Add the new name (with or without suffix) to the list
   conflictingNameList.push(newName);
-  console.log(conflictingNameList);
   return newName;
 }
 
@@ -473,10 +472,8 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
     });
     const repoJsonData = zip.readAsText("repo.json");
     const repoData = JSON.parse(repoJsonData);
-    console.log(repoData);
     const mappingJsonData = zip.readAsText("keyStoryIds.json");
     const mappingData = JSON.parse(mappingJsonData);
-    console.log(mappingData);
     const repoBlocksJsonData = zip.readAsText("repoBlocks.json");
     const repoBlocksData = JSON.parse(repoBlocksJsonData);
     let groupMapping = [];
@@ -500,7 +497,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         existingName: title,
         associatedID: _id.toHexString(),
       }));
-      console.log(existingNames);
+
       const newData = existingNames.map(({ existingName }) => existingName);
       existingNameList = existingNameList.concat(newData);
       for (const storyFile of storyFiles) {
@@ -526,7 +523,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         existingName: name,
         associatedID: _id.toHexString(),
       }));
-      console.log(existingNames);
+
       const newData = existingNames.map(({ existingName }) => existingName);
       existingNameList = existingNameList.concat(newData);
       for (const singularBlock of repoBlocksData) {
@@ -550,7 +547,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
         existingName: name,
         associatedID: _id.toHexString(),
       }));
-      console.log(existingNames);
+
       const newData = existingNames.map(({ existingName }) => existingName);
       existingNameList = existingNameList.concat(newData);
       for (const groupFile of groupFiles) {
@@ -673,7 +670,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           client,
           file
         );
-        console.log(groupMapping);
+        
         await mongo.importBlocks(
           true,
           newRepo.toHexString(),

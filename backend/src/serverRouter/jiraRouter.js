@@ -30,13 +30,14 @@ router.post('/user/create/', (req, res) => {
 		console.error('No Jira User sent. (Got undefinded)');
 		res.status(401).json('No Jira User sent. (Got undefinded)');
 	} else {
-		const { jiraAccountName, jiraPassword, jiraHost: jiraServer, jiraAuthMethod } = req.body;
+		const {
+			jiraAccountName, jiraPassword, jiraHost: jiraServer, jiraAuthMethod
+		} = req.body;
 		let authString = `Bearer ${jiraPassword}`;
 		if (jiraAuthMethod === 'basic') {
 			const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
 			authString = `Basic ${auth}`;
 		}
-		console.log('auth ', authString);
 		const options = {
 			method: 'GET',
 			qs: {
@@ -51,15 +52,19 @@ router.post('/user/create/', (req, res) => {
 
 		// jiraHost must only consist of letters, numbers, '.' and ':' to represent URLs, IPs or ports
 		if (/^[.:a-zA-Z0-9]+$/.test(jiraServer)) {
-			console.log(jiraServer);
 			const jiraURL = `http://${jiraServer}/rest/auth/1/session`;
 			fetch(jiraURL, options)
 				.then((response) => response.json())
 				.then(() => {
-					userHelper.updateJiraCredential(req.user._id, jiraAccountName, jiraPassword, jiraServer, jiraAuthMethod)
-						.then((result) => {
-							res.status(200).json(result);
-						});
+					userHelper.updateJiraCredential(
+						req.user._id,
+						jiraAccountName,
+						jiraPassword,
+						jiraServer,
+						jiraAuthMethod
+					).then((result) => {
+						res.status(200).json(result);
+					});
 				})
 				.catch((error) => {
 					console.error(error);
@@ -82,7 +87,9 @@ router.delete('/user/disconnect/', (req, res) => {
 
 router.post('/login', (req, res) => {
 	if (typeof req.body.jiraAccountName !== 'undefined') {
-		const { jiraAccountName, jiraPassword, jiraServer, AuthMethod } = req.body;
+		const {
+			jiraAccountName, jiraPassword, jiraServer, AuthMethod
+		} = req.body;
 		let authString = `Bearer ${jiraPassword}`;
 		if (AuthMethod === 'basic') {
 			const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
