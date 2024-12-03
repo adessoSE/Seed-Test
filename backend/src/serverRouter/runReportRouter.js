@@ -32,7 +32,7 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID', (req, res) => {
-	reporter.runReport(req, res, [], 'feature', req.body).catch((reason) => { console.log('failed in runreport', reason); res.send(reason).status(500) });
+	reporter.runReport(req, res, [], 'feature', req.body).catch((reason) => { console.log('failed in runreport', reason); res.send(reason).status(500); });
 });
 
 // run single Scenario of a Feature
@@ -65,11 +65,10 @@ router.post('/TempGroup', async (req, res) => {
 	params.repository = req.body.repository;
 	params.repoId = req.body.id;
 	req.body = tempGroup;
-	console.log(tempGroup)
 	reporter.runReport(req, res, mystories, 'group', tempGroup).then(() => {
 		console.log('Report for temporary group created');
 	})
-	.catch((reason) => res.send(reason).status(500));
+		.catch((reason) => res.send(reason).status(500));
 });
 
 // generate older Report

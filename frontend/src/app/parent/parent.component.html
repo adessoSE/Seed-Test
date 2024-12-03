@@ -1,12 +1,44 @@
 <div [class.darkTheme] ="isDark" class="grid">
     <div class="storiesBar">
-        <app-stories-bar [isDark] ="isDark" [newSelectedStory]="selectedStory" #storiesBar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);" (report)="viewReport($event);" (testRunningGroup)="testRunningGroup($event)"></app-stories-bar>
+        <app-stories-bar
+            [isDark] ="isDark" 
+            [newSelectedStory]="selectedStory" 
+            #storiesBar
+            (storyChosen)="setSelectedStory($event);" 
+            (scenarioChosen)="setSelectedScenario($event);" 
+            (scenarioDeselected)="deselectScenario();"
+            (report)="viewReport($event);" 
+            (testRunningGroup)="testRunningGroup($event)">
+        </app-stories-bar>
     </div>
     <div class="storyEditor">
         <!-- TODO: storiesBar property binding seems not beeing used-->
-        <app-story-editor [isDark] ="isDark" *ngIf="this.activeView === 'storyView'" (report)="viewReport($event);" (storyChosen)="setSelectedStory($event);" [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario" [newStories]="stories" [testRunningForGroup]="testRunningForGroup"></app-story-editor>
-        <app-report-history [isDark] ="isDark" *ngIf="this.activeView === 'reportHistoryView'" [newSelectedStory]="selectedStory" ></app-report-history>
-        <app-file-manager [isDark] ="isDark" *ngIf="this.activeView  === 'fileManagerView'" [files]="files" [newSelectedStory]="selectedStory" ></app-file-manager>
-        <app-report [isDark] ="isDark" *ngIf="report" [report]="report"></app-report>
+        <app-story-editor
+            [isDark] ="isDark"
+            *ngIf="this.activeView === 'storyView'" 
+            (report)="viewReport($event);"
+            (storyChosen)="setSelectedStory($event);"
+            [storiesBar]="storiesBar"
+            [newSelectedStory]="selectedStory" 
+            [newSelectedScenario]="selectedScenario"
+            [newStories]="stories" 
+            [testRunningForGroup]="testRunningForGroup">
+        </app-story-editor>
+        <app-report-history
+            [isDark] ="isDark"
+            *ngIf="this.activeView === 'reportHistoryView'" 
+            [newSelectedStory]="selectedStory" >
+        </app-report-history>
+        <app-file-manager
+            [isDark] ="isDark"
+            *ngIf="this.activeView  === 'fileManagerView'"
+            [files]="files"
+            [newSelectedStory]="selectedStory" >
+        </app-file-manager>
+        <app-report
+            [isDark] ="isDark"
+            *ngIf="report"
+            [report]="report">
+        </app-report>
     </div>
 </div>

@@ -49,18 +49,17 @@ function jsUcfirst(string) {
 // Building feature file step-content
 function getSteps(steps, stepType) {
 	let data = '';
-	console.log(steps)
 	for (const step of steps) {
 		// eslint-disable-next-line no-continue
 		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-			data += `${step.pre} '${step.values[0]}' ${Boolean(step.mid) ? step.mid : ''}${Boolean(step.values[1]) ? `'${step.values[1]}'` : ''}`;
-			if (Boolean(step.post)) data += ` ${step.post}${Boolean(step.values[2]) ? `'${step.values[2]}'` : ''}`;
+			data += `${step.pre} '${step.values[0]}' ${step.mid ? step.mid : ''}${step.values[1] ? `'${step.values[1]}'` : ''}`;
+			if (step.post) data += ` ${step.post}${step.values[2] ? `'${step.values[2]}'` : ''}`;
 		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
 		else {
 			data += `${step.pre} ${step.mid}${getValues(step.values)}`;
-			if (Boolean(step.post)) data += ` ${step.post}`;
+			if (step.post) data += ` ${step.post}`;
 		}
 		data += '\n';
 	}
@@ -78,7 +77,7 @@ function getExamples(steps) {
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
 	}
 	// if no lines other than value line, return empty
-	if (data.split('\n').length > 2) data = 'Examples:' + data;
+	if (data.split('\n').length > 2) data = `Examples:${data}`;
 	else return ''; // explicit return as first line (title/name/key) is always written
 	return `${data}\n`;
 }
@@ -106,7 +105,7 @@ function getScenarioContent(scenarios, storyID) {
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
 	let body = '';
-	if (Boolean(story.body)) {
+	if (story.body) {
 		body = story.body.replaceAll('#', '').replaceAll('(/)', '');
 	}
 	let data = `Feature: ${story.title}\n\n${body}\n\n`;
@@ -417,7 +416,7 @@ async function replaceRefBlocks(scenarios) {
 				if (!elem._blockReferenceId) return [elem];
 				return mongo.getBlock(elem._blockReferenceId).then((block) => {
 					// Get an array of the values of the given, when, then properties
-					const steps = [...block.stepDefinitions.given, ...block.stepDefinitions.when, ...block.stepDefinitions.then]
+					const steps = [...block.stepDefinitions.given, ...block.stepDefinitions.when, ...block.stepDefinitions.then];
 					// Flatten array
 					return steps.flat(1);
 				});

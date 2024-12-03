@@ -90,8 +90,11 @@
                   </a>
                 </li>
               </ul>
-              <button id="add_first_scenario" class="SmallButton" *ngIf="!(s.scenarios.length > 0)" (click)="openCreateNewScenarioModal()">Create First Scenario</button>
-              <button id="add_scenario" *ngIf="s.scenarios.length > 0" class="material-icons" uk-tooltip="Add New Scenario" (click)="openCreateNewScenarioModal()">add</button>
+              <button id="add_first_scenario" class="SmallButton" *ngIf="!(s.scenarios.length > 0)"
+                (click)="openCreateScenario()">
+                <em class="material-icons">add</em>
+                Create First Scenario</button>
+              <button id="add_scenario" *ngIf="s.scenarios.length > 0" class="material-icons" uk-tooltip="Add New Scenario" (click)="openCreateScenario()">add</button>
             </div>
           </li>
         </ul>

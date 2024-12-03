@@ -27,7 +27,6 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		// console.log(_.url + JSON.stringify(_.user));
 		console.log('Time of workgroups request:', Date.now());
 		next();
 	});

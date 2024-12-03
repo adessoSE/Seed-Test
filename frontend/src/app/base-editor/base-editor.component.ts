@@ -231,7 +231,7 @@ export class BaseEditorComponent {
             stepType: block[2].toLowerCase(), pre: '', mid: '', post: '', values: []
           };
           // Initialzes Examples Table when Selected Scenario doesn't have any Examples 
-          if (this.selectedScenario?.multipleScenarios?.length === undefined || this.selectedScenario.multipleScenarios.length === 0) {
+          if (this.selectedScenario?.multipleScenarios?.length === undefined || this.selectedScenario?.multipleScenarios?.length === 0) {
             this.selectedScenario.multipleScenarios[0] = block[1].stepDefinitions['example'][0]
             this.selectedScenario.multipleScenarios[1] = {values: [...Array(block[1].stepDefinitions['example'][0].values.length)].fill('value')}
           }

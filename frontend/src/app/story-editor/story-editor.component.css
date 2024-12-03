@@ -4,7 +4,7 @@
 
  }
 
- .storyInfoContainer{
+ .storyEditorHeadContainer{
   display: flex;
   flex-flow: row wrap;
   font-weight: bold;
@@ -12,15 +12,20 @@
   border-top: 1px solid #e5e5e5;
  }
 
- .storyInfoContainer#justifyScenarioContent {
+ .storyEditorHeadContainer#storyEditorFooter {
   justify-content: space-between;
+ }
+
+ #emptyScenarioPlaceholderContainer{
+  margin-left: 24px;
+  margin-right: -3px;
  }
 
  :host ::ng-deep div.mdc-circular-progress__indeterminate-container >.mdc-circular-progress__spinner-layer > div.mdc-circular-progress__circle-clipper.mdc-circular-progress__circle-left
 {
   position: unset !important;
 }
- .darkTheme .storyInfoContainer {
+ .darkTheme .storyEditorHeadContainer {
     border-top: 1px solid #B0BEC5;
  }
 
@@ -53,12 +58,6 @@
     padding: 5px;
  }
 
-.button > em{
-  color: var(--white);
-  font-size: 18px;
-  vertical-align: text-top;
-}
-
 .storyInfoCenter{
   display: flex;
   justify-content: center;
@@ -89,15 +88,11 @@
 }
 
 #oneDriverInfoIcon{
-  /* margin-right: 10px;
-  margin-bottom: 7px; */
   width: 13px;
   vertical-align: baseline;
 }
 
 #emulatorInfoIcon{
-  /* margin-right: 10px;
-  margin-bottom: 7px; */
   width: 13px;
   vertical-align: baseline;
 }
@@ -134,8 +129,9 @@
 
   #noStoriesHeader{
     padding: 20px;
+    padding-bottom: 5px;
   }
-
+ 
   .tutorial{
     color: var(--ocean-blue);
   }
@@ -176,11 +172,6 @@
     padding-bottom: 5px;
   }
 
-
-  #noStoriesHeader{
-    padding-bottom: 5px;
-  }
-
   .storyHeaderContainer{
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
@@ -210,7 +201,7 @@
     margin-right: 3px;
     color:var(--white);
     padding: 5px 10px;
-    font-size: 15px;
+    font-size: 17px;
     cursor: pointer;
     background: var(--ocean-blue);
     border: none;
@@ -219,6 +210,13 @@
 
   .button:hover {
     background: rgb(2, 111, 161);
+  }
+
+  .button > em {
+    color: var(--white);
+    font-size: 20px;
+    width: 20px;
+    vertical-align: text-top;
   }
 
   .darkTheme .button {
@@ -237,10 +235,6 @@
     border-top: 1px solid #B0BEC5;
   }
 
-  .button:hover {
-    background: var(--marine-blue);
-  }
-
   .darkTheme .button:hover {
     background-color: #546E7A;
   }
@@ -251,10 +245,6 @@
 
   .button:focus {outline:0 !important;}
 
-
-  /* :host ::ng-deep #saveButton.iconButton_unsaved em{
-    color: red !important;
-  } */
 
   :host ::ng-deep .uk-nav > li > span{
     padding: 1px;
@@ -270,17 +260,7 @@
     position: absolute !important;
     top: 10px !important;
   }
-  /* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
-    color: var(--light-blue);
-  }
-
-  :host ::ng-deep .uk-nav > li > span:hover {
-      color: gray;
-  }
-
-  :host ::ng-deep .darkTheme .uk-nav > li > span:hover {
-    color: white;
-  } */
+  
   /* Eventually not in use */
   .darkTheme .scenarioListItem:hover {
     background-color: var(--brown-grey);
@@ -301,8 +281,6 @@
   }
 
   #loading{
-    /* text-align: center;
-    font-size: 40px; */
     display: flex;
     justify-content: center;
   }
@@ -381,10 +359,6 @@
   #done{
     color: green;
   }
-
-  /* .darkTheme .storyTitle{
-    color: var(--light-blue);
-  } */
 
 :host ::ng-deep .darkTheme .exampleBarContainer{
   background-color: #546E7A !important;
@@ -476,13 +450,12 @@
 }
 
 .mat-expansion-panel{
-  /* width: 96% !important; */
   left: 30px;
   border: 0 !important;
-  /* box-shadow: none;  */
   font-weight: bold;
   position: unset;
 }
+
 .mat-mdc-expansion-panel-header{
     margin: 0;
     padding: 0 20px 0 40px;
