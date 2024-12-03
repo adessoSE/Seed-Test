@@ -20,6 +20,7 @@ updates:
         update-types:
         - "patch"
         - "minor"
+
       angular-security-updates:
         applies-to: security-updates
         patterns:
@@ -41,4 +42,3 @@ updates:
   schedule:
     interval: "weekly"
     day: "thursday"
-

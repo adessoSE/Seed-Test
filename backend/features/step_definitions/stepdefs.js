@@ -63,7 +63,6 @@ edgeOptions.addArguments('--lang=de');
 edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
 
-chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
 
 const NotFoundError = (e) => Error(`ElementNotFoundError: ${e}`);
@@ -623,7 +622,7 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 		const world = this;
 		try {
 			await driver.getCurrentUrl().then(async (currentUrl) => {
-				expect(currentUrl).to.equal(url, 'Error');
+				expect(currentUrl.replace(/\/$/g, '') == url.replace(/[\s]|\/\s*$/g, '') , 'ERROR expected: ' + url.replace(/[\s]|\/\s*$/g, '') + '; actual: ' + currentUrl.replace(/\/$/g, '')).to.be.true
 			});
 		} catch (e) {
 			await driver.takeScreenshot().then(async (buffer) => {

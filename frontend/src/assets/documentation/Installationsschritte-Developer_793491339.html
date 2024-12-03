@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seed-Test : Installationsschritte Developer</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test_679052365.html">Seed-Test</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Seed-Test-Benutzer-Dokumentation_789703700.html">Seed-Test Benutzer Dokumentation</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="789704511.html">Erste Schritte (Getting Started)</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Installation_789704515.html">Installation</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Seed-Test : Installationsschritte Developer
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Makhneva, Alena</span> on Aug 22, 2023
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <div class="contentLayout2">
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<p class="auto-cursor-target"><span class="confluence-embedded-file-wrapper image-center-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image image-center" draggable="false" width="500" src="attachments/793491339/793491342.png" data-image-src="attachments/793491339/793491342.png" data-unresolved-comment-count="0" data-linked-resource-id="793491342" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="seed-test-logo1.png" data-base-url="https://confluence.adesso.de" data-linked-resource-content-type="image/png" data-linked-resource-container-id="793491339" data-linked-resource-container-version="1" alt=""></span></p><div class="confluence-information-macro confluence-information-macro-tip"><span class="aui-icon aui-icon-small aui-iconfont-approve confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Diese Seite beinhaltet alle Installationsschritte die ein Developer ausführen muss, um Seed-Test nutzen zu können. </p></div></div></div>
+</div>
+</div>
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<div class="panel" style="border-color: grey;border-style: solid;border-width: 1px;"><div class="panelContent">
+<h2 id="InstallationsschritteDeveloper-Install"><strong>Install</strong></h2><div class="table-wrap"><table class="wrapped confluenceTable"><colgroup><col/></colgroup><tbody><tr><th class="confluenceTh"><a href="https://github.com/adessoSE/Seed-Test" class="external-link" rel="nofollow">https://github.com/adessoSE/Seed-Test</a></th></tr></tbody></table></div><p>To install and use the application localy, clone the repository. It is necessary to install<span> </span><a href="https://nodejs.org/en/" style="text-decoration: none;" rel="nofollow" class="external-link">NodeJS</a>. Install Angular 7:</p><p>It is necessary to install<span> </span><a style="text-decoration: none;" href="https://nodejs.org/en/" rel="nofollow" class="external-link">NodeJS</a>.</p><p>Seed-Test uses Google Chrome ba default for executing selenium. Download the version of<span> </span><a href="https://chromedriver.chromium.org/downloads" style="text-decoration: none;" rel="nofollow" class="external-link">Chromedriver</a><span> </span>that matches your version of Google Chrome. Extract the &quot;chromedriver.exe&quot; and set a path to it.</p><p>To install and use the application localy, clone or download the repository as a zip.</p><p>The required node modules are not installed yet. To do so, open up a console in the frontend and backend folder and install them:</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: powershell; gutter: false; theme: Confluence" data-theme="Confluence">cd backend
+
+npm install</pre>
+</div></div><p>and</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: powershell; gutter: false; theme: Confluence" data-theme="Confluence">cd frontend
+
+npm install</pre>
+</div></div><p>Now create<span> </span><span style="color: rgb(0,0,128);"><code>.env</code></span><span> </span>files in the frontend and backend folders based on the provided<span> </span><code>.env.example</code><span> </span>files. Note, that not all environment variables have default values. Some are mandatory for the programm to work.</p><p>You will need two terminals to run the frontend server and backend server. Switch to the corresponding folder and start it:</p><p><span class="confluence-embedded-file-wrapper"><a class="confluence-embedded-file" href="/download/attachments/793491339/backend_v2.env?version=1&amp;modificationDate=1692699081000&amp;api=v2" data-nice-type="null" data-file-src="/download/attachments/793491339/backend_v2.env?version=1&amp;modificationDate=1692699081000&amp;api=v2" data-linked-resource-id="793491341" data-linked-resource-type="attachment" data-linked-resource-container-id="793491339" data-linked-resource-default-alias="backend_v2.env" data-mime-type="application/octet-stream" data-has-thumbnail="false" data-linked-resource-version="1" data-can-edit="true" aria-label="backend_v2.env" draggable="false"><img src="download/resources/com.atlassian.confluence.plugins.confluence-view-file-macro:view-file-macro-resources/images/placeholder-medium-file.png" height="250" alt="" draggable="false"/><span class="title">backend_v2.env</span></a><span class="companion-edit-button-placeholder edit-button-overlay" data-linked-resource-container-id="793491339" data-linked-resource-id="793491341" data-template-name="companionEditIcon" data-source-location="embedded-attachment"></span></span><span class="confluence-embedded-file-wrapper"><a class="confluence-embedded-file" href="/download/attachments/793491339/frontend_v2.env?version=1&amp;modificationDate=1692699081000&amp;api=v2" data-nice-type="null" data-file-src="/download/attachments/793491339/frontend_v2.env?version=1&amp;modificationDate=1692699081000&amp;api=v2" data-linked-resource-id="793491340" data-linked-resource-type="attachment" data-linked-resource-container-id="793491339" data-linked-resource-default-alias="frontend_v2.env" data-mime-type="application/octet-stream" data-has-thumbnail="false" data-linked-resource-version="1" data-can-edit="true" aria-label="frontend_v2.env" draggable="false"><img src="download/resources/com.atlassian.confluence.plugins.confluence-view-file-macro:view-file-macro-resources/images/placeholder-medium-file.png" height="250" alt="" draggable="false"/><span class="title">frontend_v2.env</span></a><span class="companion-edit-button-placeholder edit-button-overlay" data-linked-resource-container-id="793491339" data-linked-resource-id="793491340" data-template-name="companionEditIcon" data-source-location="embedded-attachment"></span></span></p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: powershell; gutter: false; theme: Confluence" data-theme="Confluence">cd frontend
+
+npm start</pre>
+</div></div><p>and</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: powershell; gutter: false; theme: Confluence" data-theme="Confluence">cd backend
+
+npm start</pre>
+</div></div><p>Once everything is running, you can access the website by typing this into a browser window:</p><div class="table-wrap"><table class="wrapped confluenceTable"><colgroup><col/></colgroup><tbody><tr><th class="confluenceTh"><code><a href="http://localhost:4200/login" class="external-link" rel="nofollow">http://localhost:4200/login</a>
+</code></th></tr></tbody></table></div><p>If you would like to use our webdriver updater, open a new terminal switch to the backend folder and start it. Make sure, you assigned the environment variables WEBDRIVER_DIR and WEBDRIVER_EXEC_PERIOD.</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: powershell; gutter: false; theme: Confluence" data-theme="Confluence">cd backend
+npm run start:wd_updater</pre>
+</div></div>
+</div></div></div>
+</div>
+</div>
+<div class="columnLayout single" data-layout="single">
+<div class="cell normal" data-type="normal">
+<div class="innerCell">
+<div class="panel" style="border-color: grey;border-width: 1px;"><div class="panelContent">
+<h2 class="auto-cursor-target" id="InstallationsschritteDeveloper-Database"><strong>Database</strong></h2><div class="confluence-information-macro confluence-information-macro-information"><span class="aui-icon aui-icon-small aui-iconfont-info confluence-information-macro-icon"></span><div class="confluence-information-macro-body"><p>Seed-Test uses a MongoDB. You can either create your own locally or in the cloud. For installation details check out our<span> </span><a style="text-decoration: none;" href="https://github.com/adessoAG/Seed-Test/wiki/Database" class="external-link" rel="nofollow">Database Tutorial</a></p><p>Once you have set up the database, insert the uri into the DATABASE_URI variable inside the .env file of your backend folder. Save it!</p><p><br/></p><p>Then you can set up the database through this command:</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="syntaxhighlighter-pre" data-syntaxhighlighter-params="brush: powershell; gutter: false; theme: Confluence" data-theme="Confluence">npm run database</pre>
+</div></div><p>This command creates the collections 'Stories' and 'stepTypes' and inserts the current stepTypes into the collection. The Stories collection can stay empty. It will be automatically filled while accessing the web-app.</p></div></div><hr/>
+</div></div></div>
+</div>
+</div>
+</div>
+                    </div>
+
+                                                            <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/793491339/793491340.env">frontend_v2.env</a> (application/octet-stream)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/793491339/793491341.env">backend_v2.env</a> (application/octet-stream)
+                                <br/>
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/793491339/793491342.png">seed-test-logo1.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Okt 23, 2024 17:39</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

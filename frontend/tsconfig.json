@@ -4,8 +4,9 @@
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
+    "esModuleInterop": true,
     "declaration": false,
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -13,13 +14,21 @@
     "typeRoots": [
       "node_modules/@types"
     ],
+    "types": [
+      "node"
+    ],
     "lib": [
       "ES2022",
       "dom"
     ],
+    //Diese strikten Kommandos sollte man zur Fehlervermeidung auf true setzen, allerdings wurde kaum typisiert etc., weshalb es viel Aufwand wäre anzupassen.
+    "strict": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "incremental": true,
     "paths": {
       "@/*": [
-       "./*"
+        "./*"
       ]
     }
   }

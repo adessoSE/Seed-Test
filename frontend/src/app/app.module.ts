@@ -4,7 +4,7 @@ import { RouterModule } from "@angular/router";
 import { ROUTES } from "./routes/routes";
 import { AppComponent } from "./app.component";
 import { ScenarioEditorComponent } from "./scenario-editor/scenario-editor.component";
-import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import { ApiService } from "./Services/api.service";
 import { StoriesBarComponent } from "./stories-bar/stories-bar.component";
 import { ParentComponent } from "./parent/parent.component";
@@ -109,7 +109,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     AccountManagementComponent,
     StoryEditorComponent,
     RegistrationComponent,
-    RegistrationComponent,
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     InfoWarningToast,
@@ -154,7 +153,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule,
     MatTableModule,
     MatListModule,
     MatSelectModule,
@@ -164,7 +162,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     DragDropModule,
     MatProgressSpinnerModule,
     CarouselModule,
-    HttpClientModule,
     LoggerModule.forRoot({
       serverLoggingUrl: localStorage.getItem("url_backend") + "/user/log",
       level: NgxLoggerLevel.DEBUG,
@@ -199,6 +196,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     ],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }],
     ThemingService,
+    provideHttpClient(withInterceptorsFromDi()),
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

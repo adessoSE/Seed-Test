@@ -13,15 +13,13 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$cucumber-frontend-primary: mat.define-palette(mat.$indigo-palette);
-$cucumber-frontend-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
-$cucumber-frontend-warn: mat.define-palette(mat.$red-palette);
-
-//$cucumber-background-color: map_get($mat-brown, 100);
+$cucumber-frontend-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+$cucumber-frontend-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+$cucumber-frontend-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
-$cucumber-frontend-theme: mat.define-light-theme((
+$cucumber-frontend-theme: mat.m2-define-light-theme((
   color: (
     primary: $cucumber-frontend-primary,
         accent: $cucumber-frontend-accent,
@@ -35,12 +33,10 @@ $cucumber-frontend-theme: mat.define-light-theme((
 @include mat.all-component-themes($cucumber-frontend-theme);
 
 // Define a dark theme
-$dark-primary: mat.define-palette(mat.$blue-grey-palette, 500, 100, 900);
-$dark-accent: mat.define-palette(mat.$blue-palette, A200, A100, A400);
-
-$dark-warn: mat.define-palette(mat.$red-palette);
-
-$dark-theme: mat.define-dark-theme(
+$dark-primary: mat.m2-define-palette(mat.$m2-blue-grey-palette, 500, 100, 900);
+$dark-accent: mat.m2-define-palette(mat.$m2-blue-palette, A200, A100, A400);
+$dark-warn: mat.m2-define-palette(mat.$m2-red-palette);
+$dark-theme: mat.m2-define-dark-theme(
   (
     color: (
       primary: $dark-primary,
@@ -53,7 +49,6 @@ $dark-theme: mat.define-dark-theme(
 @import "../node_modules/uikit/src/scss/variables-theme.scss";
 @import "../node_modules/uikit/src/scss/mixins-theme.scss";
 @import "../node_modules/uikit/src/scss/uikit-theme.scss";
-@import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto&display=swap');
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
@@ -180,48 +175,49 @@ body {
   color: var(--black);
 }
 
-  .Mediumnavigation1 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    text-align: center;
-    color: var(--brown-grey);
-  }
-  .SmallHeadline5 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  
-  .Smallnavigation1 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--brown-grey);
-  }
-  .LargeBody2 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.38;
-    letter-spacing: normal;
-    color: var(--black);
-  }
+.Mediumnavigation1 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--brown-grey);
+}
+.SmallHeadline5 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.Smallnavigation1 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--brown-grey);
+}
+.LargeBody2 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.38;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
 .LargeCategory1 {
   font-family: Klavika, sans-serif;
   font-size: 32px;
@@ -266,26 +262,27 @@ body {
   color: var(--black);
 }
 
-  .SmallBody1compact {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .SmallBody1regularLH {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.5;
-    letter-spacing: normal;
-    color: var(--black);
-  }
+.SmallBody1compact {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
+.SmallBody1regularLH {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
 .MediumSublineH1 {
   font-family: Klavika, sans-serif;
   font-size: 26px;
@@ -590,79 +587,12 @@ body {
   color: var(--light-blue);
 }
 
-.Mediumnavigation1 {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  text-align: center;
-  color: var(--brown-grey);
-}
-
-.SmallHeadline5 {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  color: var(--black);
-}
-
 .darkTheme .SmallHeadline5 {
   color: white;
 }
 
-.Smallnavigation1 {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  color: var(--brown-grey);
-}
-
-.LargeBody2 {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.38;
-  letter-spacing: normal;
-  color: var(--black);
-}
-
 .darkTheme .LargeBody2 {
   color: var(--white);
-}
-
-.SmallBody1compact {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  color: var(--black);
-}
-
-.SmallBody1regularLH {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.5;
-  letter-spacing: normal;
-  color: var(--black);
 }
 
 .darkTheme .SmallBody1regularLH {
@@ -937,7 +867,7 @@ div.notPassed{
 
 .mat-app-background .darkTheme,
 .mat-app-background.darkTheme {
-  background-color: map-get(mat.$blue-grey-palette, 800);
+  background-color: map-get(mat.$m2-blue-grey-palette, 800);
 }
 
 .darkTheme .Smallnavigation1,
@@ -1013,7 +943,7 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: map-get(mat.$brown-palette, 200);
+  background: map-get(mat.$m2-brown-palette, 200);
 }
 
 .mdc-menu-surface::-webkit-scrollbar-thumb   {
@@ -1022,14 +952,14 @@ a:hover {
 
 .darkTheme ::-webkit-scrollbar-thumb,
 .darkTheme::-webkit-scrollbar-thumb {
-  background: map-get(mat.$blue-gray-palette, 200) !important;
+  background: map-get(mat.$m2-blue-gray-palette, 200) !important;
   border: 1px 1px 1px 1px black;
 }
 
 .darkTheme .mat-table,
 .darkTheme.mat-table,
 .darkTheme .mat-expansion-panel {
-  background: map-get(mat.$blue-grey-palette, 700);
+  background: map-get(mat.$m2-blue-grey-palette, 700);
 
 }
 
@@ -1232,9 +1162,5 @@ mat-expansion-panel.stepBlockContainer .mat-expansion-panel-body{
 }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-}
+// duplication?: 
+// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

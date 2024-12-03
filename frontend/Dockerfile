@@ -1,5 +1,5 @@
 # Use build argument for Node.js version
-ARG NODE_VERSION=20.9
+ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}
 
 # Create app directory
@@ -16,7 +16,7 @@ RUN npm ci --ignore-scripts
 RUN npm install --force --ignore-scripts -g @angular/cli
 
 # Install esbuild 
-RUN npm install esbuild --ignore-scripts
+RUN npm install --ignore-scripts esbuild 
 
 COPY . .
 
