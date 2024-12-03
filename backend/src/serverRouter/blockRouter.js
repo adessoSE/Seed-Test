@@ -15,7 +15,7 @@ router
 		extended: true
 	}))
 	.use((_, __, next) => {
-		console.log('Time of github request:', Date.now());
+		console.log('Time of block router request:', Date.now());
 		next();
 	})
 	.use((req, res, next) => {

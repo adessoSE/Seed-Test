@@ -84,6 +84,16 @@ export class StoryService {
         //
       }));
   }
+
+  /**
+   * Get's single Story by Issue Key
+   * @param issueKey
+   * @return single Story object
+  */
+  public getStoryByIssueKey(issueKey: string): Observable<Story> {
+    return this.http.get<Story>(`${this.apiService.apiServer}/story/issueKey/${issueKey}`, ApiService.getOptions());
+  }
+
   /**
     * Creates a story
     * @param title
@@ -238,4 +248,18 @@ export class StoryService {
       return window.open(s);
     }
   }
+
+//   /**
+//  * Updates XRay status in Jira for given step and testrun
+//  */
+//  updateXrayStatus(testRunId, stepId, status) {
+//     const data = {
+//       testRunId: testRunId,
+//       stepId: stepId,
+//       status: status
+//     };
+//     return this.http
+//     .put(this.apiService.apiServer + '/jira/update-xray-status/', data, ApiService.getOptions())
+//     .pipe(tap());
+//   }
 }

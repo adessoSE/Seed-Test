@@ -14,7 +14,7 @@
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "lint": "ng lint",
     "prod": "ng serve -c production",
-    "dev": "ng serve",
+    "dev": "ng serve & node server.js",
     "compodoc": "./node_modules/.bin/compodoc -p tsconfig.json -w -s"
   },
   "private": true,

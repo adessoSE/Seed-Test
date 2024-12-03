@@ -8,7 +8,7 @@
         </button>
     </div>
     <div class="modal-body modal-xl">
-        <form #createScenarioForm="ngForm" novalidate (ngSubmit)="createNewScenario(createScenarioForm)">     
+        <form #createScenarioModal="ngForm" novalidate (ngSubmit)="createNewScenario(createScenarioModal)">     
             <div class="submitForm">
                 <div class="form-group modalsContent">
                     <div >
@@ -18,8 +18,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="normalButton" type="submit" [disabled]="!createScenarioForm.valid"
-                    [ngStyle]="{'opacity': !createScenarioForm.valid ?  '50%' : '100%'}">Submit</button>
+                    <button class="normalButton" type="submit" [disabled]="!createScenarioModal.valid"
+                    [ngStyle]="{'opacity': !createScenarioModal.valid ?  '50%' : '100%'}">Submit</button>
                 </div> 
             </div>
         </form>   

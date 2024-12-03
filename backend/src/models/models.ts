@@ -17,6 +17,7 @@ class GenericReport {
     reportOptions: any
     status: boolean
     scenariosTested: PassedCount
+    storiesTested
 
     reportTime: number
     mode: ExecutionMode

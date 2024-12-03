@@ -151,7 +151,6 @@ function analyzeScenarioReport(stories: Array<any>, reportName: string, scenario
             console.log(`NUMBER OF SCENARIOS IN THE REPORT (must be 1): ${storyReport.elements.length}`);
             const story = stories[0];
             console.log(`Story ID: ${story._id}`);
-            console.log(story);
             reportResults.storyId = story._id;
             const scenarioReport = storyReport.elements[0]
 
@@ -203,10 +202,11 @@ function analyzeGroupReport(grpName: string, stories: any[], reportOptions: any)
                     reportResults.storyStatuses.push(result);
                 }
                 // end of for each story
-                reportResults.status = testPassed(overallPassedSteps, overallFailedSteps);
+                reportResults.status = testPassed(overallFailedSteps, overallPassedSteps);
                 reportResults.groupTestResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
                 reportResults.scenariosTested = scenariosTested;
                 reportResults.reportName = grpName;
+                reportResults.storiesTested = stories;
                 return reportResults 
             } catch (error) {
                 reportResults.status = false;
@@ -254,7 +254,7 @@ async function createReport(res, reportName: string) {//TODO remove res here pus
     try {
         fs.writeFileSync(resolvedPath, report.jsonReport);
     } catch (error) {
-        console.log('Error:', error);
+        console.error('Error:', error);
     }
     
     reporter.generate(setOptions(reportName));
@@ -344,7 +344,7 @@ function scenarioResult(scenarioReport: any, scenario: any) {
 function deleteReport(jsonReport: string) {
     const report = path.normalize(`${reportPath}${jsonReport}`);
     fs.unlink(report, (err) => {
-        if (err) console.log(err);
+        if (err) console.error(err);
         else console.log(`${report} deleted.`);
     });
 }
@@ -355,7 +355,6 @@ async function fetchFiles(stories, repoId){
 			.flatMap(scen => scen.stepDefinitions.when)
 			.filter(step => step.type === "Upload File")
 			.map(step => step.values[0]);
-    console.log(neededFiles)
 	if (neededFiles) return mongo.getFiles(neededFiles, repoId)
 }
 
@@ -365,10 +364,10 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 	try {
 		if (mode === ExecutionMode.GROUP) {
             await fetchFiles(stories, parameters.repositoryId)
-			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
+			req.body.name = req.body.name.replace(/[ <>&]/g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
-			if (parameters.isSequential == undefined || !parameters.isSequential)
-				reportObj = await Promise.all(stories.map((story) => testExecutor.executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());
+			if (parameters.isSequential == undefined || !parameters.isSequential){
+				reportObj = await Promise.all(stories.map((story) => testExecutor.executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());}
 			else {
 				for (const story of stories) {
 					reportObj = await testExecutor.executeTest(req, mode, story);
@@ -380,6 +379,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {
+        console.error(error)
 		res.status(404).send(error);
 		return;
 	}
