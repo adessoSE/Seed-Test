@@ -1,90 +1,20 @@
 /* eslint-disable func-names */
 const os = require('os');
 const {
-	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
+	Given, When, Then, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
 const { expect } = require('chai');
 const fs = require('fs');
 const { match, doesNotMatch } = require('assert');
-const webdriver = require('../../node_modules/selenium-webdriver');
-const { By, until, Key } = require('../../node_modules/selenium-webdriver');
-require('geckodriver');
-const firefox = require('../../node_modules/selenium-webdriver/firefox');
-const chrome = require('../../node_modules/selenium-webdriver/chrome');
-const edge = require('../../node_modules/selenium-webdriver/edge');
 const { applySpecialCommands } = require('../../src/serverHelper');
-
-let driver;
-
-let downloadDirectory;
-let tmpUploadDir
-switch (os.platform()) {
-	// Windows
-	case 'win32':
-		downloadDirectory = 'C:\\Users\\Public\\seed_Downloads\\';
-		tmpUploadDir = 'C:\\Users\\Public\\SeedTmp\\'
-		break;
-	// macOS
-	case 'darwin':
-		downloadDirectory = `/Users/${os.userInfo().username}/Downloads/`;
-		tmpUploadDir = `/Users/${os.userInfo().username}/SeedTmp/`
-		break;
-	default:
-		downloadDirectory = '/home/public/Downloads/';
-		tmpUploadDir = '/home/public/SeedTmp/';
-}
-
-if (!fs.existsSync(downloadDirectory)) fs.mkdirSync(downloadDirectory, { recursive: true });
-const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
-	// Set to 2 for the "custom" folder
-	.setPreference('browser.download.folderList', 2)
-	.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream');
-const chromeOptions = new chrome.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
-const edgeOptions = new edge.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
-
-if (!os.platform().includes('win32')) {
-	chromeOptions.addArguments('--headless');
-	chromeOptions.addArguments('--no-sandbox');
-	firefoxOptions.addArguments('--headless');
-	edgeOptions.addArguments('--headless');
-	edgeOptions.addArguments('--no-sandbox');
-}
-
-chromeOptions.addArguments('--disable-dev-shm-usage');
-// chromeOptions.addArguments('--no-sandbox')
-chromeOptions.addArguments('--ignore-certificate-errors');
-chromeOptions.addArguments('--start-maximized');
-chromeOptions.addArguments('--lang=de');
-chromeOptions.addArguments('--excludeSwitches=enable-logging');
-edgeOptions.addArguments('--disable-dev-shm-usage');
-edgeOptions.addArguments('--ignore-certificate-errors');
-edgeOptions.addArguments('--start-maximized');
-edgeOptions.addArguments('--lang=de');
-edgeOptions.addArguments('--excludeSwitches=enable-logging');
-// chromeOptions.addArguments('--start-fullscreen');
+const { PlaywrightWorld } = require('../../dist/playwright/playwrightWorld');
 
 let currentParameters = {};
 
-const NotFoundError = (e) => Error(`ElementNotFoundError: ${e}`);
-
-function CustomWorld({ attach, parameters }) {
-	this.attach = attach;
-	this.parameters = parameters;
-}
-let scenarioIndex = 0;
-let testLength;
 const searchTimeout = 15000;
 
-setWorldConstructor(CustomWorld);
-
-// Cucumber default timer for timeout
-setDefaultTimeout(30 * 1000);
-
-defineParameterType({
-	name: 'Bool',
-	regexp: /true|false/,
-	transformer: (b) => (b === 'true')
-});
+// Error Handling and other helpers
+const NotFoundError = (e) => Error(`ElementNotFoundError: ${e}`);
 
 class CustomError extends Error {
 	constructor(message) {
@@ -107,50 +37,16 @@ async function handleError(f) {
 		throw betterError(error);
 	}
 }
+// TODO: Womöglich testLength und ScenarioIndex in PlaywrightWorld einbauen
+// Cucumber configuration
+setWorldConstructor(PlaywrightWorld);
+// Cucumber default timer for timeout
+setDefaultTimeout(30 * 1000);
 
-Before(async function () {
-	testLength = this.parameters.scenarios.length;
-	currentParameters = this.parameters.scenarios[scenarioIndex];
-
-	if (currentParameters.emulator !== undefined) switch (currentParameters.browser) {
-		case 'chrome':
-			chromeOptions.setMobileEmulation({ deviceName: currentParameters.emulator });
-			break;
-		case 'MicrosoftEdge':
-			edgeOptions.setMobileEmulation({ deviceName: currentParameters.emulator });
-			break;
-		default:
-			break;
-	}
-
-	if (currentParameters.windowSize !== undefined) switch (currentParameters.browser) {
-		case 'chrome':
-			chromeOptions.windowSize(currentParameters.windowSize);
-			break;
-		case 'MicrosoftEdge':
-			edgeOptions.windowSize(currentParameters.windowSize);
-			break;
-		case 'firefox':
-			firefoxOptions.windowSize(currentParameters.windowSize);
-			break;
-		default:
-			console.error(`Unsupported browser: ${currentParameters.browser}`);
-			break;
-	}
-	else console.error('Invalid width or height values');
-
-	if (currentParameters.oneDriver) {
-		if (currentParameters.oneDriver === true) if (driver) console.log('OneDriver');
-		else driver = new webdriver.Builder()
-			.forBrowser(currentParameters.browser)
-			.setChromeOptions(chromeOptions)
-			.build();
-	} else driver = new webdriver.Builder()
-		.forBrowser(currentParameters.browser)
-		.setChromeOptions(chromeOptions)
-		.setFirefoxOptions(firefoxOptions)
-		.setEdgeOptions(edgeOptions)
-		.build();
+defineParameterType({
+	name: 'Bool',
+	regexp: /true|false/,
+	transformer: (b) => (b === 'true')
 });
 
 // / #################### GIVEN ########################################
@@ -899,18 +795,4 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
-});
-
-// Closes the webdriver (Browser)
-// runs after each Scenario
-After(async () => {
-	if (currentParameters.oneDriver) {
-		scenarioIndex += 1;
-		await driver.sleep(1000);
-		if (scenarioIndex === testLength) await driver.quit();
-	} else {
-		scenarioIndex += 1;
-		await driver.sleep(1000);
-		await driver.quit();
-	}
 });

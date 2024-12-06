@@ -60,8 +60,8 @@
                         <div>
                             <select name="browser" class="select" id="browserSelect"
                                 (change)="setBrowser($event.target.value)">
-                                <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
-                                    [selected]="this.browser === 'chrome'">Chrome</option>
+                                <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chromium"
+                                    [selected]="this.browser === 'chromium'">Chrome</option>
                                 <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
                                     [selected]="this.browser === 'firefox'">Firefox</option>
                                 <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"

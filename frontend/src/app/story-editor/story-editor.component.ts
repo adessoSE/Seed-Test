@@ -932,7 +932,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.selectedScenario.stepWaitTime =
       scenario.stepWaitTime ?? this.repoSettings?.stepWaitTime ?? 0;
     this.selectedScenario.browser =
-      scenario.browser ?? this.repoSettings?.browser ?? "chrome";
+      scenario.browser ?? this.repoSettings?.browser ?? "chromium";
     this.selectedScenario.width =
       scenario.width ?? this.repoSettings?.width ?? 1920;
     this.selectedScenario.height =
@@ -1409,7 +1409,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   getAvaiableEmulators() {
     switch (this.selectedScenario.browser) {
-      case "chrome":
+      case "chromium":
         return this.chromium_emulators;
       case "firefox":
         return this.gecko_emulators;

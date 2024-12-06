@@ -155,7 +155,7 @@ export class WorkgroupEditComponent {
           }
           this.waitBetweenSteps = settings.stepWaitTime || 0;
           this.reportComment = settings.reportComment !== undefined ? settings.reportComment : true;
-          this.browser = settings.browser || 'Chrome';
+          this.browser = settings.browser || 'chromium';
           this.repoHeight = settings.height || undefined;
           this.repoWidth = settings.width || undefined;
         } else {
@@ -178,7 +178,7 @@ export class WorkgroupEditComponent {
     this.applyGlobalSettings = false;
     this.waitBetweenSteps = 0;
     this.reportComment = true;
-    this.browser = 'Chrome';
+    this.browser = 'chromium';
     this.emulator_enabled = false;
     this.emulator = undefined;
     this.repoHeight = undefined;
@@ -435,7 +435,7 @@ export class WorkgroupEditComponent {
    */
   getAvaiableEmulators() {
     switch (this.browser) {
-      case "chrome":
+      case "chromium":
         return this.chromium_emulators;
       case "firefox":
         return this.gecko_emulators;
