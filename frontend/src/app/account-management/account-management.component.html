@@ -171,7 +171,7 @@
                     <ng-container *ngFor="let repository of repositories; let i = index">
                         <li class="projectListItem" *ngIf="this.apiService.isJiraRepo(repository)">
                             <div class="db-item-list">
-                                <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
+                                <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-icon.png" alt="jira">
                                 <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                             </div>
                             <span class="flex-end-item">
