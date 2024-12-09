@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const initializePassport = require('../passport-config');
-const mongo = require('../database/DbServices')
+const mongo = require('../database/DbServices');
 const reporter = require('../../dist/helpers/reporting');
 
 const router = express.Router();
@@ -39,16 +39,16 @@ router
 	});
 
 router.post('/test/:repoID/:groupID', passport.authenticate('normal-local', { session: false }), async (req, res) => {
-    try {
-        req.body.email = req.body.email.toLowerCase(); 
-        await test(req, res);
-    } catch (error) {
-        res.status(401).json(error);
-    }
+	try {
+		req.body.email = req.body.email.toLowerCase();
+		await test(req, res);
+	} catch (error) {
+		res.status(401).json(error);
+	}
 });
 
 async function test(req, res) {
-    const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
+	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
 	const mystories = [];
 	for (const ms of group.member_stories) {
 		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database

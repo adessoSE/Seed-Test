@@ -15,15 +15,18 @@ import { StepType } from "../model/StepType";
 import { Background } from "../model/Background";
 import { ToastrService } from "ngx-toastr";
 import { DeleteToast } from "../delete-toast";
+import { XrayToast } from "../delete-toast-xray";
 import { saveAs } from "file-saver";
 import { ThemingService } from "../Services/theming.service";
 import { RenameStoryComponent } from "../modals/rename-story/rename-story.component";
-import { Subscription } from "rxjs";
+import { firstValueFrom, Subscription } from "rxjs";
 import { CreateScenarioComponent } from "../modals/create-scenario/create-scenario.component";
 import { RenameBackgroundComponent } from "../modals/rename-background/rename-background.component";
 import { BackgroundService } from "../Services/background.service";
 import { StoryService } from "../Services/story.service";
 import { ScenarioService } from "../Services/scenario.service";
+import { XrayService } from "../Services/xray.service";
+import { GroupService } from '../Services/group.service';
 import { ReportService } from "../Services/report.service";
 import { ProjectService } from "../Services/project.service";
 import { LoginService } from "../Services/login.service";
@@ -36,6 +39,7 @@ import { InfoWarningToast } from "../info-warning-toast";
 import { MatDialog } from "@angular/material/dialog";
 import { WorkgroupEditComponent } from "../modals/workgroup-edit/workgroup-edit.component";
 import { ManagementService } from "../Services/management.service";
+import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
 
 /**
  * Empty background
@@ -84,9 +88,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   @Input()
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
-
-    // hide if no scenarios in story
-    this.showEditor = !!story?.scenarios.length;
+    if (this.selectedStory !== undefined && this.selectedStory.preConditions) {
+      this.preConditionResults = this.xrayService.getPreconditionStories(this.selectedStory.preConditions);
+      if (!this.selectedStory.scenarios) {
+        // hide if no scenarios in story
+        this.showEditor = false;
+      }
+    }
   }
 
   /**
@@ -238,6 +246,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   reportId;
 
+  /*
+  * Report of the test
+  */
+  testReport;
+
   /**
    * Name for a new step
    */
@@ -290,6 +303,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   showDaisy = false;
 
+  /**
+   * Mapping for Precondition Stories
+   */
+  preConditionResults = [];
+
   readonly TEMPLATE_NAME = "background";
 
   /**
@@ -322,14 +340,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * View child of the modals component
    */
   @ViewChild("renameStoryModal") renameStoryModal: RenameStoryComponent;
-  @ViewChild("createScenarioForm") createScenarioForm: CreateScenarioComponent;
-  @ViewChild("renameBackgroundModal")
-  renameBackgroundModal: RenameBackgroundComponent;
+  @ViewChild("createNewScenario") createScenarioModal: CreateScenarioComponent;
+  @ViewChild("renameBackgroundModal") renameBackgroundModal: RenameBackgroundComponent;
   @ViewChild("workgroupEditModal") workgroupEditModal: WorkgroupEditComponent;
+  @ViewChild('executionListModal') executionListModal: ExecutionListComponent;
 
 
   @Output()
   deleteStoryEvent: EventEmitter<any> = new EventEmitter();
+
+  @Output()
+  storyChosen: EventEmitter<any> = new EventEmitter();
 
   /**
    * Event emitter to show or hide global TestResult
@@ -346,13 +367,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     public backgroundService: BackgroundService,
     public storyService: StoryService,
     public scenarioService: ScenarioService,
+    public xrayService: XrayService,
     public reportService: ReportService,
     public router: Router,
     public projectService: ProjectService,
     public loginService: LoginService,
     public blockService: BlockService,
     public managmentService: ManagementService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public groupService: GroupService,
   ) {
     if (this.apiService.urlReceived) {
       this.loadStepTypes();
@@ -469,8 +492,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     );
 
     this.deleteScenarioObservable =
-      this.scenarioService.deleteScenarioEvent.subscribe(() => {
-        this.deleteScenario(this.selectedScenario);
+      this.scenarioService.deleteScenarioEvent.subscribe((xrayEnabled: boolean) => {
+        this.deleteScenario(this.selectedScenario, xrayEnabled);
       });
 
     this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(
@@ -683,24 +706,35 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * Opens the delete scenario toast
    * @param scenario
    */
-  showDeleteScenarioToast() {
+  showDeleteScenarioToast($event: any) {
+
     this.apiService.nameOfComponent("scenario");
-    this.toastr.warning(
-      "Are your sure you want to delete this scenario?  It cannot be restored.",
-      "Delete Scenario?",
-      {
-        toastComponent: DeleteToast,
-      }
-    );
+    if ($event.testKey) {
+      this.toastr.warning(
+        "Are your sure you want to delete this scenario?  It cannot be restored.",
+        "Delete Scenario?",
+        {
+          toastComponent: XrayToast,
+        }
+      );
+    } else {
+      this.toastr.warning(
+        "Are your sure you want to delete this scenario?  It cannot be restored.",
+        "Delete Scenario?",
+        {
+          toastComponent: DeleteToast,
+        }
+      );
+    }
   }
 
   /**
    * Deletes scenario
    * @param scenario
    */
-  deleteScenario(scenario: Scenario) {
+  deleteScenario(scenario: Scenario, xrayEnabled) {
     this.scenarioService
-      .deleteScenario(this.selectedStory._id, scenario)
+      .deleteScenario(this.selectedStory._id, scenario, xrayEnabled)
       .subscribe((_) => {
         this.scenarioDeleted();
         this.toastr.error("", "Scenario deleted");
@@ -993,95 +1027,83 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Selects a story and scenario
-   * @param story
-   */
-  selectStoryScenario(story: Story) {
-    this.showResults = false;
-    this.selectedStory = story;
-    console.log("log aus story editor selectStoryScen", story);
-    if (story.scenarios.length > 0) {
-      this.selectScenario(story.scenarios[0]);
-      this.showEditor = true;
-    } else this.showEditor = false;
-  }
-
-  /**
    * Make the API Request to run the tests and display the results as a chart
    * @param scenario_id
+   * @param selectedExecutions - optional parameter to update xray status
    */
-  runTests(scenario_id) {
+  async runTests(scenario_id, selectedExecutions?: number[]) {
     if (this.storySaved()) {
+      // if story is saved
       this.reportIsSaved = false;
       this.testRunning = true;
       this.report.emit(false);
-      const iframe: HTMLIFrameElement = document.getElementById(
-        "testFrame"
-      ) as HTMLIFrameElement;
       const loadingScreen: HTMLElement = document.getElementById("loading");
 
-      let browserSelect = null;
-      let emulatorSelect = null;
-
-      if (!this.globalSettingsActivated) {
-        browserSelect = document.getElementById(
-          "browserSelect"
-        ) as HTMLSelectElement;
-        emulatorSelect = document.getElementById(
-          "emulatorSelect"
-        ) as HTMLSelectElement;
-      }
-
-      // const browser = browserSelect ? browserSelect.value : undefined;
-      const emulator = emulatorSelect ? emulatorSelect.value : undefined;
-      // are these values already saved in the Scenario / Story?
-      // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
-      // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
       loadingScreen.scrollIntoView();
-      this.storyService
-        .runTests(this.selectedStory._id, scenario_id, {
-          browser: browserSelect,
-          emulator: emulator,
-          width: this.selectedScenario.width || undefined,
-          height: this.selectedScenario.height || undefined,
-          repository: localStorage.getItem("repository"),
-          repositoryId: localStorage.getItem("id"),
-          source: localStorage.getItem("source"),
-          oneDriver: this.selectedStory.oneDriver,
-        })
-        .subscribe((resp: any) => {
-          this.reportId = resp.reportId;
-          iframe.srcdoc = resp.htmlFile;
-          this.htmlReport = resp.htmlFile;
-          const report = resp.report;
-          this.testDone = true;
-          this.showResults = true;
-          this.testRunning = false;
-          setTimeout(function () {
-            iframe.scrollIntoView();
-          }, 10);
-          this.toastr.info("", "Test is done");
-          this.runUnsaved = false;
-          if (scenario_id) {
-            // ScenarioReport
-            const val = report.status;
-            this.scenarioService.scenarioStatusChangeEmit(
-              this.selectedStory._id,
-              scenario_id,
-              val
-            ); //filteredStories in stories-bar.component is undefined causing an error same file 270
-          } else {
-            // StoryReport
-            report.scenarioStatuses.forEach((scenario) => {
+
+      const params = this.testRunParams();
+
+      // CASE: run single scenario
+      if (scenario_id) {
+        // Run single scenario
+        this.storyService.runTests(this.selectedStory._id, scenario_id, params).subscribe((resp: any) => {
+          this.testRunResponse(resp);
+          console.log("Test Report:", this.testReport);
+          // Get test status
+          const val = this.testReport.status;
+          const testStatus = val ? "PASS" : "FAIL";
+
+          // If user selected xray executions, update xray status
+          if (selectedExecutions) {
+            this.xrayService.updateXrayStatus(this.selectedScenario, selectedExecutions, testStatus);
+          }
+        });
+
+      } else {
+        // CASE: Pre-Conditions exist, we run story as a group
+        if (this.preConditionResults && this.preConditionResults.length > 0) {
+          // run as temp group if there are preconditions
+          try {
+            const temp_group = await this.createTempGroup();
+            const params = { id: localStorage.getItem('id'), repository: localStorage.getItem('repository'), source: localStorage.getItem('source'), group: temp_group }
+            this.groupService.runTempGroup(params).subscribe((resp: any) => {
+              this.testRunResponse(resp);
+              if (selectedExecutions) {
+                const testStatus = this.testReport.status ? "PASS" : "FAIL";
+                const testedStory = this.testReport.storiesTested[this.testReport.storiesTested.length - 1];
+                testedStory.scenarios.forEach((scenario) => {
+                  this.xrayService.updateXrayStatus(scenario, selectedExecutions, testStatus);
+                });
+              }
+            });
+          } catch (error) {
+            console.error("Error while creating temp group", error);
+          }
+
+        } else {
+          // CASE: No Pre-Conditions exist, we run story normally
+          this.storyService.runTests(this.selectedStory._id, null, params).subscribe((resp: any) => {
+            this.testRunResponse(resp);
+            const testStatus = this.testReport.status ? "PASS" : "FAIL";
+            this.testReport.scenarioStatuses.forEach((scenario) => {
               this.scenarioService.scenarioStatusChangeEmit(
                 this.selectedStory._id,
                 scenario.scenarioId,
                 scenario.status
               );
+
+              // if user selected xray executions, update xray status
+              const currentScenarioId = scenario.scenarioId
+              const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
+              if (selectedExecutions) {
+                this.xrayService.updateXrayStatus(currentScenario, selectedExecutions, testStatus);
+              }
             });
-          }
-        });
+          });
+        }
+      }
     } else {
+      // if story is not saved, inform user
       this.currentTestScenarioId = scenario_id;
       this.currentTestStoryId = this.selectedStory.story_id;
       this.apiService.nameOfComponent("runSaveToast");
@@ -1095,6 +1117,160 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       );
     }
   }
+
+
+  /*
+  * Creates temporary group for preconditions storys + current selected story
+  */
+  async createTempGroup() {
+    let member_stories = [];
+    const seenStories = new Set();
+
+    // add current story to seen stories
+    seenStories.add(this.selectedStory.issue_number);
+
+    // collect all pre-stories
+    member_stories = await this.collectPreStories(this.selectedStory, seenStories, []);
+
+    member_stories.push(this.selectedStory);
+
+    for (let story of member_stories) {
+      console.log("Temp group story:", story.issue_number);
+    }
+
+    const temp_group = {
+      _id: -1,
+      name: this.selectedStory.title,
+      member_stories: member_stories,
+      isSequential: true
+    };
+
+    return temp_group;
+  }
+
+  /*
+  * Collects all pre-stories for a given story recursively
+  */
+  async collectPreStories(story, seenStories, member_stories) {
+    console.log("Collecting pre-conditions for story:", story.issue_number);
+    // do pre-conditions exist?
+    if (story.preConditions && story.preConditions.length > 0) {
+      for (let precondition of story.preConditions) {
+        // do tests within pre-conditions exist?
+        if (precondition.testSet && precondition.testSet.length > 0) {
+
+          // run for each inner story of pre-condition
+          for (let innerStoryKey of precondition.testSet) {
+
+            let newSeenStories = new Set(seenStories);
+
+            if (!newSeenStories.has(innerStoryKey)) {
+
+              newSeenStories.add(innerStoryKey);
+
+              try {
+                // fetch whole story object
+                const innerStory = await firstValueFrom(this.storyService.getStoryByIssueKey(innerStoryKey));
+                member_stories.unshift(innerStory);
+
+                // run recursively for inner story if pre-conditions exist
+                if (innerStory.preConditions && innerStory.preConditions.length > 0) {
+                  await this.collectPreStories(innerStory, newSeenStories, member_stories);
+                }
+              } catch (error) {
+                console.error('Error fetching story details:', error);
+              }
+            }
+          }
+        }
+      }
+    }
+    return member_stories;
+  }
+
+  /*
+  * Prepare parameters for test run
+  */
+  testRunParams() {
+    let browserSelectValue = null;
+    let emulatorSelectValue = null;
+
+    if (!this.globalSettingsActivated) {
+      const browserSelect = document.getElementById("browserSelect") as HTMLSelectElement;
+      const emulatorSelect = document.getElementById("emulatorSelect") as HTMLSelectElement;
+      browserSelectValue = browserSelect ? browserSelect.value : null;
+      emulatorSelectValue = emulatorSelect ? emulatorSelect.value : null;
+    }
+
+    return {
+      browser: browserSelectValue,
+      emulator: emulatorSelectValue,
+      width: this.selectedScenario.width || undefined,
+      height: this.selectedScenario.height || undefined,
+      repository: localStorage.getItem("repository"),
+      repositoryId: localStorage.getItem("id"),
+      source: localStorage.getItem("source"),
+      oneDriver: this.selectedStory.oneDriver,
+    };
+  }
+
+
+  /*
+  * Response from test run
+  */
+  testRunResponse(resp) {
+    const iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
+    iframe.srcdoc = resp.htmlFile;
+    this.reportId = resp.reportId;
+    this.htmlReport = resp.htmlFile;
+    this.testReport = resp.report;
+    this.testDone = true;
+    this.showResults = true;
+    this.testRunning = false;
+    setTimeout(() => iframe.scrollIntoView(), 10);
+    this.toastr.info("", "Test is done");
+    this.runUnsaved = false;
+  }
+
+  /**
+ * Evaluates whether to open xray execution list modal in run scenario.
+ * @param scenario_id 
+ */
+  evaluateAndRunScenario(scenario_id) {
+    if (this.selectedScenario && this.selectedScenario.testKey && this.selectedScenario.testRunSteps.length > 0) {
+      // Open the modal if there are test execution steps
+      this.executionListModal.openExecutionListModal(this.selectedScenario);
+    } else {
+      // Run tests directly if there are no test execution steps
+      this.runTests(scenario_id);
+    }
+  }
+
+  /**
+  * Evaluates whether to open xray execution list modal in run story.
+  */
+  evaluateAndRunStory() {
+    // Check if there is at least one scenario in the story with xray key and execution
+    const executableTests = this.selectedStory.scenarios.some(scenario =>
+      scenario.testKey && scenario.testRunSteps && scenario.testRunSteps.length > 0);
+    if (executableTests) {
+      this.executionListModal.openExecutionListModal(this.selectedStory);
+    } else {
+      this.runTests(null);
+    }
+  }
+
+  /**
+   * Run this function if we close execution list modal
+   */
+  executeTests(event: { scenarioId: number | null, selectedExecutions: number[] }) {
+    if (event.scenarioId != null) {
+      this.runTests(event.scenarioId, event.selectedExecutions);
+    } else {
+      this.runTests(null, event.selectedExecutions);
+    }
+  }
+
 
   /**
    * Download the test report
@@ -1153,8 +1329,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
 
   findSelectedRepository(id) {
-    console.log(this.repositories);
-    console.log(this.repoId);
     return this.repositories.find((repo) => repo._id === id);
   }
 
@@ -1163,8 +1337,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param project
    */
   workGroupEdit(project: RepositoryContainer) {
-    console.log(this.workgroupEditModal);
-    console.log(project, this.email, this.id);
     this.workgroupEditModal.openWorkgroupEditModal(
       project,
       this.email,
@@ -1431,5 +1603,60 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   setShowDaisy(event) {
     this.showDaisy = event;
+  }
+
+  toTicket(issue_number: string) {
+    const host = this.selectedStory.host
+    const url = `https://${host}/browse/${issue_number}`;
+    window.open(url, "_blank");
+  }
+
+  /**
+     * Selects a new Story and with it a new scenario
+     * @param story
+     */
+  selectStoryScenario(story: Story) {
+    this.selectedStory = story;
+    this.initialyAddIsExample();
+    this.preConditionResults = [];
+    this.storyChosen.emit(story);
+    if (story.scenarios.length > 0 && story.scenarios[0] != null && story.scenarios[0] != undefined) {
+      this.selectScenario(story.scenarios[0]);
+    } else this.selectScenario(null);
+    this.backgroundService.backgroundReplaced = undefined;
+  }
+
+  openCreateScenario() {
+    this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
+  }
+
+  initialyAddIsExample() {
+    this.selectedStory.scenarios.forEach(scenario => {
+      scenario.stepDefinitions.given.forEach((value, index) => {
+        if (!scenario.stepDefinitions.given[index].isExample) {
+          scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
+          value.values.forEach((val, i) => {
+            scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+          })
+        }
+      })
+      scenario.stepDefinitions.when.forEach((value, index) => {
+        if (!scenario.stepDefinitions.when[index].isExample) {
+          scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
+          value.values.forEach((val, i) => {
+            scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+          })
+        }
+      })
+      scenario.stepDefinitions.then.forEach((value, index) => {
+        if (!scenario.stepDefinitions.then[index].isExample) {
+          scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
+          value.values.forEach((val, i) => {
+            scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+          })
+        }
+      })
+
+    })
   }
 }

@@ -17,8 +17,6 @@ $cucumber-frontend-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
 $cucumber-frontend-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
 $cucumber-frontend-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
-//$cucumber-background-color: map_get($mat-brown, 100);
-
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
 $cucumber-frontend-theme: mat.m2-define-light-theme((
@@ -37,9 +35,7 @@ $cucumber-frontend-theme: mat.m2-define-light-theme((
 // Define a dark theme
 $dark-primary: mat.m2-define-palette(mat.$m2-blue-grey-palette, 500, 100, 900);
 $dark-accent: mat.m2-define-palette(mat.$m2-blue-palette, A200, A100, A400);
-
 $dark-warn: mat.m2-define-palette(mat.$m2-red-palette);
-
 $dark-theme: mat.m2-define-dark-theme(
   (
     color: (
@@ -53,7 +49,6 @@ $dark-theme: mat.m2-define-dark-theme(
 @import "../node_modules/uikit/src/scss/variables-theme.scss";
 @import "../node_modules/uikit/src/scss/mixins-theme.scss";
 @import "../node_modules/uikit/src/scss/uikit-theme.scss";
-@import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto&display=swap');
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
@@ -180,48 +175,49 @@ body {
   color: var(--black);
 }
 
-  .Mediumnavigation1 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    text-align: center;
-    color: var(--brown-grey);
-  }
-  .SmallHeadline5 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  
-  .Smallnavigation1 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--brown-grey);
-  }
-  .LargeBody2 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.38;
-    letter-spacing: normal;
-    color: var(--black);
-  }
+.Mediumnavigation1 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--brown-grey);
+}
+.SmallHeadline5 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.Smallnavigation1 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--brown-grey);
+}
+.LargeBody2 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.38;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
 .LargeCategory1 {
   font-family: Klavika, sans-serif;
   font-size: 32px;
@@ -266,26 +262,27 @@ body {
   color: var(--black);
 }
 
-  .SmallBody1compact {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .SmallBody1regularLH {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.5;
-    letter-spacing: normal;
-    color: var(--black);
-  }
+.SmallBody1compact {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
+.SmallBody1regularLH {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
 .MediumSublineH1 {
   font-family: Klavika, sans-serif;
   font-size: 26px;
@@ -590,79 +587,12 @@ body {
   color: var(--light-blue);
 }
 
-.Mediumnavigation1 {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  text-align: center;
-  color: var(--brown-grey);
-}
-
-.SmallHeadline5 {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  color: var(--black);
-}
-
 .darkTheme .SmallHeadline5 {
   color: white;
 }
 
-.Smallnavigation1 {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  color: var(--brown-grey);
-}
-
-.LargeBody2 {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.38;
-  letter-spacing: normal;
-  color: var(--black);
-}
-
 .darkTheme .LargeBody2 {
   color: var(--white);
-}
-
-.SmallBody1compact {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.25;
-  letter-spacing: normal;
-  color: var(--black);
-}
-
-.SmallBody1regularLH {
-  font-family: Klavika, sans-serif;
-  font-size: 16px;
-  font-weight: normal;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.5;
-  letter-spacing: normal;
-  color: var(--black);
 }
 
 .darkTheme .SmallBody1regularLH {
@@ -682,17 +612,22 @@ body {
 
 .SmallButton {
   font-family: Klavika, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  font-stretch: normal;
-  font-style: normal;
-  line-height: 1.29;
-  letter-spacing: normal;
-  text-align: center;
-  //color: var(--black);
+  font-size: 16px;
+  line-height: 16px;
+  border: none;
+  margin-left: 24px;
+  padding: 5px 5px;
   color: var(--white);
   background: var(--ocean-blue);
   cursor: pointer;
+  align-items: flex-start;
+}
+
+.SmallButton > em {
+  color: var(--white);
+  font-size: 16px;
+  width: 16px;
+  vertical-align: text-top;
 }
 
 .darkTheme .SmallButton {
@@ -1232,9 +1167,5 @@ mat-expansion-panel.stepBlockContainer .mat-expansion-panel-body{
 }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-}
+// duplication?: 
+// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -135,4 +135,13 @@ export class GroupService {
     return this.http
       .post(this.apiService.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
   }
+
+  /*
+  * Running a temporary group with precondition storys
+  */
+  runTempGroup(params): Observable<any> { 
+    const timeout = 6000000;
+    return this.http
+      .post(this.apiService.apiServer + '/run/TempGroup', params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+  }
 }

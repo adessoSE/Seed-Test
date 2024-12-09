@@ -1,3 +1,4 @@
+/* eslint-disable curly */
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
@@ -6,13 +7,15 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
 const fs = require('fs');
+const crypto = require('crypto');
 const initializePassport = require('../passport-config');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
-const crypto = require('crypto');
+const stepDefs = require('../database/stepTypes');
+const xray = require('../../dist/helpers/xray');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -104,14 +107,14 @@ router.post('/login', (req, res, next) => {
 			req.logIn(user, async (err) => {
 				if (err) throw err;
 				else {
-					if(user.transitioned === false) {
+					if (user.transitioned === false) {
 						const hasher = crypto.createHash('sha256');
-						hasher.update(req.body.password)
-						const passHash = hasher.digest()
-						const finalHash = bcrypt.hashSync(passHash.toString('hex'), salt)
-						user.password = finalHash
-						user.transitioned = true
-						mongo.updateUser(user._id, user)
+						hasher.update(req.body.password);
+						const passHash = hasher.digest();
+						const finalHash = bcrypt.hashSync(passHash.toString('hex'), salt);
+						user.password = finalHash;
+						user.transitioned = true;
+						mongo.updateUser(user._id, user);
 					}
 					res.json(user);
 				}
@@ -332,8 +335,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 				const orderedStories = matchOrder(array, tmpStories, repo);
 				res.status(200).json(orderedStories);
 			})
-				.catch((e) => {
-					console.log(e);
+				.catch((error) => {
+					console.error(error);
 				});
 		}
 	} catch (err) {
@@ -342,9 +345,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		// get Jira Repo / Projects
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
-		const { projectKey } = req.query;
-		const jiraTracker = issueTracker.IssueTracker
-			.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+		const { projectKey, id } = req.query;
+		const jiraTracker = issueTracker.IssueTracker.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
 		const clearPass = jiraTracker.decryptPassword(req.user.jira);
 		const { AccountName, AuthMethod, Host } = req.user.jira;
 		let authString = `Bearer ${clearPass}`;
@@ -359,7 +361,6 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		// need https so request is not redirected
 		// when the request is redirected, the Authorization Header is removed
 		// https://developer.mozilla.org/en-US/docs/Web/API/fetch#headers
-		const url = `https://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`;
 		const options = {
 			method: 'GET',
 			headers: {
@@ -368,48 +369,122 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 			}
 		};
 		let repo;
-		let jiraIssues;
+		const testSets = [];
+		const preConditionMap = [];
 		try {
-			jiraIssues = await fetch(url, options)
-				.then((response) => response.json());
-		} catch (e) { console.error(' #### Error during Jira API call: \n', e); }
+			await fetch(
+				`https://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test+OR+issuetype="Test Set"+OR+issuetype="Pre-Condition")&startAt=0&maxResults=200`,
+				options
+			)
+				.then(async (response) => response.json())
+				.then(async (json) => {
+					try {
+						repo = await mongo.getOneJiraRepository(req.query.projectKey);
 
-		try {
-			repo = await mongo.getOneJiraRepository(req.query.projectKey);
-			for (const issue of jiraIssues.issues) if (issue.fields.labels.includes('Seed-Test')) {
-				const story = {
-					story_id: issue.id,
-					title: issue.fields.summary,
-					body: issue.fields.description,
-					state: issue.fields.status.name,
-					issue_number: issue.key,
-					storySource: 'jira'
-				};
-				if (issue.fields.assignee !== null) {
-					// skip in case of "unassigned"
-					story.assignee = issue.fields.assignee.name;
-					story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
-				} else {
-					story.assignee = 'unassigned';
-					story.assignee_avatar_url = null;
-				}
-				const entry = await projectMng.fuseStoryWithDb(story, issue.id);
-				tmpStories.set(entry._id.toString(), entry);
-				storiesArray.push(entry._id);
-			}
+						const asyncHandleTestIssue = json.issues.map(async (issue) => {
+							// If the issue is a "Test Set" issue
+							if (issue.fields.issuetype.name === 'Test Set') {
+								const testsInSet = issue.fields.customfield_14233 || [];
+								testSets.push({
+									testSetKey: issue.key,
+									testSetId: issue.id,
+									tests: testsInSet,
+									xrayTestSet: true
+								});
+								// Return null to indicate that this path does not continue further processing
+								return null;
+							}
+
+							// If the issue is a "Pre-Condition" issue
+							if (issue.fields.issuetype.name === 'Pre-Condition') {
+								const preCondition = {
+									preConditionKey: issue.key,
+									preConditionName: issue.fields.summary,
+									testSet: []
+								};
+								// Iterate through the issue links to find the test sets that are linked to the pre-condition
+								for (const link of issue.fields.issuelinks) {
+									if (link.inwardIssue && link.type.inward === 'tested by') {
+										preCondition.testSet.push(link.inwardIssue.key);
+									}
+								}
+								preConditionMap.push(preCondition);
+								// Similarly, return null for this path
+								return null;
+							}
+
+							// If the issue is a "Test" issue
+							if (issue.fields.issuetype.name === 'Test') {
+								return xray.handleTestIssue(issue, options, Host);
+							}
+
+							return { scenarioList: [], testStepDescription: '' };
+						});
+
+						const lstDesc = await Promise.all(asyncHandleTestIssue);
+
+						const stories = [];
+
+						for (const [index, issue] of json.issues.entries()) {
+							if (!lstDesc[index]) continue;
+
+							let preConditions = [];
+
+							// Check if the custom field for preconditions exists in issue.fields
+							if (issue.fields.customfield_14229) {
+								preConditions = issue.fields.customfield_14229;
+							}
+
+							// Compare the preconditions with preConditionMap to get the final preconditions
+							const finalPreConditions = preConditionMap.filter((preCondition) => preConditions.includes(preCondition.preConditionKey));
+
+							const { scenarioList, testStepDescription } = lstDesc[index];
+
+							const issueDescription = issue.fields.description ? issue.fields.description : '';
+
+							const story = {
+								story_id: issue.id,
+								title: issue.fields.summary,
+								body: issueDescription + testStepDescription,
+								scenarios: scenarioList,
+								state: issue.fields.status.name,
+								issue_number: issue.key,
+								storySource: 'jira',
+								host: Host,
+								preConditions: finalPreConditions
+							};
+
+							if (issue.fields.assignee !== null) {
+								story.assignee = issue.fields.assignee.name;
+								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
+							} else {
+								story.assignee = 'unassigned';
+								story.assignee_avatar_url = null;
+							}
+							stories.push(story);
+						}
+						const fusing = stories.map((story) => projectMng.fuseStoryWithDb(story, story.story_id));
+						await Promise.all(fusing).then((entries) => entries.forEach((entry) => {
+							tmpStories.set(entry._id.toString(), entry);
+							storiesArray.push(entry._id);
+						}));
+					} catch (e) {
+						console.error('Error while getting Jira issues:', e);
+					}
+					projectMng.updateTestSets(testSets, id);
+					Promise.all(storiesArray)
+						.then((array) => {
+							const orderedStories = matchOrder(array, tmpStories, repo);
+							res.status(200)
+								.json(orderedStories);
+						})
+						.catch((e) => {
+							console.error(e);
+						});
+				});
 		} catch (e) {
 			console.error(' #### Error while parsing Jira issues:\n', e);
 		}
-		Promise.all(storiesArray)
-			.then((array) => {
-				const orderedStories = matchOrder(array, tmpStories, repo);
-				res.status(200)
-					.json(orderedStories);
-			})
-			.catch((e) => {
-				console.error(e);
-			});
-
 		// get DB Repo / Projects
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
 		const result = await mongo.getAllStoriesOfRepo(req.query.id);

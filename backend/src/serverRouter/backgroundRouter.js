@@ -15,7 +15,7 @@ router
 		extended: true
 	}))
 	.use((_, __, next) => {
-		console.log('Time of github request:', Date.now());
+		console.log('Time of background router request:', Date.now());
 		next();
 	})
 	.use((req, res, next) => {

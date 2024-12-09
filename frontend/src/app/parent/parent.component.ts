@@ -181,6 +181,14 @@ export class ParentComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Sets the currently selected scenario
+   * @param scenario
+   */
+  deselectScenario() {
+    this.selectedScenario = undefined;
+  }
+
+  /**
    * Change the editor to report history or story editor
    * @param event event
    */

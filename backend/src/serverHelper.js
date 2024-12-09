@@ -54,12 +54,12 @@ function getSteps(steps, stepType) {
 		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-			data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] !== undefined ? `'${step.values[1]}'` : ''}`;
-			if (step.post !== undefined) data += ` ${step.post}${step.values[2] !== undefined ? `'${step.values[2]}'` : ''}`;
+			data += `${step.pre} '${step.values[0]}' ${step.mid ? step.mid : ''}${step.values[1] ? `'${step.values[1]}'` : ''}`;
+			if (step.post) data += ` ${step.post}${step.values[2] ? `'${step.values[2]}'` : ''}`;
 		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
 		else {
 			data += `${step.pre} ${step.mid}${getValues(step.values)}`;
-			if (step.post !== undefined) data += ` ${step.post}`;
+			if (step.post) data += ` ${step.post}`;
 		}
 		data += '\n';
 	}
@@ -77,7 +77,7 @@ function getExamples(steps) {
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
 	}
 	// if no lines other than value line, return empty
-	if (data.split('\n').length > 2) data = 'Examples:' + data;
+	if (data.split('\n').length > 2) data = `Examples:${data}`;
 	else return ''; // explicit return as first line (title/name/key) is always written
 	return `${data}\n`;
 }
@@ -105,7 +105,7 @@ function getScenarioContent(scenarios, storyID) {
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
 	let body = '';
-	if (Boolean(story.body)) {
+	if (story.body) {
 		body = story.body.replaceAll('#', '').replaceAll('(/)', '');
 	}
 	let data = `Feature: ${story.title}\n\n${body}\n\n`;
@@ -197,7 +197,7 @@ function getSettings(scenario, globalSettings) {
 }
 
 async function executeTest(req, mode, story) {
-	const repoId = req.body.repositoryId;
+	const repoId = req.body.repositoryId || req.body.repoId;
 
 	let globalSettings;
 
@@ -320,7 +320,6 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 				});
 			}
 		}
-		console.log('my Params ', parameters)
 	});
 	return { scenarios, parameters };
 }
@@ -417,7 +416,7 @@ async function replaceRefBlocks(scenarios) {
 				if (!elem._blockReferenceId) return [elem];
 				return mongo.getBlock(elem._blockReferenceId).then((block) => {
 					// Get an array of the values of the given, when, then properties
-					const steps = [...block.stepDefinitions.given, ...block.stepDefinitions.when, ...block.stepDefinitions.then]
+					const steps = [...block.stepDefinitions.given, ...block.stepDefinitions.when, ...block.stepDefinitions.then];
 					// Flatten array
 					return steps.flat(1);
 				});

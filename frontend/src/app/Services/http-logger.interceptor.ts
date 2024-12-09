@@ -20,7 +20,7 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
       reqMethod: req.method,
       reqURL: req.urlWithParams,
     };
-    this.logger.log("sended request", detail, req.headers);
+    this.logger.log("sent request", detail, req.headers);
 
     return next.handle(req).pipe(
       tap((event) => {

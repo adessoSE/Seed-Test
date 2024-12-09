@@ -19,4 +19,8 @@ export interface Group {
      */
     isSequential: boolean;
 
+    /**
+     *  xray test set
+     */
+    xrayTestSet?: boolean;
 }

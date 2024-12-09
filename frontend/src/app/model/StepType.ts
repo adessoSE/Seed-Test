@@ -77,4 +77,8 @@ export interface StepType {
      */
     blockStepExpanded?: boolean;
 
+    /**
+     * origin of the step 
+     * */
+    origin?: string;
 }
