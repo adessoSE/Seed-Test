@@ -37,11 +37,6 @@ export interface Scenario {
     saved?: boolean;
 
     /**
-     * If the daisy Auto Logout is active
-     */
-    daisyAutoLogout?: boolean;
-
-    /**
      * Wait time between the steps
      */
     stepWaitTime?: number;

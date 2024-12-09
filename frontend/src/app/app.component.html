@@ -68,23 +68,18 @@
           [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark}" title="Switch to dark/light mode"></mat-slide-toggle>
         <mat-icon>bedtime</mat-icon>
       </div>
-      <div>
-        <div class="dropdown">
-          <button class="rightButton">Help</button>
-          <div #helpMenu [class.closedMenu]="closed">
-            <div class="dropdown-list">
-              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
-                target="_blank">Tutorial (german)</a>
-              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
-                target="_blank">Tutorial (english)</a>
-              <a rel="noopener noreferrer" href="../assets/documentation/index.html"
-                target="_blank">Dokumentation (german)</a>
-            </div>
+      <div class="dropdown">
+        <button class="rightButton">Help</button>
+        <div #helpMenu [class.closedMenu]="closed">
+          <div class="dropdown-list">
+            <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
+              target="_blank">Tutorial (german)</a>
+            <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
+              target="_blank">Tutorial (english)</a>
+            <a rel="noopener noreferrer" href="../assets/documentation/index.html"
+              target="_blank">Dokumentation (german)</a>
           </div>
         </div>
-        <a routerLink="/feedback">
-          <button class="rightButton">Feedback</button>
-        </a>
       </div>
     </div>
   </div>

@@ -522,7 +522,7 @@ input.background {
     align-items: center;
     padding: 10px 10px;
     border-radius: 5px;
-    cursor: pointer;
+    /* cursor: pointer; */
     font-size: 14px;
     font-weight: bold;
     font-style: italic;

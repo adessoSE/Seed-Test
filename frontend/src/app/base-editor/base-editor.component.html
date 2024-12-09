@@ -113,7 +113,7 @@
         </ng-container>
         <ng-template #steps let-sd let-i="index" let-stepDefs="stepDefs" , let-name="templateName">
           <div class="stepsListContainer SmallHeadline5">
-            <div *ngIf="sd === 'given'">{{i+1}}. Given (Precondition)</div>
+            <div *ngIf="sd === 'given'">{{i+1}}. Given (Pre-Condition)</div>
             <div *ngIf="sd === 'when'">{{i+1}}. When (Action)</div>
             <div *ngIf="sd === 'then'">{{i+1}}. Then (Result)</div>
           </div>
