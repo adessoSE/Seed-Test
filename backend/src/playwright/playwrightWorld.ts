@@ -18,10 +18,15 @@ interface TestParameters {
     oneDriver: boolean;
 }
 
+interface StoryParameters {
+    scenarios: TestParameters[];
+}
+
 class PlaywrightWorld {
     private browser: Browser | null = null;
     private context: BrowserContext | null = null;
     private page: Page | null = null;
+    private parameterCollection: StoryParameters;
     private parameters: TestParameters;
     private testStatus: 'PASSED' | 'FAILED' = 'PASSED';
     private scenarioCount: number = 0;
@@ -42,9 +47,11 @@ class PlaywrightWorld {
         oneDriver: false
     };
 
-    constructor(settings?: Partial<TestParameters>) {
-        this.parameters = { ...this.defaultSettings, ...settings };
-        this.totalScenarios = this.parameters.scenarios.length;
+    constructor({ parameterCollection }: { parameterCollection: StoryParameters }) {
+        // Select with first scenario (incremented by incrementScenario())
+        this.parameters = parameterCollection.scenarios[0];
+        this.parameterCollection = parameterCollection;
+        this.totalScenarios = parameterCollection.scenarios.length;
         // Verzeichnisse basierend auf Betriebssystem festlegen
         switch (os.platform()) {
             case 'win32':
@@ -82,7 +89,7 @@ class PlaywrightWorld {
             '--excludeSwitches=enable-logging'
         ];
 
-        if (!isWindows) {
+        if (!isWindows || this.parameters.headless) {
             commonArgs.push('--headless', '--no-sandbox');
         }
 
@@ -162,8 +169,20 @@ class PlaywrightWorld {
         return this.testStatus;
     }
 
-    incrementScenarioCount() {
+    incrementScenario() {
         this.scenarioCount++;
+        if (this.scenarioCount < this.totalScenarios) {
+            // Update parameters for next scenario
+            this.parameters = this.parameterCollection.scenarios[this.scenarioCount];
+        }
+    }
+
+    isLastScenario(): boolean {
+        return this.scenarioCount === this.totalScenarios - 1;
+    }
+
+    getCurrentScenarioConfig() {
+        return this.parameterCollection.scenarios[this.scenarioCount];
     }
 }
 
