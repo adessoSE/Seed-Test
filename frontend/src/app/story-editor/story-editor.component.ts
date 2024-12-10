@@ -232,11 +232,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   saveBackgroundAndRun = false;
 
   /**
-   * if the daisy version is currently used
-   */
-  daisyVersion = false;
-
-  /**
    * if the report is saved
    */
   reportIsSaved = false;
@@ -300,8 +295,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   id: string;
 
   lastToFocus;
-
-  showDaisy = false;
 
   /**
    * Mapping for Precondition Stories
@@ -388,11 +381,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.storiesError = false;
     }
     const version = localStorage.getItem("version");
-    if (version === "DAISY" || !version) {
-      this.daisyVersion = true;
-    } else {
-      this.daisyVersion = false;
-    }
 
     this.gecko_enabled = localStorage.getItem("gecko_enabled");
     this.chromium_enabled = localStorage.getItem("chromium_enabled");
@@ -1599,10 +1587,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       blockToRename,
       storiesWithBlock
     );
-  }
-
-  setShowDaisy(event) {
-    this.showDaisy = event;
   }
 
   toTicket(issue_number: string) {

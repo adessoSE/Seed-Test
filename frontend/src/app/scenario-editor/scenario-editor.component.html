@@ -3,7 +3,7 @@
   <div class="title">
     <div class="scenarioHeaderContainer">
       <div style="margin: auto 0">
-        <span id="scenarioHeader" class="Smallnavigation2">Scenario</span>
+        <span id="scenarioHeader" class="Smallnavigation2">Scenario&nbsp;</span>
           <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
             <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
               It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
@@ -63,10 +63,6 @@
     <textarea *ngIf="this.selectedScenario" id="commentBox" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" (change)="commentChange(comment.value)">
     </textarea>
   </div>
-  <form class="daisyAutoLogout" *ngIf="this.showDaisyAutoLogout">
-    <label>Auto Logout (Daisy)</label>
-    <input type="checkbox" id="daisyAutoLogout" (change)="this.setDaisyAutoLogout($event.target.checked)" [defaultChecked]="this.selectedScenario.daisyAutoLogout">
-  </form>
 </div>
 
 <app-rename-scenario #renameScenarioModal></app-rename-scenario>

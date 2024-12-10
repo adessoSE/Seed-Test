@@ -15,7 +15,7 @@ const story:Story = {_id: 1, issue_number: 36523, story_id: 37727, storySource: 
       state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false};
 
 const scenario: Scenario = {scenario_id: 3, name: 'my scenario', stepDefinitions: undefined, 
-      comment: 'i leave a few words here', lastTestPassed: false, saved: true, daisyAutoLogout: true,
+      comment: 'i leave a few words here', lastTestPassed: false, saved: true,
       stepWaitTime: 40, browser: 'chrome'};
 
 

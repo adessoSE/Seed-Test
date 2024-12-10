@@ -51,7 +51,7 @@
 			</div>
 			<div class="scenarioButtonGroup SmallHeadline5">
         <button *ngIf="name === 'scenario' && this.selectedScenario.testKey" class="xray-button">
-          <span>Sync with</span>
+          <span>Synced with</span>
           <img src="../../assets/xray-logo.png" alt="XRay Logo">
         </button>
 				<button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock === null"
@@ -113,7 +113,7 @@
         </ng-container>
         <ng-template #steps let-sd let-i="index" let-stepDefs="stepDefs" , let-name="templateName">
           <div class="stepsListContainer SmallHeadline5">
-            <div *ngIf="sd === 'given'">{{i+1}}. Given (Precondition)</div>
+            <div *ngIf="sd === 'given'">{{i+1}}. Given (Pre-Condition)</div>
             <div *ngIf="sd === 'when'">{{i+1}}. When (Action)</div>
             <div *ngIf="sd === 'then'">{{i+1}}. Then (Result)</div>
           </div>
@@ -279,8 +279,19 @@
                         </ng-container>
                       </div>
                     </div>
-                    <div *ngIf="this.selectedScenario.testKey" class="origin-container">
+                    <!-- congrunt / Irigoin Button -->
+                    <div *ngIf="this.selectedScenario.testKey">
+                      <div *ngIf="currentStep.origin === 'congruent'" class="origin-container" style="border: 3px solid #2ab34b; ">
+                        <img src="../../assets/xray-icon.png" alt="XRay origin" style="max-width: 18px; margin-top: -2px;">
+                        Xray
+                      </div>
+                      <div *ngIf="currentStep.origin === 'created-by-user'" class="origin-container">
+                        <img src="../../assets/icon-quad.png" alt="XRay origin" style="max-width: 18px; margin-top: -2px;">
+                        Seed
+                        </div>
+                      <div *ngIf="currentStep.origin !== 'congruent' && currentStep.origin !== 'created-by-user'" class="origin-container">
                       {{ currentStep.origin || 'Unknown Origin' }}
+                      </div>
                     </div>
                     <div *ngIf="currentStep.selectionValue==2">
                       <mat-form-field appearance="standard">
@@ -313,7 +324,7 @@
                           {{ currentStep.values[index].indexOf('<') !== -1 && currentStep.values[index].indexOf('>') !== -1 ? '<  ' + currentStep.values[index].replace('<', '').replace('>', '') + '  >' : currentStep.values[index]}}
                         </div>                  
                       </div>
-                      <button *ngIf="name!=='block-editor'"
+                      <button *ngIf="name!=='block-editor' && this.selectedScenario.multipleScenarios[0] !== undefined"
                         class="scenarioTitle" (click)="addIsExample('example', j, index, currentStep.stepType)"
                         uk-tooltip="title: Use Multiple Scenarios; pos: right">
                         &nbsp;<p class="exampleButton">1+</p>&nbsp;

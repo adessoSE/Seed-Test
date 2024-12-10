@@ -229,7 +229,7 @@ h2, h1{
     margin-left: 5px;;
 }
 
-.customRepoContainer{
+.projectListItem{
     display: flex;
     justify-content: flex-start;
 }

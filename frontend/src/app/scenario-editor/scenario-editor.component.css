@@ -130,12 +130,3 @@ table {
   width: 100%;
   height: 50px;
 }
-
-:host ::ng-deep .daisyAutoLogout{
-  column-width: 100px;
-  float:right;
-}
-
-:host ::ng-deep #daisyAutoLogout{
-  margin-left: 5px;
-}

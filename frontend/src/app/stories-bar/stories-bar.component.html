@@ -69,8 +69,8 @@
                 <button uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
                   <mat-icon class="toTicket">launch</mat-icon>
                 </button>
-                <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
-                <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
+                <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+                <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
               </span>
               <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
               <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
@@ -134,10 +134,10 @@
               </span>
             </div>
             <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
-                <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
+                <li *ngFor="let story of g.member_stories" (click)="selectStoryOfGroup(story._id)">
                 <a class="Largecaption scenarioListItem" cdkDrag>
                     <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                    {{stor.title | titlecase}}
+                    {{story.issue_number}} {{story.title | titlecase}}
                   </a>
                 </li>
               </ul>

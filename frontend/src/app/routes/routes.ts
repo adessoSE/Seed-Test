@@ -2,7 +2,6 @@ import { LoginComponent } from '../login/login.component';
 import {AccountManagementComponent} from '../account-management/account-management.component';
 import { ParentComponent } from '../parent/parent.component';
 import { AuthGuard } from '../guards/auth.guard';
-import { FeedbackComponent } from '../feedback/feedback.component';
 import { TermsComponent } from '../terms/terms.component';
 import { RegistrationComponent } from '../registration/registration.component';
 import { ReportComponent } from '../report/report.component';
@@ -44,14 +43,6 @@ export const ROUTES = [
     {
         path: 'report/:reportName',
         component: ReportComponent
-    },
-
-    /**
-     * Feedback
-     */
-    {
-        path: 'feedback',
-        component: FeedbackComponent
     },
 
     /**
