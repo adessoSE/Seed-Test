@@ -1,4 +1,4 @@
-import { Before, After, setWorldConstructor, setDefaultTimeout } from '@cucumber/cucumber';
+import { IWorldOptions, World, setDefaultTimeout } from '@cucumber/cucumber';
 import { Browser, BrowserContext, Page, chromium, firefox, webkit } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -22,15 +22,14 @@ interface StoryParameters {
     scenarios: TestParameters[];
 }
 
-class PlaywrightWorld {
+class PlaywrightWorld extends World {
     private browser: Browser | null = null;
     private context: BrowserContext | null = null;
     private page: Page | null = null;
+    private readonly defaultTimeout = 30000;
     private parameterCollection: StoryParameters;
-    private parameters: TestParameters;
-    private testStatus: 'PASSED' | 'FAILED' = 'PASSED';
-    private scenarioCount: number = 0;
-    private totalScenarios: number;
+    private testParameters: TestParameters;
+    private scenarioCount: number;
     private readonly downloadDir: string;
     private readonly tmpUploadDir: string;
     //private readonly videoDir: string;
@@ -46,12 +45,17 @@ class PlaywrightWorld {
         daisyAutoLogout: false,
         oneDriver: false
     };
-
-    constructor({ parameterCollection }: { parameterCollection: StoryParameters }) {
+    
+    constructor(options: IWorldOptions) {
+        super(options);
         // Select with first scenario (incremented by incrementScenario())
-        this.parameters = parameterCollection.scenarios[0];
-        this.parameterCollection = parameterCollection;
-        this.totalScenarios = parameterCollection.scenarios.length;
+        this.parameterCollection = options.parameters as StoryParameters;
+        this.testParameters = {
+            ...this.defaultSettings,
+            ...this.parameterCollection.scenarios[this.scenarioCount]
+        } as TestParameters;
+        // Set default Cucumber timeout
+        setDefaultTimeout(this.defaultTimeout); 
         // Verzeichnisse basierend auf Betriebssystem festlegen
         switch (os.platform()) {
             case 'win32':
@@ -89,7 +93,7 @@ class PlaywrightWorld {
             '--excludeSwitches=enable-logging'
         ];
 
-        if (!isWindows || this.parameters.headless) {
+        if (!isWindows || this.testParameters.headless) {
             commonArgs.push('--headless', '--no-sandbox');
         }
 
@@ -105,6 +109,8 @@ class PlaywrightWorld {
             // Wenn oneDriver aktiv ist und bereits ein Browser existiert
             if (parameters.oneDriver && this.browser) {
                 //Keinen neuen Context oder Page setzen
+                console.log('Reusing existing browser session (oneDriver active)');
+                return;
             } else {
                 const browserType = this.getBrowserType();
                 const browserConfig = this.getBrowserConfig(parameters.browser);
@@ -114,34 +120,56 @@ class PlaywrightWorld {
                     const devices = require('playwright').devices;
                     const device = devices[parameters.emulator];
                     if (device) {
-                        this.browser = await browserType.launch(browserConfig);
-                        this.context = await this.browser.newContext({
+                        try {
+                            this.browser = await browserType.launch(browserConfig);
+                        } catch (error) {
+                            throw new Error(`Browser launch failed in Emulator: ${error.message}`);
+                        }
+                        try {
+                            this.context = await this.browser.newContext({
                             ...device,
                             acceptDownloads: true,
                             locale: 'de-DE'
                         });
+                        } catch (error) {
+                            throw new Error(`Context creation failed in emulator: ${error.message}`);
+                        }
                     }
                 } else {
-                    this.browser = await browserType.launch(browserConfig);
-                    this.context = await this.browser.newContext({
-                        viewport: parameters.windowSize,
-                        acceptDownloads: true
-                    });
+                    try {
+                        this.browser = await browserType.launch(browserConfig);
+                    } catch (error) {
+                        throw new Error(`Browser launch failed: ${error.message}`);
+                    };
+            
+                    try {
+                        this.context = await this.browser.newContext({
+                            viewport: parameters.windowSize,
+                            acceptDownloads: true
+                        });
+                    } catch (error) {
+                        throw new Error(`Context creation failed: ${error.message}`);
+                    };
                 }
             }
 
-            this.page = await this.context.newPage();
+            try {
+                this.page = await this.context.newPage();
+            } catch (error) {
+                throw new Error(`Page creation failed: ${error.message}`);
+            }
             
             if (parameters.waitTime > 0) {
                 this.page.setDefaultTimeout(parameters.waitTime);
             }
         } catch (error) {
-            throw new Error(`Failed to launch browser: ${error}`);
+            await this.closeBrowser();
+            throw new Error(`Browser setup failed: ${error.message}`);
         }
     }
 
     private getBrowserType() {
-        switch(this.parameters.browser) {
+        switch(this.testParameters.browser) {
             case 'firefox': return firefox;
             case 'webkit': return webkit;
             default: return chromium;
@@ -149,6 +177,7 @@ class PlaywrightWorld {
     }
 
     async closeBrowser(): Promise<void> {
+        console.log('Closing browser...');
         await this.page?.close();
         await this.context?.close();
         await this.browser?.close();
@@ -161,62 +190,10 @@ class PlaywrightWorld {
         return this.page;
     }
 
-    setTestStatus(status: 'PASSED' | 'FAILED') {
-        this.testStatus = status;
-    }
-
-    getTestStatus() {
-        return this.testStatus;
-    }
-
-    incrementScenario() {
-        this.scenarioCount++;
-        if (this.scenarioCount < this.totalScenarios) {
-            // Update parameters for next scenario
-            this.parameters = this.parameterCollection.scenarios[this.scenarioCount];
-        }
-    }
-
-    isLastScenario(): boolean {
-        return this.scenarioCount === this.totalScenarios - 1;
-    }
-
-    getCurrentScenarioConfig() {
-        return this.parameterCollection.scenarios[this.scenarioCount];
+    setScenarioCount(count: number) {
+        this.scenarioCount = count;
     }
 }
-
-// World Setup
-setWorldConstructor(PlaywrightWorld);
-setDefaultTimeout(30000);
-
-// Hooks
-Before(async function() {
-    const currentScenarioIndex = this.parameters.scenarios.indexOf(this.currentScenario);
-
-    console.log(`Starting Scenario with Index: ${currentScenarioIndex}`);
-    await this.launchBrowser(this.parameters);
-});
-
-After(async function() {
-    console.log(`Finished Scenario ${this.scenarioCount + 1}/${this.totalScenarios}`);
-    
-    if (this.testStatus === 'FAILED') {
-        const timestamp = Date.now();
-        const screenshotPath = path.join(this.downloadDir, `failed-${timestamp}.png`);
-        await this.getPage().screenshot({ path: screenshotPath });
-        console.log(`Screenshot saved: ${screenshotPath}`);
-    }
-
-    if (!this.parameters.oneDriver || this.isLastScenario()) {
-        await this.closeBrowser();
-        console.log('Browser closed - Last scenario or no one Session execution');
-    } else {
-        console.log('Browser kept open - More scenarios pending');
-    }
-    
-    this.incrementScenarioCount();
-});
 
 
 export { PlaywrightWorld };

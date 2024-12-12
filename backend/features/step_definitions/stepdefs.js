@@ -1,7 +1,9 @@
 /* eslint-disable func-names */
 const os = require('os');
+const path = require('path');
 const {
-	Given, When, Then, setDefaultTimeout, setWorldConstructor, defineParameterType
+	Given, When, Then, setWorldConstructor, defineParameterType, Before, After,
+	Status
 } = require('@cucumber/cucumber');
 const { expect } = require('chai');
 const fs = require('fs');
@@ -9,9 +11,11 @@ const { match, doesNotMatch } = require('assert');
 const { applySpecialCommands } = require('../../src/serverHelper');
 const { PlaywrightWorld } = require('../../dist/playwright/playwrightWorld');
 
-let currentParameters = {};
-
 const searchTimeout = 15000;
+
+// Variables for scenario management within PLayWrightWorld
+let scenarioCount = 0;
+let totalScenarios = 0;
 
 // Error Handling and other helpers
 const NotFoundError = (e) => Error(`ElementNotFoundError: ${e}`);
@@ -40,13 +44,38 @@ async function handleError(f) {
 // TODO: Womöglich testLength und ScenarioIndex in PlaywrightWorld einbauen
 // Cucumber configuration
 setWorldConstructor(PlaywrightWorld);
-// Cucumber default timer for timeout
-setDefaultTimeout(30 * 1000);
 
 defineParameterType({
 	name: 'Bool',
 	regexp: /true|false/,
 	transformer: (b) => (b === 'true')
+});
+
+// ###################### HOOKS ########################################
+Before(async function () {
+	if (scenarioCount === 0) totalScenarios = this.parameters.scenarios.length;
+
+	// Transfer scenario index to World
+	this.setScenarioCount(scenarioCount);
+	console.log(`Starting Scenario with Index: ${scenarioCount + 1}`);
+	await this.launchBrowser(this.parameters.scenarios[scenarioCount]);
+});
+
+After(async function ({ pickle, result }) {
+	console.log(`Finished Scenario ${scenarioCount + 1}/${totalScenarios}`);
+
+	// Screenshot if Scenario failed
+	if (result.status === Status.FAILED) {
+		const timestamp = Date.now();
+		const screenshotPath = path.join(this.downloadDir, `${pickle.name}-failed-${timestamp}.png`);
+		const img = await this.getPage().screenshot({ path: screenshotPath });
+		await this.attach(img, 'image/png');
+		console.log(`Screenshot saved: ${screenshotPath}`);
+	}
+	if (!this.parameters.scenarios[scenarioCount].oneDriver
+        || scenarioCount === totalScenarios - 1) await this.closeBrowser();
+
+	scenarioCount++;
 });
 
 // / #################### GIVEN ########################################
@@ -238,8 +267,8 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 	await handleError(async () => {
 		const world = this;
 		const identifiers = [`//input[@id='${label}']`, `//input[contains(@id,'${label}')]`, `//textarea[@id='${label}']`, `//textarea[contains(@id,'${label}')]`,
-		`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
-		`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
+			`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
+			`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
 		const value = applySpecialCommands(text);
 
@@ -250,8 +279,8 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 
 		await Promise.any(promises)
 			.then(async (elem) => {
-				await elem.clear()
-				await typing(elem, value)
+				await elem.clear();
+				await typing(elem, value);
 			})
 			.catch(async (e) => {
 				await driver.takeScreenshot().then(async (buffer) => {
@@ -264,11 +293,9 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 	});
 });
 
-const typing = async(elem, inputString) => {
-	for (const char of inputString.split('')){
-		await elem.sendKeys(char)
-	}
-}
+const typing = async (elem, inputString) => {
+	for (const char of inputString.split('')) await elem.sendKeys(char);
+};
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
@@ -297,8 +324,8 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 	await handleError(async () => {
 		const world = this;
 		const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
-		`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
+			`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
+			`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
 		const promises = identifiers.map((idString) => driver.wait(
 			until.elementLocated(By.xpath(idString)),
 			searchTimeout,
@@ -498,18 +525,19 @@ When(
 		const identifiers = [`//input[@*='${input}']`, `${input}`];
 		const promises = [];
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
-		const path =  tmpUploadDir + file
+		const path = tmpUploadDir + file;
 		await Promise.any(promises)
 			.then((elem) => elem.sendKeys(`${path}`))
 			.catch(async (e) => {
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
-        if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
-					throw Error(e);
+				if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
+				throw Error(e);
 			  await driver.sleep(100 + currentParameters.waitTime);
 		  });
-  });
+	}
+);
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
@@ -518,7 +546,7 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 		const world = this;
 		try {
 			await driver.getCurrentUrl().then(async (currentUrl) => {
-				expect(currentUrl.replace(/\/$/g, '') == url.replace(/[\s]|\/\s*$/g, '') , 'ERROR expected: ' + url.replace(/[\s]|\/\s*$/g, '') + '; actual: ' + currentUrl.replace(/\/$/g, '')).to.be.true
+				expect(currentUrl.replace(/\/$/g, '') == url.replace(/[\s]|\/\s*$/g, ''), `ERROR expected: ${url.replace(/[\s]|\/\s*$/g, '')}; actual: ${currentUrl.replace(/\/$/g, '')}`).to.be.true;
 			});
 		} catch (e) {
 			await driver.takeScreenshot().then(async (buffer) => {
