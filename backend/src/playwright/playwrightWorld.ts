@@ -18,7 +18,7 @@ interface TestParameters {
     oneDriver: boolean;
 }
 
-interface StoryParameters {
+interface StoryParameters extends Array<TestParameters> {
     scenarios: TestParameters[];
 }
 
@@ -121,32 +121,44 @@ class PlaywrightWorld extends World {
                     const device = devices[parameters.emulator];
                     if (device) {
                         try {
-                            this.browser = await browserType.launch(browserConfig);
+                            // Neuen Browser nur starten wenn noch keiner existiert
+                            if (!this.browser) {
+                                this.browser = await browserType.launch(browserConfig);
+                            }
                         } catch (error) {
                             throw new Error(`Browser launch failed in Emulator: ${error.message}`);
                         }
                         try {
-                            this.context = await this.browser.newContext({
-                            ...device,
-                            acceptDownloads: true,
-                            locale: 'de-DE'
-                        });
+                            // Neuen Context nur erstellen wenn sie nicht existieren
+                            if (!this.context) {
+                               this.context = await this.browser.newContext({
+                                ...device,
+                                acceptDownloads: true,
+                                locale: 'de-DE'
+                                });
+                            };
                         } catch (error) {
                             throw new Error(`Context creation failed in emulator: ${error.message}`);
                         }
                     }
                 } else {
                     try {
-                        this.browser = await browserType.launch(browserConfig);
+                        // Neuen Browser nur starten wenn noch keiner existiert
+                        if (!this.browser) {
+                            this.browser = await browserType.launch(browserConfig);
+                        }
                     } catch (error) {
                         throw new Error(`Browser launch failed: ${error.message}`);
                     };
             
                     try {
-                        this.context = await this.browser.newContext({
-                            viewport: parameters.windowSize,
-                            acceptDownloads: true
-                        });
+                        // Neuen Context nur erstellen wenn sie nicht existieren
+                        if (!this.context) {
+                            this.context = await this.browser.newContext({
+                                viewport: parameters.windowSize,
+                                acceptDownloads: true
+                            });
+                        };
                     } catch (error) {
                         throw new Error(`Context creation failed: ${error.message}`);
                     };
@@ -154,14 +166,18 @@ class PlaywrightWorld extends World {
             }
 
             try {
-                this.page = await this.context.newPage();
+                // Neuen Page nur erstellen wenn sie nicht existieren
+                if (!this.page){
+                    this.page = await this.context.newPage();
+                    if (parameters.waitTime > 0) {
+                    this.page.setDefaultTimeout(parameters.waitTime);
+                    }  
+                }
             } catch (error) {
                 throw new Error(`Page creation failed: ${error.message}`);
             }
             
-            if (parameters.waitTime > 0) {
-                this.page.setDefaultTimeout(parameters.waitTime);
-            }
+            
         } catch (error) {
             await this.closeBrowser();
             throw new Error(`Browser setup failed: ${error.message}`);
@@ -177,10 +193,23 @@ class PlaywrightWorld extends World {
     }
 
     async closeBrowser(): Promise<void> {
-        console.log('Closing browser...');
-        await this.page?.close();
-        await this.context?.close();
-        await this.browser?.close();
+        if (this.parameters.oneDriver) {
+            // Bei oneDriver nur beim letzten Szenario alles schließen
+            if ( this.scenarioCount === this.parameterCollection.length) {
+                console.log('Last scenario finished - closing browser session');
+                await this.page?.close();
+                await this.context?.close();
+                await this.browser?.close();
+            } else {
+                console.log('Keeping browser session for next scenario (oneDriver active)');
+            }
+        } else {
+            // Ohne oneDriver immer alles schließen
+            console.log('Closing browser session');
+            await this.page?.close();
+            await this.context?.close();
+            await this.browser?.close();
+        }
     }
 
     getPage(): Page {

@@ -13,7 +13,7 @@ const { PlaywrightWorld } = require('../../dist/playwright/playwrightWorld');
 
 const searchTimeout = 15000;
 
-// Variables for scenario management within PLayWrightWorld
+// Variables for scenario management within PlaywrightWorld
 let scenarioCount = 0;
 let totalScenarios = 0;
 
@@ -84,19 +84,19 @@ Given('As a {string}', async function (string) {
 	// await driver.sleep(100 + currentParameters.waitTime);
 });
 
-Given('I am on the website: {string}', async function getUrl(url) {
+Given('I am on the website: {string}', async function (url) {
 	await handleError(async () => {
-		const world = this;
 		try {
-			await driver.get(url);
-			await driver.getCurrentUrl();
+			const page = this.getPage();
+			await page.goto(url);
+			await page.waitForLoadState('networkidle');
+			this.setTestStatus('PASSED');
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
-				world.attach(buffer, 'image/png');
-			});
+			this.setTestStatus('FAILED');
 			throw Error(e);
 		}
-		await driver.sleep(100 + currentParameters.waitTime);
+
+		if (this.parameters.waitTime) await this.getPage().waitForTimeout(this.parameters.waitTime);
 	});
 });
 
@@ -211,17 +211,17 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 // driver navigates to the Website
 When('I go to the website: {string}', async function getUrl(url) {
 	await handleError(async () => {
-		const world = this;
 		try {
-			await driver.get(url);
-			await driver.getCurrentUrl();
+			const page = this.getPage();
+			await page.goto(url);
+			await page.waitForLoadState('networkidle');
+			this.setTestStatus('PASSED');
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
-				world.attach(buffer, 'image/png');
-			});
+			this.setTestStatus('FAILED');
 			throw Error(e);
 		}
-		await driver.sleep(100 + currentParameters.waitTime);
+
+		if (this.parameters.waitTime) await this.getPage().waitForTimeout(this.parameters.waitTime);
 	});
 });
 
@@ -541,20 +541,18 @@ When(
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
-Then('So I will be navigated to the website: {string}', async function checkUrl(url) {
+Then('So I will be navigated to the website: {string}', async function (url) {
 	await handleError(async () => {
-		const world = this;
 		try {
-			await driver.getCurrentUrl().then(async (currentUrl) => {
-				expect(currentUrl.replace(/\/$/g, '') == url.replace(/[\s]|\/\s*$/g, ''), `ERROR expected: ${url.replace(/[\s]|\/\s*$/g, '')}; actual: ${currentUrl.replace(/\/$/g, '')}`).to.be.true;
-			});
+			const page = this.getPage();
+			await expect(page).toHaveURL(url.replace(/[\s]|\/\s*$/g, ''));
+			this.setTestStatus('PASSED');
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
-				world.attach(buffer, 'image/png');
-			});
+			this.setTestStatus('FAILED');
 			throw Error(e);
 		}
-		await driver.sleep(100 + currentParameters.waitTime);
+
+		if (this.parameters.waitTime) await this.getPage().waitForTimeout(this.parameters.waitTime);
 	});
 });
 

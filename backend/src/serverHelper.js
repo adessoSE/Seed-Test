@@ -5,7 +5,6 @@ const fs = require('fs');
 const pfs = require('fs/promises');
 const path = require('path');
 const AdmZip = require('adm-zip');
-const { CucumberRunConfiguration } = require('@cucumber/cucumber');
 const mongo = require('./database/DbServices');
 const moment = require('../node_modules/moment');
 
@@ -239,7 +238,7 @@ async function executeTest(req, mode, story) {
 	}
 
 	// Cucumber Konfiguration für Playwright
-	const config = {
+	const userConfig = {
 		paths: [path.normalize(featurePath)],
 		require: ['features/step_definitions/*.js'],
 		format: [
@@ -249,49 +248,44 @@ async function executeTest(req, mode, story) {
 				: `json:features/${reportName}.json`,
 			'html:reports/cucumber-report.html'
 		],
-		worldParameters: parameters,
+		worldParameters: {
+			scenarios: parameters.scenarios,
+			reportPath: `features/${reportName}.json`,
+			featurePath,
+			mode,
+			scenarioId: req.params.scenarioId
+		},
 		tags: mode === 'scenario' ? `@${req.params.issueID}_${req.params.scenarioId}` : undefined
 	};
 
 	try {
+		// Konfiguration laden und ausführen
+		const { loadConfiguration, runCucumber } = await import('@cucumber/cucumber/api');
+		const { runConfiguration } = await loadConfiguration({
+			provided: userConfig
+		});
+
 		console.log('\nExecuting:');
 		console.log(`Working Dir: "${process.cwd()}"`);
 		console.log('Runtime: Cucumber with Playwright');
 		console.log(`Config: ${JSON.stringify({
-			featurePath: config.paths[0],
-			tags: config.tags,
-			worldParameters: config.worldParameters,
-			format: config.format
+			featurePath: runConfiguration.sources.paths[0],
+			tags: runConfiguration.sources.tagExpression,
+			worldParameters: runConfiguration.runtime.worldParameters,
+			format: runConfiguration.formats
 		}, null, 2)}\n`);
 
-		const runtime = new CucumberRunConfiguration(config);
+		const { success } = await runCucumber(runConfiguration);
 
-		const result = await new Promise((resolve) => {
-			runtime.run()
-				.then(() => {
-					console.log('Test finished successfully');
-					resolve({
-						reportTime,
-						story,
-						scenarioId: req.params.scenarioId,
-						reportName
-					});
-				})
-				.catch((error) => {
-					console.error('Test execution failed: Cucumber runtime error', error);
-					resolve({
-						reportTime,
-						story,
-						scenarioId: req.params.scenarioId,
-						reportName,
-						settings: (globalSettings && globalSettings.activated ? globalSettings : null)
-					});
-				});
-		});
-
-		return result;
+		return {
+			reportTime,
+			story,
+			scenarioId: req.params.scenarioId,
+			reportName,
+			success
+		};
 	} catch (error) {
-		console.error('Test execution failed: Cucumber configuration error', error);
+		console.error('Test execution failed: ', error);
 		return {
 			reportTime,
 			story,
