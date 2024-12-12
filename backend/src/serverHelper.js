@@ -228,7 +228,7 @@ async function executeTest(req, mode, story) {
 	}
 
 	const reportTime = Date.now();
-	const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
+	const featurePath = `./features/${cleanFileName(story.title + story._id)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
 	try {
@@ -260,10 +260,13 @@ async function executeTest(req, mode, story) {
 
 	try {
 		// Konfiguration laden und ausführen
-		const { loadConfiguration, runCucumber } = await import('@cucumber/cucumber/api');
-		const { runConfiguration } = await loadConfiguration({
-			provided: userConfig
-		});
+		const cucumberAPI = await import('@cucumber/cucumber/api');
+		console.log('Available Cucumber API functions:', Object.keys(cucumberAPI));
+		const { loadConfiguration, runCucumber } = cucumberAPI;
+		console.log('Loading configuration...');
+    	const { runConfiguration } = await loadConfiguration({
+        provided: userConfig
+    });
 
 		console.log('\nExecuting:');
 		console.log(`Working Dir: "${process.cwd()}"`);
