@@ -21,13 +21,12 @@ function jiraDecryptPassword(ciphertext: Buffer, nonce: Buffer, tag: Buffer): st
     try {
         const decipher = createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
         decipher.setAuthTag(Buffer.from(tag.buffer));
-        console.log("ciphertext", ciphertext);
         const receivedPlaintext = decipher.update(Buffer.from(ciphertext.buffer), null, 'utf8');
         decipher.final();
         return receivedPlaintext;
     } catch (err) {
-        console.log(`Authentication Failed: ${err}`);// leaf in or replace with proper logging
-        throw new Error('Authentication failed!');
+        console.log(`Jira Password Decryption failed in jiraDecryptPassword (userManagement)\n ${err}`);
+        throw new Error('Jira Password Decryption failed!');
     }
 }
 
@@ -93,7 +92,7 @@ const getGithubData = (res, req, accessToken) => {
 		});
 };
 
-/*
+/**
 * validates Github username and reponame
 * @param {string} userName
 * @param {string} repoName

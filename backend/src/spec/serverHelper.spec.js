@@ -1,5 +1,5 @@
 const fs = require('fs');
-const helper = require('../src/serverHelper');
+const helper = require('../serverHelper');
 
 describe('ServerHelper', () => {
 	// describe("midNotEmpty", function() {
@@ -31,7 +31,7 @@ describe('ServerHelper', () => {
 		it('should return only test2 string', () => {
 			const values = ['test1', 'test2'];
 			const returnValue = helper.getValues(values);
-			expect(returnValue).toBe('"test2"');
+			expect(returnValue).toBe('\'test2\'');
 		});
 
 		it('should return only test2 and test3 string', () => {
@@ -95,7 +95,6 @@ describe('ServerHelper', () => {
 			expect(returnValue.replace(/\s/g, '').replace(' ', '')).toBe(backgroundString.replace(/\s/g, '').replace(' ', ''));
 		});
 	});
-
 
 	describe('getSteps', () => {
 		it('should return empty string', () => {

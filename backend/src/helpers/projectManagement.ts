@@ -1,5 +1,7 @@
+import * as mongoTs from "../database/projectDBServices"
+import {Sources, Project, JiraProject } from "../models/project";
 import mongo from "../../src/database/DbServices";
-import dbConnector from "../../src/database/DbConnector";
+import dbConnector from "../../src/database/dbConnector";
 import { jiraDecryptPassword } from "./userManagement";
 import emptyScenario from "../../src/models/emptyScenario";
 import emptyBackground from "../../src/models/emptyBackground";
@@ -7,36 +9,12 @@ import { writeFile } from "../../src/serverHelper";
 import AdmZip from "adm-zip";
 import path from "path";
 
-enum Sources {
-	GITHUB = "github",
-	JIRA = "jira",
-	DB = "db"
-}
-
-class Group {
-	_id: string
-	name: string
-	member_stories: Array<string>
-	isSequential: boolean
-	xrayTestSet: boolean
-}
-
-class Repository {
-  _id: string;
-  owner: string;
-  gitOwner: string;
-  stories: Array<string>;
-  repoType: Enumerator<Sources>;
-  customBlocks: Array<string>;
-  groups: Array<Group>;
-}
-
 /**
  * get repo names from jira
  * @param jiraUser only jira part of user
  * @returns
  */
-async function getJiraRepos(jiraUser: any) {
+async function fetchJiraProjects(jiraUser: any) {
   if (!jiraUser) return [];
   let {
     Host,
@@ -51,7 +29,7 @@ async function getJiraRepos(jiraUser: any) {
     Password_Nonce,
     Password_Tag
   );
-  const repos = await requestJiraRepos(
+  const repos = await requestJiraProjects(
     Host,
     AccountName,
     jiraClearPassword,
@@ -67,60 +45,73 @@ async function getJiraRepos(jiraUser: any) {
  * @param jiraClearPassword
  * @returns
  */
-async function requestJiraRepos(host: string, username: string, jiraClearPassword: string, authMethod: string) {
-	let authString: string = `Bearer ${jiraClearPassword}`
+async function requestJiraProjects(host: string, username: string, jiraClearPassword: string, authMethod: string) {
+	// Prepare Jira-Auth
+  let authString: string = `Bearer ${jiraClearPassword}`
 	if(authMethod === 'basic'){ 
 		const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
 		authString = `Basic ${auth}`
 	}
-	
-    const reqOptions = {
-      method: 'GET',
-      headers: {
-        'cache-control': 'no-cache',
-        'Authorization': authString
-      }
-    };
+
+  // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
+  // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
 	const url = `https://${host}/rest/api/2/project`
-    // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
-    // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
+  const reqOptions = {
+    method: 'GET',
+    headers: {
+      'cache-control': 'no-cache',
+      'Authorization': authString
+    }
+  };
+	
   const jiraProjects =  await fetch(url, reqOptions)
 		.then((response) => response.json())
 		.catch((error) => { console.error(error.stack); return [] })
+
 	const projects = jiraProjects.map((project) => project.name)
+
 	return projects
 }
 
 /**
- * store and  cumulate jira repos
+ * store and cumulate jira repos
  * @param projects
  * @returns
  */
 async function storeJiraRepos(projects: Array<any>) {
+  if (projects.length === 0) return [];
+
   const source = Sources.JIRA;
+  // get existing JiraProjects
+  const existingJiraProjects = await mongo.getAllSourceReposFromDb(source);
+
   let repos = [];
-  let jiraRepo;
-  const jiraReposFromDb = await mongo.getAllSourceReposFromDb(source);
-  if (projects.length !== 0) {
-    for (const projectName of projects) {
-      if (!jiraReposFromDb.some((entry) => entry.repoName === projectName)) {
-        jiraRepo = await mongo.createJiraRepo(projectName);
-      } else {
-        jiraRepo = jiraReposFromDb.find(
-          (element) => element.repoName === projectName
-        );
-      }
-      repos.push({ name: projectName, _id: jiraRepo._id });
+  let jiraProject: Project;
+
+  for (const projectName of projects) {
+    // if is is a new Project
+    if (!existingJiraProjects.some((entry) => entry.repoName === projectName)) {
+      // create new Jira Project
+      jiraProject = await mongoTs.createJiraProject(projectName);
+    } else {
+      // add existing Jira Project to list
+      jiraProject = existingJiraProjects.find(
+        (e: JiraProject) => e.repoName === projectName
+      );
     }
-    return repos.map<{ _id: string; value: string; source: string }>(
-      (value) => ({
-        _id: value._id,
-        value: value.name,
-        source,
-      })
-    );
-  } else return [];
+    repos.push({ name: projectName, _id: jiraProject._id });
+  }
+
+  return repos.map<{ _id: string; value: string; source: string }>(
+    (value) => ({
+      _id: value._id,
+      value: value.name,
+      source,
+    })
+  );
 }
+
+
 function dbProjects(userId: string) {
   return new Promise((resolve) => {
     if (typeof userId === undefined || userId === "") resolve([]);
@@ -144,14 +135,19 @@ function dbProjects(userId: string) {
 
 function uniqueRepositories(repositories) {
   const uniqueIds = [];
-  const unique = [];
+  const uniqueRepos = [];
   for (const i in repositories) {
-    if (uniqueIds.indexOf(repositories[i]._id.toString()) <= -1) {
-      uniqueIds.push(repositories[i]._id.toString());
-      unique.push(repositories[i]);
+    try {
+        if (uniqueIds.indexOf(repositories[i]._id.toString()) <= -1) {
+          uniqueIds.push(repositories[i]._id.toString());
+          uniqueRepos.push(repositories[i]);
+        }
+    } catch (error){
+      throw Error (`Could not Read Project ${i}`)
     }
   }
-  return unique;
+  
+  return uniqueRepos;
 }
 
 function execRepositoryRequests(link, user, password, ownerId, githubId) {
@@ -728,10 +724,10 @@ async function updateTestSets(testSets, repo_id) {
 			}
 
 			// Get repository to update groups
-			const repository = await mongo.getOneRepositoryById(repo_id);
+			const project = await mongo.getOneRepositoryById(repo_id);
 
 			// Find existing group by testSetKey
-			let existingGroup = repository.groups.find(group => group.name === testSet.testSetKey);
+			let existingGroup = project.groups.find(group => group.name === testSet.testSetKey);
 
 			if (existingGroup) {
                 // Update existing group
@@ -765,8 +761,8 @@ async function getStorysByIssue(issueKeys) {
 	}
 }
 
-module.exports = {
-  getJiraRepos,
+export = {
+  getJiraRepos: fetchJiraProjects,
   dbProjects,
   uniqueRepositories,
   starredRepositories,

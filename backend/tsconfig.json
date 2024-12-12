@@ -1,5 +1,6 @@
 {
-    "compilerOptions": {
+  "include": ["src/**/*.ts"],
+  "compilerOptions": {
       "module": "commonjs",
       "esModuleInterop": true,
       "declaration": true,

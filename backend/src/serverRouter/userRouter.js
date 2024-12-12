@@ -9,12 +9,11 @@ const { v1: uuidv1 } = require('uuid');
 const fs = require('fs');
 const crypto = require('crypto');
 const initializePassport = require('../passport-config');
-const mongo = require('../database/DbServices');
+const db = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
-const stepDefs = require('../database/stepTypes');
 const xray = require('../../dist/helpers/xray');
 
 const router = express.Router();
@@ -27,7 +26,7 @@ function handleError(res, reason, statusMessage, code) {
 		.json({ error: statusMessage });
 }
 
-initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
+initializePassport(passport, db.getUserByEmail, db.getUserById, db.getUserByGithub);
 
 router
 	.use(cors())
@@ -51,14 +50,14 @@ router
 // Checks if an Account with this email exists, if true creates a request and saves it.
 // also sends an email via nodemailer with reset-link to the given email-adress.
 router.post('/resetpassword', async (req, res) => {
-	const checkRequest = await mongo.getResetRequestByEmail(req.body.email);
-	if (checkRequest) await mongo.deleteRequest(req.body.email);
+	const checkRequest = await db.getResetRequestByEmail(req.body.email);
+	if (checkRequest) await db.deleteRequest(req.body.email);
 
-	const thisUser = await mongo.getUserByEmail(req.body.email);
+	const thisUser = await db.getUserByEmail(req.body.email);
 	// TODO if (!user)
 	if (thisUser) try {
 		const id = uuidv1();
-		await mongo.createResetRequest({
+		await db.createResetRequest({
 			createdAt: new Date(),
 			uuid: id,
 			email: thisUser.email
@@ -81,14 +80,14 @@ router.post('/resetpassword', async (req, res) => {
 
 // checks if requests exist if true, gets the according Account and changes the password
 router.patch('/reset', async (req, res) => {
-	const thisRequest = await mongo.getResetRequest(req.body.uuid);
+	const thisRequest = await db.getResetRequest(req.body.uuid);
 	if (thisRequest) {
-		const user = await mongo.getUserByEmail(thisRequest.email);
+		const user = await db.getUserByEmail(thisRequest.email);
 		user.password = req.body.password;
 		req.body.password = bcrypt.hashSync(req.body.password, salt);
 		user.password = req.body.password;
-		await mongo.updateUser(user._id, user);
-		await mongo.deleteRequest(user.email);
+		await db.updateUser(user._id, user);
+		await db.deleteRequest(user.email);
 		res.status(204).json();
 	} else res.status(401).json();
 });
@@ -114,7 +113,7 @@ router.post('/login', (req, res, next) => {
 						const finalHash = bcrypt.hashSync(passHash.toString('hex'), salt);
 						user.password = finalHash;
 						user.transitioned = true;
-						mongo.updateUser(user._id, user);
+						db.updateUser(user._id, user);
 					}
 					res.json(user);
 				}
@@ -140,7 +139,7 @@ router.post('/githubLogin', (req, res) => {
 // register github account
 router.post('/githubRegister', async (req, res) => {
 	try {
-		const user = await mongo.findOrRegisterGithub(req.body);
+		const user = await db.findOrRegisterGithub(req.body);
 		res.json(user);
 	} catch (error) {
 		res.sendStatus(400);
@@ -152,7 +151,7 @@ router.post('/mergeGithub', async (req, res) => {
 	const { userId, login } = req.body;
 	const id = parseInt(req.body.id, 10);
 	try {
-		const mergedUser = await mongo.mergeGithub(userId, login, id);
+		const mergedUser = await db.mergeGithub(userId, login, id);
 		req.logIn(mergedUser, (err) => {
 			if (err) {
 				console.log('Merge Github login error:', err);
@@ -172,7 +171,7 @@ router.post('/register', async (req, res) => {
 	req.body.password = bcrypt.hashSync(req.body.password, salt);
 	req.body.transitioned = true;
 	try {
-		const user = await mongo.registerUser(req.body);
+		const user = await db.registerUser(req.body);
 		res.json(user);
 	} catch (error) {
 		console.log('register error', error);
@@ -192,7 +191,7 @@ router.get('/repositories', (req, res) => {
 	let githubName;
 	let token;
 	let githubId;
-	if (req.user && req.user.github) { // note order
+	if (req.user && req.user.github) {
 		githubName = req.user.github.login;
 		token = req.user.github.githubToken;
 		githubId = req.user.github.id;
@@ -214,7 +213,8 @@ router.get('/repositories', (req, res) => {
 			merged = projectMng.uniqueRepositories(merged);
 			res.status(200).json(merged);
 		})
-		.catch((reason) => { // TODO: individuell abfangen, wo ein Fehler (GitHub / Jira / DB) aufgetreten ist.
+		.catch((reason) => {
+			// TODO: individuell abfangen, wo ein Fehler (GitHub / Jira / DB) aufgetreten ist.
 			// bei Jira behandeln, falls der Token abgelaufen ist
 			res.status(401).json('Wrong Username or Password');
 			console.error(`Get Repositories Error: ${reason}`);
@@ -223,7 +223,7 @@ router.get('/repositories', (req, res) => {
 
 // create Repository in Database
 router.post('/createRepository', async (req, res) => {
-	mongo.createRepo(req.user._id, req.body.name);
+	db.createRepo(req.user._id, req.body.name);
 	res.status(200).json('');
 });
 
@@ -231,7 +231,7 @@ router.post('/createRepository', async (req, res) => {
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const { repoName, settings } = req.body;
 	try {
-		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings);
+		const repo = await db.updateRepository(req.params.repo_id, repoName, settings);
 		res.status(200).json(repo);
 	} catch (error) {
 		console.error(error);
@@ -242,7 +242,7 @@ router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 // get global repository settings
 router.get('/repository/settings/:repo_id', async (req, res) => {
 	try {
-		const globalSettings = await mongo.getRepoSettingsById(req.params.repo_id);
+		const globalSettings = await db.getRepoSettingsById(req.params.repo_id);
 		res.status(200).json(globalSettings);
 	} catch (error) {
 		console.error(error);
@@ -254,7 +254,7 @@ router.get('/repository/settings/:repo_id', async (req, res) => {
 router.post('/update/:userID', async (req, res) => {
 	try {
 		const user = req.body;
-		const updatedUser = await mongo.updateUser(req.params.userID.toString(), user);
+		const updatedUser = await db.updateUser(req.params.userID.toString(), user);
 		res.status(200).json(updatedUser);
 	} catch (error) {
 		handleError(res, error, error, 500);
@@ -264,8 +264,8 @@ router.post('/update/:userID', async (req, res) => {
 // update repository owner
 router.put('/repository/:repo_id', async (req, res) => {
 	try {
-		const newOwner = await mongo.getUserByEmail(req.body.email);
-		const repo = await mongo.updateOwnerInRepo(req.params.repo_id, newOwner._id, req.user._id);
+		const newOwner = await db.getUserByEmail(req.body.email);
+		const repo = await db.updateOwnerInRepo(req.params.repo_id, newOwner._id, req.user._id);
 		res.status(200).json(repo);
 	} catch (error) {
 		handleError(res, 'in update Repository Owner', 'Could not set new Owner', 500);
@@ -275,7 +275,7 @@ router.put('/repository/:repo_id', async (req, res) => {
 // delete repository
 router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 	try {
-		await mongo
+		await db
 			.deleteRepository(req.params.repo_id, req.user._id, parseInt(req.params._id, 10));
 		res.status(200)
 			.json({ text: 'success' });
@@ -306,7 +306,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		const response = await fetch(`https://api.github.com/repos/${githubRepoUrl}/issues?labels=story`, { headers });
 		if (response.status === 401) res.status(401).json('Github Status 401');
 		if (response.status === 200) {
-			repo = await mongo.getOneGitRepository(req.query.repoName);
+			repo = await db.getOneGitRepository(req.query.repoName);
 			const json = await response.json();
 			for (const issue of json) {
 				// only relevant issues with label: "story"
@@ -379,7 +379,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 				.then(async (response) => response.json())
 				.then(async (json) => {
 					try {
-						repo = await mongo.getOneJiraRepository(req.query.projectKey);
+						repo = await db.getOneJiraRepository(req.query.projectKey);
 
 						const asyncHandleTestIssue = json.issues.map(async (issue) => {
 							// If the issue is a "Test Set" issue
@@ -487,7 +487,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		}
 		// get DB Repo / Projects
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
-		const result = await mongo.getAllStoriesOfRepo(req.query.id);
+		const result = await db.getAllStoriesOfRepo(req.query.id);
 		res.status(200).json(result);
 	} else res.sendStatus(401);
 
@@ -495,7 +495,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		const mySet = new Set(storiesIdList.concat(repo.stories).map((i) => i.toString()));
 		for (const i of repo.stories) mySet.delete(i.toString());
 		const storyList = repo.stories.concat([...mySet]);
-		if (repo) mongo.updateStoriesArrayInRepo(repo._id, storyList);
+		if (repo) db.updateStoriesArrayInRepo(repo._id, storyList);
 		return storyList.map((i) => storiesArray.get(i.toString())).filter((s) => s !== undefined);
 	}
 });
@@ -503,7 +503,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 // delete user
 router.delete('/', async (req, res) => {
 	try {
-		if (req.user) await mongo.deleteUser(req.user._id);
+		if (req.user) await db.deleteUser(req.user._id);
 		else res.sendStatus(401);
 		res.sendStatus(200);
 	} catch (error) {
@@ -514,7 +514,7 @@ router.delete('/', async (req, res) => {
 // get userObject
 router.get('/', async (req, res) => {
 	if (req.user) try {
-		const result = await mongo.getUserData(req.user._id);
+		const result = await db.getUserData(req.user._id);
 		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);
@@ -523,7 +523,7 @@ router.get('/', async (req, res) => {
 });
 
 router.put('/stories/:_id', async (req, res) => {
-	const result = await mongo.updateStoriesArrayInRepo(req.params._id, req.body);
+	const result = await db.updateStoriesArrayInRepo(req.params._id, req.body);
 	res.status(200).json(result);
 });
 

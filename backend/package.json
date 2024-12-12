@@ -6,7 +6,7 @@
   },
   "scripts": {
     "start": "tsc && node src/server.js",
-    "test": "jest --verbose",
+    "test": "jest",
     "test-coverage": "jest --coverage",
     "database": "node src/database/installDatabase.js",
     "database-examples": "node src/database/insertExampleData.js",
@@ -54,19 +54,9 @@
     "typescript": ">=5.4.0 <5.6.0"
   },
   "_comment": "Bitte bei cucumber-html-reporter > 7.1.1 wieder entfernen!",
-  "overrides": { 
+  "overrides": {
     "cucumber-html-reporter": {
       "semver": "^7.5.2"
     }
-  },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "<rootDir>/spec/server.spec.js",
-      "<rootDir>/spec/serverHelper.spec.js",
-      "<rootDir>/node_modules/"
-    ],
-    "setupFiles": [
-      "./spec/setupTest.js"
-    ]
   }
 }

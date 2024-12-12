@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
@@ -20,7 +19,6 @@ const reportRouter = require('./serverRouter/reportRouter');
 const backgroundRouter = require('./serverRouter/backgroundRouter');
 const sanityTest = require('./serverRouter/sanityTest');
 const logging = require('./logging');
-require('./database/DbServices');
 
 const app = express();
 app.disable('x-powered-by');

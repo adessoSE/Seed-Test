@@ -1,6 +1,3 @@
-/* eslint-disable prefer-arrow-callback */
-/* eslint-disable curly */
-/* eslint-disable max-len */
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -39,16 +36,14 @@ router.post('/Group', (req, res, next) => {
 	req.body.email = req.body.email.toLowerCase();
 	try {
 		passport.authenticate('normal-local', (error, user, info) => {
-			if (error) {
-				throw new UserError(error);
-			} else if (!user) {
+			if (error) throw new UserError(error);
+			else if (!user) {
 				info.status = 'error';
 				return res.json(info);
 			}
-			req.logIn(user, async function (err) {
-				if (err) {
-					throw new UserError(err);
-				} else {
+			req.logIn(user, async (err) => {
+				if (err) throw new UserError(err);
+				else {
 					const group = await mongo.getOneStoryGroup(req.body.repoID, req.body.groupID);
 					const mystories = [];
 					for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id));
@@ -68,16 +63,14 @@ router.post('/Feature/:issueID', (req, res, next) => {
 	req.body.email = req.body.email.toLowerCase();
 	try {
 		passport.authenticate('normal-local', (error, user, info) => {
-			if (error) {
-				throw new UserError(error);
-			} else if (!user) {
+			if (error) throw new UserError(error);
+			else if (!user) {
 				info.status = 'error';
 				return res.json(info);
 			}
-			req.logIn(user, async function (err) {
-				if (err) {
-					throw new UserError(err);
-				} else {
+			req.logIn(user, async (err) => {
+				if (err) throw new UserError(err);
+				else {
 					const stories = [];
 					reporter.runReport(req, res, stories, 'feature', req.body);
 					// res.json(user);

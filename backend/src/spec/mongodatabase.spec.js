@@ -1,6 +1,6 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, './support/.env') });
-const mongo = require('../src/database/DbServices');
+const mongo = require('../database/DbServices');
 
 describe('DbServices', () => {
 	beforeAll(async () => {
@@ -42,7 +42,7 @@ describe('DbServices', () => {
 							stepType: 'when',
 							type: 'Go To Website / URL',
 							values: [
-								'http://adesso.de/'
+								'https://adesso.de/'
 							]
 						}],
 						then: [],
@@ -196,67 +196,6 @@ describe('DbServices', () => {
 			console.log('updated ', newStory);
 			expect(newStory.title).toEqual(upStory.title);
 		});
-	});
-
-	describe('create repository', () => {
-		let repoId;
-		const ownerId = '313233343536373839303132'; // fictional -> owner not in db
-		const name = 'Test';
-		it('creates a db repo', async () => {
-			repoId = await mongo.createRepo(ownerId, name).catch((err) => console.error(err));
-			await mongo.getOneRepository(ownerId, name)
-				.then((repo) => {
-					repo._id = null;
-					repo.owner = repo.owner.toString();
-					expect(repo).toEqual({
-						_id: null,
-						owner: ownerId,
-						repoName: name,
-						stories: [],
-						repoType: 'db',
-						customBlocks: [],
-						groups: []
-					});
-				});
-		});
-		/* it('creates a db repo empty fails',async() => {
-      expect( await mongo.createRepo(ownerId, '')).rejects.toEqual('Sie besitzen bereits ein Repository mit diesem Namen!')
-    }) */
-		afterEach((done) => {
-			mongo.deleteRepository(repoId, ownerId).then(() => done());
-		});
-	});
-
-	describe('delete repository', () => {
-		let repoId;
-		const ownerId = '123456789012';
-		const name = 'Test';
-		beforeEach(async () => {
-			repoId = await mongo.createRepo(ownerId, name).catch((err) => console.error('delRepo before', err));
-			console.log(repoId);
-		});
-		it('deletes repo', (done) => {
-			mongo.deleteRepository(repoId, ownerId)
-				.then((ret) => {
-					expect(ret.deletedCount).toEqual(1);
-					done();
-				});
-		});
-		test.skip('deletes orphan stories', async () => {
-			const stories = await Promise.all([
-				mongo.createStory('Test', 'Hallo Test', repoId).then(async (stId) => { await mongo.insertStoryIdIntoRepo(stId, repoId); return stId; }),
-				mongo.createStory('Test1', 'Hallo Test1', repoId).then(async (stId) => { await mongo.insertStoryIdIntoRepo(stId, repoId); return stId; })
-			]);
-
-			console.log('stories', stories);
-
-			await mongo.deleteRepository(repoId, ownerId)
-				.then((ret) => {
-					expect(ret.deletedCount).toEqual(1);
-				});
-		});
-		test.skip('deletes orphan workgroup', () => { });
-		test.skip('deletes orphan Reports', () => { });
 	});
 
 	describe('user', () => {

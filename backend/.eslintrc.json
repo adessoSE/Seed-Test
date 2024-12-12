@@ -33,5 +33,13 @@
         "no-duplicate-imports": "error",
         "no-underscore-dangle": "off",
         "no-tabs": ["error", { "allowIndentationTabs": true }]
-    }
+    },
+    "overrides": [
+        {
+    "files": ["**/*.spec.*"],
+        "env": {
+            "jest": true
+        }
+        }
+    ]
 }
