@@ -48,6 +48,11 @@ class PlaywrightWorld extends World {
     
     constructor(options: IWorldOptions) {
         super(options);
+        console.log('Initializing PlaywrightWorld with options:', {
+            parameters: options.parameters,
+            scenarioCount: this.scenarioCount
+        });
+        
         // Select with first scenario (incremented by incrementScenario())
         this.parameterCollection = options.parameters as StoryParameters;
         this.testParameters = {
@@ -84,27 +89,22 @@ class PlaywrightWorld extends World {
     }
 
     private getBrowserConfig(browserType: string) {
-        const isWindows = os.platform().includes('win32');
-        const commonArgs = [
-            '--disable-dev-shm-usage',
-            '--ignore-certificate-errors',
-            '--start-maximized',
-            '--lang=de',
-            '--excludeSwitches=enable-logging'
-        ];
-
-        if (!isWindows || this.testParameters.headless) {
-            commonArgs.push('--headless', '--no-sandbox');
-        }
-
         return {
-            args: commonArgs,
+            headless: this.testParameters.headless ?? false,
+            args: [
+                '--disable-dev-shm-usage',
+                '--ignore-certificate-errors',
+                '--start-maximized',
+                '--lang=de',
+                '--excludeSwitches=enable-logging'
+            ],
             downloadPath: this.downloadDir,
             channel: browserType === 'MicrosoftEdge' ? 'msedge' : undefined
         };
     }
 
     async launchBrowser(parameters: TestParameters): Promise<void> {
+        console.log('Attempting to launch browser with config:', parameters);
         try {
             // Wenn oneDriver aktiv ist und bereits ein Browser existiert
             if (parameters.oneDriver && this.browser) {
@@ -113,6 +113,7 @@ class PlaywrightWorld extends World {
                 return;
             } else {
                 const browserType = this.getBrowserType();
+                console.log(`Launching ${parameters.browser} browser...`);
                 const browserConfig = this.getBrowserConfig(parameters.browser);
 
                 // Emulator-Konfiguration
@@ -146,6 +147,7 @@ class PlaywrightWorld extends World {
                         // Neuen Browser nur starten wenn noch keiner existiert
                         if (!this.browser) {
                             this.browser = await browserType.launch(browserConfig);
+                            console.log('Browser launched successfully');
                         }
                     } catch (error) {
                         throw new Error(`Browser launch failed: ${error.message}`);
@@ -158,6 +160,7 @@ class PlaywrightWorld extends World {
                                 viewport: parameters.windowSize,
                                 acceptDownloads: true
                             });
+                            console.log('Browser context created');
                         };
                     } catch (error) {
                         throw new Error(`Context creation failed: ${error.message}`);
@@ -172,6 +175,7 @@ class PlaywrightWorld extends World {
                     if (parameters.waitTime > 0) {
                     this.page.setDefaultTimeout(parameters.waitTime);
                     }  
+                    console.log('New page created');
                 }
             } catch (error) {
                 throw new Error(`Page creation failed: ${error.message}`);
@@ -179,6 +183,7 @@ class PlaywrightWorld extends World {
             
             
         } catch (error) {
+            console.error('Detailed browser launch error:', error);
             await this.closeBrowser();
             throw new Error(`Browser setup failed: ${error.message}`);
         }
