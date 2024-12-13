@@ -66,6 +66,8 @@
                                     [selected]="this.browser === 'firefox'">Firefox</option>
                                 <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
                                     [selected]="this.browser === 'MicrosoftEdge'">Edge</option>
+                                <option *ngIf="this.webkit_enabled" id="webkit_browser" value="webkit"
+                                    [selected]="this.browser === 'webkit'">Edge</option>
                             </select>
                         </div>
                         <div>

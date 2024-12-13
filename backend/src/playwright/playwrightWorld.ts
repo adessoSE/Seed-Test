@@ -113,7 +113,7 @@ class PlaywrightWorld extends World {
                 return;
             } else {
                 const browserType = this.getBrowserType();
-                console.log(`Launching ${parameters.browser} browser...`);
+                console.log(`Launching ${parameters.browser} ${String(browserType)} browser...`);
                 const browserConfig = this.getBrowserConfig(parameters.browser);
 
                 // Emulator-Konfiguration
@@ -190,10 +190,17 @@ class PlaywrightWorld extends World {
     }
 
     private getBrowserType() {
+        console.log('Browser selection:', this.testParameters.browser);
         switch(this.testParameters.browser) {
-            case 'firefox': return firefox;
-            case 'webkit': return webkit;
-            default: return chromium;
+            case 'firefox': 
+                console.log('Selected Firefox browser engine');
+                return firefox;
+            case 'webkit': 
+                console.log('Selected Webkit browser engine');
+                return webkit; 
+            default: 
+                console.log(`Selected Chromium-based (${this.testParameters.browser}) browser engine`);
+                return chromium;
         }
     }
 

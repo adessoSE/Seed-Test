@@ -62,6 +62,8 @@ export class WorkgroupEditComponent {
 
   edge_enabled;
 
+  webkit_enabled;
+
   browser: string;
 
   waitBetweenSteps: number;
@@ -116,6 +118,7 @@ export class WorkgroupEditComponent {
     this.gecko_enabled = localStorage.getItem("gecko_enabled");
     this.chromium_enabled = localStorage.getItem("chromium_enabled");
     this.edge_enabled = localStorage.getItem("edge_enabled");
+    this.webkit_enabled = localStorage.getItem("webkit_enabled");
 
     this.gecko_emulators = localStorage.getItem("gecko_emulators");
     this.gecko_emulators =
@@ -126,6 +129,7 @@ export class WorkgroupEditComponent {
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+    //TODO: webkit_emulators hinzufügen?
   }
 
   ngOnInit() {

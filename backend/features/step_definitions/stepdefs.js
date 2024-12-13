@@ -83,7 +83,13 @@ After(async function ({ pickle, result }) {
 	if (!this.parameters.scenarios[scenarioCount].oneDriver
         || scenarioCount === totalScenarios - 1) await this.closeBrowser();
 
-	scenarioCount++;
+	// Counter erhöhen oder zurücksetzen
+    if (scenarioCount === totalScenarios - 1) {
+        scenarioCount = 0;
+        totalScenarios = 0;
+    } else {
+        scenarioCount++;
+    }
 });
 
 // / #################### GIVEN ########################################
