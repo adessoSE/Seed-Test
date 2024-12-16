@@ -54,11 +54,14 @@ mockDb = {
     if (name === 'Workgroups') return mockWGCollection;
   }),
 };
-import dbConnector from '../../src/database/DbConnector';
+// import dbConnector from '../../src/database/DbConnector';
+const dbConnector = require ('../../src/database/DbConnector');
 jest.spyOn(dbConnector, 'getConnection').mockReturnValue(mockDb);
 
-import * as projectDBServices from '../database/projectDBServices';
-import { ObjectId } from 'mongodb';
+// import * as projectDBServices from '../database/projectDBServices';
+// import { ObjectId } from 'mongodb';
+const projectDBServices = require ('../../dist/database/projectDBServices');
+const { ObjectId } = require ('mongodb');
 
 describe('projectDBServices', () => {
   

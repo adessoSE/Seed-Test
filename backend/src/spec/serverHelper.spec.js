@@ -37,7 +37,7 @@ describe('ServerHelper', () => {
 		it('should return only test2 and test3 string', () => {
 			const values = ['test1', 'test2', 'test3'];
 			const returnValue = helper.getValues(values);
-			expect(returnValue).toBe('"test2""test3"');
+			expect(returnValue).toBe('\'test2\'\'test3\'');
 		});
 	});
 
@@ -60,9 +60,13 @@ describe('ServerHelper', () => {
 			}, {
 				id: 3, mid: '', pre: 'I click the button:', stepType: 'when', type: 'Button', values: ['repository_0']
 			}];
-			const stringifyedSteps = 'When I go to the website: "https://seed-test-frontend.herokuapp.com/login"\nAnd I insert "adessoCucumber" into the field"githubName"\nAnd I insert "bef00afd223c0bcdaa18a43808f9e71d13bded9b" into the field"token"\nAnd I click the button: "loginButton"\nAnd I click the button: "repository_0"\n\n';
+			const stringifyedSteps = 'When I go to the website: \'https://seed-test-frontend.herokuapp.com/login\'  \n'
+				+ 'And I insert \'adessoCucumber\' into the field\'githubName\' \n'
+				+ 'And I insert \'bef00afd223c0bcdaa18a43808f9e71d13bded9b\' into the field\'token\' \n'
+				+ 'And I click the button: \'loginButton\'  \n'
+				+ 'And I click the button: \'repository_0\'  \n';
 			const returnValue = helper.getBackgroundSteps(steps);
-			expect(returnValue.replace(/\s/g, '').replace(' ', '')).toBe(stringifyedSteps.replace(/\s/g, '').replace(' ', ''));
+			expect(returnValue.trim()).toBe(stringifyedSteps.trim());
 		});
 	});
 
@@ -90,7 +94,8 @@ describe('ServerHelper', () => {
 					}]
 				}
 			};
-			const backgroundString = 'Background: \n\nWhen I go to the website: ""  \nAnd I click the button: ""  \nAnd I insert "" into the field"" \nAnd I select  "" from the selection"" \nAnd I go to the website: "gg"  \n\n';
+			const backgroundString = 'Background: \n\nWhen I go to the website: \'\'  \nAnd I click the button: \'\'  \nAnd I insert \'\' into the field\'\' \n'
+			+ 'And I select  \'\' from the selection\'\' \nAnd I go to the website: \'gg\'  \n\n';
 			const returnValue = helper.getBackgroundContent(background);
 			expect(returnValue.replace(/\s/g, '').replace(' ', '')).toBe(backgroundString.replace(/\s/g, '').replace(' ', ''));
 		});
@@ -111,7 +116,7 @@ describe('ServerHelper', () => {
 				id: 2, mid: '', pre: 'I am on the website:', stepType: 'given', type: 'Website', values: ['www.amazon.com/warenkorb']
 			}];
 			const stepType = 'given';
-			const testResultString = 'Given As a "Prime Kunde" Given I am on the website: "www.amazon.com/warenkorb"';
+			const testResultString = 'Given As a \'Prime Kunde\' Given I am on the website: \'www.amazon.com/warenkorb\'';
 			const returnValue = helper.getSteps(given, stepType);
 			expect(returnValue.replace(/\s/g, '').replace(' ', '')).toBe(testResultString.replace(/\s/g, '').replace(' ', ''));
 		});
@@ -123,7 +128,7 @@ describe('ServerHelper', () => {
 				id: 2, mid: '', pre: 'I click the button:', stepType: 'when', type: 'Button', values: ['run_story']
 			}];
 			const stepType = 'when';
-			const testResultString = 'When I click the button: "story0" When I click the button: "run_story"';
+			const testResultString = 'When I click the button: \'story0\' When I click the button: \'run_story\'';
 			const returnValue = helper.getSteps(when, stepType);
 			expect(returnValue.replace(/\s/g, '').replace(' ', '')).toBe(testResultString.replace(/\s/g, '').replace(' ', ''));
 		});
@@ -133,7 +138,7 @@ describe('ServerHelper', () => {
 				id: 2, mid: '', pre: 'So I will be navigated to the website:', stepType: 'then', type: 'Website', values: ['https://forum.golem.de/register.php']
 			}];
 			const stepType = 'then';
-			const testResultString = 'Then So I will be navigated to the website: "https://forum.golem.de/register.php"';
+			const testResultString = 'Then So I will be navigated to the website: \'https://forum.golem.de/register.php\'';
 			const returnValue = helper.getSteps(then, stepType);
 			expect(returnValue.replace(/\s/g, '').replace(' ', '')).toBe(testResultString.replace(/\s/g, '').replace(' ', ''));
 		});
@@ -199,36 +204,11 @@ describe('ServerHelper', () => {
 				}],
 				background: { name: 'New Background', stepDefinitions: { when: [] } }
 			};
-			const testResultString = 'Feature: Scenario creation Background: @382626033_2 Scenario: New Scenario';
+			const testResultString = 'Feature: Scenario creation'
+			+ 'As a user In order to create different testcases I want to add a scenario to story when there are stories available.'
+			+ 'Background: @undefined_2 Scenario: New Scenario';
 			const returnValue = helper.getFeatureContent(story);
 			expect(returnValue.replace(/\s/g, '').replace(' ', '')).toBe(testResultString.replace(/\s/g, '').replace(' ', ''));
 		});
 	});
-
-	// describe('writeFile', function(){
-	//    it('should create feature file', function(){
-	//        let selectedStory = {"story_id":386692544,"title":"Visual test response","body":"As a user,\r\nI want a visual response of my scenarios\r\nSo I can see if a test passed or failed","state":"open","issue_number":4,"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","scenarios":[{"scenario_id":2,"name":"New Scenario","stepDefinitions":{"given":[],"when":[],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["hhheg"]}],"example":[]},"comment":""}],"background":{"name":"New Background","stepDefinitions":{"when":[{"id":1,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":[""]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":[""]},{"id":3,"mid":"into the field","pre":"I insert","stepType":"when","type":"Field","values":["",""]},{"id":4,"mid":"from the selection","pre":"I select ","stepType":"when","type":"Radio","values":["",""]},{"id":5,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":["gg"]}]}}}
-	//        let dirName = '';
-	//        let testResultString = '@382626033_2 Scenario: New Scenario'
-	//        let returnValue = helper.getScenarioContent(scenarios, storyId);
-	//        expect(returnValue.replace(/\s/g, "").replace(' ', '')).toBe(testResultString.replace(/\s/g, "").replace(' ', ''));
-	//    });
-	// })
-
-	// describe('setOptions', function(){
-	//    it('should set the options', function(){
-	//        let reportTime = Date.now();
-	//        helper.setOptions(reportTime);
-	//        expect(helper.options.metadata.Platform).toBe(process.platform);
-	//        expect(helper.options.name).toBe('Seed-Test Report');
-	//        expect(helper.options.jsonFile).toBe(`features/reporting_${reportTime}.json`);
-	//        expect(helper.options.output).toBe(`features/reporting_html_${reportTime}.html`);
-	//    });
-	// })
-
-	// describe('fuseGitwitDb', function(){
-	//    it('should fuse with db', function(){
-	//        expect(returnValue).toBe(testResultString);
-	//    });
-	// })
 });
