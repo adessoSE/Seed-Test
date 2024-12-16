@@ -13,7 +13,8 @@ const db = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
-const issueTracker = require('../../dist/models/IssueTracker');
+const { IssueTracker } = require('../../dist/models/IssueTracker');
+const { Sources } = require('../../dist/models/project');
 const xray = require('../../dist/helpers/xray');
 
 const router = express.Router();
@@ -188,18 +189,11 @@ router.get('/logout', async (req, res) => {
 
 // get repositories from all sources(Github,Jira)
 router.get('/repositories', (req, res) => {
-	let githubName;
-	let token;
-	let githubId;
-	if (req.user && req.user.github) {
-		githubName = req.user.github.login;
-		token = req.user.github.githubToken;
-		githubId = req.user.github.id;
-	} else {
-		githubName = process.env.TESTACCOUNT_NAME;
-		token = process.env.TESTACCOUNT_TOKEN;
-		githubId = 0;
-	}
+	const githubName = (req.user.github.login) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
+	// eslint-disable-next-line max-len
+	const token = (req.user.github.githubToken) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
+	const githubId = req.user.github.id;
+
 	// get repositories from individual sources
 	Promise.all([
 		projectMng.starredRepositories(req.user._id, githubId, githubName, token),
@@ -346,7 +340,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey, id } = req.query;
-		const jiraTracker = issueTracker.IssueTracker.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+		const jiraTracker = IssueTracker.getIssueTracker(Sources.JIRA);
 		const clearPass = jiraTracker.decryptPassword(req.user.jira);
 		const { AccountName, AuthMethod, Host } = req.user.jira;
 		let authString = `Bearer ${clearPass}`;

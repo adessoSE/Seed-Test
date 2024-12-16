@@ -1,22 +1,17 @@
 
 import { checkValidGithub, jiraDecryptPassword } from "../helpers/userManagement";
 import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from "./models";
-
-enum IssueTrackerOption{
-    JIRA = 'jira',
-    GITHUB = 'github',
-    NONE = 'db'
-}
+import { Sources } from "./project";
 
 abstract class IssueTracker {
 
-    static getIssueTracker(tracker: IssueTrackerOption): IssueTracker {
-        switch (tracker) {
-            case IssueTrackerOption.JIRA:
+    static getIssueTracker(source: Sources): IssueTracker {
+        switch (source) {
+            case Sources.JIRA:
                 return new Jira();
-            case IssueTrackerOption.GITHUB:
+            case Sources.GITHUB:
                 return new Github();
-            case IssueTrackerOption.NONE:
+            case Sources.DB:
                 return new NoTracker();
             default:
                 throw new Error('Invalid IssueTracker')
@@ -150,7 +145,6 @@ class Jira extends IssueTracker {
 }
 
 export {
-    IssueTrackerOption,
     IssueTracker,
     Github,
     Jira

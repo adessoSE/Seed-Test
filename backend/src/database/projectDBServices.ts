@@ -13,7 +13,7 @@ import { Collections } from './Collections';
  * @returns {Promise<string>} - The ID of the created project.
  * @throws Will throw an error if the database operation fails.
  */
-export async function createProject(ownerId: string, name: string, session?: any, client?: any): Promise<string> {
+export async function createCustomProject(ownerId: string, name: string, session?: any, client?: any): Promise<string> {
   try {
     const newProject: CustomProject = {
       owner: new ObjectId(ownerId),
@@ -106,7 +106,7 @@ export async function getUserProjects(userId: string): Promise<Project[]> {
     const positiveWorkgroups = await wGCollection
       .find({ Members: { $elemMatch: { email: user.email, canEdit: true } } })
       .toArray();
-    const PWgArray = positiveWorkgroups.map((entry) => new ObjectId(entry.Repo));
+    const PWgArray = positiveWorkgroups.map((workgroup) => new ObjectId(workgroup.Repo));
     const PWgRepos = await repoCollection.find({ _id: { $in: PWgArray } }).toArray();
     PWgRepos.forEach((element) => {
       element.canEdit = true;
@@ -115,7 +115,7 @@ export async function getUserProjects(userId: string): Promise<Project[]> {
     const negativeWorkgroups = await wGCollection
       .find({ Members: { $elemMatch: { email: user.email, canEdit: false } } })
       .toArray();
-    const NWgArray = negativeWorkgroups.map((entry) => new ObjectId(entry.Repo));
+    const NWgArray = negativeWorkgroups.map((workgroup) => new ObjectId(workgroup.Repo));
     const NWgRepos = await repoCollection.find({ _id: { $in: NWgArray } }).toArray();
     NWgRepos.forEach((element) => {
       element.canEdit = false;
@@ -350,7 +350,7 @@ export async function deleteProject(projectId: string, ownerId: string): Promise
 }
 
 module.exports = {
-  createProject,
+  createCustomProject,
   createJiraProject,
   createGitProject,
   getUserProjects,

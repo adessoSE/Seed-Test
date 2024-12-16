@@ -8,7 +8,11 @@ const stepDefs = require('../../src/database/stepTypes');
  * @param {string} Host - The hostname or base URL for the API requests.
  * @returns {Promise<Object>} An object containing scenarioList and testStepDescription.
  */
-async function handleTestIssue(issue, options, Host) {
+interface Issue {
+    key: string;
+}
+
+async function handleTestIssue(issue: Issue, options: object, Host: string): Promise<object> {
     // Fetch all test runs for the given issue
     const testrunResponse = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
     const testRuns = await testrunResponse.json();
@@ -35,7 +39,7 @@ async function handleTestIssue(issue, options, Host) {
  * @param {string} issueKey - The key of the issue being processed.
  * @returns {Object} An object containing the scenarioList and testStepDescription.
  */
-function processTestSteps(steps, resolvedTestRuns, issueKey) {
+function processTestSteps(steps: Array<any>, resolvedTestRuns: Array<any>, issueKey: string): { scenarioList: any[], testStepDescription: string } {
     const scenarioList = [];
 
     let testStepDescription = '\n\nTest-Steps:\n';
@@ -112,7 +116,7 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
  * @param {Object} step - The xray step containing sections of given, actiona and expected result.
  * @returns {Array} An array of matching step definitions.
  */
-function checkIdenticalSteps(step) {
+function checkIdenticalSteps(step: object): Array<any> {
     const matches = [];
     let context;
     // Separate the given, action, and expected result sections and select the relevant text
@@ -151,7 +155,7 @@ function checkIdenticalSteps(step) {
  * @param {string} context - The context (given, when, then) of the step.
  * @returns {Object|null} The matching step definition or null if no match found.
  */
-function analyzeText(text, context) {
+function analyzeText(text: string, context: string): object | null {
     // Get all step types except 'Add Variable' as it is not relevant for the test steps
     const stepTypes = stepDefs().filter(def => def.type !== 'Add Variable');
 
@@ -191,7 +195,7 @@ function analyzeText(text, context) {
  * @param {string} string - The string to escape.
  * @returns {string} The escaped string.
  */
-function escapeRegExp(string) {
+function escapeRegExp(string: string): string {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
@@ -201,7 +205,7 @@ function escapeRegExp(string) {
  * @param {string} value - The value to clean.
  * @returns {string} The cleaned value.
  */
-function cleanValue(value) {
+function cleanValue(value: string): string {
     const linkPattern = /^\[http:\/\/[^\]]+\]$/;
     const emailPattern = /^\[([^\]]+@[^\]]+)\|mailto:[^\]]+\]$/;
     const quotesPattern = /^"(.*)"$/;
@@ -223,7 +227,7 @@ function cleanValue(value) {
  * @param {Array} matchingSteps - An array of matching steps.
  * @returns {Object} An object containing scenario steps for given, when, and then.
  */
-function createScenarioSteps(matchingSteps) {
+function createScenarioSteps(matchingSteps: Array<any>): { givenSteps: any[], whenSteps: any[], thenSteps: any[] } {
     let givenSteps = []
     let whenSteps = []
     let thenSteps = []
@@ -276,7 +280,7 @@ function createScenarioSteps(matchingSteps) {
  * @param {string} givenField - The given field containing raw data.
  * @returns {string} The extracted raw data.
  */
-function extractRaw(givenField) {
+function extractRaw(givenField: string): string {
     try {
         const givenData = JSON.parse(givenField);
         if (givenData && givenData.raw) {

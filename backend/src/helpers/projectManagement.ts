@@ -1,5 +1,5 @@
 import * as mongoTs from "../database/projectDBServices"
-import {Sources, Project, JiraProject } from "../models/project";
+import {Sources, CustomProject, JiraProject } from "../models/project";
 import mongo from "../../src/database/DbServices";
 import dbConnector from "../../src/database/dbConnector";
 import { jiraDecryptPassword } from "./userManagement";
@@ -68,72 +68,80 @@ async function requestJiraProjects(host: string, username: string, jiraClearPass
 		.then((response) => response.json())
 		.catch((error) => { console.error(error.stack); return [] })
 
-	const projects = jiraProjects.map((project) => project.name)
+  // TODO: check wether it is a Xray Project
+  
+	const projects = jiraProjects.map((project: { name: any; }) => project.name)
 
 	return projects
 }
 
 /**
  * store and cumulate jira repos
- * @param projects
+ * @param fetchedProjects
  * @returns
  */
-async function storeJiraRepos(projects: Array<any>) {
-  if (projects.length === 0) return [];
-
-  const source = Sources.JIRA;
+async function storeJiraRepos(fetchedProjects: Array<any>) {
+  if (fetchedProjects.length === 0) return [];
   // get existing JiraProjects
-  const existingJiraProjects = await mongo.getAllSourceReposFromDb(source);
+  const existingJiraProjects = await mongo.getAllSourceReposFromDb(Sources.JIRA);
 
-  let repos = [];
-  let jiraProject: Project;
+  let repos: Array<JiraProject> = [];
 
-  for (const projectName of projects) {
+  for (const projectName of fetchedProjects) {
+    let jiraProject: JiraProject;
     // if is is a new Project
-    if (!existingJiraProjects.some((entry) => entry.repoName === projectName)) {
+    if (!existingJiraProjects.some((existingProject: JiraProject) => existingProject.repoName === projectName)) {
       // create new Jira Project
       jiraProject = await mongoTs.createJiraProject(projectName);
     } else {
       // add existing Jira Project to list
       jiraProject = existingJiraProjects.find(
-        (e: JiraProject) => e.repoName === projectName
+        (project: JiraProject) => project.repoName === projectName
       );
     }
-    repos.push({ name: projectName, _id: jiraProject._id });
+    repos.push(jiraProject);
   }
 
   return repos.map<{ _id: string; value: string; source: string }>(
-    (value) => ({
-      _id: value._id,
-      value: value.name,
-      source,
+    (jiraProject) => ({
+      _id: jiraProject._id,
+      value: jiraProject.repoName,
+      source: jiraProject.repoType,
     })
   );
 }
 
 
-function dbProjects(userId: string) {
+/**
+ * Retrieves custom projects for a user.
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<Array>} - A promise that resolves to an array of custom projects.
+ */
+function getCustomProjects(userId: string): Promise<Array<any>> {
   return new Promise((resolve) => {
-    if (typeof userId === undefined || userId === "") resolve([]);
-    mongo.getRepository(userId).then((json) => {
+    if (typeof userId === 'undefined' || userId === "") resolve([]);
+    mongo.getAllSourceReposFromDb(Sources.DB).then((dbProjects: Array<CustomProject>) => {
+      if (dbProjects.length === 0) resolve([]);
       const projects = [];
-      if (Object.keys(json).length === 0) resolve([]);
-      for (const repo of json)
-        if (repo.repoType === "db") {
-          const proj = {
-            _id: repo._id,
-            value: repo.repoName,
-            source: repo.repoType,
-            canEdit: repo.canEdit,
-          };
-          projects.push(proj);
-        }
+      dbProjects.forEach((proj: CustomProject) => {
+        projects.push({
+          _id: proj._id,
+          value: proj.repoName,
+          source: proj.repoType,
+          // canEdit: proj.canEdit // deprecated i guess ????
+        });
+      });
       resolve(projects);
     });
   });
 }
 
-function uniqueRepositories(repositories) {
+/**
+ * Filters unique repositories from a list of repositories.
+ * @param {Array<any>} repositories - The list of repositories.
+ * @returns {Array<any>} - An array of unique repositories.
+ */
+function uniqueRepositories(repositories: Array<any>): Array<any> {
   const uniqueIds = [];
   const uniqueRepos = [];
   for (const i in repositories) {
@@ -150,43 +158,66 @@ function uniqueRepositories(repositories) {
   return uniqueRepos;
 }
 
-function execRepositoryRequests(link, user, password, ownerId, githubId) {
-	return new Promise((resolve, reject) => {
-		const reqOptions = {headers: {'Authorization': 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64')}}
-		fetch(link, reqOptions)
-			.then((response) => {
-				if (response.status === 401) reject("github fetch failed (Unauthorized): " + response.status)
-				return response})
-			.then((response) => {
-				if (response.status !== 200) reject(response.status); 
-				return response})
-			.then((response) => response.json())
-			.then(async (response) => {
-				const projects = [];
-				const gitReposFromDb = await mongo.getAllSourceReposFromDb('github');
-				let mongoRepo;
-				for (const repo of response) {
-					// if this Repository is not in the DB create one in DB
-					if (!gitReposFromDb.some((entry) => entry.repoName === repo.full_name)) {
-						mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
-					} else {
-						mongoRepo = gitReposFromDb.find((element) => element.repoName === repo.full_name); // await mongo.getOneGitRepository(repo.full_name)
-						if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(mongoRepo._id, ownerId, mongoRepo.owner);
-					}
-					const repoName = repo.full_name;
-					const proj = {
-						_id: mongoRepo._id,
-						value: repoName,
-						source: 'github'
-					};
-					projects.push(proj);
-				}
-				resolve(projects);
-			}).catch((reason) => {console.error("problem getting the github projects");resolve([]);return []});
-	}).catch(() => [])
+/**
+ * Executes repository requests.
+ * @param {string} url - The API link.
+ * @param {string} user - The username.
+ * @param {string} password - The password.
+ * @param {string} ownerId - The owner ID.
+ * @param {number} githubId - The GitHub ID.
+ * @returns {Promise<Array<any>>} - A promise that resolves to an array of repositories.
+ */
+async function execRepositoryRequests(url: string, user: string, password: string, ownerId: string, githubId: number): Promise<Array<any>> {
+  try {
+    return await new Promise<any[]>((resolve, reject) => {
+      const reqOptions = { headers: { 'Authorization': 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64') } };
+      fetch(url, reqOptions)
+        .then((response) => {
+          if (response.status === 401) reject("github fetch failed (Unauthorized): " + response.status);
+          return response;
+        })
+        .then((response_1) => {
+          if (response_1.status !== 200) reject(response_1.status);
+          return response_1;
+        })
+        .then((response_2) => response_2.json())
+        .then(async (response_3) => {
+          const projects = [];
+          const gitReposFromDb = await mongo.getAllSourceReposFromDb(Sources.GITHUB);
+          let mongoRepo: { gitOwner: number; _id: any; owner: any; };
+          for (const repo of response_3) {
+            // if this Repository is not in the DB create one in DB
+            if (!gitReposFromDb.some((entry: { repoName: any; }) => entry.repoName === repo.full_name)) {
+              mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
+            } else {
+              mongoRepo = gitReposFromDb.find((element: { repoName: any; }) => element.repoName === repo.full_name);
+              if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(mongoRepo._id, ownerId, mongoRepo.owner);
+            }
+            const repoName = repo.full_name;
+            const proj = {
+              _id: mongoRepo._id,
+              value: repoName,
+              source: Sources.GITHUB
+            };
+            projects.push(proj);
+          }
+          resolve(projects);
+        }).catch((reason) => { console.error("problem getting the github projects"); resolve([]); return []; });
+    });
+  } catch {
+    return [];
+  }
 }
 
-function ownRepositories(ownerId, githubId, githubName, token) {
+/**
+ * Fetches the user's own repositories.
+ * @param {string} ownerId - The owner ID.
+ * @param {number} githubId - The GitHub ID.
+ * @param {string} githubName - The GitHub username.
+ * @param {string} token - The authentication token.
+ * @returns {Promise<Array<any>>} - A promise that resolves to an array of repositories.
+ */
+function ownRepositories(ownerId: string, githubId: number, githubName: string, token: string): Promise<Array<any>> {
   if (!githubName && !token) return Promise.resolve([]);
   return execRepositoryRequests(
     "https://api.github.com/user/repos?per_page=100",
@@ -197,7 +228,15 @@ function ownRepositories(ownerId, githubId, githubName, token) {
   );
 }
 
-function starredRepositories(ownerId, githubId, githubName, token) {
+/**
+ * Fetches the user's starred repositories.
+ * @param {string} ownerId - The owner ID.
+ * @param {number} githubId - The GitHub ID.
+ * @param {string} githubName - The GitHub username.
+ * @param {string} token - The authentication token.
+ * @returns {Promise<Array<any>>} - A promise that resolves to an array of repositories.
+ */
+function starredRepositories(ownerId: string, githubId: number, githubName: string, token: string): Promise<Array<any>> {
   if (!githubName && !token) return Promise.resolve([]);
   return execRepositoryRequests(
     `https://api.github.com/users/${githubName}/starred`,
@@ -208,7 +247,13 @@ function starredRepositories(ownerId, githubId, githubName, token) {
   );
 }
 
-function mergeTestRunSteps(dbTestRunSteps, jiraTestRunSteps) {
+/**
+ * Merges test run steps from the database and Jira.
+ * @param {Array<any>} dbTestRunSteps - The database test run steps.
+ * @param {Array<any>} jiraTestRunSteps - The Jira test run steps.
+ * @returns {Array<any>} - The merged test run steps.
+ */
+function mergeTestRunSteps(dbTestRunSteps: Array<any>, jiraTestRunSteps: Array<any>): Array<any> {
   if (dbTestRunSteps !== jiraTestRunSteps) {
       return jiraTestRunSteps; }
   else {
@@ -216,25 +261,31 @@ function mergeTestRunSteps(dbTestRunSteps, jiraTestRunSteps) {
   }
 }
 
-function mergeStepDefinitions(dbStepDefinitions, jiraStepDefinitions) {
+/**
+ * Merges step definitions from the database and Jira.
+ * @param {any} dbStepDefinitions - The database step definitions.
+ * @param {any} jiraStepDefinitions - The Jira step definitions.
+ * @returns {any} - The merged step definitions.
+ */
+function mergeStepDefinitions(dbStepDefinitions: any, jiraStepDefinitions: any): any {
   const mergedStepDefinitions = {};
   ['given', 'when', 'then', 'example'].forEach(stepType => {
     const dbSteps = dbStepDefinitions[stepType] || [];
     const jiraSteps = jiraStepDefinitions[stepType] || [];
 
-    const allJiraInDb = jiraSteps.every(jiraStep => 
-      dbSteps.some(dbStep => dbStep.id === jiraStep.id)
+    const allJiraInDb = jiraSteps.every((jiraStep: { id: any; }) => 
+      dbSteps.some((dbStep: { id: any; }) => dbStep.id === jiraStep.id)
     );
 
     if (allJiraInDb) {
-      mergedStepDefinitions[stepType] = dbSteps.map(dbStep => {
-        const jiraStep = jiraSteps.find(jStep => jStep.id === dbStep.id);
+      mergedStepDefinitions[stepType] = dbSteps.map((dbStep: { id: any; }) => {
+        const jiraStep = jiraSteps.find((jStep: { id: any; }) => jStep.id === dbStep.id);
         return jiraStep ? {...dbStep, ...jiraStep} : dbStep;
       });
     } else {
       mergedStepDefinitions[stepType] = [
         ...jiraSteps, 
-        ...dbSteps.filter(dbStep => !jiraSteps.some(jStep => jStep.id === dbStep.id))
+        ...dbSteps.filter((dbStep: { id: any; }) => !jiraSteps.some((jStep: { id: any; }) => jStep.id === dbStep.id))
       ];
     }
   });
@@ -242,27 +293,32 @@ function mergeStepDefinitions(dbStepDefinitions, jiraStepDefinitions) {
   return mergedStepDefinitions;
 }
 
-
-function mergeStories(dbStory, jiraStory) {
+/**
+ * Merges stories from the database and Jira.
+ * @param {any} dbStory - The database story.
+ * @param {any} jiraStory - The Jira story.
+ * @returns {any} - The merged story.
+ */
+function mergeStories(dbStory: any, jiraStory: any): any {
   const mergedStory = { ...dbStory };
   const dbScenarios = dbStory.scenarios;
   const jiraScenarios = jiraStory.scenarios;
 
   const dbScenarioMap = new Map();
-  dbScenarios.forEach(scenario => dbScenarioMap.set(scenario.scenario_id, scenario));
+  dbScenarios.forEach((scenario: { scenario_id: any; }) => dbScenarioMap.set(scenario.scenario_id, scenario));
 
   const jiraScenarioMap = new Map();
-  jiraScenarios.forEach(scenario => jiraScenarioMap.set(scenario.scenario_id, scenario));
+  jiraScenarios.forEach((scenario: { scenario_id: any; }) => jiraScenarioMap.set(scenario.scenario_id, scenario));
 
   // inidicates if all xray jira scenarios are in db
-  const allJiraInDb = jiraScenarios.every(jiraScenario => dbScenarioMap.has(jiraScenario.scenario_id));
+  const allJiraInDb = jiraScenarios.every((jiraScenario: { scenario_id: any; }) => dbScenarioMap.has(jiraScenario.scenario_id));
 
   const mergedScenarios = [];
 
   // if all jira scenarios are in db, we keep db order and merge jira scenarios
   if (allJiraInDb) {
   
-    dbScenarios.forEach(dbScenario => {
+    dbScenarios.forEach((dbScenario: { scenario_id: any; stepDefinitions: any; testRunSteps: any[]; }) => {
       const jiraScenario = jiraScenarioMap.get(dbScenario.scenario_id);
       if (jiraScenario) {
         mergedScenarios.push({
@@ -278,7 +334,7 @@ function mergeStories(dbStory, jiraStory) {
     });
     // if not all jira scenarios are in db, we keep jira order first and add db scenarios
   } else {
-    jiraScenarios.forEach(jiraScenario => {
+    jiraScenarios.forEach((jiraScenario: { scenario_id: any; name: any; stepDefinitions: any; testRunSteps: any[]; testKey: any; }) => {
       const dbScenario = dbScenarioMap.get(jiraScenario.scenario_id);
       if (dbScenario) {
         mergedScenarios.push({
@@ -294,7 +350,7 @@ function mergeStories(dbStory, jiraStory) {
     });
 
     // add remaining db scenarios that were not processed
-    dbScenarios.forEach(dbScenario => {
+    dbScenarios.forEach((dbScenario: { scenario_id: any; }) => {
       if (!jiraScenarioMap.has(dbScenario.scenario_id)) {
         mergedScenarios.push(dbScenario);
       }
@@ -306,8 +362,12 @@ function mergeStories(dbStory, jiraStory) {
   return mergedStory;
 }
 
-
-async function fuseStoryWithDb(story) {
+/**
+ * Fuses a story with the database.
+ * @param {any} story - The story to fuse.
+ * @returns {Promise<any>} - A promise that resolves to the fused story.
+ */
+async function fuseStoryWithDb(story: any): Promise<any> {
 	const result = await mongo.getOneStory(parseInt(story.story_id, 10));
 
 	if (result !== null) {
@@ -330,20 +390,26 @@ async function fuseStoryWithDb(story) {
   return story;
 }
 
-async function exportProject(repo_id, versionID) {
+/**
+ * Exports a project to a zip file.
+ * @param {string} repo_id - The repository ID.
+ * @param {string} versionID - The version ID.
+ * @returns {Promise<Buffer | null>} - A promise that resolves to the zip buffer or null if no repo is found.
+ */
+async function exportProject(repo_id: string, versionID: string): Promise<Buffer | null> {
   try {
     const repo = await mongo.getOneRepositoryById(repo_id);
-    if (!repo || !repo.stories) {
+    if (!repo?.stories) {
       console.log("No repo to corresonding ID found!");
       return null;
     }
     //Collect stories for export
     let exportStories = [];
     let keyStoryIds = []; //Needed for goup-story link
-    for (let index = 0; index < repo.stories.length; index++) {
-      let story = await mongo.getOneStory(repo.stories[index]);
+    for (const element of repo.stories) {
+      let story = await mongo.getOneStory(element);
       if (!story) {
-        throw new Error(`Story ${repo.stories[index]} not found`);
+        throw new Error(`Story ${element} not found`);
       }
       keyStoryIds.push(story._id.toString());
       delete story._id;
@@ -355,22 +421,22 @@ async function exportProject(repo_id, versionID) {
     let repoBlocks = await mongo.getBlocks(repo_id);
 
     //Falls sich die getBlocks Blöcke wider Erwarten von den customBlocks in dem repo unterscheiden, müssen wir ggf. anders loopen und zwischenabfragen
-    for (let index = 0; index < repoBlocks.length; index++) {
-      delete repoBlocks[index]._id;
+    for (const element of repoBlocks) {
+      delete element._id;
     }
 
     //Collect & adjust groups for export
     let repoGroups = [...repo.groups];
-    for (let index = 0; index < repoGroups.length; index++) {
-      delete repoGroups[index]._id;
+    for (const element of repoGroups) {
+      delete element._id;
       //change memberStories references to indices
       for (
         let sub_index = 0;
-        sub_index < repoGroups[index].member_stories.length;
+        sub_index < element.member_stories.length;
         sub_index++
       ) {
-        repoGroups[index].member_stories[sub_index] = keyStoryIds.indexOf(
-          repoGroups[index].member_stories[sub_index]
+        element.member_stories[sub_index] = keyStoryIds.indexOf(
+          element.member_stories[sub_index]
         );
       }
     }
@@ -412,7 +478,13 @@ async function exportProject(repo_id, versionID) {
 }
 
 //General function to check for possible Renaming suffixes
-function checkAndAddSuffix(name, conflictingNameList) {
+/**
+ * Checks for possible renaming suffixes and adds them if necessary.
+ * @param {string} name - The original name.
+ * @param {Array<string>} conflictingNameList - The list of conflicting names.
+ * @returns {string} - The new name with a suffix if necessary.
+ */
+function checkAndAddSuffix(name: string, conflictingNameList: Array<string>): string {
   let suffix = 1;
   let newName = name;
 
@@ -428,7 +500,13 @@ function checkAndAddSuffix(name, conflictingNameList) {
 }
 
 //Get the associatedId from conflict list
-function findAssociatedID(name, data) {
+/**
+ * Finds the associated ID from a conflict list.
+ * @param {string} name - The name to find the associated ID for.
+ * @param {Array<any>} data - The conflict list data.
+ * @returns {string | null} - The associated ID or null if not found.
+ */
+function findAssociatedID(name: string, data: Array<any>): string | null {
   for (const { conflictingName, associatedID } of data) {
     if (conflictingName === name) {
       return associatedID;
@@ -437,12 +515,20 @@ function findAssociatedID(name, data) {
   return null; // Indicate ID not found
 }
 
-async function importProject(file, repo_id?, projectName?, importMode?) {
+/**
+ * Imports a project from a zip file.
+ * @param {any} file - The zip file.
+ * @param {string} [repo_id] - The repository ID.
+ * @param {string} [projectName] - The project name.
+ * @param {string} [importMode] - The import mode.
+ * @returns {Promise<string>} - A promise that resolves to an empty string.
+ */
+async function importProject(file: any, repo_id?: string, projectName?: string, importMode?: string): Promise<string> {
   // Create a MongoDB client and start a session
   const client = await dbConnector.establishConnection();
-  const session = await client.startSession();
+  const session = client.startSession();
   const zip = new AdmZip(file.buffer);
-  importMode = importMode === "false" ? false : true;
+  const importModeBool = importMode !== "false";
   try {
     // Extract the stories and groups data
     const storiesFolder = "stories_data";
@@ -466,12 +552,10 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
       const filenameB = b.entryName;
       return filenameA.localeCompare(filenameB);
     });
-    const repoJsonData = zip.readAsText("repo.json");
-    const repoData = JSON.parse(repoJsonData);
-    const mappingJsonData = zip.readAsText("keyStoryIds.json");
-    const mappingData = JSON.parse(mappingJsonData);
-    const repoBlocksJsonData = zip.readAsText("repoBlocks.json");
-    const repoBlocksData = JSON.parse(repoBlocksJsonData);
+
+    const repoData = JSON.parse(zip.readAsText("repo.json"));
+    const mappingData = JSON.parse(zip.readAsText("keyStoryIds.json"));
+    const repoBlocksData = JSON.parse(zip.readAsText("repoBlocks.json"));
     let groupMapping = [];
     //Needed for automatic renaming
     let existingNameList: string[] = [];
@@ -567,13 +651,13 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
       // Perform a PUT request for an existing project
       console.log("Performing a PUT request for an existing project");
       console.log(
-        importMode
+        importModeBool
           ? "We are renaming."
           : "We are overwriting."
       );
 
       //Begin Transaction!
-      await session.withTransaction(async (session) => {
+      await session.withTransaction(async (session: any) => {
         // Check for duplicate names
         const storyConflicts = await nameCheckStory();
         const blockConflicts = await nameCheckBlock();
@@ -594,7 +678,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           storyFiles,
           groupMapping,
           existingNameList,
-          importMode,
+          importModeBool,
           checkAndAddSuffix,
           findAssociatedID,
           client,
@@ -609,7 +693,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           session,
           existingNameList,
           repoBlocksData,
-          importMode,
+          importModeBool,
           checkAndAddSuffix,
           findAssociatedID,
           client,
@@ -623,7 +707,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           groupFiles,
           groupMapping,
           existingNameList,
-          importMode,
+          importModeBool,
           repo_id,
           checkAndAddSuffix,
           findAssociatedID,
@@ -639,7 +723,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
       console.log("Performing a POST request for a new project");
 
       //Begin Transaction!
-      await session.withTransaction(async (session) => {
+      await session.withTransaction(async (session: any) => {
         //Create new repo with some exported information
         const newRepo = await mongo.createRepo(
           repoData.owner,
@@ -664,7 +748,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           storyFiles,
           groupMapping,
           existingNameList,
-          importMode,
+          importModeBool,
           checkAndAddSuffix,
           findAssociatedID,
           client,
@@ -678,7 +762,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           session,
           existingNameList,
           repoBlocksData,
-          importMode,
+          importModeBool,
           checkAndAddSuffix,
           findAssociatedID,
           client
@@ -691,7 +775,7 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
           groupFiles,
           groupMapping,
           existingNameList,
-          importMode,
+          importModeBool,
           repo_id,
           checkAndAddSuffix,
           findAssociatedID,
@@ -713,7 +797,14 @@ async function importProject(file, repo_id?, projectName?, importMode?) {
     await client.close();
   }
 }
-async function updateTestSets(testSets, repo_id) {
+
+/**
+ * Updates test sets in the database.
+ * @param {Array<any>} testSets - The test sets to update.
+ * @param {string} repo_id - The repository ID.
+ * @returns {Promise<void>} - A promise that resolves when the update is complete.
+ */
+async function updateTestSets(testSets: Array<any>, repo_id: string): Promise<void> {
 	for (const testSet of testSets) {
 		try {
 			const storyIds = await getStorysByIssue(testSet.tests);
@@ -727,7 +818,7 @@ async function updateTestSets(testSets, repo_id) {
 			const project = await mongo.getOneRepositoryById(repo_id);
 
 			// Find existing group by testSetKey
-			let existingGroup = project.groups.find(group => group.name === testSet.testSetKey);
+			let existingGroup = project.groups.find((group: { name: any; }) => group.name === testSet.testSetKey);
 
 			if (existingGroup) {
                 // Update existing group
@@ -751,7 +842,12 @@ async function updateTestSets(testSets, repo_id) {
     }
 }
 
-async function getStorysByIssue(issueKeys) {
+/**
+ * Gets story IDs by issue keys.
+ * @param {Array<string>} issueKeys - The issue keys.
+ * @returns {Promise<Array<string>>} - A promise that resolves to an array of story IDs.
+ */
+async function getStorysByIssue(issueKeys: Array<string>): Promise<Array<string>> {
 	try {
 		const storiesIds = await mongo.getStoriesByIssueKeys(issueKeys);
 		return storiesIds
@@ -763,7 +859,7 @@ async function getStorysByIssue(issueKeys) {
 
 export = {
   getJiraRepos: fetchJiraProjects,
-  dbProjects,
+  dbProjects: getCustomProjects,
   uniqueRepositories,
   starredRepositories,
   ownRepositories,

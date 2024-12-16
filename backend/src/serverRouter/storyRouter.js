@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const pmHelper = require('../../dist/helpers/projectManagement');
-const issueTracker = require('../../dist/models/IssueTracker');
+const { IssueTracker } = require('../../dist/models/IssueTracker');
+const { Sources } = require('../../dist/models/project');
 
 const router = express.Router();
 const upload = multer({
@@ -270,8 +271,8 @@ router.delete('/scenario/:story_id/:_id', async (req, res) => {
 		const testKey = req.headers['x-test-key'];
 		try {
 			if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
-				const jiraTracker = issueTracker.IssueTracker
-					.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+				const jiraTracker = IssueTracker
+					.getIssueTracker(Sources.JIRA);
 				const clearPass = jiraTracker.decryptPassword(req.user.jira);
 				const {
 					AccountName, AuthMethod, Host

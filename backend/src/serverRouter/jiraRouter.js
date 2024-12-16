@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const userHelper = require('../../dist/helpers/userManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
+const { Sources } = require('../../dist/models/project');
 
 const router = express.Router();
 
@@ -131,7 +132,7 @@ router.post('/login', (req, res) => {
 router.put('/update-xray-status', async (req, res) => {
 	if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
 		const jiraTracker = issueTracker.IssueTracker
-			.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+			.getIssueTracker(Sources.JIRA);
 		const clearPass = jiraTracker.decryptPassword(req.user.jira);
 		const {
 			AccountName, AuthMethod, Host

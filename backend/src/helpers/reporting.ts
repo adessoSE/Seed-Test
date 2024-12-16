@@ -5,7 +5,8 @@ import path from 'path';
 const mongo = require('../../src/database/DbServices');
 const testExecutor = require('../../src/serverHelper')
 import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus} from '../models/models';
-import { Github, IssueTracker, IssueTrackerOption } from '../models/IssueTracker';
+import { Github, IssueTracker} from '../models/IssueTracker';
+import { Sources } from "../models/project";
 
 
 // this is needed for the html report
@@ -411,13 +412,13 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 		setTimeout(deleteReport, deletionTime, `${reportName}.html`);
 	}
     console.log("repoParam ", reportResults.settings);
-    if (parameters.source === IssueTrackerOption.NONE) return;
+    if (parameters.source === Sources.DB) return;
     if (reportResults.settings && reportResults.settings.reportComment !== true) return;//setting only with globalsetting activated
 	// if possible separate function
 	for (const story of stories) {
         const issueTracker = IssueTracker.getIssueTracker(story.storySource)
         const comment = issueTracker.reportText(reportResults, story.title)
-		if (story.storySource === IssueTrackerOption.GITHUB && req.user.github) {
+		if (story.storySource === Sources.GITHUB && req.user.github) {
 			const githubValue = parameters.repository.split('/');
 			// eslint-disable-next-line no-continue
 			if (githubValue == null) { continue; }
@@ -427,7 +428,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			issueTracker.postComment(comment, {issueId: story.issue_number, repoUser: githubName, repoName: githubRepo}, req.user.github)
 			if (mode === ExecutionMode.STORY) (issueTracker as Github).updateLabel(reportResults.status, {issueId: story.issue_number, repoUser: githubName, repoName: githubRepo}, req.user.github.githubToken);
 		}
-		if (story.storySource === IssueTrackerOption.JIRA  && req.user.jira) {
+		if (story.storySource === Sources.JIRA  && req.user.jira) {
             issueTracker.postComment(comment, {issueId: story.issue_number}, req.user.jira)
 		}
 	}

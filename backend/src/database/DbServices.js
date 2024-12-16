@@ -505,8 +505,6 @@ async function createStory(
 	const iNumberArray = [];
 	let finalIssueNumber = 1;
 	try {
-		console.log(session);
-		console.log(client);
 		const db = session
 			? client.db('Seed', session)
 			: dbConnection.getConnection();
@@ -1459,7 +1457,7 @@ async function importGroups(
 	groupMapping,
 	existingNameList,
 	importMode,
-	repo_id,
+	repoId,
 	checkAndAddSuffix,
 	findAssociatedID,
 	client,
@@ -1476,10 +1474,10 @@ async function importGroups(
 		if (!post && importMode) name = checkAndAddSuffix(name, existingNameList);
 		if (!post && !importMode && findAssociatedID(name, allConflicts)) {
 			groupObject._id = findAssociatedID(name, allConflicts);
-			const oldGroup = await getOneStoryGroup(repo_id, groupObject._id);
+			const oldGroup = await getOneStoryGroup(repoId, groupObject._id);
 			groupObject.member_stories = oldGroup.member_stories;
 			const updatedGroup = await updateStoryGroup(
-				repo_id,
+				repoId,
 				groupObject._id,
 				groupObject,
 				session,
@@ -1672,7 +1670,7 @@ async function getOneStoryByIssueKey(issueKey) {
 // ############################## imported Typescript functions ##############################
 // sorted ty CRUD
 async function createRepo(ownerId, name, session = undefined, client = undefined) {
-	return projectDbService.createProject(ownerId, name, session, client);
+	return projectDbService.createCustomProject(ownerId, name, session, client);
 }
 
 async function createJiraRepo(repoName) {

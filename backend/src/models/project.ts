@@ -29,7 +29,7 @@ class CustomProject extends Project{
 }
 
 class JiraProject extends Project{
-    //owner: string;
+    //owner: string;  // deprecated - but in DB as ""
 }
 
 class XrayProject extends JiraProject{
