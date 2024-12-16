@@ -11,7 +11,6 @@
     "test": "jest --verbose",
     "test-watch": "jest --watch",
     "test-coverage": "jest --coverage",
-    "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "lint": "ng lint",
     "prod": "ng serve -c production",
     "dev": "ng serve & node server.js",
@@ -66,27 +65,5 @@
     "jest-canvas-mock": "^2.5.2",
     "jest-preset-angular": "^14.4.2",
     "tslib": "^2.8.1"
-  },
-    "jest": {
-      "preset": "jest-preset-angular",
-      "setupFilesAfterEnv": [
-        "<rootDir>/src/setup.jest.ts",
-        "jest-canvas-mock"
-      ],
-      "modulePaths": [
-        "<rootDir>"
-      ],
-      "testPathIgnorePatterns": [
-        "<rootDir>/node_modules/",
-        "<rootDir>/dist/"
-      ],
-      "coveragePathIgnorePatterns": [
-        ".html"
-      ],
-      "ts-jest": {
-        "tsconfig": "<rootDir>/tsconfig.spec.json",
-        "stringifyContentPathRegex": "\\.html$"
-      },
-      "globals": {}
   }
 }

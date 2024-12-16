@@ -56,10 +56,5 @@
     "cucumber-html-reporter": {
       "semver": "^7.5.2"
     }
-  },
-  "ts-jest": {
-      "transform": {
-        "^.+.tsx?$": ["ts-jest",{}]
-      }
-    }
+  }
 }
