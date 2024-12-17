@@ -9,7 +9,7 @@ const mongo = require('../database/DbServices');
 
 const router = express.Router();
 
-// router for all user requests
+// router for all script requests
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
 
@@ -27,7 +27,7 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		console.log('Time of user request:', Date.now());
+		console.log('Time of /script request:', Date.now());
 		next();
 	});
 

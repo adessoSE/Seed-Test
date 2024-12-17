@@ -34,7 +34,7 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		console.log('Time of user request:', Date.now());
+		console.log('Time of sanity request:', Date.now());
 		next();
 	});
 

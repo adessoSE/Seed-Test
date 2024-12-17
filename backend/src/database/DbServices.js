@@ -13,6 +13,10 @@ const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const { Collections } = require('../../dist/database/Collections');
 const projectDbService = require('../../dist/database/projectDBServices');
+const {
+	createStoryGroup, updateStoryGroup, updateStoryGroupsArray, deleteStoryGroup,
+	getAllStoryGroups, getOneStoryGroup, addToStoryGroup, removeFromStoryGroup
+} = require('../../dist/helpers/groups');
 
 if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 
@@ -320,142 +324,6 @@ async function getOneStory(storyId) {
 		// if there is no Story (e.g. if its a new GitHub repo), return null
 		console.log('if no match return null');
 		return null;
-	}
-}
-
-async function createStoryGroup(
-	repoID,
-	name,
-	members,
-	sequence,
-	session = undefined,
-	client = undefined,
-	xayTestSet = false
-) {
-	try {
-		const db = session
-			? client.db('Seed', session)
-			: dbConnection.getConnection();
-		const group = {
-			_id: new ObjectId(),
-			name,
-			member_stories: members,
-			isSequential: sequence
-		};
-		if (xayTestSet) group.xayTestSet = true;
-
-		const groups = await db.collection(Collections.REPOSITORIES).findOneAndUpdate(
-			{ _id: new ObjectId(repoID) },
-			{
-				$push: {
-					groups: group
-				}
-			},
-			{ upsert: true, projection: { groups: 1 }, session: session || undefined }
-		);
-		return groups.groups.slice(-1)._id;
-	} catch (e) {
-		console.error(`ERROR in createStoryGroup: ${e}`);
-	}
-}
-
-async function updateStoryGroup(
-	repoId,
-	groupId,
-	updatedGroup,
-	session = undefined,
-	client = undefined
-) {
-	try {
-		const db = session
-			? client.db('Seed', session)
-			: dbConnection.getConnection();
-		updatedGroup._id = new ObjectId(updatedGroup._id);
-		const collection = await db.collection(Collections.REPOSITORIES);
-		const repo = await collection.findOne({ _id: new ObjectId(repoId) });
-		// leave with double equal:
-		const index = repo.groups.findIndex((o) => o._id == groupId);
-		repo.groups[index] = updatedGroup;
-		await collection.updateOne(
-			{ _id: new ObjectId(repoId) },
-			{ $set: repo },
-			{ session: session || undefined }
-		);
-		return updatedGroup;
-	} catch (e) {
-		console.error(`ERROR in updateStoryGroup: ${e}`);
-	}
-}
-
-async function deleteStoryGroup(repoId, groupId) {
-	try {
-		const db = dbConnection.getConnection();
-		const collection = await db.collection(Collections.REPOSITORIES);
-		const repo = await collection.findOne({ _id: new ObjectId(repoId) });
-		// leave with double equal:
-		const index = repo.groups.findIndex((o) => o._id == groupId);
-		repo.groups.splice(index, 1);
-		await collection.updateOne({ _id: new ObjectId(repoId) }, { $set: repo });
-		return null;
-	} catch (e) {
-		console.error(`ERROR in deleteStoryGroup: ${e}`);
-	}
-}
-
-async function getAllStoryGroups(repoId) {
-	try {
-		const db = dbConnection.getConnection();
-		return await db
-			.collection(Collections.REPOSITORIES)
-			.findOne({ _id: new ObjectId(repoId) }, { projection: { groups: 1 } });
-	} catch (e) {
-		console.error(`ERROR in getAllStoryGroups: ${e}`);
-	}
-}
-
-async function getOneStoryGroup(repoId, groupId) {
-	try {
-		const groups = await getAllStoryGroups(repoId);
-		return groups.groups.find((o) => o._id == groupId);
-	} catch (e) {
-		console.error(`ERROR in getOneStoryGroup: ${e}`);
-	}
-}
-
-async function addToStoryGroup(repoId, groupId, storyId) {
-	try {
-		const group = await getOneStoryGroup(repoId, groupId);
-		group.member_stories.push(storyId);
-		await updateStoryGroup(repoId, groupId, group);
-		return group;
-	} catch (e) {
-		console.error(`ERROR in AddToStoryGroup: ${e}`);
-	}
-}
-
-async function removeFromStoryGroup(repoId, groupId, storyId) {
-	try {
-		const group = await getOneStoryGroup(repoId, groupId);
-		group.member_stories.splice(group.indexOf(storyId), 1);
-		await updateStoryGroup(repoId, groupId, group);
-		return group;
-	} catch (e) {
-		console.error(`ERROR in removeFromStoryGroup: ${e}`);
-	}
-}
-
-async function updateStoryGroupsArray(repoId, groupsArray) {
-	try {
-		const db = dbConnection.getConnection();
-		return await db
-			.collection(Collections.REPOSITORIES)
-			.findOneAndUpdate(
-				{ _id: new ObjectId(repoId) },
-				{ $set: { groups: groupsArray } },
-				{ projection: { groups: 1 } }
-			);
-	} catch (e) {
-		console.error(`ERROR in updateStoryGroupsArray: ${e}`);
 	}
 }
 
@@ -1725,9 +1593,8 @@ async function deleteRepository(projectId, ownerId) {
 // ############################## Export Functions ##############################
 
 module.exports = {
-	// outsourced to projectDbService
+	// outsourced to projectDbService.ts
 	createRepo,
-	// unused???:
 	createJiraRepo,
 	createGitRepo,
 	getRepository,
@@ -1740,6 +1607,16 @@ module.exports = {
 	updateRepository,
 	updateOwnerInRepo,
 	deleteRepository,
+	// #####
+	// outsourced to groups.ts
+	createStoryGroup,
+	updateStoryGroup,
+	deleteStoryGroup,
+	addToStoryGroup,
+	removeFromStoryGroup,
+	getAllStoryGroups,
+	getOneStoryGroup,
+	updateStoryGroupsArray,
 	// #####
 	getFileList,
 	getFiles,
@@ -1779,14 +1656,6 @@ module.exports = {
 	getUserData,
 	updateStoriesArrayInRepo,
 	getAllStoriesOfRepo,
-	createStoryGroup,
-	updateStoryGroup,
-	deleteStoryGroup,
-	addToStoryGroup,
-	removeFromStoryGroup,
-	getAllStoryGroups,
-	getOneStoryGroup,
-	updateStoryGroupsArray,
 	createResetRequest,
 	getResetRequest,
 	deleteRequest,

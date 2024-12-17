@@ -66,7 +66,7 @@ export class ProjectService {
     this.transferOwnershipEvent.emit();
   }
   changeOwner(repoId, email): Observable<RepositoryContainer> {
-    const url = this.apiService.apiServer + '/user/repository/' + repoId;
+    const url = this.apiService.apiServer + '/user/repositories/' + repoId;
     return this.http
       .put<any>(url, { email: email }, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -100,7 +100,7 @@ export class ProjectService {
   createRepository(name: string, _id: string): Observable<any> {
     const body = { 'name': name, '_id': _id };
     return this.http
-      .post<RepositoryContainer>(this.apiService.apiServer + '/user/createRepository/', body, ApiService.getOptions())
+      .post<RepositoryContainer>(this.apiService.apiServer + '/user/repositories/', body, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -121,7 +121,7 @@ export class ProjectService {
     }
     console.log(updateData)
     return this.http
-      .put<RepositoryContainer>(this.apiService.apiServer + '/user/repository/' + repoID + '/' + user, updateData, ApiService.getOptions())
+      .put<RepositoryContainer>(this.apiService.apiServer + '/user/repositories/' + repoID + '/' + user, updateData, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -146,7 +146,7 @@ export class ProjectService {
  * @returns
 */
   getRepositorySettings(repoId: string) {
-    const str = this.apiService.apiServer + '/user/repository/settings/' + repoId;
+    const str = this.apiService.apiServer + '/user/repositories/settings/' + repoId;
 
     return this.http.get<any>(str, ApiService.getOptions())
       .pipe(

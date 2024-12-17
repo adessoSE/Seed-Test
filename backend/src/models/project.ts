@@ -7,7 +7,7 @@ enum Sources {
 }
 
 class Group {
-	_id: string
+	_id: ObjectId
 	name: string
 	member_stories: Array<string>
 	isSequential: boolean
@@ -20,7 +20,7 @@ class Project {
   stories: Array<string>;
   repoType: Sources;
   customBlocks: Array<string>;
-  groups?: Array<Group>;
+  groups: Array<Group>;
   settings?: Settings;
 }
 

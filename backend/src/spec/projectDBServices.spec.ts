@@ -1,7 +1,7 @@
 const { Sources } = require('../../dist/models/project');
 
 jest.mock('../database/projectDBServices', () => ({
-  createProject: jest.fn(),
+  createCustomProject: jest.fn(),
   createJiraProject: jest.fn(),
   createGitProject: jest.fn(),
   getUserProjects: jest.fn(),
@@ -78,7 +78,7 @@ describe('projectDBServices', () => {
       mockRepoCollection.findOne.mockResolvedValue(null);
       mockRepoCollection.insertOne.mockResolvedValue(insertedId);
 
-      const result = await projectDBServices.createProject(ownerId, name);
+      const result = await projectDBServices.createCustomProject(ownerId, name);
 
       expect(mockDb.collection).toHaveBeenCalledWith('Repositories');
       expect(mockRepoCollection.insertOne).toHaveBeenCalled();

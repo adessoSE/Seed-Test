@@ -29,13 +29,19 @@ async function fetchJiraProjects(jiraUser: any) {
     Password_Nonce,
     Password_Tag
   );
-  const repos = await requestJiraProjects(
+  let jiraResponse = await requestJiraProjects(
     Host,
     AccountName,
     jiraClearPassword,
     AuthMethod
   );
-  return await storeJiraRepos(repos);
+
+  
+  jiraResponse = checkForXray(jiraResponse)
+  
+  const projectNames = jiraResponse.map((project: { name: string, isXray: boolean }) => ({[project.name]: project.isXray}))
+
+  return await storeJiraRepos(projectNames);
 }
 
 /**
@@ -68,11 +74,23 @@ async function requestJiraProjects(host: string, username: string, jiraClearPass
 		.then((response) => response.json())
 		.catch((error) => { console.error(error.stack); return [] })
 
-  // TODO: check wether it is a Xray Project
-  
-	const projects = jiraProjects.map((project: { name: any; }) => project.name)
+  return jiraProjects
+}
 
-	return projects
+/**
+ * Checks if the Jira projects are Xray projects and adds an `isXray` property.
+ * @param {Array<any>} jiraProjects - The Jira projects.
+ * @returns {Array<any>} - The Jira projects with the `isXray` property.
+ */
+function checkForXray(jiraProjects: Array<any>): Array<any> {
+  jiraProjects.forEach((project: any) => {
+    if (project.projectCategory && project.projectCategory.name === "XRAY") {
+      project.isXray = true;
+    } else {
+      project.isXray = false;
+    }
+  });
+  return jiraProjects;
 }
 
 /**
@@ -80,29 +98,36 @@ async function requestJiraProjects(host: string, username: string, jiraClearPass
  * @param fetchedProjects
  * @returns
  */
-async function storeJiraRepos(fetchedProjects: Array<any>) {
+async function storeJiraRepos(fetchedProjects: Array<{ name: string, isXray: boolean }>) {
   if (fetchedProjects.length === 0) return [];
   // get existing JiraProjects
-  const existingJiraProjects = await mongo.getAllSourceReposFromDb(Sources.JIRA);
+  const existingJiraProjects = await mongoTs.getAllSourceProjectsFromDb(Sources.JIRA);
 
-  let repos: Array<JiraProject> = [];
+  let jiraProjects: Array<JiraProject> = [];
 
-  for (const projectName of fetchedProjects) {
+  fetchedProjects.forEach( async (project) =>  {
+    const projectName: string = Object.keys(project)[0];
+    const isXray: boolean = project[projectName];
     let jiraProject: JiraProject;
+
     // if is is a new Project
     if (!existingJiraProjects.some((existingProject: JiraProject) => existingProject.repoName === projectName)) {
       // create new Jira Project
-      jiraProject = await mongoTs.createJiraProject(projectName);
+      if (!isXray) {
+        jiraProject = await mongoTs.createJiraProject(projectName);
+      } else {
+        jiraProject = await mongoTs.createXrayProject(projectName);
+      }
     } else {
       // add existing Jira Project to list
       jiraProject = existingJiraProjects.find(
         (project: JiraProject) => project.repoName === projectName
       );
     }
-    repos.push(jiraProject);
-  }
+    jiraProjects.push(jiraProject);
+  });
 
-  return repos.map<{ _id: string; value: string; source: string }>(
+  return jiraProjects.map<{ _id: string; value: string; source: string }>(
     (jiraProject) => ({
       _id: jiraProject._id,
       value: jiraProject.repoName,
@@ -801,45 +826,50 @@ async function importProject(file: any, repo_id?: string, projectName?: string, 
 /**
  * Updates test sets in the database.
  * @param {Array<any>} testSets - The test sets to update.
- * @param {string} repo_id - The repository ID.
+ * @param {string} projectId - The repository ID.
  * @returns {Promise<void>} - A promise that resolves when the update is complete.
  */
-async function updateTestSets(testSets: Array<any>, repo_id: string): Promise<void> {
+async function updateTestSets(testSets: Array<any>, projectId: string): Promise<void> {
+  // Get repository where groups should be updated
+  const project = await mongoTs.getOneProjectById(projectId);
+
 	for (const testSet of testSets) {
+    // Case: Empty Test Set:
+    if (testSet.tests.length === 0) {
+      console.log(`No stories found for Xray Test Set ${testSet.testSetKey}. Skipping group creation.`);
+      continue;
+    }
+
 		try {
 			const storyIds = await getStorysByIssue(testSet.tests);
-
-			if (storyIds.length === 0) {
-				console.log(`No stories found for Test Set ${testSet.testSetKey}. Skipping group creation.`);
-				continue;
-			}
-
-			// Get repository to update groups
-			const project = await mongo.getOneRepositoryById(repo_id);
-
 			// Find existing group by testSetKey
-			let existingGroup = project.groups.find((group: { name: any; }) => group.name === testSet.testSetKey);
+      let existingGroup = undefined;
+      try{
+        existingGroup = project.groups.find((group: { name: any; }) => group.name === testSet.testSetKey);
+      } catch (error){
+        console.log(`Project ${project.repoName} has no existing groups yet. Will create first.`);
+      }			
 
 			if (existingGroup) {
-                // Update existing group
-                const updatedGroup = { ...existingGroup, member_stories: storyIds }; 
-                await mongo.updateStoryGroup(repo_id, existingGroup._id.toString(), updatedGroup);
-                console.log(`Updated group for Test Set: ${testSet.testSetKey}`);
-            } else {
-                // Create a new group if it does not exist
-                const groupId = await mongo.createStoryGroup(
-                    repo_id,
-                    testSet.testSetKey,
-                    storyIds,
-                    true,
-					testSet.xrayTestSet
-                );
-                console.log(`Group created for Test Set: ${testSet.testSetKey}`);
-            }
-        } catch (e) {
-            console.error(`Error processing group for Test Set: ${testSet.testSetKey}:`, e);
+        // Update existing group
+        const updatedGroup = { ...existingGroup, member_stories: storyIds }; 
+        await mongo.updateStoryGroup(projectId, existingGroup._id.toString(), updatedGroup);
+        console.log(`Updated group for Test Set: ${testSet.testSetKey}`);
+      } else {
+        // Create a new group if it does not exist
+        await mongo.createStoryGroup(
+          projectId,
+          testSet.testSetKey,
+          storyIds,
+          true,
+          testSet.xrayTestSet
+          );
+          console.log(`New Group created for Test Set: ${testSet.testSetKey}`);
         }
-    }
+      } catch (e) {
+        console.error(`Unexpected Error while processing Groups for Test Set: ${testSet.testSetKey}:`, e);
+      }
+  }
 }
 
 /**
@@ -868,5 +898,6 @@ export = {
   importProject,
   checkAndAddSuffix,
   findAssociatedID,
-	updateTestSets
+	updateTestSets,
+  checkForXray
 };

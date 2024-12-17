@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import dbConnector from "../../src/database/DbConnector";
-import { Sources, Project, JiraProject, CustomProject, GitHubProject, Settings } from '../models/project';
+import { Sources, Project, JiraProject, CustomProject, GitHubProject, Settings, XrayProject } from '../models/project';
 import { Collections } from './Collections';
 
 /**
@@ -23,7 +23,7 @@ export async function createCustomProject(ownerId: string, name: string, session
       customBlocks: [],
       groups: []
     };
-    const db = session ? client.db('Seed', session) : dbConnector.getConnection();
+    const db = client ? client.db('Seed', session) : dbConnector.getConnection();
     const collection = await db.collection(Collections.REPOSITORIES);
     const query = { owner: new ObjectId(ownerId), repoName: name };
     const existingProject = await collection.findOne(query);
@@ -50,11 +50,30 @@ export async function createJiraProject(projectName: string): Promise<JiraProjec
       repoName: projectName,
       repoType: Sources.JIRA,
       stories: [],
+      groups: [],
       customBlocks: []
     };
     return await db.collection(Collections.REPOSITORIES).insertOne(jiraProject);
   } catch (e) {
     console.error(`ERROR in createJiraProject ${e}`);
+    throw e;
+  }
+}
+
+export async function createXrayProject(projectName: string): Promise<XrayProject> {
+  try {
+    const db = dbConnector.getConnection();
+    const xrayProject: XrayProject = {
+      repoName: projectName,
+      repoType: Sources.JIRA,
+      stories: [],
+      groups: [],
+      customBlocks: [],
+      stepFields: []
+    };
+    return await db.collection(Collections.REPOSITORIES).insertOne(xrayProject);
+  } catch (e) {
+    console.error(`ERROR in createXrayProject ${e}`);
     throw e;
   }
 }
@@ -78,6 +97,7 @@ export async function createGitProject(gitOwnerId: number, repoName: string, use
 		gitOwner: gitOwnerId,
 		repoName,
 		stories: [],
+    groups: [],
 		repoType: Sources.GITHUB,
 		customBlocks: []
     };
@@ -353,6 +373,7 @@ module.exports = {
   createCustomProject,
   createJiraProject,
   createGitProject,
+  createXrayProject,
   getUserProjects,
   getOneProject,
   getOneProjectById,

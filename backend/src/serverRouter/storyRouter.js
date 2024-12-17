@@ -29,7 +29,7 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		console.log('Time of user request:', Date.now());
+		console.log('Time of /story request:', Date.now());
 		next();
 	})
 	.use((req, res, next) => {

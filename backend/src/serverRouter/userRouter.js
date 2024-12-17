@@ -43,7 +43,7 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		console.log('Time of user request:', Date.now());
+		console.log('Time of /user request:', Date.now());
 		next();
 	});
 
@@ -180,70 +180,6 @@ router.post('/register', async (req, res) => {
 	}
 });
 
-// logout for user
-router.get('/logout', async (req, res) => {
-	req.logout({}, () => { });
-	res.clearCookie('connect.sid', { path: '/' });
-	res.status(200).send({ status: 'success' });
-});
-
-// get repositories from all sources(Github,Jira)
-router.get('/repositories', (req, res) => {
-	const githubName = (req.user.github.login) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
-	// eslint-disable-next-line max-len
-	const token = (req.user.github.githubToken) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-	const githubId = req.user.github.id;
-
-	// get repositories from individual sources
-	Promise.all([
-		projectMng.starredRepositories(req.user._id, githubId, githubName, token),
-		projectMng.ownRepositories(req.user._id, githubId, githubName, token),
-		projectMng.getJiraRepos(req.user.jira),
-		projectMng.dbProjects(req.user._id)
-	])
-		.then((repos) => {
-			let merged = [].concat(...repos);
-			// remove duplicates
-			merged = projectMng.uniqueRepositories(merged);
-			res.status(200).json(merged);
-		})
-		.catch((reason) => {
-			// TODO: individuell abfangen, wo ein Fehler (GitHub / Jira / DB) aufgetreten ist.
-			// bei Jira behandeln, falls der Token abgelaufen ist
-			res.status(401).json('Wrong Username or Password');
-			console.error(`Get Repositories Error: ${reason}`);
-		});
-});
-
-// create Repository in Database
-router.post('/createRepository', async (req, res) => {
-	db.createRepo(req.user._id, req.body.name);
-	res.status(200).json('');
-});
-
-// update repository
-router.put('/repository/:repo_id/:owner_id', async (req, res) => {
-	const { repoName, settings } = req.body;
-	try {
-		const repo = await db.updateRepository(req.params.repo_id, repoName, settings);
-		res.status(200).json(repo);
-	} catch (error) {
-		console.error(error);
-		res.status(500).send('Error while updating Repository.');
-	}
-});
-
-// get global repository settings
-router.get('/repository/settings/:repo_id', async (req, res) => {
-	try {
-		const globalSettings = await db.getRepoSettingsById(req.params.repo_id);
-		res.status(200).json(globalSettings);
-	} catch (error) {
-		console.error(error);
-		res.status(500).send('Error getting global repository settings');
-	}
-});
-
 // update user
 router.post('/update/:userID', async (req, res) => {
 	try {
@@ -255,28 +191,91 @@ router.post('/update/:userID', async (req, res) => {
 	}
 });
 
-// update repository owner
-router.put('/repository/:repo_id', async (req, res) => {
-	try {
-		const newOwner = await db.getUserByEmail(req.body.email);
-		const repo = await db.updateOwnerInRepo(req.params.repo_id, newOwner._id, req.user._id);
-		res.status(200).json(repo);
-	} catch (error) {
-		handleError(res, 'in update Repository Owner', 'Could not set new Owner', 500);
-	}
+// logout for user
+router.get('/logout', async (req, res) => {
+	req.logout({}, () => { });
+	res.clearCookie('connect.sid', { path: '/' });
+	res.status(200).send({ status: 'success' });
 });
 
-// delete repository
-router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
-	try {
-		await db
-			.deleteRepository(req.params.repo_id, req.user._id, parseInt(req.params._id, 10));
-		res.status(200)
-			.json({ text: 'success' });
-	} catch (error) {
-		handleError(res, 'in delete Repository', 'Could not delete Project', 500);
-	}
-});
+// // get repositories from all sources
+// router.get('/repositories', (req, res) => {
+// 	const githubName = (req.user.github) ? req.query.github.login : process.env.TESTACCOUNT_NAME;
+// 	const token = (req.user.github) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
+// 	const githubId = (req.user.github) ? req.user.github.id : undefined;
+
+// 	// get repositories from individual sources
+// 	Promise.all([
+// 		projectMng.starredRepositories(req.user._id, githubId, githubName, token),
+// 		projectMng.ownRepositories(req.user._id, githubId, githubName, token),
+// 		projectMng.getJiraRepos(req.user.jira),
+// 		projectMng.dbProjects(req.user._id)
+// 	])
+// 		.then((repos) => {
+// 			let merged = [].concat(...repos);
+// 			// remove duplicates
+// 			merged = projectMng.uniqueRepositories(merged);
+// 			res.status(200).json(merged);
+// 		})
+// 		.catch((reason) => {
+// 			// TODO: individuell abfangen, wo ein Fehler (GitHub / Jira / DB) aufgetreten ist.
+// 			// bei Jira behandeln, falls der Token abgelaufen ist
+// 			res.status(401).json('Wrong Username or Password');
+// 			console.error(`Get Repositories Error: ${reason}`);
+// 		});
+// });
+
+// // create Repository in Database
+// router.post('/createRepository', async (req, res) => {
+// 	db.createRepo(req.user._id, req.body.name);
+// 	res.status(200).json('');
+// });
+
+// // update repository
+// router.put('/repository/:repo_id/:owner_id', async (req, res) => {
+// 	const { repoName, settings } = req.body;
+// 	try {
+// 		const repo = await db.updateRepository(req.params.repo_id, repoName, settings);
+// 		res.status(200).json(repo);
+// 	} catch (error) {
+// 		console.error(error);
+// 		res.status(500).send('Error while updating Repository.');
+// 	}
+// });
+
+// // get global repository settings
+// router.get('/repository/settings/:repo_id', async (req, res) => {
+// 	try {
+// 		const globalSettings = await db.getRepoSettingsById(req.params.repo_id);
+// 		res.status(200).json(globalSettings);
+// 	} catch (error) {
+// 		console.error(error);
+// 		res.status(500).send('Error getting global repository settings');
+// 	}
+// });
+
+// // update repository owner
+// router.put('/repository/:repo_id', async (req, res) => {
+// 	try {
+// 		const newOwner = await db.getUserByEmail(req.body.email);
+// 		const repo = await db.updateOwnerInRepo(req.params.repo_id, newOwner._id, req.user._id);
+// 		res.status(200).json(repo);
+// 	} catch (error) {
+// 		handleError(res, 'in update Repository Owner', 'Could not set new Owner', 500);
+// 	}
+// });
+
+// // delete repository
+// router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
+// 	try {
+// 		await db
+// 			.deleteRepository(req.params.repo_id, req.user._id, parseInt(req.params._id, 10));
+// 		res.status(200)
+// 			.json({ text: 'success' });
+// 	} catch (error) {
+// 		handleError(res, 'in delete Repository', 'Could not delete Project', 500);
+// 	}
+// });
 
 // get stories
 router.get('/stories', async (req, res) => { // put into ticketManagement.ts

@@ -27,7 +27,7 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		console.log('Time of mongoDB request:', Date.now());
+		console.log('Time of /group request:', Date.now());
 		next();
 	})
 	.use((req, res, next) => {
