@@ -116,6 +116,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     getStoriesObservable: Subscription;
 
     /**
+     * Subscription element to get Groups
+     */
+    getGroupsObservable: Subscription;
+
+    /**
      * Subscription element to get status change of scenarios
      */
     scenarioStatusChangeObservable: Subscription;
@@ -195,15 +200,14 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         public scenarioService: ScenarioService,
         public reportService: ReportService,
         public backgroundService: BackgroundService) {
-        this.groupService.getGroups(localStorage.getItem('id')).subscribe(groups => {
+    }
+
+    ngOnInit() {
+        this.getGroupsObservable = this.groupService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
             this.liGroupList = new Array(this.groups.length).fill("")
         });
 
-        const version = localStorage.getItem('version');
-    }
-
-    ngOnInit() {
         this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s != null);
             this.filteredStories = this.stories;
@@ -280,7 +284,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         }
     }
 
-    /* TODO */
     ngOnDestroy() {
         this.createStoryEmitter.unsubscribe();
         this.createGroupEmitter.unsubscribe();
@@ -294,6 +297,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         }
         if (!this.getStoriesObservable.closed) {
             this.getStoriesObservable.unsubscribe();
+        }
+        if (!this.getGroupsObservable.closed) {
+            this.getGroupsObservable.unsubscribe();
         }
     }
 
@@ -547,8 +553,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     deleteStory() {
         if (this.stories.find(x => x === this.selectedStory)) {
             const repository = localStorage.getItem('id');
-            {
-                this.storyService
+            this.storyService
                 .deleteStory(repository, this.selectedStory._id)
                 .subscribe(_ => {
                     this.storyDeleted();
@@ -556,8 +561,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                         this.groups = groups;
                     });
                     this.toastr.error('', 'Story deleted');
-                });
-            }
+            });
         }
     }
 

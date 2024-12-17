@@ -1,6 +1,7 @@
 import * as mongoTs from "../database/projectDBServices"
 import {Sources, CustomProject, JiraProject } from "../models/project";
 import mongo from "../../src/database/DbServices";
+import {createStoryGroup} from '../helpers/groups';
 import dbConnector from "../../src/database/dbConnector";
 import { jiraDecryptPassword } from "./userManagement";
 import emptyScenario from "../../src/models/emptyScenario";
@@ -857,7 +858,7 @@ async function updateTestSets(testSets: Array<any>, projectId: string): Promise<
         console.log(`Updated group for Test Set: ${testSet.testSetKey}`);
       } else {
         // Create a new group if it does not exist
-        await mongo.createStoryGroup(
+        await createStoryGroup(
           projectId,
           testSet.testSetKey,
           storyIds,

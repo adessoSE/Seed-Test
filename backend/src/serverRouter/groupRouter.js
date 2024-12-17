@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const mongo = require('../database/DbServices');
+const groupMongo = require('../../dist/helpers/groups');
 
 const router = express.Router();
 
@@ -38,8 +38,8 @@ router
 // get All Groups and StoryIds
 router.get('/:repo_id', async (req, res) => {
 	try {
-		const groups = await mongo.getAllStoryGroups(req.params.repo_id);
-		res.status(200).json(groups.groups);
+		const groups = await groupMongo.getAllStoryGroups(req.params.repo_id);
+		res.status(200).json(groups);
 	} catch (e) {
 		handleError(res, e, e, 500);
 	}
@@ -49,7 +49,7 @@ router.get('/:repo_id', async (req, res) => {
 router.post('/:repo_id', async (req, res) => {
 	console.log('Create StoryGroup ', req.params.repo_id);
 	try {
-		const groupID = await mongo.createStoryGroup(
+		const groupID = await groupMongo.createStoryGroup(
 			req.params.repo_id,
 			req.body.name,
 			req.body.member_stories,
@@ -65,7 +65,11 @@ router.post('/:repo_id', async (req, res) => {
 router.put('/:repo_id/:group_id', async (req, res) => {
 	console.log('Update StoryGroup ', req.params.repo_id, req.params.group_id, req.body);
 	try {
-		const group = await mongo.updateStoryGroup(req.params.repo_id, req.params.group_id, req.body);
+		const group = await groupMongo.updateStoryGroup(
+			req.params.repo_id,
+			req.params.group_id,
+			req.body
+		);
 		res.status(200).json(group);
 	} catch (e) {
 		handleError(res, e, e, 500);
@@ -76,7 +80,7 @@ router.put('/:repo_id/:group_id', async (req, res) => {
 router.delete('/:repo_id/:group_id', async (req, res) => {
 	console.log('Delete StoryGroup ', req.params.repo_id, req.params.group_id);
 	try {
-		await mongo.deleteStoryGroup(req.params.repo_id, req.params.group_id);
+		await groupMongo.deleteStoryGroup(req.params.repo_id, req.params.group_id);
 		res.status(200).json({ text: 'success' });
 	} catch (e) {
 		handleError(res, e, e, 500);
@@ -87,7 +91,7 @@ router.delete('/:repo_id/:group_id', async (req, res) => {
 router.post('/:repo_id/:group_id/:story_id', async (req, res) => {
 	console.log('Add Story to Group ', req.params.repo_id, req.params.group_id, req.params.story_id);
 	try {
-		await mongo.addToStoryGroup(req.params.repo_id, req.params.group_id, req.params.story_id);
+		await groupMongo.addToStoryGroup(req.params.repo_id, req.params.group_id, req.params.story_id);
 		res.status(200).json({ text: 'success' });
 	} catch (e) {
 		handleError(res, e, e, 500);
@@ -98,7 +102,11 @@ router.post('/:repo_id/:group_id/:story_id', async (req, res) => {
 router.delete('/:repo_id/:group_id/:story_id', async (req, res) => {
 	console.log('Remove Story from Group ', req.params.repo_id, req.params.group_id, req.params.story_id);
 	try {
-		await mongo.removeFromStoryGroup(req.params.repo_id, req.params.group_id, req.params.story_id);
+		await groupMongo.removeFromStoryGroup(
+			req.params.repo_id,
+			req.params.group_id,
+			req.params.story_id
+		);
 		res.status(200).json({ text: 'success' });
 	} catch (e) {
 		handleError(res, e, e, 500);
@@ -108,7 +116,7 @@ router.delete('/:repo_id/:group_id/:story_id', async (req, res) => {
 // update Groups-Array in repo
 router.put('/:repo_id', async (req, res) => {
 	try {
-		await mongo.updateStoryGroupsArray(req.params.repo_id, req.body);
+		await groupMongo.updateStoryGroupsArray(req.params.repo_id, req.body);
 		res.status(200).json({ text: 'success' });
 	} catch (e) {
 		handleError(res, e, e, 500);

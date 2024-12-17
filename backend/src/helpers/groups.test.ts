@@ -1,5 +1,5 @@
 const { Collections } = require('../../dist/database/Collections');
-const { ObjectId } = require ('mongodb');
+const mongoId = require ('mongodb');
 
 jest.mock('../database/projectDBServices', () => ({
   createStoryGroup: jest.fn(),
@@ -79,7 +79,7 @@ describe('Groups Helper Functions', () => {
       const result = await updateStoryGroup(repoId, groupId, group);
 
       expect(mockDb2.collection).toHaveBeenCalledWith(Collections.REPOSITORIES);
-      expect(mockRepoCollection2.findOne).toHaveBeenCalledWith({ _id: new ObjectId(repoId) });
+      expect(mockRepoCollection2.findOne).toHaveBeenCalledWith({ _id: new mongoId.ObjectId(repoId) });
       expect(mockRepoCollection2.updateOne).toHaveBeenCalled();
       expect(result).toEqual(group);
     });
@@ -101,7 +101,7 @@ describe('Groups Helper Functions', () => {
 
       expect(mockDb2.collection).toHaveBeenCalledWith(Collections.REPOSITORIES);
       expect(mockRepoCollection2.findOneAndUpdate).toHaveBeenCalledWith(
-        { _id: new ObjectId(repoId) },
+        { _id: new mongoId.ObjectId(repoId) },
         { $set: { groups: [group] } },
         { projection: { groups: 1 } }
       );
@@ -126,7 +126,7 @@ describe('Groups Helper Functions', () => {
       await deleteStoryGroup(repoId, groupId);
 
       expect(mockDb2.collection).toHaveBeenCalledWith(Collections.REPOSITORIES);
-      expect(mockRepoCollection2.findOne).toHaveBeenCalledWith({ _id: new ObjectId(repoId) });
+      expect(mockRepoCollection2.findOne).toHaveBeenCalledWith({ _id: new mongoId.ObjectId(repoId) });
       expect(mockRepoCollection2.updateOne).toHaveBeenCalled();
     });
 
@@ -149,7 +149,7 @@ describe('Groups Helper Functions', () => {
 
       expect(mockDb2.collection).toHaveBeenCalledWith(Collections.REPOSITORIES);
       expect(mockRepoCollection2.findOne).toHaveBeenCalledWith(
-        { _id: new ObjectId(repoId) },
+        { _id: new mongoId.ObjectId(repoId) },
         { projection: { groups: 1 } }
       );
       expect(result).toEqual([group]);
@@ -172,7 +172,7 @@ describe('Groups Helper Functions', () => {
 
       expect(mockDb2.collection).toHaveBeenCalledWith(Collections.REPOSITORIES);
       expect(mockRepoCollection2.findOne).toHaveBeenCalledWith(
-        { _id: new ObjectId(repoId) },
+        { _id: new mongoId.ObjectId(repoId) },
         { projection: { groups: 1 } }
       );
       expect(result).toEqual(group);
@@ -204,7 +204,7 @@ describe('Groups Helper Functions', () => {
 
       expect(mockDb2.collection).toHaveBeenCalledWith(Collections.REPOSITORIES);
       expect(mockRepoCollection2.findOne).toHaveBeenCalledWith(
-        { _id: new ObjectId(repoId) },
+        { _id: new mongoId.ObjectId(repoId) },
         { projection: { groups: 1 } }
       );
       expect(mockRepoCollection2.updateOne).toHaveBeenCalled();
@@ -237,7 +237,7 @@ describe('Groups Helper Functions', () => {
 
       expect(mockDb2.collection).toHaveBeenCalledWith(Collections.REPOSITORIES);
       expect(mockRepoCollection2.findOne).toHaveBeenCalledWith(
-        { _id: new ObjectId(repoId) },
+        { _id: new mongoId.ObjectId(repoId) },
         { projection: { groups: 1 } }
       );
       expect(mockRepoCollection2.updateOne).toHaveBeenCalled();
