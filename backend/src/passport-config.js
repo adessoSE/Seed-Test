@@ -25,7 +25,6 @@ function initialize(passport, getUserByEmail, getUserById, getUserByGithub) {
 	passport.use('normal-local', new LocalStrategy({ usernameField: 'email' }, authenticateUser));
 	passport.use('github-local', new LocalStrategy({ usernameField: 'login', passwordField: process.env.PASSPORT_GITHUB_LOCAL_PW_FIELD }, authenticateUserGithub));
 
-	// eslint-disable-next-line no-underscore-dangle
 	passport.serializeUser((user, done) => done(null, user._id));
 	passport.deserializeUser(async (id, done) => {
 		const user = await getUserById(id);

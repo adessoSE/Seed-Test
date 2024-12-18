@@ -1,5 +1,4 @@
 /* eslint-disable curly */
-/* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -39,7 +38,7 @@ router
 
 // get repositories from all sources
 router.get('/', (req, res) => {
-	const githubName = (req.user.github) ? req.query.github.login : process.env.TESTACCOUNT_NAME;
+	const githubName = (req.user.github) ? req.user.github.login : process.env.TESTACCOUNT_NAME;
 	const token = (req.user.github) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
 	const githubId = (req.user.github) ? req.user.github.id : undefined;
 

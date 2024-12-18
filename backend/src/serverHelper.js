@@ -1,6 +1,4 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable max-len */
-/* eslint-disable no-underscore-dangle,curly */
+/* eslint-disable no-await-in-loop, max-len,curly */
 const ch = require('child_process');
 const fs = require('fs');
 const pfs = require('fs/promises');

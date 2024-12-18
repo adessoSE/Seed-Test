@@ -1,5 +1,5 @@
 import * as mongoTs from "../database/projectDBServices"
-import {Sources, CustomProject, JiraProject } from "../models/project";
+import {Sources, CustomProject, JiraProject, GitHubProject } from "../models/project";
 import mongo from "../../src/database/DbServices";
 import {createStoryGroup} from '../helpers/groups';
 import dbConnector from "../../src/database/dbConnector";
@@ -187,50 +187,49 @@ function uniqueRepositories(repositories: Array<any>): Array<any> {
 /**
  * Executes repository requests.
  * @param {string} url - The API link.
- * @param {string} user - The username.
+ * @param {string} gitHubUsername - The username.
  * @param {string} password - The password.
- * @param {string} ownerId - The owner ID.
- * @param {number} githubId - The GitHub ID.
+ * @param {string} gitHubRepoOwnerId - The owner ID.
+ * @param {number} githubUserId - The GitHub ID.
  * @returns {Promise<Array<any>>} - A promise that resolves to an array of repositories.
  */
-async function execRepositoryRequests(url: string, user: string, password: string, ownerId: string, githubId: number): Promise<Array<any>> {
+async function execRepositoryRequests(url: string, gitHubUsername: string, password: string, gitHubRepoOwnerId: string, githubUserId: number): Promise<Array<any>> {
   try {
-    return await new Promise<any[]>((resolve, reject) => {
-      const reqOptions = { headers: { 'Authorization': 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64') } };
-      fetch(url, reqOptions)
-        .then((response) => {
-          if (response.status === 401) reject("github fetch failed (Unauthorized): " + response.status);
-          return response;
-        })
-        .then((response_1) => {
-          if (response_1.status !== 200) reject(response_1.status);
-          return response_1;
-        })
-        .then((response_2) => response_2.json())
-        .then(async (response_3) => {
-          const projects = [];
-          const gitReposFromDb = await mongo.getAllSourceReposFromDb(Sources.GITHUB);
-          let mongoRepo: { gitOwner: number; _id: any; owner: any; };
-          for (const repo of response_3) {
-            // if this Repository is not in the DB create one in DB
-            if (!gitReposFromDb.some((entry: { repoName: any; }) => entry.repoName === repo.full_name)) {
-              mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
-            } else {
-              mongoRepo = gitReposFromDb.find((element: { repoName: any; }) => element.repoName === repo.full_name);
-              if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(mongoRepo._id, ownerId, mongoRepo.owner);
-            }
-            const repoName = repo.full_name;
-            const proj = {
-              _id: mongoRepo._id,
-              value: repoName,
-              source: Sources.GITHUB
-            };
-            projects.push(proj);
-          }
-          resolve(projects);
-        }).catch((reason) => { console.error("problem getting the github projects"); resolve([]); return []; });
-    });
-  } catch {
+    const reqOptions = { headers: { 'Authorization': 'Basic ' + Buffer.from(`${gitHubUsername}:${password}`).toString('base64') } };
+    const gitHubResponseRepos = await fetch(url, reqOptions)
+      .then(res => {
+        if (res.status === 401) throw(new Error("GitHub fetch failed (Unauthorized): " + res.status));
+        if (res.status !== 200) throw(new Error(`Request failed with status ${res.status}`));
+        return res;
+      }).then(res => res.json())
+      
+    const mergedGitHubProjects: Array<any> = [];
+    const gitHubDbProjects: Array<GitHubProject> = await mongo.getAllSourceReposFromDb(Sources.GITHUB);
+    let mongoRepo: GitHubProject;
+
+    for (const repo of gitHubResponseRepos) {
+      // if this Repository is not in the DB create NEW GitHubProject in DB
+      if (!gitHubDbProjects.some((entry: { repoName: any; }) => entry.repoName === repo.full_name)) {
+        mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubUserId, gitHubRepoOwnerId);
+      } else {
+        // if this Repository is in the DB return it
+        mongoRepo = gitHubDbProjects.find((element: { repoName: any; }) => element.repoName === repo.full_name);
+        if (mongoRepo.gitOwner === githubUserId) {
+          // update the owner if it is the same user - TODO: check if this is necessary- Workgroups on GitHubProjects?
+          // mongo.updateOwnerInRepo(mongoRepo._id, gitHubRepoOwnerId, mongoRepo.owner);
+        }
+      }
+      // need Abstract View - only used as Meta-Info
+      const proj = {
+        _id: mongoRepo._id,
+        value: repo.full_name,
+        source: Sources.GITHUB
+      };
+      mergedGitHubProjects.push(proj);
+    }
+    return mergedGitHubProjects;        
+  } catch (error) {
+      console.error("Problem getting GitHub Projects", error)
     return [];
   }
 }
@@ -325,7 +324,7 @@ function mergeStepDefinitions(dbStepDefinitions: any, jiraStepDefinitions: any):
  * @param {any} jiraStory - The Jira story.
  * @returns {any} - The merged story.
  */
-function mergeStories(dbStory: any, jiraStory: any): any {
+function mergeJiraStories(dbStory: any, jiraStory: any): any {
   const mergedStory = { ...dbStory };
   const dbScenarios = dbStory.scenarios;
   const jiraScenarios = jiraStory.scenarios;
@@ -390,30 +389,43 @@ function mergeStories(dbStory: any, jiraStory: any): any {
 
 /**
  * Fuses a story with the database.
- * @param {any} story - The story to fuse.
+ * @param {any} fetchedStory - The story to fuse.
  * @returns {Promise<any>} - A promise that resolves to the fused story.
  */
-async function fuseStoryWithDb(story: any): Promise<any> {
-	const result = await mongo.getOneStory(parseInt(story.story_id, 10));
-
-	if (result !== null) {
-    
-		const mergedStory = mergeStories(result, story);
-		story.scenarios = mergedStory.scenarios;
-		story.background = result.background;
-		story.lastTestPassed = result.lastTestPassed;
+async function fuseStoryWithDb(fetchedStory: any): Promise<any> {
+	const dbStory = await mongo.getOneStory(parseInt(fetchedStory.story_id, 10));
+  let mergedStory;
+  // Case: Story is already in DB
+	if (dbStory !== null) {
+    switch (fetchedStory.storySource) {
+      case Sources.JIRA:
+        mergedStory = mergeJiraStories(dbStory, fetchedStory);
+        break;
+        case Sources.GITHUB:
+          mergedStory = { ...fetchedStory };
+          break;
+      default:
+        throw new Error("Unknown source for Story - Can't merge");
+    }
+    // add saved Scenarios, Background and lastTestPassed
+		// fetchedStory.scenarios = mergedStory.scenarios;
+		mergedStory.background = dbStory.background;
+		mergedStory.lastTestPassed = dbStory.lastTestPassed;
 	} else {
-		story.scenarios = [emptyScenario()];
-		story.background = emptyBackground();
+    mergedStory = { ...fetchedStory };
+    // if the Story is new, add empty 1 Scenario and Background
+		mergedStory.scenarios = [emptyScenario()];
+		mergedStory.background = emptyBackground();
 	}
-	story.story_id = parseInt(story.story_id, 10);
-	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number, 10);
+  
+	mergedStory.story_id = parseInt(fetchedStory.story_id, 10);
+	if (fetchedStory.storySource === Sources.GITHUB) {mergedStory.issue_number = parseInt(fetchedStory.issue_number, 10);}
 
-  const finalStory = await mongo.upsertEntry(story.story_id, story);
-  story._id = finalStory._id;
+  const finalStory = await mongo.upsertEntry(mergedStory.story_id, mergedStory);
+
   // Create & Update Feature Files
-  writeFile(story);
-  return story;
+  writeFile(finalStory); // (async)
+  return finalStory;
 }
 
 /**

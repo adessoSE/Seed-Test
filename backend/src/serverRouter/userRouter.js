@@ -1,5 +1,4 @@
 /* eslint-disable curly */
-/* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -12,10 +11,8 @@ const initializePassport = require('../passport-config');
 const db = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
-const projectMng = require('../../dist/helpers/projectManagement');
-const { IssueTracker } = require('../../dist/models/IssueTracker');
 const { Sources } = require('../../dist/models/project');
-const xray = require('../../dist/helpers/xray');
+const ticketMng = require('../../dist/helpers/ticketManagement');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -198,298 +195,68 @@ router.get('/logout', async (req, res) => {
 	res.status(200).send({ status: 'success' });
 });
 
-// // get repositories from all sources
-// router.get('/repositories', (req, res) => {
-// 	const githubName = (req.user.github) ? req.query.github.login : process.env.TESTACCOUNT_NAME;
-// 	const token = (req.user.github) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-// 	const githubId = (req.user.github) ? req.user.github.id : undefined;
-
-// 	// get repositories from individual sources
-// 	Promise.all([
-// 		projectMng.starredRepositories(req.user._id, githubId, githubName, token),
-// 		projectMng.ownRepositories(req.user._id, githubId, githubName, token),
-// 		projectMng.getJiraRepos(req.user.jira),
-// 		projectMng.dbProjects(req.user._id)
-// 	])
-// 		.then((repos) => {
-// 			let merged = [].concat(...repos);
-// 			// remove duplicates
-// 			merged = projectMng.uniqueRepositories(merged);
-// 			res.status(200).json(merged);
-// 		})
-// 		.catch((reason) => {
-// 			// TODO: individuell abfangen, wo ein Fehler (GitHub / Jira / DB) aufgetreten ist.
-// 			// bei Jira behandeln, falls der Token abgelaufen ist
-// 			res.status(401).json('Wrong Username or Password');
-// 			console.error(`Get Repositories Error: ${reason}`);
-// 		});
-// });
-
-// // create Repository in Database
-// router.post('/createRepository', async (req, res) => {
-// 	db.createRepo(req.user._id, req.body.name);
-// 	res.status(200).json('');
-// });
-
-// // update repository
-// router.put('/repository/:repo_id/:owner_id', async (req, res) => {
-// 	const { repoName, settings } = req.body;
-// 	try {
-// 		const repo = await db.updateRepository(req.params.repo_id, repoName, settings);
-// 		res.status(200).json(repo);
-// 	} catch (error) {
-// 		console.error(error);
-// 		res.status(500).send('Error while updating Repository.');
-// 	}
-// });
-
-// // get global repository settings
-// router.get('/repository/settings/:repo_id', async (req, res) => {
-// 	try {
-// 		const globalSettings = await db.getRepoSettingsById(req.params.repo_id);
-// 		res.status(200).json(globalSettings);
-// 	} catch (error) {
-// 		console.error(error);
-// 		res.status(500).send('Error getting global repository settings');
-// 	}
-// });
-
-// // update repository owner
-// router.put('/repository/:repo_id', async (req, res) => {
-// 	try {
-// 		const newOwner = await db.getUserByEmail(req.body.email);
-// 		const repo = await db.updateOwnerInRepo(req.params.repo_id, newOwner._id, req.user._id);
-// 		res.status(200).json(repo);
-// 	} catch (error) {
-// 		handleError(res, 'in update Repository Owner', 'Could not set new Owner', 500);
-// 	}
-// });
-
-// // delete repository
-// router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
-// 	try {
-// 		await db
-// 			.deleteRepository(req.params.repo_id, req.user._id, parseInt(req.params._id, 10));
-// 		res.status(200)
-// 			.json({ text: 'success' });
-// 	} catch (error) {
-// 		handleError(res, 'in delete Repository', 'Could not delete Project', 500);
-// 	}
-// });
-
-// get stories
-router.get('/stories', async (req, res) => { // put into ticketManagement.ts
-	const { source } = req.query;
-	// get GitHub Repo / Projects
-	if (source === 'github' || !source) try {
-		if (!userMng.checkValidGithub(req.query.githubName, req.query.repository)) console.log('Username or Reponame not valid');
-
-		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
-		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
-		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-		const githubRepoUrl = `${githubName.toString()}/${githubRepo.toString()}`;
-		const tmpStories = new Map();
-		const tmpStoriesArray = [];
-
-		let repo;
-		// get Issues from GitHub .
-		const headers = {
-			Authorization: `token ${token}`
-		};
-		const response = await fetch(`https://api.github.com/repos/${githubRepoUrl}/issues?labels=story`, { headers });
-		if (response.status === 401) res.status(401).json('Github Status 401');
-		if (response.status === 200) {
-			repo = await db.getOneGitRepository(req.query.repoName);
-			const json = await response.json();
-			for (const issue of json) {
-				// only relevant issues with label: "story"
-				const story = {
-					story_id: issue.id,
-					title: issue.title,
-					body: issue.body,
-					state: issue.state,
-					issue_number: issue.number,
-					storySource: 'github'
-				};
-				// skip in case of "unassigned"
-				if (issue.assignee !== null) {
-					story.assignee = issue.assignee.login;
-					story.assignee_avatar_url = issue.assignee.avatar_url;
-				} else {
-					story.assignee = 'unassigned';
-					story.assignee_avatar_url = null;
-				}
-				const entry = await projectMng.fuseStoryWithDb(story);
-				tmpStories.set(entry._id.toString(), entry);
-				tmpStoriesArray.push(entry._id);
+// get stories for specific Project
+router.get('/stories', async (req, res) => {
+	switch (req.query.source) {
+		case Sources.DB: {
+			// get Stories in Custom Project
+			try {
+				if (typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
+					const result = await db.getAllStoriesOfRepo(req.query.id);
+					res.status(200).json(result);
+				} else res.sendStatus(401);
+			} catch (err) {
+				console.error('Error in get Stories in Custom Project', err.message);
+				res.status(503).send('Could not get Stories in Custom Project');
 			}
-
-			Promise.all(tmpStoriesArray).then((array) => {
-				const orderedStories = matchOrder(array, tmpStories, repo);
-				res.status(200).json(orderedStories);
-			})
-				.catch((error) => {
-					console.error(error);
-				});
+			break;
 		}
-	} catch (err) {
-		res.status(503).send(err.message);
-
-		// get Jira Repo / Projects
-	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
-		// prepare request
-		const { projectKey, id } = req.query;
-		const jiraTracker = IssueTracker.getIssueTracker(Sources.JIRA);
-		const clearPass = jiraTracker.decryptPassword(req.user.jira);
-		const { AccountName, AuthMethod, Host } = req.user.jira;
-		let authString = `Bearer ${clearPass}`;
-		if (AuthMethod === 'basic') {
-			const auth = Buffer.from(`${AccountName}:${clearPass}`).toString('base64');
-			authString = `Basic ${auth}`;
-		}
-
-		const tmpStories = new Map();
-		const storiesArray = [];
-
-		// need https so request is not redirected
-		// when the request is redirected, the Authorization Header is removed
-		// https://developer.mozilla.org/en-US/docs/Web/API/fetch#headers
-		const options = {
-			method: 'GET',
-			headers: {
-				'cache-control': 'no-cache',
-				Authorization: authString
+		// get Stories in Jira Project
+		case Sources.JIRA: {
+			try {
+				if (req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey) {
+					// outsourced ############################################################################
+					const result = await ticketMng.getJiraStories(
+						req.user.jira,
+						req.query.projectKey,
+						req.query.id
+					);
+					res.status(200).json(result);
+				} else res.sendStatus(401);
+			} catch (err) {
+				console.error('Error in get Stories for Jira Project', err.message);
+				res.status(503).send('Could not get Stories for Jira Project');
 			}
-		};
-		let repo;
-		const testSets = [];
-		const preConditionMap = [];
-		try {
-			await fetch(
-				`https://${Host}/rest/api/2/search?jql=project="${projectKey}"+AND+(labels=Seed-Test+OR+issuetype=Test+OR+issuetype="Test Set"+OR+issuetype="Pre-Condition")&startAt=0&maxResults=200`,
-				options
-			)
-				.then(async (response) => response.json())
-				.then(async (json) => {
-					try {
-						repo = await db.getOneJiraRepository(req.query.projectKey);
-
-						const asyncHandleTestIssue = json.issues.map(async (issue) => {
-							// If the issue is a "Test Set" issue
-							if (issue.fields.issuetype.name === 'Test Set') {
-								const testsInSet = issue.fields.customfield_14233 || [];
-								testSets.push({
-									testSetKey: issue.key,
-									testSetId: issue.id,
-									tests: testsInSet,
-									xrayTestSet: true
-								});
-								// Return null to indicate that this path does not continue further processing
-								return null;
-							}
-
-							// If the issue is a "Pre-Condition" issue
-							if (issue.fields.issuetype.name === 'Pre-Condition') {
-								const preCondition = {
-									preConditionKey: issue.key,
-									preConditionName: issue.fields.summary,
-									testSet: []
-								};
-								// Iterate through the issue links to find the test sets that are linked to the pre-condition
-								for (const link of issue.fields.issuelinks) {
-									if (link.inwardIssue && link.type.inward === 'tested by') {
-										preCondition.testSet.push(link.inwardIssue.key);
-									}
-								}
-								preConditionMap.push(preCondition);
-								// Similarly, return null for this path
-								return null;
-							}
-
-							// If the issue is a "Test" issue
-							if (issue.fields.issuetype.name === 'Test') {
-								return xray.handleTestIssue(issue, options, Host);
-							}
-
-							return { scenarioList: [], testStepDescription: '' };
-						});
-
-						const lstDesc = await Promise.all(asyncHandleTestIssue);
-
-						const stories = [];
-
-						for (const [index, issue] of json.issues.entries()) {
-							if (!lstDesc[index]) continue;
-
-							let preConditions = [];
-
-							// Check if the custom field for preconditions exists in issue.fields
-							if (issue.fields.customfield_14229) {
-								preConditions = issue.fields.customfield_14229;
-							}
-
-							// Compare the preconditions with preConditionMap to get the final preconditions
-							const finalPreConditions = preConditionMap.filter((preCondition) => preConditions.includes(preCondition.preConditionKey));
-
-							const { scenarioList, testStepDescription } = lstDesc[index];
-
-							const issueDescription = issue.fields.description ? issue.fields.description : '';
-
-							const story = {
-								story_id: issue.id,
-								title: issue.fields.summary,
-								body: issueDescription + testStepDescription,
-								scenarios: scenarioList,
-								state: issue.fields.status.name,
-								issue_number: issue.key,
-								storySource: 'jira',
-								host: Host,
-								preConditions: finalPreConditions
-							};
-
-							if (issue.fields.assignee !== null) {
-								story.assignee = issue.fields.assignee.name;
-								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
-							} else {
-								story.assignee = 'unassigned';
-								story.assignee_avatar_url = null;
-							}
-							stories.push(story);
-						}
-						const fusing = stories.map((story) => projectMng.fuseStoryWithDb(story, story.story_id));
-						await Promise.all(fusing).then((entries) => entries.forEach((entry) => {
-							tmpStories.set(entry._id.toString(), entry);
-							storiesArray.push(entry._id);
-						}));
-					} catch (e) {
-						console.error('Error while getting Jira issues:', e);
-					}
-					projectMng.updateTestSets(testSets, id);
-					Promise.all(storiesArray)
-						.then((array) => {
-							const orderedStories = matchOrder(array, tmpStories, repo);
-							res.status(200)
-								.json(orderedStories);
-						})
-						.catch((e) => {
-							console.error(e);
-						});
-				});
-		} catch (e) {
-			console.error(' #### Error while parsing Jira issues:\n', e);
+			break;
 		}
-		// get DB Repo / Projects
-	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
-		const result = await db.getAllStoriesOfRepo(req.query.id);
-		res.status(200).json(result);
-	} else res.sendStatus(401);
+		// get Stories in GitHub Project
+		case Sources.GITHUB: {
+			const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
+			const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
+			const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
+			try {
+				if (!userMng.checkValidGithub(req.query.githubName, req.query.repository)) console.log('Username or Reponame not valid');
+				// outsourced ############################################################################
+				const gitHubissues = await ticketMng.getGitHubStories(
+					githubName,
+					githubRepo,
+					token,
+					req.query.repoName
+				);
+				res.status(200).json(gitHubissues);
+			} catch (err) {
+				if (err.message === 'Github Status 401') res.sendStatus(401).json('Github Status 401');
+				console.error('Error in get Stories for GitHub Project', err);
+				res.status(503).send('Could not get Stories for GitHub Project');
+			}
+			break;
+		}
 
-	function matchOrder(storiesIdList, storiesArray, repo) {
-		const mySet = new Set(storiesIdList.concat(repo.stories).map((i) => i.toString()));
-		for (const i of repo.stories) mySet.delete(i.toString());
-		const storyList = repo.stories.concat([...mySet]);
-		if (repo) db.updateStoriesArrayInRepo(repo._id, storyList);
-		return storyList.map((i) => storiesArray.get(i.toString())).filter((s) => s !== undefined);
+		default: {
+			res.status(400).send('Unexpected Source specified.\n'
+				+ `Source must be one of ${Object.values(Sources).join('" , "')}`);
+			break;
+		}
 	}
 });
 
@@ -520,7 +287,8 @@ router.put('/stories/:_id', async (req, res) => {
 	res.status(200).json(result);
 });
 
-const mapper = (str) => { // maps Url endoded data to new object
+// maps Url endoded data to new object
+const mapper = (str) => {
 	const cleaned = decodeURIComponent(str);
 	const entities = cleaned.split('&').filter(Boolean)
 		.map((v) => {

@@ -12,18 +12,21 @@ interface Issue {
     key: string;
 }
 
-async function handleTestIssue(issue: Issue, options: object, Host: string): Promise<object> {
+export async function handleTestIssue(issue: Issue, options: object, Host: string): Promise<object> {
     // Fetch all test runs for the given issue
-    const testrunResponse = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
-    const testRuns = await testrunResponse.json();
+    const testRuns = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options)
+        .then(response => response.json())
+        .catch((error) => {console.error("Error while fetching test runs:", error);});
+    // const testRuns = await testrunResponse.json();
 
     // Fetch details for all test runs
     const testRunDetailsPromises = testRuns.map((testRun) => fetch(`https://${Host}/rest/raven/2.0/api/testrun/${testRun.id}`, options).then(response => response.json()));
     const resolvedTestRuns = await Promise.all(testRunDetailsPromises);
 
     // Fetch all test steps defined for the given issue
-    const testStepsResponse = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
-    const testSteps = await testStepsResponse.json();
+    const testSteps = await fetch(`https://${Host}/rest/raven/2.0/api/test/${issue.key}/steps`, options)
+        .then(response => response.json())
+        .catch((error) => {console.error("Error while fetching test steps:", error);});
 
     // Process the test steps with corresponding testrun and scenario details
     const { scenarioList, testStepDescription } = processTestSteps(testSteps.steps, resolvedTestRuns, issue.key);

@@ -17,6 +17,7 @@ abstract class IssueTracker {
                 throw new Error('Invalid IssueTracker')
         }
     }
+
     reportText(report: GenericReport, testedTitle: string) {
         let comment = '';
         let commentReportResult: StepStatus;
@@ -33,6 +34,7 @@ abstract class IssueTracker {
         else comment += `# Test Result ${new Date(report.reportTime).toLocaleString()}\n## Tested Story: "${testedTitle}"\n### Test passed: ${report.status}${testPassedIcon}\nScenarios passed: ${report.scenariosTested.passed} :white_check_mark:\nScenarios failed: ${report.scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
         return comment;
     }
+
     abstract postComment(comment: string, issueDetail: {issueId: string, repoUser?: string, repoName?: string}, credentials: any);
 
     protected buildAuthText(username: string, password: string, authMethod: string){
@@ -50,6 +52,7 @@ class Github extends IssueTracker {
     reportText(report: GenericReport, testedTitle: string) {
         return super.reportText(report, testedTitle)
     }
+
     postComment(comment: string, issueDetail: any, credentials: any) {
         if (!checkValidGithub(issueDetail.repoUser, issueDetail.repoName)) return;
         if (!(new RegExp(/^\d+$/)).test(issueDetail.issueId)) return;
@@ -103,6 +106,7 @@ class NoTracker extends IssueTracker {
     reportText(report: GenericReport, testedTitle: string) {
         return super.reportText(report, testedTitle)
     }
+
     postComment(comment: string, issueDetail: any, credentials: any) {
         throw new Error("Method not implemented.")
     }
@@ -124,6 +128,7 @@ class Jira extends IssueTracker {
         comment = comment.replace('Steps skipped:','(!) Skipped Steps:')
         return comment
     }
+
     postComment(comment: string, issueDetail: any, credentials: any) {
         const clearPass = this.decryptPassword(credentials)
         const authString = this.buildAuthText(credentials.AccountName, clearPass, credentials.AuthMethod)
@@ -138,6 +143,7 @@ class Jira extends IssueTracker {
             console.log(data);
         })
     }
+    
     decryptPassword(credentials: any){
         const {Password, Password_Nonce, Password_Tag } = credentials;
 		return jiraDecryptPassword(Password, Password_Nonce, Password_Tag);

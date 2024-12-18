@@ -1,22 +1,12 @@
-/* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const bcrypt = require('bcrypt');
 const initializePassport = require('../passport-config');
 const mongo = require('../database/DbServices');
 const reporter = require('../../dist/helpers/reporting');
 
 const router = express.Router();
-const salt = bcrypt.genSaltSync(10);
-
-// Handling response errors
-function handleError(res, reason, statusMessage, code) {
-	console.error(`ERROR: ${reason}`);
-	res.status(code || 500)
-		.json({ error: statusMessage });
-}
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
 

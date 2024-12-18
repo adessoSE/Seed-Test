@@ -665,30 +665,16 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
 
 async function upsertEntry(storyId, updatedContent) {
 	try {
-		const myObjt = {
+		const filter = {
 			story_id: storyId
 		};
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(Collections.STORIES);
-		let result = await collection.findOneAndUpdate(
-			myObjt,
+		return collection.findOneAndUpdate(
+			filter,
 			{ $set: updatedContent },
-			{
-				upsert: false
-			}
+			{ upsert: true, returnDocument: 'after' }
 		);
-		// TODO remove later when all used stories have the tag storySource
-		if (!result) {
-			myObjt.storySource = undefined;
-			result = await collection.findOneAndUpdate(
-				myObjt,
-				{ $set: updatedContent },
-				{
-					upsert: true
-				}
-			);
-		}
-		return result;
 	} catch (e) {
 		console.error(`ERROR in upsertEntry: ${e}`);
 		throw e;
