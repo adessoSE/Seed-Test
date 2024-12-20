@@ -267,6 +267,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   gecko_enabled;
   chromium_enabled;
   edge_enabled;
+  webkit_enabled;
 
   /**
    * Global settings indicator
@@ -397,6 +398,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.gecko_enabled = localStorage.getItem("gecko_enabled");
     this.chromium_enabled = localStorage.getItem("chromium_enabled");
     this.edge_enabled = localStorage.getItem("edge_enabled");
+    this.webkit_enabled = localStorage.getItem("webkit_enabled");
 
     this.gecko_emulators = localStorage.getItem("gecko_emulators");
     this.gecko_emulators =

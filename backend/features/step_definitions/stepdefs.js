@@ -1,4 +1,5 @@
 /* eslint-disable func-names */
+console.log('Laoding stepdefs...');
 const { expect } = require('@playwright/test');
 const path = require('path');
 const {
@@ -39,7 +40,8 @@ async function handleError(f) {
 		throw betterError(error);
 	}
 }
-// TODO: Womöglich testLength und ScenarioIndex in PlaywrightWorld einbauen
+
+console.log('We are before PlaywrightWorld creation!');
 // Cucumber configuration
 setWorldConstructor(PlaywrightWorld);
 
@@ -62,7 +64,7 @@ Before(async function () {
 
 	// Transfer scenario index to World
 	console.log('Scenario count is: ', scenarioCount);
-	this.setScenarioCount(scenarioCount);
+	await this.setScenarioCount(scenarioCount);
 	console.log(`Starting Scenario with Index: ${scenarioCount + 1}`);
 	await this.launchBrowser(this.parameters.scenarios[scenarioCount]);
 });
@@ -87,6 +89,9 @@ After(async function ({ pickle, result }) {
     if (scenarioCount === totalScenarios - 1) {
         scenarioCount = 0;
         totalScenarios = 0;
+        console.log("WIR SETZTEN DEN SCENARIOCOUNT ZURÜCK!", scenarioCount, totalScenarios);
+        process.env.CUCUMBER_TOTAL_WORKERS = undefined;
+        process.env.CUCUMBER_WORKER_ID = undefined;
     } else {
         scenarioCount++;
     }

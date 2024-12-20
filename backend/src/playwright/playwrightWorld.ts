@@ -49,12 +49,14 @@ class PlaywrightWorld extends World {
     constructor(options: IWorldOptions) {
         super(options);
         console.log('Initializing PlaywrightWorld with options:', {
+            scenario0: options.parameters.scenarios[0],
             parameters: options.parameters,
             scenarioCount: this.scenarioCount
         });
         
         // Select with first scenario (incremented by incrementScenario())
         this.parameterCollection = options.parameters as StoryParameters;
+        console.log(this.parameterCollection.scenarios[this.scenarioCount]);
         this.testParameters = {
             ...this.defaultSettings,
             ...this.parameterCollection.scenarios[this.scenarioCount]
@@ -89,6 +91,7 @@ class PlaywrightWorld extends World {
     }
 
     private getBrowserConfig(browserType: string) {
+        console.log(browserType, " is in getBrowserConfig!");
         return {
             headless: this.testParameters.headless ?? false,
             args: [
@@ -221,6 +224,7 @@ class PlaywrightWorld extends World {
             await this.page?.close();
             await this.context?.close();
             await this.browser?.close();
+            console.log('Browser session closed');
         }
     }
 
@@ -232,7 +236,12 @@ class PlaywrightWorld extends World {
     }
 
     setScenarioCount(count: number) {
+        console.log('Setting scenarioCOunt to: ', count)
         this.scenarioCount = count;
+        this.testParameters = {
+            ...this.defaultSettings,
+            ...this.parameterCollection.scenarios[count]
+        } as TestParameters;
     }
 }
 

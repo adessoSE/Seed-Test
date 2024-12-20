@@ -240,7 +240,7 @@ async function executeTest(req, mode, story) {
 	// Cucumber Konfiguration für Playwright
 	const userConfig = {
 		paths: [path.normalize(featurePath)],
-		require: ['features/step_definitions/*.js'],
+		require: [path.resolve(process.cwd(), 'features/step_definitions/*.js')],
 		format: [
 			mode === 'group'
 				// req.body.name = groupDirectory
@@ -259,15 +259,37 @@ async function executeTest(req, mode, story) {
 	};
 
 	try {
+
+		// Clear Node's module cache for cucumber support files
+		Object.keys(require.cache).forEach(function(key) {
+			if (key.includes('@cucumber/cucumber/lib/support')) {
+				delete require.cache[key];
+			}
+		});
+		
+		// Force Cucumber to reload support code library
+		process.env.CUCUMBER_FORCE_RELOAD_SUPPORT = 'true';
+		
+		
 		// Konfiguration laden und ausführen
+		
 		const cucumberAPI = await import('@cucumber/cucumber/api');
-		console.log('Available Cucumber API functions:', Object.keys(cucumberAPI));
-		const { loadConfiguration, runCucumber } = cucumberAPI;
+    	const { loadConfiguration, runCucumber } = cucumberAPI;
+
+
 		console.log('Loading configuration...');
     	const { runConfiguration } = await loadConfiguration({
-        provided: userConfig
+			provided: {
+				...userConfig,
+				support: {
+					requireModules: [],
+					requirePaths: [path.resolve(process.cwd(), 'features/step_definitions/*.js')],
+					importPaths: []
+				}
+			}
     });
-
+		console.log('Step Definitions Directory:', path.join(process.cwd(), 'features/step_definitions'));
+		console.log('Available Step Files:', fs.readdirSync(path.join(process.cwd(), 'features/step_definitions')));
 		console.log('\nExecuting:');
 		console.log(`Working Dir: "${process.cwd()}"`);
 		console.log('Runtime: Cucumber with Playwright');
@@ -278,7 +300,12 @@ async function executeTest(req, mode, story) {
 			format: runConfiguration.formats
 		}, null, 2)}\n`);
 
+		console.log('Full run configuration:', runConfiguration);
+
 		const { success } = await runCucumber(runConfiguration);
+
+		// Reset force reload flag
+		delete process.env.CUCUMBER_FORCE_RELOAD;
 
 		return {
 			reportTime,
