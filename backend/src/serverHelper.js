@@ -161,8 +161,7 @@ async function deleteFeatureFile(storyTitle, storyId) {
 function getSettings(scenario, globalSettings) {
 	const finalSettings = {
 		browser: scenario.browser || 'chrome',
-		waitTime: scenario.stepWaitTime || 0,
-		daisyAutoLogout: scenario.daisyAutoLogout || false
+		waitTime: scenario.stepWaitTime || 0
 	};
 
 	// if globalSettings are activated, then use global values
@@ -299,8 +298,6 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
 		// eslint-disable-next-line no-param-reassign
 		if (!scenario.browser) scenario.browser = 'chrome';
-		// eslint-disable-next-line no-param-reassign
-		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
 
 		const additionalParams = getSettings(scenario, globalSettings);
 
