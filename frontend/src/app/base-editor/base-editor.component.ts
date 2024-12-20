@@ -567,8 +567,6 @@ export class BaseEditorComponent {
       step,
       this.selectedBlock.stepDefinitions
     );
-    console.log("New created step");
-    console.log(newStep);
     switch (newStep.stepType) {
       case "given":
         if (position) {
@@ -2239,7 +2237,6 @@ export class BaseEditorComponent {
    * @param step
    */
   createFirstExample(cutInput: string) {
-    console.log("HAllo", this.templateName)
     const multipleScenarios1: MultipleScenario = {
       values: [cutInput]
     }

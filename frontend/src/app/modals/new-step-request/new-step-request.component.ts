@@ -63,9 +63,7 @@ export class NewStepRequestComponent {
           'ToDo'
       ]
     };
-    console.log(obj.title, obj.body);
     this.apiService.submitGithub(obj).subscribe((resp) => {
-      console.log(resp);
     });
     this.modalReference.close();
   }

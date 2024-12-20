@@ -7,7 +7,6 @@ import { Observable, throwError } from "rxjs";
 @Injectable()
 export class HttpLoggerInterceptor implements HttpInterceptor {
   constructor(private logger: NGXLogger) {
-    console.log("constructor http interceptor");
   }
   intercept(
     req: HttpRequest<any>,

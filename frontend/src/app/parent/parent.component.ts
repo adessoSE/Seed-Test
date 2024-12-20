@@ -90,7 +90,6 @@ export class ParentComponent implements OnInit, OnDestroy {
     });
     if (!sessionStorage.getItem('repositories')) {
       this.getRepositoriesObservable = this.projectService.getRepositories().subscribe(() => {
-        console.log('parent get Repos');
       });
     }
     this.isDark = this.themeService.isDarkMode();

@@ -1,5 +1,5 @@
 import * as mongoTs from "../database/projectDBServices"
-import {Sources, CustomProject, JiraProject, GitHubProject } from "../models/project";
+import {Sources, CustomProject, JiraProject, GitHubProject, XrayProject } from "../models/project";
 import mongo from "../../src/database/DbServices";
 import {createStoryGroup} from '../helpers/groups';
 import dbConnector from "../../src/database/dbConnector";
@@ -17,46 +17,40 @@ import path from "path";
  */
 async function fetchJiraProjects(jiraUser: any) {
   if (!jiraUser) return [];
-  let {
-    Host,
-    AccountName,
-    Password,
-    Password_Nonce,
-    Password_Tag,
-    AuthMethod,
-  } = jiraUser;
   const jiraClearPassword = jiraDecryptPassword(
-    Password,
-    Password_Nonce,
-    Password_Tag
+    jiraUser.Password,
+    jiraUser.Password_Nonce,
+    jiraUser.Password_Tag
   );
   let jiraResponse = await requestJiraProjects(
-    Host,
-    AccountName,
+    jiraUser.Host,
+    jiraUser.AccountName,
     jiraClearPassword,
-    AuthMethod
+    jiraUser.AuthMethod
   );
-
   
-  jiraResponse = checkForXray(jiraResponse)
-  
-  const projectNames = jiraResponse.map((project: { name: string, isXray: boolean }) => ({[project.name]: project.isXray}))
-
-  return await storeJiraRepos(projectNames);
+  const jiraProjects = jiraResponse.map((project) => (
+    {name: project.name,
+      isXray: project.isXray,
+      stepFields: project.stepFields
+    })
+  )
+  const storedJiraProjects = await storeJiraRepos(jiraProjects);
+  return storedJiraProjects 
 }
 
 /**
  * Makes the Request to fetch jira repos
  * @param host
  * @param username
- * @param jiraClearPassword
+ * @param jiraToken
  * @returns
  */
-async function requestJiraProjects(host: string, username: string, jiraClearPassword: string, authMethod: string) {
+async function requestJiraProjects(host: string, username: string, jiraToken: string, authMethod: string) {
 	// Prepare Jira-Auth
-  let authString: string = `Bearer ${jiraClearPassword}`
+  let authString: string = `Bearer ${jiraToken}`
 	if(authMethod === 'basic'){ 
-		const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
+		const auth = Buffer.from(`${username}:${jiraToken}`).toString('base64');
 		authString = `Basic ${auth}`
 	}
 
@@ -71,9 +65,11 @@ async function requestJiraProjects(host: string, username: string, jiraClearPass
     }
   };
 	
-  const jiraProjects =  await fetch(url, reqOptions)
+  let jiraProjects =  await fetch(url, reqOptions)
 		.then((response) => response.json())
 		.catch((error) => { console.error(error.stack); return [] })
+
+  jiraProjects = await checkForXray(jiraProjects, authString, host);
 
   return jiraProjects
 }
@@ -83,50 +79,93 @@ async function requestJiraProjects(host: string, username: string, jiraClearPass
  * @param {Array<any>} jiraProjects - The Jira projects.
  * @returns {Array<any>} - The Jira projects with the `isXray` property.
  */
-function checkForXray(jiraProjects: Array<any>): Array<any> {
-  jiraProjects.forEach((project: any) => {
-    if (project.projectCategory && project.projectCategory.name === "XRAY") {
-      project.isXray = true;
-    } else {
-      project.isXray = false;
-    }
-  });
-  return jiraProjects;
+async function checkForXray(jiraProjects: Array<any>, jiraToken: string, host: string): Promise<any[]> {
+
+  for (let project of jiraProjects) {
+      if (project.projectCategory && project.projectCategory.name === "XRAY") {
+        project.isXray = true;
+        project.stepFields =  await fetchXrayStepFields(project.key, jiraToken, host);
+      } else {
+        project.isXray = false;
+      }
+  }
+  return jiraProjects
 }
 
 /**
- * store and cumulate jira repos
- * @param fetchedProjects
- * @returns
+ * Fetches the step fields for a given Xray project.
+ * @param {string} projectKey - The key of the Jira project.
+ * @param {string} jiraToken - The Jira authentication token.
+ * @param {string} host - The Jira host.
+ * @returns {Promise<Array<string>>} - A promise that resolves to an array of step fields.
  */
-async function storeJiraRepos(fetchedProjects: Array<{ name: string, isXray: boolean }>) {
-  if (fetchedProjects.length === 0) return [];
-  // get existing JiraProjects
-  const existingJiraProjects = await mongoTs.getAllSourceProjectsFromDb(Sources.JIRA);
+async function fetchXrayStepFields(projectKey: string, jiraToken: string, host: string): Promise<Array<string>> {
+  const xrayFieldsList: Array<string> = [];
+  const reqOptions = {
+    method: 'GET',
+    headers: {
+      'cache-control': 'no-cache',
+      'Authorization': jiraToken
+    }
+  };
+  const url = `https://${host}/rest/api/2/search?jql=project=${projectKey}+AND+issuetype=Test&maxResults=1`;
+  
+  // Get first Issue with Type "Test"
+  const filterRes = await fetch(url, reqOptions)
+    .then((response) => response.json())
+    .catch((error) => { console.error(error.stack); return [] });
+  
+  const issueKey = filterRes.issues[0].key; // Get Key of Issue
+  const testIssueSteps = await fetch(`https://${host}/rest/raven/2.0/api/test/${issueKey}/steps`, reqOptions)
+    .then((response) => response.json())
+    .catch((error) => { console.error(error.stack); return [] });
+    
+  // Read a Step and get Fields (may be Custom for this Xray project)
+  Object.keys(testIssueSteps.steps[0].fields).forEach((fieldName: string) => {
+    xrayFieldsList.push(fieldName);
+  });
+  
+  return xrayFieldsList;
+}
 
+
+/**
+ * Stores and cumulates Jira repositories.
+ * @param {Array<{ name: string, isXray: boolean, stepFields?: Array<string> }>} fetchedProjects - The fetched Jira projects.
+ * @returns {Promise<Array<{ _id: string; value: string; source: string }>>} - A promise that resolves to an array of stored Jira projects.
+ */
+async function storeJiraRepos(fetchedProjects: Array<{ name: string, isXray: boolean, stepFields?: Array<string> }>): Promise<Array<{ _id: string; value: string; source: string }>> {
+  if (fetchedProjects.length === 0) return [];
+  
+  // Get existing JiraProjects
+  const existingJiraProjects = await mongoTs.getAllSourceProjectsFromDb(Sources.JIRA);
   let jiraProjects: Array<JiraProject> = [];
 
-  fetchedProjects.forEach( async (project) =>  {
-    const projectName: string = Object.keys(project)[0];
-    const isXray: boolean = project[projectName];
+  for (const project of fetchedProjects) {
+    const projectName: string = project.name;
+    const isXray: boolean = project.isXray;
     let jiraProject: JiraProject;
 
-    // if is is a new Project
+    // Check whether it is a new Project
     if (!existingJiraProjects.some((existingProject: JiraProject) => existingProject.repoName === projectName)) {
-      // create new Jira Project
+      // Create new Jira Project
       if (!isXray) {
         jiraProject = await mongoTs.createJiraProject(projectName);
       } else {
-        jiraProject = await mongoTs.createXrayProject(projectName);
+        jiraProject = await mongoTs.createXrayProject(projectName, project.stepFields);
       }
     } else {
-      // add existing Jira Project to list
+      // Add existing Jira Project to list
       jiraProject = existingJiraProjects.find(
-        (project: JiraProject) => project.repoName === projectName
+        (existingProject: JiraProject) => existingProject.repoName === projectName
       );
+      if (isXray) {
+        // Update Xray fields
+        jiraProject = await mongoTs.updateXrayProject(jiraProject as XrayProject, project.stepFields);
+      }
     }
     jiraProjects.push(jiraProject);
-  });
+  }
 
   return jiraProjects.map<{ _id: string; value: string; source: string }>(
     (jiraProject) => ({
@@ -136,7 +175,6 @@ async function storeJiraRepos(fetchedProjects: Array<{ name: string, isXray: boo
     })
   );
 }
-
 
 /**
  * Retrieves custom projects for a user.

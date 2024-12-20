@@ -123,7 +123,7 @@
                     </div>
                     <div class="windowSizeDiv space-between" *ngIf="workgroupProject?.source !== 'db'">
                         <div>
-                            <label class="selectLabel SmallIcontext">Report comment</label>
+                            <label class="selectLabel SmallIcontext">Post Report as Comment</label>
                         </div>
                         <div>
                             <input type="checkbox" [(ngModel)]="reportComment">
@@ -132,7 +132,7 @@
                             <dfn class="def">
                                 <span uk-icon="info"></span>
                                 <span rel="def" style="font-weight: normal">
-                                    Creates a comment with the Test Results on your connected Issue Tracker
+                                    Seed-Test will post the Test Execution Report as a comment in the linked Story / Issue.
                                 </span>
                             </dfn>
                         </div>

@@ -60,7 +60,7 @@ export async function createJiraProject(projectName: string): Promise<JiraProjec
   }
 }
 
-export async function createXrayProject(projectName: string): Promise<XrayProject> {
+export async function createXrayProject(projectName: string, stepFields: Array<string>): Promise<XrayProject> {
   try {
     const db = dbConnector.getConnection();
     const xrayProject: XrayProject = {
@@ -69,7 +69,7 @@ export async function createXrayProject(projectName: string): Promise<XrayProjec
       stories: [],
       groups: [],
       customBlocks: [],
-      stepFields: []
+      stepFields: stepFields
     };
     return await db.collection(Collections.REPOSITORIES).insertOne(xrayProject);
   } catch (e) {
@@ -369,6 +369,28 @@ export async function deleteProject(projectId: string, ownerId: string): Promise
   }
 }
 
+export async function updateXrayProject(project: XrayProject, stepFields: string[]): Promise<XrayProject> {
+  try {
+    const projectFilter = { _id: project._id };
+    const db = dbConnector.getConnection();
+    const collection = await db.collection(Collections.REPOSITORIES);
+
+    const updateFields: Partial<XrayProject> = {};
+    if (stepFields !== undefined) updateFields.stepFields = stepFields;
+
+    const updatedProject = await collection.findOneAndUpdate(
+      projectFilter,
+      { $set: updateFields },
+      { returnDocument: 'after' }
+    );
+
+    return updatedProject
+  } catch (e) {
+    console.error(`ERROR in updateXrayProject: ${e}`);
+    throw e;
+  }
+}
+
 module.exports = {
   createCustomProject,
   createJiraProject,
@@ -383,5 +405,6 @@ module.exports = {
   getProjectSettingsById,
   updateProject,
   updateOwnerInProject,
+  updateXrayProject,
   deleteProject
 }

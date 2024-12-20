@@ -59,7 +59,7 @@ router.get('/', (req, res) => {
 			// TODO: individuell abfangen, wo ein Fehler (GitHub / Jira / DB) aufgetreten ist.
 			// bei Jira behandeln, falls der Token abgelaufen ist
 			res.status(401).json('Wrong Username or Password');
-			console.error(`Get Repositories Error: ${reason}`);
+			console.error('Get Repositories Error:', reason);
 		});
 });
 

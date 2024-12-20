@@ -291,7 +291,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     downloadProjectFeatures(repo_id) {
         if (repo_id) {
             const userRepo = this.searchList.find(repo => repo._id == repo_id);
-            console.log(userRepo);
             const id = userRepo._id;
             this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
                 this.versionInput ? saveAs(ret, userRepo.value + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '.zip');
@@ -302,7 +301,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     exportProject(repo_id) {
         if (repo_id) {
             const userRepo = this.searchList.find(repo => repo._id == repo_id);
-            console.log(userRepo);
             const source = userRepo.source;
             const id = userRepo._id;
             this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {

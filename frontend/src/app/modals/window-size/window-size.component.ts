@@ -33,7 +33,6 @@ export class WindowSizeComponent {
   // Updates the selected resolution; sets to 'custom' if the current resolution is not in the predefined list
   updateSelectedResolution() {
     const currentResolution = `${this.width}x${this.height}`;
-    console.log(currentResolution)
     if (this.predefinedResolutions.includes(currentResolution)) {
       this.selectedResolution = currentResolution;
     } else {

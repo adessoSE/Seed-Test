@@ -180,7 +180,6 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
           this.blocks.splice(this.blocks.findIndex(x => x === this.selectedBlock), 1);
           this.stepList = [];
           this.selectedBlock = null;
-          console.log(resp);
           this.updateBlocksEventEmitter();
           this.toastr.error('', 'Block deleted');
         }); 

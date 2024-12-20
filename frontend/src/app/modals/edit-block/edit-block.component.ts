@@ -68,11 +68,7 @@ export class EditBlockComponent {
   editBlockSubmit() {
     console.log(this.selectedBlock);
     this.blockService.editBlock(this.selectedBlock).subscribe((resp) => {
-
-      console.log(resp);
-
       this.updateBlocksEventEmitter();
-
     });
 
     console.log('successfully subscirbed');

@@ -196,7 +196,6 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
       this.block.repositoryId = localStorage.getItem('id');
       this.filterResavedReferences(this.block);
       this.blockService.saveBlock(this.block).subscribe((resp) => {
-        console.log(resp);
         if(!this.saveAsSingleSteps){
           this.block._id = resp.insertedId;
           this.blockService.convertToReferenceEmitter(this.block);
