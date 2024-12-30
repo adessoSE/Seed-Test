@@ -82,6 +82,16 @@ class PlaywrightWorld extends World {
         this.createDirectories();
     }
 
+    private static sharedInstances: {
+        browser: Browser | null;
+        context: BrowserContext | null;
+        page: Page | null;
+    } = {
+        browser: null,
+        context: null,
+        page: null
+    };
+
     private createDirectories(): void {
         [this.downloadDir, this.tmpUploadDir, /*this.videoDir*/].forEach(dir => {
             if (!fs.existsSync(dir)) {
@@ -110,10 +120,12 @@ class PlaywrightWorld extends World {
         console.log('Attempting to launch browser with config:', parameters);
         try {
             // Wenn oneDriver aktiv ist und bereits ein Browser existiert
-            if (parameters.oneDriver && this.browser) {
-                //Keinen neuen Context oder Page setzen
-                console.log('Reusing existing browser session (oneDriver active)');
-                return;
+            if (parameters.oneDriver && PlaywrightWorld.sharedInstances.browser) {
+                    this.browser = PlaywrightWorld.sharedInstances.browser;
+                    this.context = PlaywrightWorld.sharedInstances.context;
+                    this.page = PlaywrightWorld.sharedInstances.page;
+                    console.log('Reusing existing browser session (oneDriver active)');
+                    return;
             } else {
                 const browserType = this.getBrowserType();
                 console.log(`Launching ${parameters.browser} ${String(browserType)} browser...`);
@@ -175,10 +187,15 @@ class PlaywrightWorld extends World {
                 // Neuen Page nur erstellen wenn sie nicht existieren
                 if (!this.page){
                     this.page = await this.context.newPage();
-                    if (parameters.waitTime > 0) {
-                    this.page.setDefaultTimeout(parameters.waitTime);
-                    }  
+                    parameters.waitTime > 0 ?
+                    this.page.setDefaultTimeout(parameters.waitTime) : this.page.setDefaultTimeout(this.defaultTimeout);
                     console.log('New page created');
+                }
+                //Globale Referenzen für OneDriver speichern
+                if (parameters.oneDriver) {
+                    PlaywrightWorld.sharedInstances.browser = this.browser;
+                    PlaywrightWorld.sharedInstances.context = this.context;
+                    PlaywrightWorld.sharedInstances.page = this.page;
                 }
             } catch (error) {
                 throw new Error(`Page creation failed: ${error.message}`);
@@ -215,6 +232,11 @@ class PlaywrightWorld extends World {
                 await this.page?.close();
                 await this.context?.close();
                 await this.browser?.close();
+                PlaywrightWorld.sharedInstances = {
+                    browser: null,
+                    context: null,
+                    page: null
+                };
             } else {
                 console.log('Keeping browser session for next scenario (oneDriver active)');
             }

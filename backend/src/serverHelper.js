@@ -194,6 +194,9 @@ function getSettings(scenario, globalSettings) {
 	return finalSettings;
 }
 
+// Globale Variable für Support Code Library
+let cachedSupportCode = null;
+
 async function executeTest(req, mode, story) {
 	const repoId = req.body.repositoryId || req.body.repoId;
 
@@ -237,7 +240,7 @@ async function executeTest(req, mode, story) {
 		await updateFeatureFile(story._id, req.params.storySource);
 	}
 
-	// Cucumber Konfiguration für Playwright
+	// Cucumber Konfiguration für Cucumber
 	const userConfig = {
 		paths: [path.normalize(featurePath)],
 		require: [path.resolve(process.cwd(), 'features/step_definitions/*.js')],
@@ -258,36 +261,24 @@ async function executeTest(req, mode, story) {
 		tags: mode === 'scenario' ? `@${req.params.issueID}_${req.params.scenarioId}` : undefined
 	};
 
-	try {
-
-		// Clear Node's module cache for cucumber support files
-		Object.keys(require.cache).forEach(function(key) {
-			if (key.includes('@cucumber/cucumber/lib/support')) {
-				delete require.cache[key];
-			}
-		});
-		
-		// Force Cucumber to reload support code library
-		process.env.CUCUMBER_FORCE_RELOAD_SUPPORT = 'true';
-		
-		
+	try {	
 		// Konfiguration laden und ausführen
 		
 		const cucumberAPI = await import('@cucumber/cucumber/api');
-    	const { loadConfiguration, runCucumber } = cucumberAPI;
+    	const { loadConfiguration, runCucumber, loadSupport } = cucumberAPI;
 
 
 		console.log('Loading configuration...');
     	const { runConfiguration } = await loadConfiguration({
-			provided: {
-				...userConfig,
-				support: {
-					requireModules: [],
-					requirePaths: [path.resolve(process.cwd(), 'features/step_definitions/*.js')],
-					importPaths: []
-				}
-			}
-    });
+			provided: userConfig
+    	});
+
+		// Support Code nur einmal laden und wiederverwenden
+        if (!cachedSupportCode) {
+            console.log('Loading support code for the first time...');
+            cachedSupportCode = await loadSupport(runConfiguration);
+        }
+
 		console.log('Step Definitions Directory:', path.join(process.cwd(), 'features/step_definitions'));
 		console.log('Available Step Files:', fs.readdirSync(path.join(process.cwd(), 'features/step_definitions')));
 		console.log('\nExecuting:');
@@ -302,10 +293,10 @@ async function executeTest(req, mode, story) {
 
 		console.log('Full run configuration:', runConfiguration);
 
-		const { success } = await runCucumber(runConfiguration);
-
-		// Reset force reload flag
-		delete process.env.CUCUMBER_FORCE_RELOAD;
+		const { success } = await runCucumber({ 
+			...runConfiguration, 
+			support: cachedSupportCode 
+    	});
 
 		return {
 			reportTime,
