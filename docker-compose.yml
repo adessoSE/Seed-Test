@@ -1,19 +1,62 @@
 version: "2.12"
 
 services:
-  seedmongodb:
-    container_name: "Seed-MongoDB"
-    image: mongo
-    volumes:
-      - seedDB:/data/db
-      - seedDB:/data/configdb
-    ports:
-      - "27017-27019:27017-27019"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=SeedAdmin
-      - MONGO_INITDB_ROOT_PASSWORD=SeedTest
-      - MONGO_INITDB_DATABASE=Seed
+
+  mongo1:
+    container_name: mongo1
+    image: mongo:7.0
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongodb/pki/keyfile"]
     restart: always
+    ports:
+      - 27017:27017
+    networks:
+      mongo-cluster:
+        ipv4_address: 172.20.0.2
+    volumes:
+      - ./init-replica.js:/docker-entrypoint-initdb.d/init-replica.js
+      - ./mongo-rs/rs_keyfile:/etc/mongodb/pki/keyfile
+      - "mongo1_data:/data/db"
+      - "mongo_config:/data/configdb"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: SeedAdmin
+      MONGO_INITDB_ROOT_PASSWORD: SeedTest
+      MONGO_INITDB_DATABASE: Seed
+
+  mongo2:
+    image: mongo:7.0
+    container_name: mongo2
+    command: ["--replSet", "rs0" ,"--bind_ip_all", "--port", "27018","--keyFile", "/etc/mongodb/pki/keyfile"]
+    restart: always
+    ports:
+      - 27018:27018
+    networks:
+      mongo-cluster:
+        ipv4_address: 172.20.0.3
+    volumes:
+      - ./mongo-rs/rs_keyfile:/etc/mongodb/pki/keyfile
+      - "mongo2_data:/data/db"
+      - "mongo_config:/data/configdb"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: SeedAdmin
+      MONGO_INITDB_ROOT_PASSWORD: SeedTest
+
+  mongo3:
+    image: mongo:7.0
+    container_name: mongo3
+    command: ["--replSet", "rs0" ,"--bind_ip_all", "--port", "27019","--keyFile", "/etc/mongodb/pki/keyfile"]
+    restart: always
+    ports:
+      - 27019:27019
+    networks:
+      mongo-cluster:
+        ipv4_address: 172.20.0.4
+    volumes:
+      - ./mongo-rs/rs_keyfile:/etc/mongodb/pki/keyfile
+      - "mongo3_data:/data/db"
+      - "mongo_config:/data/configdb"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: SeedAdmin
+      MONGO_INITDB_ROOT_PASSWORD: SeedTest
 
   backend:
     image: seedtest/seed-test-backend:latest
