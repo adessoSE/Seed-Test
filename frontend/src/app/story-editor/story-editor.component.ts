@@ -1,3 +1,4 @@
+import { webkit } from '@playwright/test';
 import { Router } from "@angular/router";
 import {
   Component,
@@ -408,7 +409,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.chromium_emulators === "" ? [] : this.chromium_emulators.split(",");
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
-      this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+      this.edge_emulators === "" ? [] : this.webkit_emulators.split(",");
+    this.webkit_emulators = localStorage.getItem("webkit_emulators");
+    this.webkit_emulators =
+      this.webkit_emulators === "" ? [] : this.webkit_emulators.split(",");
     this.setUserData();
     this.checkGlobalSettings();
   }
@@ -1388,6 +1392,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   edge_emulators;
 
   /**
+   * List of supported emulators for gecko
+   */
+  webkit_emulators;
+
+  /**
    * Set if an emulator should be used
    * @param enabled Boolean
    */
@@ -1417,6 +1426,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         return this.gecko_emulators;
       case "MicrosoftEdge":
         return this.edge_emulators;
+      case "webkit":
+        return this.webkit_emulators;
     }
     return [];
   }

@@ -129,7 +129,9 @@ export class WorkgroupEditComponent {
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
-    //TODO: webkit_emulators hinzufügen?
+    this.webkit_emulators = localStorage.getItem("webkit_emulators");
+    this.webkit_emulators =
+      this.webkit_emulators === "" ? [] : this.webkit_emulators.split(",");
   }
 
   ngOnInit() {
@@ -404,6 +406,11 @@ export class WorkgroupEditComponent {
   edge_emulators;
 
   /**
+   * List of supported emulators for gecko
+   */
+  webkit_emulators;
+
+  /**
    * Set if an emulator should be used
    * @param enabled Boolean
    */
@@ -445,6 +452,8 @@ export class WorkgroupEditComponent {
         return this.gecko_emulators;
       case "MicrosoftEdge":
         return this.edge_emulators;
+      case "webkit":
+        return this.webkit_emulators;
     }
     return []
   }
