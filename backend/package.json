@@ -13,7 +13,8 @@
     "clean": "rimraf ./dist",
     "tsc": "tsc",
     "lint": "./node_modules/.bin/eslint src/database --fix",
-    "exec-test": "./node_modules/.bin/cucumber-js"
+    "exec-test": "./node_modules/.bin/cucumber-js",
+    "postinstall": "npx playwright install --with-deps"
   },
   "private": true,
   "dependencies": {
