@@ -156,7 +156,6 @@ export class ApiService {
     const gecko_emulators = localStorage.getItem("gecko_emulators");
     const chromium_emulators = localStorage.getItem("chromium_emulators");
     const edge_emulators = localStorage.getItem("edge_emulators");
-    const webkit_emulators = localStorage.getItem("webkit_emulators");
 
     if (
       url &&
@@ -178,9 +177,7 @@ export class ApiService {
       chromium_emulators &&
       chromium_emulators !== "undefined" &&
       edge_emulators &&
-      edge_emulators !== "undefined" &&
-      webkit_emulators &&
-      webkit_emulators !== "undefined"
+      edge_emulators !== "undefined"
     ) {
       this.urlReceived = true;
       this.getBackendUrlEvent.emit();
@@ -209,7 +206,6 @@ export class ApiService {
             backendInfo.chromium_emulators
           );
           localStorage.setItem("edge_emulators", backendInfo.edge_emulators);
-          localStorage.setItem("webkit_emulators", backendInfo.webkit_emulators);
           this.urlReceived = true;
           this.getBackendUrlEvent.emit();
         });
