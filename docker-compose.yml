@@ -64,11 +64,11 @@ services:
       - "8080:8080"
     container_name: "Seed-backend"
     depends_on:
-      - seedmongodb
+      - mongo1
     restart: always
     environment:
       FRONTEND_URL: "http://localhost:4200"
-      DATABASE_URI: mongodb://SeedAdmin:SeedTest@seedmongodb:27017
+      DATABASE_URI: mongodb://SeedAdmin:SeedTest@mongo1:27017/?directConnection=true
       REPORT_DELETION_TIME: 5
       TESTACCOUNT_NAME:
       TESTACCOUNT_REPO:
@@ -100,3 +100,14 @@ services:
 
 volumes:
   seedDB:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+  mongo_config:
+
+networks:
+  mongo-cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.20.0.0/16"
