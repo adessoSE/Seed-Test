@@ -7,13 +7,15 @@ services:
     image: mongo:7.0
     command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--keyFile", "/etc/mongodb/pki/keyfile"]
     restart: always
+    depends_on:
+      - mongo2
+      - mongo3
     ports:
       - 27017:27017
     networks:
       mongo-cluster:
         ipv4_address: 172.20.0.2
     volumes:
-      - ./init-replica.js:/docker-entrypoint-initdb.d/init-replica.js
       - ./mongo-rs/rs_keyfile:/etc/mongodb/pki/keyfile
       - "mongo1_data:/data/db"
       - "mongo_config:/data/configdb"
