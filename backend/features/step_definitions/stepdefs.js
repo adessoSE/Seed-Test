@@ -132,8 +132,6 @@ Given('I add a cookie with the name {string} and value {string}', async function
 		} catch (e) {
 			throw Error(e);
 		}
-
-		if (this.parameters.waitTime) await this.getPage().waitForTimeout(this.parameters.waitTime);
 	});
 });
 
@@ -148,10 +146,6 @@ Given('I remove a cookie with the name {string}', async function(name) {
         } catch (e) {
             throw Error(e);
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -164,10 +158,6 @@ Given('I add a session-storage with the name {string} and value {string}', async
             }, [name, value]);
         } catch (e) {
             throw Error(e);
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
@@ -182,10 +172,6 @@ Given('I remove a session-storage with the name {string}', async function(name) 
         } catch (e) {
             throw Error(e);
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -193,17 +179,12 @@ Given('I take a screenshot', async function() {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            await page.waitForLoadState('domcontentloaded');
             const timestamp = Date.now();
             const screenshotPath = path.join(this.downloadDir, `manual-${timestamp}.png`);
             const buffer = await page.screenshot({ path: screenshotPath });
             await this.attach(buffer, 'image/png');
         } catch (e) {
             throw Error(e);
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
@@ -255,7 +236,7 @@ When('I go to the website: {string}', async function getUrl(url) {
 		try {
 			const page = this.getPage();
 			await page.goto(url);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState();
 		} catch (e) {
 			throw Error(e);
 		}
@@ -340,10 +321,6 @@ When('I insert {string} into the field {string}', async function(text, label) {
             }
             throw e;
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -374,10 +351,6 @@ When('I select {string} from the selection {string}', async function(radioname, 
                 throw new Error(`Radio ${label} with option ${radioname} could not be found!`);
             }
             throw e;
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
@@ -415,10 +388,6 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
             }
             throw e;
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -442,10 +411,6 @@ When('I select the option {string}', async function(dropd) {
                 throw new Error(`Dropdown-option ${dropd} could not be found!`);
             }
             throw e;
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
@@ -490,10 +455,6 @@ When('I hover over the element {string} and select the option {string}', async f
             }
             throw e;
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -529,10 +490,6 @@ When('I check the box {string}', async function(name) {
             }
             throw e;
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -549,10 +506,6 @@ When('Switch to the newly opened tab', async function() {
             this.page = pages[pages.length - 1];
         } catch (e) {
             throw Error(e);
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
@@ -584,10 +537,6 @@ When('Switch to the tab number {string}', async function(numberOfTabs) {
         } catch (e) {
             throw Error(e);
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -615,10 +564,6 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
                 throw new Error(`Upload Field ${input} could not be found!`);
             }
             throw Error(e);
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
@@ -686,10 +631,6 @@ Then('So I can see the text {string} in the textbox: {string}', async function(e
             }
             throw Error(e);
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -723,10 +664,6 @@ Then('So I can see the text: {string}', async function(text) {
         } catch (e) {
             throw Error(e);
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -753,10 +690,6 @@ Then('So I can\'t see text in the textbox: {string}', async function(label) {
             }
             throw Error(e);
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -782,10 +715,6 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
             await fs.promises.rename(filePath, newPath);
         } catch (e) {
             throw new Error(`Download file ${fileName} not found: ${e.message}`);
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
@@ -846,10 +775,6 @@ Then('So the picture {string} has the name {string}', async function(picture, na
             }
             throw e;
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -883,10 +808,6 @@ Then('So I can\'t see the text: {string}', async function(text) {
         } catch (e) {
             throw Error(e);
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -912,10 +833,6 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
                 throw new Error(`The checkbox ${checkboxName} could not be found!`);
             }
             throw e;
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
@@ -954,10 +871,6 @@ Then('So on element {string} the css property {string} is {string}', async funct
             }
             throw e;
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -991,10 +904,6 @@ Then('So the element {string} has the tool-tip {string}', async function(element
             }
             throw e;
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
 
@@ -1008,10 +917,6 @@ Then('So the cookie {string} has the value {string}', async function(name, expec
             await expect(cookie?.value).toBe(expectedValue);
         } catch (e) {
             throw Error(e);
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
