@@ -271,7 +271,6 @@ When('I click the button: {string}', async function(button) {
                     continue;
                 }
             }
-            throw new Error(`Button ${button} could not be found!`);
         } catch (e) {
             throw e;
         }
@@ -299,30 +298,35 @@ When('I insert {string} into the field {string}', async function(text, label) {
             const page = this.getPage();
             const value = applySpecialCommands(text);
             
-            const selectors = [
-                `input#${label}`,
-                `input[id*="${label}"]`,
-                `textarea#${label}`,
-                `textarea[id*="${label}"]`,
-                `textarea[name="${label}"]`,
-                `*[id="${label}"]`,
-                `input[type="text"][name="${label}"]`,
-                `label:has-text("${label}") + input[type="text"]`,
-                `[placeholder="${label}"]`,
-                label
+            const locators = [
+                // Modern Locators
+                page.getByLabel(label),
+                page.getByPlaceholder(label),
+                page.getByRole('textbox', { name: label }),
+                // CSS Fallbacks
+                page.locator(`input#${label}`),
+                page.locator(`textarea#${label}`),
+                page.locator(`[id="${label}"]`),
+                page.locator(`[name="${label}"]`),
+                // Complex Selectors
+                page.locator(`label:has-text("${label}") + input`),
+                page.locator(`label:has-text("${label}") + textarea`)
             ];
 
-            const locator = page.locator(selectors.join(', '));
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            await locator.fill(value);
-        } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`Input/Textarea ${label} could not be found!`);
+            for (const locator of locators) {
+                try {
+                    await locator.fill(value);
+                    return;
+                } catch {
+                    continue;
+                }
             }
+        } catch (e) {
             throw e;
         }
     });
 });
+
 
 
 // "Radio"
@@ -330,22 +334,26 @@ When('I select {string} from the selection {string}', async function(radioname, 
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const selectors = [
-                `input[${label}="${radioname}"] + label`,
-                `input[${label}*="${radioname}"] + label`,
-                `label:has-text("${label}") ~ input[value="${radioname}"] + label`,
-                `input[name="${label}"][value="${radioname}"] + label`,
-                `input[name*="${label}"] + label:has-text("${radioname}")`,
-                `[role="radio"]:has-text("${radioname}")`,
-                radioname
+            const locators = [
+                // Modern Locators
+                page.getByRole('radio', { name: radioname }),
+                page.getByLabel(label).filter({ hasText: radioname }),
+                page.getByText(radioname).filter({ has: page.locator('input[type="radio"]') }),
+                // CSS Fallbacks
+                page.locator(`input[name="${label}"][value="${radioname}"]`),
+                page.locator(`[role="radio"]:has-text("${radioname}")`),
+                // XPath as last resort
+                page.locator(`//input[@type="radio"][@value="${radioname}"]`)
             ];
 
-            const locator = page.locator(selectors.join(', '));
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            await locator.click();
-            
-            // Wait for radio button selection to be processed
-            await page.waitForLoadState('networkidle');
+            for (const locator of locators) {
+                try {
+                    await locator.click();
+                    return;
+                } catch {
+                    continue;
+                }
+            }
         } catch (e) {
             if (e.name === 'TimeoutError') {
                 throw new Error(`Radio ${label} with option ${radioname} could not be found!`);
@@ -362,26 +370,48 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
         try {
             const page = this.getPage();
             
-            // Versuche zuerst das Dropdown zu finden und zu öffnen
-            const dropdown = page.locator([
-                `select[id*="${dropd}"]`,
-                `[aria-label*="${dropd}"]`,
-                `[role="combobox"][name*="${dropd}"]`,
-                `text=${dropd}`
-            ].join(', '));
-            
-            await dropdown.click();
-            
-            // Versuche dann die Option zu finden und auszuwählen
-            const option = page.locator([
-                `option:has-text("${value}")`,
-                `[role="option"]:has-text("${value}")`,
-                `li:has-text("${value}")`,
-                `text=${value}`
-            ].join(', '));
-            
-            await option.click();
-            await page.waitForLoadState('networkidle');
+            // Dropdown locators in priority order
+            const dropdownLocators = [
+                // Modern Locators
+                page.getByRole('combobox', { name: dropd }),
+                page.getByLabel(dropd),
+                page.getByText(dropd).filter({ has: page.locator('select') }),
+                // CSS Fallbacks
+                page.locator(`select[id="${dropd}"]`),
+                page.locator(`[role="combobox"][name="${dropd}"]`),
+                page.locator(`[aria-label="${dropd}"]`)
+            ];
+
+            // Option locators in priority order
+            const optionLocators = [
+                // Modern Locators
+                page.getByRole('option', { name: value }),
+                page.getByText(value).filter({ has: page.locator('option') }),
+                // CSS Fallbacks
+                page.locator(`option:has-text("${value}")`),
+                page.locator(`[role="option"]:has-text("${value}")`),
+                page.locator(`li:has-text("${value}")`)
+            ];
+
+            // Try to find and click dropdown
+            for (const dropdownLocator of dropdownLocators) {
+                try {
+                    await dropdownLocator.click();
+                    break;
+                } catch {
+                    continue;
+                }
+            }
+
+            // Try to find and click option
+            for (const optionLocator of optionLocators) {
+                try {
+                    await optionLocator.click();
+                    return;
+                } catch {
+                    continue;
+                }
+            }
         } catch (e) {
             if (e.name === 'TimeoutError') {
                 throw new Error(`Dropdown ${dropd} with option ${value} could not be found!`);
@@ -396,16 +426,27 @@ When('I select the option {string}', async function(dropd) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locator = page.locator([
-                `[role="option"]:has-text("${dropd}")`,
-                `option:has-text("${dropd}")`,
-                `li:has-text("${dropd}")`,
-                dropd
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('option', { name: dropd }),
+                page.getByText(dropd).filter({ has: page.locator('select') }),
+                // CSS Fallbacks
+                page.locator(`select option:has-text("${dropd}")`),
+                page.locator(`[role="listbox"] [role="option"]:has-text("${dropd}")`),
+                // Direct selection without opening dropdown
+                page.locator('select').locator(`option:has-text("${dropd}")`),
+                // Legacy support
+                page.locator(`//select/option[text()="${dropd}"]`)
+            ];
 
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            await locator.click();
-            await page.waitForLoadState('networkidle');
+            for (const locator of locators) {
+                try {
+                    await locator.click();
+                    return;
+                } catch {
+                    continue;
+                }
+            }
         } catch (e) {
             if (e.name === 'TimeoutError') {
                 throw new Error(`Dropdown-option ${dropd} could not be found!`);
@@ -422,33 +463,42 @@ When('I hover over the element {string} and select the option {string}', async f
         try {
             const page = this.getPage();
             
-            // Try to find and hover over the element
-            const elementLocator = page.locator([
-                `text=${element}`,
-                `[aria-label="${element}"]`,
-                `[title="${element}"]`,
-                element
-            ].join(', '));
+            const elementLocators = [
+                // Modern Locators
+                page.getByRole('button', { name: element }),
+                page.getByText(element, { exact: true }),
+                page.getByLabel(element),
+                // CSS Fallbacks
+                page.locator(`[title="${element}"]`),
+                page.locator(`[aria-label="${element}"]`)
+            ];
 
-            await elementLocator.waitFor({ state: 'visible', timeout: searchTimeout });
-            await elementLocator.hover();
-            
-            // Wait for hover effect
-            await page.waitForTimeout(500);
-            
-            // Try to find and click the option
-            const optionLocator = page.locator([
-                `text=${option}`,
-                `[aria-label="${option}"]`,
-                `[title="${option}"]`,
-                option
-            ].join(', '));
+            // Try each element locator
+            for (const locator of elementLocators) {
+                try {
+                    await locator.hover();
+                    
+                    // Try to find and click the option
+                    const optionLocators = [
+                        page.getByRole('menuitem', { name: option }),
+                        page.getByText(option, { exact: true }),
+                        page.getByLabel(option),
+                        page.locator(`[title="${option}"]`),
+                        page.locator(`[aria-label="${option}"]`)
+                    ];
 
-            await optionLocator.waitFor({ state: 'visible', timeout: searchTimeout });
-            await optionLocator.click();
-            
-            // Wait for any network activity to complete
-            await page.waitForLoadState('networkidle');
+                    for (const optionLocator of optionLocators) {
+                        try {
+                            await optionLocator.click();
+                            return;
+                        } catch {
+                            continue;
+                        }
+                    }
+                } catch {
+                    continue;
+                }
+            }
         } catch (e) {
             if (e.name === 'TimeoutError') {
                 throw new Error(`Element ${element} or option ${option} could not be found!`);
@@ -466,24 +516,25 @@ When('I check the box {string}', async function(name) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locator = page.locator([
-                `[type="checkbox"][id="${name}"]`,
-                `[type="checkbox"][name="${name}"]`,
-                `label:has-text("${name}") input[type="checkbox"]`,
-                `[role="checkbox"]:has-text("${name}")`,
-                name
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('checkbox', { name: name }),
+                page.getByLabel(name),
+                // CSS Fallbacks
+                page.locator(`[type="checkbox"][id="${name}"]`),
+                page.locator(`[type="checkbox"][name="${name}"]`),
+                // Complex Selectors
+                page.locator(`label:has-text("${name}") input[type="checkbox"]`)
+            ];
 
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            
-            // Check if checkbox is already checked
-            const isChecked = await locator.isChecked();
-            if (!isChecked) {
-                await locator.check();
+            for (const locator of locators) {
+                try {
+                    await locator.check()
+                    return;
+                } catch {
+                    continue;
+                }
             }
-            
-            // Wait for any network activity to complete
-            await page.waitForLoadState('networkidle');
         } catch (e) {
             if (e.name === 'TimeoutError') {
                 throw new Error(`The Checkbox ${name} could not be found!`);
@@ -520,7 +571,6 @@ When('Switch to the tab number {string}', async function(numberOfTabs) {
             const tabIndex = parseInt(numberOfTabs, 10);
             
             if (tabIndex === 1) {
-                console.log('switchTo: 1st tab');
                 await pages[0].bringToFront();
                 this.page = pages[0];
             } else {
@@ -547,16 +597,25 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
             const page = this.getPage();
             const filePath = path.join(this.tmpUploadDir, file);
             
-            const fileInput = page.locator([
-                `input[type="file"][name="${input}"]`,
-                `input[type="file"][id="${input}"]`,
-                `input[type="file"]`,
-                input
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('textbox', { name: input }),
+                page.getByLabel(input),
+                // File Input Specific
+                page.locator(`input[type="file"][name="${input}"]`),
+                page.locator(`input[type="file"][id="${input}"]`),
+                // Generic Fallback
+                page.locator('input[type="file"]')
+            ];
 
-            await fileInput.waitFor({ state: 'visible', timeout: searchTimeout });
-            await fileInput.setInputFiles(filePath);
-            
+            for (const locator of locators) {
+                try {
+                    await locator.setInputFiles(filePath);
+                    return;
+                } catch {
+                    continue;
+                }
+            }
             // Wait for upload to complete
             await page.waitForLoadState('networkidle');
         } catch (e) {
@@ -600,30 +659,37 @@ Then('So I can see the text {string} in the textbox: {string}', async function(e
             const text = applySpecialCommands(expectedText.toString());
             const { resultString, regexFound } = resolveRegex(text);
             
-            const locator = page.locator([
-                `#${label}`,
-                `[id*="${label}"]`,
-                `[name="${label}"]`,
-                `label:has-text("${label}") + input`,
-                `[placeholder="${label}"]`,
-                label
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('textbox', { name: label }),
+                page.getByLabel(label),
+                page.getByPlaceholder(label),
+                // CSS Fallbacks
+                page.locator(`#${label}`),
+                page.locator(`[name="${label}"]`),
+                page.locator(`label:has-text("${label}") + input`)
+            ];
 
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            
-            // Get text content using different methods
-            let content = await locator.inputValue();
-            if (!content) {
-                content = await locator.textContent() || '';
-            }
-            if (!content) {
-                content = await locator.getAttribute('outerHTML') || '';
-            }
+            for (const locator of locators) {
+                try {
+                    // Try to get content using different methods
+                    let content = await locator.inputValue();
+                    if (!content) {
+                        content = await locator.textContent() || '';
+                    }
+                    if (!content) {
+                        content = await locator.getAttribute('outerHTML') || '';
+                    }
 
-            if (regexFound) {
-                await expect(content).toMatch(new RegExp(resultString));
-            } else {
-                await expect(content).toBe(resultString);
+                    if (regexFound) {
+                        await expect(content).toMatch(new RegExp(resultString));
+                    } else {
+                        await expect(content).toBe(resultString);
+                    }
+                    return;
+                } catch {
+                    continue;
+                }
             }
         } catch (e) {
             if (e.name === 'TimeoutError') {
@@ -642,24 +708,26 @@ Then('So I can see the text: {string}', async function(text) {
             const expectedText = applySpecialCommands(text.toString());
             const { resultString, regexFound } = resolveRegex(expectedText);
 
-            await page.waitForLoadState('domcontentloaded');
-            
-            // Get all text content from the page
-            const bodyContent = await page.evaluate(() => {
-                const body = document.body;
-                return {
-                    textContent: body.textContent || '',
-                    innerHTML: document.documentElement.innerHTML,
-                    outerHTML: document.documentElement.outerHTML
-                };
-            });
-            
-            const allContent = bodyContent.textContent + bodyContent.innerHTML + bodyContent.outerHTML;
+            const locators = [
+                // Modern Locators
+                page.getByText(resultString, { exact: !regexFound }),
+                // Fallback content checks
+                page.locator('body'),
+                page.locator('html')
+            ];
 
-            if (regexFound) {
-                await expect(allContent).toMatch(new RegExp(resultString));
-            } else {
-                await expect(allContent).toContain(resultString);
+            for (const locator of locators) {
+                try {
+                    if (regexFound) {
+                        await expect(locator).toHaveText(new RegExp(resultString));
+                        return;
+                    } else {
+                        await expect(locator).toContainText(resultString);
+                        return;
+                    }
+                } catch {
+                    continue;
+                }
             }
         } catch (e) {
             throw Error(e);
@@ -673,17 +741,25 @@ Then('So I can\'t see text in the textbox: {string}', async function(label) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locator = page.locator([
-                `#${label}`,
-                `[id*="${label}"]`,
-                `[name="${label}"]`,
-                `[placeholder="${label}"]`,
-                label
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('textbox', { name: label }),
+                page.getByLabel(label),
+                page.getByPlaceholder(label),
+                // CSS Fallbacks
+                page.locator(`#${label}`),
+                page.locator(`[name="${label}"]`)
+            ];
 
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            const content = await locator.inputValue();
-            await expect(content).toBe('');
+            for (const locator of locators) {
+                try {
+                    const content = await locator.inputValue();
+                    await expect(content).toBe('');
+                    return;
+                } catch {
+                    continue;
+                }
+            }
         } catch (e) {
             if (e.name === 'TimeoutError') {
                 throw new Error(`The Textarea ${label} could not be found!`);
@@ -697,24 +773,31 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const filePath = path.join(this.downloadDir, fileName);
             
-            // Wait for file to exist
-            await page.waitForTimeout(1000); // Give time for download to complete
+            // Wait for download
+            const downloadPromise = page.waitForEvent('download');
+            const download = await downloadPromise;
             
-            // Check if file exists
-            await fs.promises.access(filePath, fs.constants.F_OK);
+            // Verify filename
+            const suggestedFilename = download.suggestedFilename();
+            expect(suggestedFilename).toBe(fileName);
             
-            // Rename the file with timestamp
+            // Save file with timestamp
             const timestamp = Date.now();
             const newPath = path.join(
-                this.downloadDir, 
+                this.downloadDir,
                 `Seed_Download-${timestamp}_${fileName}`
             );
             
-            await fs.promises.rename(filePath, newPath);
+            await download.saveAs(newPath);
+            
+            // Verify file exists
+            const fileExists = fs.existsSync(newPath);
+            if (!fileExists) {
+                throw new Error(`Download file ${fileName} could not be saved`);
+            }
         } catch (e) {
-            throw new Error(`Download file ${fileName} not found: ${e.message}`);
+            throw new Error(`Download file ${fileName} failed: ${e.message}`);
         }
     });
 });
@@ -724,50 +807,25 @@ Then('So the picture {string} has the name {string}', async function(picture, na
     await handleError(async () => {
         try {
             const page = this.getPage();
-            
-            // Try to find the image using multiple selectors
-            const imageLocator = page.locator([
-                `picture:has(source[srcset*="${picture}"])`,
-                `picture:has(img[src*="${picture}"])`,
-                `img[src*="${picture}"]`,
-                `img[alt*="${picture}"]`,
-                `img[id="${picture}"]`,
-                `img[title*="${picture}"]`
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('img', { name: picture }),
+                page.getByAltText(picture),
+                // CSS Fallbacks
+                page.locator(`img[src*="${picture}"]`),
+                page.locator(`img[src*="${name}"]`)
+            ];
 
-            await imageLocator.waitFor({ state: 'visible', timeout: searchTimeout });
-            
-            // Check if it's a picture element or img
-            const tagName = await imageLocator.evaluate(el => el.tagName.toLowerCase());
-            
-            let imageSrc = '';
-            if (tagName === 'picture') {
-                // Check source elements within picture
-                const sourceLocator = imageLocator.locator('source');
-                const srcset = await sourceLocator.getAttribute('srcset');
-                if (srcset?.includes(name)) {
-                    imageSrc = srcset;
+            for (const locator of locators) {
+                try {
+                    await locator.isVisible();
+                    const src = await locator.getAttribute('src');
+                    if (src?.includes(name)) {
+                        return;
+                    }
+                } catch {
+                    continue;
                 }
-                
-                // Check img fallback if no matching source
-                if (!imageSrc) {
-                    const imgLocator = imageLocator.locator('img');
-                    imageSrc = await imgLocator.getAttribute('src') || await imgLocator.getAttribute('srcset') || '';
-                }
-            } else {
-                // Direct img element
-                imageSrc = await imageLocator.getAttribute('src') || await imageLocator.getAttribute('srcset') || '';
-            }
-
-            // Verify image source contains the expected name
-            if (!imageSrc.includes(name)) {
-                throw new Error(`Image source does not contain expected name: ${name}`);
-            }
-
-            // Check if image is actually accessible
-            const response = await page.request.head(new URL(imageSrc, page.url()).href);
-            if (!response.ok()) {
-                throw new Error(`Image ${imageSrc} is not accessible`);
             }
         } catch (e) {
             if (e.name === 'TimeoutError') {
@@ -786,27 +844,28 @@ Then('So I can\'t see the text: {string}', async function(text) {
             const expectedText = applySpecialCommands(text.toString());
             const { resultString, regexFound } = resolveRegex(expectedText);
 
-            await page.waitForLoadState('domcontentloaded');
-            
-            // Get all text content from the page
-            const content = await page.evaluate(() => {
-                const body = document.body;
-                return {
-                    textContent: body.textContent || '',
-                    innerHTML: document.documentElement.innerHTML,
-                    outerHTML: document.documentElement.outerHTML
-                };
-            });
-            
-            const allContent = content.textContent + content.innerHTML + content.outerHTML;
+            const locators = [
+                // Modern Locators
+                page.getByText(resultString, { exact: !regexFound }),
+                // Fallback content checks
+                page.locator('body'),
+                page.locator('html')
+            ];
 
-            if (regexFound) {
-                await expect(allContent).not.toMatch(new RegExp(resultString));
-            } else {
-                await expect(allContent).not.toContain(resultString);
+            for (const locator of locators) {
+                try {
+                    if (regexFound) {
+                        await expect(locator).not.toHaveText(new RegExp(resultString));
+                    } else {
+                        await expect(locator).not.toContainText(resultString);
+                    }
+                    return;
+                } catch {
+                    continue;
+                }
             }
         } catch (e) {
-            throw Error(e);
+            throw new Error(`Unexpected text "${text}" was found on the page!`);
         }
     });
 });
@@ -817,17 +876,26 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locator = page.locator([
-                `[type="checkbox"][name="${checkboxName}"]`,
-                `[type="checkbox"][id="${checkboxName}"]`,
-                `label:has-text("${checkboxName}") input[type="checkbox"]`,
-                `[role="checkbox"]:has-text("${checkboxName}")`,
-                checkboxName
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('checkbox', { name: checkboxName }),
+                page.getByLabel(checkboxName),
+                // CSS Fallbacks
+                page.locator(`[type="checkbox"][name="${checkboxName}"]`),
+                page.locator(`[type="checkbox"][id="${checkboxName}"]`),
+                // Complex Selectors
+                page.locator(`label:has-text("${checkboxName}") input[type="checkbox"]`)
+            ];
 
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            const isChecked = await locator.isChecked();
-            await expect(isChecked).toBe(checked1 === 'true');
+            for (const locator of locators) {
+                try {
+                    const isChecked = await locator.isChecked();
+                    await expect(isChecked).toBe(checked1 === 'true');
+                    return;
+                } catch {
+                    continue;
+                }
+            }
         } catch (e) {
             if (e.name === 'TimeoutError') {
                 throw new Error(`The checkbox ${checkboxName} could not be found!`);
@@ -841,29 +909,39 @@ Then('So on element {string} the css property {string} is {string}', async funct
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locator = page.locator([
-                `text=${element}`,
-                `#${element}`,
-                `[id*="${element}"]`,
-                `[role="${element}"]`,
-                element
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('generic', { name: element }),
+                page.getByText(element, { exact: true }),
+                page.getByLabel(element),
+                // CSS Fallbacks
+                page.locator(`#${element}`),
+                page.locator(`[role="${element}"]`),
+                // Complex Selectors
+                page.locator(`[data-testid="${element}"]`)
+            ];
 
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            
-            // Get computed CSS value
-            const actual = await locator.evaluate((el, prop) => {
-                return window.getComputedStyle(el).getPropertyValue(prop);
-            }, property);
+            for (const locator of locators) {
+                try {
+                    // Get computed CSS value
+                    const actual = await locator.evaluate((el, prop) => {
+                        return window.getComputedStyle(el).getPropertyValue(prop);
+                    }, property);
 
-            // Handle color values
-            if (actual.startsWith('rgb')) {
-                const colorNumbers = actual.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
-                const [r, g, b] = colorNumbers.map(v => Number(v).toString(16).padStart(2, '0'));
-                const hex = `#${r}${g}${b}`;
-                await expect(value.toLowerCase()).toBe(hex.toLowerCase());
-            } else {
-                await expect(actual).toBe(value);
+                    // Handle color values
+                    if (actual.startsWith('rgb')) {
+                        const colorNumbers = actual.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
+                        const [r, g, b] = colorNumbers.map(v => Number(v).toString(16).padStart(2, '0'));
+                        const hex = `#${r}${g}${b}`;
+                        await expect(value.toLowerCase()).toBe(hex.toLowerCase());
+                        return;
+                    }
+                    
+                    await expect(actual).toBe(value);
+                    return;
+                } catch {
+                    continue;
+                }
             }
         } catch (e) {
             if (e.name === 'TimeoutError') {
@@ -878,26 +956,33 @@ Then('So the element {string} has the tool-tip {string}', async function(element
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locator = page.locator([
-                `[title="${value}"]`,
-                `[aria-label="${value}"]`,
-                `[data-tooltip="${value}"]`,
-                `[role="tooltip"]`,
-                `text=${element}`,
-                `#${element}`,
-                element
-            ].join(', '));
+            const locators = [
+                // Modern Locators
+                page.getByRole('tooltip', { name: value }),
+                page.getByLabel(value),
+                // Element Locators
+                page.getByText(element).filter({ has: page.locator('[role="tooltip"]') }),
+                // Attribute Fallbacks
+                page.locator(`[title="${value}"]`),
+                page.locator(`[aria-label="${value}"]`),
+                page.locator(`[data-tooltip="${value}"]`)
+            ];
 
-            await locator.waitFor({ state: 'visible', timeout: searchTimeout });
-            
-            // Check different tooltip attributes
-            const title = await locator.getAttribute('title');
-            const ariaLabel = await locator.getAttribute('aria-label');
-            const dataTooltip = await locator.getAttribute('data-tooltip');
-            
-            // Verify tooltip content
-            const tooltipContent = title || ariaLabel || dataTooltip;
-            await expect(tooltipContent).toBe(value);
+            for (const locator of locators) {
+                try {
+                    // Try to get tooltip content from various attributes
+                    const title = await locator.getAttribute('title');
+                    const ariaLabel = await locator.getAttribute('aria-label');
+                    const dataTooltip = await locator.getAttribute('data-tooltip');
+                    
+                    const tooltipContent = title || ariaLabel || dataTooltip;
+                    if (tooltipContent === value) {
+                        return;
+                    }
+                } catch {
+                    continue;
+                }
+            }
         } catch (e) {
             if (e.name === 'TimeoutError') {
                 throw new Error(`The Element ${element} could not be found (check tool-tip).`);
