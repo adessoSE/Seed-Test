@@ -192,7 +192,6 @@ class PlaywrightWorld extends World {
                 // Neuen Page nur erstellen wenn sie nicht existieren
                 if (!this.page){
                     this.page = await this.context.newPage();
-                    this.page.setDefaultTimeout(this.defaultTimeout);
                     // Set page-level timeouts
                     this.page.setDefaultTimeout(5000);  // Actions Timeout
                     this.page.setDefaultNavigationTimeout(10000);  // Navigation Timeout

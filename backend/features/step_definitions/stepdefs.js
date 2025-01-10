@@ -45,6 +45,20 @@ async function handleError(f) {
 	}
 }
 
+// Überarbeiten, page Problem
+async function takeScreenshot(inputPage=undefined) {
+    try { 
+        const page = inputPage == undefined ? await this.getPage() : inputPage;
+        const timestamp = Date.now();
+        const screenshotPath = path.join(this.downloadDir, `manual-${timestamp}.png`);
+        const buffer = await page.screenshot({ path: screenshotPath });
+        await this.attach(buffer, 'image/png');
+    } catch (error) {
+        console.error("Screenshot creation failed!")
+        throw error;
+    }
+}
+
 console.log('We are before PlaywrightWorld creation!');
 // Cucumber configuration
 setWorldConstructor(PlaywrightWorld);
@@ -247,7 +261,6 @@ When('I go to the website: {string}', async function getUrl(url) {
 // timeouts if not found after 3 sec, afterwards selenium waits for next page to be loaded
 When('I click the button: {string}', async function(button) {
     await handleError(async () => {
-        try {
             const page = this.getPage();
             
             // Moderne Playwright Locators in Prioritätsreihenfolge
@@ -263,17 +276,13 @@ When('I click the button: {string}', async function(button) {
             ];
 
              // Versuche jeden Locator
-             for (const locator of locators) {
-                try {
-                    await locator.click();
-                    return;
-                } catch {
-                    continue;
-                }
+            const promises = [];
+            
+            for (const locator of locators) {
+                promises.push(locator.click());
             }
-        } catch (e) {
-            throw e;
-        }
+
+            await Promise.any(promises);
     });
 });
 
