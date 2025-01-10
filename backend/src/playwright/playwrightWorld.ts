@@ -1,4 +1,4 @@
-import { IWorldOptions, World, setDefaultTimeout } from '@cucumber/cucumber';
+import { IWorldOptions, World } from '@cucumber/cucumber';
 import { Browser, BrowserContext, Page, chromium, firefox, webkit } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -26,7 +26,7 @@ class PlaywrightWorld extends World {
     private browser: Browser | null = null;
     private context: BrowserContext | null = null;
     private page: Page | null = null;
-    private readonly defaultTimeout = 30000;
+    private readonly defaultTimeout = 15000;
     private parameterCollection: StoryParameters;
     private testParameters: TestParameters;
     private scenarioCount: number;
@@ -61,8 +61,7 @@ class PlaywrightWorld extends World {
             ...this.defaultSettings,
             ...this.parameterCollection.scenarios[this.scenarioCount]
         } as TestParameters;
-        // Set default Cucumber timeout
-        setDefaultTimeout(this.defaultTimeout); 
+
         // Verzeichnisse basierend auf Betriebssystem festlegen
         switch (os.platform()) {
             case 'win32':
@@ -120,7 +119,7 @@ class PlaywrightWorld extends World {
         console.log('Attempting to launch browser with config:', parameters);
         try {
             // Wenn oneDriver aktiv ist und bereits ein Browser existiert
-            if (parameters.oneDriver && PlaywrightWorld.sharedInstances.browser) {
+            if (parameters.oneDriver && this.scenarioCount > 0) {
                     this.browser = PlaywrightWorld.sharedInstances.browser;
                     this.context = PlaywrightWorld.sharedInstances.context;
                     this.page = PlaywrightWorld.sharedInstances.page;
@@ -139,7 +138,7 @@ class PlaywrightWorld extends World {
                         try {
                             // Neuen Browser nur starten wenn noch keiner existiert
                             if (!this.browser) {
-                                this.browser = await browserType.launch(browserConfig);
+                                this.browser = await browserType.launch({...browserConfig, timeout: 10000});
                             }
                         } catch (error) {
                             throw new Error(`Browser launch failed in Emulator: ${error.message}`);
@@ -152,6 +151,9 @@ class PlaywrightWorld extends World {
                                 acceptDownloads: true,
                                 locale: 'de-DE'
                                 });
+                                // Set context-level timeouts after creation
+                                this.context.setDefaultTimeout(5000);
+                                this.context.setDefaultNavigationTimeout(10000);
                             };
                         } catch (error) {
                             throw new Error(`Context creation failed in emulator: ${error.message}`);
@@ -161,7 +163,7 @@ class PlaywrightWorld extends World {
                     try {
                         // Neuen Browser nur starten wenn noch keiner existiert
                         if (!this.browser) {
-                            this.browser = await browserType.launch(browserConfig);
+                            this.browser = await browserType.launch({...browserConfig, timeout: 10000});
                             console.log('Browser launched successfully');
                         }
                     } catch (error) {
@@ -175,6 +177,9 @@ class PlaywrightWorld extends World {
                                 viewport: parameters.windowSize,
                                 acceptDownloads: true
                             });
+                            // Set context-level timeouts after creation
+                            this.context.setDefaultTimeout(5000);
+                            this.context.setDefaultNavigationTimeout(10000);
                             console.log('Browser context created');
                         };
                     } catch (error) {
@@ -187,8 +192,10 @@ class PlaywrightWorld extends World {
                 // Neuen Page nur erstellen wenn sie nicht existieren
                 if (!this.page){
                     this.page = await this.context.newPage();
-                    parameters.waitTime > 0 ?
-                    this.page.setDefaultTimeout(parameters.waitTime) : this.page.setDefaultTimeout(this.defaultTimeout);
+                    this.page.setDefaultTimeout(this.defaultTimeout);
+                    // Set page-level timeouts
+                    this.page.setDefaultTimeout(5000);  // Actions Timeout
+                    this.page.setDefaultNavigationTimeout(10000);  // Navigation Timeout
                     console.log('New page created');
                 }
                 //Globale Referenzen für OneDriver speichern
@@ -203,7 +210,7 @@ class PlaywrightWorld extends World {
             
             
         } catch (error) {
-            console.error('Detailed browser launch error:', error);
+            console.error('Detailed browser launch error: \n', error);
             await this.closeBrowser();
             throw new Error(`Browser setup failed: ${error.message}`);
         }
@@ -225,21 +232,17 @@ class PlaywrightWorld extends World {
     }
 
     async closeBrowser(): Promise<void> {
-        if (this.parameters.oneDriver) {
+        if (this.testParameters.oneDriver) {
             // Bei oneDriver nur beim letzten Szenario alles schließen
-            if ( this.scenarioCount === this.parameterCollection.length) {
-                console.log('Last scenario finished - closing browser session');
-                await this.page?.close();
-                await this.context?.close();
-                await this.browser?.close();
-                PlaywrightWorld.sharedInstances = {
-                    browser: null,
-                    context: null,
-                    page: null
-                };
-            } else {
-                console.log('Keeping browser session for next scenario (oneDriver active)');
-            }
+            console.log('Last scenario finished - closing browser session');
+            await this.page?.close();
+            await this.context?.close();
+            await this.browser?.close();
+            PlaywrightWorld.sharedInstances = {
+                browser: null,
+                context: null,
+                page: null
+            };
         } else {
             // Ohne oneDriver immer alles schließen
             console.log('Closing browser session');

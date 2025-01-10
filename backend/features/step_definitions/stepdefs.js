@@ -4,13 +4,17 @@ const { expect } = require('@playwright/test');
 const path = require('path');
 const {
 	Given, When, Then, setWorldConstructor, defineParameterType, Before, After,
-	Status
+	Status,
+    setDefaultTimeout
 } = require('@cucumber/cucumber');
 const fs = require('fs');
 const { applySpecialCommands } = require('../../src/serverHelper');
 const { PlaywrightWorld } = require('../../dist/playwright/playwrightWorld');
 
 const searchTimeout = 15000;
+
+//A little more, as it should be higher than Playwright's timeout
+setDefaultTimeout(searchTimeout + 1000);
 
 // Variables for scenario management within PlaywrightWorld
 let scenarioCount = 0;
@@ -107,13 +111,12 @@ Given('I am on the website: {string}', async function (url) {
 	await handleError(async () => {
 		try {
 			const page = this.getPage();
+            //await page.waitForTimeout(searchTimeout + this.parameters.waitTime);
 			await page.goto(url);
-			await page.waitForLoadState('networkidle');
+			await page.waitForLoadState();
 		} catch (e) {
 			throw Error(e);
 		}
-
-		if (this.parameters.waitTime) await this.getPage().waitForTimeout(this.parameters.waitTime);
 	});
 });
 
@@ -209,47 +212,40 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
     await handleError(async () => {
         try {
             const page = this.getPage();
-            await page.waitForLoadState('domcontentloaded');
             
-            // Try different selectors
-            const selectors = [
-                `id=${element}`,
-                `[id*="${element}"]`,
-                `//*[@id='${element}']`,
-                `//*[@*='${element}']`,
-                `//*[contains(@id, '${element}')]`,
-                element
-            ];
+            if (element) {
+                const locators = [
+                    page.getByRole('generic', { name: element }),
+                    page.getByText(element, { exact: true }),
+                    page.getByLabel(element),
+                    // CSS Selektoren als Fallback
+                    page.locator(`#${element}`),
+                    page.locator(`[id*="${element}"]`),
+                    // XPath als letzte Option
+                    page.locator(`//*[contains(text(),"${element}")]`)
+                ];
 
-            let elementHandle = null;
-            for (const selector of selectors) {
-                try {
-                    elementHandle = await page.$(selector);
-                    if (elementHandle) break;
-                } catch (e) {
-                    continue;
+                for (const locator of locators) {
+                    try {
+                        await locator.scrollIntoViewIfNeeded({ timeout: 1000 });
+                        break;
+                    } catch {
+                        continue;
+                    }
                 }
             }
 
-            if (elementHandle) {
-                await elementHandle.scrollIntoViewIfNeeded();
-            } else {
-                throw new Error(`Element ${element} could not be found!`);
-            }
-
             const timestamp = Date.now();
-            const screenshotPath = path.join(this.downloadDir, `manual-${element}-${timestamp}.png`);
+            const screenshotPath = path.join(this.downloadDir, 
+                element ? `manual-${element}-${timestamp}.png` : `manual-${timestamp}.png`);
             const buffer = await page.screenshot({ path: screenshotPath });
             await this.attach(buffer, 'image/png');
         } catch (e) {
             throw Error(e);
         }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
-        }
     });
 });
+
 
 
 // ################### WHEN ##########################################
@@ -272,32 +268,35 @@ When('I click the button: {string}', async function(button) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const selectors = [
-                `#${button}`,
-                `[id*="${button}"]`,
-                `text=${button}`,
-                `[aria-label="${button}"]`,
-                `[name="${button}"]`,
-                `[role="button"]:has-text("${button}")`,
-                button
+            
+            // Moderne Playwright Locators in Prioritätsreihenfolge
+            const locators = [
+                page.getByRole('button', { name: button }),
+                page.getByText(button, { exact: true }),
+                page.getByLabel(button),
+                // CSS Selektoren als Fallback
+                page.locator(`#${button}`),
+                page.locator(`[id*="${button}"]`),
+                // XPath als letzte Option
+                page.locator(`//button[contains(text(),"${button}")]`)
             ];
 
-            const element = await page.waitForSelector(selectors.join(','), { timeout: searchTimeout });
-            await element.click();
-            
-            await page.waitForLoadState('networkidle');
-        } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`Button ${button} could not be found!`);
+             // Versuche jeden Locator
+             for (const locator of locators) {
+                try {
+                    await locator.click();
+                    return;
+                } catch {
+                    continue;
+                }
             }
+            throw new Error(`Button ${button} could not be found!`);
+        } catch (e) {
             throw e;
-        }
-
-        if (this.parameters.waitTime) {
-            await this.getPage().waitForTimeout(this.parameters.waitTime);
         }
     });
 });
+
 
 
 // Playwright sleeps for a certain amount of time
