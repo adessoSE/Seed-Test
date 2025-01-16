@@ -115,6 +115,75 @@ After(async function ({ pickle, result }) {
     }
 });
 
+
+/* 
+LEGENDE für Identifier-Übersicht:
+- (X) Direkt abgedeckt: Der Selenium-Identifikator wird durch den Playwright-Code direkt und äquivalent abgedeckt. 
+Es gibt eine klare 1:1-Entsprechung oder eine sehr ähnliche und robuste Implementierung in Playwright.
+
+- (/) Indirekt abgedeckt: Der Selenium-Identifikator wird durch den Playwright-Code indirekt abgedeckt. 
+Das bedeutet, dass der Playwright-Code zwar eine ähnliche Funktionalität erreicht, aber nicht genau denselben Selektor oder dieselbe Strategie verwendet. 
+Es besteht die Möglichkeit, dass die Abdeckung nicht in allen Fällen perfekt ist oder dass alternative Implementierungen in Playwright robuster wären.
+
+- (-) Nicht abgedeckt / Nicht empfehlenswert: Der Selenium-Identifikator wird durch den aktuellen Playwright-Code nicht abgedeckt. 
+Es gibt entweder keine praktikable oder keine empfehlenswerte Entsprechung in Playwright (z.B. wegen Instabilität oder Performance). 
+Hier sind alternative Ansätze in Playwright erforderlich oder der ursprüngliche Selenium-Ansatz sollte überdacht werden.
+
+- ( ) Noch nicht geprüft: Diese Markierung dient als Platzhalter für Identifikatoren, die noch nicht im Kontext des Playwright-Codes betrachtet wurden. 
+Sie werden im Laufe der Analyse durch (X), (/) oder (-) ersetzt. 
+
+  */
+
+// ###################### OVERARCHING HELPER FUNCTIONS #################
+
+//TODO: Vielleicht eine XPAth-AttributsWIldcardconverter Funktion? Playwright unterstützt (vermutlich) keine @* Wildcards...
+
+async function mapLocatorsToPromises(locators, action, value=undefined, ...args) {
+
+    //toHaveAttribute needs special handling as we have to return as many promises as many Attributes we check
+    if (action === 'toHaveAttribute') {
+        return locators.map(locator => {
+            const promises = args.map(attribute => locator.toHaveAttribute(attribute, value));
+            return Promise.any(promises);
+        });
+    }
+
+    //you can Include timeouts for each action, but for now we use central action timeout in PlaywrightWorld
+
+    console.log(locators, action, value, ...args)
+    return Promise.any(locators.map(locator => {
+        switch (action) {
+            case 'waitFor':
+                return locator.waitFor({ state: 'attached' });
+            case 'click':
+                return locator.click();
+            case 'fill':
+                return locator.fill(...args);
+            case 'setInputFiles':
+                return locator.setInputFiles(...args);
+            case 'toHaveText':
+                return locator.toHaveText(...args);
+            case 'toContainText':
+                return locator.toContainText(...args);
+            case 'not.toHaveText':
+                return locator.not.toHaveText(...args);
+            case 'not.toContainText':
+                return locator.not.toContainText(...args);
+            case 'textContent':
+                return locator.textContent();
+            case 'inputValue':
+                return locator.inputValue();
+            case 'toBeEnabled':
+                return locator.toBeEnabled();
+            case 'toBeDisabled':
+                return locator.toBeDisabled();
+            case 'toBeChecked':
+                return locator.toBeChecked();
+            default:
+                throw new Error(`Invalid action: ${action}`);
+        }
+    }));
+}
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
 	this.role = string;
@@ -125,9 +194,9 @@ Given('I am on the website: {string}', async function (url) {
 	await handleError(async () => {
 		try {
 			const page = this.getPage();
-            //await page.waitForTimeout(searchTimeout + this.parameters.waitTime);
 			await page.goto(url);
 			await page.waitForLoadState();
+            //await page.waitForTimeout(searchTimeout + this.parameters.waitTime);
 		} catch (e) {
 			throw Error(e);
 		}
@@ -203,38 +272,57 @@ Given('I take a screenshot', async function() {
     });
 });
 
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[@id='${element}'], XPath
+ * (X) //*[@*='${element}'], XPath (Attributsuche, sehr allgemein)
+ * (X) //*[contains(@id, '${element}')], XPath (enthält)
+ * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 Given('I take a screenshot. Optionally: Focus the page on the element {string}', async function(element) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            
+
             if (element) {
-                const locators = [
+                const preferredLocators = [
                     page.getByRole('generic', { name: element }),
                     page.getByText(element, { exact: true }),
                     page.getByLabel(element),
-                    // CSS Selektoren als Fallback
                     page.locator(`#${element}`),
-                    page.locator(`[id*="${element}"]`),
-                    // XPath als letzte Option
-                    page.locator(`//*[contains(text(),"${element}")]`)
+                    page.locator(`[id*="${element}"]`)
                 ];
 
-                for (const locator of locators) {
-                    try {
-                        await locator.scrollIntoViewIfNeeded({ timeout: 1000 });
-                        break;
-                    } catch {
-                        continue;
-                    }
-                }
-            }
+                const xpathLocators = [
+                    page.locator(`xpath=//*[contains(text(),"${element}")]`),
+                    page.locator(`xpath=//*[@*="${element}"]`),
+                    page.locator(`xpath=//*[contains(@id, "${element}")]`),
+                    page.locator(`xpath=//*[@id="${element}"]`),
+                    page.locator(`xpath=//*[@name="${element}"]`)
+                ];
 
-            const timestamp = Date.now();
-            const screenshotPath = path.join(this.downloadDir, 
-                element ? `manual-${element}-${timestamp}.png` : `manual-${timestamp}.png`);
-            const buffer = await page.screenshot({ path: screenshotPath });
-            await this.attach(buffer, 'image/png');
+                let locator;
+                try {
+                    const preferredPromises = mapLocatorsToPromises(preferredLocators, 'waitFor');
+                    locator = await Promise.any(preferredPromises);
+                } catch (preferredError) {
+                    //Nur wenn alle preferred Locators fehlschlagen => xPath
+                    const xpathPromises = mapLocatorsToPromises(xpathLocators, 'waitFor');
+                    locator = await Promise.any(xpathPromises);
+                }
+
+                try {
+                    await locator.scrollIntoViewIfNeeded({ timeout: 1000 });
+                } catch (scrollError) {
+                    console.warn("Scrollen zum Element fehlgeschlagen:", scrollError.message);
+                }
+
+                // Screenshot logic (bleibt gleich)
+                const timestamp = Date.now();
+                const screenshotPath = path.join(this.downloadDir, element ? `manual-${element}-${timestamp}.png` : `manual-${timestamp}.png`);
+                const buffer = await page.screenshot({ path: screenshotPath });
+                await this.attach(buffer, 'image/png');
+            }
         } catch (e) {
             throw Error(e);
         }
@@ -257,32 +345,48 @@ When('I go to the website: {string}', async function getUrl(url) {
 	});
 });
 
-// clicks a button if found in html code with xpath,
-// timeouts if not found after 3 sec, afterwards selenium waits for next page to be loaded
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[@id='${button}'], XPath (ID)
+ * (X) //*[contains(@id,'${button}')], XPath (enthält ID)
+ * (X) //*[text()='${button}' or @*='${button}'], XPath (Text oder Attribut)
+ * (X) //*[contains(text(),'${button}')], XPath (enthält Text)
+ * (X) ${button}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 When('I click the button: {string}', async function(button) {
     await handleError(async () => {
+        try {
             const page = this.getPage();
-            
-            // Moderne Playwright Locators in Prioritätsreihenfolge
-            const locators = [
+    
+            const preferredLocators = [
                 page.getByRole('button', { name: button }),
                 page.getByText(button, { exact: true }),
                 page.getByLabel(button),
-                // CSS Selektoren als Fallback
                 page.locator(`#${button}`),
-                page.locator(`[id*="${button}"]`),
-                // XPath als letzte Option
-                page.locator(`//button[contains(text(),"${button}")]`)
+                page.locator(`[id*="${button}"]`)
             ];
-
-             // Versuche jeden Locator
-            const promises = [];
-            
-            for (const locator of locators) {
-                promises.push(locator.click());
+    
+            const xpathLocators = [
+                page.locator(`xpath=//*[@id="${button}"]`),
+                page.locator(`xpath=//*[contains(@id,"${button}")]`),
+                page.locator(`xpath=//*[text()="${button}"]`),
+                page.locator(`xpath=//*[@*="${button}"]`),
+                page.locator(`xpath=//*[contains(text(),"${button}")]`),
+                page.locator(`xpath=//button[text()="${button}"]`),
+                page.locator(`xpath=//button[contains(text(),"${button}")]`),
+                page.locator(`xpath=//*[@name="${button}"]`) 
+            ];
+    
+            try {
+                const preferredPromises = mapLocatorsToPromises(preferredLocators, 'click');
+                await Promise.any(preferredPromises);
+            } catch (preferredError) {
+                const xpathPromises = mapLocatorsToPromises(xpathLocators, 'click');
+                await Promise.any(xpathPromises);
             }
-
-            await Promise.any(promises);
+        } catch (error) {
+            throw Error(error);
+        }
     });
 });
 
@@ -300,35 +404,55 @@ When('The site should wait for {string} milliseconds', async function(ms) {
     });
 });
 
-
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //input[@id='${label}'], XPath (Input mit ID)
+ * (X) //input[contains(@id,'${label}')], XPath (Input enthält ID)
+ * (X) //textarea[@id='${label}'], XPath (Textarea mit ID)
+ * (X) //textarea[contains(@id,'${label}')], XPath (Textarea enthält ID)
+ * (X) //textarea[@*='${label}'], XPath (Textarea mit Attribut)
+ * (X) //textarea[contains(@*='${label}')], XPath (Textarea enthält Attribut)
+ * (X) //*[@id='${label}'], XPath (mit ID)
+ * (X) //input[@type='text' and @*='${label}'], XPath (Input Typ Text und Attribut)
+ * (X) //label[contains(text(),'${label}')]/following::input[@type='text'], XPath (Input nach Label mit Text)
+ * (X) ${label}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 When('I insert {string} into the field {string}', async function(text, label) {
     await handleError(async () => {
         try {
             const page = this.getPage();
             const value = applySpecialCommands(text);
             
-            const locators = [
-                // Modern Locators
+            const preferredLocators = [
                 page.getByLabel(label),
                 page.getByPlaceholder(label),
                 page.getByRole('textbox', { name: label }),
-                // CSS Fallbacks
                 page.locator(`input#${label}`),
                 page.locator(`textarea#${label}`),
                 page.locator(`[id="${label}"]`),
                 page.locator(`[name="${label}"]`),
-                // Complex Selectors
                 page.locator(`label:has-text("${label}") + input`),
                 page.locator(`label:has-text("${label}") + textarea`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    await locator.fill(value);
-                    return;
-                } catch {
-                    continue;
-                }
+            const xpathLocators = [
+                page.locator(`xpath=//input[@id="${label}"]`),
+                page.locator(`xpath=//input[contains(@id,"${label}")]`),
+                page.locator(`xpath=//textarea[@id="${label}"]`),
+                page.locator(`xpath=//textarea[contains(@id,"${label}")]`),
+                page.locator(`xpath=//textarea[@*="${label}"]`),
+                page.locator(`xpath=//textarea[contains(@*,"${label}")]`),
+                page.locator(`xpath=//*[@id="${label}"]`),
+                page.locator(`xpath=//input[@type='text' and @*="${label}"]`),
+                page.locator(`xpath=//label[contains(text(),"${label}")]/following::input[@type='text']`)
+            ];
+
+            try {
+                const preferredPromises = mapLocatorsToPromises(preferredLocators, 'fill', value);
+                await Promise.any(preferredPromises);
+            } catch (preferredError) {
+                const xpathPromises = mapLocatorsToPromises(xpathLocators, 'fill', value);
+                await Promise.any(xpathPromises);
             }
         } catch (e) {
             throw e;
@@ -339,6 +463,15 @@ When('I insert {string} into the field {string}', async function(text, label) {
 
 
 // "Radio"
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //input[@${label}='${radioname}']/following-sibling::label[1], XPath (Input mit dynamischem Attribut und folgendem Label)
+ * (X) //input[contains(@${label}, '${radioname}')]/following-sibling::label[1], XPath (Input mit enthaltendem dynamischem Attribut und folgendem Label)
+ * (X) //label[contains(text(), '${label}')]/following::input[@value='${radioname}']/following-sibling::label[1], XPath (Label mit Text, folgender Input mit Wert, folgender Label)
+ * (X) //input[@name='${label}' and @value='${radioname}']/following-sibling::label[1], XPath (Input mit Name und Wert, folgender Label)
+ * (X) //input[contains(@*,'${label}')]/following-sibling::label[contains(text(), '${radioname}')], XPath (Input mit enthaltendem Attribut, folgender Label mit enthaltendem Text)
+ * (X) ${radioname}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 When('I select {string} from the selection {string}', async function(radioname, label) {
     await handleError(async () => {
         try {
@@ -355,18 +488,30 @@ When('I select {string} from the selection {string}', async function(radioname, 
                 page.locator(`//input[@type="radio"][@value="${radioname}"]`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    await locator.click();
-                    return;
-                } catch {
-                    continue;
-                }
+            const preferredLocators = [
+                page.getByRole('radio', { name: radioname }),
+                page.getByLabel(label).filter({ hasText: radioname }),
+                page.getByText(radioname).filter({ has: page.locator('input[type="radio"]') }),
+                page.locator(`input[name="${label}"][value="${radioname}"]`),
+                page.locator(`[role="radio"]:has-text("${radioname}")`)
+            ];
+
+            const xpathLocators = [
+                page.locator(`xpath=//input[@${label}="${radioname}"]/following-sibling::label[1]`),
+                page.locator(`xpath=//input[contains(@${label}, "${radioname}")]/following-sibling::label[1]`),
+                page.locator(`xpath=//label[contains(text(), '${label}')]/following::input[@value="${radioname}"]/following-sibling::label[1]`),
+                page.locator(`xpath=//input[@name="${label}" and @value="${radioname}"]/following-sibling::label[1]`),
+                page.locator(`xpath=//input[contains(@*,'${label}')]/following-sibling::label[contains(text(), '${radioname}')]`)
+            ];
+
+            try {
+                const preferredPromises = mapLocatorsToPromises(preferredLocators, 'click');
+                await Promise.any(preferredPromises);
+            } catch (preferredError) {
+                const xpathPromises = mapLocatorsToPromises(xpathLocators, 'click');
+                await Promise.any(xpathPromises);
             }
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`Radio ${label} with option ${radioname} could not be found!`);
-            }
             throw e;
         }
     });
@@ -374,92 +519,113 @@ When('I select {string} from the selection {string}', async function(radioname, 
 
 
 // Select an Option from a dropdown-menu
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[@*='${dropd}']/option[text()='${value}'], XPath (Element mit Attribut und Option mit Text)
+ * (X) //label[contains(text(),'${dropd}')]/following::button[text()='${value}'], XPath (Label mit Text, folgender Button mit Text)
+ * (X) //label[contains(text(),'${dropd}')]/following::span[text()='${value}'], XPath (Label mit Text, folgender Span mit Text)
+ * (X) //*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}'], XPath (Element mit enthaltendem Text, folgendes Element mit enthaltendem Text)
+ * (X) //*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']], XPath (Listbox mit Option (selbst oder Elternteil))
+ * (X) ${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')], XPath (Implizite Suche und Option mit enthaltendem Text/ID/Attribut)
+ */
 When('I select the option {string} from the drop-down-menue {string}', async function(value, dropd) {
     await handleError(async () => {
         try {
             const page = this.getPage();
             
-            // Dropdown locators in priority order
-            const dropdownLocators = [
-                // Modern Locators
+            const preferredDropdownLocators = [
                 page.getByRole('combobox', { name: dropd }),
                 page.getByLabel(dropd),
                 page.getByText(dropd).filter({ has: page.locator('select') }),
-                // CSS Fallbacks
                 page.locator(`select[id="${dropd}"]`),
                 page.locator(`[role="combobox"][name="${dropd}"]`),
                 page.locator(`[aria-label="${dropd}"]`)
             ];
 
-            // Option locators in priority order
-            const optionLocators = [
-                // Modern Locators
+            const xpathDropdownLocators = [
+                page.locator(`xpath=//*[@*="${dropd}"]`),
+                page.locator(`xpath=//label[contains(text(),'${dropd}')]/following::button`),
+                page.locator(`xpath=//label[contains(text(),'${dropd}')]/following::span`),
+                page.locator(`xpath=//*[contains(text(),'${dropd}')]/following::*`),
+                page.locator(`xpath=//*[@role='listbox']`),
+                page.locator(`xpath=//*[contains(text(),'${dropd}')]`)
+            ];
+
+            const preferredOptionLocators = [
                 page.getByRole('option', { name: value }),
                 page.getByText(value).filter({ has: page.locator('option') }),
-                // CSS Fallbacks
                 page.locator(`option:has-text("${value}")`),
                 page.locator(`[role="option"]:has-text("${value}")`),
                 page.locator(`li:has-text("${value}")`)
             ];
 
-            // Try to find and click dropdown
-            for (const dropdownLocator of dropdownLocators) {
-                try {
-                    await dropdownLocator.click();
-                    break;
-                } catch {
-                    continue;
-                }
+            const xpathOptionLocators = [
+                page.locator(`xpath=//*[@*="${dropd}"]/option[text()="${value}"]`),
+                page.locator(`xpath=//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`),
+                page.locator(`xpath=//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`),
+                page.locator(`xpath=//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}')]`),
+                page.locator(`xpath=//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`),
+                page.locator(`xpath=${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`)
+            ];
+
+            let dropdownLocator;
+            try {
+                const dropdownPromises = mapLocatorsToPromises(preferredDropdownLocators, 'click');
+                dropdownLocator = await Promise.any(dropdownPromises);
+            } catch (preferredDropdownError) {
+                const xpathDropdownPromises = mapLocatorsToPromises(xpathDropdownLocators, 'click');
+                dropdownLocator = await Promise.any(xpathDropdownPromises);
             }
 
-            // Try to find and click option
-            for (const optionLocator of optionLocators) {
-                try {
-                    await optionLocator.click();
-                    return;
-                } catch {
-                    continue;
-                }
+            let optionLocator;
+            try {
+                const optionPromises = mapLocatorsToPromises(preferredOptionLocators, 'click');
+                optionLocator = await Promise.any(optionPromises);
+            } catch (preferredOptionError) {
+                const xpathOptionPromises = mapLocatorsToPromises(xpathOptionLocators, 'click');
+                optionLocator = await Promise.any(xpathOptionPromises);
             }
+
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`Dropdown ${dropd} with option ${value} could not be found!`);
-            }
             throw e;
         }
     });
 });
 
-// Dropdown via Playwright Locator (working?! No? --> Back to XPath):
+// Dropdown via Playwright Locator:
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (/) By.xpath(`${dropd}`), XPath (Dynamischer XPath)
+ */
 When('I select the option {string}', async function(dropd) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locators = [
-                // Modern Locators
+
+            const preferredLocators = [
                 page.getByRole('option', { name: dropd }),
                 page.getByText(dropd).filter({ has: page.locator('select') }),
-                // CSS Fallbacks
                 page.locator(`select option:has-text("${dropd}")`),
                 page.locator(`[role="listbox"] [role="option"]:has-text("${dropd}")`),
-                // Direct selection without opening dropdown
-                page.locator('select').locator(`option:has-text("${dropd}")`),
-                // Legacy support
-                page.locator(`//select/option[text()="${dropd}"]`)
+                page.locator('select').locator(`option:has-text("${dropd}")`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    await locator.click();
-                    return;
-                } catch {
-                    continue;
-                }
+            //Dynamischer XPath nur begrenzt in Playwright darstellbar - theoretisch über prefferedLocators gut abgedeckt
+            const xpathLocators = [
+                page.locator(`xpath=//select/option[text()="${dropd}"]`), //Allgemeiner Select Fall
+                page.locator(`xpath=//*[@role='option'][text()="${dropd}"]`), // Sehr spezifisch für ARIA-Optionen
+                page.locator(`xpath=//*[@role='listbox']//*[text()='${dropd}']`), // Für Listboxen
+                page.locator(`xpath=//li[text()="${dropd}"]`), // Für Listen-Einträge
+                page.locator(`xpath=//span[text()="${dropd}"]`), // Für Spans
+                page.locator(`xpath=//*[contains(text(), "${dropd}")]`) // Allgemeiner Fallback (nur als letzte Option)
+            ];
+
+            try {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'click'));
+            } catch (preferredError) {
+                await Promise.any(mapLocatorsToPromises(xpathLocators, 'click'));
             }
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`Dropdown-option ${dropd} could not be found!`);
-            }
             throw e;
         }
     });
@@ -467,51 +633,61 @@ When('I select the option {string}', async function(dropd) {
 
 
 // Hover over element and Select an Option
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) `${element}`, XPath (Dynamischer XPath für das zu hovernde Element)
+ * (X) `${option}`, XPath (Dynamischer XPath für die auszuwählende Option)
+ * (X) `//*[contains(text(),'${element}')]`, XPath (Element mit enthaltendem Text, Fallback für das zu hovernde Element)
+ * (X) `//*[contains(text(),'${element}')]/following::*[text()='${option}']`, XPath (Element mit enthaltendem Text und folgendem Element mit Text, Fallback für die Auswahl)
+ * (X) `//*[contains(text(),'${option}')]`, XPath (Element mit enthaltendem Text, weiterer Fallback für die Auswahl)
+ */
 When('I hover over the element {string} and select the option {string}', async function(element, option) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            
-            const elementLocators = [
-                // Modern Locators
+
+            const preferredElementLocators = [
                 page.getByRole('button', { name: element }),
                 page.getByText(element, { exact: true }),
                 page.getByLabel(element),
-                // CSS Fallbacks
                 page.locator(`[title="${element}"]`),
                 page.locator(`[aria-label="${element}"]`)
             ];
+            const xpathElementLocators = [
+                page.locator(`xpath=//*[contains(text(),'${element}')]`)
+            ];
 
-            // Try each element locator
-            for (const locator of elementLocators) {
-                try {
-                    await locator.hover();
-                    
-                    // Try to find and click the option
-                    const optionLocators = [
-                        page.getByRole('menuitem', { name: option }),
-                        page.getByText(option, { exact: true }),
-                        page.getByLabel(option),
-                        page.locator(`[title="${option}"]`),
-                        page.locator(`[aria-label="${option}"]`)
-                    ];
-
-                    for (const optionLocator of optionLocators) {
-                        try {
-                            await optionLocator.click();
-                            return;
-                        } catch {
-                            continue;
-                        }
-                    }
-                } catch {
-                    continue;
-                }
+            let hoveredElement;
+            try {
+                const elementPromises = mapLocatorsToPromises(preferredElementLocators, 'hover');
+                hoveredElement = await Promise.any(elementPromises);
+            } catch (preferredElementError) {
+                const xpathElementPromises = mapLocatorsToPromises(xpathElementLocators, 'hover');
+                hoveredElement = await Promise.any(xpathElementPromises);
             }
+
+            const preferredOptionLocators = [
+                page.getByRole('menuitem', { name: option }),
+                page.getByText(option, { exact: true }),
+                page.getByLabel(option),
+                page.locator(`[title="${option}"]`),
+                page.locator(`[aria-label="${option}"]`)
+            ];
+
+            const xpathOptionLocators = [
+                page.locator(`xpath=//*[contains(text(),'${element}')]/following::*[text()='${option}']`),
+                page.locator(`xpath=//*[contains(text(),'${option}')]`)
+            ];
+
+            try {
+                const optionPromises = mapLocatorsToPromises(preferredOptionLocators, 'click');
+                await Promise.any(optionPromises);
+            } catch (preferredOptionError) {
+                const xpathOptionPromises = mapLocatorsToPromises(xpathOptionLocators, 'click');
+                await Promise.any(xpathOptionPromises);
+            }
+
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`Element ${element} or option ${option} could not be found!`);
-            }
             throw e;
         }
     });
@@ -521,33 +697,38 @@ When('I hover over the element {string} and select the option {string}', async f
 When('I select from the {string} multiple selection, the values {string}{string}{string}', async () => { });
 
 // Check the Checkbox with a specific name or id
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[@type="checkbox" and @*="${name}"], XPath (Checkbox mit Attribut und dynamischem Wert)
+ * (X) //*[contains(text(),'${name}')]//parent::label, XPath (Element mit enthaltenem Text, Elternteil Label)
+ * (X) //*[contains(text(),'${name}') or @*='${name}'], XPath (Element mit enthaltenem Text oder Attribut mit dynamischem Wert)
+ * (X) ${name}
+ */
 When('I check the box {string}', async function(name) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locators = [
-                // Modern Locators
+            
+            const preferredLocators = [
                 page.getByRole('checkbox', { name: name }),
                 page.getByLabel(name),
-                // CSS Fallbacks
                 page.locator(`[type="checkbox"][id="${name}"]`),
                 page.locator(`[type="checkbox"][name="${name}"]`),
-                // Complex Selectors
                 page.locator(`label:has-text("${name}") input[type="checkbox"]`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    await locator.check()
-                    return;
-                } catch {
-                    continue;
-                }
+            const xpathLocators = [
+                page.locator(`xpath=//*[@type="checkbox" and @*="${name}"]`),
+                page.locator(`xpath=//*[contains(text(),'${name}')]//parent::label`),
+                page.locator(`xpath=//*[contains(text(),'${name}') or @*='${name}']`)
+            ];
+
+            try {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'check'));
+            } catch (preferredError) {
+                await Promise.any(mapLocatorsToPromises(xpathLocators, 'check'));
             }
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`The Checkbox ${name} could not be found!`);
-            }
             throw e;
         }
     });
@@ -599,38 +780,38 @@ When('Switch to the tab number {string}', async function(numberOfTabs) {
     });
 });
 
-
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //input[@*='${input}'], XPath (Input mit Attribut)
+ * (X) ${input}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 When('I want to upload the file from this path: {string} into this uploadfield: {string}', async function(file, input) {
     await handleError(async () => {
         try {
             const page = this.getPage();
             const filePath = path.join(this.tmpUploadDir, file);
             
-            const locators = [
-                // Modern Locators
+            const preferredLocators = [
                 page.getByRole('textbox', { name: input }),
                 page.getByLabel(input),
-                // File Input Specific
                 page.locator(`input[type="file"][name="${input}"]`),
-                page.locator(`input[type="file"][id="${input}"]`),
-                // Generic Fallback
-                page.locator('input[type="file"]')
+                page.locator(`input[type="file"][id="${input}"]`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    await locator.setInputFiles(filePath);
-                    return;
-                } catch {
-                    continue;
-                }
+            const xpathLocators = [
+                page.locator(`xpath=//input[@*='${input}']`) // Playwright doesn't support implicit searching
+            ];
+
+            try {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'setInputFiles', filePath));
+            } catch (preferredError) {
+                await Promise.any(mapLocatorsToPromises(xpathLocators, 'setInputFiles', filePath));
+
             }
+
             // Wait for upload to complete
             await page.waitForLoadState('networkidle');
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`Upload Field ${input} could not be found!`);
-            }
             throw Error(e);
         }
     });
@@ -661,55 +842,70 @@ const resolveRegex = (rawString) => {
 };
 
 // Search a textfield in the html code and assert it with a Text
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[@id='${label}'], XPath (Element mit ID)
+ * (X) //*[@*='${label}'], XPath (Element mit Attribut)
+ * (X) //*[contains(@*, '${label}')], XPath (Element mit enthaltendem Attribut)
+ * (X) //label[contains(text(),'${label}')]/following::input[@type='text'], XPath (Label mit enthaltendem Text, folgender Input vom Typ Text)
+ * (X) ${label}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 Then('So I can see the text {string} in the textbox: {string}', async function(expectedText, label) {
     await handleError(async () => {
         try {
             const page = this.getPage();
             const text = applySpecialCommands(expectedText.toString());
             const { resultString, regexFound } = resolveRegex(text);
-            
-            const locators = [
-                // Modern Locators
+
+            const preferredLocators = [
                 page.getByRole('textbox', { name: label }),
                 page.getByLabel(label),
                 page.getByPlaceholder(label),
-                // CSS Fallbacks
                 page.locator(`#${label}`),
                 page.locator(`[name="${label}"]`),
                 page.locator(`label:has-text("${label}") + input`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    // Try to get content using different methods
-                    let content = await locator.inputValue();
-                    if (!content) {
-                        content = await locator.textContent() || '';
-                    }
-                    if (!content) {
-                        content = await locator.getAttribute('outerHTML') || '';
-                    }
+            const xpathLocators = [
+                page.locator(`xpath=//*[@id='${label}']`),
+                page.locator(`xpath=//*[@*='${label}']`),
+                page.locator(`xpath=//*[contains(@*, '${label}')]`),
+                page.locator(`xpath=//label[contains(text(),'${label}')]/following::input[@type='text']`)
+            ];
 
-                    if (regexFound) {
-                        await expect(content).toMatch(new RegExp(resultString));
-                    } else {
-                        await expect(content).toBe(resultString);
-                    }
-                    return;
-                } catch {
-                    continue;
+            let locator;
+            try {
+                locator = await Promise.any(mapLocatorsToPromises(preferredLocators, 'textContent'));
+                const content = await locator || '';
+
+                if (regexFound) {
+                    await expect(content).toMatch(new RegExp(resultString));
+                } else {
+                    await expect(content).toBe(resultString);
                 }
+                return;
+            } catch (preferredError) {
+                locator = await Promise.any(mapLocatorsToPromises(xpathLocators, 'textContent'));
+                const content = await locator || '';
+
+                if (regexFound) {
+                    await expect(content).toMatch(new RegExp(resultString));
+                } else {
+                    await expect(content).toBe(resultString);
+                }
+                return;
             }
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`Textarea ${label} could not be found!`);
-            }
-            throw Error(e);
+            throw e;
         }
     });
 });
 
 // Search if a is text in html code
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) By.css('Body'), CSS-Selektor (Body)
+ */
 Then('So I can see the text: {string}', async function(text) {
     await handleError(async () => {
         try {
@@ -717,27 +913,25 @@ Then('So I can see the text: {string}', async function(text) {
             const expectedText = applySpecialCommands(text.toString());
             const { resultString, regexFound } = resolveRegex(expectedText);
 
-            const locators = [
-                // Modern Locators
+            const preferredLocators = [
                 page.getByText(resultString, { exact: !regexFound }),
-                // Fallback content checks
-                page.locator('body'),
-                page.locator('html')
             ];
 
-            for (const locator of locators) {
-                try {
-                    if (regexFound) {
-                        await expect(locator).toHaveText(new RegExp(resultString));
-                        return;
-                    } else {
-                        await expect(locator).toContainText(resultString);
-                        return;
-                    }
-                } catch {
-                    continue;
-                }
+            if (regexFound) {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'toHaveText', new RegExp(resultString)));
+            } else {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'toContainText', resultString));
             }
+
+            // TODO: Besprechen, ob für Seed sinnvoll? ist bei Selenium webdriver Implementierung dabei.
+            // Additional: Check in HTML content
+            const pageHTML = await page.content();
+            if (regexFound) {
+                expect(pageHTML).toMatch(new RegExp(resultString));
+            } else {
+                expect(pageHTML).toContain(resultString);
+            }
+
         } catch (e) {
             throw Error(e);
         }
@@ -746,34 +940,44 @@ Then('So I can see the text: {string}', async function(text) {
 
 
 // Search a textfield in the html code and assert if it's empty
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[@id='${label}'], XPath (Element mit ID)
+ * (X) //*[@*='${label}'], XPath (Element mit beliebigem Attribut)
+ * (X) //*[contains(@id, '${label}')], XPath (Element mit enthaltender ID)
+ * (X) ${label}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 Then('So I can\'t see text in the textbox: {string}', async function(label) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locators = [
-                // Modern Locators
+
+            const preferredLocators = [
                 page.getByRole('textbox', { name: label }),
                 page.getByLabel(label),
                 page.getByPlaceholder(label),
-                // CSS Fallbacks
                 page.locator(`#${label}`),
                 page.locator(`[name="${label}"]`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    const content = await locator.inputValue();
-                    await expect(content).toBe('');
-                    return;
-                } catch {
-                    continue;
-                }
+            const xpathLocators = [
+                page.locator(`xpath=//*[@id='${label}']`),
+                page.locator(`xpath=//*[@*='${label}']`),
+                page.locator(`xpath=//*[contains(@id, '${label}')]`),
+                page.locator(`xpath=//*[@name='${label}']`),
+                page.locator(`xpath=//*[contains(@name, '${label}')]`),
+                page.locator(`xpath=//*[contains(text(), '${label}')]`)
+            ];
+
+            try {
+                const locator = await Promise.any(mapLocatorsToPromises(preferredLocators, 'inputValue'));
+                await expect(await locator.inputValue()).toBe('');
+            } catch (preferredError) {
+                const locator = await Promise.any(mapLocatorsToPromises(xpathLocators, 'inputValue'));
+                await expect(await locator.inputValue()).toBe('');
             }
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`The Textarea ${label} could not be found!`);
-            }
-            throw Error(e);
+            throw e;
         }
     });
 });
@@ -811,41 +1015,53 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
     });
 });
 
-
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * ( ) //picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]], XPath (Picture mit Source oder Img mit src/alt/id/title)
+ * ( ) //img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')], XPath (Img mit src/alt/id/title)
+ * ( ) ${picture}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 Then('So the picture {string} has the name {string}', async function(picture, name) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locators = [
-                // Modern Locators
+            const preferredLocators = [
                 page.getByRole('img', { name: picture }),
                 page.getByAltText(picture),
-                // CSS Fallbacks
                 page.locator(`img[src*="${picture}"]`),
-                page.locator(`img[src*="${name}"]`)
+                page.locator(`img[src*="${name}"]`),
+                page.locator(`#${picture}`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    await locator.isVisible();
-                    const src = await locator.getAttribute('src');
-                    if (src?.includes(name)) {
-                        return;
-                    }
-                } catch {
-                    continue;
+            const xpathLocators = [
+                page.locator(`xpath=//picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]]`),
+                page.locator(`xpath=//img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]`),
+            ];
+
+            try {
+                const locator = await Promise.any(mapLocatorsToPromises(preferredLocators, 'isVisible'));
+                const src = await locator.getAttribute('src');
+                if (src?.includes(name)) {
+                    return;
+                }
+            } catch (preferredError) {
+                const locator = await Promise.any(mapLocatorsToPromises(xpathLocators, 'isVisible'));
+                const src = await locator.getAttribute('src');
+                if (src?.includes(name)) {
+                    return;
                 }
             }
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`The Picture ${picture} could not be found!`);
-            }
             throw e;
         }
     });
 });
 
 // Search if a text isn't in html code
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (x) By.css('Body'), CSS-Selektor (Body)
+ */
 Then('So I can\'t see the text: {string}', async function(text) {
     await handleError(async () => {
         try {
@@ -853,156 +1069,187 @@ Then('So I can\'t see the text: {string}', async function(text) {
             const expectedText = applySpecialCommands(text.toString());
             const { resultString, regexFound } = resolveRegex(expectedText);
 
-            const locators = [
-                // Modern Locators
+            const preferredLocators = [
                 page.getByText(resultString, { exact: !regexFound }),
-                // Fallback content checks
-                page.locator('body'),
-                page.locator('html')
             ];
 
-            for (const locator of locators) {
-                try {
-                    if (regexFound) {
-                        await expect(locator).not.toHaveText(new RegExp(resultString));
-                    } else {
-                        await expect(locator).not.toContainText(resultString);
-                    }
-                    return;
-                } catch {
-                    continue;
-                }
+            if (regexFound) {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'not.toHaveText', new RegExp(resultString)));
+            } else {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'not.toContainText', resultString));
             }
+
+            // TODO: Besprechen, ob für Seed sinnvoll? ist bei Selenium webdriver Implementierung dabei.
+            // Additional: Check in HTML content
+            const pageHTML = await page.content();
+            if (regexFound) {
+                expect(pageHTML).not.toMatch(new RegExp(resultString));
+            } else {
+                expect(pageHTML).not.toContain(resultString);
+            }
+
         } catch (e) {
-            throw new Error(`Unexpected text "${text}" was found on the page!`);
+            throw e;
         }
     });
 });
 
 
 // Check if a checkbox is set (true) or not (false)
-Then('So the checkbox {string} is set to {string} [true OR false]', async function(checkboxName, checked1) {
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[@type='checkbox' and @*='${checkboxName}'], XPath (Checkbox mit Attribut und dynamischem Wert)
+ * (X) //*[contains(text(),'${checkboxName}')]//parent::label, XPath (Element mit enthaltenem Text, Elternteil Label)
+ * (X) //*[contains(text(),'${checkboxName}') or @*='${checkboxName}'], XPath (Element mit enthaltenem Text oder Attribut mit dynamischem Wert)
+ * (X) ${checkboxName}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
+Then('So the checkbox {string} is set to {string} [true OR false]', async function(checkboxName, checkedString) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locators = [
-                // Modern Locators
+            const checked = checkedString.toLowerCase() === 'true'; // Konvertierung in Boolean
+
+            const preferredLocators = [
                 page.getByRole('checkbox', { name: checkboxName }),
                 page.getByLabel(checkboxName),
-                // CSS Fallbacks
                 page.locator(`[type="checkbox"][name="${checkboxName}"]`),
                 page.locator(`[type="checkbox"][id="${checkboxName}"]`),
-                // Complex Selectors
                 page.locator(`label:has-text("${checkboxName}") input[type="checkbox"]`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    const isChecked = await locator.isChecked();
-                    await expect(isChecked).toBe(checked1 === 'true');
-                    return;
-                } catch {
-                    continue;
-                }
+            const xpathLocators = [
+                page.locator(`xpath=//*[@type='checkbox' and @*='${checkboxName}']`),
+                page.locator(`xpath=//*[contains(text(),'${checkboxName}')]//parent::label`),
+                page.locator(`xpath=//*[contains(text(),'${checkboxName}') or @*='${checkboxName}']`),
+            ];
+
+            try {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'toBeChecked'));
+            } catch (preferredError) {
+                await Promise.any(mapLocatorsToPromises(xpathLocators, 'toBeChecked'));
             }
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`The checkbox ${checkboxName} could not be found!`);
-            }
             throw e;
         }
     });
 });
 
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[contains(text(),'${element}')], XPath (Element mit enthaltendem Text)
+ * (X) //*[@id='${element}'], XPath (Element mit ID)
+ * (X) //*[@*='${element}'], XPath (Element mit beliebigem Attribut)
+ * (X) //*[contains(@*, '${element}')], XPath (Element mit enthaltendem Attribut)
+ * (X) //*[contains(@id, '${element}')], XPath (Element mit enthaltender ID)
+ * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 Then('So on element {string} the css property {string} is {string}', async function(element, property, value) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locators = [
-                // Modern Locators
+            
+            const preferredLocators = [
                 page.getByRole('generic', { name: element }),
                 page.getByText(element, { exact: true }),
                 page.getByLabel(element),
-                // CSS Fallbacks
                 page.locator(`#${element}`),
                 page.locator(`[role="${element}"]`),
-                // Complex Selectors
-                page.locator(`[data-testid="${element}"]`)
+                page.locator(`[data-testid="${element}"]`),
             ];
 
-            for (const locator of locators) {
-                try {
-                    // Get computed CSS value
-                    const actual = await locator.evaluate((el, prop) => {
-                        return window.getComputedStyle(el).getPropertyValue(prop);
-                    }, property);
+            const xpathLocators = [
+                page.locator(`xpath=//*[contains(text(),'${element}')]`),
+                page.locator(`xpath=//*[@id='${element}']`),
+                page.locator(`xpath=//*[@*='${element}']`),
+                page.locator(`xpath=//*[contains(@*, '${element}')]`),
+                page.locator(`xpath=//*[contains(@id, '${element}')]`)
+            ];
 
-                    // Handle color values
-                    if (actual.startsWith('rgb')) {
-                        const colorNumbers = actual.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
-                        const [r, g, b] = colorNumbers.map(v => Number(v).toString(16).padStart(2, '0'));
-                        const hex = `#${r}${g}${b}`;
-                        await expect(value.toLowerCase()).toBe(hex.toLowerCase());
-                        return;
-                    }
-                    
-                    await expect(actual).toBe(value);
+            try {
+                const locator = await Promise.any(mapLocatorsToPromises(preferredLocators, 'evaluate', property));
+                const actual = await locator.evaluate((el, prop) => window.getComputedStyle(el).getPropertyValue(prop), property);
+
+                // Handle color values
+                if (actual.startsWith('rgb')) {
+                    const colorNumbers = actual.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
+                    const [r, g, b] = colorNumbers.map(v => Number(v).toString(16).padStart(2, '0'));
+                    const hex = `#${r}${g}${b}`;
+                    await expect(value.toLowerCase()).toBe(hex.toLowerCase());
                     return;
-                } catch {
-                    continue;
                 }
+
+                await expect(actual).toBe(value);
+
+            } catch (preferredError) {
+                const locator = await Promise.any(mapLocatorsToPromises(xpathLocators, 'evaluate', property));
+                const actual = await locator.evaluate((el, prop) => window.getComputedStyle(el).getPropertyValue(prop), property);
+
+                // Handle color values
+                if (actual.startsWith('rgb')) {
+                    const colorNumbers = actual.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
+                    const [r, g, b] = colorNumbers.map(v => Number(v).toString(16).padStart(2, '0'));
+                    const hex = `#${r}${g}${b}`;
+                    await expect(value.toLowerCase()).toBe(hex.toLowerCase());
+                    return;
+                }
+
+                await expect(actual).toBe(value);
+
             }
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`The Element ${element} could not be found!`);
-            }
             throw e;
         }
     });
 });
 
+/*
+ * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
+ * (X) //*[contains(text(),'${element}')], XPath (Element mit enthaltendem Text)
+ * (X) //*[@id='${element}'], XPath (Element mit ID)
+ * (X) //*[@*='${element} and @role=tooltip], XPath (Element mit Attribut und Rolle)
+ * (X) //*[contains(@*, '${element}')], XPath (Element mit enthaltendem Attribut)
+ * (X) //*[@*='${element}'], XPath (Element mit beliebigem Attribut)
+ * (X) //*[contains(@id, '${element}')], XPath (Element mit enthaltender ID)
+ * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
+ */
 Then('So the element {string} has the tool-tip {string}', async function(element, value) {
     await handleError(async () => {
         try {
             const page = this.getPage();
-            const locators = [
-                // Modern Locators
+            
+            const preferredLocators = [
                 page.getByRole('tooltip', { name: value }),
                 page.getByLabel(value),
-                // Element Locators
                 page.getByText(element).filter({ has: page.locator('[role="tooltip"]') }),
-                // Attribute Fallbacks
                 page.locator(`[title="${value}"]`),
                 page.locator(`[aria-label="${value}"]`),
-                page.locator(`[data-tooltip="${value}"]`)
+                page.locator(`[data-tooltip="${value}"]`),
+                page.locator(`#${element}`)
             ];
 
-            for (const locator of locators) {
-                try {
-                    // Try to get tooltip content from various attributes
-                    const title = await locator.getAttribute('title');
-                    const ariaLabel = await locator.getAttribute('aria-label');
-                    const dataTooltip = await locator.getAttribute('data-tooltip');
-                    
-                    const tooltipContent = title || ariaLabel || dataTooltip;
-                    if (tooltipContent === value) {
-                        return;
-                    }
-                } catch {
-                    continue;
-                }
+            const xpathLocators = [
+                page.locator(`xpath=//*[contains(text(),'${element}')]`),
+                page.locator(`xpath=//*[@id='${element}']`),
+                page.locator(`xpath=//*[@*='${element}' and @role='tooltip']`),
+                page.locator(`xpath=//*[contains(@*, '${element}')]`),
+                page.locator(`xpath=//*[@*='${element}']`),
+                page.locator(`xpath=//*[contains(@id, '${element}')]`),
+            ];
+
+            try {
+                await Promise.any(mapLocatorsToPromises(preferredLocators, 'toHaveAttribute', value=value, 'title', 'aria-label', 'data-tooltip'));
+            } catch (preferredError) {
+                await Promise.any(mapLocatorsToPromises(xpathLocators, 'toHaveAttribute', value=value, 'title', 'aria-label', 'data-tooltip'));
             }
+
         } catch (e) {
-            if (e.name === 'TimeoutError') {
-                throw new Error(`The Element ${element} could not be found (check tool-tip).`);
-            }
             throw e;
         }
     });
 });
 
-
-Then('So the cookie {string} has the value {string}', async function(name, expectedValue) {
+//TODO: Implement across application?
+/* Then('So the cookie {string} has the value {string}', async function(name, expectedValue) {
     await handleError(async () => {
         try {
             const context = this.getPage().context();
@@ -1013,5 +1260,5 @@ Then('So the cookie {string} has the value {string}', async function(name, expec
             throw Error(e);
         }
     });
-});
+}); */
 

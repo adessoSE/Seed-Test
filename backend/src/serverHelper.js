@@ -249,7 +249,7 @@ async function executeTest(req, mode, story) {
 				// req.body.name = groupDirectory
 				? `json:features/${req.body.name}/${reportName}.json`
 				: `json:features/${reportName}.json`,
-			'html:reports/cucumber-report.html'
+			//'html:reports/cucumber-report.html'
 		],
 		worldParameters: {
 			scenarios: parameters.scenarios,
