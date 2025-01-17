@@ -152,33 +152,99 @@ async function mapLocatorsToPromises(locators, action, value=undefined, ...args)
 
     console.log(locators, action, value, ...args)
     return Promise.any(locators.map(locator => {
+        console.log(locators);
         switch (action) {
             case 'waitFor':
-                return locator.waitFor({ state: 'attached' });
+                return locator
+                .waitFor({ state: 'attached' })
+                .catch(e => {
+                    console.warn(`waitFor failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'click':
-                return locator.click();
+                return locator
+                .click()
+                .catch(e => {
+                    console.warn(`Click failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'fill':
-                return locator.fill(...args);
+                return locator
+                .fill(...args)
+                .catch(e => {
+                    console.warn(`fill failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'setInputFiles':
-                return locator.setInputFiles(...args);
+                return locator
+                .setInputFiles(...args)
+                .catch(e => {
+                    console.warn(`setInputFiles failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'toHaveText':
-                return locator.toHaveText(...args);
+                return expect(locator)
+                .toHaveText(...args)
+                .catch(e => {
+                    console.warn(`toHaveText failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'toContainText':
-                return locator.toContainText(...args);
+                return expect(locator)
+                .toContainText(...args)
+                .catch(e => {
+                    console.warn(`toContainText failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'not.toHaveText':
-                return locator.not.toHaveText(...args);
+                return expect(locator)
+                .not.toHaveText(...args)
+                .catch(e => {
+                    console.warn(`not.toHaveText failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'not.toContainText':
-                return locator.not.toContainText(...args);
+                return expect(locator)
+                .not.toContainText(...args)
+                .catch(e => {
+                    console.warn(`not.toContainText failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'textContent':
-                return locator.textContent();
+                return expect(locator)
+                .textContent()
+                .catch(e => {
+                    console.warn(`textContent failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'inputValue':
-                return locator.inputValue();
+                return expect(locator)
+                .inputValue()
+                .catch(e => {
+                    console.warn(`inputValue failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'toBeEnabled':
-                return locator.toBeEnabled();
+                return expect(locator)
+                .toBeEnabled()
+                .catch(e => {
+                    console.warn(`toBeEnabled failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'toBeDisabled':
-                return locator.toBeDisabled();
+                return expect(locator)
+                .toBeDisabled()
+                .catch(e => {
+                    console.warn(`toBeDisabled failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             case 'toBeChecked':
-                return locator.toBeChecked();
+                return expect(locator)
+                .toBeChecked()
+                .catch(e => {
+                    console.warn(`toBeChecked failed for ${locator.toString()}: ${e.message}`);
+                    return Promise.reject(e); 
+                });
             default:
                 throw new Error(`Invalid action: ${action}`);
         }
@@ -303,12 +369,10 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 
                 let locator;
                 try {
-                    const preferredPromises = mapLocatorsToPromises(preferredLocators, 'waitFor');
-                    locator = await Promise.any(preferredPromises);
+                    locator = await mapLocatorsToPromises(preferredLocators, 'waitFor');
                 } catch (preferredError) {
                     //Nur wenn alle preferred Locators fehlschlagen => xPath
-                    const xpathPromises = mapLocatorsToPromises(xpathLocators, 'waitFor');
-                    locator = await Promise.any(xpathPromises);
+                    locator = await mapLocatorsToPromises(xpathLocators, 'waitFor');
                 }
 
                 try {
@@ -378,11 +442,9 @@ When('I click the button: {string}', async function(button) {
             ];
     
             try {
-                const preferredPromises = mapLocatorsToPromises(preferredLocators, 'click');
-                await Promise.any(preferredPromises);
+                await mapLocatorsToPromises(preferredLocators, 'click');
             } catch (preferredError) {
-                const xpathPromises = mapLocatorsToPromises(xpathLocators, 'click');
-                await Promise.any(xpathPromises);
+                await mapLocatorsToPromises(xpathLocators, 'click');
             }
         } catch (error) {
             throw Error(error);
@@ -448,11 +510,9 @@ When('I insert {string} into the field {string}', async function(text, label) {
             ];
 
             try {
-                const preferredPromises = mapLocatorsToPromises(preferredLocators, 'fill', value);
-                await Promise.any(preferredPromises);
+                await mapLocatorsToPromises(preferredLocators, 'fill', value);
             } catch (preferredError) {
-                const xpathPromises = mapLocatorsToPromises(xpathLocators, 'fill', value);
-                await Promise.any(xpathPromises);
+                await mapLocatorsToPromises(xpathLocators, 'fill', value);
             }
         } catch (e) {
             throw e;
@@ -505,11 +565,9 @@ When('I select {string} from the selection {string}', async function(radioname, 
             ];
 
             try {
-                const preferredPromises = mapLocatorsToPromises(preferredLocators, 'click');
-                await Promise.any(preferredPromises);
+                await mapLocatorsToPromises(preferredLocators, 'click');
             } catch (preferredError) {
-                const xpathPromises = mapLocatorsToPromises(xpathLocators, 'click');
-                await Promise.any(xpathPromises);
+                await mapLocatorsToPromises(xpathLocators, 'click');
             }
         } catch (e) {
             throw e;
@@ -570,20 +628,16 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 
             let dropdownLocator;
             try {
-                const dropdownPromises = mapLocatorsToPromises(preferredDropdownLocators, 'click');
-                dropdownLocator = await Promise.any(dropdownPromises);
+                dropdownLocator = mapLocatorsToPromises(preferredDropdownLocators, 'click');
             } catch (preferredDropdownError) {
-                const xpathDropdownPromises = mapLocatorsToPromises(xpathDropdownLocators, 'click');
-                dropdownLocator = await Promise.any(xpathDropdownPromises);
+                dropdownLocator = mapLocatorsToPromises(xpathDropdownLocators, 'click');
             }
 
             let optionLocator;
             try {
-                const optionPromises = mapLocatorsToPromises(preferredOptionLocators, 'click');
-                optionLocator = await Promise.any(optionPromises);
+                optionLocator = mapLocatorsToPromises(preferredOptionLocators, 'click');
             } catch (preferredOptionError) {
-                const xpathOptionPromises = mapLocatorsToPromises(xpathOptionLocators, 'click');
-                optionLocator = await Promise.any(xpathOptionPromises);
+                optionLocator = mapLocatorsToPromises(xpathOptionLocators, 'click');
             }
 
         } catch (e) {
@@ -621,9 +675,9 @@ When('I select the option {string}', async function(dropd) {
             ];
 
             try {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'click'));
+                await mapLocatorsToPromises(preferredLocators, 'click');
             } catch (preferredError) {
-                await Promise.any(mapLocatorsToPromises(xpathLocators, 'click'));
+                await mapLocatorsToPromises(xpathLocators, 'click');
             }
         } catch (e) {
             throw e;
@@ -659,11 +713,9 @@ When('I hover over the element {string} and select the option {string}', async f
 
             let hoveredElement;
             try {
-                const elementPromises = mapLocatorsToPromises(preferredElementLocators, 'hover');
-                hoveredElement = await Promise.any(elementPromises);
-            } catch (preferredElementError) {
-                const xpathElementPromises = mapLocatorsToPromises(xpathElementLocators, 'hover');
-                hoveredElement = await Promise.any(xpathElementPromises);
+                hoveredElement = mapLocatorsToPromises(preferredElementLocators, 'hover');
+            } catch (preferredElementError) { 
+                hoveredElement = mapLocatorsToPromises(xpathElementLocators, 'hover');
             }
 
             const preferredOptionLocators = [
@@ -680,11 +732,9 @@ When('I hover over the element {string} and select the option {string}', async f
             ];
 
             try {
-                const optionPromises = mapLocatorsToPromises(preferredOptionLocators, 'click');
-                await Promise.any(optionPromises);
+                await mapLocatorsToPromises(preferredOptionLocators, 'click');
             } catch (preferredOptionError) {
-                const xpathOptionPromises = mapLocatorsToPromises(xpathOptionLocators, 'click');
-                await Promise.any(xpathOptionPromises);
+                await mapLocatorsToPromises(xpathOptionLocators, 'click');
             }
 
         } catch (e) {
@@ -724,9 +774,9 @@ When('I check the box {string}', async function(name) {
             ];
 
             try {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'check'));
+                mapLocatorsToPromises(preferredLocators, 'check');
             } catch (preferredError) {
-                await Promise.any(mapLocatorsToPromises(xpathLocators, 'check'));
+                mapLocatorsToPromises(xpathLocators, 'check');
             }
         } catch (e) {
             throw e;
@@ -803,9 +853,9 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
             ];
 
             try {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'setInputFiles', filePath));
+                mapLocatorsToPromises(preferredLocators, 'setInputFiles', filePath);
             } catch (preferredError) {
-                await Promise.any(mapLocatorsToPromises(xpathLocators, 'setInputFiles', filePath));
+                mapLocatorsToPromises(xpathLocators, 'setInputFiles', filePath);
 
             }
 
@@ -875,7 +925,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function(e
 
             let locator;
             try {
-                locator = await Promise.any(mapLocatorsToPromises(preferredLocators, 'textContent'));
+                locator = mapLocatorsToPromises(preferredLocators, 'textContent');
                 const content = await locator || '';
 
                 if (regexFound) {
@@ -885,7 +935,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function(e
                 }
                 return;
             } catch (preferredError) {
-                locator = await Promise.any(mapLocatorsToPromises(xpathLocators, 'textContent'));
+                locator = mapLocatorsToPromises(xpathLocators, 'textContent');
                 const content = await locator || '';
 
                 if (regexFound) {
@@ -918,9 +968,9 @@ Then('So I can see the text: {string}', async function(text) {
             ];
 
             if (regexFound) {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'toHaveText', new RegExp(resultString)));
+                await mapLocatorsToPromises(preferredLocators, 'toHaveText', new RegExp(resultString));
             } else {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'toContainText', resultString));
+                await mapLocatorsToPromises(preferredLocators, 'toContainText', resultString);
             }
 
             // TODO: Besprechen, ob für Seed sinnvoll? ist bei Selenium webdriver Implementierung dabei.
@@ -970,10 +1020,10 @@ Then('So I can\'t see text in the textbox: {string}', async function(label) {
             ];
 
             try {
-                const locator = await Promise.any(mapLocatorsToPromises(preferredLocators, 'inputValue'));
+                const locator = mapLocatorsToPromises(preferredLocators, 'inputValue');
                 await expect(await locator.inputValue()).toBe('');
             } catch (preferredError) {
-                const locator = await Promise.any(mapLocatorsToPromises(xpathLocators, 'inputValue'));
+                const locator = await mapLocatorsToPromises(xpathLocators, 'inputValue');
                 await expect(await locator.inputValue()).toBe('');
             }
         } catch (e) {
@@ -1017,9 +1067,9 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
- * ( ) //picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]], XPath (Picture mit Source oder Img mit src/alt/id/title)
- * ( ) //img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')], XPath (Img mit src/alt/id/title)
- * ( ) ${picture}, Implizite Suche (ID oder Name, kontextabhängig)
+ * (X) //picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]], XPath (Picture mit Source oder Img mit src/alt/id/title)
+ * (X) //img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')], XPath (Img mit src/alt/id/title)
+ * (X) ${picture}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then('So the picture {string} has the name {string}', async function(picture, name) {
     await handleError(async () => {
@@ -1039,13 +1089,13 @@ Then('So the picture {string} has the name {string}', async function(picture, na
             ];
 
             try {
-                const locator = await Promise.any(mapLocatorsToPromises(preferredLocators, 'isVisible'));
+                const locator = await mapLocatorsToPromises(preferredLocators, 'isVisible');
                 const src = await locator.getAttribute('src');
                 if (src?.includes(name)) {
                     return;
                 }
             } catch (preferredError) {
-                const locator = await Promise.any(mapLocatorsToPromises(xpathLocators, 'isVisible'));
+                const locator = await mapLocatorsToPromises(xpathLocators, 'isVisible');
                 const src = await locator.getAttribute('src');
                 if (src?.includes(name)) {
                     return;
@@ -1074,9 +1124,9 @@ Then('So I can\'t see the text: {string}', async function(text) {
             ];
 
             if (regexFound) {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'not.toHaveText', new RegExp(resultString)));
+                await mapLocatorsToPromises(preferredLocators, 'not.toHaveText', new RegExp(resultString));
             } else {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'not.toContainText', resultString));
+                await mapLocatorsToPromises(preferredLocators, 'not.toContainText', resultString);
             }
 
             // TODO: Besprechen, ob für Seed sinnvoll? ist bei Selenium webdriver Implementierung dabei.
@@ -1124,9 +1174,9 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
             ];
 
             try {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'toBeChecked'));
+                await mapLocatorsToPromises(preferredLocators, 'toBeChecked');
             } catch (preferredError) {
-                await Promise.any(mapLocatorsToPromises(xpathLocators, 'toBeChecked'));
+                await mapLocatorsToPromises(xpathLocators, 'toBeChecked');
             }
         } catch (e) {
             throw e;
@@ -1166,7 +1216,7 @@ Then('So on element {string} the css property {string} is {string}', async funct
             ];
 
             try {
-                const locator = await Promise.any(mapLocatorsToPromises(preferredLocators, 'evaluate', property));
+                const locator = await mapLocatorsToPromises(preferredLocators, 'evaluate', property);
                 const actual = await locator.evaluate((el, prop) => window.getComputedStyle(el).getPropertyValue(prop), property);
 
                 // Handle color values
@@ -1181,7 +1231,7 @@ Then('So on element {string} the css property {string} is {string}', async funct
                 await expect(actual).toBe(value);
 
             } catch (preferredError) {
-                const locator = await Promise.any(mapLocatorsToPromises(xpathLocators, 'evaluate', property));
+                const locator = await mapLocatorsToPromises(xpathLocators, 'evaluate', property);
                 const actual = await locator.evaluate((el, prop) => window.getComputedStyle(el).getPropertyValue(prop), property);
 
                 // Handle color values
@@ -1237,9 +1287,9 @@ Then('So the element {string} has the tool-tip {string}', async function(element
             ];
 
             try {
-                await Promise.any(mapLocatorsToPromises(preferredLocators, 'toHaveAttribute', value=value, 'title', 'aria-label', 'data-tooltip'));
+                await mapLocatorsToPromises(preferredLocators, 'toHaveAttribute', value=value, 'title', 'aria-label', 'data-tooltip');
             } catch (preferredError) {
-                await Promise.any(mapLocatorsToPromises(xpathLocators, 'toHaveAttribute', value=value, 'title', 'aria-label', 'data-tooltip'));
+                await mapLocatorsToPromises(xpathLocators, 'toHaveAttribute', value=value, 'title', 'aria-label', 'data-tooltip');
             }
 
         } catch (e) {
