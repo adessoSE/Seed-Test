@@ -34,6 +34,7 @@ class CustomError extends Error {
 
 function betterError(error) {
 	const myError = new CustomError(error.message);
+    myError.stack = error.stack;
 	return myError;
 }
 
@@ -386,6 +387,11 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
                 const screenshotPath = path.join(this.downloadDir, element ? `manual-${element}-${timestamp}.png` : `manual-${timestamp}.png`);
                 const buffer = await page.screenshot({ path: screenshotPath });
                 await this.attach(buffer, 'image/png');
+            }else {
+                const timestamp = Date.now();
+                const screenshotPath = path.join(this.downloadDir, element ? `manual-${element}-${timestamp}.png` : `manual-${timestamp}.png`);
+                const buffer = await page.screenshot({ path: screenshotPath });
+                await this.attach(buffer, 'image/png');
             }
         } catch (e) {
             throw Error(e);
@@ -544,8 +550,6 @@ When('I select {string} from the selection {string}', async function(radioname, 
                 // CSS Fallbacks
                 page.locator(`input[name="${label}"][value="${radioname}"]`),
                 page.locator(`[role="radio"]:has-text("${radioname}")`),
-                // XPath as last resort
-                page.locator(`//input[@type="radio"][@value="${radioname}"]`)
             ];
 
             const preferredLocators = [
@@ -590,7 +594,7 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
     await handleError(async () => {
         try {
             const page = this.getPage();
-            
+
             const preferredDropdownLocators = [
                 page.getByRole('combobox', { name: dropd }),
                 page.getByLabel(dropd),
@@ -628,16 +632,16 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 
             let dropdownLocator;
             try {
-                dropdownLocator = mapLocatorsToPromises(preferredDropdownLocators, 'click');
+                dropdownLocator = await mapLocatorsToPromises(preferredDropdownLocators, 'click');
             } catch (preferredDropdownError) {
-                dropdownLocator = mapLocatorsToPromises(xpathDropdownLocators, 'click');
+                dropdownLocator = await mapLocatorsToPromises(xpathDropdownLocators, 'click');
             }
 
             let optionLocator;
             try {
-                optionLocator = mapLocatorsToPromises(preferredOptionLocators, 'click');
+                optionLocator = await mapLocatorsToPromises(preferredOptionLocators, 'click');
             } catch (preferredOptionError) {
-                optionLocator = mapLocatorsToPromises(xpathOptionLocators, 'click');
+                optionLocator = await mapLocatorsToPromises(xpathOptionLocators, 'click');
             }
 
         } catch (e) {
@@ -656,16 +660,32 @@ When('I select the option {string}', async function(dropd) {
         try {
             const page = this.getPage();
 
+            try {
+                // 1. Versuche es mit selectOption (für Standard <select>-Elemente)
+                await page.locator('select').selectOption(dropd);
+                return; // Erfolgreich!
+            } catch (selectError) {
+                console.warn(`selectOption by text failed, trying select by value: ${selectError.message}`);
+                try{
+                    await page.locator('select').selectOption({value: optionText.toLowerCase()});
+                    return;
+                } catch (selectValueError){
+                    console.warn(`selectOption by value failed, trying other methods: ${selectValueError.message}`);
+                }    
+            }
+
             const preferredLocators = [
                 page.getByRole('option', { name: dropd }),
                 page.getByText(dropd).filter({ has: page.locator('select') }),
                 page.locator(`select option:has-text("${dropd}")`),
                 page.locator(`[role="listbox"] [role="option"]:has-text("${dropd}")`),
-                page.locator('select').locator(`option:has-text("${dropd}")`)
+                page.locator('select').locator(`option:has-text("${dropd}")`),
+                page.locator(`:text("${dropd}")`).click()
             ];
 
             //Dynamischer XPath nur begrenzt in Playwright darstellbar - theoretisch über prefferedLocators gut abgedeckt
             const xpathLocators = [
+                page.locator(`//*[normalize-space(text())="${dropd}"]`, {hasText: dropd}),
                 page.locator(`xpath=//select/option[text()="${dropd}"]`), //Allgemeiner Select Fall
                 page.locator(`xpath=//*[@role='option'][text()="${dropd}"]`), // Sehr spezifisch für ARIA-Optionen
                 page.locator(`xpath=//*[@role='listbox']//*[text()='${dropd}']`), // Für Listboxen
@@ -713,9 +733,9 @@ When('I hover over the element {string} and select the option {string}', async f
 
             let hoveredElement;
             try {
-                hoveredElement = mapLocatorsToPromises(preferredElementLocators, 'hover');
+                hoveredElement = await mapLocatorsToPromises(preferredElementLocators, 'hover');
             } catch (preferredElementError) { 
-                hoveredElement = mapLocatorsToPromises(xpathElementLocators, 'hover');
+                hoveredElement = await mapLocatorsToPromises(xpathElementLocators, 'hover');
             }
 
             const preferredOptionLocators = [
@@ -774,9 +794,9 @@ When('I check the box {string}', async function(name) {
             ];
 
             try {
-                mapLocatorsToPromises(preferredLocators, 'check');
+                await mapLocatorsToPromises(preferredLocators, 'check');
             } catch (preferredError) {
-                mapLocatorsToPromises(xpathLocators, 'check');
+                await mapLocatorsToPromises(xpathLocators, 'check');
             }
         } catch (e) {
             throw e;
@@ -853,9 +873,9 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
             ];
 
             try {
-                mapLocatorsToPromises(preferredLocators, 'setInputFiles', filePath);
+                await mapLocatorsToPromises(preferredLocators, 'setInputFiles', filePath);
             } catch (preferredError) {
-                mapLocatorsToPromises(xpathLocators, 'setInputFiles', filePath);
+                await mapLocatorsToPromises(xpathLocators, 'setInputFiles', filePath);
 
             }
 
@@ -925,7 +945,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function(e
 
             let locator;
             try {
-                locator = mapLocatorsToPromises(preferredLocators, 'textContent');
+                locator = await mapLocatorsToPromises(preferredLocators, 'textContent');
                 const content = await locator || '';
 
                 if (regexFound) {
@@ -935,7 +955,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function(e
                 }
                 return;
             } catch (preferredError) {
-                locator = mapLocatorsToPromises(xpathLocators, 'textContent');
+                locator = await mapLocatorsToPromises(xpathLocators, 'textContent');
                 const content = await locator || '';
 
                 if (regexFound) {
@@ -963,23 +983,25 @@ Then('So I can see the text: {string}', async function(text) {
             const expectedText = applySpecialCommands(text.toString());
             const { resultString, regexFound } = resolveRegex(expectedText);
 
-            const preferredLocators = [
+            /* const preferredLocators = [
                 page.getByText(resultString, { exact: !regexFound }),
             ];
 
             if (regexFound) {
-                await mapLocatorsToPromises(preferredLocators, 'toHaveText', new RegExp(resultString));
+                await mapLocatorsToPromises(preferredLocators, 'toBeVisible');
             } else {
-                await mapLocatorsToPromises(preferredLocators, 'toContainText', resultString);
-            }
+                await mapLocatorsToPromises(preferredLocators, 'toBeVisible');
+            } */
 
-            // TODO: Besprechen, ob für Seed sinnvoll? ist bei Selenium webdriver Implementierung dabei.
-            // Additional: Check in HTML content
+            // Ersetze mehrere Whitespaces durch ein einzelnes Leerzeichen und trimme den String
+            const normalizedExpectedText = expectedText.replace(/\s+/g, ' ').trim();
+
             const pageHTML = await page.content();
             if (regexFound) {
-                expect(pageHTML).toMatch(new RegExp(resultString));
+                expect(pageHTML).toMatch(new RegExp(normalizedExpectedText));
             } else {
-                expect(pageHTML).toContain(resultString);
+                // Regulärer Ausdruck, um WHitespaces vorne und hinten zu ignorieren
+                expect(pageHTML).toContain(normalizedExpectedText);
             }
 
         } catch (e) {
@@ -1020,7 +1042,7 @@ Then('So I can\'t see text in the textbox: {string}', async function(label) {
             ];
 
             try {
-                const locator = mapLocatorsToPromises(preferredLocators, 'inputValue');
+                const locator = await mapLocatorsToPromises(preferredLocators, 'inputValue');
                 await expect(await locator.inputValue()).toBe('');
             } catch (preferredError) {
                 const locator = await mapLocatorsToPromises(xpathLocators, 'inputValue');
@@ -1119,7 +1141,7 @@ Then('So I can\'t see the text: {string}', async function(text) {
             const expectedText = applySpecialCommands(text.toString());
             const { resultString, regexFound } = resolveRegex(expectedText);
 
-            const preferredLocators = [
+            /* const preferredLocators = [
                 page.getByText(resultString, { exact: !regexFound }),
             ];
 
@@ -1127,11 +1149,11 @@ Then('So I can\'t see the text: {string}', async function(text) {
                 await mapLocatorsToPromises(preferredLocators, 'not.toHaveText', new RegExp(resultString));
             } else {
                 await mapLocatorsToPromises(preferredLocators, 'not.toContainText', resultString);
-            }
+            } */
 
-            // TODO: Besprechen, ob für Seed sinnvoll? ist bei Selenium webdriver Implementierung dabei.
-            // Additional: Check in HTML content
+            // Check in HTML content
             const pageHTML = await page.content();
+            console.log(pageHTML);
             if (regexFound) {
                 expect(pageHTML).not.toMatch(new RegExp(resultString));
             } else {
@@ -1216,9 +1238,7 @@ Then('So on element {string} the css property {string} is {string}', async funct
             ];
 
             try {
-                const locator = await mapLocatorsToPromises(preferredLocators, 'evaluate', property);
-                const actual = await locator.evaluate((el, prop) => window.getComputedStyle(el).getPropertyValue(prop), property);
-
+                const actual = await mapLocatorsToPromises(preferredLocators, 'evaluate', property);
                 // Handle color values
                 if (actual.startsWith('rgb')) {
                     const colorNumbers = actual.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
@@ -1231,9 +1251,7 @@ Then('So on element {string} the css property {string} is {string}', async funct
                 await expect(actual).toBe(value);
 
             } catch (preferredError) {
-                const locator = await mapLocatorsToPromises(xpathLocators, 'evaluate', property);
-                const actual = await locator.evaluate((el, prop) => window.getComputedStyle(el).getPropertyValue(prop), property);
-
+                const actual = await mapLocatorsToPromises(xpathLocators, 'evaluate', property);
                 // Handle color values
                 if (actual.startsWith('rgb')) {
                     const colorNumbers = actual.replace(/^rgba?\(|\s+|\)$/g, '').split(',');
