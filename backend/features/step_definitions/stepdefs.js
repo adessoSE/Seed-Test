@@ -34,7 +34,7 @@ class CustomError extends Error {
 
 function betterError(error) {
 	const myError = new CustomError(error.message);
-    myError.stack = error.stack;
+    myError.stack = `${myError.message}\n${error.stack}`;
 	return myError;
 }
 
@@ -139,118 +139,46 @@ Sie werden im Laufe der Analyse durch (X), (/) oder (-) ersetzt.
 
 //TODO: Vielleicht eine XPAth-AttributsWIldcardconverter Funktion? Playwright unterstützt (vermutlich) keine @* Wildcards...
 
-async function mapLocatorsToPromises(locators, action, value=undefined, ...args) {
-
-    //toHaveAttribute needs special handling as we have to return as many promises as many Attributes we check
-    if (action === 'toHaveAttribute') {
-        return locators.map(locator => {
-            const promises = args.map(attribute => locator.toHaveAttribute(attribute, value));
-            return Promise.any(promises);
-        });
-    }
-
-    //you can Include timeouts for each action, but for now we use central action timeout in PlaywrightWorld
-
-    console.log(locators, action, value, ...args)
-    return Promise.any(locators.map(locator => {
-        console.log(locators);
-        switch (action) {
-            case 'waitFor':
-                return locator
-                .waitFor({ state: 'attached' })
-                .catch(e => {
-                    console.warn(`waitFor failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'click':
-                return locator
-                .click()
-                .catch(e => {
-                    console.warn(`Click failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'fill':
-                return locator
-                .fill(...args)
-                .catch(e => {
-                    console.warn(`fill failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'setInputFiles':
-                return locator
-                .setInputFiles(...args)
-                .catch(e => {
-                    console.warn(`setInputFiles failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'toHaveText':
-                return expect(locator)
-                .toHaveText(...args)
-                .catch(e => {
-                    console.warn(`toHaveText failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'toContainText':
-                return expect(locator)
-                .toContainText(...args)
-                .catch(e => {
-                    console.warn(`toContainText failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'not.toHaveText':
-                return expect(locator)
-                .not.toHaveText(...args)
-                .catch(e => {
-                    console.warn(`not.toHaveText failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'not.toContainText':
-                return expect(locator)
-                .not.toContainText(...args)
-                .catch(e => {
-                    console.warn(`not.toContainText failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'textContent':
-                return expect(locator)
-                .textContent()
-                .catch(e => {
-                    console.warn(`textContent failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'inputValue':
-                return expect(locator)
-                .inputValue()
-                .catch(e => {
-                    console.warn(`inputValue failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'toBeEnabled':
-                return expect(locator)
-                .toBeEnabled()
-                .catch(e => {
-                    console.warn(`toBeEnabled failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'toBeDisabled':
-                return expect(locator)
-                .toBeDisabled()
-                .catch(e => {
-                    console.warn(`toBeDisabled failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            case 'toBeChecked':
-                return expect(locator)
-                .toBeChecked()
-                .catch(e => {
-                    console.warn(`toBeChecked failed for ${locator.toString()}: ${e.message}`);
-                    return Promise.reject(e); 
-                });
-            default:
-                throw new Error(`Invalid action: ${action}`);
+async function mapLocatorsToPromises(locators, action, value = undefined, ...args) {
+    const promises = locators.map((locator, index) => {
+      return (async () => {
+        try {
+          console.log(`Testing locator ${index + 1}: ${locator.toString()}`);
+          
+          let result;
+          if (action === 'toHaveAttribute') {
+            // Spezialfall für Attribute mit Promise.any
+            result = await Promise.any(
+              args.map(attr => locator.toHaveAttribute(attr, value))
+            );
+          } else {
+            // Generische Aktion mit Timeout
+            result = await locator[action](
+              ...(value !== undefined ? [value, ...args] : args)
+            );
+          }
+  
+          console.log(`Success with locator ${index + 1}`);
+          return result;
+        } catch (error) {
+          error.message = `Locator ${index + 1} failed: ${error.message}`;
+          throw error; // Wichtig für error.erros in Promise.any
         }
-    }));
-}
+      })();
+    });
+  
+    try {
+      return await Promise.any(promises);
+    } catch (aggregateError) {
+      const errorMessages = aggregateError.errors?.map(e => e.message) || [];
+      throw new Error([
+        `Kein Locator für "${action}" gefunden.`,
+        `Versuchte ${locators.length} Locators:`,
+        ...errorMessages
+      ].join('\n'));
+    }
+  }
+
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
 	this.role = string;
