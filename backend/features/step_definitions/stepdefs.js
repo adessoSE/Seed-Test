@@ -137,7 +137,7 @@ Sie werden im Laufe der Analyse durch (X), (/) oder (-) ersetzt.
 
 // ###################### OVERARCHING HELPER FUNCTIONS #################
 
-//TODO: Vielleicht eine XPAth-AttributsWIldcardconverter Funktion? Playwright unterstützt (vermutlich) keine @* Wildcards...
+//TODO: Vielleicht eine XPAth-AttributsWildcardconverter Funktion? Playwright unterstützt (vermutlich) keine @* Wildcards...
 
 async function mapLocatorsToPromises(locators, action, value = undefined, ...args) {
     const promises = locators.map((locator, index) => {
@@ -289,6 +289,8 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
                 ];
 
                 const xpathLocators = [
+                    page.locator(`xpath=//${element}`),
+                    page.locator(`xpath=${element}`),
                     page.locator(`xpath=//*[contains(text(),"${element}")]`),
                     page.locator(`xpath=//*[@*="${element}"]`),
                     page.locator(`xpath=//*[contains(@id, "${element}")]`),
@@ -296,18 +298,15 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
                     page.locator(`xpath=//*[@name="${element}"]`)
                 ];
 
-                let locator;
                 try {
-                    locator = await mapLocatorsToPromises(preferredLocators, 'waitFor');
+                    await mapLocatorsToPromises(preferredLocators, 'scrollIntoViewIfNeeded');
                 } catch (preferredError) {
-                    //Nur wenn alle preferred Locators fehlschlagen => xPath
-                    locator = await mapLocatorsToPromises(xpathLocators, 'waitFor');
-                }
-
-                try {
-                    await locator.scrollIntoViewIfNeeded({ timeout: 1000 });
-                } catch (scrollError) {
-                    console.warn("Scrollen zum Element fehlgeschlagen:", scrollError.message);
+                    console.warn("Preferred locators failed, trying xpath locators");
+                    try {
+                        await mapLocatorsToPromises(xpathLocators, 'scrollIntoViewIfNeeded');
+                    } catch (scrollError) {
+                        console.warn("Scrollen zum Element fehlgeschlagen:", scrollError.message);
+                    }
                 }
 
                 // Screenshot logic (bleibt gleich)
