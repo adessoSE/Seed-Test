@@ -243,7 +243,7 @@ async function executeTest(req, mode, story) {
 	// Cucumber Konfiguration für Cucumber
 	const userConfig = {
 		paths: [path.normalize(featurePath)],
-		require: [path.resolve(process.cwd(), 'features/step_definitions/*.js')],
+		require: [path.resolve(process.cwd(), 'src/test-runners/playwright/*.js')],
 		format: [
 			mode === 'group'
 				// req.body.name = groupDirectory
@@ -279,8 +279,8 @@ async function executeTest(req, mode, story) {
             cachedSupportCode = await loadSupport(runConfiguration);
         }
 
-		console.log('Step Definitions Directory:', path.join(process.cwd(), 'features/step_definitions'));
-		console.log('Available Step Files:', fs.readdirSync(path.join(process.cwd(), 'features/step_definitions')));
+		console.log('Step Definitions Directory:', path.join(process.cwd(), 'src/test-runners/playwright'));
+		console.log('Available Step Files:', fs.readdirSync(path.join(process.cwd(), 'src/test-runners/playwright')));
 		console.log('\nExecuting:');
 		console.log(`Working Dir: "${process.cwd()}"`);
 		console.log('Runtime: Cucumber with Playwright');
