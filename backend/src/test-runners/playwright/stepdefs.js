@@ -99,6 +99,32 @@ Before(async function () {
   await this.launchBrowser(this.parameters.scenarios[scenarioCount]);
 });
 
+Before(async function ({ pickle }) {
+  const stepTexts = pickle.steps.map(step => step.text);
+  for (const text of stepTexts) {
+      // Entferne die äußersten Anführungszeichen, falls vorhanden
+      const cleanedText = text.replace(/^[^']*'|'[^']*$/g, '');
+      console.log(text);
+      console.log(cleanedText);
+      // Finde alle Texte zwischen äußeren Anführungszeichen
+      const matches = text.match(/'([^']*(?:'[^']*)*?)'/g);
+      console.log(matches);
+      if (matches) {
+          for (const match of matches) {
+              // Entferne die äußeren Anführungszeichen
+              const innerText = match.slice(2, -2);
+              console.log(match)
+              // Prüfe auf innere Anführungszeichen
+              if (innerText.includes("'")) {
+                  throw new Error(`Nutzereingabe "${innerText}" enthält nicht-escapte Anführungszeichen.\n` +
+                      "Bitte verwenden Sie \\' statt ' innerhalb des Textes.");
+              }
+          }
+      }
+  }
+});
+
+
 After(async function ({ pickle, result }) {
   console.log(`\n=== Finishing scenario: ${pickle.name} ===`);
   console.log(`Status: ${result.status}`);
@@ -235,10 +261,41 @@ async function mapLocatorsToPromises(
           force: true,
         };
 
-        if (action === "toHaveAttribute") {
-          result = await Promise.any(
-            args.map((attr) => locator.toHaveAttribute(attr, value))
-          );
+        // Special Assertions handling
+        if (action.startsWith('to')) {
+            switch(action) {
+                case 'toBeChecked':
+                    return await expect(locator).toBeChecked({ checked: value });
+                case 'toHaveAttribute':
+                    return await Promise.any(
+                        args.map((attr) => locator.toHaveAttribute(attr, value))
+                      );
+                case 'toHaveCSS':
+                    // Spezialfall für Farben
+                    if (args[0].toLowerCase() === 'color') {
+                        // Hole den computed style
+                        const computedColor = await locator.evaluate((el) => 
+                            window.getComputedStyle(el).color
+                        );
+                        
+                        // Erstelle ein temporäres Element zur Farbkonvertierung
+                        const normalizedColor = await locator.evaluate((el, color) => {
+                            const span = document.createElement('span');
+                            span.style.color = color;
+                            document.body.appendChild(span);
+                            const computed = window.getComputedStyle(span).color;
+                            span.remove();
+                            return computed;
+                        }, value);
+
+                        return await expect(computedColor).toBe(normalizedColor);
+                    }
+                    // Für alle anderen CSS-Properties
+                    return await expect(locator).toHaveCSS(args[0], value);
+                default:
+                    await expect(locator)[action](value);
+            }
+            return true;
         } else if (action === "check") {
           // Warum so kompliziert? Promise.any bricht nicht sofort ab => Doppelausführung
           // Erst den Status mit allen Locators parallel prüfen
@@ -265,17 +322,12 @@ async function mapLocatorsToPromises(
           );
 
         let result;
-        try {
-            // Erste Strategie: setChecked
-            result = await locator.setChecked(!currentState, {timeout: 1000});
-          } catch (error) {
-            // Backup-Strategie: focus + space
-            // Dann die Aktion ausführen
-            //Aus irgendeinem Grund spinnen bei vielen Locatoren die Viewportprüfungen (für click(), setChecked()), deshalb jetzt so
-              await locator.focus();
-              result = await locator.page().keyboard.press('Space');
-          }
-          return result;
+        // Backup-Strategie: focus + space
+        // Dann die Aktion ausführen
+        //Aus irgendeinem Grund spinnen bei vielen Locatoren die Viewportprüfungen (für click(), setChecked()), deshalb jetzt so
+        await locator.focus();
+        result = await locator.page().keyboard.press('Space');
+        return result;
         
         //return await locator.click({ force: true });
         //return await locator.setChecked(!currentState, { force: true });
@@ -435,9 +487,9 @@ Given("I take a screenshot", async function () {
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
- * (X) //*[@id='${element}'], XPath
- * (X) //*[@*='${element}'], XPath (Attributsuche, sehr allgemein)
- * (X) //*[contains(@id, '${element}')], XPath (enthält)
+ * (X) //*[@id="${element}"], XPath
+ * (X) //*[@*="${element}"], XPath (Attributsuche, sehr allgemein)
+ * (X) //*[contains(@id, "${element}")], XPath (enthält)
  * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Given(
@@ -529,10 +581,10 @@ When("I go to the website: {string}", async function getUrl(url) {
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
- * (X) //*[@id='${button}'], XPath (ID)
- * (X) //*[contains(@id,'${button}')], XPath (enthält ID)
- * (X) //*[text()='${button}' or @*='${button}'], XPath (Text oder Attribut)
- * (X) //*[contains(text(),'${button}')], XPath (enthält Text)
+ * (X) //*[@id="${button}"], XPath (ID)
+ * (X) //*[contains(@id,"${button}")], XPath (enthält ID)
+ * (X) //*[text()="${button}" or @*="${button}"], XPath (Text oder Attribut)
+ * (X) //*[contains(text(),"${button}")], XPath (enthält Text)
  * (X) ${button}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 When("I click the button: {string}", async function (button) {
@@ -621,7 +673,7 @@ When("I insert {string} into the field {string}", async function (text, label) {
         page.locator(`xpath=//textarea[@*="${label}"]`),
         page.locator(`xpath=//textarea[contains(@*,"${label}")]`),
         page.locator(`xpath=//*[@id="${label}"]`),
-        page.locator(`xpath=//input[@type='text' and @*="${label}"]`),
+        page.locator(`xpath=//input[@type="text" and @*="${label}"]`),
         page.locator(
           `xpath=//label[contains(text(),"${label}")]/following::input[@type='text']`
         ),
@@ -881,9 +933,9 @@ When("I select the option {string}", async function (dropd) {
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
  * (X) `${element}`, XPath (Dynamischer XPath für das zu hovernde Element)
  * (X) `${option}`, XPath (Dynamischer XPath für die auszuwählende Option)
- * (X) `//*[contains(text(),'${element}')]`, XPath (Element mit enthaltendem Text, Fallback für das zu hovernde Element)
- * (X) `//*[contains(text(),'${element}')]/following::*[text()='${option}']`, XPath (Element mit enthaltendem Text und folgendem Element mit Text, Fallback für die Auswahl)
- * (X) `//*[contains(text(),'${option}')]`, XPath (Element mit enthaltendem Text, weiterer Fallback für die Auswahl)
+ * (X) `//*[contains(text(),"${element}")]`, XPath (Element mit enthaltendem Text, Fallback für das zu hovernde Element)
+ * (X) `//*[contains(text(),"${element}")]/following::*[text()="${option}"']`, XPath (Element mit enthaltendem Text und folgendem Element mit Text, Fallback für die Auswahl)
+ * (X) `//*[contains(text(),"${option}"')]`, XPath (Element mit enthaltendem Text, weiterer Fallback für die Auswahl)
  */
 When(
   "I hover over the element {string} and select the option {string}",
@@ -900,7 +952,7 @@ When(
           page.locator(`[aria-label="${element}"]`),
         ];
         const xpathElementLocators = [
-          page.locator(`xpath=//*[contains(text(),'${element}')]`),
+          page.locator(`xpath=//*[contains(text(),"${element}")]`),
         ];
 
         let hoveredElement;
@@ -926,9 +978,9 @@ When(
 
         const xpathOptionLocators = [
           page.locator(
-            `xpath=//*[contains(text(),'${element}')]/following::*[text()='${option}']`
+            `xpath=//*[contains(text(),"${element}")]/following::*[text()="${option}"']`
           ),
-          page.locator(`xpath=//*[contains(text(),'${option}')]`),
+          page.locator(`xpath=//*[contains(text(),"${option}"')]`),
         ];
 
         try {
@@ -1043,7 +1095,7 @@ When("Switch to the tab number {string}", async function (numberOfTabs) {
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
- * (X) //input[@*='${input}'], XPath (Input mit Attribut)
+ * (X) //input[@*="${input}"], XPath (Input mit Attribut)
  * (X) ${input}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 When(
@@ -1062,7 +1114,7 @@ When(
         ];
 
         const xpathLocators = [
-          page.locator(`xpath=//input[@*='${input}']`), // Playwright doesn't support implicit searching
+          page.locator(`xpath=//input[@*="${input}"]`), // Playwright doesn't support implicit searching
         ];
 
         try {
@@ -1148,24 +1200,26 @@ Then(
         try {
           locator = await mapLocatorsToPromises(
             preferredLocators,
-            "textContent"
+            "evaluate", 
+    (el) => el.options[el.selectedIndex].text
           );
           const content = (await locator) || "";
 
           if (regexFound) {
             await expect(content).toMatch(new RegExp(resultString));
           } else {
-            await expect(content).toBe(resultString);
+            await expect(content.toLowerCase()).toBe(resultString.toLowerCase());
           }
           return;
         } catch (preferredError) {
-          locator = await mapLocatorsToPromises(xpathLocators, "textContent");
+          locator = await mapLocatorsToPromises(xpathLocators, "evaluate", 
+    (el) => el.options[el.selectedIndex].text);
           const content = (await locator) || "";
 
           if (regexFound) {
             await expect(content).toMatch(new RegExp(resultString));
           } else {
-            await expect(content).toBe(resultString);
+            await expect(content.toLowerCase()).toBe(resultString.toLowerCase());
           }
           return;
         }
@@ -1203,7 +1257,7 @@ Then("So I can see the text: {string}", async function (text) {
 
       const pageHTML = await page.content();
       if (regexFound) {
-        expect(pageHTML).toMatch(new RegExp(normalizedExpectedText));
+        expect(pageHTML).toMatch(new RegExp(resultString));
       } else {
         // Regulärer Ausdruck, um WHitespaces vorne und hinten zu ignorieren
         expect(pageHTML).toContain(normalizedExpectedText);
@@ -1245,17 +1299,17 @@ Then("So I can't see text in the textbox: {string}", async function (label) {
       ];
 
       try {
-        const locator = await mapLocatorsToPromises(
+        const content = await mapLocatorsToPromises(
           preferredLocators,
           "inputValue"
         );
-        await expect(await locator.inputValue()).toBe("");
+        await expect(content).toBe("");
       } catch (preferredError) {
-        const locator = await mapLocatorsToPromises(
+        const content = await mapLocatorsToPromises(
           xpathLocators,
           "inputValue"
         );
-        await expect(await locator.inputValue()).toBe("");
+        await expect(content).toBe("");
       }
     } catch (e) {
       throw e;
@@ -1301,8 +1355,8 @@ Then(
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
- * (X) //picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]], XPath (Picture mit Source oder Img mit src/alt/id/title)
- * (X) //img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')], XPath (Img mit src/alt/id/title)
+ * (X) //picture[source[contains(@srcset, "${picture}")] or img[contains(@src, "${picture}") or contains(@alt, "${picture}") or @id="${picture}" or contains(@title, "${picture}")]], XPath (Picture mit Source oder Img mit src/alt/id/title)
+ * (X) //img[contains(@src, "${picture}") or contains(@alt, "${picture}") or @id="${picture}" or contains(@title, "${picture}")], XPath (Img mit src/alt/id/title)
  * (X) ${picture}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
@@ -1321,10 +1375,10 @@ Then(
 
         const xpathLocators = [
           page.locator(
-            `xpath=//picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]]`
+            `xpath=//picture[source[contains(@srcset, "${picture}")] or img[contains(@src, "${picture}") or contains(@alt, "${picture}") or @id="${picture}" or contains(@title, "${picture}")]]`
           ),
           page.locator(
-            `xpath=//img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]`
+            `xpath=//img[contains(@src, "${picture}") or contains(@alt, "${picture}") or @id="${picture}" or contains(@title, "${picture}")]`
           ),
         ];
 
@@ -1393,9 +1447,9 @@ Then("So I can't see the text: {string}", async function (text) {
 // Check if a checkbox is set (true) or not (false)
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
- * (X) //*[@type='checkbox' and @*='${checkboxName}'], XPath (Checkbox mit Attribut und dynamischem Wert)
- * (X) //*[contains(text(),'${checkboxName}')]//parent::label, XPath (Element mit enthaltenem Text, Elternteil Label)
- * (X) //*[contains(text(),'${checkboxName}') or @*='${checkboxName}'], XPath (Element mit enthaltenem Text oder Attribut mit dynamischem Wert)
+ * (X) //*[@type='checkbox' and @*="${checkboxName}"], XPath (Checkbox mit Attribut und dynamischem Wert)
+ * (X) //*[contains(text(),"${checkboxName}")]//parent::label, XPath (Element mit enthaltenem Text, Elternteil Label)
+ * (X) //*[contains(text(),"${checkboxName}") or @*="${checkboxName}"], XPath (Element mit enthaltenem Text oder Attribut mit dynamischem Wert)
  * (X) ${checkboxName}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
@@ -1417,19 +1471,19 @@ Then(
         ];
 
         const xpathLocators = [
-          page.locator(`xpath=//*[@type='checkbox' and @*='${checkboxName}']`),
+          page.locator(`xpath=//*[@type="checkbox" and @*="${checkboxName}"]`),
           page.locator(
-            `xpath=//*[contains(text(),'${checkboxName}')]//parent::label`
+            `xpath=//*[contains(text(),"${checkboxName}")]//parent::label`
           ),
           page.locator(
-            `xpath=//*[contains(text(),'${checkboxName}') or @*='${checkboxName}']`
+            `xpath=//*[contains(text(),"${checkboxName}") or @*="${checkboxName}"]`
           ),
         ];
 
         try {
-          await mapLocatorsToPromises(preferredLocators, "toBeChecked");
+          await mapLocatorsToPromises(preferredLocators, "toBeChecked", value=checked);
         } catch (preferredError) {
-          await mapLocatorsToPromises(xpathLocators, "toBeChecked");
+          await mapLocatorsToPromises(xpathLocators, "toBeChecked", value=checked);
         }
       } catch (e) {
         throw e;
@@ -1440,11 +1494,11 @@ Then(
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
- * (X) //*[contains(text(),'${element}')], XPath (Element mit enthaltendem Text)
- * (X) //*[@id='${element}'], XPath (Element mit ID)
- * (X) //*[@*='${element}'], XPath (Element mit beliebigem Attribut)
- * (X) //*[contains(@*, '${element}')], XPath (Element mit enthaltendem Attribut)
- * (X) //*[contains(@id, '${element}')], XPath (Element mit enthaltender ID)
+ * (X) //*[contains(text(),"${element}")], XPath (Element mit enthaltendem Text)
+ * (X) //*[@id="${element}"], XPath (Element mit ID)
+ * (X) //*[@*="${element}"], XPath (Element mit beliebigem Attribut)
+ * (X) //*[contains(@*, "${element}")], XPath (Element mit enthaltendem Attribut)
+ * (X) //*[contains(@id, "${element}")], XPath (Element mit enthaltender ID)
  * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
@@ -1464,53 +1518,57 @@ Then(
         ];
 
         const xpathLocators = [
-          page.locator(`xpath=//*[contains(text(),'${element}')]`),
-          page.locator(`xpath=//*[@id='${element}']`),
-          page.locator(`xpath=//*[@*='${element}']`),
-          page.locator(`xpath=//*[contains(@*, '${element}')]`),
-          page.locator(`xpath=//*[contains(@id, '${element}')]`),
+          page.locator(`xpath=//*[contains(text(),"${element}")]`),
+          page.locator(`xpath=//*[@id="${element}"]`),
+          page.locator(`xpath=//*[@*="${element}"]`),
+          page.locator(`xpath=//*[contains(@*, "${element}")]`),
+          page.locator(`xpath=//*[contains(@id, "${element}")]`),
         ];
 
         try {
-          const actual = await mapLocatorsToPromises(
+          await mapLocatorsToPromises(preferredLocators, "toBeChecked", value, property);
+          /* const actual = await mapLocatorsToPromises(
             preferredLocators,
-            "evaluate",
-            property
+            "toHaveCSS",
+    (element, prop) => window.getComputedStyle(element)[prop],
+    property
           );
           // Handle color values
           if (actual.startsWith("rgb")) {
             const colorNumbers = actual
-              .replace(/^rgba?\(|\s+|\)$/g, "")
-              .split(",");
+                .replace(/^rgba?\(|\s+|\)$/g, "")
+                .split(",");
             const [r, g, b] = colorNumbers.map((v) =>
-              Number(v).toString(16).padStart(2, "0")
+                Number(v).toString(16).padStart(2, "0")
             );
             const hex = `#${r}${g}${b}`;
-            await expect(value.toLowerCase()).toBe(hex.toLowerCase());
+            await expect(hex.toLowerCase()).toBe(value.toLowerCase());
             return;
           }
 
-          await expect(actual).toBe(value);
+          await expect(actual).toBe(value); */
         } catch (preferredError) {
-          const actual = await mapLocatorsToPromises(
+          await mapLocatorsToPromises(xpathLocators, "toHaveCSS", value, property);
+          /* const actual = await mapLocatorsToPromises(
             xpathLocators,
-            "evaluate",
-            property
+            "toHaveCSS",
+    (element, prop) => window.getComputedStyle(element)[prop],
+    property
           );
           // Handle color values
           if (actual.startsWith("rgb")) {
             const colorNumbers = actual
-              .replace(/^rgba?\(|\s+|\)$/g, "")
-              .split(",");
+                .replace(/^rgba?\(|\s+|\)$/g, "")
+                .split(",");
             const [r, g, b] = colorNumbers.map((v) =>
-              Number(v).toString(16).padStart(2, "0")
+                Number(v).toString(16).padStart(2, "0")
             );
             const hex = `#${r}${g}${b}`;
-            await expect(value.toLowerCase()).toBe(hex.toLowerCase());
+            await expect(hex.toLowerCase()).toBe(value.toLowerCase());
             return;
           }
 
-          await expect(actual).toBe(value);
+          await expect(actual).toBe(value); */
         }
       } catch (e) {
         throw e;
@@ -1521,12 +1579,12 @@ Then(
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
- * (X) //*[contains(text(),'${element}')], XPath (Element mit enthaltendem Text)
- * (X) //*[@id='${element}'], XPath (Element mit ID)
+ * (X) //*[contains(text(),"${element}")], XPath (Element mit enthaltendem Text)
+ * (X) //*[@id="${element}"], XPath (Element mit ID)
  * (X) //*[@*='${element} and @role=tooltip], XPath (Element mit Attribut und Rolle)
- * (X) //*[contains(@*, '${element}')], XPath (Element mit enthaltendem Attribut)
- * (X) //*[@*='${element}'], XPath (Element mit beliebigem Attribut)
- * (X) //*[contains(@id, '${element}')], XPath (Element mit enthaltender ID)
+ * (X) //*[contains(@*, "${element}")], XPath (Element mit enthaltendem Attribut)
+ * (X) //*[@*="${element}"], XPath (Element mit beliebigem Attribut)
+ * (X) //*[contains(@id, "${element}")], XPath (Element mit enthaltender ID)
  * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
@@ -1549,12 +1607,12 @@ Then(
         ];
 
         const xpathLocators = [
-          page.locator(`xpath=//*[contains(text(),'${element}')]`),
-          page.locator(`xpath=//*[@id='${element}']`),
-          page.locator(`xpath=//*[@*='${element}' and @role='tooltip']`),
-          page.locator(`xpath=//*[contains(@*, '${element}')]`),
-          page.locator(`xpath=//*[@*='${element}']`),
-          page.locator(`xpath=//*[contains(@id, '${element}')]`),
+          page.locator(`xpath=//*[contains(text(),"${element}")]`),
+          page.locator(`xpath=//*[@id="${element}"]`),
+          page.locator(`xpath=//*[@*="${element}" and @role="tooltip"]`),
+          page.locator(`xpath=//*[contains(@*, "${element}")]`),
+          page.locator(`xpath=//*[@*="${element}"]`),
+          page.locator(`xpath=//*[contains(@id, "${element}")]`),
         ];
 
         try {
