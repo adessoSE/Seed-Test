@@ -242,8 +242,10 @@ async function mapLocatorsToPromises(
                     return await expect(locator).toBeChecked({ checked: value });
                 case 'toHaveAttribute':
                     return await Promise.any(
-                        args.map((attr) => locator.toHaveAttribute(attr, value))
-                      );
+                        args.map(attr => 
+                            expect(locator).toHaveAttribute(attr, value)
+                        )
+                    );
                 case 'toHaveCSS':
                     // Spezialfall für Farben
                     if (args[0].toLowerCase() === 'color') {
@@ -1268,6 +1270,7 @@ Then("So I can't see text in the textbox: {string}", async function (label) {
       ];
 
       const xpathLocators = [
+        page.locator(`xpath=${label}`),
         page.locator(`xpath=//*[@id="${label}"]`),
         page.locator(`xpath=//*[@*="${label}"]`),
         page.locator(`xpath=//*[contains(@id, "${label}")]`),
@@ -1297,7 +1300,7 @@ Then("So I can't see text in the textbox: {string}", async function (label) {
 
 Then(
   "So a file with the name {string} is downloaded in this Directory {string}",
-  async function (fileName, directory) {
+  async function (fileName, directory = '') {  // Default-Wert für directory
     await handleError(async () => {
       try {
         const page = this.getPage();
@@ -1312,8 +1315,9 @@ Then(
 
         // Save file with timestamp
         const timestamp = Date.now();
+        const basePath = directory || this.downloadDir; // Nutze directory wenn vorhanden, sonst downloadDir
         const newPath = path.join(
-          this.downloadDir,
+          basePath,
           `Seed_Download-${timestamp}_${fileName}`
         );
 
@@ -1330,6 +1334,7 @@ Then(
     });
   }
 );
+
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
