@@ -1,5 +1,5 @@
 import { IWorldOptions, World } from '@cucumber/cucumber';
-import { Browser, BrowserContext, Page, chromium, firefox, webkit } from '@playwright/test';
+import { Browser, BrowserContext, Download, Page, chromium, firefox, webkit } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -33,6 +33,7 @@ class PlaywrightWorld extends World {
     private readonly downloadDir: string;
     private readonly tmpUploadDir: string;
     //private readonly videoDir: string;
+    private lastDownload: Download | null = null;  // Neue Property für Downloads
 
     private readonly defaultSettings: TestParameters = {
         browser: 'chromium',
@@ -267,6 +268,14 @@ class PlaywrightWorld extends World {
             ...this.defaultSettings,
             ...this.parameterCollection.scenarios[count]
         } as TestParameters;
+    }
+
+    getLastDownload(): Download | null {
+        return this.lastDownload;
+    }
+
+    setLastDownload(download: Download | null): void {
+        this.lastDownload = download;
     }
 }
 

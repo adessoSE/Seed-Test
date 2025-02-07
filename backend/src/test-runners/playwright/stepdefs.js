@@ -236,43 +236,45 @@ async function mapLocatorsToPromises(
         };
 
         // Special Assertions handling
-        if (action.startsWith('to')) {
-            switch(action) {
-                case 'toBeChecked':
-                    return await expect(locator).toBeChecked({ checked: value });
-                case 'toHaveAttribute':
-                    return await Promise.any(
-                        args.map(attr => 
-                            expect(locator).toHaveAttribute(attr, value)
-                        )
-                    );
-                case 'toHaveCSS':
-                    // Spezialfall für Farben
-                    if (args[0].toLowerCase() === 'color') {
-                        // Hole den computed style
-                        const computedColor = await locator.evaluate((el) => 
-                            window.getComputedStyle(el).color
-                        );
-                        
-                        // Erstelle ein temporäres Element zur Farbkonvertierung
-                        const normalizedColor = await locator.evaluate((el, color) => {
-                            const span = document.createElement('span');
-                            span.style.color = color;
-                            document.body.appendChild(span);
-                            const computed = window.getComputedStyle(span).color;
-                            span.remove();
-                            return computed;
-                        }, value);
+        if (action.startsWith("to")) {
+          switch (action) {
+            case "toBeChecked":
+              return await expect(locator).toBeChecked({ checked: value });
+            case "toHaveAttribute":
+              return await Promise.any(
+                args.map((attr) => expect(locator).toHaveAttribute(attr, value))
+              );
+            case "toHaveCSS":
+              // Spezialfall für Farben
+              if (args[0].toLowerCase() === "color") {
+                // Hole den computed style
+                const computedColor = await locator.evaluate(
+                  (el) => window.getComputedStyle(el).color
+                );
 
-                        return await expect(computedColor).toBe(normalizedColor);
-                    }
-                    // Für alle anderen CSS-Properties
-                    return await expect(locator).toHaveCSS(args[0], value);
-                default:
-                    await expect(locator)[action](value);
-            }
-            return true;
+                // Erstelle ein temporäres Element zur Farbkonvertierung
+                const normalizedColor = await locator.evaluate((el, color) => {
+                  const span = document.createElement("span");
+                  span.style.color = color;
+                  document.body.appendChild(span);
+                  const computed = window.getComputedStyle(span).color;
+                  span.remove();
+                  return computed;
+                }, value);
+
+                return await expect(computedColor).toBe(normalizedColor);
+              }
+              // Für alle anderen CSS-Properties
+              return await expect(locator).toHaveCSS(args[0], value);
+            default:
+              await expect(locator)[action](value);
+          }
+          return true;
         } else if (action === "check") {
+          //Nur ein Promise.any darf ausgeführt werden, deshalb Locken wir beim ersten Locator, checkStatePromises prüft aber alle
+          if (expandedLocatorsLock) {
+            return;
+          }
           // Warum so kompliziert? Promise.any bricht nicht sofort ab => Doppelausführung
           // Erst den Status mit allen Locators parallel prüfen
           const checkStatePromises = expandedLocators.map((locator, index) => {
@@ -290,25 +292,43 @@ async function mapLocatorsToPromises(
           });
 
           // Neue Promises für setChecked mit ALLEN Locators
-          const {locator, currentState, index } = await Promise.any(checkStatePromises);
+          const { locator, currentState, index } = await Promise.any(
+            checkStatePromises
+          );
           console.log(
             `Success checking state with locator ${
               index + 1
             }. The value is ${currentState}`
           );
 
-        let result;
-        // Backup-Strategie: focus + space
-        // Dann die Aktion ausführen
-        //Aus irgendeinem Grund spinnen bei vielen Locatoren die Viewportprüfungen (für click(), setChecked()), deshalb jetzt so
-        await locator.focus();
-        result = await locator.page().keyboard.press('Space');
-        return result;
-        
-        //return await locator.click({ force: true });
-        //return await locator.setChecked(!currentState, { force: true });
+          try {
+            // 1. Erst setChecked versuchen
+            await locator.setChecked(!currentState, { force: true });
+            return;
+          } catch (setCheckedError) {
+            console.log("setChecked failed, trying click");
+            try {
+              // 2. Dann click versuchen
+              await locator.click({ force: true });
+              return;
+            } catch (clickError) {
+              console.log("click failed, trying focus + space");
+              // 3. Als letztes focus + space
+              await locator.focus();
+              return await locator.page().keyboard.press("Space");
+            }
+          }
+          // Backup-Strategie: focus + space
+          // Dann die Aktion ausführen
+          //Aus irgendeinem Grund spinnen bei vielen Locatoren die Viewportprüfungen (für click(), setChecked()), deshalb jetzt so
+          /* await locator.focus();
+          result = await locator.page().keyboard.press("Space");
+          return result; */
 
-         /*  // Neue Promises für setChecked mit ALLEN Locators
+          //return await locator.click({ force: true });
+          //return await locator.setChecked(!currentState, { force: true });
+
+          /*  // Neue Promises für setChecked mit ALLEN Locators
           const setCheckedPromises = expandedLocators.map((locator, index) => {
             return (async () => {
               try {
@@ -326,6 +346,31 @@ async function mapLocatorsToPromises(
           });
           // Versuche setChecked mit allen Locators
           return await Promise.any(setCheckedPromises); */
+        } else if (action === "click") {
+          if (expandedLocatorsLock) {
+            return;
+          }
+          console.log("Starting click operation, locking...");
+          expandedLocatorsLock = true;
+          const visibilityPromises = expandedLocators.map(
+            async (locator, index) => {
+              try {
+                console.log(`Checking visibility for locator ${index}`);
+                await locator.waitFor({ state: "visible", timeout: 500 });
+                console.log(`Locator ${index} is visible`);
+                return { locator, index };
+              } catch {
+                console.log(`Locator ${index}, ${locator} not visible`);
+                throw new Error(`Locator ${index + 1} not visible`);
+              }
+            }
+          );
+          const { locator } = await Promise.any(visibilityPromises);
+          console.log("Performing click", locator);
+          const result = await locator.click(actionOptions);
+          console.log("Click performed ", locator);
+          console.log("Here are the expandedLocators   ", expandedLocators);
+          return result;
         } else {
           result = await locator[action](
             ...(value !== undefined ? [value, ...args] : args),
@@ -343,6 +388,7 @@ async function mapLocatorsToPromises(
   });
 
   try {
+    expandedLocatorsLock = false;
     return await Promise.any(promises);
   } catch (aggregateError) {
     const errorMessages = aggregateError.errors?.map((e) => e.message) || [];
@@ -568,6 +614,15 @@ When("I click the button: {string}", async function (button) {
     try {
       const page = this.getPage();
 
+      // Download Promise in separatem Try-Catch
+      let downloadPromise;
+      try {
+        downloadPromise = page.waitForEvent("download", { timeout: 1000 });
+      } catch (downloadError) {
+        // Ignoriere Download-Timeout
+        console.log("No download started - continuing with click");
+      }
+
       const preferredLocators = [
         page.getByRole("button", { name: button }),
         page.getByText(button, { exact: true }),
@@ -592,6 +647,17 @@ When("I click the button: {string}", async function (button) {
       } catch (preferredError) {
         await mapLocatorsToPromises(xpathLocators, "click");
       }
+
+      // Handle download only if promise exists
+      if (downloadPromise) {
+        try {
+          const download = await downloadPromise;
+          this.setLastDownload(download);
+        } catch (downloadError) {
+          // Ignoriere Download-Fehler
+          console.log("Download handling failed - continuing");
+        }
+      }
     } catch (error) {
       throw Error(error);
     }
@@ -599,20 +665,23 @@ When("I click the button: {string}", async function (button) {
 });
 
 // Playwright sleeps for a certain amount of time
-When("The site should wait for {string} milliseconds", { timeout: -1 }, async function (ms) {
-  const waitTime = parseInt(ms, 10);
+When(
+  "The site should wait for {string} milliseconds",
+  { timeout: -1 },
+  async function (ms) {
+    const waitTime = parseInt(ms, 10);
     const timeoutOptions = { timeout: waitTime + 1000 }; // 1 Sekunde Buffer
 
     await handleError(async () => {
-        try {
-            const page = this.getPage();
-            await page.waitForTimeout(waitTime, timeoutOptions);
-        } catch (e) {
-            throw Error(e);
-        }
+      try {
+        const page = this.getPage();
+        await page.waitForTimeout(waitTime, timeoutOptions);
+      } catch (e) {
+        throw Error(e);
+      }
     });
-});
-
+  }
+);
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
@@ -709,18 +778,28 @@ When(
         ];
 
         const xpathLocators = [
-            page.locator(`xpath=//input[@type="radio"][@name="${label}"][@value="${radioname}"]`),
-  page.locator(`xpath=//input[@type="radio"][contains(@name, "${label}")][contains(@value, "${radioname}")]`),
-  page.locator(`xpath=//label[contains(text(), "${label}")]/following::input[@type="radio"][@value="${radioname}"]`),
-  page.locator(`xpath=//input[@type="radio"][@name="${label}"][@value="${radioname}"]`),
-  page.locator(`xpath=//input[@type="radio"][following-sibling::label[contains(text(), "${radioname}")]]`),
+          page.locator(
+            `xpath=//input[@type="radio"][@name="${label}"][@value="${radioname}"]`
+          ),
+          page.locator(
+            `xpath=//input[@type="radio"][contains(@name, "${label}")][contains(@value, "${radioname}")]`
+          ),
+          page.locator(
+            `xpath=//label[contains(text(), "${label}")]/following::input[@type="radio"][@value="${radioname}"]`
+          ),
+          page.locator(
+            `xpath=//input[@type="radio"][@name="${label}"][@value="${radioname}"]`
+          ),
+          page.locator(
+            `xpath=//input[@type="radio"][following-sibling::label[contains(text(), "${radioname}")]]`
+          ),
           /* page.locator(
             `//input[@${label}="${radioname}"]/following-sibling::label[1]`
           ), */
           /* page.locator(
             `//input[contains(@${label}, "${radioname}")]/following-sibling::label[1]`
           ), */
-          page.locator( `xpath=//input[@value="${radioname}" or @name="${radioname}" or @id="${radioname}"]
+          page.locator(`xpath=//input[@value="${radioname}" or @name="${radioname}" or @id="${radioname}"]
 `),
           page.locator(
             `//label[contains(text(), "${label}")]/following::input[@value="${radioname}"]/following-sibling::label[1]`
@@ -1180,26 +1259,33 @@ Then(
         try {
           locator = await mapLocatorsToPromises(
             preferredLocators,
-            "evaluate", 
-    (el) => el.options[el.selectedIndex].text
+            "evaluate",
+            (el) => el.options[el.selectedIndex].text
           );
           const content = (await locator) || "";
 
           if (regexFound) {
             await expect(content).toMatch(new RegExp(resultString));
           } else {
-            await expect(content.toLowerCase()).toBe(resultString.toLowerCase());
+            await expect(content.toLowerCase()).toBe(
+              resultString.toLowerCase()
+            );
           }
           return;
         } catch (preferredError) {
-          locator = await mapLocatorsToPromises(xpathLocators, "evaluate", 
-    (el) => el.options[el.selectedIndex].text);
+          locator = await mapLocatorsToPromises(
+            xpathLocators,
+            "evaluate",
+            (el) => el.options[el.selectedIndex].text
+          );
           const content = (await locator) || "";
 
           if (regexFound) {
             await expect(content).toMatch(new RegExp(resultString));
           } else {
-            await expect(content.toLowerCase()).toBe(resultString.toLowerCase());
+            await expect(content.toLowerCase()).toBe(
+              resultString.toLowerCase()
+            );
           }
           return;
         }
@@ -1300,14 +1386,14 @@ Then("So I can't see text in the textbox: {string}", async function (label) {
 
 Then(
   "So a file with the name {string} is downloaded in this Directory {string}",
-  async function (fileName, directory = '') {  // Default-Wert für directory
+  async function (fileName, directory) {
     await handleError(async () => {
       try {
-        const page = this.getPage();
-
-        // Wait for download
-        const downloadPromise = page.waitForEvent("download");
-        const download = await downloadPromise;
+        // Get last download from World instance
+        const download = this.getLastDownload();
+        if (!download) {
+          throw new Error("No download was initiated");
+        }
 
         // Verify filename
         const suggestedFilename = download.suggestedFilename();
@@ -1315,7 +1401,7 @@ Then(
 
         // Save file with timestamp
         const timestamp = Date.now();
-        const basePath = directory || this.downloadDir; // Nutze directory wenn vorhanden, sonst downloadDir
+        const basePath = this.downloadDir; //directory nutzen wir nicht (bei Playwright aber sinnvoll, wenn DAtei gespeichert werden soll)
         const newPath = path.join(
           basePath,
           `Seed_Download-${timestamp}_${fileName}`
@@ -1325,6 +1411,7 @@ Then(
 
         // Verify file exists
         const fileExists = fs.existsSync(newPath);
+        console.log("Downloaded to: ", newPath);
         if (!fileExists) {
           throw new Error(`Download file ${fileName} could not be saved`);
         }
@@ -1334,7 +1421,6 @@ Then(
     });
   }
 );
-
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
@@ -1464,9 +1550,17 @@ Then(
         ];
 
         try {
-          await mapLocatorsToPromises(preferredLocators, "toBeChecked", value=checked);
+          await mapLocatorsToPromises(
+            preferredLocators,
+            "toBeChecked",
+            (value = checked)
+          );
         } catch (preferredError) {
-          await mapLocatorsToPromises(xpathLocators, "toBeChecked", value=checked);
+          await mapLocatorsToPromises(
+            xpathLocators,
+            "toBeChecked",
+            (value = checked)
+          );
         }
       } catch (e) {
         throw e;
@@ -1509,7 +1603,12 @@ Then(
         ];
 
         try {
-          await mapLocatorsToPromises(preferredLocators, "toBeChecked", value, property);
+          await mapLocatorsToPromises(
+            preferredLocators,
+            "toBeChecked",
+            value,
+            property
+          );
           /* const actual = await mapLocatorsToPromises(
             preferredLocators,
             "toHaveCSS",
@@ -1531,7 +1630,12 @@ Then(
 
           await expect(actual).toBe(value); */
         } catch (preferredError) {
-          await mapLocatorsToPromises(xpathLocators, "toHaveCSS", value, property);
+          await mapLocatorsToPromises(
+            xpathLocators,
+            "toHaveCSS",
+            value,
+            property
+          );
           /* const actual = await mapLocatorsToPromises(
             xpathLocators,
             "toHaveCSS",
