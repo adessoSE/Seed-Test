@@ -26,7 +26,7 @@ class PlaywrightWorld extends World {
     private browser: Browser | null = null;
     private context: BrowserContext | null = null;
     private page: Page | null = null;
-    private readonly defaultTimeout = 15000;
+    private readonly defaultTimeout = 30000;
     private parameterCollection: StoryParameters;
     private testParameters: TestParameters;
     private scenarioCount: number;
@@ -102,6 +102,7 @@ class PlaywrightWorld extends World {
     private getBrowserConfig(browserType: string) {
         console.log(browserType, " is in getBrowserConfig!");
         return {
+            launchTimeout: this.defaultTimeout,
             headless: this.testParameters.headless ?? false,
             args: [
                 '--disable-dev-shm-usage',

@@ -22,7 +22,7 @@ const {
 const searchTimeout = 15000;
 
 //A little more, as it should be higher than Playwright's timeout
-setDefaultTimeout(searchTimeout + 1000);
+setDefaultTimeout(searchTimeout * 2);
 
 // Variables for scenario management within PlaywrightWorld
 let scenarioCount = 0;
@@ -597,16 +597,20 @@ When("I click the button: {string}", async function (button) {
 });
 
 // Playwright sleeps for a certain amount of time
-When("The site should wait for {string} milliseconds", async function (ms) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      await page.waitForTimeout(parseInt(ms, 10));
-    } catch (e) {
-      throw Error(e);
-    }
-  });
+When("The site should wait for {string} milliseconds", { timeout: -1 }, async function (ms) {
+  const waitTime = parseInt(ms, 10);
+    const timeoutOptions = { timeout: waitTime + 1000 }; // 1 Sekunde Buffer
+
+    await handleError(async () => {
+        try {
+            const page = this.getPage();
+            await page.waitForTimeout(waitTime, timeoutOptions);
+        } catch (e) {
+            throw Error(e);
+        }
+    });
 });
+
 
 /*
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
@@ -952,9 +956,9 @@ When(
 
         const xpathOptionLocators = [
           page.locator(
-            `xpath=//*[contains(text(),"${element}")]/following::*[text()="${option}"']`
+            `xpath=//*[contains(text(),"${element}")]/following::*[text()="${option}"]`
           ),
-          page.locator(`xpath=//*[contains(text(),"${option}"')]`),
+          page.locator(`xpath=//*[contains(text(),"${option}")]`),
         ];
 
         try {
