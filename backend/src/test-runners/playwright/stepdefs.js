@@ -99,32 +99,6 @@ Before(async function () {
   await this.launchBrowser(this.parameters.scenarios[scenarioCount]);
 });
 
-Before(async function ({ pickle }) {
-  const stepTexts = pickle.steps.map(step => step.text);
-  for (const text of stepTexts) {
-      // Entferne die äußersten Anführungszeichen, falls vorhanden
-      const cleanedText = text.replace(/^[^']*'|'[^']*$/g, '');
-      console.log(text);
-      console.log(cleanedText);
-      // Finde alle Texte zwischen äußeren Anführungszeichen
-      const matches = text.match(/'([^']*(?:'[^']*)*?)'/g);
-      console.log(matches);
-      if (matches) {
-          for (const match of matches) {
-              // Entferne die äußeren Anführungszeichen
-              const innerText = match.slice(2, -2);
-              console.log(match)
-              // Prüfe auf innere Anführungszeichen
-              if (innerText.includes("'")) {
-                  throw new Error(`Nutzereingabe "${innerText}" enthält nicht-escapte Anführungszeichen.\n` +
-                      "Bitte verwenden Sie \\' statt ' innerhalb des Textes.");
-              }
-          }
-      }
-  }
-});
-
-
 After(async function ({ pickle, result }) {
   console.log(`\n=== Finishing scenario: ${pickle.name} ===`);
   console.log(`Status: ${result.status}`);
