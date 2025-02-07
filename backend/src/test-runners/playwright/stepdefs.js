@@ -1437,8 +1437,11 @@ Then(
         const preferredLocators = [
           page.getByRole("img", { name: picture }),
           page.getByAltText(picture),
+          page.locator(`picture source[srcset*="${picture}"]`),
+          page.locator(`img[srcset*="${picture}"]`),
+          page.locator(`img[srcset*="${picture}"]`),
           page.locator(`img[src*="${picture}"]`),
-          page.locator(`img[src*="${name}"]`),
+          page.locator(`img[src*="${picture}"]`),
           page.locator(`#${picture}`),
         ];
 
@@ -1454,21 +1457,28 @@ Then(
         try {
           const locator = await mapLocatorsToPromises(
             preferredLocators,
-            "isVisible"
+            "first"
           );
+          // Prüfe alle möglichen Bild-Attribute
           const src = await locator.getAttribute("src");
-          if (src?.includes(name)) {
-            return;
-          }
+          const srcset = await locator.getAttribute("srcset");
+
+          if (src?.includes(name) || srcset?.includes(name)) return;
+
+          throw new Error(
+            `Image ${name} not found in src or srcset attributes`
+          );
         } catch (preferredError) {
-          const locator = await mapLocatorsToPromises(
-            xpathLocators,
-            "isVisible"
-          );
+          const locator = await mapLocatorsToPromises(xpathLocators, "first");
+          // Prüfe alle möglichen Bild-Attribute
           const src = await locator.getAttribute("src");
-          if (src?.includes(name)) {
-            return;
-          }
+          const srcset = await locator.getAttribute("srcset");
+
+          if (src?.includes(name) || srcset?.includes(name)) return;
+
+          throw new Error(
+            `Image ${name} not found in src or srcset attributes`
+          );
         }
       } catch (e) {
         throw e;
