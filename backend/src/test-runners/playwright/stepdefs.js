@@ -50,7 +50,7 @@ async function handleError(f) {
   try {
     await f();
   } catch (error) {
-    throw betterError(error);
+    throw error;
   }
 }
 
@@ -167,10 +167,10 @@ Sie werden im Laufe der Analyse durch (X), (/) oder (-) ersetzt.
  * @returns Einen String mit umgewandelten @* in die gängigsten Attribute
  */
 function expandAttributeWildcard(locatorString) {
-  // Finde alle @*="value" Ausdrücke
-  // TODO (?) contains(@* hinzufügen
-  const attrMatches = locatorString.match(/(@\*\s*=\s*"([^"]*?)")/g);
-
+  // Finde alle @*="value" und contains(@*, "value") Ausdrücke
+  const attrMatches = locatorString.match(
+    /(@\*\s*=\s*"([^"]*?)")|contains\(@\*\s*,\s*"([^"]*?)"\)/g
+  );
   if (!attrMatches) return locatorString;
 
   // Bestimme Element-Typ nur aus dem XPath-Teil
@@ -192,12 +192,24 @@ function expandAttributeWildcard(locatorString) {
     input: ["id", "name", "value", "class", "placeholder", "aria-label"],
   };
 
-  // Ersetze jeden @*= Ausdruck
+  // Ersetze jeden @*= und contains(@*) Ausdruck
   return attrMatches.reduce((acc, match) => {
-    const value = match.split('"')[1];
+    let value;
+    let isContains = false;
+
+    if (match.includes("contains")) {
+      value = match.match(/contains\(@\*\s*,\s*"([^"]*?)"\)/)[1];
+      isContains = true;
+    } else {
+      value = match.split('"')[1];
+    }
+
     const expansion = `(${attributes[elementType]
-      .map((attr) => `@${attr}="${value}"`)
+      .map((attr) =>
+        isContains ? `contains(@${attr}, "${value}")` : `@${attr}="${value}"`
+      )
       .join(" or ")})`;
+
     return acc.replace(match, expansion);
   }, locatorString);
 }
@@ -224,6 +236,7 @@ async function mapLocatorsToPromises(
     return locator;
   });
 
+  let expandedLocatorsLock = false;
   const promises = expandedLocators.map((locator, index) => {
     return (async () => {
       try {
@@ -267,14 +280,14 @@ async function mapLocatorsToPromises(
               // Für alle anderen CSS-Properties
               return await expect(locator).toHaveCSS(args[0], value);
             default:
-              await expect(locator)[action](value);
+              return await expect(locator)[action](value);
           }
-          return true;
         } else if (action === "check") {
           //Nur ein Promise.any darf ausgeführt werden, deshalb Locken wir beim ersten Locator, checkStatePromises prüft aber alle
           if (expandedLocatorsLock) {
-            return;
+            throw new Error("Lock active");
           }
+          expandedLocatorsLock = true;
           // Warum so kompliziert? Promise.any bricht nicht sofort ab => Doppelausführung
           // Erst den Status mit allen Locators parallel prüfen
           const checkStatePromises = expandedLocators.map((locator, index) => {
@@ -348,7 +361,7 @@ async function mapLocatorsToPromises(
           return await Promise.any(setCheckedPromises); */
         } else if (action === "click") {
           if (expandedLocatorsLock) {
-            return;
+            throw new Error("Lock active");
           }
           console.log("Starting click operation, locking...");
           expandedLocatorsLock = true;
@@ -356,21 +369,93 @@ async function mapLocatorsToPromises(
             async (locator, index) => {
               try {
                 console.log(`Checking visibility for locator ${index}`);
-                await locator.waitFor({ state: "visible", timeout: 500 });
+                await expect(locator).toBeVisible({ timeout: 3000 });
                 console.log(`Locator ${index} is visible`);
                 return { locator, index };
               } catch {
-                console.log(`Locator ${index}, ${locator} not visible`);
-                throw new Error(`Locator ${index + 1} not visible`);
+                console.log(`Locator ${index + 1}, ${locator} not visible`);
+                throw new Error(`Locator ${index + 1}, ${locator} not visible`);
               }
             }
           );
-          const { locator } = await Promise.any(visibilityPromises);
-          console.log("Performing click", locator);
-          const result = await locator.click(actionOptions);
-          console.log("Click performed ", locator);
-          console.log("Here are the expandedLocators   ", expandedLocators);
-          return result;
+          try {
+            try {
+              const { locator } = await Promise.any(visibilityPromises);
+            } catch (error) {
+              if (error instanceof AggregateError) {
+                const errors = error.errors
+                  .map((e) => `- ${e.message}`)
+                  .join("\n");
+                throw new Error(`Kein sichtbarer Button gefunden:\n${errors}`);
+              }
+              throw error;
+            }
+            console.log("Performing action:", action);
+            return await locator[action](actionOptions);
+          } catch (error) {
+            if (error instanceof AggregateError) {
+              // Handle Promise.any failure (no locator found)
+              const errorMessages = error.errors?.map((e) => e.message) || [];
+              throw new Error(
+                [
+                  `No visible locator found for "${action}"`,
+                  `Tried ${expandedLocators.length} locators:`,
+                  ...errorMessages,
+                ].join("\n")
+              );
+            }
+            // Handle other errors (e.g. action execution failed)
+            throw new Error(`Action "${action}" failed: ${error.message}`);
+          }
+        } else if (action === "fill") {
+          if (expandedLocatorsLock) {
+            throw new Error("Lock active");;
+          }
+          console.log("Starting fill operation, locking...");
+            expandedLocatorsLock = true;
+          const visibilityPromises = expandedLocators.map(
+            async (locator, index) => {
+              try {
+                console.log(`Checking visibility for locator ${index}`);
+                await expect(locator).toBeVisible({ timeout: 3000 });
+                console.log(`Locator ${index} is visible`);
+                return { locator, index };
+              } catch {
+                console.log(`Locator ${index + 1}, ${locator}not visible`);
+                throw new Error(`Locator ${index + 1}, ${locator} not visible`);
+              }
+            }
+          );
+
+          try {
+            try {
+              const { locator } = await Promise.any(visibilityPromises);
+            } catch (error) {
+              if (error instanceof AggregateError) {
+                const errors = error.errors
+                  .map((e) => `- ${e.message}`)
+                  .join("\n");
+                throw new Error(`Kein sichtbarer Button gefunden:\n${errors}`);
+              }
+              throw error;
+            }
+            console.log("Performing action:", action);
+            return await locator[action](actionOptions);
+          } catch (error) {
+            if (error instanceof AggregateError) {
+              // Handle Promise.any failure (no locator found)
+              const errorMessages = error.errors?.map((e) => e.message) || [];
+              throw new Error(
+                [
+                  `No visible locator found for "${action}"`,
+                  `Tried ${expandedLocators.length} locators:`,
+                  ...errorMessages,
+                ].join("\n")
+              );
+            }
+            // Handle other errors (e.g. action execution failed)
+            throw new Error(`Action "${action}" failed: ${error.message}`);
+          }
         } else {
           result = await locator[action](
             ...(value !== undefined ? [value, ...args] : args),
@@ -382,23 +467,25 @@ async function mapLocatorsToPromises(
         return result;
       } catch (error) {
         error.message = `Locator ${index + 1} failed: ${error.message}`;
-        throw error; // Wichtig für error.erros in Promise.any
+        throw error; // Wichtig für error.errors in Promise.any
       }
     })();
   });
 
   try {
-    expandedLocatorsLock = false;
     return await Promise.any(promises);
-  } catch (aggregateError) {
-    const errorMessages = aggregateError.errors?.map((e) => e.message) || [];
-    throw new Error(
-      [
-        `Kein Locator für "${action}" gefunden.`,
-        `Versuchte ${expandedLocators.length} Locators:`,
-        ...errorMessages,
-      ].join("\n")
-    );
+  } catch (error) {
+    if (error instanceof AggregateError) {
+      const errorMessages = error.errors?.map((e) => e.message) || [];
+      throw new Error(
+        [
+          `No locator found for: "${action}".`,
+          `Tried ${expandedLocators.length} locators:`,
+          ...errorMessages,
+        ].join("\n")
+      );
+    }
+    throw error; // Andere Fehler weiterwerfen
   }
 }
 
@@ -416,7 +503,7 @@ Given("I am on the website: {string}", async function (url) {
       await page.waitForLoadState();
       //await page.waitForTimeout(searchTimeout + this.parameters.waitTime);
     } catch (e) {
-      throw Error(e);
+      throw e;
     }
   });
 });
@@ -435,7 +522,7 @@ Given(
           },
         ]);
       } catch (e) {
-        throw Error(e);
+        throw e;
       }
     });
   }
@@ -450,7 +537,7 @@ Given("I remove a cookie with the name {string}", async function (name) {
       await context.clearCookies();
       await context.addCookies(filteredCookies);
     } catch (e) {
-      throw Error(e);
+      throw e;
     }
   });
 });
@@ -468,7 +555,7 @@ Given(
           [name, value]
         );
       } catch (e) {
-        throw Error(e);
+        throw e;
       }
     });
   }
@@ -484,7 +571,7 @@ Given(
           window.sessionStorage.removeItem(key);
         }, name);
       } catch (e) {
-        throw Error(e);
+        throw e;
       }
     });
   }
@@ -502,7 +589,7 @@ Given("I take a screenshot", async function () {
       const buffer = await page.screenshot({ path: screenshotPath });
       await this.attach(buffer, "image/png");
     } catch (e) {
-      throw Error(e);
+      throw e;
     }
   });
 });
@@ -581,7 +668,7 @@ Given(
           await this.attach(buffer, "image/png");
         }
       } catch (e) {
-        throw Error(e);
+        throw e;
       }
     });
   }
@@ -596,7 +683,7 @@ When("I go to the website: {string}", async function getUrl(url) {
       await page.goto(url);
       await page.waitForLoadState();
     } catch (e) {
-      throw Error(e);
+      throw e;
     }
   });
 });
@@ -614,14 +701,19 @@ When("I click the button: {string}", async function (button) {
     try {
       const page = this.getPage();
 
-      // Download Promise in separatem Try-Catch
-      let downloadPromise;
-      try {
-        downloadPromise = page.waitForEvent("download", { timeout: 1000 });
-      } catch (downloadError) {
-        // Ignoriere Download-Timeout
-        console.log("No download started - continuing with click");
-      }
+      let downloadHandled = false;
+
+      // Download-Promise mit Fehlerbehandlung
+      const downloadPromise = page
+        .waitForEvent("download", { timeout: 1000 })
+        .then((download) => {
+          downloadHandled = true;
+          this.setLastDownload(download);
+        })
+        .catch((e) => {
+          if (!e.message.includes("Timeout")) throw e;
+          console.log("Download timeout - ignored");
+        });
 
       const preferredLocators = [
         page.getByRole("button", { name: button }),
@@ -645,21 +737,22 @@ When("I click the button: {string}", async function (button) {
       try {
         await mapLocatorsToPromises(preferredLocators, "click");
       } catch (preferredError) {
-        await mapLocatorsToPromises(xpathLocators, "click");
-      }
-
-      // Handle download only if promise exists
-      if (downloadPromise) {
         try {
-          const download = await downloadPromise;
-          this.setLastDownload(download);
-        } catch (downloadError) {
-          // Ignoriere Download-Fehler
-          console.log("Download handling failed - continuing");
+          await mapLocatorsToPromises(xpathLocators, "click");
+        } catch (xpathError) {
+          throw new Error(
+            `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+          );
         }
       }
-    } catch (error) {
-      throw Error(error);
+
+      //Auf Download-Ende warten (falls gestartet)
+      await downloadPromise.catch(() => {});
+
+      //Verzögerung für stabilere Seiten
+      if (downloadHandled) await page.waitForTimeout(500);
+    } catch (e) {
+      throw e;
     }
   });
 });
@@ -677,7 +770,7 @@ When(
         const page = this.getPage();
         await page.waitForTimeout(waitTime, timeoutOptions);
       } catch (e) {
-        throw Error(e);
+        throw e;
       }
     });
   }
@@ -731,7 +824,13 @@ When("I insert {string} into the field {string}", async function (text, label) {
       try {
         await mapLocatorsToPromises(preferredLocators, "fill", value);
       } catch (preferredError) {
-        await mapLocatorsToPromises(xpathLocators, "fill", value);
+        try {
+          await mapLocatorsToPromises(xpathLocators, "fill", value);
+        } catch (xpathError) {
+          throw new Error(
+            `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+          );
+        }
       }
     } catch (e) {
       throw e;
@@ -815,7 +914,13 @@ When(
         try {
           await mapLocatorsToPromises(preferredLocators, "check");
         } catch (preferredError) {
-          await mapLocatorsToPromises(xpathLocators, "check");
+          try {
+            await mapLocatorsToPromises(xpathLocators, "check");
+          } catch (xpathError) {
+            throw new Error(
+              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+            );
+          }
         }
       } catch (e) {
         throw e;
@@ -898,11 +1003,17 @@ When(
             value
           );
         } catch (preferredDropdownError) {
-          dropdownLocator = await mapLocatorsToPromises(
-            xpathDropdownLocators,
-            "selectOption",
-            value
-          );
+          try {
+            dropdownLocator = await mapLocatorsToPromises(
+              xpathDropdownLocators,
+              "selectOption",
+              value
+            );
+          } catch (xpathError) {
+            throw new Error(
+              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+            );
+          }
         }
 
         /* let optionLocator;
@@ -979,7 +1090,13 @@ When("I select the option {string}", async function (dropd) {
       try {
         await mapLocatorsToPromises(preferredLocators, "click");
       } catch (preferredError) {
-        await mapLocatorsToPromises(xpathLocators, "click");
+        try {
+          await mapLocatorsToPromises(xpathLocators, "click");
+        } catch (xpathError) {
+          throw new Error(
+            `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+          );
+        }
       }
     } catch (e) {
       throw e;
@@ -1021,10 +1138,16 @@ When(
             "hover"
           );
         } catch (preferredElementError) {
-          hoveredElement = await mapLocatorsToPromises(
-            xpathElementLocators,
-            "hover"
-          );
+          try {
+            hoveredElement = await mapLocatorsToPromises(
+              xpathElementLocators,
+              "hover"
+            );
+          } catch (xpathError) {
+            throw new Error(
+              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+            );
+          }
         }
 
         const preferredOptionLocators = [
@@ -1045,7 +1168,13 @@ When(
         try {
           await mapLocatorsToPromises(preferredOptionLocators, "click");
         } catch (preferredOptionError) {
-          await mapLocatorsToPromises(xpathOptionLocators, "click");
+          try {
+            await mapLocatorsToPromises(xpathOptionLocators, "click");
+          } catch (xpathError) {
+            throw new Error(
+              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+            );
+          }
         }
       } catch (e) {
         throw e;
@@ -1098,7 +1227,13 @@ When("I check the box {string}", async function (name) {
       try {
         await mapLocatorsToPromises(preferredLocators, "check");
       } catch (preferredError) {
-        await mapLocatorsToPromises(xpathLocators, "check");
+        try {
+          await mapLocatorsToPromises(xpathLocators, "check");
+        } catch (xpathError) {
+          throw new Error(
+            `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+          );
+        }
       }
     } catch (e) {
       throw e;
@@ -1107,6 +1242,14 @@ When("I check the box {string}", async function (name) {
 });
 
 When("Switch to the newly opened tab", async function () {
+  if (this.parameters.browser === "webkit") {
+    console.log("Skipping tab management test in WebKit");
+    this.attach(
+      "Tab management test skipped - not supported in WebKit",
+      "text/plain"
+    );
+    return "skipped";
+  }
   await handleError(async () => {
     try {
       const page = this.getPage();
@@ -1117,13 +1260,21 @@ When("Switch to the newly opened tab", async function () {
       await pages[pages.length - 1].bringToFront();
       this.page = pages[pages.length - 1];
     } catch (e) {
-      throw Error(e);
+      throw e;
     }
   });
 });
 
 When("Switch to the tab number {string}", async function (numberOfTabs) {
   await handleError(async () => {
+    if (this.parameters.browser === "webkit") {
+      console.log("Skipping tab management test in WebKit");
+      this.attach(
+        "Tab management test skipped - not supported in WebKit",
+        "text/plain"
+      );
+      return "skipped";
+    }
     try {
       const page = this.getPage();
       const context = page.context();
@@ -1147,7 +1298,7 @@ When("Switch to the tab number {string}", async function (numberOfTabs) {
 
       await this.getPage().waitForLoadState("networkidle");
     } catch (e) {
-      throw Error(e);
+      throw e;
     }
   });
 });
@@ -1183,13 +1334,23 @@ When(
             filePath
           );
         } catch (preferredError) {
-          await mapLocatorsToPromises(xpathLocators, "setInputFiles", filePath);
+          try {
+            await mapLocatorsToPromises(
+              xpathLocators,
+              "setInputFiles",
+              filePath
+            );
+          } catch (xpathError) {
+            throw new Error(
+              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+            );
+          }
         }
 
         // Wait for upload to complete
         await page.waitForLoadState("networkidle");
       } catch (e) {
-        throw Error(e);
+        throw e;
       }
     });
   }
@@ -1203,7 +1364,7 @@ Then("So I will be navigated to the website: {string}", async function (url) {
       const page = this.getPage();
       await expect(page).toHaveURL(url.replace(/[\s]|\/\s*$/g, ""));
     } catch (e) {
-      throw Error(e);
+      throw e;
     }
 
     if (this.parameters.waitTime)
@@ -1329,7 +1490,7 @@ Then("So I can see the text: {string}", async function (text) {
         expect(pageHTML).toContain(normalizedExpectedText);
       }
     } catch (e) {
-      throw Error(e);
+      throw e;
     }
   });
 });
@@ -1704,6 +1865,7 @@ Then(
         ];
 
         const xpathLocators = [
+          page.locator(`xpath=${element}`),
           page.locator(`xpath=//*[contains(text(),"${element}")]`),
           page.locator(`xpath=//*[@id="${element}"]`),
           page.locator(`xpath=//*[@*="${element}" and @role="tooltip"]`),
@@ -1747,7 +1909,7 @@ Then(
             const cookie = cookies.find(c => c.name === name);
             await expect(cookie?.value).toBe(expectedValue);
         } catch (e) {
-            throw Error(e);
+            throw e;
         }
     });
 }); */
