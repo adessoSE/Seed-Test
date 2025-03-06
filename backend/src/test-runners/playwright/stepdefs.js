@@ -409,53 +409,51 @@ async function mapLocatorsToPromises(
           }
         } else if (action === "fill") {
           if (expandedLocatorsLock) {
-            throw new Error("Lock active");;
+            throw new Error("Lock active");
           }
           console.log("Starting fill operation, locking...");
             expandedLocatorsLock = true;
-          const visibilityPromises = expandedLocators.map(
-            async (locator, index) => {
-              try {
-                console.log(`Checking visibility for locator ${index}`);
-                await expect(locator).toBeVisible({ timeout: 3000 });
-                console.log(`Locator ${index} is visible`);
-                return { locator, index };
-              } catch {
-                console.log(`Locator ${index + 1}, ${locator}not visible`);
-                throw new Error(`Locator ${index + 1}, ${locator} not visible`);
-              }
-            }
-          );
-
+          // 1. Sichtbare Locators sammeln
+    const visibilityResults = await Promise.allSettled(
+      expandedLocators.map(async (locator, index) => {
           try {
-            try {
-              const { locator } = await Promise.any(visibilityPromises);
-            } catch (error) {
-              if (error instanceof AggregateError) {
-                const errors = error.errors
-                  .map((e) => `- ${e.message}`)
-                  .join("\n");
-                throw new Error(`Kein sichtbarer Button gefunden:\n${errors}`);
-              }
-              throw error;
-            }
-            console.log("Performing action:", action);
-            return await locator[action](actionOptions);
+              console.log(`Prüfe Sichtbarkeit Locator ${index}`);
+              await locator.waitFor({ state: "visible", timeout: 2000 });
+              return { locator, index };
           } catch (error) {
-            if (error instanceof AggregateError) {
-              // Handle Promise.any failure (no locator found)
-              const errorMessages = error.errors?.map((e) => e.message) || [];
-              throw new Error(
-                [
-                  `No visible locator found for "${action}"`,
-                  `Tried ${expandedLocators.length} locators:`,
-                  ...errorMessages,
-                ].join("\n")
-              );
-            }
-            // Handle other errors (e.g. action execution failed)
-            throw new Error(`Action "${action}" failed: ${error.message}`);
+              console.log(`Locator ${index} nicht sichtbar`);
+              return Promise.reject(error);
           }
+      })
+  );
+
+  // 2. Erfolgreiche Locators extrahieren
+  const visibleLocators = visibilityResults
+      .filter(result => result.status === 'fulfilled')
+      .map(result => result.value.locator);
+
+  if (visibleLocators.length === 0) {
+      throw new Error(`Keine sichtbaren Locators für "${action}" gefunden`);
+  }
+
+  // 3. Serielles Ausprobieren der sichtbaren Locators
+  let lastError;
+  for (const locator of visibleLocators) {
+      try {
+          console.log(`Versuche ${action} mit Locator:`, locator);
+          return await locator.fill(value, actionOptions);
+      } catch (error) {
+          lastError = error;
+          console.log(`Fehler bei ${action} mit Locator:`, error.message);
+      }
+  }
+
+  // 4. Alle Versuche fehlgeschlagen
+  throw new Error(
+      `${action} fehlgeschlagen für alle sichtbaren Locators:\n` +
+      visibleLocators.map(l => l.toString()).join('\n') +
+      `\nLetzter Fehler: ${lastError.message}`
+  );
         } else {
           result = await locator[action](
             ...(value !== undefined ? [value, ...args] : args),
@@ -810,12 +808,12 @@ When("I insert {string} into the field {string}", async function (text, label) {
       const xpathLocators = [
         page.locator(`xpath=//input[@id="${label}"]`),
         page.locator(`xpath=//input[contains(@id,"${label}")]`),
+        page.locator(`xpath=//input[@type="text" and @*="${label}"]`),
         page.locator(`xpath=//textarea[@id="${label}"]`),
         page.locator(`xpath=//textarea[contains(@id,"${label}")]`),
         page.locator(`xpath=//textarea[@*="${label}"]`),
         page.locator(`xpath=//textarea[contains(@*,"${label}")]`),
         page.locator(`xpath=//*[@id="${label}"]`),
-        page.locator(`xpath=//input[@type="text" and @*="${label}"]`),
         page.locator(
           `xpath=//label[contains(text(),"${label}")]/following::input[@type='text']`
         ),
