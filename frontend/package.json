@@ -36,7 +36,7 @@
     "@ng-bootstrap/ng-bootstrap": "^17.0.1",
     "@ngneat/until-destroy": "^10.0.0",
     "canvg": "^4.0.2",
-    "core-js": "^3.39.0",
+    "core-js": "^3.41.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "file-saver": "^2.0.5",
