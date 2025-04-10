@@ -254,6 +254,14 @@
             <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
             <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
               value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event.target.valueAsNumber)">
+            <label class="selectLabel SmallIcontext">Test Runner:</label>
+            <select name="testRunner" class="select" id="testRunnerSelect" (change)="setTestRunner($event.target.value)">
+              <option id="seleniumWebdriver" value="seleniumWebdriver"
+                [selected]="this.testRunner === 'seleniumWebdriver'">Selenium Webdriver</option>
+              <option id="playwright" value="playwright"
+                [selected]="this.testRunner === 'playwright'">Playwright (experimental)</option>
+              
+            </select>
             <label class="selectLabel SmallIcontext">Browser:</label>
             <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
               <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chromium"
@@ -343,7 +351,7 @@
             <em class="material-icons-outlined">cancel</em>
           </button>
           <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning"
-            uk-tooltip="Runs all scenario tests for the story" type="button" (click)="evaluateAndRunStory()">
+            uk-tooltip="Runs all scenario tests for the story" type="button" (click)="evaluateAndRunStory(this.testRunner)">
             Run Story
           </button>
           <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()"
@@ -388,7 +396,7 @@
             <em class="material-icons-outlined">cancel</em></button>
           <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test"
             [class.disabledButton]="testRunning" [disabled]="testRunning" type="button"
-            (click)="evaluateAndRunScenario(this.selectedScenario.scenario_id);">
+            (click)="evaluateAndRunScenario(this.selectedScenario.scenario_id, this.testRunner);">
             Run Scenario</button>
         </div>
       </div>

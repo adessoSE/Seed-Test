@@ -1,5 +1,4 @@
 /* eslint-disable func-names */
-console.log("Laoding stepdefs...");
 const { expect } = require("@playwright/test");
 const path = require("path");
 const {

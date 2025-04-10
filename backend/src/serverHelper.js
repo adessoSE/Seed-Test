@@ -199,6 +199,9 @@ let cachedSupportCode = null;
 
 async function executeTest(req, mode, story) {
 	const repoId = req.body.repositoryId || req.body.repoId;
+	console.log("Unser Testrunner ist: ", req.params.testRunner)
+	const testRunner = req.params.testRunner || 'seleniumWebdriver'; // Default zu Selenium Webdriver
+	const testRunnerPathName = testRunner === "seleniumWebdriver" ? "selenium-webdriver" : "playwright"
 
 	let globalSettings;
 
@@ -243,7 +246,7 @@ async function executeTest(req, mode, story) {
 	// Cucumber Konfiguration für Cucumber
 	const userConfig = {
 		paths: [path.normalize(featurePath)],
-		require: [path.resolve(process.cwd(), 'src/test-runners/playwright/*.js')],
+		require: [path.resolve(process.cwd(), `src/test-runners/${testRunnerPathName}/*.js`)],
 		format: [
 			mode === 'group'
 				// req.body.name = groupDirectory
@@ -267,7 +270,6 @@ async function executeTest(req, mode, story) {
 		const cucumberAPI = await import('@cucumber/cucumber/api');
     	const { loadConfiguration, runCucumber, loadSupport } = cucumberAPI;
 
-
 		console.log('Loading configuration...');
     	const { runConfiguration } = await loadConfiguration({
 			provided: userConfig
@@ -279,11 +281,11 @@ async function executeTest(req, mode, story) {
             cachedSupportCode = await loadSupport(runConfiguration);
         }
 
-		console.log('Step Definitions Directory:', path.join(process.cwd(), 'src/test-runners/playwright'));
-		console.log('Available Step Files:', fs.readdirSync(path.join(process.cwd(), 'src/test-runners/playwright')));
+		console.log('Step Definitions Directory:', path.join(process.cwd(), `src/test-runners/${testRunnerPathName}`));
+		console.log('Available Step Files:', fs.readdirSync(path.join(process.cwd(), `src/test-runners/${testRunnerPathName}`)));
 		console.log('\nExecuting:');
 		console.log(`Working Dir: "${process.cwd()}"`);
-		console.log('Runtime: Cucumber with Playwright');
+		console.log(`Runtime: Cucumber with ${testRunner}`);
 		console.log(`Config: ${JSON.stringify({
 			featurePath: runConfiguration.sources.paths[0],
 			tags: runConfiguration.sources.tagExpression,

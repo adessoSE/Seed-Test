@@ -272,6 +272,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
    * Global settings indicator
    */
+  testRunner = "seleniumWebdriver";
+
+  /**
+   * Global settings indicator
+   */
   globalSettingsActivated: boolean;
 
   /**
@@ -1203,7 +1208,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       browserSelectValue = browserSelect ? browserSelect.value : null;
       emulatorSelectValue = emulatorSelect ? emulatorSelect.value : null;
     }
-
+    console.log('We are giving the following testRunner to the Backend: ', this.testRunner);
     return {
       browser: browserSelectValue,
       emulator: emulatorSelectValue,
@@ -1213,6 +1218,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       repositoryId: localStorage.getItem("id"),
       source: localStorage.getItem("source"),
       oneDriver: this.selectedStory.oneDriver,
+      testRunner: this.testRunner
     };
   }
 
@@ -1302,6 +1308,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.selectedScenario.browser = newBrowser;
     this.setEmulatorEnabled(false);
     this.selectedScenario.saved = false;
+  }
+
+  /**
+   * Set the test runner
+   * @param newTestRunnner
+   */
+  setTestRunner(newTestRunnner) {
+    console.log("Setting Test Runner to " + newTestRunnner);
+    this.testRunner = newTestRunnner;
   }
 
   /**
