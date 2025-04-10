@@ -1,6 +1,6 @@
 {
   "name": "seed-test-backend",
-  "version": "1.8.0",
+  "version": "1.8.0.1",
   "engines": {
     "node": "20.12.1"
   },
@@ -31,16 +31,16 @@
     "express-session": "^1.18.1",
     "geckodriver": "^5.0.0",
     "moment": "^2.30.1",
-    "mongodb": "^6.11.0",
-    "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.16",
+    "mongodb": "^6.15.0",
+    "multer": "^1.4.5-lts.2",
+    "nodemailer": "^6.10.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "selenium-webdriver": "^4.27.0",
+    "selenium-webdriver": "^4.31.0",
     "stream-to-string": "^1.2.1",
     "string-to-stream": "^3.0.1",
     "tar": "^7.4.3",
-    "uuid": "^11.0.3",
+    "uuid": "^11.1.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {
