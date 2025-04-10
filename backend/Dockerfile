@@ -1,5 +1,5 @@
 # Use build argument for Node.js version
-ARG NODE_VERSION=20
+ARG NODE_VERSION=20.12.1
 FROM node:${NODE_VERSION}
 
 RUN apt-get update && \
