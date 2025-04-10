@@ -262,14 +262,15 @@ class SeleniumWebdriverWorld extends World {
     console.log("Setting scenarioCount to:", count);
     this.scenarioCount = count;
 
-    if (this.driver && !this.testParameters.oneDriver) {
-      this.closeBrowser();
-      this.driver = null;
-    }
-
     this.testParameters = {
       ...this.testParameters,
       ...this.parameterCollection.scenarios[count],
+    }
+
+    //Nur Browser schließen, wenn oneDriver nicht aktiv
+    if (this.driver && !this.testParameters.oneDriver) {
+      this.closeBrowser();
+      this.driver = null;
     };
   }
 
