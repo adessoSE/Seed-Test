@@ -4,7 +4,7 @@ RUN apt-get update && \
     apt-get install -qq -y wget
 
 # Install the latest version of npm
-RUN npm install -g --ignore-scripts npm@latest
+#RUN npm install -g --ignore-scripts npm@latest
 
 # Set DATABASE_URI to be localhost
 ENV DATABASE_URI=mongodb://localhost:27017
