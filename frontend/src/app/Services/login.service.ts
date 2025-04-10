@@ -95,8 +95,6 @@ export class LoginService {
       map(response=>JSON.parse(response)),
       catchError(this.apiService.handleError)
     );
-
-
     return req1;
   }
   /**
@@ -106,6 +104,7 @@ export class LoginService {
    */
   loginUser(user: any): Observable<any> {
     const str = this.apiService.apiServer + "/user/login";
+    if(!window.isSecureContext) return this.loginUserLegacy(user);
     return from(this.sha256(user.password)).pipe(
       switchMap(hash => {
         console.log('hashed', hash)
