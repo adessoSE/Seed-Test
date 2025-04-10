@@ -82,7 +82,8 @@ WORKDIR /usr/src/app/backend
 # Bundle app source
 COPY ./backend .
 
-RUN npm ci
+RUN npm install
+#RUN npm ci we changed to install because errorous npm building - we should revert this in some versions!
 # If you are building your code for production
 # RUN npm ci --only=production
 
@@ -100,7 +101,8 @@ WORKDIR /usr/src/app/frontend
 COPY ./frontend/package*.json ./
 
 # Install dependencies
-RUN npm ci --ignore-scripts
+RUN npm install --ignore-scripts
+#RUN npm ci --ignore-scripts we changed to install because errorous npm building - we should revert this in some versions!
 
 # Install Angular CLI
 RUN npm install --ignore-scripts -g @angular/cli
