@@ -56,12 +56,6 @@
     "rimraf": "^6.0.1",
     "typescript": ">=5.4.0 <5.6.0"
   },
-  "_comment": "Bitte bei cucumber-html-reporter > 7.1.1 wieder entfernen!",
-  "overrides": {
-    "cucumber-html-reporter": {
-      "semver": "^7.5.2"
-    }
-  },
   "jest": {
     "testPathIgnorePatterns": [
       "<rootDir>/spec/server.spec.js",
