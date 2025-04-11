@@ -1,5 +1,5 @@
 # Use build argument for Node.js version
-ARG NODE_VERSION=20
+ARG NODE_VERSION=20.12.1
 FROM node:${NODE_VERSION}
 
 # Create app directory
@@ -9,7 +9,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --ignore-scripts
+RUN npm install --ignore-scripts
 #RUN npm install --force --ignore-scripts
 
 # Install Angular CLI
