@@ -114,8 +114,11 @@ After(async function (scenario) {
 			);
 			// process.env.CUCUMBER_TOTAL_WORKERS = undefined;
 			// process.env.CUCUMBER_WORKER_ID = undefined;
-		} else scenarioCount++;
-	}
+
+			// WICHTIG: Statische Variablen zurücksetzen (OneDriver)
+			SeleniumWebdriverWorld.sharedInstances.driver = null;
+		}
+	} else scenarioCount++;
 });
 
 // / #################### GIVEN ########################################

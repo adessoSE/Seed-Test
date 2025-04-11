@@ -156,10 +156,18 @@ class SeleniumWebdriverWorld extends World {
         this.testParameters.oneDriver &&
         SeleniumWebdriverWorld.sharedInstances.driver
       ) {
-        this.driver = SeleniumWebdriverWorld.sharedInstances.driver;
+        // Prüfen, ob die Sitzung noch gültig ist
+      try {
+        // Einfache Aktion, um Sitzungsgültigkeit zu prüfen
+        await SeleniumWebdriverWorld.sharedInstances.driver.getTitle();
         console.log("Reusing existing browser session (oneDriver active)");
+        this.driver = SeleniumWebdriverWorld.sharedInstances.driver;
         return;
+      } catch (sessionError) {
+        console.log("Stored session is invalid, creating new one:", sessionError.message);
+        SeleniumWebdriverWorld.sharedInstances.driver = null;
       }
+    }
 
       // Nur wenn oneDriver nicht aktiv ist, vorherigen Browser schließen - vermutlich redundant, aber zur Sicherheit
       if (!this.testParameters.oneDriver && this.driver) {
