@@ -3,9 +3,10 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
 
 @Component({
-  selector: 'app-disconnect-jira-account',
-  templateUrl: './disconnect-jira-account.component.html',
-  styleUrls: ['./disconnect-jira-account.component.css',  '../layout-modal/layout-modal.component.css']
+    selector: 'app-disconnect-jira-account',
+    templateUrl: './disconnect-jira-account.component.html',
+    styleUrls: ['./disconnect-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class DisconnectJiraAccountComponent {
 

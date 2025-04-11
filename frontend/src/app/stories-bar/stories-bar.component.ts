@@ -25,7 +25,8 @@ import { ExecutionListComponent } from '../modals/execution-list/execution-list.
 @Component({
     selector: 'app-stories-bar',
     templateUrl: './stories-bar.component.html',
-    styleUrls: ['./stories-bar.component.css']
+    styleUrls: ['./stories-bar.component.css'],
+    standalone: false
 })
 export class StoriesBarComponent implements OnInit, OnDestroy {
 

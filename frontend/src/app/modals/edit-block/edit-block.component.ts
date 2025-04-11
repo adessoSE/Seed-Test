@@ -7,9 +7,10 @@ import { ThemingService } from '../../Services/theming.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-edit-block',
-  templateUrl: './edit-block.component.html',
-  styleUrls: ['./edit-block.component.css']
+    selector: 'app-edit-block',
+    templateUrl: './edit-block.component.html',
+    styleUrls: ['./edit-block.component.css'],
+    standalone: false
 })
 export class EditBlockComponent {
 
