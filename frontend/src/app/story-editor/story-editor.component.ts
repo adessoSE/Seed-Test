@@ -262,6 +262,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   gecko_enabled;
   chromium_enabled;
   edge_enabled;
+  webkit_enabled;
+
+  /**
+   * Global settings indicator
+   */
+  testRunner = "seleniumWebdriver";
 
   /**
    * Global settings indicator
@@ -385,6 +391,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.gecko_enabled = localStorage.getItem("gecko_enabled");
     this.chromium_enabled = localStorage.getItem("chromium_enabled");
     this.edge_enabled = localStorage.getItem("edge_enabled");
+    this.webkit_enabled = localStorage.getItem("webkit_enabled");
 
     this.gecko_emulators = localStorage.getItem("gecko_emulators");
     this.gecko_emulators =
@@ -920,7 +927,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.selectedScenario.stepWaitTime =
       scenario.stepWaitTime ?? this.repoSettings?.stepWaitTime ?? 0;
     this.selectedScenario.browser =
-      scenario.browser ?? this.repoSettings?.browser ?? "chrome";
+      scenario.browser ?? this.repoSettings?.browser ?? "chromium";
     this.selectedScenario.width =
       scenario.width ?? this.repoSettings?.width ?? 1920;
     this.selectedScenario.height =
@@ -1189,7 +1196,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       browserSelectValue = browserSelect ? browserSelect.value : null;
       emulatorSelectValue = emulatorSelect ? emulatorSelect.value : null;
     }
-
+    console.log('We are giving the following testRunner to the Backend: ', this.testRunner);
     return {
       browser: browserSelectValue,
       emulator: emulatorSelectValue,
@@ -1199,6 +1206,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       repositoryId: localStorage.getItem("id"),
       source: localStorage.getItem("source"),
       oneDriver: this.selectedStory.oneDriver,
+      testRunner: this.testRunner
     };
   }
 
@@ -1288,6 +1296,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.selectedScenario.browser = newBrowser;
     this.setEmulatorEnabled(false);
     this.selectedScenario.saved = false;
+  }
+
+  /**
+   * Set the test runner
+   * @param newTestRunnner
+   */
+  setTestRunner(newTestRunnner) {
+    console.log("Setting Test Runner to " + newTestRunnner);
+    this.testRunner = newTestRunnner;
   }
 
   /**
@@ -1397,7 +1414,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   getAvaiableEmulators() {
     switch (this.selectedScenario.browser) {
-      case "chrome":
+      case "chromium":
         return this.chromium_emulators;
       case "firefox":
         return this.gecko_emulators;

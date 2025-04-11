@@ -151,6 +151,7 @@ export class ApiService {
     const gecko_enabled = localStorage.getItem("gecko_enabled");
     const chromium_enabled = localStorage.getItem("chromium_enabled");
     const edge_enabled = localStorage.getItem("edge_enabled");
+    const webkit_enabled = localStorage.getItem("webkit_enabled");
 
     const gecko_emulators = localStorage.getItem("gecko_emulators");
     const chromium_emulators = localStorage.getItem("chromium_emulators");
@@ -169,6 +170,8 @@ export class ApiService {
       chromium_enabled !== "undefined" &&
       edge_enabled &&
       edge_enabled !== "undefined" &&
+      webkit_enabled &&
+      webkit_enabled !== "undefined" &&
       gecko_emulators &&
       gecko_emulators !== "undefined" &&
       chromium_emulators &&
@@ -196,6 +199,7 @@ export class ApiService {
             backendInfo.chromium_enabled
           );
           localStorage.setItem("edge_enabled", backendInfo.edge_enabled);
+          localStorage.setItem("webkit_enabled", backendInfo.webkit_enabled);
           localStorage.setItem("gecko_emulators", backendInfo.gecko_emulators);
           localStorage.setItem(
             "chromium_emulators",

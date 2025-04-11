@@ -45,7 +45,7 @@ const exampleScenario = {
 		],
 		example: []
 	},
-	browser: 'chrome',
+	browser: 'chromium',
 	lastTestPassed: null
 };
 
