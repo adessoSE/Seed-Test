@@ -506,11 +506,11 @@ input.background {
 }
 
 .origin-container {
-    margin-left: 10px;  
-    padding: 5px 5px;  
+    margin-left: 5px;  
+    padding: 0px 5px 0px 2px; 
     border: 3px solid var(--ocean-blue);
-	font-size: 12px; 
-    border-radius: 10px; 
+	font-size: 16px; 
+    border-radius: 20px; 
     display: inline-block; 
     background-color: #f9f9f9; 
     font-style: italic;
@@ -522,11 +522,11 @@ input.background {
     align-items: center;
     padding: 10px 10px;
     border-radius: 5px;
-    cursor: pointer;
-    font-size: 13px;
+    /* cursor: pointer; */
+    font-size: 14px;
     font-weight: bold;
     font-style: italic;
-    color: var(--ocean-blue);
+    color: #2ab34b;
 	margin-right: 10px;
 }
 

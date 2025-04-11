@@ -24,7 +24,6 @@ import { EditableOnEnterDirective } from "./directives/edit-on-enter.directive";
 import { FocusableDirective } from "./editable/focusable.directive";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
-import { FeedbackComponent } from "./feedback/feedback.component";
 import { TermsComponent } from "./terms/terms.component";
 import { StoryEditorComponent } from "./story-editor/story-editor.component";
 import { AccountManagementComponent } from "./account-management/account-management.component";
@@ -104,7 +103,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     EditableComponent,
     FocusableDirective,
     EditableOnEnterDirective,
-    FeedbackComponent,
     TermsComponent,
     AccountManagementComponent,
     StoryEditorComponent,

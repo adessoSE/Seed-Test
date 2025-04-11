@@ -43,7 +43,7 @@
   <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story" cdkScrollable>
     <div class="storyHeaderContainer">
       <div>
-        <span id="storyHeader" class="SmallCategory1">Story</span>
+        <span id="storyHeader" class="SmallCategory1">Story&nbsp;</span>
         <dfn class="def">
           <span class="infoIcon uk-icon" uk-icon="info"></span>
           <span rel="def" style="left: 20px; position: absolute;">A user story describes requirements for a software
@@ -163,7 +163,7 @@
         <mat-expansion-panel-header class="scenarioHeaderContainer">
           <mat-panel-title>
             <div class="Smallnavigation1">
-              {{ 'background (Optional)' | titlecase }}
+              {{ 'Background (Optional)' | titlecase }}
               <span class="childElement infoIcon uk-icon" uk-icon="info" matTooltip="You can use the background to set actions, which will be carried out before testing the whole story.
               This happens before the test runs through the Given/When/Then-Steps and is used across all scenarios.
               In short: A background allows to set Given-Steps used for all scenarios."></span>
@@ -238,7 +238,7 @@
           File Manager
           </button>
           <div class="storyInOneSessionDiv">
-            <label class="selectLabel SmallIcontext">Run Story in one Session:</label>
+            <label class="selectLabel SmallIcontext">Single Session:</label>
             <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()" [checked]="this.selectedStory.oneDriver">
             <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
               <span rel="def" style="font-weight: normal;">
@@ -362,7 +362,7 @@
       </div>
 
       <!--Scenario Editor-->
-      <app-scenario-editor [isDark]="isDark" #scenarioChild (diasyLoginChanged)="setShowDaisy($event)"
+      <app-scenario-editor [isDark]="isDark" #scenarioChild
         (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);"
         (deleteScenarioEvent)="showDeleteScenarioToast($event);" [originalStepTypes]="originalStepTypes"
         [testRunning]="testRunning" [newlySelectedStory]="selectedStory"

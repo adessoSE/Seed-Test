@@ -1,5 +1,5 @@
 # Use build argument for Node.js version
-ARG NODE_VERSION=20
+ARG NODE_VERSION=20.12.1
 FROM node:${NODE_VERSION}
 
 RUN apt-get update && \
@@ -23,8 +23,8 @@ RUN unzip /tmp/chromedriverzip.zip chromedriver-linux64/chromedriver -d /usr/loc
 RUN mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
 
 # install firefox
-RUN wget -q -O ~/FirefoxSetup.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64"
-RUN tar xjf ~/FirefoxSetup.tar.bz2 -C /opt/
+RUN wget -q -O ~/FirefoxSetup.tar.xz "https://download.mozilla.org/?product=firefox-latest&os=linux64"
+RUN tar xJf ~/FirefoxSetup.tar.xz -C /opt/
 RUN ln -s /opt/firefox/firefox /usr/local/bin/
 RUN apt-get -q update && apt-get install -qq -y bzip2 libdbus-glib-1-2 libgtk-3-0 libpci-dev libx11-xcb-dev libxt6 libxtst6 wget && rm -rf /var/lib/apt/lists/*
 

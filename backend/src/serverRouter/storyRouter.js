@@ -69,10 +69,10 @@ router.get('/issueKey/:issue_key', async (req, res) => {
 // create Story
 router.post('/', async (req, res) => {
 	try {
-		const db_id = await mongo.createStory(req.body.title, req.body.description, req.body._id);
-		await mongo.insertStoryIdIntoRepo(db_id, req.body._id);
-		helper.updateFeatureFile(db_id);
-		res.status(200).json(db_id);
+		const dbId = await mongo.createStory(req.body.title, req.body.description, req.body._id);
+		await mongo.insertStoryIdIntoRepo(dbId, req.body._id);
+		helper.updateFeatureFile(dbId);
+		res.status(200).json(dbId);
 	} catch (e) {
 		handleError(res, e, e, 500);
 	}
@@ -175,7 +175,12 @@ router.delete('/:repo_id/:_id', async (req, res) => {
 router.post('/upload/import/', upload.single('file'), async (req, res) => {
 	try {
 		if (req.query.projectName) {
-			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName, req.query.importMode);
+			const result = pmHelper.importProject(
+				req.file,
+				req.query.repo_id,
+				req.query.projectName,
+				req.query.importMode
+			);
 			res.status(200).json(result);
 		} else res.status(200).json('');
 	} catch (error) {
@@ -187,7 +192,12 @@ router.post('/upload/import/', upload.single('file'), async (req, res) => {
 router.put('/upload/import/', upload.single('file'), async (req, res) => {
 	try {
 		if (req.query.repo_id) {
-			const result = pmHelper.importProject(req.file, req.query.repo_id, req.query.projectName, req.query.importMode);
+			const result = pmHelper.importProject(
+				req.file,
+				req.query.repo_id,
+				req.query.projectName,
+				req.query.importMode
+			);
 			res.status(200).json(result);
 		} else res.status(200).json('');
 	} catch (error) {
@@ -297,7 +307,7 @@ router.delete('/scenario/:story_id/:_id', async (req, res) => {
 	}
 
 	if (!dbError && !xrayError) res.status(200).json({ text: 'Scenario successfully deleted.' });
-	 else {
+	else {
 		let errorMessage = 'Error during deletion: ';
 		if (dbError) errorMessage += 'Database error. ';
 		if (xrayError) errorMessage += 'Error deleting XRay step.';

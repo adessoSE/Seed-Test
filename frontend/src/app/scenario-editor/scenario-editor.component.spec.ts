@@ -12,7 +12,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 const scenarios:Scenario[] = [{scenario_id: 2, name: 'my first scenario', stepDefinitions: {"when":[{"_id":'5dce728851e70f2894a170b4',"id": 6, "stepType":"when", "type" :"HoverOverAndSelect", "pre":"I hover over the element", "mid":"and select the option","values":["",""], "post":"", "isExample":[]}], "given":[{"_id":'5dce728851e70f2894a170b4',"id": 6, "stepType":"when", "type" :"HoverOverAndSelect", "pre":"I hover over the element", "mid":"and select the option","values":["",""], "post":"", "isExample":[]}],"then":[], "example": []},
                             comment: 'write some words about this scenario', lastTestPassed: false,
-                          saved: true, daisyAutoLogout: true, stepWaitTime: 200, browser: 'chrome'}]
+                          saved: true, stepWaitTime: 200, browser: 'chrome'}]
 
 
 describe('ScenarioEditorComponent', () => {
