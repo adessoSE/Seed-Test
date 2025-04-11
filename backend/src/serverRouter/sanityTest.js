@@ -57,7 +57,7 @@ async function test(req, res) {
 	const params = group;
 	params.repository = req.body.repository;
 	req.body = group;
-	reporter.runSanityReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
+	reporter.runSanityReport(req, res, mystories, 'group', req.body).catch((reason) => res.status(500).send(reason));
 }
 
 module.exports = router;
