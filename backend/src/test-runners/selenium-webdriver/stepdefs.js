@@ -107,11 +107,7 @@ After(async function (scenario) {
 		if (scenarioCount === totalScenarios - 1) {
 			scenarioCount = 0;
 			totalScenarios = 0;
-			console.log(
-				'WIR SETZTEN DEN SCENARIOCOUNT ZURÜCK!',
-				scenarioCount,
-				totalScenarios
-			);
+			console.log('We reset the scenario count!');
 			// process.env.CUCUMBER_TOTAL_WORKERS = undefined;
 			// process.env.CUCUMBER_WORKER_ID = undefined;
 

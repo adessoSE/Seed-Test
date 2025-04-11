@@ -195,14 +195,15 @@ function getSettings(scenario, globalSettings) {
 }
 
 // Globale Variable für Support Code Library
-let cachedSupportCode = null;
+const cachedSupportCode = {
+	seleniumWebdriver: null,
+	playwright: null
+  };
 
 async function executeTest(req, mode, story) {
 	const repoId = req.body.repositoryId || req.body.repoId;
-	console.log("Unser Testrunner ist: ", req.params.testRunner)
-	const testRunner = req.params.testRunner || 'seleniumWebdriver'; // Default zu Selenium Webdriver
+	const testRunner = req.body.testRunner || 'seleniumWebdriver'; // Default zu Selenium Webdriver
 	const testRunnerPathName = testRunner === "seleniumWebdriver" ? "selenium-webdriver" : "playwright"
-
 	let globalSettings;
 
 	// get repo globalsettings from database
@@ -276,10 +277,13 @@ async function executeTest(req, mode, story) {
     	});
 
 		// Support Code nur einmal laden und wiederverwenden
-        if (!cachedSupportCode) {
-            console.log('Loading support code for the first time...');
-            cachedSupportCode = await loadSupport(runConfiguration);
-        }
+        // Support Code für den spezifischen Test-Runner laden oder aus dem Cache holen
+		if (!cachedSupportCode[testRunner]) {
+			console.log(`Loading support code for ${testRunner} for the first time...`);
+			cachedSupportCode[testRunner] = await loadSupport(runConfiguration);
+		}
+
+		console.log(`Using ${testRunner} support code`);
 
 		console.log('Step Definitions Directory:', path.join(process.cwd(), `src/test-runners/${testRunnerPathName}`));
 		console.log('Available Step Files:', fs.readdirSync(path.join(process.cwd(), `src/test-runners/${testRunnerPathName}`)));
@@ -297,7 +301,7 @@ async function executeTest(req, mode, story) {
 
 		const { success } = await runCucumber({ 
 			...runConfiguration, 
-			support: cachedSupportCode 
+			support: cachedSupportCode[testRunner] 
     	});
 
 		return {
