@@ -4,9 +4,10 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ScenarioService } from 'src/app/Services/scenario.service';
 
 @Component({
-  selector: 'app-rename-scenario',
-  templateUrl: './rename-scenario.component.html',
-  styleUrls: ['./rename-scenario.component.css', '../layout-modal/layout-modal.component.css']
+    selector: 'app-rename-scenario',
+    templateUrl: './rename-scenario.component.html',
+    styleUrls: ['./rename-scenario.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class RenameScenarioComponent {
 

@@ -10,9 +10,10 @@ import { Block } from '../../model/Block';
 import { BlockService } from '../../Services/block.service';
 
 @Component({
-  selector: 'app-rename-background',
-  templateUrl: './rename-background.component.html',
-  styleUrls: ['./rename-background.component.css']
+    selector: 'app-rename-background',
+    templateUrl: './rename-background.component.html',
+    styleUrls: ['./rename-background.component.css'],
+    standalone: false
 })
 export class RenameBackgroundComponent{
 

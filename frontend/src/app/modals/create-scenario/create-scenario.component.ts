@@ -4,9 +4,10 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from 'src/app/model/Story';
 
 @Component({
-  selector: 'app-create-scenario',
-  templateUrl: './create-scenario.component.html',
-  styleUrls: ['./create-scenario.component.css', '../layout-modal/layout-modal.component.css']
+    selector: 'app-create-scenario',
+    templateUrl: './create-scenario.component.html',
+    styleUrls: ['./create-scenario.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class CreateScenarioComponent {
 

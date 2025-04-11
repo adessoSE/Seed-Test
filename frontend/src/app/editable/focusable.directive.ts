@@ -4,7 +4,8 @@ import { Directive, ElementRef, AfterViewInit } from '@angular/core';
  * Directive for an table cell to be focusable
  */
 @Directive({
-  selector: '[focusable]'
+    selector: '[focusable]',
+    standalone: false
 })
 export class FocusableDirective implements AfterViewInit {
 

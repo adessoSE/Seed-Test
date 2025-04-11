@@ -17,9 +17,10 @@ type Report = ScenarioReport | StoryReport | GroupReport;
  * Component of the report history
  */
 @Component({
-  selector: 'app-report-history',
-  templateUrl: './report-history.component.html',
-  styleUrls: ['./report-history.component.css']
+    selector: 'app-report-history',
+    templateUrl: './report-history.component.html',
+    styleUrls: ['./report-history.component.css'],
+    standalone: false
 })
 
 export class ReportHistoryComponent implements OnInit {

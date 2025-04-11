@@ -5,7 +5,8 @@ import { Directive, TemplateRef } from '@angular/core';
  */
 
 @Directive({
-  selector: '[editMode]'
+    selector: '[editMode]',
+    standalone: false
 })
 
 export class EditModeDirective {

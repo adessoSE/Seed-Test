@@ -16,9 +16,10 @@ import { ProjectService } from '../Services/project.service';
  * Component containing the Story-Bar and Story Editor
  */
 @Component({
-  selector: 'app-parent',
-  templateUrl: './parent.component.html',
-  styleUrls: ['./parent.component.css']
+    selector: 'app-parent',
+    templateUrl: './parent.component.html',
+    styleUrls: ['./parent.component.css'],
+    standalone: false
 })
 export class ParentComponent implements OnInit, OnDestroy {
 

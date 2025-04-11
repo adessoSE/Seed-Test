@@ -14,9 +14,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { EventEmitter, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-workgroup-edit',
-  templateUrl: './workgroup-edit.component.html',
-  styleUrls: ['./workgroup-edit.component.css', '../layout-modal/layout-modal.component.css']
+    selector: 'app-workgroup-edit',
+    templateUrl: './workgroup-edit.component.html',
+    styleUrls: ['./workgroup-edit.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class WorkgroupEditComponent {
 

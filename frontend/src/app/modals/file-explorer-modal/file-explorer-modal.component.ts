@@ -6,9 +6,10 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ThemingService } from '../../Services/theming.service';
 
 @Component({
-  selector: 'app-file-explorer-modal',
-  templateUrl: './file-explorer-modal.component.html',
-  styleUrls: ['./file-explorer-modal.component.css']
+    selector: 'app-file-explorer-modal',
+    templateUrl: './file-explorer-modal.component.html',
+    styleUrls: ['./file-explorer-modal.component.css'],
+    standalone: false
 })
 export class FileExplorerModalComponent implements OnInit {
   public fileElements: Observable<FileElement[]>;

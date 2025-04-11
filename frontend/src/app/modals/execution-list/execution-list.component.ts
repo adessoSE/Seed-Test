@@ -9,9 +9,10 @@ import { StoryService } from '../../Services/story.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'app-execution-list',
-  templateUrl: './execution-list.component.html',
-  styleUrls: ['./execution-list.component.css']
+    selector: 'app-execution-list',
+    templateUrl: './execution-list.component.html',
+    styleUrls: ['./execution-list.component.css'],
+    standalone: false
 })
 export class ExecutionListComponent {
 

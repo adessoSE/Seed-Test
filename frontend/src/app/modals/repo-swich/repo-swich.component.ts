@@ -6,9 +6,10 @@ import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
 
 @Component({
-  selector: 'app-repo-swich',
-  templateUrl: './repo-swich.component.html',
-  styleUrls: ['./repo-swich.component.css',  '../layout-modal/layout-modal.component.css']
+    selector: 'app-repo-swich',
+    templateUrl: './repo-swich.component.html',
+    styleUrls: ['./repo-swich.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class RepoSwichComponent implements OnInit {
 

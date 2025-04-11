@@ -2,9 +2,10 @@ import { Input, Component, ViewChild, Output, EventEmitter, SimpleChanges } from
 import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
-  selector: 'app-window-size',
-  templateUrl: './window-size.component.html',
-  styleUrls: ['./window-size.component.css']
+    selector: 'app-window-size',
+    templateUrl: './window-size.component.html',
+    styleUrls: ['./window-size.component.css'],
+    standalone: false
 })
 export class WindowSizeComponent {
 

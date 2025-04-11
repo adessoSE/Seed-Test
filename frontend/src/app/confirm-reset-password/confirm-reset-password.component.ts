@@ -8,9 +8,10 @@ import { LoginService } from "../Services/login.service";
  * Component to enable to reset the password
  */
 @Component({
-  selector: "app-confirm-reset-password",
-  templateUrl: "./confirm-reset-password.component.html",
-  styleUrls: ["./confirm-reset-password.component.css"],
+    selector: "app-confirm-reset-password",
+    templateUrl: "./confirm-reset-password.component.html",
+    styleUrls: ["./confirm-reset-password.component.css"],
+    standalone: false
 })
 export class ConfirmResetPasswordComponent {
   /**

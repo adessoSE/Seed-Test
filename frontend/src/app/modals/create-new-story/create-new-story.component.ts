@@ -8,9 +8,10 @@ import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms'
 import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
-  selector: 'app-create-new-story',
-  templateUrl: './create-new-story.component.html',
-  styleUrls: ['./create-new-story.component.css',  '../layout-modal/layout-modal.component.css']
+    selector: 'app-create-new-story',
+    templateUrl: './create-new-story.component.html',
+    styleUrls: ['./create-new-story.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class CreateNewStoryComponent {
 

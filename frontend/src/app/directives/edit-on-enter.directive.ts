@@ -2,7 +2,8 @@ import { Directive, HostListener } from '@angular/core';
 import { EditableComponent } from '../editable/editable.component';
 
 @Directive({
-  selector: '[editableOnEnter]'
+    selector: '[editableOnEnter]',
+    standalone: false
 })
 
 /**

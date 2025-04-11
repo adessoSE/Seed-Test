@@ -9,9 +9,10 @@ import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
-  selector: 'app-update-group',
-  templateUrl: './update-group.component.html',
-  styleUrls: ['./update-group.component.css',  '../layout-modal/layout-modal.component.css']
+    selector: 'app-update-group',
+    templateUrl: './update-group.component.html',
+    styleUrls: ['./update-group.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class UpdateGroupComponent {
 

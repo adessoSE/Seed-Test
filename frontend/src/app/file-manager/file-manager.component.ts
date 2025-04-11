@@ -7,9 +7,10 @@ import { ProjectService } from '../Services/project.service';
 import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-file-manager',
-  templateUrl: './file-manager.component.html',
-  styleUrl: './file-manager.component.css'
+    selector: 'app-file-manager',
+    templateUrl: './file-manager.component.html',
+    styleUrl: './file-manager.component.css',
+    standalone: false
 })
 
 export class FileManagerComponent implements OnInit {

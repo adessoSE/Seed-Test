@@ -19,7 +19,8 @@ import { BlockService } from '../Services/block.service';
 @Component({
     selector: 'app-scenario-editor',
     templateUrl: './scenario-editor.component.html',
-    styleUrls: ['../base-editor/base-editor.component.css','./scenario-editor.component.css'],
+    styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
+    standalone: false
 })
 
 export class ScenarioEditorComponent implements OnInit{

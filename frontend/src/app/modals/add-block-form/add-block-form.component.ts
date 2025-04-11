@@ -10,9 +10,10 @@ import { ApiService } from 'src/app/Services/api.service';
 import { FormControl } from '@angular/forms';
 
 @Component({
-  selector: 'app-add-block-form',
-  templateUrl: './add-block-form.component.html',
-  styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css']
+    selector: 'app-add-block-form',
+    templateUrl: './add-block-form.component.html',
+    styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class AddBlockFormComponent implements OnInit,OnDestroy {
 

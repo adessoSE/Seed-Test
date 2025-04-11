@@ -9,9 +9,10 @@ import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
-  selector: 'app-create-new-group',
-  templateUrl: './create-new-group.component.html',
-  styleUrls: ['./create-new-group.component.css',  '../layout-modal/layout-modal.component.css']
+    selector: 'app-create-new-group',
+    templateUrl: './create-new-group.component.html',
+    styleUrls: ['./create-new-group.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class CreateNewGroupComponent {
 

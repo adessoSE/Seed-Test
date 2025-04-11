@@ -5,9 +5,10 @@ import { Story } from 'src/app/model/Story';
 import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
-  selector: 'app-rename-story',
-  templateUrl: './rename-story.component.html',
-  styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css']
+    selector: 'app-rename-story',
+    templateUrl: './rename-story.component.html',
+    styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class RenameStoryComponent {
 

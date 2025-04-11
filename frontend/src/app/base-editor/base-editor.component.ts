@@ -27,9 +27,10 @@ import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-e
 import { MultipleScenario } from "../model/MuiltipleScenario";
 
 @Component({
-  selector: "app-base-editor",
-  templateUrl: "./base-editor.component.html",
-  styleUrls: ["./base-editor.component.css"],
+    selector: "app-base-editor",
+    templateUrl: "./base-editor.component.html",
+    styleUrls: ["./base-editor.component.css"],
+    standalone: false
 })
 export class BaseEditorComponent {
   @ViewChildren("step_type_input") step_type_input: QueryList<ElementRef>;
