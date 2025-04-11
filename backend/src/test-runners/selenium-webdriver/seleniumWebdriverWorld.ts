@@ -270,7 +270,6 @@ class SeleniumWebdriverWorld extends World {
     console.log("Setting scenarioCount to:", count);
     this.scenarioCount = count;
 
-    const previousBrowser = this.testParameters.browser;
     this.testParameters = {
       ...this.testParameters,
       ...this.parameterCollection.scenarios[count],

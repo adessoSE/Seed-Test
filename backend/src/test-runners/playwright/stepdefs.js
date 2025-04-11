@@ -994,14 +994,14 @@ When(
 
         let dropdownLocator; */
         try {
-          dropdownLocator = await mapLocatorsToPromises(
+          await mapLocatorsToPromises(
             preferredDropdownLocators,
             "selectOption",
             value
           );
         } catch (preferredDropdownError) {
           try {
-            dropdownLocator = await mapLocatorsToPromises(
+            await mapLocatorsToPromises(
               xpathDropdownLocators,
               "selectOption",
               value
