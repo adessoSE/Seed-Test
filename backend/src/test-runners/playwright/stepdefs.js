@@ -1008,7 +1008,7 @@ When(
             );
           } catch (xpathError) {
             throw new Error(
-              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+              `No element found with either preferred or xpath locators:\nPreferred: ${preferredDropdownError.message}\nXPath: ${xpathError.message}`
             );
           }
         }
@@ -1142,7 +1142,7 @@ When(
             );
           } catch (xpathError) {
             throw new Error(
-              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+              `No element found with either preferred or xpath locators:\nPreferred: ${preferredElementError.message}\nXPath: ${xpathError.message}`
             );
           }
         }
@@ -1169,7 +1169,7 @@ When(
             await mapLocatorsToPromises(xpathOptionLocators, "click");
           } catch (xpathError) {
             throw new Error(
-              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
+              `No element found with either preferred or xpath locators:\nPreferred: ${preferredOptionError.message}\nXPath: ${xpathError.message}`
             );
           }
         }
