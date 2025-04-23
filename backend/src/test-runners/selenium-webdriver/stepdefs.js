@@ -1,90 +1,29 @@
 /* eslint-disable func-names */
-const os = require('os');
 const {
-	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
+	Given, When, Then, Before, After, setWorldConstructor, setDefaultTimeout
 } = require('@cucumber/cucumber');
-const { expect } = require('chai');
 const fs = require('fs');
-const { match, doesNotMatch } = require('assert');
-const webdriver = require('../../node_modules/selenium-webdriver');
-const { By, until, Key } = require('../../node_modules/selenium-webdriver');
-require('geckodriver');
-const firefox = require('../../node_modules/selenium-webdriver/firefox');
-const chrome = require('../../node_modules/selenium-webdriver/chrome');
-const edge = require('../../node_modules/selenium-webdriver/edge');
-const { applySpecialCommands } = require('../../src/serverHelper');
+const assert = require('assert');
+const { By, until, Key } = require('selenium-webdriver');
+const { SeleniumWebdriverWorld } = require('../../../dist/test-runners/selenium-webdriver/seleniumWebdriverWorld');
+const { applySpecialCommands } = require('../../serverHelper');
 
+// Welt-Konstruktor setzen
+setWorldConstructor(SeleniumWebdriverWorld);
+setDefaultTimeout(60000);
+
+// Variables for scenario management within SeleniumWebdriverWorld
+let scenarioCount = 0;
+let totalScenarios = 0;
+
+// Globale Variablen - bei paralleler Ausführung wäre es problematisch!
 let driver;
-
+let searchTimeout;
 let downloadDirectory;
-let tmpUploadDir
-switch (os.platform()) {
-	// Windows
-	case 'win32':
-		downloadDirectory = 'C:\\Users\\Public\\seed_Downloads\\';
-		tmpUploadDir = 'C:\\Users\\Public\\SeedTmp\\'
-		break;
-	// macOS
-	case 'darwin':
-		downloadDirectory = `/Users/${os.userInfo().username}/Downloads/`;
-		tmpUploadDir = `/Users/${os.userInfo().username}/SeedTmp/`
-		break;
-	default:
-		downloadDirectory = '/home/public/Downloads/';
-		tmpUploadDir = '/home/public/SeedTmp/';
-}
-
-if (!fs.existsSync(downloadDirectory)) fs.mkdirSync(downloadDirectory, { recursive: true });
-const firefoxOptions = new firefox.Options().setPreference('browser.download.dir', downloadDirectory)
-	// Set to 2 for the "custom" folder
-	.setPreference('browser.download.folderList', 2)
-	.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/octet-stream');
-const chromeOptions = new chrome.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
-const edgeOptions = new edge.Options().setUserPreferences({ 'download.default_directory': downloadDirectory });
-
-if (!os.platform().includes('win32')) {
-	chromeOptions.addArguments('--headless');
-	chromeOptions.addArguments('--no-sandbox');
-	firefoxOptions.addArguments('--headless');
-	edgeOptions.addArguments('--headless');
-	edgeOptions.addArguments('--no-sandbox');
-}
-
-chromeOptions.addArguments('--disable-dev-shm-usage');
-// chromeOptions.addArguments('--no-sandbox')
-chromeOptions.addArguments('--ignore-certificate-errors');
-chromeOptions.addArguments('--start-maximized');
-chromeOptions.addArguments('--lang=de');
-chromeOptions.addArguments('--excludeSwitches=enable-logging');
-edgeOptions.addArguments('--disable-dev-shm-usage');
-edgeOptions.addArguments('--ignore-certificate-errors');
-edgeOptions.addArguments('--start-maximized');
-edgeOptions.addArguments('--lang=de');
-edgeOptions.addArguments('--excludeSwitches=enable-logging');
-// chromeOptions.addArguments('--start-fullscreen');
-
-let currentParameters = {};
+let tmpUploadDir;
+let currentParameters;
 
 const NotFoundError = (e) => Error(`ElementNotFoundError: ${e}`);
-
-function CustomWorld({ attach, parameters }) {
-	this.attach = attach;
-	this.parameters = parameters;
-}
-let scenarioIndex = 0;
-let testLength;
-const searchTimeout = 15000;
-
-setWorldConstructor(CustomWorld);
-
-// Cucumber default timer for timeout
-setDefaultTimeout(30 * 1000);
-
-defineParameterType({
-	name: 'Bool',
-	regexp: /true|false/,
-	transformer: (b) => (b === 'true')
-});
 
 class CustomError extends Error {
 	constructor(message) {
@@ -108,49 +47,74 @@ async function handleError(f) {
 	}
 }
 
+// Hooks
 Before(async function () {
-	testLength = this.parameters.scenarios.length;
-	currentParameters = this.parameters.scenarios[scenarioIndex];
-
-	if (currentParameters.emulator !== undefined) switch (currentParameters.browser) {
-		case 'chrome':
-			chromeOptions.setMobileEmulation({ deviceName: currentParameters.emulator });
-			break;
-		case 'MicrosoftEdge':
-			edgeOptions.setMobileEmulation({ deviceName: currentParameters.emulator });
-			break;
-		default:
-			break;
+	// Browser starten
+	if (scenarioCount === 0) {
+		totalScenarios = this.parameters.scenarios.length;
+		console.log(`Total scenarios to run: ${totalScenarios}`);
 	}
 
-	if (currentParameters.windowSize !== undefined) switch (currentParameters.browser) {
-		case 'chrome':
-			chromeOptions.windowSize(currentParameters.windowSize);
-			break;
-		case 'MicrosoftEdge':
-			edgeOptions.windowSize(currentParameters.windowSize);
-			break;
-		case 'firefox':
-			firefoxOptions.windowSize(currentParameters.windowSize);
-			break;
-		default:
-			console.error(`Unsupported browser: ${currentParameters.browser}`);
-			break;
-	}
-	else console.error('Invalid width or height values');
+	// Transfer scenario index to World
+	console.log('Scenario count is: ', scenarioCount);
+	await this.setScenarioCount(scenarioCount);
+	console.log(`Starting Scenario with Index: ${scenarioCount + 1}`);
+	await this.launchBrowser(this.parameters.scenarios[scenarioCount]);
 
-	if (currentParameters.oneDriver) {
-		if (currentParameters.oneDriver === true) if (driver) console.log('OneDriver');
-		else driver = new webdriver.Builder()
-			.forBrowser(currentParameters.browser)
-			.setChromeOptions(chromeOptions)
-			.build();
-	} else driver = new webdriver.Builder()
-		.forBrowser(currentParameters.browser)
-		.setChromeOptions(chromeOptions)
-		.setFirefoxOptions(firefoxOptions)
-		.setEdgeOptions(edgeOptions)
-		.build();
+	// Globale Variablen aus der World-Instanz holen
+	driver = this.getDriver();
+	searchTimeout = this.searchTimeout;
+	downloadDirectory = this.downloadDir;
+	tmpUploadDir = this.tmpUploadDir;
+	currentParameters = this.testParameters;
+
+	// Explizites Warten auf DOM-Bereitschaft
+	await driver.manage().setTimeouts({
+		implicit: 10000,
+		pageLoad: 30000,
+		script: 10000
+	});
+});
+
+After(async function (scenario) {
+	// Screenshot bei Fehlern
+	if (scenario.result.status === 'FAILED') try {
+		const screenshot = await this.takeScreenshot();
+		this.attach(screenshot, 'image/png');
+	} catch (e) {
+		console.error('Failed to take screenshot:', e);
+	}
+	console.log(`Finished Scenario ${scenarioCount + 1}/${totalScenarios}`);
+
+	if (
+		!this.parameters.scenarios[scenarioCount].oneDriver
+		|| scenarioCount === totalScenarios - 1
+	) {
+	// Browser immer schließen, unabhängig vom Ergebnis
+		try {
+			await this.closeBrowser();
+		} catch (e) {
+			console.error('Failed to close browser:', e);
+			// Notfall-Schließung
+			if (driver) try {
+				await driver.quit();
+			} catch (e2) {
+				console.error('Emergency browser close failed:', e2);
+			}
+		}
+
+		// Counter erhöhen oder zurücksetzen
+		if (scenarioCount === totalScenarios - 1) {
+			scenarioCount = 0;
+			totalScenarios = 0;
+			console.log('We reset the scenario count!');
+			// process.env.CUCUMBER_TOTAL_WORKERS = undefined;
+			// process.env.CUCUMBER_WORKER_ID = undefined;
+
+			// WICHTIG: Statische Variablen zurücksetzen (OneDriver)
+			SeleniumWebdriverWorld.sharedInstances.driver = null;
+		}
+	} else scenarioCount++;
 });
 
 // / #################### GIVEN ########################################
@@ -166,7 +130,7 @@ Given('I am on the website: {string}', async function getUrl(url) {
 			await driver.get(url);
 			await driver.getCurrentUrl();
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -181,7 +145,7 @@ Given('I add a cookie with the name {string} and value {string}', async function
 		try {
 			await driver.manage().addCookie({ name, value });
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -196,7 +160,7 @@ Given('I remove a cookie with the name {string}', async function removeCookie(na
 		try {
 			await driver.manage().deleteCookie(name);
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -211,7 +175,7 @@ Given('I add a session-storage with the name {string} and value {string}', async
 		try {
 			await driver.executeScript(`window.sessionStorage.setItem('${name}', '${value}');`);
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -226,7 +190,7 @@ Given('I remove a session-storage with the name {string}', async function addSes
 		try {
 			await driver.executeScript(`window.sessionStorage.removeItem('${name}');`);
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -242,11 +206,11 @@ Given('I take a screenshot', async function () {
 		await driver.wait(async () => driver.executeScript('return document.readyState')
 			.then(async (readyState) => readyState === 'complete'));
 		try {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -267,12 +231,12 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 
 		await Promise.any(promises)
 			.then(async () => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`Element ${element} could not be found!`);
@@ -291,7 +255,7 @@ When('I go to the website: {string}', async function getUrl(url) {
 			await driver.get(url);
 			await driver.getCurrentUrl();
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -312,7 +276,7 @@ When('I click the button: {string}', async function clickButton(button) {
 		await Promise.any(promises)
 			.then((elem) => elem.click())
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`Button ${button} could not be found!`);
@@ -329,7 +293,7 @@ When('The site should wait for {string} milliseconds', async function (ms) {
 		try {
 			await driver.sleep(parseInt(ms, 10));
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -342,8 +306,8 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 	await handleError(async () => {
 		const world = this;
 		const identifiers = [`//input[@id='${label}']`, `//input[contains(@id,'${label}')]`, `//textarea[@id='${label}']`, `//textarea[contains(@id,'${label}')]`,
-		`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
-		`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
+			`//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`,
+			`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
 		const value = applySpecialCommands(text);
 
@@ -354,11 +318,11 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 
 		await Promise.any(promises)
 			.then(async (elem) => {
-				await elem.clear()
-				await typing(elem, value)
+				await elem.clear();
+				await typing(elem, value);
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`Input/Textarea ${label} could not be found!`);
@@ -368,11 +332,9 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 	});
 });
 
-const typing = async(elem, inputString) => {
-	for (const char of inputString.split('')){
-		await elem.sendKeys(char)
-	}
-}
+const typing = async (elem, inputString) => {
+	for (const char of inputString.split('')) await elem.sendKeys(char);
+};
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
@@ -386,7 +348,7 @@ When('I select {string} from the selection {string}', async function clickRadioB
 		await Promise.any(promises)
 			.then((elem) => elem.click())
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`Radio ${label} with option ${radioname} could not be found!`);
@@ -401,8 +363,8 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 	await handleError(async () => {
 		const world = this;
 		const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
-		`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
+			`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`,
+			`${dropd}//option[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*,'${value}')]`];
 		const promises = identifiers.map((idString) => driver.wait(
 			until.elementLocated(By.xpath(idString)),
 			searchTimeout,
@@ -428,7 +390,7 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 				await dropdownOption.click();
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`Dropdown ${dropd} with option ${value} could not be found!`);
@@ -445,7 +407,7 @@ When('I select the option {string}', async function selectviaXPath(dropd) {
 		try {
 			await driver.wait(until.elementLocated(By.xpath(`${dropd}`)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100).click();
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			if (Object.keys(e).length === 0) throw NotFoundError(`Dropdown-option ${dropd} could not be found!`);
@@ -488,7 +450,7 @@ When('I hover over the element {string} and select the option {string}', async f
 					await action2.move({ origin: selection }).click()
 						.perform();
 				} catch (e3) {
-					await driver.takeScreenshot().then(async (buffer) => {
+					await world.takeScreenshot().then(async (buffer) => {
 						world.attach(buffer, 'image/png');
 					});
 					if (Object.keys(e).length === 0) throw NotFoundError(`Selector ${element} could not be found!`);
@@ -529,7 +491,7 @@ When('I check the box {string}', async function checkBox(name) {
 		];
 		await Promise.any(promises)
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`The Checkbox ${name} could not be found!`);
@@ -546,7 +508,7 @@ When('Switch to the newly opened tab', async function switchToNewTab() {
 			const tabs = await driver.getAllWindowHandles();
 			await driver.switchTo().window(tabs[1]);
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -569,7 +531,7 @@ When('Switch to the tab number {string}', async function switchToSpecificTab(num
 				await driver.switchTo().window(chromeTabs[tab]);
 			}
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -586,7 +548,7 @@ When('I switch to the next tab', async function switchToNewTab() {
 			const tabs = await driver.getAllWindowHandles();
 			await driver.switchTo().window(tabs[1]);
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -602,18 +564,19 @@ When(
 		const identifiers = [`//input[@*='${input}']`, `${input}`];
 		const promises = [];
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
-		const path =  tmpUploadDir + file
+		const path = tmpUploadDir + file;
 		await Promise.any(promises)
 			.then((elem) => elem.sendKeys(`${path}`))
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
-        if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
-					throw Error(e);
-			  await driver.sleep(100 + currentParameters.waitTime);
-		  });
-  });
+				if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
+				throw Error(e);
+			});
+		await driver.sleep(100 + currentParameters.waitTime);
+	}
+);
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
@@ -622,10 +585,10 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 		const world = this;
 		try {
 			await driver.getCurrentUrl().then(async (currentUrl) => {
-				expect(currentUrl.replace(/\/$/g, '') == url.replace(/[\s]|\/\s*$/g, '') , 'ERROR expected: ' + url.replace(/[\s]|\/\s*$/g, '') + '; actual: ' + currentUrl.replace(/\/$/g, '')).to.be.true
+				assert.strictEqual(currentUrl.replace(/\/$/g, ''), url.replace(/[\s]|\/\s*$/g, ''), 'ERROR expected: ...');
 			});
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -645,7 +608,7 @@ const resolveRegex = (rawString) => {
 // Search a textfield in the html code and assert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
 	await handleError(async () => {
-		const text = applySpecialCommands(expectedText.toString());
+		const text = applySpecialCommands(expectedText.toString().trim());
 		const { resultString, regexFound } = resolveRegex(text);
 
 		const world = this;
@@ -659,11 +622,11 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 				let resp = await elem.getText();
 				resp = resp === '' ? await elem.getAttribute('value') : resp;
 				resp = resp === '' ? await elem.getAttribute('outerHTML') : resp;
-				if (regexFound) match(resp, RegExp(resultString), `The Textfield ${label} does not contain the string/regex: '${resultString}' , actual: '${resp}'!`);
-				else expect(resp).to.equal(resultString, `The Textfield ${label} does not contain the string: '${resultString}, actual: '${resp}'!`);
+				if (regexFound) assert.match(resp, RegExp(resultString), `The Textfield ${label} does not contain the string/regex: '${resultString}' , actual: '${resp}'!`);
+				else assert.strictEqual(resp, resultString, `The Textfield ${label} does not contain the string: '${resultString}' , actual: '${resp}'!`);
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`Textarea ${label} could not be found!`);
@@ -676,7 +639,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 // Search if a is text in html code
 Then('So I can see the text: {string}', async function textPresent(text) {
 	await handleError(async () => {
-		const expectedText = applySpecialCommands(text.toString());
+		const expectedText = applySpecialCommands(text.toString().trim());
 		const { resultString, regexFound } = resolveRegex(expectedText);
 		const world = this;
 		try {
@@ -687,11 +650,11 @@ Then('So I can see the text: {string}', async function textPresent(text) {
 					const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 					const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 					const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-					if (regexFound) match(bodyAll, RegExp(resultString), `The Page HTML does not contain the string/regex: '${resultString}'`);
-					else expect(bodyAll).to.contain(resultString, `The Page HTML does not contain the string: '${resultString}'`);
+					if (regexFound) assert.match(bodyAll, RegExp(resultString), `The Page HTML does not contain the string/regex: '${resultString}'`);
+					else assert(bodyAll.includes(resultString), `The Page HTML does not contain the string: '${resultString}'`);
 				});
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -711,16 +674,16 @@ Then('So I can\'t see text in the textbox: {string}', async function textAbsent(
 		await Promise.any(promises)
 			.then(async (elem) => {
 				const resp = await elem.getText().then((text) => text);
-				expect(resp).to.equal('', 'Textfield does contain some Text');
+				assert.strictEqual(resp, '', 'Textfield does contain some Text');
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`The Textarea ${label} could not be found!`);
 				throw Error(e);
 			});
-		await driver.takeScreenshot().then(async (buffer) => {
+		await world.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
 		await driver.sleep(100 + currentParameters.waitTime);
@@ -741,7 +704,7 @@ Then(
 					if (err) console.log(`ERROR: ${err}`);
 				});
 			} catch (e) {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				throw Error(e);
@@ -777,7 +740,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 				finSrc = finSrc.split(' ').filter((substring) => substring.includes(name));
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`The Picture ${picture} could not be found!`);
@@ -788,7 +751,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 				if (!response.ok) throw Error(`Image ${finSrc} not Found`);
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`The Picture ${picture} could not be found!`);
@@ -801,7 +764,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(text) {
 	await handleError(async () => {
-		const expectedText = applySpecialCommands(text.toString());
+		const expectedText = applySpecialCommands(text.trim());
 		const { resultString, regexFound } = resolveRegex(expectedText);
 		const world = this;
 		try {
@@ -811,11 +774,11 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 				const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 				const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 				const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-				if (regexFound) doesNotMatch(bodyAll, RegExp(resultString), `The Page HTML does contain the regex/string: '${resultString}'.\n`);
-				else expect(bodyAll).to.not.contain(resultString, `The Page HTML does contain the string: '${resultString}'.\n`);
+				if (regexFound) assert.doesNotMatch(bodyAll, RegExp(resultString), `The Page HTML does contain the regex/string: '${resultString}'.\n`);
+				else assert(!bodyAll.includes(resultString), `The Page HTML does contain the string: '${resultString}'.\n`);
 			});
 		} catch (e) {
-			await driver.takeScreenshot().then(async (buffer) => {
+			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
@@ -837,10 +800,10 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 
 		await Promise.any(promises)
 			.then(async (elem) => {
-				expect(await elem.isSelected()).to.equal(checked);
+				assert.strictEqual(await elem.isSelected(), checked);
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`The checkbox ${checkboxName} could not be found!`);
@@ -865,11 +828,11 @@ Then('So on element {string} the css property {string} is {string}', async funct
 						.split(',');
 					const [r, g, b] = colorNumbers.map((v) => Number(v).toString(16));
 					const hex = `#${r}${g}${b}`;
-					expect(value.toString()).to.equal(hex.toString(), `The css property ${property} of element ${element} does not match '${value}', actual '${hex}'`);
-				} else expect(value.toString()).to.equal(actual.toString(), `The css property ${property} of element ${element} does not match '${value}', actual '${actual}'`);
+					assert.strictEqual(value.toString(), hex.toString(), `The css property ${property} of element ${element} does not match '${value}', actual '${hex}'`);
+				} else assert.strictEqual(value.toString(), actual.toString(), `The css property ${property} of element ${element} does not match '${value}', actual '${actual}'`);
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found!`);
@@ -888,10 +851,10 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 		await Promise.any(promises)
 			.then(async (elem) => {
 				const actual = await elem.getAttribute('title');
-				expect(actual).to.equal(value);
+				assert.strictEqual(actual, value);
 			})
 			.catch(async (e) => {
-				await driver.takeScreenshot().then(async (buffer) => {
+				await world.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
 				if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found (check tool-tip).`);
@@ -899,18 +862,4 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
-});
-
-// Closes the webdriver (Browser)
-// runs after each Scenario
-After(async () => {
-	if (currentParameters.oneDriver) {
-		scenarioIndex += 1;
-		await driver.sleep(1000);
-		if (scenarioIndex === testLength) await driver.quit();
-	} else {
-		scenarioIndex += 1;
-		await driver.sleep(1000);
-		await driver.quit();
-	}
 });

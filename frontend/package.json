@@ -1,8 +1,8 @@
 {
   "name": "seed-test-frontend",
-  "version": "1.8.0.1",
+  "version": "1.8.1",
   "engines": {
-    "node": "20.12.1"
+    "node": "^18.19.1 || ^20.11.1 || ^22.0.0"
   },
   "scripts": {
     "ng": "ng",

@@ -62,6 +62,8 @@ export class WorkgroupEditComponent {
 
   edge_enabled;
 
+  webkit_enabled;
+
   browser: string;
 
   waitBetweenSteps: number;
@@ -116,6 +118,7 @@ export class WorkgroupEditComponent {
     this.gecko_enabled = localStorage.getItem("gecko_enabled");
     this.chromium_enabled = localStorage.getItem("chromium_enabled");
     this.edge_enabled = localStorage.getItem("edge_enabled");
+    this.webkit_enabled = localStorage.getItem("webkit_enabled");
 
     this.gecko_emulators = localStorage.getItem("gecko_emulators");
     this.gecko_emulators =
@@ -126,6 +129,7 @@ export class WorkgroupEditComponent {
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+    //TODO: webkit_emulators hinzufügen?
   }
 
   ngOnInit() {
@@ -155,7 +159,7 @@ export class WorkgroupEditComponent {
           }
           this.waitBetweenSteps = settings.stepWaitTime || 0;
           this.reportComment = settings.reportComment !== undefined ? settings.reportComment : true;
-          this.browser = settings.browser || 'Chrome';
+          this.browser = settings.browser || 'chromium';
           this.repoHeight = settings.height || undefined;
           this.repoWidth = settings.width || undefined;
         } else {
@@ -178,7 +182,7 @@ export class WorkgroupEditComponent {
     this.applyGlobalSettings = false;
     this.waitBetweenSteps = 0;
     this.reportComment = true;
-    this.browser = 'Chrome';
+    this.browser = 'chromium';
     this.emulator_enabled = false;
     this.emulator = undefined;
     this.repoHeight = undefined;
@@ -435,7 +439,7 @@ export class WorkgroupEditComponent {
    */
   getAvaiableEmulators() {
     switch (this.browser) {
-      case "chrome":
+      case "chromium":
         return this.chromium_emulators;
       case "firefox":
         return this.gecko_emulators;
