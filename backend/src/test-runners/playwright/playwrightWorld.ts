@@ -134,6 +134,7 @@ class PlaywrightWorld extends World {
 
                 // Emulator-Konfiguration
                 if (parameters.emulator) {
+                    console.log("EMULATOR IS:" , parameters.emulator);
                     const devices = require('playwright').devices;
                     const device = devices[parameters.emulator];
                     if (device) {
