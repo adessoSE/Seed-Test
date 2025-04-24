@@ -53,12 +53,13 @@ const emptyBackground: Background = {
  * Component for the Story editor
  */
 @Component({
-  selector: "app-story-editor",
-  templateUrl: "./story-editor.component.html",
-  styleUrls: [
-    "../base-editor/base-editor.component.css",
-    "./story-editor.component.css",
-  ],
+    selector: "app-story-editor",
+    templateUrl: "./story-editor.component.html",
+    styleUrls: [
+        "../base-editor/base-editor.component.css",
+        "./story-editor.component.css",
+    ],
+    standalone: false
 })
 export class StoryEditorComponent implements OnInit, OnDestroy {
   /**

@@ -6,9 +6,10 @@ import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { ExampleService } from 'src/app/Services/example.service';
 
 @Component({
-  selector: 'app-new-example',
-  templateUrl: './new-example.component.html',
-  styleUrls: ['./new-example.component.css']
+    selector: 'app-new-example',
+    templateUrl: './new-example.component.html',
+    styleUrls: ['./new-example.component.css'],
+    standalone: false
 })
 export class NewExampleComponent {
 

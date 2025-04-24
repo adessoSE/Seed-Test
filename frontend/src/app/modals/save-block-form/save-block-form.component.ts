@@ -9,9 +9,10 @@ import { BlockService } from 'src/app/Services/block.service';
 import { BackgroundService } from '../../Services/background.service';
 
 @Component({
-  selector: 'app-save-block-form',
-  templateUrl: './save-block-form.component.html',
-  styleUrls: ['./save-block-form.component.css']
+    selector: 'app-save-block-form',
+    templateUrl: './save-block-form.component.html',
+    styleUrls: ['./save-block-form.component.css'],
+    standalone: false
 })
 export class SaveBlockFormComponent implements OnInit, OnDestroy {
 

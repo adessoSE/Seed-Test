@@ -11,9 +11,10 @@ import { MatSelect } from "@angular/material/select";
 //import AdmZip from "adm-zip";
 
 @Component({
-  selector: "app-import-modal",
-  templateUrl: "./import-modal.component.html",
-  styleUrls: ["./import-modal.component.css"],
+    selector: "app-import-modal",
+    templateUrl: "./import-modal.component.html",
+    styleUrls: ["./import-modal.component.css"],
+    standalone: false
 })
 export class ImportModalComponent implements AfterViewChecked {
 
