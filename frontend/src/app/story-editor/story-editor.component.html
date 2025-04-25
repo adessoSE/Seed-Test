@@ -43,7 +43,7 @@
   <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story" cdkScrollable>
     <div class="storyHeaderContainer">
       <div>
-        <span id="storyHeader" class="SmallCategory1">Story</span>
+        <span id="storyHeader" class="SmallCategory1">Story&nbsp;</span>
         <dfn class="def">
           <span class="infoIcon uk-icon" uk-icon="info"></span>
           <span rel="def" style="left: 20px; position: absolute;">A user story describes requirements for a software
@@ -163,7 +163,7 @@
         <mat-expansion-panel-header class="scenarioHeaderContainer">
           <mat-panel-title>
             <div class="Smallnavigation1">
-              {{ 'background (Optional)' | titlecase }}
+              {{ 'Background (Optional)' | titlecase }}
               <span class="childElement infoIcon uk-icon" uk-icon="info" matTooltip="You can use the background to set actions, which will be carried out before testing the whole story.
               This happens before the test runs through the Given/When/Then-Steps and is used across all scenarios.
               In short: A background allows to set Given-Steps used for all scenarios."></span>
@@ -238,7 +238,7 @@
           File Manager
           </button>
           <div class="storyInOneSessionDiv">
-            <label class="selectLabel SmallIcontext">Run Story in one Session:</label>
+            <label class="selectLabel SmallIcontext">Single Session:</label>
             <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()" [checked]="this.selectedStory.oneDriver">
             <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
               <span rel="def" style="font-weight: normal;">
@@ -254,14 +254,25 @@
             <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
             <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
               value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event.target.valueAsNumber)">
+            <label class="selectLabel SmallIcontext">Test Runner:</label>
+            <select name="testRunner" class="select" id="testRunnerSelect" (change)="setTestRunner($event.target.value)">
+              <option id="seleniumWebdriver" value="seleniumWebdriver"
+                [selected]="this.testRunner === 'seleniumWebdriver'">Selenium Webdriver</option>
+              <option id="playwright" value="playwright"
+                [selected]="this.testRunner === 'playwright'">Playwright (experimental)</option>
+              
+            </select>
             <label class="selectLabel SmallIcontext">Browser:</label>
             <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
-              <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
-                [selected]="this.selectedScenario.browser === 'chrome'">Chrome</option>
+              <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chromium"
+                [selected]="this.selectedScenario.browser === 'chromium'">Chrome</option>
               <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
                 [selected]="this.selectedScenario.browser === 'firefox'">Firefox</option>
               <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
                 [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
+              <option *ngIf="this.webkit_enabled" id="webkit_browser" value="webkit"
+                [selected]="this.selectedScenario.browser === 'webkit'">Webkit</option>
+              
             </select>
 
             <!-- EMULATOR -->
@@ -340,7 +351,7 @@
             <em class="material-icons-outlined">cancel</em>
           </button>
           <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning"
-            uk-tooltip="Runs all scenario tests for the story" type="button" (click)="evaluateAndRunStory()">
+            uk-tooltip="Runs all scenario tests for the story" type="button" (click)="evaluateAndRunStory(this.testRunner)">
             Run Story
           </button>
           <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()"
@@ -351,7 +362,7 @@
       </div>
 
       <!--Scenario Editor-->
-      <app-scenario-editor [isDark]="isDark" #scenarioChild (diasyLoginChanged)="setShowDaisy($event)"
+      <app-scenario-editor [isDark]="isDark" #scenarioChild
         (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);"
         (deleteScenarioEvent)="showDeleteScenarioToast($event);" [originalStepTypes]="originalStepTypes"
         [testRunning]="testRunning" [newlySelectedStory]="selectedStory"
@@ -385,7 +396,7 @@
             <em class="material-icons-outlined">cancel</em></button>
           <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test"
             [class.disabledButton]="testRunning" [disabled]="testRunning" type="button"
-            (click)="evaluateAndRunScenario(this.selectedScenario.scenario_id);">
+            (click)="evaluateAndRunScenario(this.selectedScenario.scenario_id, this.testRunner);">
             Run Scenario</button>
         </div>
       </div>

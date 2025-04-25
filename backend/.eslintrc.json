@@ -31,6 +31,8 @@
         "quotes": ["error", "single"],
         "comma-dangle": ["error", "never"],
         "no-duplicate-imports": "error",
-        "no-tabs": ["error", { "allowIndentationTabs": true }]
+        "no-tabs": ["error", { "allowIndentationTabs": true }],
+        "xpath-quotes": ["error", "double"],
+        "no-underscore-dangle": "off"
     }
 }

@@ -32,15 +32,16 @@ import { ThemingService } from "../Services/theming.service";
 import { HighlightInputService } from "../Services/highlight-input.service";
 
 @Component({
-  selector: "app-example",
-  template: `<app-base-editor
+    selector: "app-example",
+    template: `<app-base-editor
     [templateName]="TEMPLATE_NAME"
     [testRunning]="testRunning"
     [newlySelectedScenario]="selectedScenario"
     [newlySelectedStory]="selectedStory"
     [originalStepTypes]="originalStepTypes"
   ></app-base-editor> `,
-  styleUrls: ["./example-table.component.css"],
+    styleUrls: ["./example-table.component.css"],
+    standalone: false
 })
 
 /* Example component */
@@ -81,9 +82,10 @@ export class ExampleComponent {
  * Component of for the Example Table
  */
 @Component({
-  selector: "app-example-table",
-  templateUrl: "./example-table.component.html",
-  styleUrls: ["./example-table.component.css"],
+    selector: "app-example-table",
+    templateUrl: "./example-table.component.html",
+    styleUrls: ["./example-table.component.css"],
+    standalone: false
 })
 export class ExampleTableComponent implements OnInit {
   /**

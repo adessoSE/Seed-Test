@@ -2,10 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { execSync } = require('child_process');
 const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const { chromium, firefox, webkit } = require('@playwright/test');
 const scriptRouter = require('./serverRouter/scriptRouter');
 const runReportRouter = require('./serverRouter/runReportRouter');
 const githubRouter = require('./serverRouter/githubRouter');
@@ -19,11 +21,57 @@ const blockRouter = require('./serverRouter/blockRouter');
 const reportRouter = require('./serverRouter/reportRouter');
 const backgroundRouter = require('./serverRouter/backgroundRouter');
 const sanityTest = require('./serverRouter/sanityTest');
+const playwrightRouter = require('./serverRouter/playwrightRouter');
 const logging = require('./logging');
 require('./database/DbServices');
 
 const app = express();
 app.disable('x-powered-by');
+
+async function checkAndInstallEdge() {
+	// Extra Check für Edge wegen häufigen Unternehmensrichtlinien
+	try {
+		const edgeBrowser = await chromium.launch({ channel: 'msedge' });
+		await edgeBrowser.close();
+		console.log('✓ Microsoft Edge is available');
+	} catch (error) {
+		try {
+			console.log(error, '\nMicrosoft Edge is not launchable, trying to install...');
+			execSync('npx playwright install msedge --with-deps', { stdio: 'inherit' });
+		} catch (edge_error) {
+			console.log('Microsoft Edge not launchable nor installable, this probably is caused by corporate installation policies');
+		}
+	}
+}
+async function checkAndInstallGeneralBrowsers() {
+	const browsers = [
+		{ engine: firefox, name: 'Firefox' },
+		{ engine: chromium, name: 'Chromium/Chrome' },
+		{ engine: webkit, name: 'WebKit' }
+	];
+
+	try {
+		// Prüfe Standard-Browser
+		for (const browser of browsers) {
+			const instance = await browser.engine.launch();
+			await instance.close();
+			console.log(`✓ ${browser.name} is available`);
+		}
+	} catch (error) {
+		if (error.message.includes('Executable doesn')
+		|| error.message.includes('Browser version')) {
+			console.log('Browser version incompatible with Playwright version, reinstalling browsers...');
+			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
+		} else if (error.message.includes('browserType.launch')) {
+			console.log('Installing missing Playwright browsers...');
+			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
+		} else throw error;
+	}
+}
+
+
+checkAndInstallGeneralBrowsers();
+checkAndInstallEdge();
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
@@ -88,6 +136,7 @@ app
 	.use('/api/report', reportRouter)
 	.use('/api/background', backgroundRouter)
 	.use('/api/sanity', sanityTest)
+	.use('/api/playwright', playwrightRouter)
 	.get('/api/stepTypes', async (_, res) => {
 		try {
 			const result = await mongo.showSteptypes();

@@ -15,7 +15,8 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 @Component({
     selector: 'app-report',
     templateUrl: './report.component.html',
-    styleUrls: ['./report.component.css']
+    styleUrls: ['./report.component.css'],
+    standalone: false
 })
 export class ReportComponent implements OnInit {
 

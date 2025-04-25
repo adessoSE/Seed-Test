@@ -5,9 +5,10 @@ import { ManagementService } from 'src/app/Services/management.service';
 
 
 @Component({
-  selector: 'app-change-jira-account',
-  templateUrl: './change-jira-account.component.html',
-  styleUrls: ['./change-jira-account.component.css',  '../layout-modal/layout-modal.component.css']
+    selector: 'app-change-jira-account',
+    templateUrl: './change-jira-account.component.html',
+    styleUrls: ['./change-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class ChangeJiraAccountComponent {
 

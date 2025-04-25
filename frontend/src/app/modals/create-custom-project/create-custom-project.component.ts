@@ -6,9 +6,10 @@ import {RepositoryContainer} from 'src/app/model/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
 
 @Component({
-  selector: 'app-create-custom-project',
-  templateUrl: './create-custom-project.component.html',
-  styleUrls: ['./create-custom-project.component.css',  '../layout-modal/layout-modal.component.css']
+    selector: 'app-create-custom-project',
+    templateUrl: './create-custom-project.component.html',
+    styleUrls: ['./create-custom-project.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class CreateCustomProjectComponent {
 

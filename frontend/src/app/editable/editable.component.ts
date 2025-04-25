@@ -10,9 +10,10 @@ import { untilDestroyed } from '@ngneat/until-destroy';
  * Component to enable editable cells in the example table
  */
 @Component({
-  selector: 'editable',
-  templateUrl: './editable.component.html',
-  styleUrls: ['./editable.component.css']
+    selector: 'editable',
+    templateUrl: './editable.component.html',
+    styleUrls: ['./editable.component.css'],
+    standalone: false
 })
 
 export class EditableComponent implements OnInit, OnDestroy {

@@ -14,9 +14,10 @@ import { StoryService } from './Services/story.service';
  * Master Component
  */
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'],
+    standalone: false
 })
 export class AppComponent implements OnInit{
 

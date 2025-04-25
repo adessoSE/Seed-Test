@@ -19,7 +19,8 @@ import { BlockService } from '../Services/block.service';
 @Component({
     selector: 'app-scenario-editor',
     templateUrl: './scenario-editor.component.html',
-    styleUrls: ['../base-editor/base-editor.component.css','./scenario-editor.component.css'],
+    styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
+    standalone: false
 })
 
 export class ScenarioEditorComponent implements OnInit{
@@ -35,13 +36,7 @@ export class ScenarioEditorComponent implements OnInit{
         public blockService: BlockService,
         public scenarioService: ScenarioService,
         public toastr: ToastrService
-    ) {
-        if (localStorage.getItem('version') == 'DAISY') {
-            this.showDaisyAutoLogout = true;
-        } else {
-            this.showDaisyAutoLogout = false;
-        }
-    }
+    ) {}
 
     /**
      * Sets a new selected story
@@ -83,12 +78,6 @@ export class ScenarioEditorComponent implements OnInit{
      * if the arrow right should be shown
      */
     arrowRight = true;
-
-
-    /**
-     * If this is the daisy version and the auto logout should be shown
-     */
-    showDaisyAutoLogout = false;
 
     /**
      * Current step of scenario as ngModel for dropdown
@@ -160,10 +149,7 @@ export class ScenarioEditorComponent implements OnInit{
     @Output()
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
 
-    @Output()
-    diasyLoginChanged: EventEmitter<any> = new EventEmitter();
-
-  /**
+   /**
     * Subscribes to all necessary events
     */
     ngOnInit() {
@@ -439,16 +425,6 @@ export class ScenarioEditorComponent implements OnInit{
         else {
             return !(this.testRunning || this.selectedScenario.saved === undefined  || this.selectedScenario.saved);
         }
-    }
-
-    /**
-     * Sets the daisy auto logout
-     * @param $event
-     * @param checkValue
-     */
-    setDaisyAutoLogout(checkValue: boolean) {
-        this.selectedScenario.daisyAutoLogout = checkValue;
-        this.selectedScenario.saved = false;
     }
 
     /**

@@ -25,7 +25,8 @@ import { ExecutionListComponent } from '../modals/execution-list/execution-list.
 @Component({
     selector: 'app-stories-bar',
     templateUrl: './stories-bar.component.html',
-    styleUrls: ['./stories-bar.component.css']
+    styleUrls: ['./stories-bar.component.css'],
+    standalone: false
 })
 export class StoriesBarComponent implements OnInit, OnDestroy {
 
@@ -48,11 +49,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * If it is a custom story
      */
     isCustomStory = false;
-
-    /**
-     * If it is the daisy version
-     */
-    daisyVersion = true;
 
     /**
      * Subscription element if a custom story should be created
@@ -206,18 +202,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         const version = localStorage.getItem('version');
-        if (version == 'DAISY' || !version) {
-            this.daisyVersion = true;
-        } else {
-            this.daisyVersion = false;
-        }
-
-
     }
 
-    /**
-     * Checks if this is the daisy version
-     */
     ngOnInit() {
         this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s != null);
@@ -337,23 +323,24 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     mergeById(groups, stories) {
         const myMap = new Map;
         for (const story of stories) {
-            myMap.set(story._id, story.title);
+            myMap.set(story._id, story);
         }
 
-        const ret = [];
+        const groupStories = [];
         for (const group of groups) {
-            const gr = group;
+            const tmpGroup = group;
             for (const index in group.member_stories) {
                 if (!group.member_stories[index].title) {
-                    gr.member_stories[index] = {
-                        'title': myMap.get(group.member_stories[index]),
-                        '_id': group.member_stories[index]
+                    tmpGroup.member_stories[index] = {
+                        '_id': group.member_stories[index],
+                        'title': myMap.get(group.member_stories[index]).title,
+                        'issue_number': myMap.get(group.member_stories[index]).issue_number
                     };
                 }
             }
-            ret.push(gr);
+            groupStories.push(tmpGroup);
         }
-        return ret;
+        return groupStories;
     }
 
     /**

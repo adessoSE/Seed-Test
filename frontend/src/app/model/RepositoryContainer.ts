@@ -30,6 +30,7 @@ export interface RepositoryContainer {
         stepWaitTime?: number;
         reportComment?: boolean;
         browser?: string;
+        testRunner?: string;
         emulator?: string;
         width?: number;
         height?: number;

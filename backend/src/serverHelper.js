@@ -1,12 +1,10 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle,curly */
-const ch = require('child_process');
 const fs = require('fs');
 const pfs = require('fs/promises');
 const path = require('path');
 const AdmZip = require('adm-zip');
-const os = require('os');
 const mongo = require('./database/DbServices');
 const moment = require('../node_modules/moment');
 
@@ -160,7 +158,7 @@ async function deleteFeatureFile(storyTitle, storyId) {
 */
 function getSettings(scenario, globalSettings) {
 	const finalSettings = {
-		browser: scenario.browser || 'chrome',
+		browser: scenario.browser || 'chromium',
 		waitTime: scenario.stepWaitTime || 0,
 		daisyAutoLogout: scenario.daisyAutoLogout || false
 	};
@@ -196,9 +194,16 @@ function getSettings(scenario, globalSettings) {
 	return finalSettings;
 }
 
+// Globale Variable für Support Code Library
+const cachedSupportCode = {
+	seleniumWebdriver: null,
+	playwright: null
+  };
+
 async function executeTest(req, mode, story) {
 	const repoId = req.body.repositoryId || req.body.repoId;
-
+	const testRunner = req.body.testRunner || 'seleniumWebdriver'; // Default zu Selenium Webdriver
+	const testRunnerPathName = testRunner === "seleniumWebdriver" ? "selenium-webdriver" : "playwright"
 	let globalSettings;
 
 	// get repo globalsettings from database
@@ -206,7 +211,7 @@ async function executeTest(req, mode, story) {
 		globalSettings = await mongo.getRepoSettingsById(repoId);
 	} catch (error) {
 		console.error('Error during fetching global settings:', error);
-		return;
+		return undefined;
 	}
 
 	let parameters = {};
@@ -230,8 +235,7 @@ async function executeTest(req, mode, story) {
 	}
 
 	const reportTime = Date.now();
-	const cucePath = 'node_modules/.bin/';
-	const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
+	const featurePath = `./features/${cleanFileName(story.title + story._id)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
 	try {
@@ -240,55 +244,83 @@ async function executeTest(req, mode, story) {
 		await updateFeatureFile(story._id, req.params.storySource);
 	}
 
-	let jsonPath = `../../features/${reportName}.json`;
-	if (mode === 'group') {
-		const grpDir = req.body.name;
-		jsonPath = `../../features/${grpDir}/${reportName}.json`;
+	// Cucumber Konfiguration für Cucumber
+	const userConfig = {
+		paths: [path.normalize(featurePath)],
+		require: [path.resolve(process.cwd(), `src/test-runners/${testRunnerPathName}/*.js`)],
+		format: [
+			mode === 'group'
+				// req.body.name = groupDirectory
+				? `json:features/${req.body.name}/${reportName}.json`
+				: `json:features/${reportName}.json`,
+			//'html:reports/cucumber-report.html'
+		],
+		worldParameters: {
+			scenarios: parameters.scenarios,
+			reportPath: `features/${reportName}.json`,
+			featurePath,
+			mode,
+			scenarioId: req.params.scenarioId
+		},
+		tags: mode === 'scenario' ? `@${req.params.issueID}_${req.params.scenarioId}` : undefined
+	};
+
+	try {	
+		// Konfiguration laden und ausführen
+		
+		const cucumberAPI = await import('@cucumber/cucumber/api');
+    	const { loadConfiguration, runCucumber, loadSupport } = cucumberAPI;
+
+		console.log('Loading configuration...');
+    	const { runConfiguration } = await loadConfiguration({
+			provided: userConfig
+    	});
+
+		// Support Code nur einmal laden und wiederverwenden
+        // Support Code für den spezifischen Test-Runner laden oder aus dem Cache holen
+		if (!cachedSupportCode[testRunner]) {
+			console.log(`Loading support code for ${testRunner} for the first time...`);
+			cachedSupportCode[testRunner] = await loadSupport(runConfiguration);
+		}
+
+		console.log(`Using ${testRunner} support code`);
+
+		console.log('Step Definitions Directory:', path.join(process.cwd(), `src/test-runners/${testRunnerPathName}`));
+		console.log('Available Step Files:', fs.readdirSync(path.join(process.cwd(), `src/test-runners/${testRunnerPathName}`)));
+		console.log('\nExecuting:');
+		console.log(`Working Dir: "${process.cwd()}"`);
+		console.log(`Runtime: Cucumber with ${testRunner}`);
+		console.log(`Config: ${JSON.stringify({
+			featurePath: runConfiguration.sources.paths[0],
+			tags: runConfiguration.sources.tagExpression,
+			worldParameters: runConfiguration.runtime.worldParameters,
+			format: runConfiguration.formats
+		}, null, 2)}\n`);
+
+		console.log('Full run configuration:', runConfiguration);
+
+		const { success } = await runCucumber({ 
+			...runConfiguration, 
+			support: cachedSupportCode[testRunner] 
+    	});
+
+		return {
+			reportTime,
+			story,
+			scenarioId: req.params.scenarioId,
+			reportName,
+			success
+		};
+	} catch (error) {
+		console.error('Test execution failed: ', error);
+		return {
+			reportTime,
+			story,
+			scenarioId: req.params.scenarioId,
+			reportName,
+			settings: (globalSettings && globalSettings.activated ? globalSettings : null)
+		};
 	}
-
-	const jsParam = JSON.stringify(parameters);
-	const cucumberArgs = [
-		path.normalize(featurePath),
-		...(mode === 'scenario' ? ['--tags', `@${req.params.issueID}_${req.params.scenarioId}`] : []),
-		'--format', `json:${path.normalize(jsonPath)}`,
-		'--world-parameters', jsParam,
-		'--exit'
-	];
-
-	const cmd = os.platform().includes('win32') ? '.cmd' : '';
-	const cucumberCommand = `cucumber-js${cmd}`;
-	const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
-
-	console.log('\nExecuting:');
-	console.log(`Working Dir: "${cucumberPath}"`);
-	console.log(`Command: "${cucumberCommand}"`);
-	console.log(`Args: [${cucumberArgs}]\n`);
-
-	const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
-
-	runner.stdout.on('data', (data) => {
-		console.log(`stdout: ${data}`);
-	});
-	runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
-	// eslint-disable-next-line consistent-return
-	return new Promise((resolve) => {
-		runner.on('error', (error) => {
-			console.error(`exec error: ${error}`);
-			resolve({
-				reportTime,
-				story,
-				scenarioId: req.params.scenarioId,
-				reportName,
-				settings: (globalSettings && globalSettings.activated ? globalSettings : null)
-			});
-		});
-		runner.on('exit', () => {
-			console.log('test finished');
-			resolve({
-				reportTime, story, scenarioId: req.params.scenarioId, reportName
-			});
-		});
-	});
 }
 
 function scenarioPrep(scenarios, driver, globalSettings) {
@@ -298,7 +330,7 @@ function scenarioPrep(scenarios, driver, globalSettings) {
 		// eslint-disable-next-line no-param-reassign
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
 		// eslint-disable-next-line no-param-reassign
-		if (!scenario.browser) scenario.browser = 'chrome';
+		if (!scenario.browser) scenario.browser = 'chromium';
 		// eslint-disable-next-line no-param-reassign
 		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
 

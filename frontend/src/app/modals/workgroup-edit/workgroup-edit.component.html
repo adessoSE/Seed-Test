@@ -52,6 +52,30 @@
                         </div>
                     </div>
 
+                    <!-- Test Runner -->
+                    <div class="testRunnerDiv space-between">
+                        <div>
+                            <label class="selectLabel SmallIcontext">Test Runner:</label>
+                        </div>
+                        <div>
+                            <select name="testRunner" class="select" id="testRunnerSelect"
+                                (change)="setTestRunner($event.target.value)">
+                                <option id="selenium-webdriver" value="selenium-webdriver"
+                                    [selected]="this.testRunner === 'selenium-webdriver'">Selenium Webdriver</option>
+                                <option id="playwright" value="playwright"
+                                    [selected]="this.testRunner === 'playwright'">Playwright (experimental)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <dfn class="def">
+                                <span id="settingsInfoIcon" uk-icon="info"></span>
+                                <span rel="def" style="font-weight: normal">
+                                    Selects a test runner (Selenium Webdriver, Playwright) for running the test.
+                                </span>
+                            </dfn>
+                        </div>
+                    </div>
+
                     <!-- Browser -->
                     <div class="browserDiv space-between">
                         <div>
@@ -60,19 +84,21 @@
                         <div>
                             <select name="browser" class="select" id="browserSelect"
                                 (change)="setBrowser($event.target.value)">
-                                <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
-                                    [selected]="this.browser === 'chrome'">Chrome</option>
+                                <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chromium"
+                                    [selected]="this.browser === 'chromium'">Chrome</option>
                                 <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
                                     [selected]="this.browser === 'firefox'">Firefox</option>
                                 <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
                                     [selected]="this.browser === 'MicrosoftEdge'">Edge</option>
+                                <option *ngIf="this.webkit_enabled && this.testRunner === 'playwright'" id="webkit_browser" value="webkit"
+                                    [selected]="this.browser === 'webkit'">Webkit</option>
                             </select>
                         </div>
                         <div>
                             <dfn class="def">
                                 <span id="settingsInfoIcon" uk-icon="info"></span>
                                 <span rel="def" style="font-weight: normal">
-                                    Selects a web browser (Chrome, Firefox, Edge) for running the test.
+                                    Selects a web browser (Chrome, Firefox, Edge, Webkit) for running the test.
                                 </span>
                             </dfn>
                         </div>

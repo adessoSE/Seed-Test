@@ -53,12 +53,13 @@ const emptyBackground: Background = {
  * Component for the Story editor
  */
 @Component({
-  selector: "app-story-editor",
-  templateUrl: "./story-editor.component.html",
-  styleUrls: [
-    "../base-editor/base-editor.component.css",
-    "./story-editor.component.css",
-  ],
+    selector: "app-story-editor",
+    templateUrl: "./story-editor.component.html",
+    styleUrls: [
+        "../base-editor/base-editor.component.css",
+        "./story-editor.component.css",
+    ],
+    standalone: false
 })
 export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
@@ -232,11 +233,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   saveBackgroundAndRun = false;
 
   /**
-   * if the daisy version is currently used
-   */
-  daisyVersion = false;
-
-  /**
    * if the report is saved
    */
   reportIsSaved = false;
@@ -267,6 +263,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   gecko_enabled;
   chromium_enabled;
   edge_enabled;
+  webkit_enabled;
+
+  /**
+   * Global settings indicator
+   */
+  testRunner = "seleniumWebdriver";
 
   /**
    * Global settings indicator
@@ -300,8 +302,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   id: string;
 
   lastToFocus;
-
-  showDaisy = false;
 
   /**
    * Mapping for Precondition Stories
@@ -388,15 +388,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.storiesError = false;
     }
     const version = localStorage.getItem("version");
-    if (version === "DAISY" || !version) {
-      this.daisyVersion = true;
-    } else {
-      this.daisyVersion = false;
-    }
 
     this.gecko_enabled = localStorage.getItem("gecko_enabled");
     this.chromium_enabled = localStorage.getItem("chromium_enabled");
     this.edge_enabled = localStorage.getItem("edge_enabled");
+    this.webkit_enabled = localStorage.getItem("webkit_enabled");
 
     this.gecko_emulators = localStorage.getItem("gecko_emulators");
     this.gecko_emulators =
@@ -407,6 +403,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+    this.playwright_emulators = localStorage.getItem("playwright_emulators");
+    this.playwright_emulators =
+      this.playwright_emulators === null ? [] : this.playwright_emulators.split(",");
     this.setUserData();
     this.checkGlobalSettings();
   }
@@ -932,7 +931,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.selectedScenario.stepWaitTime =
       scenario.stepWaitTime ?? this.repoSettings?.stepWaitTime ?? 0;
     this.selectedScenario.browser =
-      scenario.browser ?? this.repoSettings?.browser ?? "chrome";
+      scenario.browser ?? this.repoSettings?.browser ?? "chromium";
     this.selectedScenario.width =
       scenario.width ?? this.repoSettings?.width ?? 1920;
     this.selectedScenario.height =
@@ -1201,7 +1200,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       browserSelectValue = browserSelect ? browserSelect.value : null;
       emulatorSelectValue = emulatorSelect ? emulatorSelect.value : null;
     }
-
+    console.log('We are giving the following testRunner to the Backend: ', this.testRunner);
     return {
       browser: browserSelectValue,
       emulator: emulatorSelectValue,
@@ -1211,6 +1210,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       repositoryId: localStorage.getItem("id"),
       source: localStorage.getItem("source"),
       oneDriver: this.selectedStory.oneDriver,
+      testRunner: this.testRunner
     };
   }
 
@@ -1303,6 +1303,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Set the test runner
+   * @param newTestRunnner
+   */
+  setTestRunner(newTestRunnner) {
+    console.log("Setting Test Runner to " + newTestRunnner);
+    this.setEmulatorEnabled(false);
+    this.testRunner = newTestRunnner;
+  }
+
+  /**
    *  Check for global settings
    */
   checkGlobalSettings() {
@@ -1312,6 +1322,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.repoSettings = settings;
         if (settings && settings?.activated) {
           this.globalSettingsActivated = true;
+          if (settings.testRunner) {
+            this.testRunner = settings.testRunner;
+          }
         } else {
           this.globalSettingsActivated = false;
         }
@@ -1376,14 +1389,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   gecko_emulators;
 
   /**
-   * List of supported emulators for gecko
+   * List of supported emulators for chromium
    */
   chromium_emulators;
 
   /**
-   * List of supported emulators for gecko
+   * List of supported emulators for edge
    */
   edge_emulators;
+
+  /**
+   * List of supported emulators for playwright
+   */
+  playwright_emulators;
 
   /**
    * Set if an emulator should be used
@@ -1396,7 +1414,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Set the emultaor
+   * Set the emulator
    * @param newEmultaor
    */
   setEmulator(newEmulator) {
@@ -1408,8 +1426,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * Get the avaiable emulators
    */
   getAvaiableEmulators() {
+    if (this.testRunner === 'playwright') {
+      return this.playwright_emulators;
+    }
+    
+    // Bestehende Logik für Selenium
     switch (this.selectedScenario.browser) {
-      case "chrome":
+      case "chromium":
         return this.chromium_emulators;
       case "firefox":
         return this.gecko_emulators;
@@ -1599,10 +1622,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       blockToRename,
       storiesWithBlock
     );
-  }
-
-  setShowDaisy(event) {
-    this.showDaisy = event;
   }
 
   toTicket(issue_number: string) {

@@ -5,9 +5,10 @@ import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
-  selector: 'app-new-step-request',
-  templateUrl: './new-step-request.component.html',
-  styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css']
+    selector: 'app-new-step-request',
+    templateUrl: './new-step-request.component.html',
+    styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
+    standalone: false
 })
 export class NewStepRequestComponent {
 
