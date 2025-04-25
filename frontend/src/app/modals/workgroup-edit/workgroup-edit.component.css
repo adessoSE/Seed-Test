@@ -228,6 +228,10 @@ th.mat-mdc-header-cell:first-of-type {
   margin-bottom: 20px;
 }
 
+.testRunnerDiv {
+  margin-bottom: 20px;
+}
+
 .section-header {
   text-align: left;
   margin-left: 0;

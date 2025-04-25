@@ -19,11 +19,10 @@
   "private": true,
   "dependencies": {
     "@cucumber/cucumber": "^11.2.0",
-    "@playwright/test": "^1.51.0",
+    "@playwright/test": "^1.52.0",
     "adm-zip": "^0.5.16",
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
-    "chai": "^4.5.0",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
     "cucumber-html-reporter": "^7.2.0",
@@ -33,12 +32,12 @@
     "express-session": "^1.18.1",
     "geckodriver": "^5.0.0",
     "moment": "^2.30.1",
-    "mongodb": "^6.15.0",
+    "mongodb": "^6.16.0",
     "multer": "^1.4.5-lts.2",
-    "nodemailer": "^6.10.0",
+    "nodemailer": "^6.10.1",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "playwright": "^1.51.0",
+    "playwright": "^1.52.0",
     "selenium-webdriver": "^4.31.0",
     "stream-to-string": "^1.2.1",
     "string-to-stream": "^3.0.1",
@@ -49,12 +48,18 @@
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
     "@types/express": "^5.0.1",
-    "@types/node": "^20.17.30",
+    "@types/node": "^20.17.31",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.31.0",
     "jest": "^29.7.0",
     "rimraf": "^6.0.1",
     "typescript": ">=5.5.0 <5.9.0"
+  },
+  "_comment": "Bitte bei cucumber-html-reporter > 7.2.0 wieder entfernen!",
+  "overrides": { 
+    "cucumber-html-reporter": {
+      "semver": "^7.5.2"
+    }
   },
   "jest": {
     "testPathIgnorePatterns": [

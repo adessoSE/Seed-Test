@@ -1,5 +1,5 @@
 # Use build argument for Node.js version
-ARG NODE_VERSION=20.12.1
+ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}
 
 # Create app directory

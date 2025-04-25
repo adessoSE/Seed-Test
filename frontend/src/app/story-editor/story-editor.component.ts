@@ -403,6 +403,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+    this.playwright_emulators = localStorage.getItem("playwright_emulators");
+    this.playwright_emulators =
+      this.playwright_emulators === null ? [] : this.playwright_emulators.split(",");
     this.setUserData();
     this.checkGlobalSettings();
   }
@@ -1305,6 +1308,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   setTestRunner(newTestRunnner) {
     console.log("Setting Test Runner to " + newTestRunnner);
+    this.setEmulatorEnabled(false);
     this.testRunner = newTestRunnner;
   }
 
@@ -1318,6 +1322,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.repoSettings = settings;
         if (settings && settings?.activated) {
           this.globalSettingsActivated = true;
+          if (settings.testRunner) {
+            this.testRunner = settings.testRunner;
+          }
         } else {
           this.globalSettingsActivated = false;
         }
@@ -1382,14 +1389,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   gecko_emulators;
 
   /**
-   * List of supported emulators for gecko
+   * List of supported emulators for chromium
    */
   chromium_emulators;
 
   /**
-   * List of supported emulators for gecko
+   * List of supported emulators for edge
    */
   edge_emulators;
+
+  /**
+   * List of supported emulators for playwright
+   */
+  playwright_emulators;
 
   /**
    * Set if an emulator should be used
@@ -1402,7 +1414,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Set the emultaor
+   * Set the emulator
    * @param newEmultaor
    */
   setEmulator(newEmulator) {
@@ -1414,6 +1426,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * Get the avaiable emulators
    */
   getAvaiableEmulators() {
+    if (this.testRunner === 'playwright') {
+      return this.playwright_emulators;
+    }
+    
+    // Bestehende Logik für Selenium
     switch (this.selectedScenario.browser) {
       case "chromium":
         return this.chromium_emulators;

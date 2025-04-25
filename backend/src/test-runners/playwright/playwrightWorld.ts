@@ -146,10 +146,16 @@ class PlaywrightWorld extends World {
                             throw new Error(`Browser launch failed in Emulator: ${error.message}`);
                         }
                         try {
+                            const deviceConfig = {...device};
+                            
+                            // Entferne isMobile für Firefox und WebKit
+                            if (this.testParameters.browser === 'firefox' || this.testParameters.browser === 'webkit') {
+                            delete deviceConfig.isMobile;
+                            }
                             // Neuen Context nur erstellen wenn sie nicht existieren
                             if (!this.context) {
                                this.context = await this.browser.newContext({
-                                ...device,
+                                ...deviceConfig,
                                 acceptDownloads: true,
                                 locale: 'de-DE'
                                 });
