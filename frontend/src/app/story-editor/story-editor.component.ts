@@ -1322,6 +1322,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.repoSettings = settings;
         if (settings && settings?.activated) {
           this.globalSettingsActivated = true;
+          if (settings.testRunner) {
+            this.testRunner = settings.testRunner;
+          }
         } else {
           this.globalSettingsActivated = false;
         }

@@ -175,7 +175,7 @@ export class WorkgroupEditComponent {
               ? settings.reportComment
               : true;
           this.browser = settings.browser || "chromium";
-          this.testRunner = settings.testRunner || "selenium-webdriver";
+          this.testRunner = settings.testRunner || "seleniumWebdriver";
           this.repoHeight = settings.height || undefined;
           this.repoWidth = settings.width || undefined;
         } else {
