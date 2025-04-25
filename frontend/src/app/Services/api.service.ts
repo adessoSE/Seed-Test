@@ -156,6 +156,7 @@ export class ApiService {
     const gecko_emulators = localStorage.getItem("gecko_emulators");
     const chromium_emulators = localStorage.getItem("chromium_emulators");
     const edge_emulators = localStorage.getItem("edge_emulators");
+    const playwright_emulators = localStorage.getItem("playwright_emulators");
 
     if (
       url &&
@@ -177,7 +178,9 @@ export class ApiService {
       chromium_emulators &&
       chromium_emulators !== "undefined" &&
       edge_emulators &&
-      edge_emulators !== "undefined"
+      edge_emulators !== "undefined" &&
+      playwright_emulators &&
+      playwright_emulators !== "undefined"
     ) {
       this.urlReceived = true;
       this.getBackendUrlEvent.emit();
@@ -206,8 +209,11 @@ export class ApiService {
             backendInfo.chromium_emulators
           );
           localStorage.setItem("edge_emulators", backendInfo.edge_emulators);
+          this.getPlaywrightEmulators().subscribe();
+          
           this.urlReceived = true;
           this.getBackendUrlEvent.emit();
+          
         });
     }
   }
@@ -229,6 +235,27 @@ export class ApiService {
         catchError(this.handleStoryError)
       );
   }
+
+  /**
+   * Sets the available emulation devices of playwright
+   */
+  getPlaywrightEmulators(): Observable<string[]> {
+    this.apiServer = localStorage.getItem("url_backend");
+    return this.http.get<string[]>(
+      this.apiServer + "/playwright/device-names",
+      ApiService.getOptions()
+    ).pipe(
+      tap(emulators => {
+        localStorage.setItem("playwright_emulators", emulators.join(","));
+      }),
+      catchError(error => {
+        console.error('Fehler beim Abrufen der Playwright-Geräte:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+  
+
   /**
    * Submitts an issue to github to create a new step
    * @param obj

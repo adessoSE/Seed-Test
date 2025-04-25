@@ -21,6 +21,7 @@ const blockRouter = require('./serverRouter/blockRouter');
 const reportRouter = require('./serverRouter/reportRouter');
 const backgroundRouter = require('./serverRouter/backgroundRouter');
 const sanityTest = require('./serverRouter/sanityTest');
+const playwrightRouter = require('./serverRouter/playwrightRouter');
 const logging = require('./logging');
 require('./database/DbServices');
 
@@ -135,6 +136,7 @@ app
 	.use('/api/report', reportRouter)
 	.use('/api/background', backgroundRouter)
 	.use('/api/sanity', sanityTest)
+	.use('/api/playwright', playwrightRouter)
 	.get('/api/stepTypes', async (_, res) => {
 		try {
 			const result = await mongo.showSteptypes();
