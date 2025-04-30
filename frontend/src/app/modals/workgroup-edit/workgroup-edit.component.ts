@@ -327,6 +327,11 @@ export class WorkgroupEditComponent {
     const currentRepo = localStorage.getItem("repository");
     if (this.workgroupProject.value === currentRepo) {
       this.openRepoSwitchModal();
+    } else if (this.workgroupList.length > 0){
+      this.toastr.info(
+        "Your project has other members, either remove them beforehand or transfer your projects ownership",
+        "Other members affected"
+      )
     } else {
       this.showDeleteRepositoryToast();
     }
