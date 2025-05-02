@@ -552,57 +552,102 @@ async function createStory(
 }
 
 /**
- * Deletes the Story in the StoryCollection and deletes the _id in the corresponding Repository and the StoryGroups
- * @param {*} repoId
- * @param {*} storyId
- * @returns deleteReport
+ * Deletes a story from the database, removes all references in repository and groups,
+ * and deletes all associated reports (including GridFS data).
+ *
+ * @param {String} repoId - Repository ID
+ * @param {String} storyId - Story ID
+ * @returns {Object} Deletion result
  */
 async function deleteStory(repoId, storyId) {
-	// TODO refactor use promise all
+	const db = dbConnection.getConnection();
+	const repoCollection = db.collection(repositoriesCollection);
+	const storyCollection = db.collection(storiesCollection);
+	const reportDataCollection = db.collection(ReportDataCollection);
+
+	// 1. Remove storyId from all groups in the repository
+	let repo;
 	try {
-		const db = dbConnection.getConnection();
-		const repo = await db.collection(repositoriesCollection);
+		repo = await repoCollection.findOne(
+			{ _id: new ObjectId(repoId) },
+			{ projection: { groups: 1 } }
+		);
+	} catch (e) {
+		console.error(`ERROR in deleteStory: Failed to fetch repository: ${e}`);
+		throw new Error('Failed to fetch repository for story deletion.');
+	}
+
+	if (repo && Array.isArray(repo.groups)) {
 		try {
-			const groups = await repo.findOne(
-				{ _id: new ObjectId(repoId) },
-				{ projection: { groups: 1 } }
-			);
-			for (const index in groups.groups) groups.groups[index].member_stories = groups.groups[
-				index
-			].member_stories.filter((story) => story !== storyId);
-			await repo.findOneAndUpdate(
-				{ _id: new ObjectId(repoId) },
-				{ $set: { groups: groups.groups } }
-			);
-			try {
-				await repo.findOneAndUpdate(
+			let groupsChanged = false;
+			for (const group of repo.groups) {
+				const initialLength = group.member_stories.length;
+				group.member_stories = group.member_stories.filter(
+					(sid) => sid.toString() !== storyId.toString()
+				);
+				if (group.member_stories.length !== initialLength) groupsChanged = true;
+			}
+			if (groupsChanged) {
+				await repoCollection.updateOne(
 					{ _id: new ObjectId(repoId) },
-					{ $pull: { stories: new ObjectId(storyId) } }
+					{ $set: { groups: repo.groups } }
 				);
-				try {
-					return await db
-						.collection(storiesCollection)
-						.findOneAndDelete({ _id: new ObjectId(storyId) });
-				} catch (e) {
-					console.log(
-						`ERROR in deleteStory, couldn't delete the Story. Trying to recreate the Repo- and GroupsEntry: ${e}`
-					);
-					// TODO: recreate both Entrys
-				}
-			} catch (e) {
-				console.log(
-					`ERROR in deleteStory, couldn't delete the Story_id in the Repo. Trying to recreate the deleted GroupEntry : ${e}`
-				);
-				// TODO: recreate the GroupEntry
 			}
 		} catch (e) {
-			console.error(`ERROR in deleteStory, couldn't delete GroupEntry: ${e}`);
-			throw e;
+			console.error(`ERROR in deleteStory: Failed to update groups: ${e}`);
+			throw new Error('Failed to update groups when deleting story.');
+		}
+	}
+
+	// 2. Remove storyId from the stories array in the repository
+	try {
+		await repoCollection.updateOne(
+			{ _id: new ObjectId(repoId) },
+			{ $pull: { stories: new ObjectId(storyId) } }
+		);
+	} catch (e) {
+		console.error(`ERROR in deleteStory: Failed to remove story from repository: ${e}`);
+		throw new Error('Failed to remove story from repository.');
+	}
+
+	// 3. Find and delete all reports linked to this story
+	let reports = [];
+	try {
+		reports = await reportDataCollection.find({ storyId: new ObjectId(storyId) }).toArray();
+	} catch (e) {
+		console.error(`ERROR in deleteStory: Failed to fetch reports: ${e}`);
+		throw new Error('Failed to fetch reports for story deletion.');
+	}
+
+	let deletedReports = 0;
+	for (const report of reports) {
+		try {
+			await deleteReport(report._id); // This method also deletes GridFS data!
+			deletedReports++;
+		} catch (e) {
+			console.error(`ERROR in deleteStory: Failed to delete report ${report._id}: ${e}`);
+		// Continue deleting other reports, but log the error
+		}
+	}
+
+	// 4. Delete the story itself
+	let deleteResult;
+	try {
+		deleteResult = await storyCollection.findOneAndDelete({ _id: new ObjectId(storyId) });
+		if (!deleteResult) {
+			throw new Error('Story not found for deletion.');
 		}
 	} catch (e) {
-		console.error(`ERROR in deleteStory, couldnt establish a Connection: ${e}`);
-		throw e;
+		console.error(`ERROR in deleteStory: Failed to delete the story itself: ${e}`);
+		throw new Error('Failed to delete the story itself.');
 	}
+
+	return {
+		status: 'deleted',
+		storyId,
+		deletedReports,
+		message: 'Story, all references, and associated reports deleted successfully.'
+	};
 }
 
 async function insertStoryIdIntoRepo(
@@ -837,7 +882,6 @@ async function deleteRepository(repoId, ownerId) {
 	try {
 		const db = dbConnection.getConnection();
 		const collectionRepo = await db.collection(repositoriesCollection);
-		const collectionStory = await db.collection(storiesCollection);
 		const collectionCustomBlocks = await db.collection(CustomBlocksCollection);
 		const collectionWorkgroup = await db.collection(WorkgroupsCollection);
 
@@ -889,15 +933,14 @@ async function deleteRepository(repoId, ownerId) {
 
 		// Delete all stories
 		if (Array.isArray(repo.stories) && repo.stories.length > 0) {
-			const storyIds = repo.stories.map((val) => new ObjectId(val.$oid ? val.$oid : val));
-			await collectionStory.deleteMany({ _id: { $in: storyIds } });
+			for (const storyIdRaw of repo.stories) {
+				const storyId = storyIdRaw.$oid ? storyIdRaw.$oid : storyIdRaw;
+				await deleteStory(repoId, storyId);
+			}
 		}
 
 		// Delete all custom blocks
-		if (Array.isArray(repo.customBlocks) && repo.customBlocks.length > 0) {
-			const customBlockIds = repo.customBlocks.map((val) => new ObjectId(val.$oid ? val.$oid : val));
-			await collectionCustomBlocks.deleteMany({ _id: { $in: customBlockIds } });
-		}
+		await collectionCustomBlocks.deleteMany({ repositoryId: new ObjectId(repoId) });
 
 		// Delete the workgroup itself
 		await collectionWorkgroup.deleteOne({ Repo: new ObjectId(repoId) });
@@ -1497,7 +1540,6 @@ async function getReportDataById(reportId) {
 // delete User in DB needs ID
 async function deleteUser(userID) {
 	try {
-		// TODO: Reports will not be deleted as they are not bound to user, adjust?
 		const db = dbConnection.getConnection();
 		const oId = new ObjectId(userID);
 
@@ -1529,16 +1571,11 @@ async function deleteUser(userID) {
 			success: true,
 			message: 'User and all associated data successfully deleted',
 			deletedUser: resultUser,
-			deletedReposCount: repos.length
+			deletedReposCount: repoDeletionFeedback.filter((a) => a === 'deleted').length,
+			transferredReposCount: repoDeletionFeedback.filter((a) => a === 'ownership_transferred').length
 		};
-		console.log(result, repoDeletionFeedback.toString());
 
-		return {
-			success: true,
-			message: 'User and all associated data successfully deleted',
-			deletedUser: resultUser,
-			deletedReposCount: repos.length
-		};
+		return result;
 	} catch (e) {
 		console.error(`ERROR in deleteUser: ${e}`);
 		throw e;
