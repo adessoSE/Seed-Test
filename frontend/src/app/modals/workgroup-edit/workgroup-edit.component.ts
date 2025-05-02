@@ -237,8 +237,7 @@ export class WorkgroupEditComponent {
     document
       .getElementById("changeOwner")
       .setAttribute("style", "display: none");
-    const repo_id = localStorage.getItem("id");
-    this.projectService.changeOwner(repo_id, newOwner).subscribe((_) => {
+    this.projectService.changeOwner(this.workgroupProject._id, newOwner).subscribe((_) => {
       this.toastr.success("successfully changed", "New owner");
     });
     this.modalReference.close();

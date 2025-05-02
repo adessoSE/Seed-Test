@@ -827,42 +827,90 @@ async function removeUserFromAllWorkgroups(email) {
 	}
 }
 
-async function deleteRepository(repoId, ownerId, query = false) {
+/**
+ * Deletes a repository or transfers ownership if other workgroup members exist.
+ * @param {String} repoId - Repository ID
+ * @param {String} ownerId - Current owner's User ID
+ * @returns {Object} Deletion or transfer result
+ */
+async function deleteRepository(repoId, ownerId) {
 	try {
-		// todo delete Workgroup, delete story Reports
 		const db = dbConnection.getConnection();
 		const collectionRepo = await db.collection(repositoriesCollection);
 		const collectionStory = await db.collection(storiesCollection);
 		const collectionCustomBlocks = await db.collection(CustomBlocksCollection);
+		const collectionWorkgroup = await db.collection(WorkgroupsCollection);
 
-		// Get repo to enable Story and Custom Block deletion
+		// Fetch the repository and workgroup
 		const repo = await collectionRepo.findOne({
 			owner: new ObjectId(ownerId),
 			_id: new ObjectId(repoId)
 		});
-
 		if (!repo) throw new Error('Repository not found');
 
-		// Delete Stories (IDs of repo.stories)
+		const workgroup = await collectionWorkgroup.findOne({ Repo: new ObjectId(repoId) });
+
+		// If workgroup exists and has members besides the owner, transfer ownership
+		if (workgroup && Array.isArray(workgroup.Members) && workgroup.Members.length > 0) {
+		// Find the next owner: prefer canEdit, else first member
+			let newOwner = workgroup.Members.find((m) => m.canEdit);
+			if (!newOwner) newOwner = workgroup.Members[0];
+
+			if (newOwner) {
+				// Find the user document for the new owner (to get their userId)
+				const userColl = await db.collection(userCollection);
+				const userDoc = await userColl.findOne({ email: newOwner.email });
+				if (!userDoc) throw new Error('New owner user not found');
+
+				// Update repository owner
+				await collectionRepo.updateOne(
+					{ _id: new ObjectId(repoId) },
+					{ $set: { owner: userDoc._id } }
+				);
+
+				// Update workgroup owner and remove from Members
+				await collectionWorkgroup.updateOne(
+					{ Repo: new ObjectId(repoId) },
+					{
+						$set: { owner: newOwner.email },
+						$pull: { Members: { email: newOwner.email } }
+					}
+				);
+
+				return {
+					status: 'ownership_transferred',
+					message: `Repository ownership transferred to ${newOwner.email}. Repository was not deleted.`,
+					newOwner: newOwner.email
+				};
+			}
+		}
+
+		// If no other members, proceed with deletion
+
+		// Delete all stories
 		if (Array.isArray(repo.stories) && repo.stories.length > 0) {
 			const storyIds = repo.stories.map((val) => new ObjectId(val.$oid ? val.$oid : val));
 			await collectionStory.deleteMany({ _id: { $in: storyIds } });
 		}
 
-		// Delete Custom Blocks (IDs of repo.customBlocks)
+		// Delete all custom blocks
 		if (Array.isArray(repo.customBlocks) && repo.customBlocks.length > 0) {
 			const customBlockIds = repo.customBlocks.map((val) => new ObjectId(val.$oid ? val.$oid : val));
 			await collectionCustomBlocks.deleteMany({ _id: { $in: customBlockIds } });
 		}
 
-		// Delete the workgroup; This should only trigger if only the owner is left
-		await deleteWorkgroup(repoId, query);
-		return collectionRepo.deleteOne({
+		// Delete the workgroup itself
+		await collectionWorkgroup.deleteOne({ Repo: new ObjectId(repoId) });
+
+		// Finally, delete the repository
+		await collectionRepo.deleteOne({
 			owner: new ObjectId(ownerId),
 			_id: new ObjectId(repoId)
 		});
+
+		return { status: 'deleted', message: 'Repository and all associated data deleted.' };
 	} catch (e) {
-		console.error(`ERROR in deleteRepository${e}`);
+		console.error(`ERROR in deleteRepository: ${e}`);
 		throw e;
 	}
 }
@@ -1085,35 +1133,49 @@ async function removeFromWorkgroup(repoId, user) {
 	}
 }
 
+/**
+ * Updates the owner of a repository and its associated workgroup
+ * @param {String} repoId - Repository ID
+ * @param {String} newOwnerId - User ID of the new owner
+ * @param {String} oldOwnerId - User ID of the current owner
+ * @returns {String} Success message
+ */
 async function updateOwnerInRepo(repoId, newOwnerId, oldOwnerId) {
 	try {
 		const db = dbConnection.getConnection();
+
+		// Get user objects for both owners
 		const oldOwner = await getUserById(oldOwnerId);
-		// set new Owner for the given Repo
 		const newOwner = await getUserById(newOwnerId);
-		await db
-			.collection(repositoriesCollection)
-			.findOne({ _id: new ObjectId(repoId) });
-		await db
-			.collection(repositoriesCollection)
+
+		if (!oldOwner || !newOwner) {
+			throw new Error('Could not find one or both users');
+		}
+
+		// 1. Update repository owner
+		await db.collection(repositoriesCollection)
 			.findOneAndUpdate(
 				{ _id: new ObjectId(repoId) },
-				{ $set: { owner: newOwnerId } }
+				{ $set: { owner: new ObjectId(newOwnerId) } }
 			);
-		// remove the new Owner from Workgroup
-		await removeFromWorkgroup(repoId, newOwner);
 
-		// add old Owner as Member and update Email in Workgroup
-		const wgMember = { email: oldOwner.email, canEdit: Boolean(true) };
-		await db
-			.collection(WorkgroupsCollection)
+		// 2. Update workgroup owner and remove new owner from members
+		await db.collection(WorkgroupsCollection)
 			.findOneAndUpdate(
 				{ Repo: new ObjectId(repoId) },
-				{ $set: { owner: newOwner.email }, $push: { Members: wgMember } }
+				{
+					$set: { owner: newOwner.email },
+					$pull: { Members: { email: newOwner.email } }
+				}
 			);
+
+		// 3. Add old owner as a member with edit rights
+		const wgMember = { email: oldOwner.email, canEdit: true };
+		await addMember(repoId, wgMember);
+
 		return 'Success';
 	} catch (e) {
-		console.error(`ERROR in updateOwnerInRepo ${e}`);
+		console.error(`ERROR in updateOwnerInRepo: ${e}`);
 		throw e;
 	}
 }
@@ -1451,8 +1513,10 @@ async function deleteUser(userID) {
 			.find({ owner: oId })
 			.toArray();
 
+		const repoDeletionFeedback = [];
 		for (const repo of repos) {
-			await deleteRepository(repo._id, userID);
+			const feedback = await deleteRepository(repo._id, userID, true);
+			repoDeletionFeedback.push(feedback.status);
 		}
 
 		// Step 3: Remove user from all workgroups where they are a member
@@ -1460,6 +1524,14 @@ async function deleteUser(userID) {
 
 		// Step 4: Finally delete the user account itself
 		const resultUser = await db.collection(userCollection).deleteOne({ _id: oId });
+
+		const result = {
+			success: true,
+			message: 'User and all associated data successfully deleted',
+			deletedUser: resultUser,
+			deletedReposCount: repos.length
+		};
+		console.log(result, repoDeletionFeedback.toString());
 
 		return {
 			success: true,
@@ -1592,46 +1664,6 @@ async function getWorkgroup(id) {
 			.findOne({ Repo: new ObjectId(id) });
 	} catch (e) {
 		console.error(`ERROR in getWorkgroup: ${e}`);
-		throw e;
-	}
-}
-
-/**
- *
- * @param {String} id Repository Id
- * @param {Boolean} query Shows if multiple Repos are being deleted => owner change necessary
- * @returns
- */
-async function deleteWorkgroup(id, query = false) {
-	try {
-		const db = dbConnection.getConnection();
-		const workgroup = await db
-			.collection(WorkgroupsCollection)
-			.findOne({ Repo: new ObjectId(id) });
-		if (query && workgroup.Members.length > 0) {
-			// Change Owner to first member who can edit before deletion
-			let newOwner = workgroup.Members && workgroup.Members.find((m) => m.canEdit);
-			// If non-existant pick first member
-			if (!newOwner && workgroup.Members && workgroup.Members.length > 0) {
-				newOwner = workgroup.Members[0];
-			}
-			// Change owner to the determined new owner
-			if (newOwner) {
-				await db.collection(WorkgroupsCollection).updateOne(
-					{ Repo: new ObjectId(id) },
-					{
-						$set: { owner: newOwner.email },
-						$pull: { member: { email: newOwner.email } }
-					}
-				);
-				return { status: 'owner_changed', newOwner: newOwner.email };
-			}
-		}
-		return await db
-			.collection(WorkgroupsCollection)
-			.deleteOne({ Repo: new ObjectId(id) });
-	} catch (e) {
-		console.error(`ERROR in deleteWorkgroup: ${e}`);
 		throw e;
 	}
 }
@@ -2140,7 +2172,6 @@ module.exports = {
 	getBlocks,
 	deleteBlock,
 	getWorkgroup,
-	deleteWorkgroup,
 	addMember,
 	updateMemberStatus,
 	getMembers,

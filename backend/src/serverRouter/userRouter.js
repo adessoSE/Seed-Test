@@ -265,6 +265,7 @@ router.post('/update/:userID', async (req, res) => {
 router.put('/repository/:repo_id', async (req, res) => {
 	try {
 		const newOwner = await mongo.getUserByEmail(req.body.email);
+		console.log(newOwner.email, newOwner._id, req.user._id);
 		const repo = await mongo.updateOwnerInRepo(req.params.repo_id, newOwner._id, req.user._id);
 		res.status(200).json(repo);
 	} catch (error) {
