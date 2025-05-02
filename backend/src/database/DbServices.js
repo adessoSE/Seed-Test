@@ -803,30 +803,60 @@ async function getRepository(userID) {
 	}
 }
 
-// deletes all Repositories of own User
-async function deleteRepositorys(ownerID) {
-	// TODO: Dringend! Die eingetragenen Storys und die Einträge in Stories und Groups müssen gelöscht werden
+/**
+ * Removes a user from all workgroups where they are a member
+ * @param {String} email - Email of the user to remove
+ * @returns {Object} Result of the workgroup update operations
+ */
+async function removeUserFromAllWorkgroups(email) {
 	try {
-		const query = { owner: new ObjectId(ownerID) };
 		const db = dbConnection.getConnection();
-		const collection = await db.collection(repositoriesCollection);
-		return await collection.deleteMany(query);
+		const workgroupCollection = await db.collection(WorkgroupsCollection);
+
+		// Update all workgroups to remove the user from Members array
+		const result = await workgroupCollection.updateMany(
+			{ 'Members.email': email },
+			{ $pull: { Members: { email } } }
+		);
+
+		console.log(`User removed from ${result.modifiedCount} workgroups`);
+		return result;
 	} catch (e) {
-		console.error(`ERROR in deleteRepositorys${e}`);
+		console.error(`ERROR in removeUserFromAllWorkgroups: ${e}`);
 		throw e;
 	}
 }
 
-async function deleteRepository(repoId, ownerId) {
-	// TODO: Dringend! Die eingetragenen Storys und die Einträge in Stories und Groups müssen gelöscht werden
+async function deleteRepository(repoId, ownerId, query = false) {
 	try {
 		// todo delete Workgroup, delete story Reports
 		const db = dbConnection.getConnection();
 		const collectionRepo = await db.collection(repositoriesCollection);
-		// const collectionStory = await db.collection(storiesCollection)
-		// const repo = await collectionRepo.findOne({ owner: new ObjectId(ownerId), _id: new ObjectId(repoId)})
-		// const storIds = repo.stories.map((val)=>new ObjectId(val))
-		// const storiesRes = await collectionStory.deleteMany({_id:{$in: storIds}})
+		const collectionStory = await db.collection(storiesCollection);
+		const collectionCustomBlocks = await db.collection(CustomBlocksCollection);
+
+		// Get repo to enable Story and Custom Block deletion
+		const repo = await collectionRepo.findOne({
+			owner: new ObjectId(ownerId),
+			_id: new ObjectId(repoId)
+		});
+
+		if (!repo) throw new Error('Repository not found');
+
+		// Delete Stories (IDs of repo.stories)
+		if (Array.isArray(repo.stories) && repo.stories.length > 0) {
+			const storyIds = repo.stories.map((val) => new ObjectId(val.$oid ? val.$oid : val));
+			await collectionStory.deleteMany({ _id: { $in: storyIds } });
+		}
+
+		// Delete Custom Blocks (IDs of repo.customBlocks)
+		if (Array.isArray(repo.customBlocks) && repo.customBlocks.length > 0) {
+			const customBlockIds = repo.customBlocks.map((val) => new ObjectId(val.$oid ? val.$oid : val));
+			await collectionCustomBlocks.deleteMany({ _id: { $in: customBlockIds } });
+		}
+
+		// Delete the workgroup; This should only trigger if only the owner is left
+		await deleteWorkgroup(repoId, query);
 		return collectionRepo.deleteOne({
 			owner: new ObjectId(ownerId),
 			_id: new ObjectId(repoId)
@@ -919,7 +949,6 @@ async function createRepo(
 			repoName: name.toString(),
 			stories: [],
 			repoType: 'db',
-			customBlocks: [],
 			groups: []
 		};
 		const db = session
@@ -1001,8 +1030,7 @@ async function createJiraRepo(repoName) {
 			owner: '',
 			repoName,
 			stories: [],
-			repoType: 'jira',
-			customBlocks: []
+			repoType: 'jira'
 		};
 		return await db.collection(repositoriesCollection).insertOne(repo);
 	} catch (e) {
@@ -1020,8 +1048,7 @@ async function createGitRepo(gitOwnerId, repoName, userGithubId, userId) {
 			gitOwner: gitOwnerId,
 			repoName,
 			stories: [],
-			repoType: 'github',
-			customBlocks: []
+			repoType: 'github'
 		};
 		if (userGithubId === gitOwnerId) newRepo.owner = new ObjectId(userId);
 		return await db.collection(repositoriesCollection).insertOne(newRepo);
@@ -1408,26 +1435,38 @@ async function getReportDataById(reportId) {
 // delete User in DB needs ID
 async function deleteUser(userID) {
 	try {
-		// delete user from Workgroup
-		const oId = new ObjectId(userID);
-		const myObjt = { _id: oId };
+		// TODO: Reports will not be deleted as they are not bound to user, adjust?
 		const db = dbConnection.getConnection();
-		const repos = await db
-			.collection(repositoriesCollection)
+		const oId = new ObjectId(userID);
+
+		// Step 1: Get user data to retrieve email for workgroup removal
+		const user = await db.collection(userCollection).findOne({ _id: oId });
+		if (!user) {
+			throw new Error(`User with ID ${userID} not found`);
+		}
+
+		// Step 2: Delete all repositories owned by the user
+		// This will also delete all associated stories, groups, and custom blocks
+		const repos = await db.collection(repositoriesCollection)
 			.find({ owner: oId })
 			.toArray();
-		if (repos) {
-			for (const repo of repos) for (const storyID of repo.stories) await db
-				.collection(storiesCollection)
-				.deleteOne({ _id: new ObjectId(storyID) }); // use delete repo?
 
-			const resultRepo = await db
-				.collection(repositoriesCollection)
-				.deleteMany({ owner: oId });
-			const resultUser = await db.collection(userCollection).deleteOne(myObjt);
-			return { resultUser, resultRepo };
+		for (const repo of repos) {
+			await deleteRepository(repo._id, userID);
 		}
-		return null;
+
+		// Step 3: Remove user from all workgroups where they are a member
+		await removeUserFromAllWorkgroups(user.email);
+
+		// Step 4: Finally delete the user account itself
+		const resultUser = await db.collection(userCollection).deleteOne({ _id: oId });
+
+		return {
+			success: true,
+			message: 'User and all associated data successfully deleted',
+			deletedUser: resultUser,
+			deletedReposCount: repos.length
+		};
 	} catch (e) {
 		console.error(`ERROR in deleteUser: ${e}`);
 		throw e;
@@ -1553,6 +1592,46 @@ async function getWorkgroup(id) {
 			.findOne({ Repo: new ObjectId(id) });
 	} catch (e) {
 		console.error(`ERROR in getWorkgroup: ${e}`);
+		throw e;
+	}
+}
+
+/**
+ *
+ * @param {String} id Repository Id
+ * @param {Boolean} query Shows if multiple Repos are being deleted => owner change necessary
+ * @returns
+ */
+async function deleteWorkgroup(id, query = false) {
+	try {
+		const db = dbConnection.getConnection();
+		const workgroup = await db
+			.collection(WorkgroupsCollection)
+			.findOne({ Repo: new ObjectId(id) });
+		if (query && workgroup.Members.length > 0) {
+			// Change Owner to first member who can edit before deletion
+			let newOwner = workgroup.Members && workgroup.Members.find((m) => m.canEdit);
+			// If non-existant pick first member
+			if (!newOwner && workgroup.Members && workgroup.Members.length > 0) {
+				newOwner = workgroup.Members[0];
+			}
+			// Change owner to the determined new owner
+			if (newOwner) {
+				await db.collection(WorkgroupsCollection).updateOne(
+					{ Repo: new ObjectId(id) },
+					{
+						$set: { owner: newOwner.email },
+						$pull: { member: { email: newOwner.email } }
+					}
+				);
+				return { status: 'owner_changed', newOwner: newOwner.email };
+			}
+		}
+		return await db
+			.collection(WorkgroupsCollection)
+			.deleteOne({ Repo: new ObjectId(id) });
+	} catch (e) {
+		console.error(`ERROR in deleteWorkgroup: ${e}`);
 		throw e;
 	}
 }
@@ -2017,7 +2096,6 @@ module.exports = {
 	registerUser,
 	getUserByEmail,
 	showSteptypes,
-	// createBackground,
 	deleteBackground,
 	updateBackground,
 	getOneScenario,
@@ -2038,6 +2116,7 @@ module.exports = {
 	updateStoriesArrayInRepo,
 	getRepository,
 	deleteRepository,
+	removeUserFromAllWorkgroups,
 	getOneRepository,
 	getOneGitRepository,
 	getOneJiraRepository,
@@ -2061,6 +2140,7 @@ module.exports = {
 	getBlocks,
 	deleteBlock,
 	getWorkgroup,
+	deleteWorkgroup,
 	addMember,
 	updateMemberStatus,
 	getMembers,
