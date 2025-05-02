@@ -1557,7 +1557,7 @@ async function deleteUser(userID) {
 
 		const repoDeletionFeedback = [];
 		for (const repo of repos) {
-			const feedback = await deleteRepository(repo._id, userID, true);
+			const feedback = await deleteRepository(repo._id, userID);
 			repoDeletionFeedback.push(feedback.status);
 		}
 
