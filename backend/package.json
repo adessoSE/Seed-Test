@@ -38,7 +38,7 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "playwright": "^1.52.0",
-    "selenium-webdriver": "^4.31.0",
+    "selenium-webdriver": "^4.32.0",
     "stream-to-string": "^1.2.1",
     "string-to-stream": "^3.0.1",
     "tar": "^7.4.3",
