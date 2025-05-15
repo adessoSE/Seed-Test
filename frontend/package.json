@@ -49,7 +49,7 @@
     "ngx-owl-carousel-o": "^19.0.2",
     "ngx-toastr": "19.0.0",
     "rxjs": "^6.5.3 || ^7.4.0",
-    "uikit": "^3.23.6",
+    "uikit": "^3.23.7",
     "zone.js": "^0.15.0"
   },
   "devDependencies": {
