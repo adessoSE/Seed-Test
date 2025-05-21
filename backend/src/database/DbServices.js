@@ -933,10 +933,16 @@ async function deleteRepository(repoId, ownerId) {
 
 		// Delete all stories
 		if (Array.isArray(repo.stories) && repo.stories.length > 0) {
-			for (const storyIdRaw of repo.stories) {
+			const deletionPromises = repo.stories.map((storyIdRaw) => {
 				const storyId = storyIdRaw.$oid ? storyIdRaw.$oid : storyIdRaw;
-				await deleteStory(repoId, storyId);
-			}
+				return deleteStory(repoId, storyId).catch((err) => {
+					console.error(`Failed to delete story ${storyId}: ${err}`);
+					return { status: 'failed', storyId, error: err.message };
+				});
+			});
+
+			const results = await Promise.all(deletionPromises);
+			console.log(`Deleted ${results.filter((r) => r.status !== 'failed').length} stories successfully`);
 		}
 
 		// Delete all custom blocks
