@@ -237,8 +237,7 @@ export class WorkgroupEditComponent {
     document
       .getElementById("changeOwner")
       .setAttribute("style", "display: none");
-    const repo_id = localStorage.getItem("id");
-    this.projectService.changeOwner(repo_id, newOwner).subscribe((_) => {
+    this.projectService.changeOwner(this.workgroupProject._id, newOwner).subscribe((_) => {
       this.toastr.success("successfully changed", "New owner");
     });
     this.modalReference.close();
@@ -327,6 +326,11 @@ export class WorkgroupEditComponent {
     const currentRepo = localStorage.getItem("repository");
     if (this.workgroupProject.value === currentRepo) {
       this.openRepoSwitchModal();
+    } else if (this.workgroupList.length > 0){
+      this.toastr.info(
+        "Your project has other members, either remove them beforehand or transfer your projects ownership",
+        "Other members affected"
+      )
     } else {
       this.showDeleteRepositoryToast();
     }
