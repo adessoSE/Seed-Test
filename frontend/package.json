@@ -44,7 +44,7 @@
     "jest-preset-angular": "^14.5.5",
     "jquery": "^3.7.1",
     "jspdf": "^3.0.1",
-    "ngx-cookie-service": "^19.1.2",
+    "ngx-cookie-service": "^20.0.1",
     "ngx-logger": "~5.0.12",
     "ngx-owl-carousel-o": "^19.0.2",
     "ngx-toastr": "19.0.0",
