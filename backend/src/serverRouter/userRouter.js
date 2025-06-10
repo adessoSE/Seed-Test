@@ -445,11 +445,12 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 							const story = {
 								story_id: issue.id,
 								title: issue.fields.summary,
-								body: issueDescription + testStepDescription,
+								body: issueDescription,
 								scenarios: scenarioList,
 								state: issue.fields.status.name,
 								issue_number: issue.key,
 								storySource: 'jira',
+								sourceSteps: testStepDescription,
 								host: Host,
 								preConditions: finalPreConditions
 							};
