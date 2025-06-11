@@ -38,7 +38,7 @@ async function handleTestIssue(issue, options, Host) {
 function processTestSteps(steps, resolvedTestRuns, issueKey) {
     const scenarioList = [];
 
-    let testStepDescription = '\n\nTest-Steps:\n';
+    let testStepDescription = 'Test-Steps:\n';
 
     // Iterate through steps and add step description
     steps.forEach((step) => {
