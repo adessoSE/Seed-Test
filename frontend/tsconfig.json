@@ -7,7 +7,7 @@
     "esModuleInterop": true,
     "declaration": false,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "ES2022",
@@ -21,7 +21,6 @@
       "ES2022",
       "dom"
     ],
-    //Diese strikten Kommandos sollte man zur Fehlervermeidung auf true setzen, allerdings wurde kaum typisiert etc., weshalb es viel Aufwand wäre anzupassen.
     "strict": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
