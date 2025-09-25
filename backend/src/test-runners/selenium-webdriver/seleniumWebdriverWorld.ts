@@ -183,7 +183,7 @@ class SeleniumWebdriverWorld extends World {
         const { chromeOptions, firefoxOptions, edgeOptions } =
           this.getBrowserOptions();
 
-        if (this.testParameters.browser == "chromium")
+        if (this.testParameters.browser == "chromium" || this.testParameters.browser == "webkit")
           this.testParameters.browser = "chrome";
 
         // Neuen Browser starten

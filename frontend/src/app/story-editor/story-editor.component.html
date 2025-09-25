@@ -270,7 +270,7 @@
                 [selected]="this.selectedScenario.browser === 'firefox'">Firefox</option>
               <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
                 [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
-              <option *ngIf="this.webkit_enabled" id="webkit_browser" value="webkit"
+              <option *ngIf="this.webkit_enabled && this.testRunner === 'playwright'" id="webkit_browser" value="webkit"
                 [selected]="this.selectedScenario.browser === 'webkit'">Webkit</option>
               
             </select>
