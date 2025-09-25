@@ -165,6 +165,10 @@ jobs:
           path: |
             sanityReport.txt
 
+      - name: Show backend container logs
+        run: docker logs Seed-backend
+        if: ${{ failure() }}
+
       # SEND FULL REPORT
       - name: Send Teams Message
         uses: ./actions/fullReport
