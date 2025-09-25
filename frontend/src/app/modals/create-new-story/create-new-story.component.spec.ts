@@ -12,7 +12,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild } f
 
 const stories:Story[] = [{_id: 1, issue_number: 36523, story_id: 37727, storySource: 'github', 
       background: undefined, scenarios: [], oneDriver: true, title: 'test story', body: '',
-      state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false}];
+      state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false, host: 'my-test-host'}];
 
 
 @Component({

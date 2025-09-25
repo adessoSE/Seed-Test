@@ -969,7 +969,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     }
   }
   /**
-   * Retrive current background
+   * Retrieve current background
    */
   storeCurrentBackground(originalBackground: Background) {
     this.backgroundService.currentBackground = JSON.parse(

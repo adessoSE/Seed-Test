@@ -8,6 +8,11 @@ export interface StepType {
     _blockReferenceId?: string;
 
     /**
+     * Object id of the example
+     */
+    _id?: string;
+
+    /**
      * Importance of the step type, the lower, the higher the importance -> the higher the step is the higher ordered it is in the list of available steps
      */
     id: number;

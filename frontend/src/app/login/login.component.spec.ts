@@ -64,8 +64,8 @@ describe('LoginComponent', () => {
       expect(component.githubLogin).toHaveBeenCalled();
     }));
 
-    it('should trigger selectRepository() on clicking at repository', fakeAsync(() => {
-      jest.spyOn(component, 'selectRepository');
+    it('should trigger getRepositories() on clicking at repository', fakeAsync(() => {
+      jest.spyOn(component, 'getRepositories');
       component.repositories = repositories;
       fixture.detectChanges();
       tick();
@@ -74,7 +74,7 @@ describe('LoginComponent', () => {
       tick();
       fixture.detectChanges();
       //component.selectRepository(repositories[0]);
-      expect(component.selectRepository).toHaveBeenCalled();
+      expect(component.getRepositories).toHaveBeenCalled();
       //expect(localStorage.getItem('repository')).toEqual(repositories[0].value);
     }));
 

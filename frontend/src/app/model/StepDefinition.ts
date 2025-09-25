@@ -18,4 +18,9 @@ export interface StepDefinition {
      * Then Steps
      */
     then: StepType[];
+
+    /**
+     * Example (multiple variables) Steps
+     */
+    example?: StepType[];
 }
