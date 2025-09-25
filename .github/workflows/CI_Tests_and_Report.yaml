@@ -134,11 +134,9 @@ jobs:
 
       # SANITY CHECK
       - name: Send sanity POST request and store response
-        env:
-          API_URL: localhost:8080/api/sanity/test/${{ secrets.SANITY_REPO_ID }}/${{ secrets.SANITY_GROUP_ID }}
         run: |
-          curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
-
+          docker exec Seed-backend curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' http://localhost:8080/api/sanity/test/${{ secrets.SANITY_REPO_ID }}/${{ secrets.SANITY_GROUP_ID }} > sanityReport.txt
+      
       - name: print sanity
         run: |
           echo $(cat sanityReport.txt)
