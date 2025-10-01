@@ -1,4 +1,4 @@
-version: "2.12"
+version: "3.0"
 
 services:
   backend:
@@ -10,7 +10,13 @@ services:
     ports:
       - 8080:8080
     container_name: "Seed-backend"
-    restart: always
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
 
   frontend:
     build: 
@@ -18,14 +24,12 @@ services:
       dockerfile: Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION}
-    image: seed-test-frontend:latest
     ports:
       - 4200:4200
     container_name: "Seed-frontend"
+    restart: on-failure
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
-      - BACKEND_HOST=localhost # might need to be changed to backend
-      - BACKEND_PORT=8080
-      - API_SERVER="http://localhost:8080/api"
-    restart: always
+      - API_SERVER="http://backend:8080/api"
