@@ -23,7 +23,7 @@ jobs:
 
       - name: Create .env file backend
         run: |
-          echo "DATABASE_URI=${{secrets.DB_URI}}" > backend/.env
+          echo "DATABASE_URI=${{secrets.DB_URI_TEST}}" > backend/.env
           echo "EMAIL_AUTH=${{secrets.EMAIL_AUTH}}" >> backend/.env
           echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> backend/.env
           echo "EMAIL_PORT=${{secrets.EMAIL_PORT}}" >> backend/.env
