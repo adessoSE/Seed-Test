@@ -58,7 +58,7 @@ jobs:
           description: ${{ github.event.pull_request.body }}
           dockerStatus: "failed"
           workflowLink: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI_TEST }}
 
       # Execute npm test in the backend container
       - name: Run npm test backend
@@ -201,4 +201,4 @@ jobs:
           sanityStepsFailed: ${{ steps.passed-total-sanity.outputs.failedSteps }}
           sanityStepsSkipped: ${{ steps.passed-total-sanity.outputs.skippedSteps }}
           workflowLink: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI_TEST }}
