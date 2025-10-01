@@ -3,17 +3,15 @@ services:
     image: mongo:latest
     container_name: "Seed-db"
     restart: on-failure
-    ports:
-      - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=SeedAdmin
-      - MONGO_INITDB_ROOT_PASSWORD=SeedTest
+      MONGO_INITDB_ROOT_USERNAME: SeedAdmin
+      MONGO_INITDB_ROOT_PASSWORD: SeedTest
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
   backend:
     build:
       context: ./backend
@@ -24,6 +22,16 @@ services:
       - 8080:8080
     container_name: "Seed-backend"
     restart: on-failure
+    environment:
+      DATABASE_URI: ${DB_URI_FROM_WORKFLOW}
+      EMAIL_AUTH: ${EMAIL_AUTH_FROM_WORKFLOW}
+      EMAIL_PW: ${EMAIL_PW_FROM_WORKFLOW}
+      EMAIL_PORT: ${EMAIL_PORT_FROM_WORKFLOW}
+      EMAIL_HOST: ${EMAIL_HOST_FROM_WORKFLOW}
+      FRONTEND_URL: ${FRONTEND_URL_FROM_WORKFLOW}
+      GITHUB_CLIENT_SECRET: ${G_CLIENT_SECRET_FROM_WORKFLOW}
+      GITHUB_CLIENT_ID: ${G_CLIENT_ID_FROM_WORKFLOW}
+      PASSPORT_GITHUB_LOCAL_PW_FIELD: ${PASSPORT_GITHUB_LOCAL_PW_FIELD_FROM_WORKFLOW}
     depends_on:
       db:
         condition: service_healthy
@@ -35,7 +43,7 @@ services:
       start_period: 20s
 
   frontend:
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
@@ -44,8 +52,11 @@ services:
       - 4200:4200
     container_name: "Seed-frontend"
     restart: on-failure
+    environment:
+      API_SERVER: ${API_SERVER_FROM_WORKFLOW}
+      GITHUB_CLIENT_ID: ${G_CLIENT_ID_FROM_WORKFLOW}
+      EMAIL_PW: ${EMAIL_PW_FROM_WORKFLOW}
+      VERSION: ${VERSION_FROM_WORKFLOW}
     depends_on:
       backend:
         condition: service_healthy
-    environment:
-      - API_SERVER="http://backend:8080/api"

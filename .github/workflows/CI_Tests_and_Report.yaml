@@ -21,27 +21,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Create .env file backend
-        run: |
-          echo "DATABASE_URI=${{secrets.DB_URI_TEST}}" > backend/.env
-          echo "EMAIL_AUTH=${{secrets.EMAIL_AUTH}}" >> backend/.env
-          echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> backend/.env
-          echo "EMAIL_PORT=${{secrets.EMAIL_PORT}}" >> backend/.env
-          echo "EMAIL_HOST=${{secrets.EMAIL_HOST}}" >> backend/.env
-          echo "FRONTEND_URL=${{secrets.FRONTEND_URL}}" >> backend/.env
-          echo "GITHUB_CLIENT_SECRET=${{secrets.G_CLIENT_SECRET}}" >> backend/.env
-          echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> backend/.env
-          echo "PASSPORT_GITHUB_LOCAL_PW_FIELD=${{secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD}}" >> backend/.env
-
-      - name: Create .env file frontend
-        run: |
-          echo "API_SERVER=${{secrets.API_SERVER}}" > frontend/.env
-          echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> frontend/.env
-          echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
-          echo "VERSION=SET" >> frontend/.env
-
       - name: Build and start Docker stack
         env:
+          # Backend Variables
+          DB_URI_FROM_WORKFLOW: ${{ secrets.DB_URI_TEST }}
+          EMAIL_AUTH_FROM_WORKFLOW: ${{ secrets.EMAIL_AUTH }}
+          EMAIL_PW_FROM_WORKFLOW: ${{ secrets.EMAIL_PW }}
+          EMAIL_PORT_FROM_WORKFLOW: ${{ secrets.EMAIL_PORT }}
+          EMAIL_HOST_FROM_WORKFLOW: ${{ secrets.EMAIL_HOST }}
+          FRONTEND_URL_FROM_WORKFLOW: ${{ secrets.FRONTEND_URL }}
+          G_CLIENT_SECRET_FROM_WORKFLOW: ${{ secrets.G_CLIENT_SECRET }}
+          PASSPORT_GITHUB_LOCAL_PW_FIELD_FROM_WORKFLOW: ${{ secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD }}
+
+          # Frontend Variables
+          API_SERVER_FROM_WORKFLOW: ${{ secrets.API_SERVER }}
+          G_CLIENT_ID_FROM_WORKFLOW: ${{ secrets.G_CLIENT_ID }}
+          VERSION_FROM_WORKFLOW: "SET"
+
+          # Build-Argument
           NODE_VERSION: ${{ matrix.node-version }}
         run: |
           docker compose -f docker-test.yml build \
