@@ -249,6 +249,18 @@ export class StoryService {
     }
   }
 
+  /**
+   * Sends request to generate scenarios with AI.
+   * @param storyId ID of story affected.
+   * @param aiConfig Configuartion for the parser.
+   * @returns Obervable with success message.
+   */
+  generateScenariosFromAI(storyId: string, aiConfig: any): Observable<any> {
+    const url = this.apiService.apiServer +`/story/${storyId}/generate-scenarios`;
+    console.log("Wir schicken KI-Anfrage ans Backend! (REMOVE)")
+    return this.http.post(url, { aiConfig }, ApiService.getOptions());
+  }
+
 //   /**
 //  * Updates XRay status in Jira for given step and testrun
 //  */

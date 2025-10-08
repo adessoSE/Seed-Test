@@ -1,15 +1,16 @@
 {
     "compilerOptions": {
-      "module": "commonjs",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
       "esModuleInterop": true,
       "declaration": true,
       "declarationMap": true,
       "target": "es2022",
-      "moduleResolution": "node",
       "sourceMap": true,
       "outDir": "dist",
       //"allowJs": true,
-      //"checkJs": true
+      //"checkJs": true,
+      "preserveSymlinks": true
     },
     "lib": ["es2022"]
   }

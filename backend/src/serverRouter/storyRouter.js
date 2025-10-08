@@ -365,4 +365,24 @@ router.post('/specialCommands/resolve', async (req, res) => {
 	}
 });
 
+// generate scenarios with AI
+router.post('/:story_id/generate-scenarios', async (req, res) => {
+	console.log('KI-Anfrage erhalten! (REMOVE)');
+	try {
+		console.log(`AI scenario generation requested for story: ${req.params.story_id}`);
+
+		// Get the AI configuration from the request body
+		const { aiConfig } = req.body;
+
+		// Check if the configuration is present
+		if (!aiConfig) return handleError(res, 'AI configuration is missing in the request body.', 'AI Config missing', 400);
+
+		const updatedStory = await pmHelper.generateAiScenariosForStory(req.params.story_id, aiConfig);
+		res.status(200).json(updatedStory);
+	} catch (e) {
+		// We return the error message so the frontend can display it
+		handleError(res, e.message, e.message, 500);
+	}
+});
+
 module.exports = router;

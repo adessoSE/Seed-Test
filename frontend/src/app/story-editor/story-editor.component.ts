@@ -37,6 +37,7 @@ import { StepDefinition } from "../model/StepDefinition";
 import { BlockService } from "../Services/block.service";
 import { InfoWarningToast } from "../info-warning-toast";
 import { MatDialog } from "@angular/material/dialog";
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkgroupEditComponent } from "../modals/workgroup-edit/workgroup-edit.component";
 import { ManagementService } from "../Services/management.service";
 import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
@@ -303,6 +304,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   lastToFocus;
 
+  story: Story;
+
+  /**
+   * Loading status for AI
+   */
+  isLoadingAi = false;
+
   /**
    * Mapping for Precondition Stories
    */
@@ -375,6 +383,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     public blockService: BlockService,
     public managmentService: ManagementService,
     public dialog: MatDialog,
+    private snackBar: MatSnackBar,
     public groupService: GroupService,
   ) {
     if (this.apiService.urlReceived) {
@@ -1677,5 +1686,58 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       })
 
     })
+  }
+
+  /**
+   * Starts the ai generation process and signals if successful or not
+   */
+  generateAiScenarios(): void {
+    console.log(this.selectedStory)
+    if (!this.selectedStory || !this.selectedStory._id) {
+      console.error('No valid story selected.');
+      return;
+    }
+
+    if (!this.selectedStory.body) { // || !this.selectedStory.sourceSteps? include when sourceSteps merged
+      console.error('Story has no possible input text in description or xRay steps');
+      return;
+    }
+    this.isLoadingAi = true;
+
+    // --- Configuration of AI Parser ---
+    // Should come from user settings or env in backend.
+    // Mocking for local ollama.
+    const aiConfig = {
+      textPreparation: {
+        provider: 'custom' as const,
+        name: 'ollama',
+        modelName: 'mistral',
+        baseURL: 'http://127.0.0.1:11434/v1',
+      },
+      jsonConversion: {
+        provider: 'custom' as const,
+        name: 'ollama',
+        modelName: 'codestral',
+        baseURL: 'http://127.0.0.1:11434/v1',
+      },
+    };
+
+    this.storyService.generateScenariosFromAI(this.selectedStory._id, aiConfig).subscribe({
+      next: (response) => {
+        this.isLoadingAi = false;
+        this.snackBar.open(`Succesfully addes AI scenarios to '${this.selectedStory.title}'!`, 'Roger Roger', {
+          duration: 5000,
+        });
+        // TBD: Optional: Reload story after success
+        // this.loadStory(this.selectedStory._id);
+      },
+      error: (err) => {
+        this.isLoadingAi = false;
+        console.error('Error during AI generation:', err);
+        this.snackBar.open('Error during AI generation. Details in console.', 'Close', {
+          duration: 5000,
+        });
+      }
+    });
   }
 }
