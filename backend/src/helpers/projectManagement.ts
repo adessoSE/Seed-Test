@@ -1,4 +1,3 @@
-import { Scenario } from './../models/Scenario';
 import mongo from "../../src/database/DbServices";
 import dbConnector from "../../src/database/DbConnector";
 import { jiraDecryptPassword } from "./userManagement";
@@ -9,6 +8,11 @@ import AdmZip from "adm-zip";
 import path from "path";
 import { Story } from '../../src/models/Story';
 import { parseTextToStory } from '@seed-test/ai-parser';
+import { JobQueue } from './jobQueue';
+import { EventEmitter } from 'events';
+
+const aiJobQueue = new JobQueue();
+const aiJobEmitter = new EventEmitter();
 
 enum Sources {
 	GITHUB = "github",
@@ -776,45 +780,60 @@ async function getStorysByIssue(issueKeys) {
  * @returns {Promise<Story>} The updated story object.
  * @throws Will throw an error if the story is not found or the AI process fails.
  */
-export async function generateAiScenariosForStory(storyId: string, aiConfig: any): Promise<Story> {
-  console.log("We are in PM: generateAiScenariosForStory(REMOVE)")
-  // 1. Get the story from the database
-  const story = await mongo.getOneStory(storyId);
-  if (!story) {
-    throw new Error('Story not found');
+async function generateAiScenariosForStory(storyId: string, aiConfig: any): Promise<Story> {
+  try {
+    // 1. Get the story from the database
+    const story = await mongo.getOneStory(storyId);
+    if (!story) {
+      throw new Error('Story not found');
+    }
+
+    // 2. Combine relevant texts as input for the AI parser
+    const inputText = `${story.body || ''}\n\n${story.sourceSteps || ''}`.trim();
+    if (inputText.length === 0) {
+      throw new Error('No input from description or test steps found');
+    }
+
+    // 3. Call the AI parser
+    console.log(`Starting AI parser for Story ${story.title} with ID: ${storyId}`);
+    const parsedStory = await parseTextToStory({
+      inputText: inputText,
+      config: aiConfig,
+    });
+
+    if (!parsedStory || !parsedStory.scenarios || parsedStory.scenarios.length === 0) {
+      throw new Error('AI-Parser did not generate any valid scenarios.');
+    }
+
+    // 4. Merge the new scenarios into the existing story
+    const highestExistingId = story.scenarios.reduce((max, s) => Math.max(max, s.scenario_id), 0);
+    parsedStory.scenarios.forEach((newScenario, index) => {
+      newScenario.scenario_id = highestExistingId + index + 1;
+      newScenario.multipleScenarios = [];
+      story.scenarios.push(newScenario);
+    });
+
+    // 5. Save the updated story, return it and fire success event
+    await mongo.updateBackground(storyId, parsedStory.background)
+    const updatedStory = await mongo.updateScenarioList(storyId, parsedStory.scenarios);
+    console.log(`Successfully added ${parsedStory.scenarios.length} new scenarios to Story ID: ${storyId}`);
+    aiJobEmitter.emit(`job-done-${storyId}`, { success: true, data: updatedStory });
+    return updatedStory;
+  } catch (error) {
+    aiJobEmitter.emit(`job-done-${storyId}`, { success: false, error: error.message });
+    throw error;
   }
+}
 
-  // 2. Combine relevant texts as input for the AI parser
-  const inputText = `${story.body || ''}\n\n${story.sourceSteps || ''}`.trim();
-  if (inputText.length === 0) {
-    throw new Error('No input from description or test steps found');
-  }
-
-  // 3. Call the AI parser
-  console.log(`Starting AI parser for Story ${story.title} with ID: ${storyId}`);
-  const parsedStory = await parseTextToStory({
-    inputText: inputText,
-    config: aiConfig,
-  });
-
-  if (!parsedStory || !parsedStory.scenarios || parsedStory.scenarios.length === 0) {
-    throw new Error('AI-Parser did not generate any valid scenarios.');
-  }
-
-  // 4. Merge the new scenarios into the existing story
-  const highestExistingId = story.scenarios.reduce((max, s) => Math.max(max, s.scenario_id), 0);
-  parsedStory.scenarios.forEach((newScenario, index) => {
-    newScenario.scenario_id = highestExistingId + index + 1;
-    newScenario.multipleScenarios = [];
-    story.scenarios.push(newScenario);
-  });
-
-  // 5. Save the updated story and return it
-  await mongo.updateBackground(storyId, parsedStory.background)
-  const updatedStory = await mongo.updateScenarioList(storyId, parsedStory.scenarios);
-  console.log(`Successfully added ${parsedStory.scenarios.length} new scenarios to Story ID: ${storyId}`);
+/**
+ * Function to put AI calls into the aiQueue
+ */
+function queueAiScenarioGeneration(storyId: string, aiConfig: any): void {
+  const task = () => generateAiScenariosForStory(storyId, aiConfig);
   
-  return updatedStory;
+  aiJobQueue.add(task);
+  
+  console.log(`AI Job for story ${storyId} has been added to the queue.`);
 }
 
 module.exports = {
@@ -830,4 +849,6 @@ module.exports = {
   findAssociatedID,
 	updateTestSets,
   generateAiScenariosForStory,
+  queueAiScenarioGeneration,
+  aiJobEmitter
 };

@@ -257,8 +257,55 @@ export class StoryService {
    */
   generateScenariosFromAI(storyId: string, aiConfig: any): Observable<any> {
     const url = this.apiService.apiServer +`/story/${storyId}/generate-scenarios`;
+    const timeout = 300000; // 5 minutes timeout
+    
+    // Create custom headers to set the timeout for this specific request
+    const headers = new HttpHeaders({
+      'timeout': `${timeout}`
+    });
+
+    const options = {
+      ...ApiService.getOptions(),
+      headers: headers
+    };
+
     console.log("Wir schicken KI-Anfrage ans Backend! (REMOVE)")
-    return this.http.post(url, { aiConfig }, ApiService.getOptions());
+    return this.http.post(url, { aiConfig }, options);
+  }
+
+  /**
+   * Listens for AI generation status updates using Server-Sent Events.
+   * @param storyId The ID of the story to listen for.
+   * @returns An Observable that emits the final story data or an error.
+   */
+  listenForAiResults(storyId: string): Observable<Story> {
+    const url = this.apiService.apiServer + `/story/${storyId}/generate-scenarios/status`;
+    
+    return new Observable(observer => {
+
+      const eventSource = new EventSource(url, { withCredentials: true });
+
+      eventSource.onmessage = event => {
+        const result = JSON.parse(event.data);
+        
+        if (result.success) {
+          observer.next(result.data);
+          observer.complete();
+        } else {
+          observer.error(new Error(result.error));
+        }
+        eventSource.close();
+      };
+
+      eventSource.onerror = error => {
+        observer.error(new Error('Connection to status stream failed.'));
+        eventSource.close();
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    });
   }
 
 //   /**

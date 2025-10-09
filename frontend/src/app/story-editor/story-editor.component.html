@@ -54,12 +54,15 @@
             As a <...>, I want <...> so that <...>
           </span>
         </dfn>
-        <button class="storyTitle" mat-fab extended color="accent" (click)="generateAiScenarios()" [disabled]="isLoadingAi">
+        <button class="button" mat-fab extended color="accent" 
+                (click)="generateAiScenarios()" 
+                [disabled]="aiLoadingStories.has(selectedStory._id)">
             <mat-icon>psychology</mat-icon>
             Generate with AI
         </button>
-        <div class="loading mat-mdc-progress-spinner" [hidden]="!isLoadingAi">
-          <mat-spinner id="loadingSpinnerRun"></mat-spinner>
+        <div class="loading-container" *ngIf="aiLoadingStories.has(selectedStory._id)">
+          <mat-spinner diameter="24"></mat-spinner>
+          <span>Generating...</span>
         </div>
       </div>
       <div style="flex-grow: .5;">

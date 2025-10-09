@@ -612,3 +612,19 @@ button#background_up {
   border: none;
   margin-right: 2px;
 }
+
+.loading-container {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 15px;
+  color: var(--ocean-blue);
+  font-weight: bold;
+}
+
+.darkTheme .loading-container {
+  color: #B0BEC5;
+}
+
+.loading-container mat-spinner {
+  margin-right: 8px;
+}

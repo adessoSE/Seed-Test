@@ -369,20 +369,51 @@ router.post('/specialCommands/resolve', async (req, res) => {
 router.post('/:story_id/generate-scenarios', async (req, res) => {
 	console.log('KI-Anfrage erhalten! (REMOVE)');
 	try {
-		console.log(`AI scenario generation requested for story: ${req.params.story_id}`);
-
 		// Get the AI configuration from the request body
 		const { aiConfig } = req.body;
 
 		// Check if the configuration is present
 		if (!aiConfig) return handleError(res, 'AI configuration is missing in the request body.', 'AI Config missing', 400);
 
-		const updatedStory = await pmHelper.generateAiScenariosForStory(req.params.story_id, aiConfig);
-		res.status(200).json(updatedStory);
+		// Add job to aiQueue
+		pmHelper.queueAiScenarioGeneration(req.params.story_id, aiConfig);
+
+		res.status(202).json({
+			message: 'AI generation task has been accepted and is now in the queue.'
+		});
 	} catch (e) {
 		// We return the error message so the frontend can display it
 		handleError(res, e.message, e.message, 500);
 	}
+});
+
+// SSE API for status updates
+router.get('/:story_id/generate-scenarios/status', (req, res) => {
+	const { story_id: storyId } = req.params;
+
+	// Setting necessary headers for SSE
+	res.setHeader('Content-Type', 'text/event-stream');
+	res.setHeader('Cache-Control', 'no-cache');
+	res.setHeader('Connection', 'keep-alive');
+	res.flushHeaders();
+
+	console.log(`Frontend connected for AI status updates for story ${storyId}`);
+
+	// Called upon when job finished
+	const listener = (result) => {
+		// Send data as "message" event to frontend
+		res.write(`data: ${JSON.stringify(result)}\n\n`);
+	};
+
+	// Subscribe for this specific storyId
+	pmHelper.aiJobEmitter.on(`job-done-${storyId}`, listener);
+
+	// Clean up
+	req.on('close', () => {
+		pmHelper.aiJobEmitter.removeListener(`job-done-${storyId}`, listener);
+		console.log(`Frontend disconnected for AI status updates for story ${storyId}`);
+		res.end();
+	});
 });
 
 module.exports = router;

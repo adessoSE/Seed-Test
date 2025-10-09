@@ -307,9 +307,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   story: Story;
 
   /**
-   * Loading status for AI
+   * Loading status for AI per story
    */
-  isLoadingAi = false;
+  aiLoadingStories = new Set<string>();
 
   /**
    * Mapping for Precondition Stories
@@ -1695,14 +1695,22 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     console.log(this.selectedStory)
     if (!this.selectedStory || !this.selectedStory._id) {
       console.error('No valid story selected.');
+      this.snackBar.open(`No valid story selected. Is your database entry corrupted?`, 'Okay', {
+              duration: 5000,
+            });
       return;
     }
 
     if (!this.selectedStory.body) { // || !this.selectedStory.sourceSteps? include when sourceSteps merged
       console.error('Story has no possible input text in description or xRay steps');
+      this.snackBar.open(`Story has no possible input text in description or xRay steps.`, 'Okay', {
+              duration: 5000,
+            });
       return;
     }
-    this.isLoadingAi = true;
+
+    const storyId = this.selectedStory._id
+    this.aiLoadingStories.add(storyId);
 
     // --- Configuration of AI Parser ---
     // Should come from user settings or env in backend.
@@ -1722,19 +1730,33 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       },
     };
 
-    this.storyService.generateScenariosFromAI(this.selectedStory._id, aiConfig).subscribe({
+    // Step 1: Start job in backend and wait for SSE Event
+    this.storyService.generateScenariosFromAI(storyId, aiConfig).subscribe({
       next: (response) => {
-        this.isLoadingAi = false;
-        this.snackBar.open(`Succesfully addes AI scenarios to '${this.selectedStory.title}'!`, 'Roger Roger', {
-          duration: 5000,
+        console.log('AI job successfully queued:', response.message);
+        
+        // Step 2: Listen to SSE event.
+        this.storyService.listenForAiResults(storyId).subscribe({
+          next: (updatedStory) => {
+            this.aiLoadingStories.delete(storyId);
+            this.selectedStory = updatedStory;
+            this.snackBar.open(`Successfully added new scenarios to '${this.selectedStory.title}'!`, 'Awesome!', {
+              duration: 5000,
+            });
+          },
+          error: (err) => {
+            this.aiLoadingStories.delete(storyId);
+            console.error('Error receiving AI results:', err);
+            this.snackBar.open(`Error during AI generation: ${err.message}`, 'Close', {
+              duration: 7000,
+            });
+          }
         });
-        // TBD: Optional: Reload story after success
-        // this.loadStory(this.selectedStory._id);
       },
       error: (err) => {
-        this.isLoadingAi = false;
-        console.error('Error during AI generation:', err);
-        this.snackBar.open('Error during AI generation. Details in console.', 'Close', {
+        this.aiLoadingStories.delete(storyId);
+        console.error('Failed to queue AI job:', err);
+        this.snackBar.open('Could not start the AI generation task.', 'Close', {
           duration: 5000,
         });
       }
