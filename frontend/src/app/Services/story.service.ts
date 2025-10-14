@@ -276,34 +276,36 @@ export class StoryService {
   /**
    * Listens for AI generation status updates using Server-Sent Events.
    * @param storyId The ID of the story to listen for.
-   * @returns An Observable that emits the final story data or an error.
+   * @returns An Observable that emits the result object from the backend.
    */
-  listenForAiResults(storyId: string): Observable<Story> {
+  listenForAiResults(storyId: string): Observable<any> {
     const url = this.apiService.apiServer + `/story/${storyId}/generate-scenarios/status`;
     
     return new Observable(observer => {
-
       const eventSource = new EventSource(url, { withCredentials: true });
 
       eventSource.onmessage = event => {
         const result = JSON.parse(event.data);
         
-        if (result.success) {
-          observer.next(result.data);
-          observer.complete();
-        } else {
+       if (result.status === 'error') {
           observer.error(new Error(result.error));
+        } else {
+          observer.next(result);
         }
+        
+        observer.complete();
         eventSource.close();
       };
 
       eventSource.onerror = error => {
-        observer.error(new Error('Connection to status stream failed.'));
+        observer.error(new Error('Connection to the AI status stream failed.'));
         eventSource.close();
       };
 
       return () => {
-        eventSource.close();
+        if (eventSource.readyState !== eventSource.CLOSED) {
+          eventSource.close();
+        }
       };
     });
   }

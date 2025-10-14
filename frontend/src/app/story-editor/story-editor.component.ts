@@ -26,7 +26,7 @@ import { BackgroundService } from "../Services/background.service";
 import { StoryService } from "../Services/story.service";
 import { ScenarioService } from "../Services/scenario.service";
 import { XrayService } from "../Services/xray.service";
-import { GroupService } from '../Services/group.service';
+import { GroupService } from "../Services/group.service";
 import { ReportService } from "../Services/report.service";
 import { ProjectService } from "../Services/project.service";
 import { LoginService } from "../Services/login.service";
@@ -37,10 +37,10 @@ import { StepDefinition } from "../model/StepDefinition";
 import { BlockService } from "../Services/block.service";
 import { InfoWarningToast } from "../info-warning-toast";
 import { MatDialog } from "@angular/material/dialog";
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { WorkgroupEditComponent } from "../modals/workgroup-edit/workgroup-edit.component";
 import { ManagementService } from "../Services/management.service";
-import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
+import { ExecutionListComponent } from "../modals/execution-list/execution-list.component";
 
 /**
  * Empty background
@@ -54,13 +54,13 @@ const emptyBackground: Background = {
  * Component for the Story editor
  */
 @Component({
-    selector: "app-story-editor",
-    templateUrl: "./story-editor.component.html",
-    styleUrls: [
-        "../base-editor/base-editor.component.css",
-        "./story-editor.component.css",
-    ],
-    standalone: false
+  selector: "app-story-editor",
+  templateUrl: "./story-editor.component.html",
+  styleUrls: [
+    "../base-editor/base-editor.component.css",
+    "./story-editor.component.css",
+  ],
+  standalone: false,
 })
 export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
@@ -68,8 +68,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   @Input()
   set newSelectedScenario(scenario: Scenario) {
-    this.selectedScenario = scenario;
-    if (this.selectedStory && scenario) {
+    if (scenario) {
+      if (this.isReviewingAi) {
+        this.exitAiReviewMode();
+      }
       this.selectScenario(scenario);
     }
   }
@@ -90,12 +92,29 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   @Input()
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
+    this.initializeIsExampleForStory(this.selectedStory);
+    this.isReviewingAi = false;
+
+    if (this.selectedStory && this.selectedStory.aiSuggestion) {
+      this.aiSuggestions.set(this.selectedStory._id, this.selectedStory.aiSuggestion);
+    } else if (this.selectedStory) {
+      this.aiSuggestions.delete(this.selectedStory._id);
+    }
+
     if (this.selectedStory !== undefined && this.selectedStory.preConditions) {
-      this.preConditionResults = this.xrayService.getPreconditionStories(this.selectedStory.preConditions);
-      if (!this.selectedStory.scenarios) {
-        // hide if no scenarios in story
-        this.showEditor = false;
-      }
+      this.preConditionResults = this.xrayService.getPreconditionStories(
+        this.selectedStory.preConditions
+      );
+    }
+    
+    if (this.selectedStory &&
+      this.selectedStory.scenarios &&
+      this.selectedStory.scenarios.length > 0
+    ) {
+      this.selectScenario(this.selectedStory.scenarios[0]);
+    } else if (this.selectedStory) {
+      // Editor hiding is happening in selectScenario
+      this.selectScenario(null);
     }
   }
 
@@ -244,8 +263,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   reportId;
 
   /*
-  * Report of the test
-  */
+   * Report of the test
+   */
   testReport;
 
   /**
@@ -312,6 +331,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   aiLoadingStories = new Set<string>();
 
   /**
+   * Suggestions for AI per story
+   */
+  aiSuggestions = new Map<string, any>();
+
+  /**
+   * User is reviewing AI generated content
+   */
+  isReviewingAi = false;
+
+  /**
    * Mapping for Precondition Stories
    */
   preConditionResults = [];
@@ -349,16 +378,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   @ViewChild("renameStoryModal") renameStoryModal: RenameStoryComponent;
   @ViewChild("createNewScenario") createScenarioModal: CreateScenarioComponent;
-  @ViewChild("renameBackgroundModal") renameBackgroundModal: RenameBackgroundComponent;
+  @ViewChild("renameBackgroundModal")
+  renameBackgroundModal: RenameBackgroundComponent;
   @ViewChild("workgroupEditModal") workgroupEditModal: WorkgroupEditComponent;
-  @ViewChild('executionListModal') executionListModal: ExecutionListComponent;
-
+  @ViewChild("executionListModal") executionListModal: ExecutionListComponent;
 
   @Output()
   deleteStoryEvent: EventEmitter<any> = new EventEmitter();
 
   @Output()
   storyChosen: EventEmitter<any> = new EventEmitter();
+
+  // Event emitter to lock stories bar during review mode
+  @Output()
+  reviewModeChanged = new EventEmitter<boolean>();
 
   /**
    * Event emitter to show or hide global TestResult
@@ -384,7 +417,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     public managmentService: ManagementService,
     public dialog: MatDialog,
     private snackBar: MatSnackBar,
-    public groupService: GroupService,
+    public groupService: GroupService
   ) {
     if (this.apiService.urlReceived) {
       this.loadStepTypes();
@@ -414,7 +447,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
     this.playwright_emulators = localStorage.getItem("playwright_emulators");
     this.playwright_emulators =
-      this.playwright_emulators === null ? [] : this.playwright_emulators.split(",");
+      this.playwright_emulators === null
+        ? []
+        : this.playwright_emulators.split(",");
     this.setUserData();
     this.checkGlobalSettings();
   }
@@ -500,9 +535,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     );
 
     this.deleteScenarioObservable =
-      this.scenarioService.deleteScenarioEvent.subscribe((xrayEnabled: boolean) => {
-        this.deleteScenario(this.selectedScenario, xrayEnabled);
-      });
+      this.scenarioService.deleteScenarioEvent.subscribe(
+        (xrayEnabled: boolean) => {
+          this.deleteScenario(this.selectedScenario, xrayEnabled);
+        }
+      );
 
     this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(
       (option) => {
@@ -612,9 +649,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           this.applyChangesToBackgrounds(this.selectedStory.background);
         }
       });
-    this.convertToReferenceObservable = this.blockService.convertToReferenceEvent.subscribe(block =>
-      this.blockService.convertSelectedStepsToRef(block, this.selectedScenario)
-    );
+    this.convertToReferenceObservable =
+      this.blockService.convertToReferenceEvent.subscribe((block) =>
+        this.blockService.convertSelectedStepsToRef(
+          block,
+          this.selectedScenario
+        )
+      );
   }
 
   ngOnDestroy() {
@@ -677,12 +718,43 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   /**
    * Select a new currently used scenario
-   * @param scenario
+   * @param scenario The scenario to select.
    */
   selectNewScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
-    if (this.selectedStory && scenario) {
-      this.selectScenario(scenario);
+  }
+
+  /**
+   * Navigates to the previous scenario in the currently active list (original or AI).
+   */
+  navigateScenarioLeft() {
+    const currentList = this.isReviewingAi
+      ? this.aiSuggestions.get(this.selectedStory._id)?.scenarios
+      : this.selectedStory.scenarios;
+    if (!currentList) return;
+
+    const currentIndex = currentList.findIndex(
+      (s) => s.scenario_id === this.selectedScenario.scenario_id
+    );
+    if (currentIndex > 0) {
+      this.selectNewScenario(currentList[currentIndex - 1]);
+    }
+  }
+
+  /**
+   * Navigates to the next scenario in the currently active list (original or AI).
+   */
+  navigateScenarioRight() {
+    const currentList = this.isReviewingAi
+      ? this.aiSuggestions.get(this.selectedStory._id)?.scenarios
+      : this.selectedStory.scenarios;
+    if (!currentList) return;
+
+    const currentIndex = currentList.findIndex(
+      (s) => s.scenario_id === this.selectedScenario.scenario_id
+    );
+    if (currentIndex < currentList.length - 1) {
+      this.selectNewScenario(currentList[currentIndex + 1]);
     }
   }
 
@@ -715,7 +787,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param scenario
    */
   showDeleteScenarioToast($event: any) {
-
     this.apiService.nameOfComponent("scenario");
     if ($event.testKey) {
       this.toastr.warning(
@@ -1054,60 +1125,84 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       // CASE: run single scenario
       if (scenario_id) {
         // Run single scenario
-        this.storyService.runTests(this.selectedStory._id, scenario_id, params).subscribe((resp: any) => {
-          this.testRunResponse(resp);
-          console.log("Test Report:", this.testReport);
-          // Get test status
-          const val = this.testReport.status;
-          const testStatus = val ? "PASS" : "FAIL";
+        this.storyService
+          .runTests(this.selectedStory._id, scenario_id, params)
+          .subscribe((resp: any) => {
+            this.testRunResponse(resp);
+            console.log("Test Report:", this.testReport);
+            // Get test status
+            const val = this.testReport.status;
+            const testStatus = val ? "PASS" : "FAIL";
 
-          // If user selected xray executions, update xray status
-          if (selectedExecutions) {
-            this.xrayService.updateXrayStatus(this.selectedScenario, selectedExecutions, testStatus);
-          }
-        });
-
+            // If user selected xray executions, update xray status
+            if (selectedExecutions) {
+              this.xrayService.updateXrayStatus(
+                this.selectedScenario,
+                selectedExecutions,
+                testStatus
+              );
+            }
+          });
       } else {
         // CASE: Pre-Conditions exist, we run story as a group
         if (this.preConditionResults && this.preConditionResults.length > 0) {
           // run as temp group if there are preconditions
           try {
             const temp_group = await this.createTempGroup();
-            const params = { id: localStorage.getItem('id'), repository: localStorage.getItem('repository'), source: localStorage.getItem('source'), group: temp_group }
+            const params = {
+              id: localStorage.getItem("id"),
+              repository: localStorage.getItem("repository"),
+              source: localStorage.getItem("source"),
+              group: temp_group,
+            };
             this.groupService.runTempGroup(params).subscribe((resp: any) => {
               this.testRunResponse(resp);
               if (selectedExecutions) {
                 const testStatus = this.testReport.status ? "PASS" : "FAIL";
-                const testedStory = this.testReport.storiesTested[this.testReport.storiesTested.length - 1];
+                const testedStory =
+                  this.testReport.storiesTested[
+                    this.testReport.storiesTested.length - 1
+                  ];
                 testedStory.scenarios.forEach((scenario) => {
-                  this.xrayService.updateXrayStatus(scenario, selectedExecutions, testStatus);
+                  this.xrayService.updateXrayStatus(
+                    scenario,
+                    selectedExecutions,
+                    testStatus
+                  );
                 });
               }
             });
           } catch (error) {
             console.error("Error while creating temp group", error);
           }
-
         } else {
           // CASE: No Pre-Conditions exist, we run story normally
-          this.storyService.runTests(this.selectedStory._id, null, params).subscribe((resp: any) => {
-            this.testRunResponse(resp);
-            const testStatus = this.testReport.status ? "PASS" : "FAIL";
-            this.testReport.scenarioStatuses.forEach((scenario) => {
-              this.scenarioService.scenarioStatusChangeEmit(
-                this.selectedStory._id,
-                scenario.scenarioId,
-                scenario.status
-              );
+          this.storyService
+            .runTests(this.selectedStory._id, null, params)
+            .subscribe((resp: any) => {
+              this.testRunResponse(resp);
+              const testStatus = this.testReport.status ? "PASS" : "FAIL";
+              this.testReport.scenarioStatuses.forEach((scenario) => {
+                this.scenarioService.scenarioStatusChangeEmit(
+                  this.selectedStory._id,
+                  scenario.scenarioId,
+                  scenario.status
+                );
 
-              // if user selected xray executions, update xray status
-              const currentScenarioId = scenario.scenarioId
-              const currentScenario = this.selectedStory.scenarios.find(scenario => scenario.scenario_id === currentScenarioId)
-              if (selectedExecutions) {
-                this.xrayService.updateXrayStatus(currentScenario, selectedExecutions, testStatus);
-              }
+                // if user selected xray executions, update xray status
+                const currentScenarioId = scenario.scenarioId;
+                const currentScenario = this.selectedStory.scenarios.find(
+                  (scenario) => scenario.scenario_id === currentScenarioId
+                );
+                if (selectedExecutions) {
+                  this.xrayService.updateXrayStatus(
+                    currentScenario,
+                    selectedExecutions,
+                    testStatus
+                  );
+                }
+              });
             });
-          });
         }
       }
     } else {
@@ -1126,10 +1221,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-
   /*
-  * Creates temporary group for preconditions storys + current selected story
-  */
+   * Creates temporary group for preconditions storys + current selected story
+   */
   async createTempGroup() {
     let member_stories = [];
     const seenStories = new Set();
@@ -1138,7 +1232,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     seenStories.add(this.selectedStory.issue_number);
 
     // collect all pre-stories
-    member_stories = await this.collectPreStories(this.selectedStory, seenStories, []);
+    member_stories = await this.collectPreStories(
+      this.selectedStory,
+      seenStories,
+      []
+    );
 
     member_stories.push(this.selectedStory);
 
@@ -1150,15 +1248,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       _id: -1,
       name: this.selectedStory.title,
       member_stories: member_stories,
-      isSequential: true
+      isSequential: true,
     };
 
     return temp_group;
   }
 
   /*
-  * Collects all pre-stories for a given story recursively
-  */
+   * Collects all pre-stories for a given story recursively
+   */
   async collectPreStories(story, seenStories, member_stories) {
     console.log("Collecting pre-conditions for story:", story.issue_number);
     // do pre-conditions exist?
@@ -1166,27 +1264,33 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       for (let precondition of story.preConditions) {
         // do tests within pre-conditions exist?
         if (precondition.testSet && precondition.testSet.length > 0) {
-
           // run for each inner story of pre-condition
           for (let innerStoryKey of precondition.testSet) {
-
             let newSeenStories = new Set(seenStories);
 
             if (!newSeenStories.has(innerStoryKey)) {
-
               newSeenStories.add(innerStoryKey);
 
               try {
                 // fetch whole story object
-                const innerStory = await firstValueFrom(this.storyService.getStoryByIssueKey(innerStoryKey));
+                const innerStory = await firstValueFrom(
+                  this.storyService.getStoryByIssueKey(innerStoryKey)
+                );
                 member_stories.unshift(innerStory);
 
                 // run recursively for inner story if pre-conditions exist
-                if (innerStory.preConditions && innerStory.preConditions.length > 0) {
-                  await this.collectPreStories(innerStory, newSeenStories, member_stories);
+                if (
+                  innerStory.preConditions &&
+                  innerStory.preConditions.length > 0
+                ) {
+                  await this.collectPreStories(
+                    innerStory,
+                    newSeenStories,
+                    member_stories
+                  );
                 }
               } catch (error) {
-                console.error('Error fetching story details:', error);
+                console.error("Error fetching story details:", error);
               }
             }
           }
@@ -1197,19 +1301,26 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /*
-  * Prepare parameters for test run
-  */
+   * Prepare parameters for test run
+   */
   testRunParams() {
     let browserSelectValue = null;
     let emulatorSelectValue = null;
 
     if (!this.globalSettingsActivated) {
-      const browserSelect = document.getElementById("browserSelect") as HTMLSelectElement;
-      const emulatorSelect = document.getElementById("emulatorSelect") as HTMLSelectElement;
+      const browserSelect = document.getElementById(
+        "browserSelect"
+      ) as HTMLSelectElement;
+      const emulatorSelect = document.getElementById(
+        "emulatorSelect"
+      ) as HTMLSelectElement;
       browserSelectValue = browserSelect ? browserSelect.value : null;
       emulatorSelectValue = emulatorSelect ? emulatorSelect.value : null;
     }
-    console.log('We are giving the following testRunner to the Backend: ', this.testRunner);
+    console.log(
+      "We are giving the following testRunner to the Backend: ",
+      this.testRunner
+    );
     return {
       browser: browserSelectValue,
       emulator: emulatorSelectValue,
@@ -1219,16 +1330,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       repositoryId: localStorage.getItem("id"),
       source: localStorage.getItem("source"),
       oneDriver: this.selectedStory.oneDriver,
-      testRunner: this.testRunner
+      testRunner: this.testRunner,
     };
   }
 
-
   /*
-  * Response from test run
-  */
+   * Response from test run
+   */
   testRunResponse(resp) {
-    const iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
+    const iframe: HTMLIFrameElement = document.getElementById(
+      "testFrame"
+    ) as HTMLIFrameElement;
     iframe.srcdoc = resp.htmlFile;
     this.reportId = resp.reportId;
     this.htmlReport = resp.htmlFile;
@@ -1242,11 +1354,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
- * Evaluates whether to open xray execution list modal in run scenario.
- * @param scenario_id 
- */
+   * Evaluates whether to open xray execution list modal in run scenario.
+   * @param scenario_id
+   */
   evaluateAndRunScenario(scenario_id) {
-    if (this.selectedScenario && this.selectedScenario.testKey && this.selectedScenario.testRunSteps.length > 0) {
+    if (
+      this.selectedScenario &&
+      this.selectedScenario.testKey &&
+      this.selectedScenario.testRunSteps.length > 0
+    ) {
       // Open the modal if there are test execution steps
       this.executionListModal.openExecutionListModal(this.selectedScenario);
     } else {
@@ -1256,12 +1372,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-  * Evaluates whether to open xray execution list modal in run story.
-  */
+   * Evaluates whether to open xray execution list modal in run story.
+   */
   evaluateAndRunStory() {
     // Check if there is at least one scenario in the story with xray key and execution
-    const executableTests = this.selectedStory.scenarios.some(scenario =>
-      scenario.testKey && scenario.testRunSteps && scenario.testRunSteps.length > 0);
+    const executableTests = this.selectedStory.scenarios.some(
+      (scenario) =>
+        scenario.testKey &&
+        scenario.testRunSteps &&
+        scenario.testRunSteps.length > 0
+    );
     if (executableTests) {
       this.executionListModal.openExecutionListModal(this.selectedStory);
     } else {
@@ -1272,14 +1392,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
    * Run this function if we close execution list modal
    */
-  executeTests(event: { scenarioId: number | null, selectedExecutions: number[] }) {
+  executeTests(event: {
+    scenarioId: number | null;
+    selectedExecutions: number[];
+  }) {
     if (event.scenarioId != null) {
       this.runTests(event.scenarioId, event.selectedExecutions);
     } else {
       this.runTests(null, event.selectedExecutions);
     }
   }
-
 
   /**
    * Download the test report
@@ -1435,10 +1557,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * Get the avaiable emulators
    */
   getAvaiableEmulators() {
-    if (this.testRunner === 'playwright') {
+    if (this.testRunner === "playwright") {
       return this.playwright_emulators;
     }
-    
+
     // Bestehende Logik für Selenium
     switch (this.selectedScenario.browser) {
       case "chromium":
@@ -1634,21 +1756,25 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   toTicket(issue_number: string) {
-    const host = this.selectedStory.host
+    const host = this.selectedStory.host;
     const url = `https://${host}/browse/${issue_number}`;
     window.open(url, "_blank");
   }
 
   /**
-     * Selects a new Story and with it a new scenario
-     * @param story
-     */
+   * Selects a new Story and with it a new scenario
+   * @param story
+   */
   selectStoryScenario(story: Story) {
     this.selectedStory = story;
     this.initialyAddIsExample();
     this.preConditionResults = [];
     this.storyChosen.emit(story);
-    if (story.scenarios.length > 0 && story.scenarios[0] != null && story.scenarios[0] != undefined) {
+    if (
+      story.scenarios.length > 0 &&
+      story.scenarios[0] != null &&
+      story.scenarios[0] != undefined
+    ) {
       this.selectScenario(story.scenarios[0]);
     } else this.selectScenario(null);
     this.backgroundService.backgroundReplaced = undefined;
@@ -1659,57 +1785,80 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   initialyAddIsExample() {
-    this.selectedStory.scenarios.forEach(scenario => {
+    this.selectedStory.scenarios.forEach((scenario) => {
       scenario.stepDefinitions.given.forEach((value, index) => {
         if (!scenario.stepDefinitions.given[index].isExample) {
-          scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
+          scenario.stepDefinitions.given[index].isExample = new Array(
+            value.values.length
+          );
           value.values.forEach((val, i) => {
-            scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-          })
+            scenario.stepDefinitions.given[index].isExample[i] =
+              val.startsWith("<") && val.endsWith(">");
+          });
         }
-      })
+      });
       scenario.stepDefinitions.when.forEach((value, index) => {
         if (!scenario.stepDefinitions.when[index].isExample) {
-          scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
+          scenario.stepDefinitions.when[index].isExample = new Array(
+            value.values.length
+          );
           value.values.forEach((val, i) => {
-            scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-          })
+            scenario.stepDefinitions.when[index].isExample[i] =
+              val.startsWith("<") && val.endsWith(">");
+          });
         }
-      })
+      });
       scenario.stepDefinitions.then.forEach((value, index) => {
         if (!scenario.stepDefinitions.then[index].isExample) {
-          scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
+          scenario.stepDefinitions.then[index].isExample = new Array(
+            value.values.length
+          );
           value.values.forEach((val, i) => {
-            scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-          })
+            scenario.stepDefinitions.then[index].isExample[i] =
+              val.startsWith("<") && val.endsWith(">");
+          });
         }
-      })
-
-    })
+      });
+    });
   }
 
   /**
    * Starts the ai generation process and signals if successful or not
    */
   generateAiScenarios(): void {
-    console.log(this.selectedStory)
+    if (this.isReviewingAi) {
+      this.exitAiReviewMode();
+    }
+
     if (!this.selectedStory || !this.selectedStory._id) {
-      console.error('No valid story selected.');
-      this.snackBar.open(`No valid story selected. Is your database entry corrupted?`, 'Okay', {
-              duration: 5000,
-            });
+      console.error("No valid story selected.");
+      this.snackBar.open(
+        `No valid story selected. Is your database entry corrupted?`,
+        "Okay",
+        {
+          duration: 5000,
+        }
+      );
       return;
     }
 
-    if (!this.selectedStory.body) { // || !this.selectedStory.sourceSteps? include when sourceSteps merged
-      console.error('Story has no possible input text in description or xRay steps');
-      this.snackBar.open(`Story has no possible input text in description or xRay steps.`, 'Okay', {
-              duration: 5000,
-            });
+    if (!this.selectedStory.body) {
+      // || !this.selectedStory.sourceSteps? include when sourceSteps merged
+      console.error(
+        "Story has no possible input text in description or xRay steps"
+      );
+      this.snackBar.open(
+        `Story has no possible input text in description or xRay steps.`,
+        "Okay",
+        {
+          duration: 5000,
+        }
+      );
       return;
     }
 
-    const storyId = this.selectedStory._id
+    const storyId = this.selectedStory._id;
+    const storyTitle = this.selectedStory.title;
     this.aiLoadingStories.add(storyId);
 
     // --- Configuration of AI Parser ---
@@ -1717,48 +1866,274 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     // Mocking for local ollama.
     const aiConfig = {
       textPreparation: {
-        provider: 'custom' as const,
-        name: 'ollama',
-        modelName: 'mistral',
-        baseURL: 'http://127.0.0.1:11434/v1',
+        provider: "custom" as const,
+        name: "ollama",
+        modelName: "mistral",
+        baseURL: "http://127.0.0.1:11434/v1",
       },
       jsonConversion: {
-        provider: 'custom' as const,
-        name: 'ollama',
-        modelName: 'codestral',
-        baseURL: 'http://127.0.0.1:11434/v1',
+        provider: "custom" as const,
+        name: "ollama",
+        modelName: "codestral",
+        baseURL: "http://127.0.0.1:11434/v1",
       },
     };
 
     // Step 1: Start job in backend and wait for SSE Event
     this.storyService.generateScenariosFromAI(storyId, aiConfig).subscribe({
       next: (response) => {
-        console.log('AI job successfully queued:', response.message);
-        
+        console.log("AI job successfully queued:", response.message);
+        this.snackBar.open(
+          `AI generation for '${storyTitle}' has started... You will be notified upon completion.`,
+          "OK",
+          {
+            duration: 5000,
+          }
+        );
+
         // Step 2: Listen to SSE event.
         this.storyService.listenForAiResults(storyId).subscribe({
-          next: (updatedStory) => {
+          next: (result) => {
             this.aiLoadingStories.delete(storyId);
-            this.selectedStory = updatedStory;
-            this.snackBar.open(`Successfully added new scenarios to '${this.selectedStory.title}'!`, 'Awesome!', {
-              duration: 5000,
-            });
+
+            if (result.status === "auto-merged") {
+              // Auto-merge was successful, update the story directly
+              const updatedStory = result.data as Story;
+              this.updateLocalStoryState(storyId, updatedStory);
+              this.snackBar.open(
+                `New scenarios for '${storyTitle}' have been automatically added!`,
+                "Awesome!",
+                { duration: 5000 }
+              );
+            } else if (result.status === "suggestion-ready") {
+              // A suggestion is ready for review
+              this.storyService
+                .getStory(result.storyId)
+                .subscribe((updatedStoryWithSuggestion) => {
+                  // Update our main stories array with the new data
+                  this.updateLocalStoryState(
+                    result.storyId,
+                    updatedStoryWithSuggestion
+                  );
+
+                  this.aiSuggestions.set(storyId, true);
+                  // Now the snackbar can reliably trigger the review mode
+                  this.snackBar
+                    .open(
+                      `🤖 AI suggestions for '${storyTitle}' are ready for review.`,
+                      "Show",
+                      { duration: 10000 }
+                    )
+                    .onAction()
+                    .subscribe(() => {
+                      // If the user isn't looking at the story, switch to it first
+                      if (this.selectedStory._id !== result.storyId) {
+                        const storyToReview = this.stories.find(
+                          (s) => s._id === result.storyId
+                        );
+                        if (storyToReview) {
+                          this.storyChosen.emit(storyToReview); // Tell parent to switch story
+                          // Use a short delay to allow Angular to update the view
+                          setTimeout(() => this.enterAiReviewMode(), 50);
+                        }
+                      } else {
+                        // If the story is already selected, just enter review mode
+                        this.enterAiReviewMode();
+                      }
+                    });
+                });
+            }
           },
           error: (err) => {
             this.aiLoadingStories.delete(storyId);
-            console.error('Error receiving AI results:', err);
-            this.snackBar.open(`Error during AI generation: ${err.message}`, 'Close', {
-              duration: 7000,
-            });
-          }
+            console.error("Error receiving AI results:", err);
+            this.snackBar.open(
+              `Error during AI generation: ${err.message}`,
+              "Close",
+              { duration: 7000 }
+            );
+          },
         });
       },
       error: (err) => {
         this.aiLoadingStories.delete(storyId);
-        console.error('Failed to queue AI job:', err);
-        this.snackBar.open('Could not start the AI generation task.', 'Close', {
+        console.error("Failed to queue AI job:", err);
+        this.snackBar.open("Could not start the AI generation task.", "Close", {
           duration: 5000,
         });
+      },
+    });
+  }
+  /**
+   * Enters the AI review mode for the currently selected story.
+   */
+  async enterAiReviewMode() {
+    if (!this.aiSuggestions.has(this.selectedStory._id)) {
+      this.toastr.info("No AI suggestion available for this story.");
+      return;
+    }
+
+    // Fetch the full suggestion from the backend
+    this.storyService
+      .getStory(this.selectedStory._id)
+      .subscribe((fullStory) => {
+        const suggestion = fullStory.aiSuggestion;
+        this.initializeIsExampleForStory(suggestion);
+
+        this.aiSuggestions.set(this.selectedStory._id, suggestion);
+        this.isReviewingAi = true;
+        this.reviewModeChanged.emit(true);
+
+        const suggestionScenarios = suggestion?.scenarios;
+        if (suggestionScenarios && suggestionScenarios.length > 0) {
+          this.selectScenario(suggestionScenarios[0]);
+        } else {
+          this.selectScenario(null);
+        }
+      });
+  }
+
+  /**
+   * Exits the AI review mode and resets the UI to a consistent state.
+   * Can optionally update the story with new data.
+   * @param updatedStory - The updated story object from the server, if available.
+   */
+  exitAiReviewMode(updatedStory?: Story) {
+    this.isReviewingAi = false;
+    this.reviewModeChanged.emit(false);
+
+    // If a story was updated (meaning a merge or discard happened),
+    // update the local state and remove the suggestion from the map.
+    if (updatedStory) {
+      this.selectedStory = updatedStory;
+      const index = this.stories.findIndex((s) => s._id === updatedStory._id);
+      if (index > -1) {
+        this.stories[index] = updatedStory;
+      }
+      this.aiSuggestions.delete(this.selectedStory._id);
+      this.storyService.getStoriesEvent.emit(this.stories);
+    }
+
+    // Always restore the view to the first original scenario.
+    if (
+      this.selectedStory.scenarios &&
+      this.selectedStory.scenarios.length > 0
+    ) {
+      this.selectScenario(this.selectedStory.scenarios[0]);
+    } else {
+      this.selectScenario(null);
+    }
+  }
+
+  /**
+   * Discards the current AI suggestion.
+   */
+  discardAiSuggestion() {
+    this.selectedStory.aiSuggestion = null; 
+    
+    this.storyService.updateStory(this.selectedStory).subscribe(updatedStory => {
+      this.toastr.info("AI suggestion discarded.");
+      this.exitAiReviewMode(updatedStory);
+    });
+  }
+
+  /**
+   * Merges the AI suggestion with the existing scenarios.
+   * @param overwrite If true, replaces existing scenarios. If false, appends them.
+   */
+  mergeAiSuggestion(overwrite: boolean) {
+    const suggestion = this.aiSuggestions.get(this.selectedStory._id);
+    if (!suggestion || !suggestion.scenarios) return;
+
+    if (overwrite) {
+      suggestion.scenarios.forEach((scenario, index) => {
+        scenario.scenario_id = index + 1;
+      });
+      this.selectedStory.scenarios = suggestion.scenarios;
+    } else {
+      this.selectedStory.scenarios.push(...suggestion.scenarios);
+    }
+
+    this.selectedStory.aiSuggestion = null; // Also clear it on the object
+
+    // Save the updated story
+    this.storyService
+      .updateStory(this.selectedStory)
+      .subscribe((updatedStory) => {
+        this.toastr.success(
+          "AI scenarios have been saved to the story!",
+          "Saved"
+        );
+        this.exitAiReviewMode(updatedStory);
+      });
+  }
+
+  /**
+ * Updates the story in the local `stories` array and sets it as `selectedStory` if it's currently active.
+ * @param storyId The ID of the story to update.
+ * @param updatedStory The new story object.
+ */
+private updateLocalStoryState(storyId: string, updatedStory: Story) {
+    const index = this.stories.findIndex(s => s._id === storyId);
+    if (index > -1) {
+        this.stories[index] = updatedStory;
+        this.storyService.getStoriesEvent.emit([...this.stories]); 
+    }
+    
+    // If the updated story is the one currently being viewed, refresh it
+    if (this.selectedStory._id === storyId) {
+        this.selectedStory = updatedStory;
+
+        // After an auto-merge, the scenario list has changed.
+        // We must select a scenario to refresh the editor view.
+        if (updatedStory.scenarios && updatedStory.scenarios.length > 0) {
+            this.selectScenario(updatedStory.scenarios[0]);
+        } else {
+            this.selectScenario(null);
+        }
+    }
+}
+
+  /**
+   * Ensures that all steps within a story's scenarios have a properly initialized isExample array.
+   * This prevents crashes when rendering steps from different sources (DB vs. AI).
+   * @param story The story or story-like object to process.
+   */
+  private initializeIsExampleForStory(story: Story | any) {
+    if (!story || !story.scenarios) {
+      return;
+    }
+
+    story.scenarios.forEach((scenario) => {
+      if (!scenario || !scenario.stepDefinitions) {
+        return;
+      }
+
+      const stepTypes: ("given" | "when" | "then")[] = [
+        "given",
+        "when",
+        "then",
+      ];
+
+      for (const stepType of stepTypes) {
+        if (scenario.stepDefinitions[stepType]) {
+          scenario.stepDefinitions[stepType].forEach((step) => {
+            if (step && step.values) {
+              if (
+                !step.isExample ||
+                step.isExample.length !== step.values.length
+              ) {
+                step.isExample = new Array(step.values.length).fill(false);
+              }
+              step.values.forEach((val, i) => {
+                step.isExample[i] =
+                  typeof val === "string" &&
+                  val.startsWith("<") &&
+                  val.endsWith(">");
+              });
+            }
+          });
+        }
       }
     });
   }

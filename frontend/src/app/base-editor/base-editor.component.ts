@@ -111,6 +111,11 @@ export class BaseEditorComponent {
     this.checkStep(this.selectedScenario.multipleScenarios[index]);
   }
 
+  /**
+   * Checks if user investigates AI output
+   */
+  @Input() isReviewing: boolean = false;
+
   @Output() blockSelectTriggerEvent: EventEmitter<string> = new EventEmitter();
 
   /**

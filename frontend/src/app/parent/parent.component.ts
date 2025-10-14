@@ -56,6 +56,8 @@ export class ParentComponent implements OnInit, OnDestroy {
 
   activeView: string = "storyView";
 
+  isReviewing: Boolean = false;
+
   /**
      * Subscribtions for all EventEmitter
      */

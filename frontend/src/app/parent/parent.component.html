@@ -2,7 +2,9 @@
     <div class="storiesBar">
         <app-stories-bar
             [isDark] ="isDark" 
-            [newSelectedStory]="selectedStory" 
+            [stories]="stories"
+            [newSelectedStory]="selectedStory"
+            [isReviewing]="isReviewing"
             #storiesBar
             (storyChosen)="setSelectedStory($event);" 
             (scenarioChosen)="setSelectedScenario($event);" 
@@ -18,6 +20,7 @@
             *ngIf="this.activeView === 'storyView'" 
             (report)="viewReport($event);"
             (storyChosen)="setSelectedStory($event);"
+            (reviewModeChanged)="isReviewing = $event"
             [storiesBar]="storiesBar"
             [newSelectedStory]="selectedStory" 
             [newSelectedScenario]="selectedScenario"

@@ -58,7 +58,7 @@
                 (click)="generateAiScenarios()" 
                 [disabled]="aiLoadingStories.has(selectedStory._id)">
             <mat-icon>psychology</mat-icon>
-            Generate with AI
+            Generate Scenarios with AI
         </button>
         <div class="loading-container" *ngIf="aiLoadingStories.has(selectedStory._id)">
           <mat-spinner diameter="24"></mat-spinner>
@@ -69,11 +69,11 @@
         <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title
           }}</span>
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
-        <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" data-uk-tooltip title="Change Story Title">
+        <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" [disabled]="isReviewingAi" data-uk-tooltip title="Change Story Title">
           <em class="material-icons">edit</em>
         </button>
       </div>
-      <button id="story_delete" class="storyTitle" (click)=showDeleteStoryToast($event) uk-tooltip="Delete Story">
+      <button id="story_delete" class="storyTitle" (click)=showDeleteStoryToast($event) [disabled]="isReviewingAi" uk-tooltip="Delete Story">
         <em class="material-icons">delete</em>
       </button>
     </div>
@@ -234,8 +234,61 @@
     <br>
 
     <!--storyEditorContainer - contains Head bar of Story-Editor, Scenario-Editor, Footer of Story-Editor-->
-    <div id="storyEditorContainer"  *ngIf="this.selectedScenario" >
+    <div id="storyEditorContainer" *ngIf="this.selectedScenario">
+      <!--AI Review Bar-->
+      <div *ngIf="!isReviewingAi && aiSuggestions.has(selectedStory._id)" class="storyEditorHeadContainer ai-review-prompt">
 
+        <div class="review-prompt-content">
+          <span>🤖 AI suggestions are ready for this story.</span>
+    
+          <div class="review-prompt-metadata">
+            <span class="metadata-item" uk-tooltip="Generation Time">
+              <mat-icon>schedule</mat-icon>
+              {{ selectedStory.aiSuggestion.metadata?.generationTimestamp | date:'short' }}
+            </span>
+            <span class="metadata-item" uk-tooltip="Models Used (Text / JSON)">
+              <mat-icon>memory</mat-icon>
+              {{ selectedStory.aiSuggestion.metadata?.modelsUsed?.textModel }} / {{
+              selectedStory.aiSuggestion.metadata?.modelsUsed?.jsonModel }}
+            </span>
+          </div>
+        </div>
+
+        <button class="button-4" (click)="enterAiReviewMode()">Review Suggestions</button>
+      </div>
+      
+      <div *ngIf="isReviewingAi" class="storyEditorHeadContainer ai-review-bar">
+        <div class="review-bar-title">
+          <mat-icon>psychology</mat-icon>
+          <span>You are reviewing AI-generated scenarios.</span>
+        </div>
+        <div class="review-bar-actions">
+          <div class="action-group-left">
+            <button class="button-4" (click)="mergeAiSuggestion(true)">Overwrite Existing</button>
+            <button class="button-4 primary" (click)="mergeAiSuggestion(false)">Append to Existing</button>
+          </div>
+          <div class="action-group-right">
+            <button mat-icon-button (click)="discardAiSuggestion()" matTooltip="Discard Suggestion">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+            <button mat-icon-button (click)="exitAiReviewMode()" matTooltip="Exit Review Mode">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+  </div>
+      </div>
+
+      <div *ngIf="isReviewingAi" class="ai-scenario-selector-bar">
+        <span class="selector-title">Reviewing Scenarios:</span>
+        <div class="scenario-list">
+          <button *ngFor="let scenario of aiSuggestions.get(selectedStory._id)?.scenarios"
+                  class="scenario-selector-button"
+                  [class.active]="scenario.scenario_id === selectedScenario?.scenario_id"
+                  (click)="selectScenario(scenario)">
+            {{ scenario.name }}
+          </button>
+        </div>
+      </div>
       <!--storyEditorHeadContainer-->
       <div class="storyEditorHeadContainer" id="storyEditorHeadContainer">
         <div class="storyInfoLeft">
@@ -372,11 +425,16 @@
       </div>
 
       <!--Scenario Editor-->
-      <app-scenario-editor [isDark]="isDark" #scenarioChild
-        (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);"
-        (deleteScenarioEvent)="showDeleteScenarioToast($event);" [originalStepTypes]="originalStepTypes"
-        [testRunning]="testRunning" [newlySelectedStory]="selectedStory"
-        [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
+      <div [class.read-only-mode]="isReviewingAi">
+        <app-scenario-editor [isDark]="isDark" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);"
+          (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);"
+          (navigateLeft)="navigateScenarioLeft()"
+          (navigateRight)="navigateScenarioRight()"
+          [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory"
+          [newlySelectedScenario]="selectedScenario"
+          [scenarios]="isReviewingAi ? aiSuggestions.get(selectedStory._id)?.scenarios : selectedStory.scenarios">
+        </app-scenario-editor>
+      </div>
       <app-rename-story #renameStoryModal></app-rename-story>
       <app-rename-background #renameBackgroundModal></app-rename-background>
 
@@ -414,7 +472,7 @@
     </div>
 
     <!--emptyScenarioPlaceholderContainer - used then there is no selectedScenario -->
-    <div id="emptyScenarioPlaceholderContainer" *ngIf="!this.selectedScenario">
+    <div id="emptyScenarioPlaceholderContainer" *ngIf="!isReviewingAi && (!selectedStory.scenarios || selectedStory.scenarios.length === 0)">
       <p>Seems like you have no Scenarios in this Story yet.</p>
       <div id="emptyScenarioPlaceholderContainerButton">
         <button id="add_first_scenario_from_story-editor" class="button"      

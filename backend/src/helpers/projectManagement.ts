@@ -774,13 +774,14 @@ async function getStorysByIssue(issueKeys) {
 
 /**
  * Orchestrates the AI scenario generation process for a specific story.
- * It fetches the story, calls the AI parser, merges the results, and updates the database.
+ * It fetches the story, calls the AI parser, and then either merges the results
+ * directly (if the story is empty) or saves them as a suggestion for review by the user.
  * @param {string} storyId - The ID of the story to process.
  * @param {any} aiConfig - The configuration for the AI parser.
- * @returns {Promise<Story>} The updated story object.
+ * @returns {Promise<void>} The updated story object.
  * @throws Will throw an error if the story is not found or the AI process fails.
  */
-async function generateAiScenariosForStory(storyId: string, aiConfig: any): Promise<Story> {
+async function generateAiScenariosForStory(storyId: string, aiConfig: any): Promise<void> {
   try {
     // 1. Get the story from the database
     const story = await mongo.getOneStory(storyId);
@@ -805,22 +806,52 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any): Prom
       throw new Error('AI-Parser did not generate any valid scenarios.');
     }
 
-    // 4. Merge the new scenarios into the existing story
-    const highestExistingId = story.scenarios.reduce((max, s) => Math.max(max, s.scenario_id), 0);
-    parsedStory.scenarios.forEach((newScenario, index) => {
-      newScenario.scenario_id = highestExistingId + index + 1;
-      newScenario.multipleScenarios = [];
-      story.scenarios.push(newScenario);
-    });
+    // 4. Decide whether to auto-merge or save as suggestion
+    if (isStoryEffectivelyEmpty(story)) {
+      console.log(`Story ${storyId} is empty. Auto-merging AI scenarios.`);
+      
+      const highestExistingId = story.scenarios.reduce((max, s) => Math.max(max, s.scenario_id), 0);
+      parsedStory.scenarios.forEach((newScenario, index) => {
+        newScenario.scenario_id = highestExistingId + index + 1;
+        newScenario.multipleScenarios = []; // Add the required field
+      });
+      
+      // Directly merge and save
+      const updatedStory = await mongo.updateScenarioList(storyId, parsedStory.scenarios);
+      
+      // Emit the full, updated story object
+      aiJobEmitter.emit(`job-done-${storyId}`, { 
+        status: 'auto-merged', 
+        data: updatedStory 
+      });
 
-    // 5. Save the updated story, return it and fire success event
-    await mongo.updateBackground(storyId, parsedStory.background)
-    const updatedStory = await mongo.updateScenarioList(storyId, parsedStory.scenarios);
-    console.log(`Successfully added ${parsedStory.scenarios.length} new scenarios to Story ID: ${storyId}`);
-    aiJobEmitter.emit(`job-done-${storyId}`, { success: true, data: updatedStory });
-    return updatedStory;
+    } else {
+      console.log(`Story ${storyId} already has content. Saving AI output as a suggestion.`);
+      
+      // Save the result in the new 'aiSuggestion' field
+      story.aiSuggestion = {
+        scenarios: parsedStory.scenarios,
+        background: parsedStory.background,
+        metadata: {
+          generationTimestamp: new Date(),
+          modelsUsed: {
+            textModel: aiConfig.textPreparation.modelName,
+            jsonModel: aiConfig.jsonConversion.modelName,
+          }
+        }
+      };
+      
+      await mongo.updateStory(story);
+
+      // Emit a notification that a suggestion is ready
+      aiJobEmitter.emit(`job-done-${storyId}`, { 
+        status: 'suggestion-ready', 
+        storyId: storyId 
+      });
+    }
   } catch (error) {
-    aiJobEmitter.emit(`job-done-${storyId}`, { success: false, error: error.message });
+    aiJobEmitter.emit(`job-done-${storyId}`, { status: 'error', error: error.message });
+    console.error(`Error in generateAiScenariosForStory for storyId ${storyId}:`, error);
     throw error;
   }
 }
@@ -834,6 +865,18 @@ function queueAiScenarioGeneration(storyId: string, aiConfig: any): void {
   aiJobQueue.add(task);
   
   console.log(`AI Job for story ${storyId} has been added to the queue.`);
+}
+
+function isStoryEffectivelyEmpty(story: Story): boolean {
+  if (!story.scenarios || story.scenarios.length === 0) {
+    return true;
+  }
+  // Returns true if EVERY scenario has empty step definitions
+  return story.scenarios.every(scenario => 
+    (!scenario.stepDefinitions.given || scenario.stepDefinitions.given.length === 0) &&
+    (!scenario.stepDefinitions.when || scenario.stepDefinitions.when.length === 0) &&
+    (!scenario.stepDefinitions.then || scenario.stepDefinitions.then.length === 0)
+  );
 }
 
 module.exports = {

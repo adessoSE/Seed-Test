@@ -125,6 +125,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     @Input() newSelectedStory: Story;
 
+    @Input() isReviewing: boolean = false;
+
     /**
      * SearchTerm for story title search
      */
@@ -217,7 +219,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                     this.stories = resp.filter(s => s != null);
                     this.filteredStories = this.stories;
                     this.storyTermChange();
-                    this.selectStoryScenario(resp[resp.length - 1]);
+                    this.selectStory(resp[resp.length - 1]);
                 });
             });
         });
@@ -276,7 +278,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.selectedStory = this.newSelectedStory;
             this.scrollToSelectedStory();
             if (this.selectedStory){
-                this.selectStoryScenario(this.selectedStory);
+                this.selectStory(this.selectedStory);
             }
         }
     }
@@ -416,7 +418,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     selectFirstStoryOfGroup(group: Group) {
         let story = group.member_stories[0];
         story = this.stories.find(o => o._id === story._id);
-        this.selectStoryScenario(story);
+        this.selectStory(story);
     }
 
     /**
@@ -424,7 +426,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @param scenario
      */
     selectScenario(scenario: Scenario) {
-        this.selectedScenario = scenario;
         this.scenarioChosen.emit(scenario);
     }
 
@@ -438,17 +439,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Selects a new Story and with it a new scenario
+     * Selects a new Story
      * @param story
      */
-    selectStoryScenario(story: Story) {
-        this.selectedStory = story;
-        this.initialyAddIsExample();
+    selectStory(story: Story) {
         this.storyChosen.emit(story);
-        if (story.scenarios.length > 0 && story.scenarios[0] != null && story.scenarios[0] != undefined) {
-            this.selectScenario(story.scenarios[0]);
-        } else this.deselectScenario()
-        this.backgroundService.backgroundReplaced = undefined;
     }
 
     scrollToSelectedStory() {
@@ -473,7 +468,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     selectStoryOfGroup(id) {
         const story = this.stories.find(o => o._id === id);
-        this.selectStoryScenario(story);
+        this.selectStory(story);
     }
 
     /**
@@ -704,38 +699,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
     }
 
-    initialyAddIsExample() {
-        console.log(this.selectedStory)
-        if (this.selectedStory) {
-            this.selectedStory.scenarios.forEach(scenario => {
-                scenario.stepDefinitions.given.forEach((value, index) => {
-                    if (!scenario.stepDefinitions.given[index].isExample) {
-                        scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
-                        value.values.forEach((val, i) => {
-                            scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                        })
-                    }
-                })
-                scenario.stepDefinitions.when.forEach((value, index) => {
-                    if (!scenario.stepDefinitions.when[index].isExample) {
-                        scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
-                        value.values.forEach((val, i) => {
-                            scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                        })
-                    }
-                })
-                scenario.stepDefinitions.then.forEach((value, index) => {
-                    if (!scenario.stepDefinitions.then[index].isExample) {
-                        scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
-                        value.values.forEach((val, i) => {
-                            scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                        })
-                    }
-                })
-    
-            })
-        }
-    }
     toTicket(story: string) {
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
