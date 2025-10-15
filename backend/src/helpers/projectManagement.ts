@@ -805,28 +805,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any): Prom
     if (!parsedStory || !parsedStory.scenarios || parsedStory.scenarios.length === 0) {
       throw new Error('AI-Parser did not generate any valid scenarios.');
     }
-
-    // 4. Decide whether to auto-merge or save as suggestion
-    if (isStoryEffectivelyEmpty(story)) {
-      console.log(`Story ${storyId} is empty. Auto-merging AI scenarios.`);
-      
-      const highestExistingId = story.scenarios.reduce((max, s) => Math.max(max, s.scenario_id), 0);
-      parsedStory.scenarios.forEach((newScenario, index) => {
-        newScenario.scenario_id = highestExistingId + index + 1;
-        newScenario.multipleScenarios = []; // Add the required field
-      });
-      
-      // Directly merge and save
-      const updatedStory = await mongo.updateScenarioList(storyId, parsedStory.scenarios);
-      
-      // Emit the full, updated story object
-      aiJobEmitter.emit(`job-done-${storyId}`, { 
-        status: 'auto-merged', 
-        data: updatedStory 
-      });
-
-    } else {
-      console.log(`Story ${storyId} already has content. Saving AI output as a suggestion.`);
+      console.log(`AI results for story ${storyId} are ready. Saving as suggestion.`);
       
       // Save the result in the new 'aiSuggestion' field
       story.aiSuggestion = {
@@ -848,7 +827,6 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any): Prom
         status: 'suggestion-ready', 
         storyId: storyId 
       });
-    }
   } catch (error) {
     aiJobEmitter.emit(`job-done-${storyId}`, { status: 'error', error: error.message });
     console.error(`Error in generateAiScenariosForStory for storyId ${storyId}:`, error);

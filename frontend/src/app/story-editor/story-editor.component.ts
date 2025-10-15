@@ -1895,54 +1895,42 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.storyService.listenForAiResults(storyId).subscribe({
           next: (result) => {
             this.aiLoadingStories.delete(storyId);
+            // A suggestion is ready for review
+            this.storyService
+              .getStory(result.storyId)
+              .subscribe((updatedStoryWithSuggestion) => {
+                // Update our main stories array with the new data
+                this.updateLocalStoryState(
+                  result.storyId,
+                  updatedStoryWithSuggestion
+                );
 
-            if (result.status === "auto-merged") {
-              // Auto-merge was successful, update the story directly
-              const updatedStory = result.data as Story;
-              this.updateLocalStoryState(storyId, updatedStory);
-              this.snackBar.open(
-                `New scenarios for '${storyTitle}' have been automatically added!`,
-                "Awesome!",
-                { duration: 5000 }
-              );
-            } else if (result.status === "suggestion-ready") {
-              // A suggestion is ready for review
-              this.storyService
-                .getStory(result.storyId)
-                .subscribe((updatedStoryWithSuggestion) => {
-                  // Update our main stories array with the new data
-                  this.updateLocalStoryState(
-                    result.storyId,
-                    updatedStoryWithSuggestion
-                  );
-
-                  this.aiSuggestions.set(storyId, true);
-                  // Now the snackbar can reliably trigger the review mode
-                  this.snackBar
-                    .open(
-                      `🤖 AI suggestions for '${storyTitle}' are ready for review.`,
-                      "Show",
-                      { duration: 10000 }
-                    )
-                    .onAction()
-                    .subscribe(() => {
-                      // If the user isn't looking at the story, switch to it first
-                      if (this.selectedStory._id !== result.storyId) {
-                        const storyToReview = this.stories.find(
-                          (s) => s._id === result.storyId
-                        );
-                        if (storyToReview) {
-                          this.storyChosen.emit(storyToReview); // Tell parent to switch story
-                          // Use a short delay to allow Angular to update the view
-                          setTimeout(() => this.enterAiReviewMode(), 50);
-                        }
-                      } else {
-                        // If the story is already selected, just enter review mode
-                        this.enterAiReviewMode();
+                this.aiSuggestions.set(storyId, true);
+                // Now the snackbar can reliably trigger the review mode
+                this.snackBar
+                  .open(
+                    `🤖 AI suggestions for '${storyTitle}' are ready for review.`,
+                    "Show",
+                    { duration: 10000 }
+                  )
+                  .onAction()
+                  .subscribe(() => {
+                    // If the user isn't looking at the story, switch to it first
+                    if (this.selectedStory._id !== result.storyId) {
+                      const storyToReview = this.stories.find(
+                        (s) => s._id === result.storyId
+                      );
+                      if (storyToReview) {
+                        this.storyChosen.emit(storyToReview); // Tell parent to switch story
+                        // Use a short delay to allow Angular to update the view
+                        setTimeout(() => this.enterAiReviewMode(), 50);
                       }
-                    });
-                });
-            }
+                    } else {
+                      // If the story is already selected, just enter review mode
+                      this.enterAiReviewMode();
+                    }
+                  });
+              });
           },
           error: (err) => {
             this.aiLoadingStories.delete(storyId);

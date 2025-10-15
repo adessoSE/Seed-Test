@@ -206,7 +206,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         const version = localStorage.getItem('version');
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s != null);
             this.filteredStories = this.stories;
@@ -273,13 +273,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     }
 
-    ngOnChanges(changes: SimpleChanges) {
+    ngOnChanges(changes: SimpleChanges): void {
         if (changes.newSelectedStory) {
             this.selectedStory = this.newSelectedStory;
             this.scrollToSelectedStory();
             if (this.selectedStory){
                 this.selectStory(this.selectedStory);
             }
+        }
+        if (changes.stories && changes.stories.currentValue) {
+            this.stories = changes.stories.currentValue.filter(s => s != null);
+            this.filteredStories = this.stories;
         }
     }
 

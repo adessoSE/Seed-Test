@@ -46,7 +46,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
     /**
      * Sets a new selected story
      */
-    @Input() newlySelectedStory: Story;
+    @Input() selectedStory: Story;
 
 
     /**
@@ -59,21 +59,11 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * }
      * }
      */
-    @Input() newlySelectedScenario: Scenario;
+    @Input() selectedScenario: Scenario;
 
     @Input() isReviewing: boolean = false;
 
     testRunning;
-
-    /**
-     * Currently selected story
-     */
-    selectedStory: Story;
-
-    /**
-     * currently selected scenario
-     */
-    selectedScenario: Scenario;
 
       /**
      * if the arrow left should be shown
@@ -201,8 +191,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
         }
 
         // When a specific scenario is selected
-        if (changes['newlySelectedScenario']) {
-            const newScenario = changes['newlySelectedScenario'].currentValue;
+        if (changes['selectedScenario']) {
+            const newScenario = changes['selectedScenario'].currentValue;
             if (newScenario) {
                 this.selectScenario(newScenario);
             }

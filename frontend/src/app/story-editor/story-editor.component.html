@@ -430,8 +430,8 @@
           (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);"
           (navigateLeft)="navigateScenarioLeft()"
           (navigateRight)="navigateScenarioRight()"
-          [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory"
-          [newlySelectedScenario]="selectedScenario"
+          [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [selectedStory]="selectedStory"
+          [selectedScenario]="selectedScenario"
           [scenarios]="isReviewingAi ? aiSuggestions.get(selectedStory._id)?.scenarios : selectedStory.scenarios">
         </app-scenario-editor>
       </div>
