@@ -28,6 +28,10 @@ export class ParentComponent implements OnInit, OnDestroy {
    */
   stories: Story[];
 
+  repositories: RepositoryContainer[];
+  
+  selectedRepository: RepositoryContainer;
+
   /**
    * Currently selected story
    */
@@ -135,18 +139,29 @@ export class ParentComponent implements OnInit, OnDestroy {
    * Leads the stories of the current selected repository
    */
   loadStories() {
-    const value: string = localStorage.getItem('repository');
-    const source: string = localStorage.getItem('source');
-    const _id: string = localStorage.getItem('id');
-    const repository: RepositoryContainer = { value, source, _id };
-    this.storyService
-      .getStories(repository)
-      .subscribe((resp: Story[]) => {
-        this.stories = resp;
-        this.routing();
-      });
+    const repoId: string = localStorage.getItem('id');
+
+    // 1. Fetch the complete list of repositories
+    this.projectService.getRepositories().subscribe((allRepos: RepositoryContainer[]) => {
+      this.repositories = allRepos;
+
+      // 2. Find the full, currently selected repository object from the list
+      this.selectedRepository = this.repositories.find(repo => repo._id === repoId);
+
+      // 3. If the full repository object is found, load its stories
+      if (this.selectedRepository) {
+        this.storyService
+          .getStories(this.selectedRepository)
+          .subscribe((resp: Story[]) => {
+            this.stories = resp;
+            this.routing(); // Handle routing after stories are loaded
+          });
+      }
+    });
+
+    // Also load the groups for the current repository
     this.groupService
-      .getGroups(_id)
+      .getGroups(repoId)
       .subscribe((resp: Group[]) => {
         this.groups = resp;
       });

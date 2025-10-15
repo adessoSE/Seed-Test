@@ -54,26 +54,48 @@
             As a <...>, I want <...> so that <...>
           </span>
         </dfn>
-        <button class="button" mat-fab extended color="accent" 
-                (click)="generateAiScenarios()" 
-                [disabled]="aiLoadingStories.has(selectedStory._id)">
+        <div class="ai-generate-container">
+          <button class="button" mat-fab extended color="accent" (click)="generateAiScenarios()"
+            [disabled]="aiLoadingStories.has(selectedStory._id)">
             <mat-icon>psychology</mat-icon>
             Generate Scenarios with AI
-        </button>
+          </button>
+
+          <button mat-icon-button [matMenuTriggerFor]="aiSettingsMenu" uk-tooltip="Advanced AI Settings"
+            class="settings-button">
+            <mat-icon>settings</mat-icon>
+          </button>
+        </div>
         <div class="loading-container" *ngIf="aiLoadingStories.has(selectedStory._id)">
           <mat-spinner diameter="24"></mat-spinner>
           <span>Generating...</span>
         </div>
       </div>
+      <mat-menu #aiSettingsMenu="matMenu" class="ai-override-menu">
+        <div class="override-fields" (click)="$event.stopPropagation();">
+          <h4 class="menu-title">Temporary Model Overrides</h4>
+          <mat-form-field appearance="fill">
+            <mat-label>Text Preparation Model</mat-label>
+            <input matInput [(ngModel)]="overrideTextModel" placeholder="e.g., llama3">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>JSON Conversion Model</mat-label>
+            <input matInput [(ngModel)]="overrideJsonModel" placeholder="e.g., codestral">
+          </mat-form-field>
+        </div>
+      </mat-menu>
       <div style="flex-grow: .5;">
         <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title
           }}</span>
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
-        <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" [disabled]="isReviewingAi" data-uk-tooltip title="Change Story Title">
+        <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" [disabled]="isReviewingAi" data-uk-tooltip
+          title="Change Story Title">
           <em class="material-icons">edit</em>
         </button>
       </div>
-      <button id="story_delete" class="storyTitle" (click)=showDeleteStoryToast($event) [disabled]="isReviewingAi" uk-tooltip="Delete Story">
+      <button id="story_delete" class="storyTitle" (click)=showDeleteStoryToast($event) [disabled]="isReviewingAi"
+        uk-tooltip="Delete Story">
         <em class="material-icons">delete</em>
       </button>
     </div>
@@ -94,8 +116,8 @@
           </mat-expansion-panel-header>
           <br>
           <div style="white-space: pre-wrap;">
-			{{selectedStory.body}}
-		  </div>		  
+            {{selectedStory.body}}
+          </div>
         </mat-expansion-panel>
       </mat-accordion>
     </div>
@@ -118,7 +140,7 @@
                 <mat-expansion-panel-header>
                   <mat-panel-title style="font-weight: normal;">
                     {{ precondition.preConditionKey }}: {{ precondition.preConditionName }}
-                    <button  uk-tooltip="Go to Jira" class="toTicket" (click)="toTicket(precondition.preConditionKey)">
+                    <button uk-tooltip="Go to Jira" class="toTicket" (click)="toTicket(precondition.preConditionKey)">
                       <mat-icon class="toTicket">launch</mat-icon>
                     </button>
                   </mat-panel-title>
@@ -131,7 +153,7 @@
                       <th mat-header-cell *matHeaderCellDef>CUC Key</th>
                       <td mat-cell *matCellDef="let story">
                         {{ story.issue_number }}
-                        <button  uk-tooltip="Go to Jira" class="toTicket" (click)="toTicket(story.issue_number)">
+                        <button uk-tooltip="Go to Jira" class="toTicket" (click)="toTicket(story.issue_number)">
                           <mat-icon class="toTicket">launch</mat-icon>
                         </button>
                       </td>
@@ -150,7 +172,7 @@
                           {{ story.issue_number }}. {{ story.title }}
                         </a>
                       </td>
-                    </ng-container>                
+                    </ng-container>
                     <!-- Row Definitions -->
                     <tr mat-header-row *matHeaderRowDef="['cucKey', 'name', 'storyId']"></tr>
                     <tr mat-row *matRowDef="let row; columns: ['cucKey', 'name', 'storyId'];"></tr>
@@ -236,11 +258,12 @@
     <!--storyEditorContainer - contains Head bar of Story-Editor, Scenario-Editor, Footer of Story-Editor-->
     <div id="storyEditorContainer" *ngIf="this.selectedScenario">
       <!--AI Review Bar-->
-      <div *ngIf="!isReviewingAi && aiSuggestions.has(selectedStory._id)" class="storyEditorHeadContainer ai-review-prompt">
+      <div *ngIf="!isReviewingAi && aiSuggestions.has(selectedStory._id)"
+        class="storyEditorHeadContainer ai-review-prompt">
 
         <div class="review-prompt-content">
           <span>🤖 AI suggestions are ready for this story.</span>
-    
+
           <div class="review-prompt-metadata">
             <span class="metadata-item" uk-tooltip="Generation Time">
               <mat-icon>schedule</mat-icon>
@@ -256,7 +279,7 @@
 
         <button class="button-4" (click)="enterAiReviewMode()">Review Suggestions</button>
       </div>
-      
+
       <div *ngIf="isReviewingAi" class="storyEditorHeadContainer ai-review-bar">
         <div class="review-bar-title">
           <mat-icon>psychology</mat-icon>
@@ -275,16 +298,15 @@
               <mat-icon>close</mat-icon>
             </button>
           </div>
-  </div>
+        </div>
       </div>
 
       <div *ngIf="isReviewingAi" class="ai-scenario-selector-bar">
         <span class="selector-title">Reviewing Scenarios:</span>
         <div class="scenario-list">
           <button *ngFor="let scenario of aiSuggestions.get(selectedStory._id)?.scenarios"
-                  class="scenario-selector-button"
-                  [class.active]="scenario.scenario_id === selectedScenario?.scenario_id"
-                  (click)="selectScenario(scenario)">
+            class="scenario-selector-button" [class.active]="scenario.scenario_id === selectedScenario?.scenario_id"
+            (click)="selectScenario(scenario)">
             {{ scenario.name }}
           </button>
         </div>
@@ -298,11 +320,12 @@
           </button>
           <button class="button" (click)="changeActiveView('fileManagerView')" uk-tooltip="Switch to File Manager">
             <em class="material-icons">folder_open</em>
-          File Manager
+            File Manager
           </button>
           <div class="storyInOneSessionDiv">
             <label class="selectLabel SmallIcontext">Single Session:</label>
-            <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()" [checked]="this.selectedStory.oneDriver">
+            <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()"
+              [checked]="this.selectedStory.oneDriver">
             <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
               <span rel="def" style="font-weight: normal;">
                 Executes all scenarios consecutively in one single Browser session.
@@ -316,14 +339,16 @@
           <div *ngIf="!this.globalSettingsActivated">
             <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
             <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
-              value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event.target.valueAsNumber)">
+              value="{{this.selectedScenario.stepWaitTime || 0}}"
+              (change)="setStepWaitTime($event.target.valueAsNumber)">
             <label class="selectLabel SmallIcontext">Test Runner:</label>
-            <select name="testRunner" class="select" id="testRunnerSelect" (change)="setTestRunner($event.target.value)">
+            <select name="testRunner" class="select" id="testRunnerSelect"
+              (change)="setTestRunner($event.target.value)">
               <option id="seleniumWebdriver" value="seleniumWebdriver"
                 [selected]="this.testRunner === 'seleniumWebdriver'">Selenium Webdriver</option>
-              <option id="playwright" value="playwright"
-                [selected]="this.testRunner === 'playwright'">Playwright (experimental)</option>
-              
+              <option id="playwright" value="playwright" [selected]="this.testRunner === 'playwright'">Playwright
+                (experimental)</option>
+
             </select>
             <label class="selectLabel SmallIcontext">Browser:</label>
             <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
@@ -335,7 +360,7 @@
                 [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
               <option *ngIf="this.webkit_enabled && this.testRunner === 'playwright'" id="webkit_browser" value="webkit"
                 [selected]="this.selectedScenario.browser === 'webkit'">Webkit</option>
-              
+
             </select>
 
             <!-- EMULATOR -->
@@ -363,8 +388,8 @@
                 [selected]="this.selectedScenario.emulator === emulator">
                 No emulator avaiable
               </option>
-              <option *ngFor="let emulator of this.getAvaiableEmulators()" value="{{ emulator }}" id="{{emulator}}_option"
-                [selected]="this.selectedScenario.emulator === emulator">
+              <option *ngFor="let emulator of this.getAvaiableEmulators()" value="{{ emulator }}"
+                id="{{emulator}}_option" [selected]="this.selectedScenario.emulator === emulator">
                 {{ emulator }}
               </option>
             </select>
@@ -376,14 +401,16 @@
               </span>
             </dfn>
             <!-- Window Size -->
-            <app-window-size #windoSizeModal [width]="this.selectedScenario.width" [height]="this.selectedScenario.height"
-              [emulator]="emulator_enabled" (sizeChange)="handleSizeChange($event)"></app-window-size>
+            <app-window-size #windoSizeModal [width]="this.selectedScenario.width"
+              [height]="this.selectedScenario.height" [emulator]="emulator_enabled"
+              (sizeChange)="handleSizeChange($event)"></app-window-size>
           </div>
 
           <div *ngIf="this.globalSettingsActivated">
             <div class="globalSettingsDiv">
               <!-- <em class="material-icons warningIcon">warning</em> -->
-              <p class="globalSettingsText">Test Execution Setting for this Scenario are currently overwritten by Project
+              <p class="globalSettingsText">Test Execution Setting for this Scenario are currently overwritten by
+                Project
                 Settings.</p>
               <!-- <em class="material-icons warningIcon">warning</em> -->
             </div>
@@ -414,7 +441,8 @@
             <em class="material-icons-outlined">cancel</em>
           </button>
           <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning"
-            uk-tooltip="Runs all scenario tests for the story" type="button" (click)="evaluateAndRunStory(this.testRunner)">
+            uk-tooltip="Runs all scenario tests for the story" type="button"
+            (click)="evaluateAndRunStory(this.testRunner)">
             Run Story
           </button>
           <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()"
@@ -428,8 +456,7 @@
       <div [class.read-only-mode]="isReviewingAi">
         <app-scenario-editor [isDark]="isDark" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);"
           (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);"
-          (navigateLeft)="navigateScenarioLeft()"
-          (navigateRight)="navigateScenarioRight()"
+          (navigateLeft)="navigateScenarioLeft()" (navigateRight)="navigateScenarioRight()"
           [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [selectedStory]="selectedStory"
           [selectedScenario]="selectedScenario"
           [scenarios]="isReviewingAi ? aiSuggestions.get(selectedStory._id)?.scenarios : selectedStory.scenarios">
@@ -460,7 +487,8 @@
             [disabled]="!testDone" uk-tooltip="Save Report" type="button" (click)=" saveReport(this.reportId);">
             <em class="material-icons">save</em></button>
           <button *ngIf="this.reportIsSaved" id="unsave_report_bottom" class="button" [class.disabledButton]="!testDone"
-            [disabled]="!testDone" uk-tooltip="Do not Save Report" type="button" (click)=" unsaveReport(this.reportId);">
+            [disabled]="!testDone" uk-tooltip="Do not Save Report" type="button"
+            (click)=" unsaveReport(this.reportId);">
             <em class="material-icons-outlined">cancel</em></button>
           <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test"
             [class.disabledButton]="testRunning" [disabled]="testRunning" type="button"
@@ -472,11 +500,11 @@
     </div>
 
     <!--emptyScenarioPlaceholderContainer - used then there is no selectedScenario -->
-    <div id="emptyScenarioPlaceholderContainer" *ngIf="!isReviewingAi && (!selectedStory.scenarios || selectedStory.scenarios.length === 0)">
+    <div id="emptyScenarioPlaceholderContainer"
+      *ngIf="!isReviewingAi && (!selectedStory.scenarios || selectedStory.scenarios.length === 0)">
       <p>Seems like you have no Scenarios in this Story yet.</p>
       <div id="emptyScenarioPlaceholderContainerButton">
-        <button id="add_first_scenario_from_story-editor" class="button"      
-          (click)="openCreateScenario()">
+        <button id="add_first_scenario_from_story-editor" class="button" (click)="openCreateScenario()">
           <em class="material-icons">add</em>
           Create First Scenario</button>
       </div>
@@ -490,7 +518,7 @@
       </div>
     </div>
 
-  <!-- Shows report after Tests ran-->
+    <!-- Shows report after Tests ran-->
     <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
       <div id="report-header" class="uk-card-header">
         <h3 class="title">Test Results</h3>

@@ -1086,6 +1086,31 @@ async function getRepoSettingsById(repoId) {
 	}
 }
 
+async function getRepoAiConfigById(repoId) {
+	if (!repoId || repoId.length !== 24) {
+		console.error(`Invalid repository ID: ${repoId}. Must be a 24-character hex string.`);
+		return null;
+	}
+
+	try {
+		const db = dbConnection.getConnection();
+		const collection = await db.collection(repositoriesCollection);
+
+		// Safely create ObjectId from validated hex string
+		const repo = await collection.findOne({ _id: ObjectId.createFromHexString(repoId) });
+
+		if (!repo) {
+			console.log(`No repository found with the ID: ${repoId}`);
+			return null;
+		}
+		return repo.aiConfig;
+	} catch (e) {
+		console.error(`Error retrieving repository settings: ${e}`);
+		throw e;
+	}
+}
+
+
 /**
  *
  * @param {*} repoID
@@ -1093,7 +1118,7 @@ async function getRepoSettingsById(repoId) {
  * @param {*} globalSettings
  * @returns
  */
-async function updateRepository(repoID, newName, globalSettings) {
+async function updateRepository(repoID, newName, globalSettings, aiConfig) {
 	try {
 		const repoFilter = { _id: new ObjectId(repoID) };
 		const db = dbConnection.getConnection();
@@ -1105,6 +1130,9 @@ async function updateRepository(repoID, newName, globalSettings) {
 		}
 		if (globalSettings !== undefined) {
 			updateFields.settings = globalSettings;
+		}
+		if (aiConfig !== undefined) {
+			updateFields.aiConfig = aiConfig;
 		}
 
 		const updatedRepo = await collection.findOneAndUpdate(
@@ -2228,6 +2256,7 @@ module.exports = {
 	updateRepository,
 	getOneRepositoryById,
 	getRepoSettingsById,
+	getRepoAiConfigById,
 	importStories,
 	importBlocks,
 	importGroups,

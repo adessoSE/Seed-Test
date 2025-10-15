@@ -160,6 +160,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
    * Currently selected repository
    */
+  @Input ()
   selectedRepository: RepositoryContainer;
 
   /**
@@ -345,6 +346,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   preConditionResults = [];
 
+  // Properties to hold the temporary model names from the new UI
+    overrideTextModel: string;
+    overrideJsonModel: string;
+
   readonly TEMPLATE_NAME = "background";
 
   /**
@@ -495,17 +500,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     // in event that stories are already loaded
     if (this.stories) {
       this.storiesLoaded = true;
-    }
-    if (this.loginService.isLoggedIn()) {
-      this.projectService.getRepositories().subscribe(
-        (resp) => {
-          this.repositories = resp;
-          this.selectedRepository = this.findSelectedRepository(this.repoId);
-        },
-        (err) => {
-          this.error = err.error;
-        }
-      );
     }
     this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe(
       (stories: Story[]) => {
@@ -1468,15 +1462,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Finds repository container by Id
-   * @param repositoryId
-   */
-
-  findSelectedRepository(id) {
-    return this.repositories.find((repo) => repo._id === id);
-  }
-
-  /**
    * Opens Modal to edit the workgroup
    * @param project
    */
@@ -1858,99 +1843,126 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     }
 
     const storyId = this.selectedStory._id;
+    const repoId = this.selectedRepository._id;
     const storyTitle = this.selectedStory.title;
     this.aiLoadingStories.add(storyId);
 
     // --- Configuration of AI Parser ---
-    // Should come from user settings or env in backend.
-    // Mocking for local ollama.
-    const aiConfig = {
-      textPreparation: {
-        provider: "custom" as const,
-        name: "ollama",
-        modelName: "mistral",
-        baseURL: "http://127.0.0.1:11434/v1",
-      },
-      jsonConversion: {
-        provider: "custom" as const,
-        name: "ollama",
-        modelName: "codestral",
-        baseURL: "http://127.0.0.1:11434/v1",
-      },
-    };
-
-    // Step 1: Start job in backend and wait for SSE Event
-    this.storyService.generateScenariosFromAI(storyId, aiConfig).subscribe({
-      next: (response) => {
-        console.log("AI job successfully queued:", response.message);
-        this.snackBar.open(
-          `AI generation for '${storyTitle}' has started... You will be notified upon completion.`,
-          "OK",
-          {
-            duration: 5000,
-          }
-        );
-
-        // Step 2: Listen to SSE event.
-        this.storyService.listenForAiResults(storyId).subscribe({
-          next: (result) => {
-            this.aiLoadingStories.delete(storyId);
-            // A suggestion is ready for review
-            this.storyService
-              .getStory(result.storyId)
-              .subscribe((updatedStoryWithSuggestion) => {
-                // Update our main stories array with the new data
-                this.updateLocalStoryState(
-                  result.storyId,
-                  updatedStoryWithSuggestion
-                );
-
-                this.aiSuggestions.set(storyId, true);
-                // Now the snackbar can reliably trigger the review mode
-                this.snackBar
-                  .open(
-                    `🤖 AI suggestions for '${storyTitle}' are ready for review.`,
-                    "Show",
-                    { duration: 10000 }
-                  )
-                  .onAction()
-                  .subscribe(() => {
-                    // If the user isn't looking at the story, switch to it first
-                    if (this.selectedStory._id !== result.storyId) {
-                      const storyToReview = this.stories.find(
-                        (s) => s._id === result.storyId
-                      );
-                      if (storyToReview) {
-                        this.storyChosen.emit(storyToReview); // Tell parent to switch story
-                        // Use a short delay to allow Angular to update the view
-                        setTimeout(() => this.enterAiReviewMode(), 50);
-                      }
-                    } else {
-                      // If the story is already selected, just enter review mode
-                      this.enterAiReviewMode();
-                    }
-                  });
-              });
-          },
-          error: (err) => {
-            this.aiLoadingStories.delete(storyId);
-            console.error("Error receiving AI results:", err);
-            this.snackBar.open(
-              `Error during AI generation: ${err.message}`,
-              "Close",
-              { duration: 7000 }
-            );
-          },
-        });
-      },
-      error: (err) => {
+    // Step 1: Fetch the AI config from the new dedicated endpoint.
+  this.projectService.getRepositoryAiConfig(repoId).subscribe({
+    next: (projectAiConfig) => {
+      // Check if the config was successfully loaded
+      if (!projectAiConfig) {
+        this.toastr.error('AI configuration for this project could not be loaded.');
         this.aiLoadingStories.delete(storyId);
-        console.error("Failed to queue AI job:", err);
-        this.snackBar.open("Could not start the AI generation task.", "Close", {
-          duration: 5000,
-        });
-      },
-    });
+        return;
+      }
+
+      // Step 2: Build the final config object to send to the backend.
+      const finalAiConfig = {
+        textPreparation: {
+          name: projectAiConfig.provider === 'local' ? 'ollama' : "",
+          modelName: this.overrideTextModel || projectAiConfig.defaultTextModel,
+          // The parser needs to know the provider type for the specific model - at the moment we are only using custom for local + cloud
+          provider: 'custom' as const,
+          baseURL: projectAiConfig.ollamaUrl
+        },
+        jsonConversion: {
+          name: projectAiConfig.provider === 'local' ? 'ollama' : "",
+          modelName: this.overrideJsonModel || projectAiConfig.defaultJsonModel,
+          provider: 'custom' as const,
+          baseURL: projectAiConfig.ollamaUrl
+        },
+        // Note: The API key is NOT sent from the frontend.
+        // The backend will add it securely if the provider is 'cloud'.
+      };
+
+      // Step 3: Now, make the call to start the AI job in the backend.
+      this.storyService.generateScenariosFromAI(storyId, finalAiConfig).subscribe({
+        next: (response) => {
+          console.log("AI job successfully queued:", response.message);
+          this.snackBar.open(
+            `AI generation for '${storyTitle}' has started... You will be notified upon completion.`,
+            "OK",
+            { duration: 5000 }
+          );
+
+          // Step 4: Listen for the completion event from the backend.
+          this.storyService.listenForAiResults(storyId).subscribe({
+            next: (result) => {
+              if (result.status === "error") {
+                this.aiLoadingStories.delete(storyId);
+                console.error("AI Generation failed:", result.error);
+                this.snackBar.open(
+                  `AI generation failed: ${result.error}`,
+                  "Close",
+                  { duration: 7000 }
+                );
+                return;
+              }
+              this.aiLoadingStories.delete(storyId);
+              // A suggestion is ready for review
+              this.storyService
+                .getStory(result.storyId)
+                .subscribe((updatedStoryWithSuggestion) => {
+                  this.updateLocalStoryState(
+                    result.storyId,
+                    updatedStoryWithSuggestion
+                  );
+                  this.aiSuggestions.set(
+                    storyId,
+                    updatedStoryWithSuggestion.aiSuggestion
+                  );
+
+                  // Notify the user that the suggestions are ready
+                  this.snackBar
+                    .open(
+                      `🤖 AI suggestions for '${storyTitle}' are ready for review.`,
+                      "Show",
+                      { duration: 10000 }
+                    )
+                    .onAction()
+                    .subscribe(() => {
+                      if (this.selectedStory._id !== result.storyId) {
+                        const storyToReview = this.stories.find(
+                          (s) => s._id === result.storyId
+                        );
+                        if (storyToReview) {
+                          this.storyChosen.emit(storyToReview);
+                          setTimeout(() => this.enterAiReviewMode(), 50);
+                        }
+                      } else {
+                        this.enterAiReviewMode();
+                      }
+                    });
+                });
+            },
+            error: (err) => {
+              this.aiLoadingStories.delete(storyId);
+              console.error("Error receiving AI results:", err);
+              this.snackBar.open(
+                `Error during AI generation: ${
+                  err.error?.message || "An unknown error occurred."
+                }`,
+                "Close",
+                { duration: 7000 }
+              );
+            },
+          });
+        },
+        error: (err) => {
+          this.aiLoadingStories.delete(storyId);
+          console.error("Failed to queue AI job:", err);
+          this.snackBar.open(err.error?.message || "Could not start the AI generation task.", "Close", { duration: 5000 });
+        },
+      });
+    },
+    error: (err) => {
+      this.aiLoadingStories.delete(storyId);
+      this.toastr.error('Could not load AI configuration for this project.', 'Configuration Error');
+      console.error("Failed to fetch AI config:", err);
+    }
+  });
   }
   /**
    * Enters the AI review mode for the currently selected story.
@@ -2033,15 +2045,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     const suggestion = this.aiSuggestions.get(this.selectedStory._id);
     if (!suggestion || !suggestion.scenarios) return;
 
+    let combinedScenarios: Scenario[];
+
     if (overwrite) {
-      suggestion.scenarios.forEach((scenario, index) => {
-        scenario.scenario_id = index + 1;
-      });
-      this.selectedStory.scenarios = suggestion.scenarios;
+      combinedScenarios = suggestion.scenarios;
     } else {
-      this.selectedStory.scenarios.push(...suggestion.scenarios);
+      combinedScenarios = [...this.selectedStory.scenarios, ...suggestion.scenarios];
     }
 
+    combinedScenarios.forEach((scenario, index) => {
+      scenario.scenario_id = index + 1;
+    });
+
+    this.selectedStory.scenarios = combinedScenarios;
     this.selectedStory.aiSuggestion = null; // Also clear it on the object
 
     // Save the updated story

@@ -14,7 +14,6 @@ const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
 const issueTracker = require('../../dist/models/IssueTracker');
-const stepDefs = require('../database/stepTypes');
 const xray = require('../../dist/helpers/xray');
 
 const router = express.Router();
@@ -229,9 +228,9 @@ router.post('/createRepository', async (req, res) => {
 
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
-	const { repoName, settings } = req.body;
+	const { repoName, settings, aiConfig } = req.body;
 	try {
-		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings);
+		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings, aiConfig);
 		res.status(200).json(repo);
 	} catch (error) {
 		console.error(error);
@@ -247,6 +246,17 @@ router.get('/repository/settings/:repo_id', async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		res.status(500).send('Error getting global repository settings');
+	}
+});
+
+// get global repository ai config
+router.get('/repository/aiconfig/:repo_id', async (req, res) => {
+	try {
+		const aiConfig = await mongo.getRepoAiConfigById(req.params.repo_id);
+		res.status(200).json(aiConfig);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error getting global repository AI configuration');
 	}
 });
 

@@ -1,4 +1,13 @@
 
+export interface AiConfig {
+  provider: 'local' | 'cloud';
+  ollamaUrl?: string;
+  apiKey?: string;
+  defaultTextModel?: string;
+  defaultJsonModel?: string;
+}
+
+
 /**
  * Interface of the repository container
  */
@@ -36,5 +45,11 @@ export interface RepositoryContainer {
         height?: number;
         activated?: boolean;
     };
+
+    /**
+     * Determines how our AI generation is configured
+     */
+
+    aiConfig?: AiConfig;
 
 }

@@ -252,7 +252,7 @@ export class StoryService {
   /**
    * Sends request to generate scenarios with AI.
    * @param storyId ID of story affected.
-   * @param aiConfig Configuartion for the parser.
+   * @param aiConfig Configuration for the parser.
    * @returns Obervable with success message.
    */
   generateScenariosFromAI(storyId: string, aiConfig: any): Observable<any> {

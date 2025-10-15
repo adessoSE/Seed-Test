@@ -761,3 +761,46 @@ button#background_up {
   color: var(--font-color) !important; 
 }
 
+.ai-generate-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Abstand zwischen Button und Icon */
+}
+
+.settings-button {
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.darkTheme .settings-button {
+    background-color: #546E7A;
+}
+
+.settings-button mat-icon {
+  color: #555;
+}
+
+.darkTheme .settings-button mat-icon {
+    color: white;
+}
+
+/* Styling für das aufklappende Menü */
+.ai-override-menu .override-fields {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    width: 300px; /* Breite des Menüs */
+}
+
+.ai-override-menu .menu-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}

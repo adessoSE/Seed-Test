@@ -1,3 +1,4 @@
+import { AiConfig } from './../model/RepositoryContainer';
 import { EventEmitter, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
@@ -113,13 +114,24 @@ export class ProjectService {
    * @param user
    * @returns
   */
-  public updateRepository(repoID, newRepoName: string, user: any, settings: any = null): Observable<any> {
-    let updateData = { repoName: newRepoName };
+  public updateRepository(repoID, newRepoName: string, user: any, settings: any = null, aiConfig: AiConfig = null): Observable<any> {
+    // 1. Start with a clean base object.
+    const updateData: any = { 
+        repoName: newRepoName 
+    };
 
-    if (settings != null) {
-      updateData['settings'] = settings;
+    // 2. Conditionally add 'settings' if it has a value.
+    if (settings) {
+      updateData.settings = settings;
     }
-    console.log(updateData)
+    
+    // 3. Conditionally add 'aiConfig' if it has a value.
+    if (aiConfig) {
+      updateData.aiConfig = aiConfig;
+    }
+    
+    console.log('Final update payload:', updateData);
+
     return this.http
       .put<RepositoryContainer>(this.apiService.apiServer + '/user/repository/' + repoID + '/' + user, updateData, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -152,6 +164,22 @@ export class ProjectService {
       .pipe(
         tap(settings => {
           console.log('received settings:', settings);
+        }),
+        catchError(this.apiService.handleError)
+      );
+  }
+
+  /**
+   * Retrieves the dedicated AI configuration for a repository.
+   * @param repoId The ID of the repository.
+   * @returns An Observable with the AI configuration.
+   */
+  getRepositoryAiConfig(repoId: string): Observable<AiConfig> {
+    const str = this.apiService.apiServer + '/user/repository/aiconfig/' + repoId;
+    return this.http.get<AiConfig>(str, ApiService.getOptions())
+      .pipe(
+        tap(aiConfig => {
+          console.log('received AI configuration:', aiConfig);
         }),
         catchError(this.apiService.handleError)
       );

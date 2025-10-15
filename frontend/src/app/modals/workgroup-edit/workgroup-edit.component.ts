@@ -1,4 +1,4 @@
-import { Component, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { ToastrService } from "ngx-toastr";
@@ -22,7 +22,7 @@ import { EventEmitter, Output } from "@angular/core";
   ],
   standalone: false,
 })
-export class WorkgroupEditComponent {
+export class WorkgroupEditComponent implements OnInit {
   /**
    * Columns of the workgroup table
    */
@@ -219,6 +219,14 @@ export class WorkgroupEditComponent {
     this.userId = userId;
     this.workgroupList = [];
     this.workgroupProject = project;
+    if (!this.workgroupProject.aiConfig) {
+      this.workgroupProject.aiConfig = {
+        provider: 'local',
+        ollamaUrl: 'http://localhost:11434/v1',
+        defaultTextModel: 'mistral',
+        defaultJsonModel: 'codellama'
+      };
+    }
     this.loadGlobalSettings();
     this.modalReference = this.modalService.open(this.workgroupEditModal, {
       ariaLabelledBy: "modal-basic-titles",
@@ -358,7 +366,8 @@ export class WorkgroupEditComponent {
         project._id,
         project.value,
         this.userId,
-        project.settings
+        project.settings,
+        project.aiConfig
       )
       .subscribe((_resp) => {
         this.projectService.getRepositories();
