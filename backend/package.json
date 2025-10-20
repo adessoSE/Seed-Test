@@ -19,7 +19,7 @@
   "private": true,
   "dependencies": {
     "@cucumber/cucumber": "^11.2.0",
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "^1.56.1",
     "adm-zip": "^0.5.16",
     "bcrypt": "^5.1.1",
     "body-parser": "^2.2.0",
@@ -37,7 +37,7 @@
     "nodemailer": "^6.10.1",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
-    "playwright": "^1.52.0",
+    "playwright": "^1.56.1",
     "selenium-webdriver": "^4.31.0",
     "stream-to-string": "^1.2.1",
     "string-to-stream": "^3.0.1",
