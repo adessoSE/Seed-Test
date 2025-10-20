@@ -3,7 +3,7 @@ import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/model/Group';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';

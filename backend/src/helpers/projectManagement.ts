@@ -1,3 +1,4 @@
+import { AiConfig } from '@shared/models/RepositoryContainer';
 import mongo from "../../src/database/DbServices";
 import dbConnector from "../../src/database/DbConnector";
 import { jiraDecryptPassword } from "./userManagement";
@@ -10,6 +11,7 @@ import { Story } from '../../src/models/Story';
 import { parseTextToStory } from '@seed-test/ai-parser';
 import { JobQueue } from './jobQueue';
 import { EventEmitter } from 'events';
+import { decrypt } from './cryptoHelper';
 
 const aiJobQueue = new JobQueue();
 const aiJobEmitter = new EventEmitter();
@@ -33,7 +35,7 @@ class Repository {
   owner: string;
   gitOwner: string;
   stories: Array<string>;
-  repoType: Enumerator<Sources>;
+  repoType: Sources;
   customBlocks: Array<string>;
   groups: Array<Group>;
 }
@@ -781,7 +783,7 @@ async function getStorysByIssue(issueKeys) {
  * @returns {Promise<void>} The updated story object.
  * @throws Will throw an error if the story is not found or the AI process fails.
  */
-async function generateAiScenariosForStory(storyId: string, aiConfig: any): Promise<void> {
+async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoId: string): Promise<void> {
   try {
     // 1. Get the story from the database
     const story = await mongo.getOneStory(storyId);
@@ -794,6 +796,34 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any): Prom
     if (inputText.length === 0) {
       throw new Error('No input from description or test steps found');
     }
+    console.error('!!!!!!!!!!!! TEST 1: WIR SIND DIREKT VOR DER DECRYPTION !!!!!!!!!!!!');
+    console.error('AI Config (textPreparation):', aiConfig.textPreparation);
+    console.log('WIR SIND VOR DER DECRYPTION, HIER: ', aiConfig);
+
+    // If the provider is cloud, we need the secret API key.
+    if (aiConfig.textPreparation.name === 'cloud' || aiConfig.jsonConversion.name === 'cloud') {
+      // 1. Fetch the project/repository from the database to get the ENCRYPTED config.
+      const project = await mongo.getOneRepositoryById(repoId);
+      console.log('Entering decryption \n', project.aiConfig)
+      if (project && project.aiConfig && (project.aiConfig.textPreparation.apiKey || project.aiConfig.jsonConversion.apiKey)) {
+        
+        const encryptedApiKey = project.aiConfig.textPreparation.apiKey || project.aiConfig.jsonConversion.apiKey;
+        // 2. Decrypt the key securely on the server.
+        const decryptedApiKey = decrypt(encryptedApiKey);
+
+        if (!decryptedApiKey) {
+            throw new Error('API key decryption failed. The key may be corrupted or tampered with.');
+        }
+
+        // 3. Add the decrypted key to the config object that is passed to the AI parser. For simplicity we just add it to both.
+        aiConfig.textPreparation.apiKey = decryptedApiKey;
+        aiConfig.jsonConversion.apiKey = decryptedApiKey;
+      } else {
+        throw new Error('Cloud provider is configured, but no API key was found for this project.');
+      }
+    }
+    console.log('!!!!!!!!!!!! TEST 2: WIR SIND NACH DER DECRYPTION !!!!!!!!!!!!');
+    console.log('AI Config (textPreparation):', aiConfig);
 
     // 3. Call the AI parser
     console.log(`Starting AI parser for Story ${story.title} with ID: ${storyId}`);
@@ -837,8 +867,8 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any): Prom
 /**
  * Function to put AI calls into the aiQueue
  */
-function queueAiScenarioGeneration(storyId: string, aiConfig: any): void {
-  const task = () => generateAiScenariosForStory(storyId, aiConfig);
+function queueAiScenarioGeneration(storyId: string, aiConfig: any, repoId: string): void {
+  const task = () => generateAiScenariosForStory(storyId, aiConfig, repoId);
   
   aiJobQueue.add(task);
   

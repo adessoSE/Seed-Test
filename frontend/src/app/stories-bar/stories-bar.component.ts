@@ -11,7 +11,7 @@ import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-g
 import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
 import { UpdateGroupComponent } from '../modals/update-group/update-group.component';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
 import { ScenarioService } from '../Services/scenario.service';

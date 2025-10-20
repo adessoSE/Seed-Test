@@ -30,7 +30,7 @@ import { GroupService } from "../Services/group.service";
 import { ReportService } from "../Services/report.service";
 import { ProjectService } from "../Services/project.service";
 import { LoginService } from "../Services/login.service";
-import { RepositoryContainer } from "../model/RepositoryContainer";
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { SaveBlockFormComponent } from "../modals/save-block-form/save-block-form.component";
 import { Block } from "../model/Block";
 import { StepDefinition } from "../model/StepDefinition";
@@ -1861,24 +1861,24 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       // Step 2: Build the final config object to send to the backend.
       const finalAiConfig = {
         textPreparation: {
-          name: projectAiConfig.provider === 'local' ? 'ollama' : "",
+          name: projectAiConfig.provider === 'local' ? 'ollama' : "cloud",
           modelName: this.overrideTextModel || projectAiConfig.defaultTextModel,
           // The parser needs to know the provider type for the specific model - at the moment we are only using custom for local + cloud
           provider: 'custom' as const,
-          baseURL: projectAiConfig.ollamaUrl
+          baseURL: projectAiConfig.endpointUrl
         },
         jsonConversion: {
-          name: projectAiConfig.provider === 'local' ? 'ollama' : "",
+          name: projectAiConfig.provider === 'local' ? 'ollama' : "cloud",
           modelName: this.overrideJsonModel || projectAiConfig.defaultJsonModel,
           provider: 'custom' as const,
-          baseURL: projectAiConfig.ollamaUrl
+          baseURL: projectAiConfig.endpointUrl
         },
         // Note: The API key is NOT sent from the frontend.
         // The backend will add it securely if the provider is 'cloud'.
       };
 
       // Step 3: Now, make the call to start the AI job in the backend.
-      this.storyService.generateScenariosFromAI(storyId, finalAiConfig).subscribe({
+      this.storyService.generateScenariosFromAI(storyId, finalAiConfig, repoId).subscribe({
         next: (response) => {
           console.log("AI job successfully queued:", response.message);
           this.snackBar.open(

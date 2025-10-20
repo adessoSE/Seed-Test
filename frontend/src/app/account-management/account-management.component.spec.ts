@@ -3,7 +3,7 @@ import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angul
 import { ToastrModule } from 'ngx-toastr';
 import { findComponent } from '../../test_helper';
 import { AccountManagementComponent } from './account-management.component';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ROUTES } from '../routes/routes';
 import { NO_ERRORS_SCHEMA } from '@angular/core';

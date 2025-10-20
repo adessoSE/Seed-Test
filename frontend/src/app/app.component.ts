@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
-import { RepositoryContainer } from './model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { UntypedFormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';

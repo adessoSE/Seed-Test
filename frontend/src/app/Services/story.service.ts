@@ -4,7 +4,7 @@ import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Story } from '../model/Story';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { catchError, tap } from 'rxjs/operators';
 import { StepType } from '../model/StepType';
 
@@ -255,13 +255,14 @@ export class StoryService {
    * @param aiConfig Configuration for the parser.
    * @returns Obervable with success message.
    */
-  generateScenariosFromAI(storyId: string, aiConfig: any): Observable<any> {
+  generateScenariosFromAI(storyId: string, aiConfig: any, repoId: string): Observable<any> {
     const url = this.apiService.apiServer +`/story/${storyId}/generate-scenarios`;
     const timeout = 300000; // 5 minutes timeout
     
     // Create custom headers to set the timeout for this specific request
     const headers = new HttpHeaders({
-      'timeout': `${timeout}`
+      'timeout': `${timeout}`,
+      'repoId': repoId
     });
 
     const options = {

@@ -2,7 +2,7 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/model/Group';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 import { StoryService } from 'src/app/Services/story.service';

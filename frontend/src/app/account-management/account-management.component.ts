@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router } from '@angular/router';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change-jira-account.component';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';

@@ -4,8 +4,8 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
-const pmHelper = require('../../dist/helpers/projectManagement');
-const issueTracker = require('../../dist/models/IssueTracker');
+const pmHelper = require('../helpers/projectManagement');
+const issueTracker = require('../models/IssueTracker');
 
 const router = express.Router();
 const upload = multer({
@@ -371,12 +371,14 @@ router.post('/:story_id/generate-scenarios', async (req, res) => {
 	try {
 		// Get the AI configuration from the request body
 		const { aiConfig } = req.body;
+		const repoId = req.headers.repoid;
+		// const { timeout } = req.headers;
 
 		// Check if the configuration is present
 		if (!aiConfig) return handleError(res, 'AI configuration is missing in the request body.', 'AI Config missing', 400);
 
 		// Add job to aiQueue
-		pmHelper.queueAiScenarioGeneration(req.params.story_id, aiConfig);
+		pmHelper.queueAiScenarioGeneration(req.params.story_id, aiConfig, repoId/* , evtl. timeout */);
 
 		res.status(202).json({
 			message: 'AI generation task has been accepted and is now in the queue.'

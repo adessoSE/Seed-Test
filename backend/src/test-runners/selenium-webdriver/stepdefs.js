@@ -5,7 +5,7 @@ const {
 const fs = require('fs');
 const assert = require('assert');
 const { By, until, Key } = require('selenium-webdriver');
-const { SeleniumWebdriverWorld } = require('../../../dist/test-runners/selenium-webdriver/seleniumWebdriverWorld');
+const { SeleniumWebdriverWorld } = require('../../test-runners/selenium-webdriver/seleniumWebdriverWorld');
 const { applySpecialCommands } = require('../../serverHelper');
 
 // Welt-Konstruktor setzen

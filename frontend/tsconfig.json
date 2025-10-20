@@ -27,9 +27,13 @@
     "strictPropertyInitialization": false,
     "incremental": true,
     "paths": {
+      "@shared/*": ["../shared/src/*"],
       "@/*": [
         "./*"
       ]
     }
-  }
+  },
+  "references": [
+    { "path": "../shared" }
+  ]
 }

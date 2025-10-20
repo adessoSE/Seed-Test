@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const helper = require('../serverHelper');
-const reporter = require('../../dist/helpers/reporting');
+const reporter = require('../helpers/reporting');
 const mongo = require('../database/DbServices');
 
 const router = express.Router();

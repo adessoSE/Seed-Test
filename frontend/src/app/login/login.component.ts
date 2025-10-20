@@ -2,7 +2,7 @@ import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core
 import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
 import { Subscription } from 'rxjs';
 import { OwlOptions } from 'ngx-owl-carousel-o';

@@ -5,13 +5,13 @@
     "node": "^20.19.0 || ^22.12.0 || ^24.0.0"
   },
   "scripts": {
-    "start": "tsc && node src/server.js",
+    "start": "tsc -b && node dist/server.js",
     "test": "jest --verbose",
     "test-coverage": "jest --coverage",
     "database": "node src/database/installDatabase.js",
     "database-examples": "node src/database/insertExampleData.js",
     "clean": "rimraf ./dist",
-    "tsc": "tsc",
+    "tsc": "tsc -b",
     "lint": "./node_modules/.bin/eslint src/database --fix",
     "exec-test": "./node_modules/.bin/cucumber-js",
     "postinstall": "npx playwright install --with-deps"

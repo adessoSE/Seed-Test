@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const userHelper = require('../../dist/helpers/userManagement');
-const issueTracker = require('../../dist/models/IssueTracker');
+const userHelper = require('../helpers/userManagement');
+const issueTracker = require('../models/IssueTracker');
 
 const router = express.Router();
 

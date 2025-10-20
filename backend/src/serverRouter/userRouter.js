@@ -11,10 +11,11 @@ const crypto = require('crypto');
 const initializePassport = require('../passport-config');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
-const userMng = require('../../dist/helpers/userManagement');
-const projectMng = require('../../dist/helpers/projectManagement');
-const issueTracker = require('../../dist/models/IssueTracker');
-const xray = require('../../dist/helpers/xray');
+const userMng = require('../helpers/userManagement');
+const projectMng = require('../helpers/projectManagement');
+const issueTracker = require('../models/IssueTracker');
+const xray = require('../helpers/xray');
+const { encrypt } = require('../helpers/cryptoHelper');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -230,6 +231,10 @@ router.post('/createRepository', async (req, res) => {
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const { repoName, settings, aiConfig } = req.body;
 	try {
+		// If an API key is provided, encrypt it before it touches the database.
+		if (aiConfig && aiConfig.apiKey) {
+			aiConfig.apiKey = encrypt(aiConfig.apiKey);
+		}
 		const repo = await mongo.updateRepository(req.params.repo_id, repoName, settings, aiConfig);
 		res.status(200).json(repo);
 	} catch (error) {

@@ -3,7 +3,7 @@ import { NgForm } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { ToastrService } from "ngx-toastr";
 import { DeleteToast } from "src/app/delete-toast";
-import { RepositoryContainer } from "src/app/model/RepositoryContainer";
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ApiService } from "src/app/Services/api.service";
 import { ProjectService } from "src/app/Services/project.service";
 import { TransferOwnershipToast } from "src/app/transferOwnership-toastr";
@@ -222,7 +222,7 @@ export class WorkgroupEditComponent implements OnInit {
     if (!this.workgroupProject.aiConfig) {
       this.workgroupProject.aiConfig = {
         provider: 'local',
-        ollamaUrl: 'http://localhost:11434/v1',
+        endpointUrl: 'http://localhost:11434/v1',
         defaultTextModel: 'mistral',
         defaultJsonModel: 'codellama'
       };

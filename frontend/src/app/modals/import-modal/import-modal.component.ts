@@ -1,5 +1,5 @@
 import { AfterViewChecked, AfterViewInit, Component, ContentChild, ElementRef, OnInit, Output, ViewChild, ViewChildren } from "@angular/core";
-import { RepositoryContainer } from "../../model/RepositoryContainer";
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ManagementService } from "../../Services/management.service";
 import { ApiService } from "../../Services/api.service";
 import { FormControl, NgForm, UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";

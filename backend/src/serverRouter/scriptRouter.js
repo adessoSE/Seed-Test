@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const process = require('process');
 const passport = require('passport');
 const initializePassport = require('../passport-config');
-const reporter = require('../../dist/helpers/reporting');
+const reporter = require('../helpers/reporting');
 const mongo = require('../database/DbServices');
 
 const router = express.Router();

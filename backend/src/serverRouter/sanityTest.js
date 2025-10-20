@@ -6,7 +6,7 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const initializePassport = require('../passport-config');
 const mongo = require('../database/DbServices');
-const reporter = require('../../dist/helpers/reporting');
+const reporter = require('../helpers/reporting');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);

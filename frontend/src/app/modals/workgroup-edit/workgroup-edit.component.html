@@ -284,10 +284,10 @@
                         </div>
                     </div>
 
-                    <div *ngIf="workgroupProject.aiConfig.provider === 'local'" class="form-group mt-3">
-                        <label for="ollamaUrl">Ollama URL (Custom)</label>
-                        <input type="text" class="form-control" id="ollamaUrl"
-                            [(ngModel)]="workgroupProject.aiConfig.ollamaUrl" placeholder="http://localhost:11434/v1">
+                    <div class="form-group mt-3">
+                        <label for="endpointUrl">Endpoint URL</label>
+                        <input type="text" class="form-control" id="endpointUrl"
+                            [(ngModel)]="workgroupProject.aiConfig.endpointUrl" placeholder="i.e. http://localhost:11434/v1 for Ollama or https://api.openai.com/v1">
                     </div>
 
                     <div *ngIf="workgroupProject.aiConfig.provider === 'cloud'" class="form-group mt-3">

@@ -2,8 +2,8 @@ import reporter from 'cucumber-html-reporter';
 import pfs from 'fs/promises';
 import fs  from 'fs';
 import path from 'path';
-const mongo = require('../../src/database/DbServices');
-const testExecutor = require('../../src/serverHelper')
+import mongo from '../database/DbServices.js';
+import testExecutor from '../serverHelper.js';
 import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus} from '../models/models';
 import { Github, IssueTracker, IssueTrackerOption } from '../models/IssueTracker';
 
@@ -447,7 +447,7 @@ async function runSanityReport(req, res, stories: any[], mode: ExecutionMode, pa
 				}
 			}
 		} else {
-			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			const story = await mongo.getOneStory(req.params.issueID);
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.status(500).send(reason)});
 		}
 	} catch (error) {

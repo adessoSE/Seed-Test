@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { Group } from '../model/Group';
 import { ActivatedRoute } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';

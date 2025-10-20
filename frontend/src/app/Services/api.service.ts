@@ -3,7 +3,7 @@ import { catchError, tap } from "rxjs/operators";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Observable, of, throwError } from "rxjs";
 import { User } from "../model/User";
-import { RepositoryContainer } from "../model/RepositoryContainer";
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 
 /**
  * Service for communication between components and the backend

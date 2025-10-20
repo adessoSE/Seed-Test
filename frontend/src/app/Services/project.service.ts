@@ -1,10 +1,10 @@
-import { AiConfig } from './../model/RepositoryContainer';
+import { AiConfig } from '@shared/models/RepositoryContainer';
 import { EventEmitter, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { FileElement } from '../model/FileElement';
 
 

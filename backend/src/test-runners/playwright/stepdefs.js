@@ -16,7 +16,7 @@ const fs = require("fs");
 const { applySpecialCommands } = require("../../serverHelper");
 const {
   PlaywrightWorld,
-} = require("../../../dist/test-runners/playwright/playwrightWorld");
+} = require("../../test-runners/playwright/playwrightWorld");
 
 const searchTimeout = 15000;
 
