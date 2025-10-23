@@ -19,7 +19,7 @@
   "private": true,
   "dependencies": {
     "@cucumber/cucumber": "^11.3.0",
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "^1.56.1",
     "adm-zip": "^0.5.16",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
