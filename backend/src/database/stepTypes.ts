@@ -1,4 +1,6 @@
-function stepDefs() {
+import { StepType } from '../models/StepType';
+
+export function stepDefs(): StepType[] {
 	return [{
 		id: 0,
 		stepType: 'when',
@@ -459,5 +461,3 @@ function stepDefs() {
 	}
 	];
 }
-
-module.exports = stepDefs;

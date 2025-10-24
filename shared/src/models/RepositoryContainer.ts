@@ -9,7 +9,7 @@ export interface AiConfig {
 
 
 /**
- * Interface of the repository container
+ * Interface for displaying a repository in a list (View Model / DTO).
  */
 export interface RepositoryContainer {
     /**
@@ -20,7 +20,7 @@ export interface RepositoryContainer {
     /**
      * Name of the repository
      */
-    value: string;
+    repoName: string;
 
     /**
      * Source of the repository

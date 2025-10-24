@@ -1,6 +1,7 @@
-const winston = require('winston');
+import winston, { Logger, LoggerOptions } from 'winston';
+import { Request, Response, NextFunction } from 'express';
 
-function getLogger() {
+function getLogger(): Logger {
 	// Winston config
 	const myformat = winston.format.combine(
 		winston.format.colorize(),
@@ -8,7 +9,8 @@ function getLogger() {
 		winston.format.align(),
 		winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
 	);
-	const logConfiguration = {
+
+	const logConfiguration: LoggerOptions = {
 		transports: [
 			new winston.transports.Console({
 				level: 'debug',
@@ -28,16 +30,17 @@ function getLogger() {
 	};
 	return winston.createLogger(logConfiguration);
 }
-const logger = getLogger();
 
-function httpLog(req, res, next) {
-	if (req.url.endsWith('log')) next();
-	else {
+const logger: Logger = getLogger();
+
+export function httpLog(req: Request, res: Response, next: NextFunction): void {
+	if (req.url.endsWith('log')) {
+		next();
+	} else {
 		const requestStart = Date.now();
+		let errorMessage: string | null = null;
 
-		let errorMessage = null;
-
-		req.on('error', (error) => {
+		req.on('error', (error: Error) => {
 			errorMessage = error.message;
 		});
 
@@ -55,7 +58,4 @@ function httpLog(req, res, next) {
 	}
 }
 
-module.exports = {
-	httpLog,
-	getLogger
-};
+export { getLogger };

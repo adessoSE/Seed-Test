@@ -30,12 +30,12 @@ export interface StepType {
     /**
      * Text after the second input field (text at end of step)
      */
-    post?: string;
+    post?: string; // Made optional
 
     /**
      * Selection currently not used
      */
-    selection?: string[];
+    selection?: string[]; // Corrected to string array
 
     /**
      * SelectionValue currently not used
@@ -68,7 +68,7 @@ export interface StepType {
     outdated?: boolean;
 
     /**
-     * checked 
+     * checked
      */
     checked?: boolean;
 
@@ -83,7 +83,7 @@ export interface StepType {
     blockStepExpanded?: boolean;
 
     /**
-     * origin of the step 
+     * origin of the step
      * */
     origin?: string;
 }

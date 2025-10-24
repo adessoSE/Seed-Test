@@ -2,7 +2,7 @@ import { EventEmitter, Injectable } from "@angular/core";
 import { catchError, tap } from "rxjs/operators";
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Observable, of, throwError } from "rxjs";
-import { User } from "../model/User";
+import { User } from "@shared/models/User";
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 
 /**

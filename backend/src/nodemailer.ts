@@ -1,20 +1,19 @@
-const { log } = require('console');
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
-async function sendResetLink(email, id) {
+export async function sendResetLink(email: string, id: string): Promise<void> {
 	if (process.env.EMAIL_HOST === undefined || process.env.EMAIL_PORT === undefined) {
-		log('To send emails please provide a email server and port. You can see how to do it in the README.');
+		console.log('To send emails please provide a email server and port. You can see how to do it in the README.');
 		throw new Error('Bad email config');
 	}
 	if (process.env.EMAIL_AUTH === undefined || process.env.EMAIL_PW === undefined) {
-		log('To send emails please provide a valid email account. You can see how to do it in the README.');
+		console.log('To send emails please provide a valid email account. You can see how to do it in the README.');
 		throw new Error('Bad email config');
 	}
 
 	const transporter = nodemailer.createTransport({
 		host: process.env.EMAIL_HOST,
-		port: process.env.EMAIL_PORT,
-		secureConnection: false,
+		port: parseInt(process.env.EMAIL_PORT, 10),
+		secure: false, // secureConnection is deprecated, use secure
 		auth: {
 			user: process.env.EMAIL_AUTH,
 			pass: process.env.EMAIL_PW
@@ -111,12 +110,10 @@ async function sendResetLink(email, id) {
 </html>`
 	};
 
-	transporter.sendMail(mailOptions, (error, info) => {
-		if (error) console.log(error);
-		else console.log(`Email sent: ${info.response}`);
-	});
+	try {
+		const info = await transporter.sendMail(mailOptions);
+		console.log(`Email sent: ${info.response}`);
+	} catch (error) {
+		console.log(error);
+	}
 }
-
-module.exports = {
-	sendResetLink
-};

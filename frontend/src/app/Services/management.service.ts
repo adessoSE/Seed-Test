@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { ApiService } from "../Services/api.service";
 import { HttpClient } from "@angular/common/http";
 import { catchError, tap } from "rxjs/operators";
-import { User } from "../model/User";
+import { User } from "@shared/models/User";
 
 /**
  * Service for communication between components for managment and the backend
