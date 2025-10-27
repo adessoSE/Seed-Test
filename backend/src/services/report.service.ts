@@ -168,17 +168,43 @@ export async function updateLatestTestStatus(uploadedReport: any, mode: TestMode
             await updateScenarioTestStatus(uploadedReport);
             break;
         case 'feature':
-            await storyService.updateStoryStatus(uploadedReport.storyId, uploadedReport.status);
-            for (const scenarioStatus of uploadedReport.scenarioStatuses) {
-                await storyService.updateScenarioStatus(uploadedReport.storyId, scenarioStatus.scenarioId, scenarioStatus.status);
+            {
+                // Prepare all update promises for the feature and its scenarios
+                const updatePromises: Promise<any>[] = [];
+
+                // Promise to update the overall story status
+                updatePromises.push(storyService.updateStoryStatus(uploadedReport.storyId, uploadedReport.status));
+
+                // Promises to update each scenario's status within the story
+                for (const scenarioStatus of uploadedReport.scenarioStatuses) {
+                    updatePromises.push(
+                        storyService.updateScenarioStatus(uploadedReport.storyId, scenarioStatus.scenarioId, scenarioStatus.status)
+                    );
+                }
+
+                // Execute all updates concurrently and wait for them to finish
+                await Promise.all(updatePromises);
             }
             break;
         case 'group':
-            for (const storyStatus of uploadedReport.storyStatuses) {
-                await storyService.updateStoryStatus(storyStatus.storyId, storyStatus.status);
-                for (const scenarioStatus of storyStatus.scenarioStatuses) {
-                    await storyService.updateScenarioStatus(storyStatus.storyId, scenarioStatus.scenarioId, scenarioStatus.status);
+            {
+                // Prepare all update promises for all stories and their scenarios in the group
+                const updatePromises: Promise<any>[] = [];
+
+                for (const storyStatus of uploadedReport.storyStatuses) {
+                    // Promise to update the overall status of each story in the group
+                    updatePromises.push(storyService.updateStoryStatus(storyStatus.storyId, storyStatus.status));
+
+                    // Promises to update the status of each scenario within each story
+                    for (const scenarioStatus of storyStatus.scenarioStatuses) {
+                        updatePromises.push(
+                            storyService.updateScenarioStatus(storyStatus.storyId, scenarioStatus.scenarioId, scenarioStatus.status)
+                        );
+                    }
                 }
+
+                // Execute all updates concurrently and wait for them to finish
+                await Promise.all(updatePromises);
             }
             break;
     }
