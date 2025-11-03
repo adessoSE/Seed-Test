@@ -123,7 +123,7 @@ export function cleanFileName(filename: string): string {
 export function writeFile(story: Story): void {
     const filename = story.title + story._id;
     fs.writeFile(
-        path.join(__dirname, '../features', `${cleanFileName(filename)}.feature`),
+        path.join(process.cwd(), 'features', `${cleanFileName(filename)}.feature`),
         getFeatureContent(story),
         (err) => { if (err) throw err; }
     );
@@ -139,7 +139,7 @@ export async function updateFeatureFile(storyId: string): Promise<void> {
 }
 
 export async function deleteFeatureFile(storyTitle: string, storyId: any): Promise<void> {
-    const filePath = path.join(__dirname, '../features', `${cleanFileName(storyTitle + storyId)}.feature`);
+    const filePath = path.join(process.cwd(), 'features', `${cleanFileName(storyTitle + storyId)}.feature`);
     try {
         await pfs.unlink(filePath);
         console.log('FeatureFile deleted!', storyTitle + storyId);
@@ -185,7 +185,7 @@ export async function exportSingleFeatureFile(storyId: string): Promise<string> 
     story.scenarios = await replaceRefBlocks(story.scenarios);
     // Ensure file is written before trying to read it
     await writeFile(story);
-    const filePath = path.join(__dirname, '../../features', `${cleanFileName(story.title + story._id)}.feature`);
+    const filePath = path.join(process.cwd(), 'features', `${cleanFileName(story.title + story._id)}.feature`);
     return await pfs.readFile(filePath, 'utf8');
 }
 

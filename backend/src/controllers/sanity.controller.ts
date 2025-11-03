@@ -53,7 +53,7 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
             }
         };
 
-        fs.mkdirSync(path.join(__dirname, '../../features', testReq.body.name), { recursive: true });
+        fs.mkdirSync(path.join(process.cwd(), 'features', testReq.body.name), { recursive: true });
 
         let lastReportResult: any;
         const parameters = { ...group, repositoryId: repoID, stories: validStories }; // Info needed for analysis/reporting
@@ -87,8 +87,8 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 
     } catch (error) {
         // Ensure temporary group folder is cleaned up on error if created
-        if (req.body?.name && fs.existsSync(path.join(__dirname, '../../features', req.body.name))) {
-             fs.rm(path.join(__dirname, '../../features', req.body.name), { recursive: true, force: true }, (err) => {
+        if (req.body?.name && fs.existsSync(path.join(process.cwd(), 'features', req.body.name))) {
+             fs.rm(path.join(process.cwd(), 'features', req.body.name), { recursive: true, force: true }, (err) => {
                  if(err) console.error("Error cleaning up sanity test folder on failure:", err);
              });
         }

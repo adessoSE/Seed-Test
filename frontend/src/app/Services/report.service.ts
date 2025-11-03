@@ -1,8 +1,13 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ApiService } from '../Services/api.service';
+import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { ApiService } from '../Services/api.service';
+
+import { ReportContainer } from '../model/ReportContainer';
+import { StoryReport } from '../model/StoryReport';
+import { ScenarioReport } from '../model/ScenarioReport';
+import { GroupReport } from '../model/GroupReport';
 
 /**
  * Service for communication between report component and the backend
@@ -13,52 +18,55 @@ import { catchError, tap } from 'rxjs/operators';
 export class ReportService {
 
   /**
+   * Event emitter to distribute the reports to all components
+   */
+  public getReportsEvent = new EventEmitter();
+
+  /**
     * @ignore
   */
   constructor(public apiService: ApiService, private http: HttpClient) { }
+
   /**
-   * Retrieves a report
-   * @param reportId
+   * Retrieves the report *data* by its ID.
+   * @param reportID
    * @returns
-  */
-  getReport(reportId: string) {
-    if (this.apiService.apiServer) {
-      const str = this.apiService.apiServer + '/report/' + reportId;
-      return this.http.get(str, { responseType: 'json', withCredentials: true })
-        .pipe(tap(resp => {
-          console.log('Got single Report: ' + resp);
-        }),
-        catchError(this.apiService.handleError));
-    }
+   */
+  getReportData(reportID: string): Observable<StoryReport | ScenarioReport | GroupReport> {
+    return this.http
+      .get<StoryReport | ScenarioReport | GroupReport>(this.apiService.apiServer + '/report/' + reportID, ApiService.getOptions())
+      .pipe(tap(_ => {
+        //
+      }));
   }
+
   /**
-    * Retrieves a report
+    * Retrieves a *regenerated HTML report* by its name
     * @param reportName: name of the Report
     * @returns
   */
-  getReportByName(reportName: string) {
-    if (this.apiService.apiServer) {
-      const str = this.apiService.apiServer + '/run/report/' + reportName;
-      return this.http.get(str, { responseType: 'json', withCredentials: true })
-        .pipe(tap(_ => {
-          //
-        }),
+  getReport(reportName: string): Observable<any> {
+    const str = this.apiService.apiServer + '/report/regenerate/' + reportName;
+    return this.http.get(str, { responseType: 'json', withCredentials: true })
+      .pipe(tap(_ => {
+        //
+      }),
         catchError(this.apiService.handleError));
-    }
   }
+
   /**
     * Deletes a report
     * @param reportId
     * @returns
   */
   deleteReport(reportId): Observable<any> {
-    console.log('delete reportId', reportId);
     return this.http
-      .delete<any>(this.apiService.apiServer + '/run/report/' + reportId, ApiService.getOptions())
+      .delete<any>(this.apiService.apiServer + '/report/' + reportId, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
   }
+
   /**
     * Marks a report as saved in the report history
     * @param reportId
@@ -66,11 +74,12 @@ export class ReportService {
   */
   saveReport(reportId): Observable<any> {
     return this.http
-      .get<any>(this.apiService.apiServer + '/run/saveReport/' + reportId, ApiService.getOptions())
+      .put<any>(this.apiService.apiServer + '/report/save/' + reportId, {}, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
   }
+
   /**
     * Marks a saved report as not saved
     * @param reportId
@@ -78,19 +87,20 @@ export class ReportService {
   */
   unsaveReport(reportId): Observable<any> {
     return this.http
-      .get<any>(this.apiService.apiServer + '/run/unsaveReport/' + reportId, ApiService.getOptions())
+      .put<any>(this.apiService.apiServer + '/report/unsave/' + reportId, {}, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
   }
+
   /**
    * Retrieves the report history of a story
    * @param storyId
    * @returns
   */
-  getReportHistory(storyId: string) {
+  getReportHistory(storyId: string): Observable<ReportContainer> {
     return this.http
-      .get<any>(this.apiService.apiServer + '/run/reportHistory/' + storyId, ApiService.getOptions())
+      .get<ReportContainer>(this.apiService.apiServer + '/report/history/' + storyId, ApiService.getOptions())
       .pipe(tap(() => {
         //
       }));

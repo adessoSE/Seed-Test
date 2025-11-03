@@ -51,7 +51,7 @@
                       <mat-label>Project</mat-label>
                       <mat-select id="projectDropDownSelect" [(ngModel)]="selectedProject" name="selectedProject">
                         <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" 
-                          [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.value}}</mat-option>
+                          [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.repoName}}</mat-option>
                       </mat-select>
                     </mat-form-field>
                 </div>

@@ -9,8 +9,6 @@
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": "src",
-    "allowJs": true,
-    "checkJs": false,
     "preserveSymlinks": true,
     "paths": {
       "@shared/*": ["../shared/src/*"]

@@ -315,7 +315,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     searchRepos() {
         this.searchInput = this.searchInput ? this.searchInput : '';
         this.searchList = [].concat(this.repositories).filter(repo => {
-            if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
+            if (repo.repoName.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
                 return repo;
             }
         });

@@ -9,6 +9,8 @@ import flash from 'express-flash';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import http from 'http'; // Import http module
+import { execSync } from 'child_process';
+import { chromium, firefox, webkit, BrowserType } from '@playwright/test';
 
 import * as dbConnector from './database/DbConnector';
 
@@ -150,12 +152,60 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     });
 });
 
+async function checkAndInstallEdge() {
+	try {
+		const edgeBrowser = await chromium.launch({ channel: 'msedge' });
+		await edgeBrowser.close();
+		console.log('✓ Microsoft Edge is available');
+	} catch (error: any) {
+		try {
+			console.warn(error.message, '\nMicrosoft Edge is not launchable, trying to install...');
+			execSync('npx playwright install msedge --with-deps', { stdio: 'inherit' });
+		} catch (edge_error: any) {
+			console.error('Microsoft Edge not launchable nor installable. This might be caused by corporate policies.', edge_error.message);
+		}
+	}
+}
+
+async function checkAndInstallGeneralBrowsers() {
+    const browsers: { engine: BrowserType; name: string }[] = [
+		{ engine: firefox, name: 'Firefox' },
+		{ engine: chromium, name: 'Chromium' },
+		{ engine: webkit, name: 'WebKit' }
+	];
+
+	try {
+		for (const browser of browsers) {
+			const instance = await browser.engine.launch();
+			await instance.close();
+			console.log(`✓ ${browser.name} is available`);
+		}
+	} catch (error: any) {
+		if (error.message.includes('Executable doesn') || 
+            error.message.includes('Browser version')) {
+			console.warn('Browser version incompatible or executable missing, reinstalling browsers...');
+			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
+		} else if (error.message.includes('browserType.launch')) {
+			console.warn('Installing missing Playwright browsers...');
+			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
+		} else {
+            console.error('An unexpected error occurred during browser check:', error.message);
+        }
+	}
+}
+
 // --- Server Startup ---
 const port = process.env.PORT || 8080;
 const server = http.createServer(app);
 
 async function startServer() {
     try {
+        console.log('Checking general browser availability ...');
+        await Promise.all([
+            checkAndInstallGeneralBrowsers(),
+            checkAndInstallEdge()
+        ]);
+        console.log('\x1b[32mBrowser check complete.\x1b[0m');
         console.log('Connecting to database...');
         
         await dbConnector.establishConnection();

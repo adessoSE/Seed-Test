@@ -34,7 +34,7 @@ export async function handleReportResult(res: Response, reportResult: any, mode:
     const finalReport = await reportService.resolveAndSaveReport(reportResult, mode, reportResult.story ? [reportResult.story] : parameters.stories || [], parameters);
 
     // Send HTML Report back to client
-    const htmlPath = path.join(__dirname, '../../features', mode === 'group' ? `${finalReport.reportName}/${finalReport.reportName}.html` : `${finalReport.reportName}.html`);
+    const htmlPath = path.join(process.cwd(), 'features', mode === 'group' ? `${finalReport.reportName}/${finalReport.reportName}.html` : `${finalReport.reportName}.html`);
     try {
         const htmlContent = await fs.promises.readFile(htmlPath, 'utf8');
         res.json({ htmlFile: htmlContent, reportId: finalReport._id, report: finalReport });
@@ -128,6 +128,8 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
              res.status(400).json({ error: 'Invalid Group ID format' }); return;
         }
 
+        req.body.repositoryId = repoId;
+
         const group = await repositoryService.getOneStoryGroup(repoId, groupId);
         if (!group) {
              res.status(404).json({ error: 'Group not found' }); return;
@@ -143,7 +145,7 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 
         // Use group name for report directory, ensuring it's filesystem-safe
         req.body.name = featureFileService.cleanFileName(`group_${group.name}_${Date.now()}`);
-        fs.mkdirSync(path.join(__dirname, '../../features', req.body.name), { recursive: true });
+        fs.mkdirSync(path.join(process.cwd(), 'features', req.body.name), { recursive: true });
 
         const parameters = { ...group, repositoryId: repoId, stories: validStories, repository: req.body.repository }; // Pass necessary info
         let lastReportResult: any;
@@ -180,7 +182,7 @@ export async function runTempGroup(req: Request, res: Response, next: NextFuncti
         }
 
         req.body.name = featureFileService.cleanFileName(`temp_group_${Date.now()}`);
-        fs.mkdirSync(path.join(__dirname, '../../features', req.body.name), { recursive: true });
+        fs.mkdirSync(path.join(process.cwd(), 'features', req.body.name), { recursive: true });
 
         const parameters = { ...tempGroup, repositoryId: repoInfo.repoId, stories: validStories, repository: repoInfo.repositoryName };
         let lastReportResult: any;

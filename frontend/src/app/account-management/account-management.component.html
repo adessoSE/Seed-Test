@@ -33,7 +33,7 @@
                                 <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
                                     src="../assets/database-5-32.png">
                                 <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}"
-                                    (click)="selectRepository(repository);">{{repository.value}}</a>
+                                    (click)="selectRepository(repository);">{{repository.repoName}}</a>
                             </div>
                             <span class="flex-end-item">
                                 <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit"
@@ -59,7 +59,7 @@
                     <mat-form-field appearance="standard" style="width: 100%;">
                         <mat-label>Project</mat-label>
                         <mat-select #ngSelect [(ngModel)]="downloadRepoID">
-                            <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.value}}</mat-option>
+                            <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.repoName}}</mat-option>
                         </mat-select>
                     </mat-form-field>
                 </div>
@@ -130,7 +130,7 @@
                         <li class="projectListItem" *ngIf="this.apiService.isGithubRepo(repository)">
                             <div class="db-item-list">
                                 <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png" alt="github">
-                                <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                                <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.repoName}}</a>
                             </div>
                             <span class="flex-end-item">
                                 <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
@@ -172,7 +172,7 @@
                         <li class="projectListItem" *ngIf="this.apiService.isJiraRepo(repository)">
                             <div class="db-item-list">
                                 <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-icon.png" alt="jira">
-                                <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                                <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.repoName}}</a>
                             </div>
                             <span class="flex-end-item">
                                 <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>

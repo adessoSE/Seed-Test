@@ -148,7 +148,7 @@ export class StoryService {
     }
 
     return this.http
-      .get<Story[]>(this.apiService.apiServer + '/user/stories/', { params, withCredentials: true })
+      .get<Story[]>(this.apiService.apiServer + '/story/', { params, withCredentials: true })
       .pipe(tap(resp => {
         this.getStoriesEvent.emit(resp);
       }), catchError(this.apiService.handleStoryError));
@@ -161,7 +161,7 @@ export class StoryService {
   */
   updateStoryList(repo_id, storiesList) {
     return this.http
-      .put(this.apiService.apiServer + '/user/stories/' + repo_id, storiesList, ApiService.getOptions())
+      .put(this.apiService.apiServer + '/story/' + repo_id, storiesList, ApiService.getOptions())
       .pipe(tap());
   }
   /**
@@ -175,10 +175,10 @@ export class StoryService {
     const timeout = 900000;
     if (scenarioID) {
       return this.http
-        .post(this.apiService.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+        .post(this.apiService.apiServer + '/execute/Scenario/' + storyID + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
     }
     return this.http
-      .post(this.apiService.apiServer + '/run/Feature/' + storyID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+      .post(this.apiService.apiServer + '/execute/Feature/' + storyID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
   }
   /**
     * Download a file with story feature

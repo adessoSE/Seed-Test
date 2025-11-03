@@ -3,6 +3,7 @@ import cors from 'cors';
 import multer from 'multer';
 import bodyParser from 'body-parser';
 import * as storyController from '../controllers/story.controller';
+import * as repositoryService from '../services/repository.service';
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ router
     .use((req, res, next) => { // Standard Headers
 		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
 		res.header('Access-Control-Allow-Credentials', 'true');
-		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect, repoid'); // Added repoid for AI header
+		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect, repoId'); // Added repoid for AI header
 		next();
 	})
     .use((_, __, next) => { // Simple request logging
@@ -50,6 +51,7 @@ router.get('/:_id', storyController.getStoryById);
 router.get('/issueKey/:issue_key', storyController.getStoryByIssueKey);
 router.put('/:_id', storyController.updateStory);
 router.delete('/:repo_id/:_id', storyController.deleteStory);
+router.put('/list/:repo_id', storyController.updateStoryOrder);
 router.post('/oneDriver/:storyID', storyController.setOneDriver); // Changed param name
 
 // --- Scenario Routes ---

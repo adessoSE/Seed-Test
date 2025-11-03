@@ -17,25 +17,50 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
         let token: string;
         let githubId: number;
 
+        const jiraPromise = externalSyncService.getJiraRepos(user.jira);
+        const dbPromise = repositoryService.dbProjects(user._id.toString());
+
+        let starredPromise = Promise.resolve([]);
+        let ownedPromise = Promise.resolve([]);
+
         if (user?.github) {
-            githubName = user.github.login;
-            token = user.github.githubToken;
-            githubId = user.github.id;
+            const { login: githubName, githubToken: token, id: githubId } = user.github;
+            starredPromise = externalSyncService.starredRepositories(user._id.toString(), githubId, githubName, token);
+            ownedPromise = externalSyncService.ownRepositories(user._id.toString(), githubId, githubName, token);
+
+        } else if (process.env.TESTACCOUNT_NAME && process.env.TESTACCOUNT_TOKEN) {
+            console.log(`User ${user.email} not linked. Using TESTACCOUNT fallback.`);
+            const githubName = process.env.TESTACCOUNT_NAME!;
+            const token = process.env.TESTACCOUNT_TOKEN!;
+            const githubId = 0;
+            starredPromise = externalSyncService.starredRepositories(user._id.toString(), githubId, githubName, token);
+            ownedPromise = externalSyncService.ownRepositories(user._id.toString(), githubId, githubName, token);
+        
         } else {
-            // Fallback to test account if needed (though less ideal in TS)
-            /* githubName = process.env.TESTACCOUNT_NAME!;
-            token = process.env.TESTACCOUNT_TOKEN!;
-            githubId = 0; */
-            console.log(`User ${user.email} has no GitHub account linked. Skipping GitHub repository sync.`);
+            console.log(`User ${user.email} not linked. TESTACCOUNT variables not set. Skipping GitHub sync.`);
         }
 
         // Use the new/correct services for each source
-        const [starred, owned, jira, db] = await Promise.all([
-            externalSyncService.starredRepositories(user._id.toString(), githubId, githubName, token),
-            externalSyncService.ownRepositories(user._id.toString(), githubId, githubName, token),
-            externalSyncService.getJiraRepos(user.jira),
-            repositoryService.dbProjects(user._id.toString())
+        const results = await Promise.allSettled([
+            starredPromise,
+            ownedPromise,
+            jiraPromise,
+            dbPromise
         ]);
+
+        const processResult = (result: PromiseSettledResult<any>, name: string): any[] => {
+            if (result.status === 'fulfilled') {
+                return result.value;
+            } else {
+                console.error(`Error fetching ${name}:`, result.reason?.message || result.reason);
+                return [];
+            }
+        };
+
+        const starred = processResult(results[0], 'GitHub Starred Repos');
+        const owned = processResult(results[1], 'GitHub Owned Repos');
+        const jira = processResult(results[2], 'Jira Repos');
+        const db = processResult(results[3], 'DB Repos');
 
         let merged: Partial<RepositoryContainer>[] = [
             ...(starred as any[]), 

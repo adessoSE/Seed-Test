@@ -285,9 +285,9 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="endpointUrl">Endpoint URL</label>
-                        <input type="text" class="form-control" id="endpointUrl"
-                            [(ngModel)]="workgroupProject.aiConfig.endpointUrl" placeholder="i.e. http://localhost:11434/v1 for Ollama or https://api.openai.com/v1">
+                        <label for="baseURL">Base URL</label>
+                        <input type="text" class="form-control" id="baseURL"
+                            [(ngModel)]="workgroupProject.aiConfig.baseURL" placeholder="i.e. http://localhost:11434/v1 for Ollama or https://api.openai.com/v1">
                     </div>
 
                     <div *ngIf="workgroupProject.aiConfig.provider === 'cloud'" class="form-group mt-3">

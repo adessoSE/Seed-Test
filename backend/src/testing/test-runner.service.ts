@@ -114,7 +114,7 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 
     const userConfig: Partial<IConfiguration> = {
         paths: [path.normalize(featurePath)],
-        require: [path.resolve(process.cwd(), `src/testing/test-runners/${testRunnerPathName}/*.js`)],
+        require: [path.resolve(process.cwd(), `dist/testing/test-runners/${testRunnerPathName}/*.js`)],
         format: [
             mode === 'group'
                 ? `json:features/${req.body.name}/${reportName}.json`

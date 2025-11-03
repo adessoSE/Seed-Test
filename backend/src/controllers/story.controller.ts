@@ -142,6 +142,23 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
     }
 }
 
+/**
+ * Handles updating the order of stories within a repository.
+ */
+export async function updateStoryOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        const { repo_id } = req.params;
+        const storiesList: string[] = req.body; // Erwartet ein Array von Story-IDs
+        if (!ObjectId.isValid(repo_id)) {
+            res.status(400).json({ error: 'Invalid repository ID format' }); return;
+        }
+        await repositoryService.updateStoriesArrayInRepo(repo_id, storiesList);
+        res.status(200).json({ message: 'Story order updated' });
+    } catch (error) {
+        next(error);
+    }
+}
+
 // --- Scenario CRUD ---
 
 export async function getScenario(req: Request, res: Response, next: NextFunction): Promise<void> {

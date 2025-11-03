@@ -12,12 +12,12 @@ import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
 import {
     GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ExecutionMode, ScenarioStatus
-} from '../models/models'; // Assuming shared models path
+} from '../models/models';
 import { cleanFileName } from './feature-file.service'; // For directory name cleaning
 
 const ReportDataCollection = 'ReportData';
 const ReportsCollection = 'Reports';
-const reportPathBase = path.join(__dirname, '../../features'); // Base path for reports
+const reportPathBase = path.join(process.cwd(), 'features'); // Base path for reports
 
 type TestMode = 'scenario' | 'feature' | 'group';
 

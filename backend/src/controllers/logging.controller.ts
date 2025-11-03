@@ -11,7 +11,7 @@ export async function logFrontendMessage(req: Request, res: Response, next: Next
         const additionalInfo = req.body.additional ? JSON.stringify(req.body.additional) : '';
         
         // Ensure logs directory exists
-        const logDir = path.join(__dirname, '../../logs');
+        const logDir = path.join(process.cwd(), 'logs');
         if (!fs.existsSync(logDir)) {
             fs.mkdirSync(logDir, { recursive: true });
         }

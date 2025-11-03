@@ -18,7 +18,7 @@
                     <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"
                       src="../assets/database-5-32.png" alt="database">
                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
-                      routerLink=''>{{repository.value}}</a>
+                      routerLink=''>{{repository.repoName}}</a>
                   </li>
                 </ul>
               </div>

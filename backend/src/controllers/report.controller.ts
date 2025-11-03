@@ -40,14 +40,14 @@ export async function regenerateReport(req: Request, res: Response, next: NextFu
         }
         
         // Temporarily write JSON to disk for html-reporter
-        const tempJsonPath = path.join(__dirname, `../../features/${reportName}.json`);
+        const tempJsonPath = path.join(process.cwd(), `features/${reportName}.json`);
         await fs.promises.writeFile(tempJsonPath, fullReport.jsonReport);
         
         // Generate HTML
         const reportOptions = await reportService.generateHtmlReport(reportName, tempJsonPath);
         
         // Read HTML and send
-        const htmlPath = path.join(__dirname, `../../features/${reportName}.html`);
+        const htmlPath = path.join(process.cwd(), `features/${reportName}.html`);
         const htmlContent = await fs.promises.readFile(htmlPath, 'utf8');
         res.json({ htmlFile: htmlContent, reportId: fullReport._id }); // Send HTML content
 

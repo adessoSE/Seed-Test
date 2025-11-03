@@ -30,7 +30,7 @@ import { GroupService } from "../Services/group.service";
 import { ReportService } from "../Services/report.service";
 import { ProjectService } from "../Services/project.service";
 import { LoginService } from "../Services/login.service";
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { AiConfig, RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { SaveBlockFormComponent } from "../modals/save-block-form/save-block-form.component";
 import { Block } from "../model/Block";
 import { StepDefinition } from "../model/StepDefinition";
@@ -1859,7 +1859,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       }
 
       // Step 2: Build the final config object to send to the backend.
-      const finalAiConfig = {
+      const finalAiConfig : AiConfig = {
         textPreparation: {
           name: projectAiConfig.textPreparation.name === 'local' ? 'local' : "cloud",
           modelName: this.overrideJsonModel || projectAiConfig.textPreparation.modelName,

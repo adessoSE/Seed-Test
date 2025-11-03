@@ -51,7 +51,7 @@ export async function runGroupViaScript(req: Request, res: Response, next: NextF
         // --- Test Execution ---
         // Prepare request/parameters needed by executeTest
         req.body.name = featureFileService.cleanFileName(`script_group_${group.name}_${Date.now()}`);
-        fs.mkdirSync(path.join(__dirname, '../../features', req.body.name), { recursive: true });
+        fs.mkdirSync(path.join(process.cwd(), 'features', req.body.name), { recursive: true });
 
         const parameters = { ...group, repositoryId: repoID, stories: validStories };
         let lastReportResult: any;
@@ -72,8 +72,8 @@ export async function runGroupViaScript(req: Request, res: Response, next: NextF
 
     } catch (error) {
          // Clean up temporary group folder on error
-         if (req.body?.name && fs.existsSync(path.join(__dirname, '../../features', req.body.name))) {
-             fs.rmSync(path.join(__dirname, '../../features', req.body.name), { recursive: true, force: true });
+         if (req.body?.name && fs.existsSync(path.join(process.cwd(), 'features', req.body.name))) {
+             fs.rmSync(path.join(process.cwd(), 'features', req.body.name), { recursive: true, force: true });
          }
         next(error);
     }

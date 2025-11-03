@@ -214,7 +214,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.createStoryEmitter = this.storyService.createCustomStoryEmitter.subscribe(custom => {
-            this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(_ => {
+            this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id).subscribe(_ => {
                 this.storyService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
                     this.stories = resp.filter(s => s != null);
                     this.filteredStories = this.stories;

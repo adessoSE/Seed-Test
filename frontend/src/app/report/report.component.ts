@@ -106,7 +106,7 @@ export class ReportComponent implements OnInit {
         }, 10);
         if(this.reportId){
             return new Promise<void>((resolve, _reject) => {this.reportService
-                .getReport(this.reportId)
+                .getReportData(this.reportId)
                 .subscribe(resp => {
                     this.reportComponentSubject.next(resp); 
                     resolve();
@@ -179,7 +179,7 @@ export class ReportComponent implements OnInit {
     }
 
     getReport(reportName: string) {
-        this.reportService.getReportByName(reportName).subscribe(resp => {
+        this.reportService.getReport(reportName).subscribe(resp => {
             console.log('report', resp);
             this.report = resp;
             this.ngOnChanges();
