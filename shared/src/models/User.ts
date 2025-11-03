@@ -36,10 +36,12 @@ export interface User {
          */
         login: string;
 
+        id: number;
+
         /** 
          * Last used github repository
         */
-        githubRepo: string;
+        githubRepo?: string;
     };
 
     /**

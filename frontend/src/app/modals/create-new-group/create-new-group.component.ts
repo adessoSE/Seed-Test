@@ -58,10 +58,10 @@ export class CreateNewGroupComponent {
     this.groupId = undefined;
     this.isSequential = true;
     this.selectedStories = undefined;
-    const value = localStorage.getItem('repository');
+    const repoName = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
-    const repositoryContainer: RepositoryContainer = {value, source, _id};
+    const repositoryContainer: RepositoryContainer = {repoName, source, _id};
     this.storyService.getStories(repositoryContainer).subscribe(res => {
         this.stories = res;
         this.filteredStories = new MatTableDataSource(res);
@@ -117,10 +117,10 @@ export class CreateNewGroupComponent {
     if (title.trim() !== '') {
       const member_stories = this.selectedStories;
       var isSequential = this.isSequential;
-      const value = localStorage.getItem('repository');
+      const repoName = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
       const source = localStorage.getItem('source');
-      const repositoryContainer: RepositoryContainer = {value, source, _id};
+      const repositoryContainer: RepositoryContainer = {repoName, source, _id};
       const group = {title, member_stories, isSequential};
       this.groupService.createGroupEvent({repositoryContainer, group});
      

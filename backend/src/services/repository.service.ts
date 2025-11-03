@@ -7,6 +7,7 @@ import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContaine
 import { deleteStory } from './story.service';
 import { getUserById } from './user.service';
 import * as workgroupService from './workgroup.service';
+import { encrypt } from '../helpers/cryptoHelper';
 
 const repositoriesCollection = 'Repositories';
 const userCollection = 'User';
@@ -47,6 +48,48 @@ export async function getRepository(userId: string): Promise<RepositoryContainer
         settings: repo.settings,
         aiConfig: repo.aiConfig
     }));
+}
+
+/**
+ * Filters a list of repositories to only include those from 'db' source.
+ * (Moved from projectManagement.ts)
+ * @param userId The user's ID.
+ * @returns Array of repository container objects.
+ */
+export async function dbProjects(userId: string): Promise<RepositoryContainer[]> {
+    if (!userId) return [];
+    try {
+        const userRepos = await getRepository(userId); // Use the main getRepository function
+        return userRepos
+            .filter(repo => repo.source === "db")
+            .map(repo => ({
+                _id: repo._id,
+                repoName: repo.repoName,
+                source: repo.source,
+                canEdit: repo.canEdit,
+                settings: repo.settings,
+                aiConfig: repo.aiConfig
+            }));;
+    } catch (error) {
+         console.error("Error fetching DB projects:", error);
+         return [];
+    }
+}
+
+/**
+ * Removes duplicate repositories based on _id.
+ * (Moved from projectManagement.ts)
+ * @param repositories Array of repository objects.
+ * @returns Array of unique repository objects.
+ */
+export function uniqueRepositories(repositories: any[]): any[] {
+  const uniqueMap = new Map<string, any>();
+  for (const repo of repositories) {
+    if (repo?._id && !uniqueMap.has(repo._id.toString())) {
+      uniqueMap.set(repo._id.toString(), repo);
+    }
+  }
+  return Array.from(uniqueMap.values());
 }
 
 
@@ -97,7 +140,24 @@ export async function updateRepository(repoId: string, newName?: string, globalS
     const updateFields: Partial<Repository> = {};
     if (newName !== undefined) updateFields.repoName = newName;
     if (globalSettings !== undefined) updateFields.settings = globalSettings;
-    if (aiConfig !== undefined) updateFields.aiConfig = aiConfig;
+    
+    // Encrypt API keys before saving
+    if (aiConfig !== undefined) {
+        // Create a deep copy to avoid modifying the input object
+        const configToSave: AiConfig = JSON.parse(JSON.stringify(aiConfig));
+
+        // Encrypt the textPreparation apiKey if it exists and is not already a placeholder
+        if (configToSave.textPreparation?.apiKey && !configToSave.textPreparation.apiKey.includes(':')) {
+            configToSave.textPreparation.apiKey = encrypt(configToSave.textPreparation.apiKey) || undefined;
+        }
+        
+        // Encrypt the jsonConversion apiKey if it exists and is not already a placeholder
+        if (configToSave.jsonConversion?.apiKey && !configToSave.jsonConversion.apiKey.includes(':')) {
+            configToSave.jsonConversion.apiKey = encrypt(configToSave.jsonConversion.apiKey) || undefined;
+        }
+
+        updateFields.aiConfig = configToSave;
+    }
 
     const result = await db.collection<Repository>(repositoriesCollection).findOneAndUpdate(
         { _id: new ObjectId(repoId) },

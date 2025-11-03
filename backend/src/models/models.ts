@@ -59,8 +59,8 @@ class StoryReport extends GenericReport {
 
 class ScenarioReport extends GenericReport {
     scenarioStatuses: ScenarioStatus[]
-    storyId: string // different
-    scenarioId: string // different
+    storyId: number
+    scenarioId: number
     featureTestResults: StepStatus
     constructor(){
         super()

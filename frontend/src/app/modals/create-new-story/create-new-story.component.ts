@@ -62,10 +62,10 @@ export class CreateNewStoryComponent {
     const title = this.storyForm.value.storyTitle;
     if (title.trim() !== '') {
       const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
-      const value = localStorage.getItem('repository');
+      const repoName = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
       const source = 'db';
-      const repositoryContainer: RepositoryContainer = {value, source, _id};
+      const repositoryContainer: RepositoryContainer = {repoName, source, _id};
       const story = {title, description};
       this.storyService.createCustomStoryEvent({repositoryContainer, story});
     }

@@ -94,8 +94,8 @@ function calcDate(value: string): string {
 
 
     // Apply calculations from the middle part
-    const adds = mid.match(/\+@@(\d+),(Day|Month|Year)/g) || [];
-    const subs = mid.match(/\-@@(\d+),(Day|Month|Year)/g) || [];
+    const adds: string [] = mid.match(/\+@@(\d+),(Day|Month|Year)/g) || [];
+    const subs: string [] = mid.match(/\-@@(\d+),(Day|Month|Year)/g) || [];
 
     adds.forEach(add => {
         const [, num, unit] = add.match(/\+@@(\d+),(Day|Month|Year)/)!;

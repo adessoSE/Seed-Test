@@ -14,9 +14,9 @@ import {HarnessLoader} from '@angular/cdk/testing';
 import {TestbedHarnessEnvironment} from '@angular/cdk/testing/testbed';
 import { MatSelectHarness } from "@angular/material/select/testing";
 
-const repositories: RepositoryContainer[] = [{_id: '1', value: 'myFirstRepo', source: 'db', canEdit: true},
-{_id: '2', value: 'next repo', source: 'db', canEdit: true},
-{_id: '3', value: 'another repo', source: 'db', canEdit: true}]
+const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
+{_id: '2', repoName: 'next repo', source: 'db', canEdit: true},
+{_id: '3', repoName: 'another repo', source: 'db', canEdit: true}]
 
 
 describe('AccountManagementComponent', () => {

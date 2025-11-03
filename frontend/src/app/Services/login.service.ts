@@ -20,7 +20,8 @@ export class LoginService {
    * Event emitter to logout the user
    */
   public logoutEvent = new EventEmitter();
-  /**
+
+  /** TODO: Look, if it still needed as it seems callback is doing this now?
    * Starts the github login
    */
   public githubLogin() {

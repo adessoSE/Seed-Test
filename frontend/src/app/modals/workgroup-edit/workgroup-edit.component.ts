@@ -221,17 +221,25 @@ export class WorkgroupEditComponent implements OnInit {
     this.workgroupProject = project;
     if (!this.workgroupProject.aiConfig) {
       this.workgroupProject.aiConfig = {
-        provider: 'local',
-        endpointUrl: 'http://localhost:11434/v1',
-        defaultTextModel: 'mistral',
-        defaultJsonModel: 'codellama'
+        textPreparation: {
+          name: 'local',
+          modelName: 'mistral',
+          provider: 'custom' as const,
+          baseURL: 'http://localhost:11434/v1'
+        },
+        jsonConversion: {
+          name: 'local',
+          modelName: 'codellama',
+          provider: 'custom' as const,
+          baseURL: 'http://localhost:11434/v1'
+        }
       };
     }
     this.loadGlobalSettings();
     this.modalReference = this.modalService.open(this.workgroupEditModal, {
       ariaLabelledBy: "modal-basic-titles",
     });
-    this.projectName = project.value;
+    this.projectName = project.repoName;
     if (project.source === "db")
       this.projectService
         .getWorkgroup(this.workgroupProject._id)
@@ -332,7 +340,7 @@ export class WorkgroupEditComponent implements OnInit {
 
   isCurrentRepoToDelete() {
     const currentRepo = localStorage.getItem("repository");
-    if (this.workgroupProject.value === currentRepo) {
+    if (this.workgroupProject.repoName === currentRepo) {
       this.openRepoSwitchModal();
     } else if (this.workgroupList.length > 0){
       this.toastr.info(
@@ -364,7 +372,7 @@ export class WorkgroupEditComponent implements OnInit {
     this.projectService
       .updateRepository(
         project._id,
-        project.value,
+        project.repoName,
         this.userId,
         project.settings,
         project.aiConfig
@@ -417,7 +425,7 @@ export class WorkgroupEditComponent implements OnInit {
     const name = renameProject;
     const project = this.workgroupProject;
     if (name.replace(/\s/g, "").length > 0) {
-      project.value = name;
+      project.repoName = name;
     }
     // Emits rename event
     this.projectService.renameProjectEmitter(project);

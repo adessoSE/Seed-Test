@@ -185,7 +185,7 @@ export class BlockService {
   */
   saveBlock(block: Block) {
     return this.http
-      .post<any>(this.apiService.apiServer + '/block', block, ApiService.getOptions())
+      .post<any>(this.apiService.apiServer + '/', block, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));

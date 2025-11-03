@@ -282,8 +282,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      */
     selectRepository(userRepository: RepositoryContainer) {
         const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-        ref.href = 'https://github.com/' + userRepository.value;
-        localStorage.setItem('repository', userRepository.value);
+        ref.href = 'https://github.com/' + userRepository.repoName;
+        localStorage.setItem('repository', userRepository.repoName);
         localStorage.setItem('source', userRepository.source);
         localStorage.setItem('id', userRepository._id);
         this.router.navigate(['']);
@@ -295,7 +295,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             console.log(userRepo);
             const id = userRepo._id;
             this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
-                this.versionInput ? saveAs(ret, userRepo.value + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '.zip');
+                this.versionInput ? saveAs(ret, userRepo.repoName + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.repoName + '.zip');
             })
         }
     }
@@ -307,7 +307,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             const source = userRepo.source;
             const id = userRepo._id;
             this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {
-                this.versionInput ? saveAs(ret, userRepo.value + '-export' + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '-export' + '.zip');
+                this.versionInput ? saveAs(ret, userRepo.repoName + '-export' + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.repoName + '-export' + '.zip');
             })
         }
     }
@@ -337,7 +337,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     updateRepository(project: RepositoryContainer) {
-        this.projectService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {
+        this.projectService.updateRepository(project._id, project.repoName, this.id).subscribe(_resp => {
             this.projectService.getRepositories();
             this.toastr.success('successfully saved', 'Repository');
         });

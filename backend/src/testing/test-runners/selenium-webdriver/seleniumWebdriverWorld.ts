@@ -302,4 +302,4 @@ class SeleniumWebdriverWorld extends World {
   }
 }
 
-module.exports = { SeleniumWebdriverWorld };
+export { SeleniumWebdriverWorld };

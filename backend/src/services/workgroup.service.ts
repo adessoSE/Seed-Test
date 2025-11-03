@@ -6,7 +6,7 @@ import { getUserById } from './user.service';
 const repositoriesCollection = 'Repositories';
 const workgroupsCollection = 'Workgroups';
 
-interface Workgroup {
+export interface Workgroup {
     _id?: ObjectId;
     name: string;
     owner: string;

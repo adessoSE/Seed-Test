@@ -63,10 +63,10 @@ export class UpdateGroupComponent {
   openUpdateGroupModal(group: Group, groups: Group[]) {
     this.groups = groups;
     this.scrGroup = group;
-    const value = localStorage.getItem('repository');
+    const repoName = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
-    const repositoryContainer: RepositoryContainer = {value, source, _id};
+    const repositoryContainer: RepositoryContainer = {repoName, source, _id};
     this.storyService.getStories(repositoryContainer).subscribe(res => {
         this.stories = res;
         this.filteredStories = new MatTableDataSource(res);
@@ -130,10 +130,10 @@ export class UpdateGroupComponent {
 
   updateGroup(form: NgForm) {
     console.log('selectedStories:', this.selectedStories);
-    const value = localStorage.getItem('repository');
+    const repoName = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
-    const repositoryContainer: RepositoryContainer = {value, source, _id};
+    const repositoryContainer: RepositoryContainer = {repoName, source, _id};
     const group: Group = {_id: this.groupId, name: form.value.title, member_stories: this.selectedStories, isSequential: this.isSeq};
     this.groupService.updateGroupEvent({repositoryContainer, group});
     this.modalReference.close();

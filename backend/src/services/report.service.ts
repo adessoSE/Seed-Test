@@ -1,13 +1,24 @@
-import { ObjectId, GridFSBucket } from 'mongodb';
+import { Collection, ObjectId, Filter, GridFSBucket } from 'mongodb';
 import * as dbConnection from '../database/DbConnector';
 import str from 'string-to-stream';
 import toString from 'stream-to-string';
 import fs from 'fs';
+import pfs from 'fs/promises';
+import path from 'path';
+import reporter from 'cucumber-html-reporter'; // Import the reporter
 import { ReportContainer } from '@shared/models/ReportContainer';
 import * as storyService from './story.service';
+import { Story } from '@shared/models/Story';
+import { Scenario } from '@shared/models/Scenario';
+import {
+    GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ExecutionMode, ScenarioStatus
+} from '../models/models'; // Assuming shared models path
+import { cleanFileName } from './feature-file.service'; // For directory name cleaning
 
 const ReportDataCollection = 'ReportData';
 const ReportsCollection = 'Reports';
+const reportPathBase = path.join(__dirname, '../../features'); // Base path for reports
+
 type TestMode = 'scenario' | 'feature' | 'group';
 
 // --- Report CRUD Functions ---
@@ -162,23 +173,23 @@ export async function getReportHistory(storyId: string): Promise<ReportContainer
  * @param uploadedReport The report object from the completed test run.
  * @param mode The mode in which the test was run.
  */
-export async function updateLatestTestStatus(uploadedReport: any, mode: TestMode): Promise<void> {
+export async function updateLatestTestStatus(uploadedReport: any, mode: ExecutionMode): Promise<void> {
     switch (mode) {
-        case 'scenario':
+        case ExecutionMode.SCENARIO:
             await updateScenarioTestStatus(uploadedReport);
             break;
-        case 'feature':
+        case ExecutionMode.STORY:
             {
                 // Prepare all update promises for the feature and its scenarios
                 const updatePromises: Promise<any>[] = [];
 
                 // Promise to update the overall story status
-                updatePromises.push(storyService.updateStoryStatus(uploadedReport.storyId, uploadedReport.status));
+                updatePromises.push(storyService.updateStoryStatus(uploadedReport.featureId, uploadedReport.status));
 
                 // Promises to update each scenario's status within the story
                 for (const scenarioStatus of uploadedReport.scenarioStatuses) {
                     updatePromises.push(
-                        storyService.updateScenarioStatus(uploadedReport.storyId, scenarioStatus.scenarioId, scenarioStatus.status)
+                        storyService.updateScenarioStatus(uploadedReport.featureId, scenarioStatus.scenarioId, scenarioStatus.status)
                     );
                 }
 
@@ -186,7 +197,7 @@ export async function updateLatestTestStatus(uploadedReport: any, mode: TestMode
                 await Promise.all(updatePromises);
             }
             break;
-        case 'group':
+        case ExecutionMode.GROUP:
             {
                 // Prepare all update promises for all stories and their scenarios in the group
                 const updatePromises: Promise<any>[] = [];
@@ -283,4 +294,356 @@ async function updateScenarioTestStatus(uploadedReport: any): Promise<void> {
     }
     await storyService.updateStoryStatus(uploadedReport.storyId, storyStatus);
     await storyService.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.status);
+}
+
+
+// ####### --- Migrated from reporting.ts --- ########
+
+// --- Report Generation Options (from reporting.ts) ---
+const baseHtmlReporterOptions = {
+    theme: 'bootstrap',
+    // jsonFile/jsonDir will be set dynamically
+    output: '', // Will be set dynamically
+    reportSuiteAsScenarios: true,
+    launchReport: false,
+    storeScreenshots: false,
+    screenshotsDirectory: path.join(reportPathBase, 'screenshots/'), // Use path.join
+    metadata: {
+        'App Version': '1.8.1', // Consider reading from package.json
+        'Test Environment': 'STAGING', // Make configurable?
+        Parallel: 'Scenarios',
+        Executed: 'Remote'
+    }
+};
+
+function setHtmlOptions(reportName: string, jsonPath: string, isGroup: boolean = false): reporter.Options {
+    const myOptions = JSON.parse(JSON.stringify(baseHtmlReporterOptions));
+    myOptions.metadata.Platform = process.platform;
+    myOptions.name = `Seed-Test Report: ${reportName}`;
+    const outputPath = path.join(path.dirname(jsonPath), `${reportName}.html`); // Place HTML next to JSON
+
+    if (isGroup) {
+        myOptions.jsonDir = path.dirname(jsonPath); // Directory containing multiple JSONs
+        myOptions.jsonFile = null; // Important for jsonDir mode
+    } else {
+        myOptions.jsonFile = jsonPath; // Path to the single JSON file
+        myOptions.jsonDir = null;
+    }
+    myOptions.output = outputPath;
+    return myOptions;
+}
+
+// ######## Analysis Functions ##########
+
+/**
+ * Generates the HTML report from a JSON report file.
+ * @param reportName - The base name for the report.
+ * @param jsonPath - The full path to the cucumber JSON report file.
+ * @param isGroup - Indicates if this is a group report (jsonDir mode).
+ * @returns The options used for generation.
+ */
+export function generateHtmlReport(reportName: string, jsonPath: string, isGroup: boolean = false): reporter.Options {
+    const reportOptions = setHtmlOptions(reportName, jsonPath, isGroup);
+    try {
+        reporter.generate(reportOptions);
+        console.log(`Generated HTML report at: ${reportOptions.output}`);
+    } catch (e) {
+        console.error(`Could not generate HTML Report for ${reportName}. Error:`, e);
+        // Decide if we should throw or just log
+    }
+    return reportOptions;
+}
+
+/**
+ * Analyzes the cucumber JSON report, generates HTML, saves to DB.
+ * @param reportResult - Basic result object from test execution (reportName, reportTime, story?, success?).
+ * @param mode - The mode the test was run in.
+ * @param stories - Array of stories involved in the test run.
+ * @param executionParams - Parameters used for the test run (e.g., group name).
+ * @returns The final report object after analysis and DB insertion.
+ */
+export async function resolveAndSaveReport(reportResult: any, mode: ExecutionMode, stories: Story[], executionParams: any): Promise<any> {
+    let reportName = reportResult.reportName;
+    let jsonPath: string;
+    let isGroupReport = false;
+    let analysisResult: GenericReport | StoryReport | ScenarioReport | GroupReport;
+
+    if (mode === ExecutionMode.GROUP) {
+        const groupDirName = executionParams.name; // The directory name created in controller
+        jsonPath = path.join(reportPathBase, groupDirName, `${groupDirName}.html.json`); // Path for combined group JSON
+        isGroupReport = true;
+        // Generate the combined JSON first by running the HTML reporter in jsonDir mode
+        generateHtmlReport(groupDirName, path.join(reportPathBase, groupDirName), true); // Pass dir for jsonDir
+        analysisResult = await analyzeGroupReport(groupDirName, stories, jsonPath);
+        reportName = groupDirName; // Use the group name as the final report name
+    } else {
+        jsonPath = path.join(reportPathBase, `${reportName}.json`);
+        generateHtmlReport(reportName, jsonPath, false); // Generate HTML from single JSON
+        if (mode === ExecutionMode.SCENARIO) {
+            analysisResult = await analyzeScenarioReport(stories, reportName, parseInt(reportResult.scenarioId, 10), jsonPath);
+        } else { // ExecutionMode.STORY
+            analysisResult = await analyzeStoryReport(stories, reportName, jsonPath);
+        }
+    }
+
+    // Add common fields
+    analysisResult.reportTime = reportResult.reportTime;
+    analysisResult.mode = mode;
+    analysisResult.reportOptions = setHtmlOptions(reportName, jsonPath, isGroupReport); // Store options used
+
+    // Upload the final analysis result to DB
+    const uploadedReport = await uploadReport(analysisResult);
+    return uploadedReport;
+}
+
+/**
+ * Schedules the deletion of report files (JSON, HTML) after a specified delay.
+ * Also handles deletion of group directories.
+ * @param reportName - The base name of the report or the group directory name.
+ * @param isGroup - True if it's a group report (delete directory), false otherwise (delete files).
+ * @param delayMs - Delay in milliseconds before deletion.
+ */
+export function scheduleReportDeletion(reportName: string, isGroup: boolean, delayMs: number): void {
+    if (isGroup) {
+        // Schedule deletion of the entire group directory
+        const dirPath = path.join(reportPathBase, reportName);
+        setTimeout(() => {
+            fs.rm(dirPath, { recursive: true, force: true }, (err) => {
+                if (err) console.error(`Error deleting group report directory ${dirPath}:`, err);
+                else console.log(`Group report directory ${dirPath} deleted after timeout.`);
+            });
+        }, delayMs);
+    } else {
+        // Schedule deletion of individual JSON and HTML files
+        const jsonPath = path.join(reportPathBase, `${reportName}.json`);
+        const htmlPath = path.join(reportPathBase, `${reportName}.html`);
+        setTimeout(() => deleteReportFile(jsonPath), delayMs);
+        setTimeout(() => deleteReportFile(htmlPath), delayMs);
+    }
+}
+
+// --- Analysis Helper Functions (Migrated from reporting.ts) ---
+
+async function analyzeReport(jsonPath: string, stories: Story[], mode: ExecutionMode, reportName: string, scenarioId?: number): Promise<any> {
+     // This function is now superseded by the individual analyze... functions
+     // Kept conceptually, logic moved below
+     throw new Error("analyzeReport should not be called directly anymore");
+}
+
+async function analyzeStoryReport(stories: Story[], reportName: string, jsonPath: string): Promise<StoryReport> {
+    const reportResults = new StoryReport(); // Use interface/class from shared models
+    reportResults.reportName = reportName;
+    reportResults.featureId = stories[0]._id; // Assuming only one story
+
+    try {
+        const data = await pfs.readFile(jsonPath, 'utf8');
+        const cucumberReport: any[] = JSON.parse(data);
+        if (cucumberReport.length === 0) throw new Error("Cucumber JSON report is empty.");
+
+        const storyReport = cucumberReport[0]; // Assuming one feature per file
+        const story = stories[0];
+        const result = featureResult(storyReport, story);
+
+        reportResults.status = result.status;
+        reportResults.scenariosTested = result.scenariosTested;
+        reportResults.featureTestResults = result.featureTestResults;
+        reportResults.scenarioStatuses = result.scenarioStatuses;
+        return reportResults;
+
+    } catch (error: any) {
+        console.error(`Error analyzing story report ${reportName}:`, error);
+        reportResults.status = false;
+        return reportResults; // Return default error state
+    }
+}
+
+async function analyzeScenarioReport(stories: Story[], reportName: string, scenarioId: number, jsonPath: string): Promise<ScenarioReport> {
+    const reportResults = new ScenarioReport(); // Use interface/class from shared models
+    reportResults.reportName = reportName;
+    reportResults.storyId = stories[0]._id; // Assuming only one story
+    reportResults.scenarioId = scenarioId;
+
+     try {
+        const data = await pfs.readFile(jsonPath, 'utf8');
+        const cucumberReport: any[] = JSON.parse(data);
+        if (cucumberReport.length === 0) throw new Error("Cucumber JSON report is empty.");
+
+        const storyReport = cucumberReport[0];
+        const story = stories[0];
+
+        // Find the specific scenario report element (Cucumber might add hooks as elements)
+        const scenarioReportElement = storyReport.elements.find((el: any) => el.type === 'scenario' && el.name === story.scenarios.find(s=> s.scenario_id === scenarioId)?.name);
+         if (!scenarioReportElement) throw new Error(`Scenario element not found in report for scenario ID ${scenarioId}`);
+
+        const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId);
+        if (!scenario) throw new Error(`Scenario data not found for ID ${scenarioId}`);
+
+        const result = scenarioResult(scenarioReportElement, scenario);
+
+        reportResults.status = result.status;
+        reportResults.scenariosTested = { passed: +result.status, failed: +!result.status };
+        reportResults.featureTestResults = result.stepResults; // Use stepResults as overall feature result for single scenario
+        reportResults.scenarioStatuses = [result]; // Array with one element
+
+        return reportResults;
+
+    } catch (error: any) {
+         console.error(`Error analyzing scenario report ${reportName}:`, error);
+        reportResults.status = false;
+        return reportResults; // Return default error state
+    }
+}
+
+export async function analyzeGroupReport(groupName: string, stories: Story[], jsonPath: string): Promise<GroupReport> {
+    const reportResults = new GroupReport(); // Use interface/class from shared models
+    reportResults.reportName = groupName;
+
+     try {
+        const data = await pfs.readFile(jsonPath, 'utf8');
+        const cucumberReport: any[] = JSON.parse(data); // Array of feature reports
+
+        let scenariosTested = new PassedCount();
+        let overallPassedSteps = 0;
+        let overallFailedSteps = 0;
+        let overallSkippedSteps = 0;
+
+        reportResults.storyStatuses = [];
+
+        // Map stories by ID for easier lookup
+        const storyMap = new Map(stories.map(s => [s._id.toString(), s]));
+
+        for (const storyReport of cucumberReport) {
+             // Find the corresponding story data using feature tags or names
+             // Cucumber JSON might store feature ID/name differently, adjust matching logic if needed
+             const storyIdMatch = storyReport.uri?.match(/_([a-f0-9]{24})\.feature$/)?.[1]; // Extract ID from URI if possible
+             const story = storyIdMatch ? storyMap.get(storyIdMatch) : stories.find(s => s.title === storyReport.name); // Fallback to name match
+
+             if (!story) {
+                 console.warn(`Could not find matching story data for report feature: ${storyReport.name}`);
+                 continue; // Skip if no matching story data
+             }
+
+            const result = featureResult(storyReport, story);
+            reportResults.storyStatuses.push(result);
+
+            overallPassedSteps += result.featureTestResults.passedSteps;
+            overallFailedSteps += result.featureTestResults.failedSteps;
+            overallSkippedSteps += result.featureTestResults.skippedSteps;
+            scenariosTested.passed += result.scenariosTested.passed;
+            scenariosTested.failed += result.scenariosTested.failed;
+        }
+
+        reportResults.status = testPassed(overallFailedSteps, overallPassedSteps);
+        reportResults.groupTestResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
+        reportResults.scenariosTested = scenariosTested;
+        // reportResults.storiesTested = stories; // Maybe don't store full stories in DB report
+
+        return reportResults;
+    } catch (error: any) {
+        console.error(`Error analyzing group report ${groupName}:`, error);
+        reportResults.status = false;
+        return reportResults;
+    }
+}
+
+function featureResult(featureReport: any, feature: Story): any { // Define a proper return type later
+    const storyId = feature._id;
+    const featureStatus = {
+        storyId,
+        status: false,
+        scenarioStatuses: [] as ScenarioStatus[],
+        featureTestResults: new StepStatus(),
+        scenariosTested: new PassedCount()
+    };
+
+    let featurePassedSteps = 0;
+    let featureFailedSteps = 0;
+    let featureSkippedSteps = 0;
+
+    // Filter out potential hook results ('before all' / 'after all')
+    const scenarioElements = featureReport.elements.filter((el: any) => el.type === 'scenario');
+
+    for (const scenReport of scenarioElements) {
+         // Match scenario report element to scenario data
+         // Using tags is more robust if available: @storyId_scenarioId
+         const tagMatch = scenReport.tags?.map((t: any) => t.name).find((n: string) => n.startsWith(`@${storyId}_`));
+         const scenarioId = tagMatch ? parseInt(tagMatch.split('_').pop()!, 10) : null;
+         const scenario = scenarioId ? feature.scenarios.find(s => s.scenario_id === scenarioId) : feature.scenarios.find(s => s.name === scenReport.name); // Fallback to name
+
+        if (!scenario) {
+            console.warn(`Could not find matching scenario data for report element: ${scenReport.name}`);
+            continue;
+        }
+
+        const result = scenarioResult(scenReport, scenario);
+
+        featurePassedSteps += result.stepResults.passedSteps;
+        featureFailedSteps += result.stepResults.failedSteps;
+        featureSkippedSteps += result.stepResults.skippedSteps;
+        featureStatus.scenarioStatuses.push(result);
+
+        if (result.status) featureStatus.scenariosTested.passed++;
+        else featureStatus.scenariosTested.failed++;
+    }
+
+    featureStatus.featureTestResults = { passedSteps: featurePassedSteps, failedSteps: featureFailedSteps, skippedSteps: featureSkippedSteps };
+    featureStatus.status = testPassed(featureFailedSteps, featurePassedSteps);
+    return featureStatus;
+}
+
+function scenarioResult(scenarioReport: any, scenario: Scenario): ScenarioStatus {
+    const scenarioId = scenario.scenario_id;
+    let scenarioPassedSteps = 0;
+    let scenarioFailedSteps = 0;
+    let scenarioSkippedSteps = 0;
+
+    for (const step of scenarioReport.steps) {
+        switch (step.result?.status) { // Add safe navigation ?.
+            case 'passed': scenarioPassedSteps++; break;
+            case 'failed': scenarioFailedSteps++; break;
+            case 'skipped': scenarioSkippedSteps++; break;
+            case 'undefined': // Handle undefined steps if necessary
+                 scenarioFailedSteps++; // Treat undefined as failure?
+                 console.warn(`Undefined step found: ${step.keyword}${step.name}`);
+                 break;
+            case 'ambiguous': // Handle ambiguous steps if necessary
+                 scenarioFailedSteps++; // Treat ambiguous as failure?
+                 console.warn(`Ambiguous step found: ${step.keyword}${step.name}`);
+                 break;
+            case 'pending': // Handle pending steps if necessary
+                 scenarioSkippedSteps++; // Treat pending as skipped?
+                 console.warn(`Pending step found: ${step.keyword}${step.name}`);
+                 break;
+            default:
+                console.warn(`Unknown step status: ${step.result?.status} for step: ${step.keyword}${step.name}`);
+                 // Decide how to count unknown status, maybe skipped or failed?
+                 scenarioSkippedSteps++;
+        }
+    }
+
+    const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
+    return {
+        scenarioId,
+        status: scenStatus,
+        stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
+    };
+}
+
+function testPassed(failed: number, passed: number): boolean {
+    // A test run passes if there are 0 failures AND at least one step passed.
+    // Scenarios/features with only skipped/pending steps should not be marked as passed.
+    return failed === 0 && passed > 0;
+}
+
+// --- File System Helpers ---
+
+// Helper function to delete a single file
+function deleteReportFile(filePath: string): void {
+    fs.unlink(filePath, (err) => {
+        if (err && err.code !== 'ENOENT') { // Ignore 'file not found' errors
+            console.error(`Error deleting report file ${filePath}:`, err);
+        } else if (!err) {
+            console.log(`Report file ${filePath} deleted.`);
+        }
+    });
 }

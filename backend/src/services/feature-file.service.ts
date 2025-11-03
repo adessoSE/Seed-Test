@@ -116,7 +116,7 @@ export function getFeatureContent(story: Story): string {
 }
 
 export function cleanFileName(filename: string): string {
-    return filename.replace(/[^a-z0-9]/gi, '_');
+    return filename.replace(/[^a-z0-9.]/gi, '_');
 }
 
 // Creates feature file
@@ -148,7 +148,7 @@ export async function deleteFeatureFile(storyTitle: string, storyId: any): Promi
     }
 }
 
-async function replaceRefBlocks(scenarios: Scenario[]): Promise<Scenario[]> {
+export async function replaceRefBlocks(scenarios: Scenario[]): Promise<Scenario[]> {
     if (!scenarios.some(scen => scen.hasRefBlock)) return scenarios;
 
     const processedScenarios = await Promise.all(scenarios.map(async (scen) => {

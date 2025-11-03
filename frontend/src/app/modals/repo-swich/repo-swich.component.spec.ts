@@ -10,9 +10,9 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 jest.mock('./repo-swich.component');
 
 
-const repositories: RepositoryContainer[] = [{_id: '1', value: 'myFirstRepo', source: 'db', canEdit: true},
-{_id: '2', value: 'githubRepo', source: 'github', canEdit: true},
-{_id: '', value: 'jiraRepo', source: 'jira', canEdit: true}]
+const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
+{_id: '2', repoName: 'githubRepo', source: 'github', canEdit: true},
+{_id: '', repoName: 'jiraRepo', source: 'jira', canEdit: true}]
 
 
 describe('RepoSwichComponent', () => {

@@ -5,20 +5,23 @@
     "esModuleInterop": true,
     "declaration": true,
     "declarationMap": true,
-    "target": "es2022",
+    "target": "es2024",
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": "src",
     "allowJs": true,
     "checkJs": false,
     "preserveSymlinks": true,
-    "noEmit": true,
     "paths": {
       "@shared/*": ["../shared/src/*"]
     },
-    "lib": ["es2022", "dom"]
+    "lib": ["es2024", "dom"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.spec.ts"
+  ],
   "references": [{ "path": "../shared" }]
 }

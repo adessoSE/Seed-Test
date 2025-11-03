@@ -25,13 +25,13 @@ interface StoryParameters extends Array<TestParameters> {
 class PlaywrightWorld extends World {
     private browser: Browser | null = null;
     private context: BrowserContext | null = null;
-    private page: Page | null = null;
+    public page: Page | null = null;
     private readonly defaultTimeout = 30000;
     private parameterCollection: StoryParameters;
     private testParameters: TestParameters;
     private scenarioCount: number;
-    private readonly downloadDir: string;
-    private readonly tmpUploadDir: string;
+    public readonly downloadDir: string;
+    public readonly tmpUploadDir: string;
     //private readonly videoDir: string;
     private lastDownload: Download | null = null;  // Neue Property für Downloads
 

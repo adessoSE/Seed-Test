@@ -139,12 +139,12 @@ export class StoryService {
   getStories(repository: RepositoryContainer): Observable<Story[]> {
     let params;
     if (repository.source === 'github') {
-      const repo = repository.value.split('/');
-      params = { repoName: repository.value, githubName: repo[0], repository: repo[1], source: repository.source, id: repository._id };
+      const repo = repository.repoName.split('/');
+      params = { repoName: repository.repoName, githubName: repo[0], repository: repo[1], source: repository.source, id: repository._id };
     } else if (repository.source === 'jira') {
-      params = { projectKey: repository.value, source: repository.source, id: repository._id };
+      params = { projectKey: repository.repoName, source: repository.source, id: repository._id };
     } else if (repository.source === 'db') {
-      params = { repoName: repository.value, source: repository.source, id: repository._id };
+      params = { repoName: repository.repoName, source: repository.source, id: repository._id };
     }
 
     return this.http
@@ -238,7 +238,7 @@ export class StoryService {
   */
   public goToTicket(storyId: string, repository: RepositoryContainer) {
     if (repository.source === 'github') {
-      const AUTHORIZE_URL = 'https://github.com/' + repository.value + '/issues/';
+      const AUTHORIZE_URL = 'https://github.com/' + repository.repoName + '/issues/';
       console.log("AUTHORIZE_UR", AUTHORIZE_URL)
       const s = `${AUTHORIZE_URL}${storyId}`;
       return window.open(s);

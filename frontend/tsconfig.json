@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "ES2022",
+    "target": "ES2024",
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -19,7 +19,7 @@
       "jest"
     ],
     "lib": [
-      "ES2022",
+      "ES2024",
       "dom"
     ],
     "strict": false,

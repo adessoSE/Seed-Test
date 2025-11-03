@@ -117,7 +117,7 @@ export class ImportModalComponent implements AfterViewChecked {
     inputElement.focus();
 
     this.searchTerm = form.value.searchTerm.trim().toLowerCase();
-    this.searchList = this.repoList.filter(repo => repo.value.toLowerCase().includes(this.searchTerm));
+    this.searchList = this.repoList.filter(repo => repo.repoName.toLowerCase().includes(this.searchTerm));
 
     return this.searchList;
   }

@@ -1,12 +1,37 @@
-export interface AiConfig {
-    provider: 'local' | 'cloud';
-    endpointUrl?: string;
+/**
+ * Configuration for a single AI provider (text or json).
+ */
+export interface AiProviderConfig {
+    /**
+     * The provider type, currently 'custom' is the only one used. (for now)
+     */
+    provider: 'custom';
+    /**
+     * In our case: The name of the provider, e.g., 'local' or 'cloud'.
+     */
+    name: 'local' | 'cloud';
+    /**
+     * The name of the model to use (e.g., 'gpt-4', 'llama3').
+     */
+    modelName: string;
+    /**
+     * The base URL for the API endpoint (e.g., Ollama URL).
+     */
+    baseURL: string;
+    /**
+     * The API key. This will be stored encrypted in the database.
+     */
     apiKey?: string;
-    defaultTextModel?: string;
-    defaultJsonModel?: string;
 }
 /**
- * Interface of the repository container
+ * The main AI configuration, separating text generation from JSON conversion.
+ */
+export interface AiConfig {
+    textPreparation: AiProviderConfig;
+    jsonConversion: AiProviderConfig;
+}
+/**
+ * Interface for displaying a repository in a list (View Model / DTO).
  */
 export interface RepositoryContainer {
     /**
@@ -16,7 +41,7 @@ export interface RepositoryContainer {
     /**
      * Name of the repository
      */
-    value: string;
+    repoName: string;
     /**
      * Source of the repository
      */
@@ -39,7 +64,7 @@ export interface RepositoryContainer {
         activated?: boolean;
     };
     /**
-     * Determines how our AI generation is configured
+     * Determines how our AI generation is configured using the structured config.
      */
     aiConfig?: AiConfig;
 }

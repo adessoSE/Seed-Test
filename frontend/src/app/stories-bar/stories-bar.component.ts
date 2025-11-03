@@ -704,10 +704,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     toTicket(story: string) {
-        const value = localStorage.getItem('repository');
+        const repoName = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = localStorage.getItem('source');
-        const repositoryContainer: RepositoryContainer = { value, source, _id };
+        const repositoryContainer: RepositoryContainer = { repoName, source, _id };
         this.storyService.goToTicket(story, repositoryContainer);
     }
 }

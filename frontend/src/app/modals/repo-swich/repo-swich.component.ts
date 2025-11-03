@@ -29,7 +29,7 @@ export class RepoSwichComponent implements OnInit {
     this.currentRepo = localStorage.getItem('repository');
     const value = sessionStorage.getItem('repositories');
     const repositories: RepositoryContainer[] = JSON.parse(value);
-    this.repos = repositories.filter(repo => repo.value != this.currentRepo);
+    this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
     this.filteredRepos = new MatTableDataSource(this.repos);
   }
 
@@ -53,7 +53,7 @@ export class RepoSwichComponent implements OnInit {
    * Filters reporitories for searchterm
    */
   searchOnKey(filter: string) {
-    this.filteredRepos.filterPredicate =  (data: RepositoryContainer, repoFilter: string) => data.value.trim().toLowerCase().indexOf(repoFilter) != -1;
+    this.filteredRepos.filterPredicate =  (data: RepositoryContainer, repoFilter: string) => data.repoName.trim().toLowerCase().indexOf(repoFilter) != -1;
     /* Apply filter */
     this.filteredRepos.filter = filter.trim().toLowerCase();
   }
@@ -64,8 +64,8 @@ export class RepoSwichComponent implements OnInit {
      */
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + userRepository.value;
-    localStorage.setItem('repository', userRepository.value);
+    ref.href = 'https://github.com/' + userRepository.repoName;
+    localStorage.setItem('repository', userRepository.repoName);
     localStorage.setItem('source', userRepository.source);
     localStorage.setItem('id', userRepository._id);
     location.reload();
@@ -77,7 +77,7 @@ export class RepoSwichComponent implements OnInit {
   updateRepos() {
     const value = sessionStorage.getItem('repositories');
     const repositories: RepositoryContainer[] = JSON.parse(value);
-    this.repos = repositories.filter(repo => repo.value != this.currentRepo);
+    this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
     this.filteredRepos = new MatTableDataSource(this.repos);
   }
 }

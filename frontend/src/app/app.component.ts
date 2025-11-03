@@ -201,8 +201,8 @@ export class AppComponent implements OnInit{
    */
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + userRepository.value;
-    localStorage.setItem('repository', userRepository.value);
+    ref.href = 'https://github.com/' + userRepository.repoName;
+    localStorage.setItem('repository', userRepository.repoName);
     localStorage.setItem('source', userRepository.source);
     localStorage.setItem('id', userRepository._id);
     if(this.router.url !== '/') {

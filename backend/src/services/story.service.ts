@@ -134,6 +134,60 @@ export async function deleteStory(repoId: string, storyId: string): Promise<any>
     return await storyCollection.findOneAndDelete({ _id: new ObjectId(storyId) });
 }
 
+/**
+ * Updates an existing story identified by its external story_id or creates it if it doesn't exist.
+ * This function replicates the logic of the old DbServices.upsertEntry.
+ * It primarily uses $set to update fields.
+ * @param storyId The external story ID (numeric, from GitHub/Jira).
+ * @param updatedContent A partial Story object containing fields to be updated or the full story for insertion.
+ * @param session Optional ClientSession for transaction support.
+ * @param client Optional MongoClient for transaction support.
+ * @returns A promise resolving to the result of the findOneAndUpdate operation (original document by default).
+ */
+export async function upsertStoryByExternalId(storyId: number, updatedContent: Partial<Story>, session?: ClientSession, client?: MongoClient): Promise<any> {
+    try {
+        const db = session && client ? client.db('Seed', session) : dbConnection.getConnection();
+        const collection = db.collection<Story>(storiesCollection);
+
+        // Define the primary filter based on the external story_id
+        const primaryFilter: Filter<Story> = {
+            story_id: storyId
+        };
+
+        // Remove _id from updatedContent if present, as it might conflict during upsert
+        // and findOneAndUpdate with $set doesn't typically require it for the update part.
+        const { _id, ...updateData } = updatedContent;
+
+        // Attempt to find and update the document WITHOUT upsert first
+        let result = await collection.findOneAndUpdate(
+            primaryFilter,
+            { $set: updateData },
+            { upsert: false, session } // Explicitly no upsert on the first try
+        );
+
+        // If the document wasn't found (result is null), try the legacy fallback and then upsert
+        if (!result) {
+            // Legacy check: Try finding with story_id and undefined storySource
+            const legacyFilter: Filter<Story> = {
+                story_id: storyId,
+                storySource: undefined
+            };
+
+            result = await collection.findOneAndUpdate(
+                legacyFilter,
+                { $set: updateData },
+                { upsert: true, session } // UPSERT enabled on the second try
+            );
+        }
+        
+        return result;
+
+    } catch (e) {
+        console.error(`ERROR in upsertStoryByExternalId: ${e}`);
+        throw e;
+    }
+}
+
 
 // --- Scenario Functions ---
 

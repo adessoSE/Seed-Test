@@ -218,10 +218,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
      getRepositories() {
         let repoNotSet = false; 
-        const value = localStorage.getItem('repository');
+        const repoName = localStorage.getItem('repository');
         const source = localStorage.getItem('source');
         const _id = localStorage.getItem('id');
-        const repository: RepositoryContainer = {value, source, _id};
+        const repository: RepositoryContainer = {repoName, source, _id};
         this.isLoadingRepositories = true;
         const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner');
         if (loadingSpinner) {
@@ -233,7 +233,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 this.router.navigate(['/accountManagement']);
             }
             resp.forEach((elem) => {
-                if (elem.value == repository.value && elem.source == repository.source && elem._id == repository._id) {
+                if (elem.repoName == repository.repoName && elem.source == repository.source && elem._id == repository._id) {
                     this.router.navigate(['']);
                     repoNotSet = true;
                 }

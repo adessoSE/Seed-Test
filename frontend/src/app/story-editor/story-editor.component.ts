@@ -1861,17 +1861,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       // Step 2: Build the final config object to send to the backend.
       const finalAiConfig = {
         textPreparation: {
-          name: projectAiConfig.provider === 'local' ? 'ollama' : "cloud",
-          modelName: this.overrideTextModel || projectAiConfig.defaultTextModel,
+          name: projectAiConfig.textPreparation.name === 'local' ? 'local' : "cloud",
+          modelName: this.overrideJsonModel || projectAiConfig.textPreparation.modelName,
           // The parser needs to know the provider type for the specific model - at the moment we are only using custom for local + cloud
           provider: 'custom' as const,
-          baseURL: projectAiConfig.endpointUrl
+          baseURL: projectAiConfig.textPreparation.baseURL
         },
         jsonConversion: {
-          name: projectAiConfig.provider === 'local' ? 'ollama' : "cloud",
-          modelName: this.overrideJsonModel || projectAiConfig.defaultJsonModel,
+          name: projectAiConfig.jsonConversion.name === 'local' ? 'local' : "cloud",
+          modelName: this.overrideJsonModel || projectAiConfig.jsonConversion.modelName,
           provider: 'custom' as const,
-          baseURL: projectAiConfig.endpointUrl
+          baseURL: projectAiConfig.jsonConversion.baseURL
         },
         // Note: The API key is NOT sent from the frontend.
         // The backend will add it securely if the provider is 'cloud'.

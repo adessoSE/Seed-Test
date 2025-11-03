@@ -64,7 +64,7 @@ checkProject(buttonId: string, input: string, array: RepositoryContainer[], repo
   array = array ? array : [];
   input = input ? input : '';
   const button = (document.getElementById(buttonId)) as HTMLButtonElement;
-  if ((input && !array.find(i => i.value === input)) || (repository ? array.find(g => g._id == repository._id && g.value == input) : false)){
+  if ((input && !array.find(i => i.repoName === input)) || (repository ? array.find(g => g._id == repository._id && g.repoName == input) : false)){
       button.disabled = false;
   } 
   
