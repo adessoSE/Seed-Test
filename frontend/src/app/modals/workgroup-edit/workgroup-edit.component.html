@@ -290,7 +290,7 @@
                             [(ngModel)]="workgroupProject.aiConfig.textPreparation.baseURL" placeholder="i.e. http://localhost:11434/v1 for Ollama or https://api.openai.com/v1">
                     </div>
 
-                    <div *ngIf="workgroupProject.aiConfig.provider === 'cloud'" class="form-group mt-3">
+                    <div *ngIf="workgroupProject.aiConfig.textPreparation.name === 'cloud'" class="form-group mt-3">
                         <label for="apiKey">API Key</label>
                         <input type="password" class="form-control" id="apiKey"
                             [(ngModel)]="workgroupProject.aiConfig.textPreparation.apiKey"

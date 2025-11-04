@@ -130,7 +130,17 @@ export class ProjectService {
       updateData.aiConfig = aiConfig;
     }
     
-    console.log('Final update payload:', updateData);
+    const logData = structuredClone(updateData);
+
+    if (logData.aiConfig?.textPreparation?.apiKey) {
+      logData.aiConfig.textPreparation.apiKey = '*** HIDDEN ***';
+    }
+
+    if (logData.aiConfig?.jsonConversion?.apiKey) {
+      logData.aiConfig.jsonConversion.apiKey = '*** HIDDEN ***';
+    }
+
+    console.log('Final update payload:', logData);
 
     return this.http
       .put<RepositoryContainer>(this.apiService.apiServer + '/repository/settings/' + repoID + '/', updateData, ApiService.getOptions())
