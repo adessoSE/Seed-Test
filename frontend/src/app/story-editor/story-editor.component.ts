@@ -1862,7 +1862,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       const finalAiConfig : AiConfig = {
         textPreparation: {
           name: projectAiConfig.textPreparation.name === 'local' ? 'local' : "cloud",
-          modelName: this.overrideJsonModel || projectAiConfig.textPreparation.modelName,
+          modelName: this.overrideTextModel || projectAiConfig.textPreparation.modelName,
           // The parser needs to know the provider type for the specific model - at the moment we are only using custom for local + cloud
           provider: 'custom' as const,
           baseURL: projectAiConfig.textPreparation.baseURL

@@ -269,16 +269,16 @@
 
                     <div class="form-group" style="display: flex; gap: 20px; justify-content: center;">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="aiProvider" id="providerLocal"
-                                value="local" [(ngModel)]="workgroupProject.aiConfig.provider">
-                            <label class="form-check-label" for="providerLocal">
+                            <input class="form-check-input" type="radio" name="aiName" id="nameLocal"
+                                value="local" [(ngModel)]="workgroupProject.aiConfig.textPreparation.name">
+                            <label class="form-check-label" for="nameLocal">
                                 Local (Ollama)
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="aiProvider" id="providerCloud"
-                                value="cloud" [(ngModel)]="workgroupProject.aiConfig.provider">
-                            <label class="form-check-label" for="providerCloud">
+                            <input class="form-check-input" type="radio" name="aiName" id="nameCloud"
+                                value="cloud" [(ngModel)]="workgroupProject.aiConfig.textPreparation.name">
+                            <label class="form-check-label" for="nameCloud">
                                 Cloud API
                             </label>
                         </div>
@@ -287,13 +287,13 @@
                     <div class="form-group mt-3">
                         <label for="baseURL">Base URL</label>
                         <input type="text" class="form-control" id="baseURL"
-                            [(ngModel)]="workgroupProject.aiConfig.baseURL" placeholder="i.e. http://localhost:11434/v1 for Ollama or https://api.openai.com/v1">
+                            [(ngModel)]="workgroupProject.aiConfig.textPreparation.baseURL" placeholder="i.e. http://localhost:11434/v1 for Ollama or https://api.openai.com/v1">
                     </div>
 
                     <div *ngIf="workgroupProject.aiConfig.provider === 'cloud'" class="form-group mt-3">
                         <label for="apiKey">API Key</label>
                         <input type="password" class="form-control" id="apiKey"
-                            [(ngModel)]="workgroupProject.aiConfig.apiKey"
+                            [(ngModel)]="workgroupProject.aiConfig.textPreparation.apiKey"
                             placeholder="Will be safely stored in backend">
                     </div>
 
@@ -303,12 +303,12 @@
                     <div class="form-group">
                         <label for="defaultTextModel">Text Preparation Model</label>
                         <input type="text" class="form-control" id="defaultTextModel"
-                            [(ngModel)]="workgroupProject.aiConfig.defaultTextModel" placeholder="e.g., mistral">
+                            [(ngModel)]="workgroupProject.aiConfig.textPreparation.modelName" placeholder="e.g., mistral">
                     </div>
                     <div class="form-group mt-3">
                         <label for="defaultJsonModel">JSON Conversion Model</label>
                         <input type="text" class="form-control" id="defaultJsonModel"
-                            [(ngModel)]="workgroupProject.aiConfig.defaultJsonModel" placeholder="e.g., codellama">
+                            [(ngModel)]="workgroupProject.aiConfig.jsonConversion.modelName" placeholder="e.g., codellama">
                     </div>
                 </div>
             </div>

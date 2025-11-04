@@ -369,6 +369,23 @@ export class WorkgroupEditComponent implements OnInit {
       height: this.repoHeight,
     };
 
+    project.aiConfig = {
+      textPreparation: {
+        provider: 'custom' as const,
+        name: project.aiConfig.textPreparation.name,
+        modelName: project.aiConfig.textPreparation.modelName,
+        baseURL: project.aiConfig.textPreparation.baseURL,
+        apiKey: project.aiConfig.textPreparation.apiKey
+      },
+      jsonConversion: {
+        provider: 'custom' as const,
+        name: project.aiConfig.textPreparation.name,
+        modelName: project.aiConfig.jsonConversion.modelName,
+        baseURL: project.aiConfig.textPreparation.baseURL,
+        apiKey: project.aiConfig.textPreparation.apiKey
+      }
+    }
+
     this.projectService
       .updateRepository(
         project._id,
