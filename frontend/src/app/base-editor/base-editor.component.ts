@@ -100,6 +100,15 @@ export class BaseEditorComponent {
   set newlySelectedStory(story: Story) {
     this.selectedStory = story;
     this.initialRegex = true;
+    if (this.templateName === 'background' && this.selectedStory && this.selectedStory.background) {
+            if (!this.selectedStory.background.stepDefinitions.when) {
+                this.selectedStory.background.stepDefinitions.when = [];
+            }
+            const cleanStepDefs = {
+                when: this.selectedStory.background.stepDefinitions.when
+            };
+            this.selectedStory.background.stepDefinitions = cleanStepDefs;
+        }
   }
 
   /**

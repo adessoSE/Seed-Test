@@ -14,7 +14,6 @@ const upload = multer({
 });
 
 // --- Basic Middleware (CORS, BodyParser, Headers, Logging) ---
-// (Middleware remains unchanged)
 router
     .use(cors({
         origin: [process.env.FRONTEND_URL || 'http://localhost:4200'],
