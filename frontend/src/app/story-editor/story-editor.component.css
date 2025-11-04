@@ -765,6 +765,7 @@ button#background_up {
   display: inline-flex;
   align-items: center;
   gap: 8px; /* Abstand zwischen Button und Icon */
+  margin-left: 15px;
 }
 
 .settings-button {
@@ -791,7 +792,9 @@ button#background_up {
 
 /* Styling für das aufklappende Menü */
 .ai-override-menu .override-fields {
-    padding: 16px;
+    padding: 16px 30px;
+    box-sizing: border-box; 
+    
     display: flex;
     flex-direction: column;
     justify-content: center;
