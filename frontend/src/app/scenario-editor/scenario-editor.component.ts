@@ -379,6 +379,11 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * @param scenario
      */
     selectScenario(scenario: Scenario) {
+        if (scenario) {
+            if (!scenario.multipleScenarios) {
+                scenario.multipleScenarios = [];
+            }
+        }
         this.selectedScenario = scenario;
         this.arrowLeft = this.checkArrowLeft();
         this.arrowRight = this.checkArrowRight();
