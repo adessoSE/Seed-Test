@@ -1,14 +1,8 @@
-import { AfterViewChecked, AfterViewInit, Component, ContentChild, ElementRef, OnInit, Output, ViewChild, ViewChildren } from "@angular/core";
+import { AfterViewChecked, Component, Inject, Optional } from "@angular/core";
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { ManagementService } from "../../Services/management.service";
-import { ApiService } from "../../Services/api.service";
-import { FormControl, NgForm, UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
-import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
-import { Router } from "@angular/router";
+import { NgForm, UntypedFormControl } from "@angular/forms";
+import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
-import { ProjectService } from "../../Services/project.service";
-import { MatSelect } from "@angular/material/select";
-//import AdmZip from "adm-zip";
 
 @Component({
     selector: "app-import-modal",
@@ -18,183 +12,170 @@ import { MatSelect } from "@angular/material/select";
 })
 export class ImportModalComponent implements AfterViewChecked {
 
-
-  /**
- * Model Reference for open/closing
- */
-  modalReference: NgbModalRef;
-
-  isNewProject: boolean; // default value, overwritten by user toggle
-  importMode: boolean; //default value (Renaming)
-  projectName: string = "";
-  searchTerm: string = "";
-
-  importingRepoId: string;
-  repoList: RepositoryContainer[];
-  searchList: RepositoryContainer[] = [];
-
-
+  // --- Class properties for the template bindings ---
+  isNewProject: boolean = false; 
+  importMode: boolean = true; // true = Rename, false = Overwrite
+  projectName: string = '';
   errorMessage: string;
-  file: File;
-
-  @ViewChild('importProjectModal', { static: true }) importProjectModal: ImportModalComponent;
+  file: File | null = null;
+  
+  searchTerm: string = "";
+  searchList: RepositoryContainer[] = [];
+  
+  chooseFile: any; // Used by the file input's [(ngModel)]
+  selectedProject: string; // Used by the mat-select's [(ngModel)]
+  // ---------------------------------------------------
 
   toggleNewProject = new UntypedFormControl(false);
-  toggleImportMode = new UntypedFormControl(false);
+  toggleImportMode = new UntypedFormControl(true); // Default to 'Rename' (true)
 
-  constructor(private apiService: ApiService,
-    private modalService: NgbModal,
-    private managmentService: ManagementService,
-    public router: Router,
-    public projectService: ProjectService) {
+  repoList: RepositoryContainer[] = [];
+
+  private toggleNewProjectSub: Subscription;
+  private toggleImportModeSub: Subscription;
+
+  constructor(
+    // Use MatDialogRef for Angular Material Modals
+    public dialogRef: MatDialogRef<ImportModalComponent>,
+    // Receive data (like the repoList) from the parent component
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: { repoList: RepositoryContainer[] }
+  ) {
+    if (data && data.repoList) {
+      this.repoList = data.repoList;
+      this.searchList = data.repoList; // Initialize search list with all repos
+    }
   }
 
+  ngOnInit() {
+    this.toggleNewProjectSub = this.toggleNewProject.valueChanges.subscribe(value => {
+      this.isNewProject = value;
+    });
+    
+    this.toggleImportModeSub = this.toggleImportMode.valueChanges.subscribe(value => {
+      this.importMode = value;
+    });
 
-
-  ngAfterViewChecked() {
+    // Set initial values
     this.isNewProject = this.toggleNewProject.value;
     this.importMode = this.toggleImportMode.value;
   }
+
+  ngAfterViewChecked() {
+    if (this.isNewProject) {
+      delete this.projectName; 
+    }
+  }
+
+  ngOnDestroy() {
+    // Clean up subscriptions
+    if (this.toggleNewProjectSub) {
+      this.toggleNewProjectSub.unsubscribe();
+    }
+    if (this.toggleImportModeSub) {
+      this.toggleImportModeSub.unsubscribe();
+    }
+  }
+
   /**
-   * Opens the import projects modal
+   * Called by the "Import" button.
+   * Gathers all form data and closes the modal, passing the data back to the parent.
    */
-  openImportProjectModal(repositories) {
-    this.repoList = repositories;
-    this.modalReference = this.modalService.open(this.importProjectModal, { ariaLabelledBy: 'modal-basic-titles' });
+  submitImportData(form: NgForm) {
+    if (!this.file) {
+      this.errorMessage = "Please select a file to import.";
+      return;
+    }
+
+    const targetRepoId = this.isNewProject ? undefined : form.value.selectedProject;
+    const targetProjectName = this.isNewProject ? form.value.projectName : undefined;
+
+    if (!this.isNewProject && !targetRepoId) {
+        this.errorMessage = "Please select a project to import into.";
+        return;
+    }
+    
+    if (this.isNewProject && (!targetProjectName || targetProjectName.trim() === '')) {
+        this.errorMessage = "Please enter a name for the new project.";
+        return;
+    }
+
+    const importData = {
+      file: this.file,
+      repoId: targetRepoId,
+      projectName: targetProjectName,
+      importMode: this.importMode
+    };
+
+    // Close the modal and return 'importData' to the parent's 'afterClosed()' subscription
+    this.dialogRef.close(importData);
+  }
+
+  /**
+   * Called by the "Cancel" button.
+   */
+  onCancel(): void {
+    this.dialogRef.close(); // Closes the modal, returning no data
   }
 
 
-  importTestCases(file, form: NgForm) {
-    this.importingRepoId = form.value.selectedProject;
-    this.managmentService
-      .importProject(file, this.importingRepoId, this.projectName, this.importMode)
-      .subscribe((ret) => {
-        console.log(ret);
-      });
-  }
+  // --- Helper Functions ---
 
   handleFileInput(event: any) {
     const file = event.target.files[0];
-    const maxSizeInBytes = 10485760;
+    const maxSizeInBytes = 10485760; // 10 MB
 
     if (file) {
+      this.file = null; // Reset first
       if (file.size > maxSizeInBytes) {
-        this.errorMessage =
-          "The file is too large. Please select a smaller file.";
+        this.errorMessage = "The file is too large. Please select a smaller file.";
       } else if (!this.isValidFileFormat(file)) {
-        this.errorMessage =
-          "Invalid file format. Please select a valid .zip file.";
+        this.errorMessage = "Invalid file format. Please select a valid .zip file.";
       } else {
         this.errorMessage = null;
-        console.log("Import - RepoID: ", this.importingRepoId);
-        console.log("Import - File name: ", file.name);
-        console.log("Import - File type: ", file.type);
-        console.log("Import - File size: ", file.size, " bytes");
-        console.log(this.projectName);
         this.file = file;
       }
     }
   }
 
-  onSlideToggleChange() {
-    if (this.isNewProject) {
-      delete this.projectName;
-    }
-  }
-
   onImportToggleChange() {
-    console.log(this.importMode ? "We are in the renaming mode" : "We are in the overwriting mode");
+    // This just logs the state of the toggle
+    console.log(this.toggleImportMode.value ? "Import Mode: Rename" : "Import Mode: Overwrite");
   }
 
   searchRepos(form?: NgForm) {
     const matSelectElement = document.getElementById("projectDropDownSelect");
-
     if (matSelectElement && this.searchTerm) {
       matSelectElement.click();
     }
-
     const inputElement = document.querySelector('.searchInputProject') as HTMLInputElement;
-    inputElement.focus();
-
-    this.searchTerm = form.value.searchTerm.trim().toLowerCase();
-    this.searchList = this.repoList.filter(repo => repo.repoName.toLowerCase().includes(this.searchTerm));
-
+    if(inputElement) inputElement.focus();
+    
+    if (form.value.searchTerm) {
+        this.searchTerm = form.value.searchTerm.trim().toLowerCase();
+        this.searchList = this.repoList.filter(repo => repo.repoName.toLowerCase().includes(this.searchTerm));
+    } else {
+        this.searchList = this.repoList; // Show all repos if search is empty
+    }
     return this.searchList;
   }
 
-  onProjectChange(form: NgForm) {
-    this.projectName = form.value.projectName;
-    // console.log("Import - RepoID: ", this.importingRepoId);
-    // console.log("Import - File name: ", this.file.name);
-    // console.log("Import - File type: ", this.file.type);
-    // console.log("Import - File size: ", this.file.size, " bytes");
-  }
-
   isValidFileFormat(file: File): boolean {
-    const validExtensions = ["zip"]; //Später vielleicht noch einzelne .json Files?
-    const validMimeType = ["application/x-zip-compressed"]; //Andere MIME-Types möglich, der sollte aber reichen
-
-    return (
-      validExtensions.includes(this.getFileExtension(file.name)) &&
-      validMimeType.includes(file.type)
-    );
-  }
-
-  /* hasValidContent(file: File): boolean {
-    const zip = new AdmZip(file);
-
-    const zipEntries = zip.getEntries();
-
-    // Schleife durch alle Dateien im ZIP-Archiv
-    zipEntries.forEach((zipEntry) => {
-      // Prüfen, ob die Datei den gewünschten Inhalt enthält
-      const fileContent = zipEntry.getData().toString("utf8");
-
-      const expectedKeywords = [""];
-      console.log("Validating " + zipEntry.entryName);
-      if (zipEntry.entryName === "keyStoryIds") {
-        if (this.isValidAlphanumericArray(zipEntry)) {
-          console.log("KeyStoryIds seem valid!");
-        } else {
-          console.log("Possibly malignant KeyStoryIds!");
-          return false;
-        }
-      }
-
-      if (expectedKeywords.some((keyword) => fileContent.includes(keyword))) {
-        console.log(`The data ${zipEntry.entryName} seems valid.`);
-      } else {
-        console.log(
-          `The uploaded data ${zipEntry.entryName} has the wrong semantics.`
-        );
-        return false;
-      }
-    });
-    return true;
-  }
- */
-  getFileExtension(fileName: string): string {
-    return fileName.split(".").pop();
-  }
-
-  //Für KeyStoryIds
-  isValidAlphanumericArray(content: string): boolean {
-    try {
-      const parsedData = JSON.parse(content);
-
-      // Überprüfen, ob es sich um ein Array handelt
-      if (Array.isArray(parsedData)) {
-        // Überprüfen, ob jedes Element im Array alphanumerisch ist
-        const isAlphanumeric = parsedData.every((item) =>
-          /^[a-zA-Z0-9]+$/.test(item)
-        );
-
-        return isAlphanumeric;
-      }
-    } catch (error) {
-      console.log(error);
+    const validExtensions = ["zip"];
+    const validMimeType = ["application/x-zip-compressed", "application/zip"]; 
+    const fileExt = this.getFileExtension(file.name);
+    
+    // Check MimeType OR file extension
+    if (validMimeType.includes(file.type) || validExtensions.includes(fileExt)) {
+        return true;
     }
-
     return false;
   }
+
+  getFileExtension(fileName: string): string {
+    return fileName.split(".").pop()?.toLowerCase() || '';
+  }
+
+  // Reset error messages on user interaction
+  onSlideToggleChange() { this.errorMessage = null; }
+  onProjectChange() { this.errorMessage = null; }
 }

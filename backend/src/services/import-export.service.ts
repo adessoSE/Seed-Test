@@ -62,12 +62,14 @@ export async function importProject(
     const client = await dbConnector.establishConnection();
     const session = client.startSession();
     const zip = new AdmZip(file.buffer);
-    importMode = importMode === "false" ? false : true;
+    
+    const isRenameMode = (importMode === true || importMode === 'true');
+
     try {
         if (repoId && repoId !== "undefined") {
             // --- Logic for importing into an EXISTING project ---
             await session.withTransaction(async (currentSession) => {
-                await processImport(zip, importMode, repoId, undefined, client, currentSession);
+                await processImport(zip, isRenameMode, repoId, undefined, client, currentSession);
             });
         } else {
             // --- Logic for importing into a NEW project ---
@@ -85,7 +87,7 @@ export async function importProject(
                 await repositoryService.updateRepository(newRepoId, undefined, repoData.settings, repoData.aiConfig);
 
                 // 3. Process the rest of the import (stories, blocks, groups)
-                await processImport(zip, true, newRepoId, projectName, client, currentSession);
+                await processImport(zip, isRenameMode, newRepoId, projectName, client, currentSession);
             });
         }
         return { success: true };
@@ -100,7 +102,7 @@ export async function importProject(
 /**
  * Central orchestrator for the import process. Manages transactions and data mapping.
  */
-async function processImport(zip: AdmZip, importMode: boolean, repoId: string, repoName: string | undefined, client: MongoClient, session: ClientSession) {
+async function processImport(zip: AdmZip, isRenameMode: boolean, repoId: string, repoName: string | undefined, client: MongoClient, session: ClientSession) {
     // --- OPTIMIZATION: Fetch all existing names ONCE ---
     const [existingStories, existingBlocks, existingGroups] = await Promise.all([
         storyService.getAllStoriesOfRepo(repoId),
@@ -125,12 +127,12 @@ async function processImport(zip: AdmZip, importMode: boolean, repoId: string, r
 
         const hasConflict = existingStoryNames.has(storyObject.title);
 
-        if (!importMode && hasConflict) { // OVERWRITE
+        if (!isRenameMode && hasConflict) { // OVERWRITE
             const existingStory = existingStories.find(s => s.title === storyObject.title);
             newStoryId = new ObjectId(existingStory!._id);
             await storyService.updateStory({ ...storyObject, _id: newStoryId }, client, session);
         } else { // RENAME or NO CONFLICT
-            if (importMode && hasConflict) {
+            if (isRenameMode && hasConflict) {
                 storyObject.title = findAvailableName(storyObject.title, existingStoryNames);
             }
             newStoryId = await storyService.createStory(storyObject.title, storyObject.body, repoId, client, session);
@@ -148,14 +150,14 @@ async function processImport(zip: AdmZip, importMode: boolean, repoId: string, r
         blockObject.repository = repoName;
         const hasConflict = existingBlockNames.has(blockObject.name!);
 
-        if (!importMode && hasConflict) { // OVERWRITE
+        if (!isRenameMode && hasConflict) { // OVERWRITE
             const existingBlock = existingBlocks.find(b => b.name === blockObject.name);
-            await blockService.updateBlock(existingBlock!._id, blockObject, session);
+            await blockService.updateBlock(existingBlock!._id, blockObject, session, client);
         } else { // RENAME or NO CONFLICT
-            if (importMode && hasConflict) {
+            if (isRenameMode && hasConflict) {
                 blockObject.name = findAvailableName(blockObject.name!, existingBlockNames);
             }
-            await blockService.saveBlock(blockObject, session);
+            await blockService.saveBlock(blockObject, session, client);
         }
     }
     
@@ -165,11 +167,11 @@ async function processImport(zip: AdmZip, importMode: boolean, repoId: string, r
         groupObject.member_stories = groupObject.member_stories.map(oldId => oldToNewStoryIdMap.get(oldId.toString())!).filter(Boolean);
         const hasConflict = existingGroupNames.has(groupObject.name);
 
-        if (!importMode && hasConflict) { // OVERWRITE
+        if (!isRenameMode && hasConflict) { // OVERWRITE
             const existingGroup = existingGroups.find(g => g.name === groupObject.name);
             await repositoryService.updateStoryGroup(repoId, existingGroup!._id, groupObject, client, session);
         } else { // RENAME or NO CONFLICT
-            if (importMode && hasConflict) {
+            if (isRenameMode && hasConflict) {
                 groupObject.name = findAvailableName(groupObject.name, existingGroupNames);
             }
             await repositoryService.createStoryGroup(repoId, groupObject.name, groupObject.member_stories.map(id => id.toString()), groupObject.isSequential, groupObject.xrayTestSet, client, session);
