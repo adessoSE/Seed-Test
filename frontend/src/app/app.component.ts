@@ -97,7 +97,7 @@ export class AppComponent implements OnInit{
     this.getRepositoriesObservable = this.projectService.getRepositoriesEvent.subscribe(() => this.getRepositories())
     this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
     
-    this.createRepositoryEmitter = this.storyService.createCustomStoryEmitter.subscribe(custom => {
+    this.createRepositoryEmitter = this.projectService.createRepositoryEmitter.subscribe(custom => {
       this.projectService.createRepository(custom.repository.repoName, custom.repository._id).subscribe(_ => {
           this.getRepositories()
         });

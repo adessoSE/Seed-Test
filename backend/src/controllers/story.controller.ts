@@ -97,8 +97,8 @@ export async function createStory(req: Request, res: Response, next: NextFunctio
              res.status(400).json({ error: 'Missing title or invalid repository ID' }); return;
         }
         const dbId = await storyService.createStory(title, description || '', repoId);
-        // Assuming insertStoryIdIntoRepo is now part of repositoryService or called within createStory logic
-        // await repositoryService.insertStoryIdIntoRepo(dbId.toString(), repoId);
+        
+        await repositoryService.insertStoryIdIntoRepo(dbId.toString(), repoId);
         await featureFileService.updateFeatureFile(dbId.toString());
         res.status(200).json({ _id: dbId }); // Return the new story ID
     } catch (error) {

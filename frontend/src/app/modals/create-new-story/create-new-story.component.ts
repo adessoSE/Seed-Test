@@ -64,9 +64,10 @@ export class CreateNewStoryComponent {
       const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
       const repoName = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
-      const source = 'db';
+      const source = 'db';    
       const repositoryContainer: RepositoryContainer = {repoName, source, _id};
       const story = {title, description};
+      
       this.storyService.createCustomStoryEvent({repositoryContainer, story});
     }
     this.storyForm.reset({storyTitle:'', storyDescription:''});
