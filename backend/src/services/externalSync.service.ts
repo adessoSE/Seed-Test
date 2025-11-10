@@ -359,18 +359,51 @@ export async function matchStoryOrder(
     const dbStoryIds = (repoDoc.stories || []).map((s: ObjectId) => s.toString());
     const fetchedStoryIds = storiesIdList.map(s => s.toString());
     
-    const existingOrder = dbStoryIds.filter((id: string) => storiesMap.has(id));
-    const newStories = fetchedStoryIds.filter((id: string) => !dbStoryIds.includes(id));
-    
-    const finalStoryIdList = [...existingOrder, ...newStories];
+    // 1. Find story IDs that are in the repo, but were NOT fetched in this sync
+    const missingDbStoryIds = dbStoryIds.filter((id: string) => !storiesMap.has(id));
 
-    if (newStories.length > 0 && repoDoc?._id) {
+    // 2. Load these "missing" stories from the database to ensure the list is complete
+    if (missingDbStoryIds.length > 0) {
+        console.log(`Loading ${missingDbStoryIds.length} existing stories from DB that were not in the JQL sync...`);
+        
+        // Load missing stories (assuming story.service.ts has getOneStory)
+        // A 'getStoriesByIds' would be more efficient, but this is safer
+        const missingStories = await Promise.all(
+            missingDbStoryIds.map(id => storyService.getOneStory(id))
+        );
+        
+        // Add them to the storiesMap so they aren't lost
+        missingStories.filter(Boolean).forEach((story: Story) => {
+            if (story) { // Check if story was found
+                storiesMap.set(story._id.toString(), story);
+            } else {
+                console.warn(`Failed to load story from DB with ID, it might be orphaned.`);
+            }
+        });
+    }
+
+    // 3. Determine the final list of story IDs
+    // We take all stories now known (from repo)
+    // and add any truly new stories (fetched but not in repo)
+    const newStoryIds = fetchedStoryIds.filter((id: string) => !dbStoryIds.includes(id));
+    
+    // The final order: all stories that were in the repo, plus new ones
+    const finalStoryIdList = [...dbStoryIds, ...newStoryIds];
+
+    // 4. Update the repo's story array if new stories were added
+    if (newStoryIds.length > 0 && repoDoc?._id) {
+         // Filter final list to only include stories that actually exist
+         const validFinalIdList = finalStoryIdList.filter(id => storiesMap.has(id));
+         
          // Update the repo in the background, don't await
-         repositoryService.updateStoriesArrayInRepo(repoDoc._id.toString(), finalStoryIdList)
+         repositoryService.updateStoriesArrayInRepo(repoDoc._id.toString(), validFinalIdList)
             .catch(err => console.error("Failed to update story order in repo:", err));
     }
 
-    return finalStoryIdList.map((id: string) => storiesMap.get(id)!).filter(Boolean);
+    // 5. Return the complete list, mapped from the now-complete storiesMap
+    return finalStoryIdList
+        .map((id: string) => storiesMap.get(id)!) // Map all valid IDs
+        .filter(Boolean); // Filter out any that were truly missing or orphaned
 };
 
 

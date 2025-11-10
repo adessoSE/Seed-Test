@@ -329,49 +329,56 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     mergeById(groups, stories) {
         // 1. Create a Map of all valid, existing stories
         const storyMap = new Map();
-        if (stories) { // Safety check
+        if (stories) {
             for (const story of stories) {
-                if (story) { // Ensure story object itself is not null
-                   storyMap.set(story._id, story);
+                if (story && story._id) {
+                   storyMap.set(story._id.toString(), story);
                 }
             }
         } else {
-            console.error("mergeById called with no stories. Returning empty groups.");
-            return groups; // Return groups as-is if stories are missing
+            console.warn("mergeById called with no stories.");
+            return groups; // Return original groups
         }
 
-        if (!groups) { return []; } // Safety check
+        if (!groups) { return []; }
 
-        // 2. Create a new, clean list of groups
-        const groupStories = [];
+        // 2. Mutate the 'member_stories' of each group "in-place"
+        //    This preserves the object references, which the
+        //    'liGroupList' (for accordion state) depends on.
         for (const group of groups) {
             
-            // Clone the group to avoid data mutation
-            const tmpGroup = { ...group }; 
+            const safeMemberStories = []; // Build a new list for this group
+            if (group.member_stories) {
+                for (const storyRef of group.member_stories) {
+                    
+                    let id: string;
+                    if (!storyRef) continue; // Skip null/undefined
+                    
+                    if (typeof storyRef === 'string') {
+                        id = storyRef;
+                    } else if (storyRef._id) {
+                        id = storyRef._id.toString();
+                    } else {
+                        id = storyRef.toString(); // Handle ObjectIds
+                    }
 
-            // 3. Safely rebuild the member_stories array
-            tmpGroup.member_stories = []; // Start with a clean list
+                    const fullStory = storyMap.get(id);
 
-            for (const storyRef of group.member_stories) {
-                // 'storyRef' could be just an ID (string) or a partial object {_id: ...}
-                const id = (typeof storyRef === 'string') ? storyRef : storyRef._id;
-
-                // 4. Find the full story object from the main list
-                const fullStory = storyMap.get(id);
-
-                if (fullStory) {
-                    // 5. SUCCESS: Story exists! Add the full object.
-                    tmpGroup.member_stories.push(fullStory);
-                } else {
-                    // 6. GHOST: Story is in a group but not in the main list.
-                    // Skip it, just as you suggested.
-                    console.warn(`Story ID ${id} in group '${group.name}' not found. Skipping.`);
+                    if (fullStory) {
+                        safeMemberStories.push(fullStory); // Add the full story object
+                    } else {
+                        // This is a "Ghost Story"
+                        console.warn(`Story ID ${id} in group '${group.name}' not found. Skipping.`);
+                    }
                 }
             }
             
-            groupStories.push(tmpGroup);
+            // 3. Replace the old list with the new, safe list *on the original object*
+            group.member_stories = safeMemberStories;
         }
-        return groupStories;
+        
+        // 4. Return the groups array.
+        return groups;
     }
 
     /**

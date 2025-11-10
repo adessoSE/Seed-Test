@@ -91,6 +91,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   @Input()
   set newSelectedStory(story: Story) {
+    console.log("Wir selecten diese Story hier:", story);
     this.selectedStory = story;
     this.initializeIsExampleForStory(this.selectedStory);
     this.isReviewingAi = false;
@@ -992,24 +993,33 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   selectScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
-    if (scenario) this.showEditor = true;
-    else this.showEditor = false;
-    this.testDone = false;
+    if (scenario) {
+      this.showEditor = true;
+      
+      this.emulator_enabled =
+        scenario.emulator ?? this.repoSettings?.emulator ?? false;
+      
+      if (this.emulator_enabled) {
+        this.selectedScenario.emulator =
+          scenario.emulator ?? this.repoSettings?.emulator ?? "No emulator";
+      }
 
-    this.emulator_enabled =
-      scenario.emulator ?? this.repoSettings?.emulator ?? false;
-    if (this.emulator_enabled) {
-      this.selectedScenario.emulator =
-        scenario.emulator ?? this.repoSettings?.emulator ?? "No emulator";
+      this.selectedScenario.stepWaitTime =
+        scenario.stepWaitTime ?? this.repoSettings?.stepWaitTime ?? 0;
+      this.selectedScenario.browser =
+        scenario.browser ?? this.repoSettings?.browser ?? "chromium";
+      this.selectedScenario.width =
+        scenario.width ?? this.repoSettings?.width ?? 1920;
+      this.selectedScenario.height =
+        scenario.height ?? this.repoSettings?.height ?? 1080;
+    
+    } else {
+      // This is the path for when scenario is null
+      this.showEditor = false;
+      
+      // Default to repo settings if no scenario is selected
+      this.emulator_enabled = this.repoSettings?.emulator ?? false;
     }
-    this.selectedScenario.stepWaitTime =
-      scenario.stepWaitTime ?? this.repoSettings?.stepWaitTime ?? 0;
-    this.selectedScenario.browser =
-      scenario.browser ?? this.repoSettings?.browser ?? "chromium";
-    this.selectedScenario.width =
-      scenario.width ?? this.repoSettings?.width ?? 1920;
-    this.selectedScenario.height =
-      scenario.height ?? this.repoSettings?.height ?? 1080;
   }
 
   /**
