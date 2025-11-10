@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId, Binary } from 'mongodb';
 import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import * as userService from './user.service'; // To fetch/update the user document
 import { User } from '@shared/models/User';
@@ -8,6 +8,25 @@ const cryptoAlgorithm = 'aes-256-ccm';
 const jiraSecret = process.env.JIRA_SECRET || "anotherUnsaveSecret";
 const jiraSalt = process.env.JIRA_SALT || "9bNyV23AbaC7";
 const key = scryptSync(jiraSecret, jiraSalt, 32);
+
+/**
+ * Represents the BSON format for binary data
+ * (often seen in manual queries or stringified output).
+ */
+type BsonBinary = {
+  $binary: {
+    base64: string;
+    subType: string;
+  }
+};
+
+/**
+ * Defines the possible input types for the encrypted data, which can be:
+ * 1. A raw Buffer.
+ * 2. A BSON object (from stringify/parse).
+ * 3. A Binary object (directly from the mongodb 6.x+ driver).
+ */
+type CipherInput = Buffer | BsonBinary | Binary;
 
 // --- Jira Credential Encryption/Decryption (Specific to this service) ---
 
@@ -20,14 +39,15 @@ function jiraEncryptPassword(pass: string): { ciphertext: Buffer, nonce: Buffer,
 }
 
 export function jiraDecryptPassword(
-    ciphertext: { $binary: { base64: string, subType: string } } | Buffer,
-    nonce: { $binary: { base64: string, subType: string } } | Buffer,
-    tag: { $binary: { base64: string, subType: string } } | Buffer
+    ciphertext: CipherInput,
+    nonce: CipherInput,
+    tag: CipherInput
 ): string {
-    // Ensure inputs are Buffers
-    const cipherBuffer = Buffer.isBuffer(ciphertext) ? ciphertext : Buffer.from(ciphertext.$binary.base64, 'base64');
-    const nonceBuffer = Buffer.isBuffer(nonce) ? nonce : Buffer.from(nonce.$binary.base64, 'base64');
-    const tagBuffer = Buffer.isBuffer(tag) ? tag : Buffer.from(tag.$binary.base64, 'base64');
+    
+    // Ensure all inputs are Buffers using the helper
+    const cipherBuffer = toBuffer(ciphertext);
+    const nonceBuffer = toBuffer(nonce);
+    const tagBuffer = toBuffer(tag);
 
     try {
         const decipher = createDecipheriv(cryptoAlgorithm, key, nonceBuffer, { authTagLength: 16 });
@@ -135,4 +155,34 @@ export function checkValidGithubFormat(userName?: string, repoName?: string): bo
     const githubUsernameCheck = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
     const githubReponameCheck = /^([a-z\d._-]){0,100}$/i;
     return !!(githubUsernameCheck.test(userName) && githubReponameCheck.test(repoName));
+}
+
+// --- Helper functions ---
+/**
+ * Helper function to safely convert any supported crypto input type into a Buffer.
+ * @param input The data to convert.
+ * @returns A Buffer instance.
+ */
+function toBuffer(input: CipherInput): Buffer {
+    // Priority 1: Already a Buffer
+    if (Buffer.isBuffer(input)) {
+        return input;
+    }
+    
+    // Priority 2: MongoDB v6+ Binary type (has a .buffer property)
+    // We check for 'instanceof' for robustness.
+    if (input instanceof Binary) {
+        // input.buffer is a standard Uint8Array. We must convert it to a full Node.js Buffer
+        return Buffer.from(input.buffer);
+    }
+
+    // Priority 3: BSON object structure (e.g., from logs or older drivers)
+    // Check if input is a plain object and has the $binary key
+    if (typeof input === 'object' && input !== null && (input as BsonBinary).$binary) {
+        return Buffer.from((input as BsonBinary).$binary.base64, 'base64');
+    }
+
+    // Fallback/Error
+    console.error('Failed to convert crypto input to Buffer. Input type:', typeof input);
+    throw new Error('Invalid crypto input type: unable to convert to Buffer.');
 }

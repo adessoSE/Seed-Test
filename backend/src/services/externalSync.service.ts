@@ -220,6 +220,7 @@ async function execRepositoryRequests(link: string, user: string, password: stri
  * @returns A promise resolving to an array of synchronized stories.
  */
 export async function getStoriesFromSource(user: User, query: { [key: string]: string }): Promise<Story[]> {
+    console.log("We are in getStoriesFromSource", user, query)
     const { source, githubName, repository, projectKey, id } = query;
     
     const tmpStories = new Map<string, Story>();
@@ -242,6 +243,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
         if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
         
         const issues = await response.json();
+        console.log(issues)
         for (const issue of issues) {
             const story: Partial<Story> = {
                 story_id: issue.id,
@@ -309,7 +311,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
                     .filter(Boolean);
 
                 const story: Partial<Story> = {
-                    story_id: issue.id,
+                    story_id: parseInt(issue.id, 10),
                     title: issue.fields.summary,
                     body: (issue.fields.description || '') + testStepDescription,
                     scenarios: scenarioList as Scenario[],
@@ -329,7 +331,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
         const processedStories = (await Promise.all(storyPromises)).filter(Boolean) as Story[];
         
         // Update Test Sets in the background
-        updateTestSets(testSets, repo._id.toString());
+        await updateTestSets(testSets, repo._id.toString());
         
         for (const story of processedStories) {
             const entry = await fuseStoryWithDb(story);
@@ -427,41 +429,58 @@ async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
     // Update feature file
     await featureFileService.writeFile(finalStory);
     
-    return finalStory;
+    return finalStory as Story;
 }
 
 /**
- * Merges scenarios from Jira into an existing DB story structure.
+ * Merges a fresh story from Jira into an existing DB story structure.
+ * This ensures external data (title, body, state) is updated,
+ * while scenarios are merged intelligently.
  */
 function mergeStories(dbStory: Story, jiraStory: Story): any {
-  const mergedStory: any = { ...dbStory };
-  const dbScenarios = dbStory.scenarios || [];
-  const jiraScenarios = jiraStory.scenarios || [];
-  const dbScenarioMap = new Map(dbScenarios.map(scenario => [scenario.scenario_id, scenario]));
-  const mergedScenarios: any[] = [];
+    // Start with the DB story (to keep _id, background, lastTestPassed etc.)
+    const mergedStory: any = { ...dbStory };
 
-  // Iterate through Jira scenarios, update existing or add new
-  jiraScenarios.forEach(jiraScenario => {
-      const dbScenario = dbScenarioMap.get(jiraScenario.scenario_id);
-      if (dbScenario) {
-          // Merge existing scenari
-          mergedScenarios.push({
-              ...dbScenario, 
-              name: jiraScenario.name, 
-              stepDefinitions: mergeStepDefinitions(dbScenario.stepDefinitions, jiraScenario.stepDefinitions),
-              testRunSteps: mergeTestRunSteps(dbScenario.testRunSteps, jiraScenario.testRunSteps),
-              testKey: jiraScenario.testKey 
-          });
-          dbScenarioMap.delete(jiraScenario.scenario_id); // Mark as processed
-      } else {
-          // Add new scenario from Jira
-          mergedScenarios.push(jiraScenario);
-      }
-  });
+    mergedStory.title = jiraStory.title;
+    mergedStory.body = jiraStory.body;
+    mergedStory.state = jiraStory.state;
+    mergedStory.issue_number = jiraStory.issue_number;
+    mergedStory.storySource = jiraStory.storySource;
+    mergedStory.host = jiraStory.host;
+    mergedStory.preConditions = jiraStory.preConditions;
+    mergedStory.assignee = jiraStory.assignee;
+    mergedStory.assignee_avatar_url = jiraStory.assignee_avatar_url;
 
-  mergedScenarios.push(...Array.from(dbScenarioMap.values()));
-  mergedStory.scenarios = mergedScenarios;
-  return mergedStory;
+    // Now, perform the existing scenario merge logic
+    const dbScenarios = dbStory.scenarios || [];
+    const jiraScenarios = jiraStory.scenarios || [];
+    const dbScenarioMap = new Map(dbScenarios.map(scenario => [scenario.scenario_id, scenario]));
+    const mergedScenarios: any[] = [];
+
+    // Iterate through Jira scenarios, update existing or add new
+    jiraScenarios.forEach(jiraScenario => {
+        const dbScenario = dbScenarioMap.get(jiraScenario.scenario_id);
+        if (dbScenario) {
+            // Merge existing scenario
+            mergedScenarios.push({
+                ...dbScenario, 
+                name: jiraScenario.name, // Ensure scenario name is also updated
+                stepDefinitions: mergeStepDefinitions(dbScenario.stepDefinitions, jiraScenario.stepDefinitions),
+                testRunSteps: mergeTestRunSteps(dbScenario.testRunSteps, jiraScenario.testRunSteps),
+                testKey: jiraScenario.testKey 
+            });
+            dbScenarioMap.delete(jiraScenario.scenario_id); // Mark as processed
+        } else {
+            // Add new scenario from Jira
+            mergedScenarios.push(jiraScenario);
+        }
+    });
+
+    // Add any remaining DB-only scenarios
+    mergedScenarios.push(...Array.from(dbScenarioMap.values()));
+    
+    mergedStory.scenarios = mergedScenarios;
+    return mergedStory;
 }
 
 /**
@@ -550,27 +569,42 @@ function mergeTestRunSteps(dbTestRunSteps: any, jiraTestRunSteps: any): any {
 export async function updateTestSets(testSets: any[], repo_id: string): Promise<void> {
 	for (const testSet of testSets) {
 		try {
-			const storyIds = await storyService.getStoriesByIssueKeys(testSet.tests); 
-
-			if (storyIds.length === 0) {
-				console.log(`No stories found for Test Set ${testSet.testSetKey}. Skipping group creation.`);
-				continue;
-			}
-
+            // 1. Get the repository *first*
 			const repository = await repositoryService.getOneRepositoryById(repo_id); 
             if (!repository) {
                  console.warn(`Repository ${repo_id} not found. Skipping Test Set update for ${testSet.testSetKey}.`);
                  continue;
             }
-
+            
+            // 2. Find the existing group
 			let existingGroup = repository.groups.find(group => group.name === testSet.testSetKey);
 
+            // 3. Get the list of valid story IDs for this set
+			const storyIds = await storyService.getStoriesByIssueKeys(testSet.tests); 
+
+            // 4. Handle the case where the Test Set is now EMPTY
+			if (storyIds.length === 0) {
+				if (existingGroup) {
+                    // The Test Set is empty, but a group with old stories exists.
+                    // We MUST update it to be empty.
+                    console.log(`Test Set ${testSet.testSetKey} is empty. Clearing member stories from existing group.`);
+                    const updatedGroup = { ...existingGroup, member_stories: [] }; // Empty the array
+                    await repositoryService.updateStoryGroup(repo_id, existingGroup._id.toString(), updatedGroup);
+                } else {
+                    // The Test Set is empty and no group exists. Do nothing.
+                    console.log(`No stories found for Test Set ${testSet.testSetKey}. Skipping group creation.`);
+                }
+                continue; // Move to the next test set
+			}
+
+            // 5. Handle the case where the Test Set has stories
 			if (existingGroup) {
-                // Map string IDs to ObjectIds for storage
+                // Group exists, update it with the fresh list of IDs
                 const updatedGroup = { ...existingGroup, member_stories: storyIds.map(id => new ObjectId(id)) }; 
                 await repositoryService.updateStoryGroup(repo_id, existingGroup._id.toString(), updatedGroup); 
                 console.log(`Updated group for Test Set: ${testSet.testSetKey}`);
             } else {
+                // Group does not exist, create it
                 await repositoryService.createStoryGroup( 
                     repo_id,
                     testSet.testSetKey,

@@ -327,23 +327,48 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     mergeById(groups, stories) {
-        const myMap = new Map;
-        for (const story of stories) {
-            myMap.set(story._id, story);
-        }
-
-        const groupStories = [];
-        for (const group of groups) {
-            const tmpGroup = group;
-            for (const index in group.member_stories) {
-                if (!group.member_stories[index].title) {
-                    tmpGroup.member_stories[index] = {
-                        '_id': group.member_stories[index],
-                        'title': myMap.get(group.member_stories[index]).title,
-                        'issue_number': myMap.get(group.member_stories[index]).issue_number
-                    };
+        // 1. Create a Map of all valid, existing stories
+        const storyMap = new Map();
+        if (stories) { // Safety check
+            for (const story of stories) {
+                if (story) { // Ensure story object itself is not null
+                   storyMap.set(story._id, story);
                 }
             }
+        } else {
+            console.error("mergeById called with no stories. Returning empty groups.");
+            return groups; // Return groups as-is if stories are missing
+        }
+
+        if (!groups) { return []; } // Safety check
+
+        // 2. Create a new, clean list of groups
+        const groupStories = [];
+        for (const group of groups) {
+            
+            // Clone the group to avoid data mutation
+            const tmpGroup = { ...group }; 
+
+            // 3. Safely rebuild the member_stories array
+            tmpGroup.member_stories = []; // Start with a clean list
+
+            for (const storyRef of group.member_stories) {
+                // 'storyRef' could be just an ID (string) or a partial object {_id: ...}
+                const id = (typeof storyRef === 'string') ? storyRef : storyRef._id;
+
+                // 4. Find the full story object from the main list
+                const fullStory = storyMap.get(id);
+
+                if (fullStory) {
+                    // 5. SUCCESS: Story exists! Add the full object.
+                    tmpGroup.member_stories.push(fullStory);
+                } else {
+                    // 6. GHOST: Story is in a group but not in the main list.
+                    // Skip it, just as you suggested.
+                    console.warn(`Story ID ${id} in group '${group.name}' not found. Skipping.`);
+                }
+            }
+            
             groupStories.push(tmpGroup);
         }
         return groupStories;

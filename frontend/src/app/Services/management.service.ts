@@ -25,7 +25,7 @@ export class ManagementService {
   createJiraAccount(request) {
     return this.http
       .post<any>(
-        this.apiService.apiServer + "/jira/user/create/",
+        this.apiService.apiServer + "/jira/link/",
         request,
         ApiService.getOptions()
       )
@@ -39,7 +39,7 @@ export class ManagementService {
   disconnectJiraAccount() {
     return this.http
       .delete<any>(
-        this.apiService.apiServer + "/jira/user/disconnect/",
+        this.apiService.apiServer + "/jira/disconnect/",
         ApiService.getOptions()
       )
       .pipe(tap());
