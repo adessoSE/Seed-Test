@@ -69,7 +69,6 @@ async function checkAndInstallGeneralBrowsers() {
 	}
 }
 
-
 checkAndInstallGeneralBrowsers();
 checkAndInstallEdge();
 
@@ -147,6 +146,9 @@ app
 			res.status(500)
 				.json({ error });
 		}
+	})
+	.get('/api/health', (_, res) => {
+		res.status(200).send('OK');
 	})
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });

@@ -86,34 +86,33 @@ After(async function (scenario) {
 	}
 	console.log(`Finished Scenario ${scenarioCount + 1}/${totalScenarios}`);
 
+	// Browser immer schließen, unabhängig vom Ergebnis
 	if (
 		!this.parameters.scenarios[scenarioCount].oneDriver
 		|| scenarioCount === totalScenarios - 1
-	) {
-	// Browser immer schließen, unabhängig vom Ergebnis
-		try {
-			await this.closeBrowser();
-		} catch (e) {
-			console.error('Failed to close browser:', e);
-			// Notfall-Schließung
-			if (driver) try {
-				await driver.quit();
-			} catch (e2) {
-				console.error('Emergency browser close failed:', e2);
-			}
+	) try { 
+		await this.closeBrowser();
+	} catch (e) {
+		console.error('Failed to close browser:', e);
+		// Notfall-Schließung
+		if (driver) try {
+			await driver.quit();
+		} catch (e2) {
+			console.error('Emergency browser close failed:', e2);
 		}
+	}
 
-		// Counter erhöhen oder zurücksetzen
-		if (scenarioCount === totalScenarios - 1) {
-			scenarioCount = 0;
-			totalScenarios = 0;
-			console.log('We reset the scenario count!');
-			// process.env.CUCUMBER_TOTAL_WORKERS = undefined;
-			// process.env.CUCUMBER_WORKER_ID = undefined;
-
-			// WICHTIG: Statische Variablen zurücksetzen (OneDriver)
-			SeleniumWebdriverWorld.sharedInstances.driver = null;
-		}
+	// Counter erhöhen oder zurücksetzen
+	if (scenarioCount === totalScenarios - 1) {
+		scenarioCount = 0;
+		totalScenarios = 0;
+		console.log(
+			'We are resetting the scenario count!',
+			scenarioCount,
+			totalScenarios
+		);
+		process.env.CUCUMBER_TOTAL_WORKERS = undefined;
+		process.env.CUCUMBER_WORKER_ID = undefined;
 	} else scenarioCount++;
 });
 

@@ -1,5 +1,5 @@
-import { DOCUMENT } from '@angular/common';
-import { Injectable, EventEmitter, Output, Renderer2, Inject, RendererFactory2} from '@angular/core';
+
+import { Injectable, EventEmitter, Output, Renderer2, Inject, RendererFactory2, DOCUMENT } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
 @Injectable({

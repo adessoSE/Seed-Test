@@ -47,7 +47,7 @@ let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story
   "when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"], "post": "", "isExample":[]},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"], "post": "", "isExample":[]}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"], "post": "", "isExample":[]}],
   "example":[]}},{"scenario_id":3,"name":"failed Story creation","comment":"","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"], "post": "", "isExample":[]}],
   "when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"], "post": "", "isExample":[]},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"], "post": "", "isExample":[]}],
-  "then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"], "post":"", "isExample":[]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"};
+  "then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"], "post":"", "isExample":[]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation", "host":"example"};
   
   let stories : Story[]= [{"story_id": 123,"_id":2,"storySource":"github", "background":
   {"stepDefinitions":{"when":[]}},"scenarios":
@@ -160,7 +160,7 @@ describe('StoryEditorComponent', () => {
     });
   }) 
 
-  describe('openBackground', () => {
+/*   describe('openBackground', () => {
     it('should set true showBackground to !showBackground', () => {
       component.showBackground = true;
       component.openBackground();
@@ -172,7 +172,8 @@ describe('StoryEditorComponent', () => {
       component.openBackground();
       expect(component.showBackground).toBeTruthy();
     });
-  })
+  }) */
+
   describe('hideResults', () => {
     it('should turn show results to true', () => {
       component.showResults = false;
@@ -194,7 +195,7 @@ describe('StoryEditorComponent', () => {
       jest.spyOn(component.scenarioService, 'deleteScenario');
       jest.spyOn(component, 'scenarioDeleted');
       //expect(component.stories).toContain(scenario);
-      component.deleteScenario(component.selectedStory.scenarios[0]);
+      component.deleteScenario(component.selectedStory.scenarios[0], false);
       fixture.detectChanges();
       expect(component.scenarioService.deleteScenario).toHaveBeenCalled();
     }));

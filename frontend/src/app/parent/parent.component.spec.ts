@@ -12,7 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 
 const story:Story = {_id: 1, issue_number: 36523, story_id: 37727, storySource: 'github', 
       background: undefined, scenarios: [], oneDriver: true, title: 'test story', body: '',
-      state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false};
+      state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false, host: 'my-test-host'};
 
 const scenario: Scenario = {scenario_id: 3, name: 'my scenario', stepDefinitions: undefined, 
       comment: 'i leave a few words here', lastTestPassed: false, saved: true,

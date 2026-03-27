@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [20, 22, 24]
 
     steps:
       - name: Checkout code
@@ -21,32 +21,29 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Create .env file backend
-        run: |
-          echo "DATABASE_URI=${{secrets.DB_URI}}" > backend/.env
-          echo "EMAIL_AUTH=${{secrets.EMAIL_AUTH}}" >> backend/.env
-          echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> backend/.env
-          echo "EMAIL_PORT=${{secrets.EMAIL_PORT}}" >> backend/.env
-          echo "EMAIL_HOST=${{secrets.EMAIL_HOST}}" >> backend/.env
-          echo "FRONTEND_URL=${{secrets.FRONTEND_URL}}" >> backend/.env
-          echo "GITHUB_CLIENT_SECRET=${{secrets.G_CLIENT_SECRET}}" >> backend/.env
-          echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> backend/.env
-          echo "PASSPORT_GITHUB_LOCAL_PW_FIELD=${{secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD}}" >> backend/.env
-
-      - name: Create .env file frontend
-        run: |
-          echo "API_SERVER=${{secrets.API_SERVER}}" > frontend/.env
-          echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> frontend/.env
-          echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
-          echo "VERSION=SET" >> frontend/.env
-
       - name: Build and start Docker stack
         env:
+          # Backend Variables
+          DB_URI_FROM_WORKFLOW: ${{ secrets.DB_URI_TEST }}
+          EMAIL_AUTH_FROM_WORKFLOW: ${{ secrets.EMAIL_AUTH }}
+          EMAIL_PW_FROM_WORKFLOW: ${{ secrets.EMAIL_PW }}
+          EMAIL_PORT_FROM_WORKFLOW: ${{ secrets.EMAIL_PORT }}
+          EMAIL_HOST_FROM_WORKFLOW: ${{ secrets.EMAIL_HOST }}
+          FRONTEND_URL_FROM_WORKFLOW: ${{ secrets.FRONTEND_URL }}
+          G_CLIENT_SECRET_FROM_WORKFLOW: ${{ secrets.G_CLIENT_SECRET }}
+          PASSPORT_GITHUB_LOCAL_PW_FIELD_FROM_WORKFLOW: ${{ secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD }}
+
+          # Frontend Variables
+          API_SERVER_FROM_WORKFLOW: ${{ secrets.API_SERVER }}
+          G_CLIENT_ID_FROM_WORKFLOW: ${{ secrets.G_CLIENT_ID }}
+          VERSION_FROM_WORKFLOW: "SET"
+
+          # Build-Argument
           NODE_VERSION: ${{ matrix.node-version }}
         run: |
           docker compose -f docker-test.yml build \
-            --build-arg NODE_VERSION=$NODE_VERSION 
-          docker compose -f docker-test.yml up -d
+            --build-arg NODE_VERSION=$NODE_VERSION
+          docker compose -f docker-test.yml up -d --wait
           
 
       - name: Send failure notification
@@ -61,10 +58,7 @@ jobs:
           description: ${{ github.event.pull_request.body }}
           dockerStatus: "failed"
           workflowLink: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-
-      - name: Wait for 1/2 minute
-        run: sleep 30
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI_TEST }}
 
       # Execute npm test in the backend container
       - name: Run npm test backend
@@ -135,10 +129,18 @@ jobs:
       # SANITY CHECK
       - name: Send sanity POST request and store response
         env:
-          API_URL: localhost:8080/api/sanity/test/${{ secrets.SANITY_REPO_ID }}/${{ secrets.SANITY_GROUP_ID }}
+          # Lade die Secrets sicher in die Umgebung
+          SEED_EMAIL: ${{ secrets.SEED_EMAIL }}
+          SEED_PW: ${{ secrets.SEED_PW }}
+          SANITY_REPO_ID: ${{ secrets.SANITY_REPO_ID }}
+          SANITY_GROUP_ID: ${{ secrets.SANITY_GROUP_ID }}
         run: |
-          curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
-
+          docker exec \
+            -e SEED_EMAIL \
+            -e SEED_PW \
+            -e SANITY_REPO_ID \
+            -e SANITY_GROUP_ID \
+            Seed-backend /bin/sh -c 'curl -X POST -H "Content-Type: application/json" -d "{\"email\": \"$SEED_EMAIL\", \"password\": \"$SEED_PW\", \"stayLoggedIn\": true, \"repository\": \"Seed-Test\", \"source\": \"db\"}" http://localhost:8080/api/sanity/test/$SANITY_REPO_ID/$SANITY_GROUP_ID' > sanityReport.txt
       - name: print sanity
         run: |
           echo $(cat sanityReport.txt)
@@ -166,6 +168,10 @@ jobs:
           name: sanity-report-${{ matrix.node-version }}
           path: |
             sanityReport.txt
+
+      - name: Show backend container logs
+        run: docker logs Seed-backend
+        if: ${{ failure() }}
 
       # SEND FULL REPORT
       - name: Send Teams Message
@@ -195,4 +201,4 @@ jobs:
           sanityStepsFailed: ${{ steps.passed-total-sanity.outputs.failedSteps }}
           sanityStepsSkipped: ${{ steps.passed-total-sanity.outputs.skippedSteps }}
           workflowLink: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI_TEST }}

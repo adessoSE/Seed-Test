@@ -79,5 +79,5 @@ export interface Story {
     /*
     * Host
     */
-    host: string;
+    host?: string;
 }   

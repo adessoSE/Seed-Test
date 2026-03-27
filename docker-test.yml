@@ -1,6 +1,17 @@
-version: "2.12"
-
 services:
+  db:
+    image: mongo:latest
+    container_name: "Seed-db"
+    restart: on-failure
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: SeedAdmin
+      MONGO_INITDB_ROOT_PASSWORD: SeedTest
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -10,22 +21,42 @@ services:
     ports:
       - 8080:8080
     container_name: "Seed-backend"
-    restart: always
+    restart: on-failure
+    environment:
+      DATABASE_URI: ${DB_URI_FROM_WORKFLOW}
+      EMAIL_AUTH: ${EMAIL_AUTH_FROM_WORKFLOW}
+      EMAIL_PW: ${EMAIL_PW_FROM_WORKFLOW}
+      EMAIL_PORT: ${EMAIL_PORT_FROM_WORKFLOW}
+      EMAIL_HOST: ${EMAIL_HOST_FROM_WORKFLOW}
+      FRONTEND_URL: ${FRONTEND_URL_FROM_WORKFLOW}
+      GITHUB_CLIENT_SECRET: ${G_CLIENT_SECRET_FROM_WORKFLOW}
+      GITHUB_CLIENT_ID: ${G_CLIENT_ID_FROM_WORKFLOW}
+      PASSPORT_GITHUB_LOCAL_PW_FIELD: ${PASSPORT_GITHUB_LOCAL_PW_FIELD_FROM_WORKFLOW}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
 
   frontend:
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION}
-    image: seed-test-frontend:latest
     ports:
       - 4200:4200
     container_name: "Seed-frontend"
-    depends_on:
-      - backend
+    restart: on-failure
     environment:
-      - BACKEND_HOST=localhost # might need to be changed to backend
-      - BACKEND_PORT=8080
-      - API_SERVER="http://localhost:8080/api"
-    restart: always
+      API_SERVER: ${API_SERVER_FROM_WORKFLOW}
+      GITHUB_CLIENT_ID: ${G_CLIENT_ID_FROM_WORKFLOW}
+      EMAIL_PW: ${EMAIL_PW_FROM_WORKFLOW}
+      VERSION: ${VERSION_FROM_WORKFLOW}
+    depends_on:
+      backend:
+        condition: service_healthy
