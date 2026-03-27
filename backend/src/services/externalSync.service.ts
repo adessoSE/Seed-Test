@@ -313,11 +313,12 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
                 const story: Partial<Story> = {
                     story_id: parseInt(issue.id, 10),
                     title: issue.fields.summary,
-                    body: (issue.fields.description || '') + testStepDescription,
+                    body: (issue.fields.description || ''),
                     scenarios: scenarioList as Scenario[],
                     state: issue.fields.status.name,
                     issue_number: issue.key,
                     storySource: 'jira',
+                    sourceSteps: testStepDescription,
                     host: Host,
                     preConditions: finalPreConditions,
                     assignee: issue.fields.assignee?.name || 'unassigned',

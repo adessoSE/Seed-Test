@@ -117,7 +117,7 @@ async function processTestSteps(steps: any[], resolvedTestRuns: any[], issueKey:
 
         const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
         stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
-        stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
+        stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not step used\n');
         stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
         testStepDescription += stepInfo.join('');
 

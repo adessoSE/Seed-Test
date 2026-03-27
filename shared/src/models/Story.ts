@@ -47,6 +47,11 @@ export interface Story {
      */
     body: string;
 
+    /**
+     * Xray (or equal solution) steps of the story
+     */
+    sourceSteps?: string;
+
     repo_type: string;
 
     /**
