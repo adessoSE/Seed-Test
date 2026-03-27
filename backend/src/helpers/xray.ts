@@ -38,7 +38,7 @@ async function handleTestIssue(issue, options, Host) {
 function processTestSteps(steps, resolvedTestRuns, issueKey) {
     const scenarioList = [];
 
-    let testStepDescription = '\n\nTest-Steps:\n';
+    let testStepDescription = 'Test-Steps:\n';
 
     // Iterate through steps and add step description
     steps.forEach((step) => {
@@ -58,7 +58,7 @@ function processTestSteps(steps, resolvedTestRuns, issueKey) {
         // Create scenario object
         const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
         stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
-        stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not steps used\n');
+        stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): No steps used\n');
         stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
         testStepDescription += stepInfo.join('');
 

@@ -167,6 +167,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   showDescription = false;
 
   /**
+  * if the Source Steps Panel is open.
+  */
+  showSourceSteps = false;
+
+  /**
    * If the background should be shown
    */
   showBackground = false;
