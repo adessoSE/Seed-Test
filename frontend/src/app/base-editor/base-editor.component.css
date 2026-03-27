@@ -538,6 +538,14 @@ input.background {
     margin-right: 5px;
 }
 
+.quote-warning {
+  border-left: 3px solid #ff6b6b !important;
+  background-color: rgba(255, 107, 107, 0.1) !important;
+}
+
+.quote-warning:focus {
+  box-shadow: 0 0 5px rgba(255, 107, 107, 0.5) !important;
+}
 
 @media screen and (max-height: 700px) {
     ul.stepsList{

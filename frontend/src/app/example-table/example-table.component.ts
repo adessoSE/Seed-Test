@@ -30,6 +30,7 @@ import { StepDefinition } from "../model/StepDefinition";
 import { ThemePalette } from "@angular/material/core";
 import { ThemingService } from "../Services/theming.service";
 import { HighlightInputService } from "../Services/highlight-input.service";
+import { StepValidationService } from "../Services/step-validation.service";
 
 @Component({
     selector: "app-example",
@@ -175,7 +176,8 @@ export class ExampleTableComponent implements OnInit {
     public exampleService: ExampleService,
     public apiService: ApiService,
     public themeService: ThemingService,
-    public highlightInputService: HighlightInputService
+    public highlightInputService: HighlightInputService,
+    public stepValidationService: StepValidationService
   ) { }
 
   /**
@@ -530,4 +532,15 @@ export class ExampleTableComponent implements OnInit {
   regexDOMChangesHelper() {
     this.example_input.changes.subscribe((_) => { });
   }
+
+    /**
+   * Quote validation on blur events
+   */
+  onStepInputQuoteValidation(event: FocusEvent, stepIndex?: number, valueIndex?: number, stepType?: string): void {
+    const element = event.target as HTMLElement;
+    const text = element.textContent || '';
+    
+    this.stepValidationService.validateAndShowQuoteWarning(text, element);
+  }
+
 }
