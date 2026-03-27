@@ -107,7 +107,7 @@ After(async function (scenario) {
 		scenarioCount = 0;
 		totalScenarios = 0;
 		console.log(
-			'WIR SETZTEN DEN SCENARIOCOUNT ZURÜCK!',
+			'We are resetting the scenario count!',
 			scenarioCount,
 			totalScenarios
 		);
