@@ -319,7 +319,7 @@
                       <div style="overflow: hidden;">
                         <div class="scenario contentEditableElement inputEditableDiv" #step_type_input1
                           id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightInput(step_type_input1, j, index, currentStep.stepType, currentStep,
-                          currentStep.pre, undefined, sd)" (click)="matchString(step_type_input1)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
+                          currentStep.pre, undefined, sd)" (blur)="onStepInputQuoteValidation($event, stepIndex, valueIndex, stepType)" (click)="matchString(step_type_input1)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
                           1px; white-space: nowrap; overflow: hidden;">
                           {{ currentStep.values[index].indexOf('<') !== -1 && currentStep.values[index].indexOf('>') !== -1 ? '<  ' + currentStep.values[index].replace('<', '').replace('>', '') + '  >' : currentStep.values[index]}}
                         </div>                  
@@ -430,6 +430,7 @@
                         id="{{name+'_step_input_pre_' + j}}" [containerEl]="backgroundContainerEl"
                         [parentEl]="backgroundParentEl" contenteditable="true"
                         (input)="highlightInput(step_type_input, j, 0, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
+                        (blur)="onStepInputQuoteValidation($event, stepIndex, valueIndex, stepType)"
                         style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
                          1px;">{{currentStep.values[0]}}</div>
                     </div>
@@ -444,6 +445,7 @@
                         *ngIf="currentStep.values[1] != null" #step_type_input id="{{name+'_step_input_mid_' + j}}"
                         [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true"
                         (input)="highlightInput(step_type_input, j, 1, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
+                        (blur)="onStepInputQuoteValidation($event, stepIndex, valueIndex, stepType)"
                         style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
                          1px;">{{currentStep.values[1]}}</div>
                     </div>
@@ -458,6 +460,7 @@
                         *ngIf="currentStep.values[2] != null" #step_type_input id="{{name+'_step_input_post_' + j}}"
                         [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true"
                         (input)="highlightInput(step_type_input, j, 2, currentStep.stepType, currentStep, currentStep.pre, undefined, sd)"
+                        (blur)="onStepInputQuoteValidation($event, stepIndex, valueIndex, stepType)"
                         style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
                          1px;">{{currentStep.values[2]}}</div>
                     </div>

@@ -111,7 +111,7 @@ After(async function (this: SeleniumWebdriverWorld, scenario: ITestCaseHookParam
 		scenarioCount = 0;
 		totalScenarios = 0;
 		console.log(
-			'WIR SETZTEN DEN SCENARIOCOUNT ZURÜCK!',
+			'We are resetting the scenario count!',
 			scenarioCount,
 			totalScenarios
 		);

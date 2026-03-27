@@ -25,6 +25,7 @@ import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
 import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
 import { MultipleScenario } from "../model/MuiltipleScenario";
+import { StepValidationService } from '../Services/step-validation.service';
 
 @Component({
     selector: "app-base-editor",
@@ -217,7 +218,8 @@ export class BaseEditorComponent {
     public backgroundService: BackgroundService,
     public apiService: ApiService,
     public themeService: ThemingService,
-    public highlightInputService: HighlightInputService
+    public highlightInputService: HighlightInputService,
+    private stepValidationService: StepValidationService
   ) { }
 
   ngOnInit(): void {
@@ -2492,6 +2494,16 @@ export class BaseEditorComponent {
     if (match && this.templateName === 'block-editor') {
       element.contentEditable = false
     } 
+  }
+
+  /**
+   * Quote validation on blur events
+   */
+  onStepInputQuoteValidation(event: FocusEvent, stepIndex?: number, valueIndex?: number, stepType?: string): void {
+    const element = event.target as HTMLElement;
+    const text = element.textContent || '';
+    
+    this.stepValidationService.validateAndShowQuoteWarning(text, element);
   }
 
 }
