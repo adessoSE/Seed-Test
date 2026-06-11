@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -23,7 +23,7 @@ import { BlockService } from '../Services/block.service';
     standalone: false
 })
 
-export class ScenarioEditorComponent implements OnInit{
+export class ScenarioEditorComponent implements OnInit, OnChanges{
 
 	/**
      * Constructor
@@ -39,35 +39,31 @@ export class ScenarioEditorComponent implements OnInit{
     ) {}
 
     /**
+     * Lists the scenarios which are to be displayed
+     */
+    @Input() scenarios: Scenario[] = [];
+
+    /**
      * Sets a new selected story
      */
-    @Input()
-    set newlySelectedStory(story: Story) {
-        this.selectedStory = story;
-    }
+    @Input() selectedStory: Story;
+
 
     /**
-     * Sets a new selected scenaio
+     * ALT: Logic wandered to ngOnChanges.
+     * @Input()
+     * set newlySelectedScenario(scenario: Scenario) {
+     * this.selectedScenario = scenario;
+     * if (this.selectedStory && scenario) {
+     * this.selectScenario(scenario);
+     * }
+     * }
      */
-    @Input()
-    set newlySelectedScenario(scenario: Scenario) {
-        this.selectedScenario = scenario;
-        if (this.selectedStory && scenario) {
-           this.selectScenario(scenario);
-        }
-    }
+    @Input() selectedScenario: Scenario;
+
+    @Input() isReviewing: boolean = false;
 
     testRunning;
-
-    /**
-     * Currently selected story
-     */
-    selectedStory: Story;
-
-    /**
-     * currently selected scenario
-     */
-    selectedScenario: Scenario;
 
       /**
      * if the arrow left should be shown
@@ -149,6 +145,13 @@ export class ScenarioEditorComponent implements OnInit{
     @Output()
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
 
+    /**
+     * Scenario navigation events
+     */
+    @Output() navigateLeft = new EventEmitter<void>();
+    @Output() navigateRight = new EventEmitter<void>();
+
+
    /**
     * Subscribes to all necessary events
     */
@@ -172,6 +175,28 @@ export class ScenarioEditorComponent implements OnInit{
         this.updateScenariObservable = this.blockService.updateScenariosRefEvent.subscribe(element =>{
             this.updateScenario(element[0], element[1]);
         });
+    }
+
+    /**
+     * Will be called, when an @Input value is changing
+     */
+    ngOnChanges(changes: SimpleChanges) {
+        // When a new scenarioList is being transferred (used for usual Scenarios and AI)
+        if (changes['scenarios']) {
+            if (this.scenarios && this.scenarios.length > 0) {
+                this.selectScenario(this.scenarios[0]);
+            } else {
+                this.selectScenario(null);
+            }
+        }
+
+        // When a specific scenario is selected
+        if (changes['selectedScenario']) {
+            const newScenario = changes['selectedScenario'].currentValue;
+            if (newScenario) {
+                this.selectScenario(newScenario);
+            }
+        }
     }
 
     ngOnDestroy() {
@@ -354,6 +379,11 @@ export class ScenarioEditorComponent implements OnInit{
      * @param scenario
      */
     selectScenario(scenario: Scenario) {
+        if (scenario) {
+            if (!scenario.multipleScenarios) {
+                scenario.multipleScenarios = [];
+            }
+        }
         this.selectedScenario = scenario;
         this.arrowLeft = this.checkArrowLeft();
         this.arrowRight = this.checkArrowRight();
@@ -364,8 +394,8 @@ export class ScenarioEditorComponent implements OnInit{
      * @returns
      */
     checkArrowLeft(): boolean {
-        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
-        return this.selectedStory.scenarios[scenarioIndex - 1] === undefined;
+        const scenarioIndex = this.scenarios.indexOf(this.selectedScenario);
+        return this.scenarios[scenarioIndex - 1] === undefined;
     }
 
     /**
@@ -373,30 +403,22 @@ export class ScenarioEditorComponent implements OnInit{
      * @returns
      */
     checkArrowRight(): boolean {
-        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
-        return this.selectedStory.scenarios[scenarioIndex + 1] === undefined;
+        const scenarioIndex = this.scenarios.indexOf(this.selectedScenario);
+        return this.scenarios[scenarioIndex + 1] === undefined;
     }
 
     /**
      * Select the scenario before
      */
     scenarioShiftLeft() {
-        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
-        if (this.selectedStory.scenarios[scenarioIndex - 1]) {
-            this.selectScenario(this.selectedStory.scenarios[scenarioIndex - 1]);
-            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex - 1]);
-        }
+        this.navigateLeft.emit();
     }
 
     /**
      * Selects the next scenario
      */
     scenarioShiftRight() {
-        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
-        if (this.selectedStory.scenarios[scenarioIndex + 1]) {
-            this.selectScenario(this.selectedStory.scenarios[scenarioIndex + 1]);
-            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex + 1]);
-        }
+        this.navigateRight.emit();
     }
 
     /**

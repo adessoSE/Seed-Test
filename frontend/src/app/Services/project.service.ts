@@ -1,9 +1,10 @@
+import { AiConfig } from '@shared/models/RepositoryContainer';
 import { EventEmitter, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { FileElement } from '../model/FileElement';
 
 
@@ -66,7 +67,7 @@ export class ProjectService {
     this.transferOwnershipEvent.emit();
   }
   changeOwner(repoId, email): Observable<RepositoryContainer> {
-    const url = this.apiService.apiServer + '/user/repository/' + repoId;
+    const url = this.apiService.apiServer + '/repository/owner/' + repoId;
     return this.http
       .put<any>(url, { email: email }, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -100,7 +101,7 @@ export class ProjectService {
   createRepository(name: string, _id: string): Observable<any> {
     const body = { 'name': name, '_id': _id };
     return this.http
-      .post<RepositoryContainer>(this.apiService.apiServer + '/user/createRepository/', body, ApiService.getOptions())
+      .post<RepositoryContainer>(this.apiService.apiServer + '/repository/', body, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -110,18 +111,39 @@ export class ProjectService {
    * @param repoID
    * @param newRepoName
    * @param settings
-   * @param user
+   * @param user //TODO: remove user, not used anymore
    * @returns
   */
-  public updateRepository(repoID, newRepoName: string, user: any, settings: any = null): Observable<any> {
-    let updateData = { repoName: newRepoName };
+  public updateRepository(repoID, newRepoName: string, user: any, settings: any = null, aiConfig: AiConfig = null): Observable<any> {
+    // 1. Start with a clean base object.
+    const updateData: any = { 
+        repoName: newRepoName 
+    };
 
-    if (settings != null) {
-      updateData['settings'] = settings;
+    // 2. Conditionally add 'settings' if it has a value.
+    if (settings) {
+      updateData.settings = settings;
     }
-    console.log(updateData)
+    
+    // 3. Conditionally add 'aiConfig' if it has a value.
+    if (aiConfig) {
+      updateData.aiConfig = aiConfig;
+    }
+    
+    const logData = structuredClone(updateData);
+
+    if (logData.aiConfig?.textPreparation?.apiKey) {
+      logData.aiConfig.textPreparation.apiKey = '*** HIDDEN ***';
+    }
+
+    if (logData.aiConfig?.jsonConversion?.apiKey) {
+      logData.aiConfig.jsonConversion.apiKey = '*** HIDDEN ***';
+    }
+
+    console.log('Final update payload:', logData);
+
     return this.http
-      .put<RepositoryContainer>(this.apiService.apiServer + '/user/repository/' + repoID + '/' + user, updateData, ApiService.getOptions())
+      .put<RepositoryContainer>(this.apiService.apiServer + '/repository/settings/' + repoID + '/', updateData, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -131,7 +153,7 @@ export class ProjectService {
    * @returns
   */
   getRepositories(): Observable<RepositoryContainer[]> {
-    const str = this.apiService.apiServer + '/user/repositories';
+    const str = this.apiService.apiServer + '/repository/';
 
     return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
       .pipe(tap(resp => {
@@ -146,7 +168,7 @@ export class ProjectService {
  * @returns
 */
   getRepositorySettings(repoId: string) {
-    const str = this.apiService.apiServer + '/user/repository/settings/' + repoId;
+    const str = this.apiService.apiServer + '/repository/settings/' + repoId;
 
     return this.http.get<any>(str, ApiService.getOptions())
       .pipe(
@@ -158,13 +180,29 @@ export class ProjectService {
   }
 
   /**
+   * Retrieves the dedicated AI configuration for a repository.
+   * @param repoId The ID of the repository.
+   * @returns An Observable with the AI configuration.
+   */
+  getRepositoryAiConfig(repoId: string): Observable<AiConfig> {
+    const str = this.apiService.apiServer + '/repository/aiconfig/' + repoId;
+    return this.http.get<AiConfig>(str, ApiService.getOptions())
+      .pipe(
+        tap(aiConfig => {
+          console.log('received AI configuration:', aiConfig);
+        }),
+        catchError(this.apiService.handleError)
+      );
+  }
+
+  /**
    * Delete one Repository
    * @param repo
-   * @param user
+   * @param user //TODO: Remove user, not needed anymore
    * @returns
   */
   deleteRepository(repo: RepositoryContainer, user) {
-    const str = this.apiService.apiServer + '/user/repositories/' + repo._id + '/' + user;
+    const str = this.apiService.apiServer + '/repository/' + repo._id;
     return this.http.delete<any>(str, ApiService.getOptions())
       .pipe(tap(() => {
         //
@@ -179,7 +217,7 @@ export class ProjectService {
   */
   addToWorkgroup(_id: string, user) {
     return this.http
-      .post<any>(this.apiService.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
+      .post<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -193,7 +231,7 @@ export class ProjectService {
    */
   updateWorkgroupUser(_id: string, user) {
     return this.http
-      .put<any>(this.apiService.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
+      .put<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -205,7 +243,7 @@ export class ProjectService {
   */
   getWorkgroup(_id: string) {
     return this.http
-      .get<any>(this.apiService.apiServer + '/workgroups/wgmembers/' + _id, ApiService.getOptions())
+      .get<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -218,19 +256,24 @@ export class ProjectService {
    * @returns
   */
   removeFromWorkgroup(_id: string, email: string) {
-    const user = { email };
+    const user = { email: email.toLowerCase() };
+    const options = { 
+      ...ApiService.getOptions(),
+      body: user // Add the user object to the 'body' property within options
+    };
+    
     return this.http
-      .post<any>(this.apiService.apiServer + '/workgroups/deletemember/' + _id, user, ApiService.getOptions())
+      .delete<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, options) 
       .pipe(tap(_ => {
         //
-      }));
+      }))
   }
 
 
   private querySubject: BehaviorSubject<FileElement[]> = new BehaviorSubject<FileElement[]>([]);
 
   public getUploadedFiles(repoId: string): Observable<FileElement[]> {
-    return this.http.get<FileElement[]>(this.apiService.apiServer + '/story/uploadFile/' + repoId, ApiService.getOptions())
+    return this.http.get<FileElement[]>(this.apiService.apiServer + '/files/' + repoId, ApiService.getOptions())
       .pipe(
         tap(files => console.log(files)), // Optional: Log files
         catchError(error => {
@@ -259,7 +302,7 @@ export class ProjectService {
    */
   public deleteUploadedFile(fileId: string) {
     return this.http
-      .delete(this.apiService.apiServer + '/story/uploadFile/' + fileId, ApiService.getOptions())
+      .delete(this.apiService.apiServer + '/files/' + fileId, ApiService.getOptions())
       .pipe(tap(_ => {
         this.querySubject.next([...this.querySubject.value.filter((item) => item._id != fileId)])
       }));
@@ -272,7 +315,7 @@ export class ProjectService {
     const formData = new FormData();
     formData.append('file', file, file.name)
     return this.http
-      .post(`${this.apiService.apiServer}/story/uploadFile/${repoId}`, formData, ApiService.getOptions())
+      .post(`${this.apiService.apiServer}/files/${repoId}`, formData, ApiService.getOptions())
       .pipe(tap((result: FileElement) => {
         const currentDate = new Date();
         const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;

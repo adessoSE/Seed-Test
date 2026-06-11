@@ -2,7 +2,7 @@ import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core
 import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
 import { Subscription } from 'rxjs';
 import { OwlOptions } from 'ngx-owl-carousel-o';
@@ -218,10 +218,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
      getRepositories() {
         let repoNotSet = false; 
-        const value = localStorage.getItem('repository');
+        const repoName = localStorage.getItem('repository');
         const source = localStorage.getItem('source');
         const _id = localStorage.getItem('id');
-        const repository: RepositoryContainer = {value, source, _id};
+        const repository: RepositoryContainer = {repoName, source, _id};
         this.isLoadingRepositories = true;
         const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner');
         if (loadingSpinner) {
@@ -233,7 +233,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 this.router.navigate(['/accountManagement']);
             }
             resp.forEach((elem) => {
-                if (elem.value == repository.value && elem.source == repository.source && elem._id == repository._id) {
+                if (elem.repoName == repository.repoName && elem.source == repository.source && elem._id == repository._id) {
                     this.router.navigate(['']);
                     repoNotSet = true;
                 }

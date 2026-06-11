@@ -4,7 +4,7 @@ import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { Story } from '../model/Story';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { catchError, tap } from 'rxjs/operators';
 import { StepType } from '../model/StepType';
 
@@ -139,16 +139,16 @@ export class StoryService {
   getStories(repository: RepositoryContainer): Observable<Story[]> {
     let params;
     if (repository.source === 'github') {
-      const repo = repository.value.split('/');
-      params = { repoName: repository.value, githubName: repo[0], repository: repo[1], source: repository.source, id: repository._id };
+      const repo = repository.repoName.split('/');
+      params = { repoName: repository.repoName, githubName: repo[0], repository: repo[1], source: repository.source, id: repository._id };
     } else if (repository.source === 'jira') {
-      params = { projectKey: repository.value, source: repository.source, id: repository._id };
+      params = { projectKey: repository.repoName, source: repository.source, id: repository._id };
     } else if (repository.source === 'db') {
-      params = { repoName: repository.value, source: repository.source, id: repository._id };
+      params = { repoName: repository.repoName, source: repository.source, id: repository._id };
     }
 
     return this.http
-      .get<Story[]>(this.apiService.apiServer + '/user/stories/', { params, withCredentials: true })
+      .get<Story[]>(this.apiService.apiServer + '/story/', { params, withCredentials: true })
       .pipe(tap(resp => {
         this.getStoriesEvent.emit(resp);
       }), catchError(this.apiService.handleStoryError));
@@ -161,7 +161,7 @@ export class StoryService {
   */
   updateStoryList(repo_id, storiesList) {
     return this.http
-      .put(this.apiService.apiServer + '/user/stories/' + repo_id, storiesList, ApiService.getOptions())
+      .put(this.apiService.apiServer + '/story/' + repo_id, storiesList, ApiService.getOptions())
       .pipe(tap());
   }
   /**
@@ -175,10 +175,10 @@ export class StoryService {
     const timeout = 900000;
     if (scenarioID) {
       return this.http
-        .post(this.apiService.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+        .post(this.apiService.apiServer + '/execute/Scenario/' + storyID + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
     }
     return this.http
-      .post(this.apiService.apiServer + '/run/Feature/' + storyID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+      .post(this.apiService.apiServer + '/execute/Feature/' + storyID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
   }
   /**
     * Download a file with story feature
@@ -238,7 +238,7 @@ export class StoryService {
   */
   public goToTicket(storyId: string, repository: RepositoryContainer) {
     if (repository.source === 'github') {
-      const AUTHORIZE_URL = 'https://github.com/' + repository.value + '/issues/';
+      const AUTHORIZE_URL = 'https://github.com/' + repository.repoName + '/issues/';
       console.log("AUTHORIZE_UR", AUTHORIZE_URL)
       const s = `${AUTHORIZE_URL}${storyId}`;
       return window.open(s);
@@ -247,6 +247,68 @@ export class StoryService {
       const s = `${AUTHORIZE_URL}${storyId}`;
       return window.open(s);
     }
+  }
+
+  /**
+   * Sends request to generate scenarios with AI.
+   * @param storyId ID of story affected.
+   * @param aiConfig Configuration for the parser.
+   * @returns Obervable with success message.
+   */
+  generateScenariosFromAI(storyId: string, aiConfig: any, repoId: string): Observable<any> {
+    const url = this.apiService.apiServer +`/story/${storyId}/generate-scenarios`;
+    const timeout = 300000; // 5 minutes timeout
+    
+    // Create custom headers to set the timeout for this specific request
+    const headers = new HttpHeaders({
+      'timeout': `${timeout}`,
+      'repoId': repoId
+    });
+
+    const options = {
+      ...ApiService.getOptions(),
+      headers: headers
+    };
+
+    console.log("Wir schicken KI-Anfrage ans Backend! (REMOVE)")
+    return this.http.post(url, { aiConfig }, options);
+  }
+
+  /**
+   * Listens for AI generation status updates using Server-Sent Events.
+   * @param storyId The ID of the story to listen for.
+   * @returns An Observable that emits the result object from the backend.
+   */
+  listenForAiResults(storyId: string): Observable<any> {
+    const url = this.apiService.apiServer + `/story/${storyId}/generate-scenarios/status`;
+    
+    return new Observable(observer => {
+      const eventSource = new EventSource(url, { withCredentials: true });
+
+      eventSource.onmessage = event => {
+        const result = JSON.parse(event.data);
+        
+       if (result.status === 'error') {
+          observer.error(new Error(result.error));
+        } else {
+          observer.next(result);
+        }
+        
+        observer.complete();
+        eventSource.close();
+      };
+
+      eventSource.onerror = error => {
+        observer.error(new Error('Connection to the AI status stream failed.'));
+        eventSource.close();
+      };
+
+      return () => {
+        if (eventSource.readyState !== eventSource.CLOSED) {
+          eventSource.close();
+        }
+      };
+    });
   }
 
 //   /**

@@ -101,6 +101,15 @@ export class BaseEditorComponent {
   set newlySelectedStory(story: Story) {
     this.selectedStory = story;
     this.initialRegex = true;
+    if (this.templateName === 'background' && this.selectedStory && this.selectedStory.background) {
+            if (!this.selectedStory.background.stepDefinitions.when) {
+                this.selectedStory.background.stepDefinitions.when = [];
+            }
+            const cleanStepDefs = {
+                when: this.selectedStory.background.stepDefinitions.when
+            };
+            this.selectedStory.background.stepDefinitions = cleanStepDefs;
+        }
   }
 
   /**
@@ -111,6 +120,11 @@ export class BaseEditorComponent {
   checkRowIndex(index: number) {
     this.checkStep(this.selectedScenario.multipleScenarios[index]);
   }
+
+  /**
+   * Checks if user investigates AI output
+   */
+  @Input() isReviewing: boolean = false;
 
   @Output() blockSelectTriggerEvent: EventEmitter<string> = new EventEmitter();
 
@@ -233,20 +247,30 @@ export class BaseEditorComponent {
             _blockReferenceId: block[1]._id, id: 0, type: block[1].name,
             stepType: block[2].toLowerCase(), pre: '', mid: '', post: '', values: []
           };
+          const blockExamples = block[1].stepDefinitions['example'];
+
+          if (blockExamples &&
+            blockExamples.length > 0 &&
+            blockExamples[0] &&
+            blockExamples[0].values &&
+            blockExamples[0].values.length > 0) 
+        {
           // Initialzes Examples Table when Selected Scenario doesn't have any Examples 
           if (this.selectedScenario?.multipleScenarios?.length === undefined || this.selectedScenario?.multipleScenarios?.length === 0) {
-            this.selectedScenario.multipleScenarios[0] = block[1].stepDefinitions['example'][0]
-            this.selectedScenario.multipleScenarios[1] = {values: [...Array(block[1].stepDefinitions['example'][0].values.length)].fill('value')}
+            this.selectedScenario.multipleScenarios[0] = blockExamples[0];
+            this.selectedScenario.multipleScenarios[1] = {values: [...Array(blockExamples[0].values.length)].fill('value')};
           }
           // Adds new Example if non-existent
-          else if (block[1].stepDefinitions['example'][0]?.values) {
-            let missingValues = block[1].stepDefinitions['example'][0].values
+          else { 
+            let missingValues = blockExamples[0].values
             .map((x) => {return x})
             .filter((x) => this.selectedScenario.multipleScenarios[0].values.indexOf(x) == -1);
+            
             missingValues.forEach(v => {
               this.exampleService.newExampleEmit(v) 
             });
           }
+        }
           this.addStep(blockReference, this.selectedScenario, 'scenario');
         } else {
           block = block[1];
@@ -2115,7 +2139,12 @@ export class BaseEditorComponent {
    */
   getExampleList() {
     if (this.templateName != "block-editor") {
-      if (this.selectedScenario.multipleScenarios && this.selectedScenario.multipleScenarios.length && this.selectedScenario.multipleScenarios[0].values.length) {
+      if (this.selectedScenario.multipleScenarios &&
+          this.selectedScenario.multipleScenarios.length > 0 &&
+          this.selectedScenario.multipleScenarios[0] &&
+          this.selectedScenario.multipleScenarios[0].values &&
+          this.selectedScenario.multipleScenarios[0].values.length > 0) 
+      {
         return this.selectedScenario.multipleScenarios[0].values;
       }
       return undefined;

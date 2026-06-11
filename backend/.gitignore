@@ -50,3 +50,7 @@ webdriver/*
 
 # logs
 .log
+
+# local data
+.env
+*.local

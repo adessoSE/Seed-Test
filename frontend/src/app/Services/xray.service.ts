@@ -50,7 +50,7 @@ export class XrayService {
       status: status
     };
     return this.http
-      .put(this.apiService.apiServer + '/jira/update-xray-status/', data, ApiService.getOptions())
+      .put(this.apiService.apiServer + '/jira/xray-status/', data, ApiService.getOptions())
       .pipe(tap());
   }
 

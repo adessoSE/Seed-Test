@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import {RepositoryContainer} from 'src/app/model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
 
 @Component({
@@ -64,7 +64,7 @@ checkProject(buttonId: string, input: string, array: RepositoryContainer[], repo
   array = array ? array : [];
   input = input ? input : '';
   const button = (document.getElementById(buttonId)) as HTMLButtonElement;
-  if ((input && !array.find(i => i.value === input)) || (repository ? array.find(g => g._id == repository._id && g.value == input) : false)){
+  if ((input && !array.find(i => i.repoName === input)) || (repository ? array.find(g => g._id == repository._id && g.repoName == input) : false)){
       button.disabled = false;
   } 
   

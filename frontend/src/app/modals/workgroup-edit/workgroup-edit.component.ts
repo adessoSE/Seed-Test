@@ -1,9 +1,9 @@
-import { Component, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { ToastrService } from "ngx-toastr";
 import { DeleteToast } from "src/app/delete-toast";
-import { RepositoryContainer } from "src/app/model/RepositoryContainer";
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ApiService } from "src/app/Services/api.service";
 import { ProjectService } from "src/app/Services/project.service";
 import { TransferOwnershipToast } from "src/app/transferOwnership-toastr";
@@ -22,7 +22,7 @@ import { EventEmitter, Output } from "@angular/core";
   ],
   standalone: false,
 })
-export class WorkgroupEditComponent {
+export class WorkgroupEditComponent implements OnInit {
   /**
    * Columns of the workgroup table
    */
@@ -219,11 +219,27 @@ export class WorkgroupEditComponent {
     this.userId = userId;
     this.workgroupList = [];
     this.workgroupProject = project;
+    if (!this.workgroupProject.aiConfig) {
+      this.workgroupProject.aiConfig = {
+        textPreparation: {
+          name: 'local',
+          modelName: 'mistral',
+          provider: 'custom' as const,
+          baseURL: 'http://localhost:11434/v1'
+        },
+        jsonConversion: {
+          name: 'local',
+          modelName: 'codellama',
+          provider: 'custom' as const,
+          baseURL: 'http://localhost:11434/v1'
+        }
+      };
+    }
     this.loadGlobalSettings();
     this.modalReference = this.modalService.open(this.workgroupEditModal, {
       ariaLabelledBy: "modal-basic-titles",
     });
-    this.projectName = project.value;
+    this.projectName = project.repoName;
     if (project.source === "db")
       this.projectService
         .getWorkgroup(this.workgroupProject._id)
@@ -324,7 +340,7 @@ export class WorkgroupEditComponent {
 
   isCurrentRepoToDelete() {
     const currentRepo = localStorage.getItem("repository");
-    if (this.workgroupProject.value === currentRepo) {
+    if (this.workgroupProject.repoName === currentRepo) {
       this.openRepoSwitchModal();
     } else if (this.workgroupList.length > 0){
       this.toastr.info(
@@ -353,12 +369,30 @@ export class WorkgroupEditComponent {
       height: this.repoHeight,
     };
 
+    project.aiConfig = {
+      textPreparation: {
+        provider: 'custom' as const,
+        name: project.aiConfig.textPreparation.name,
+        modelName: project.aiConfig.textPreparation.modelName,
+        baseURL: project.aiConfig.textPreparation.baseURL,
+        apiKey: project.aiConfig.textPreparation.apiKey
+      },
+      jsonConversion: {
+        provider: 'custom' as const,
+        name: project.aiConfig.textPreparation.name,
+        modelName: project.aiConfig.jsonConversion.modelName,
+        baseURL: project.aiConfig.textPreparation.baseURL,
+        apiKey: project.aiConfig.textPreparation.apiKey
+      }
+    }
+
     this.projectService
       .updateRepository(
         project._id,
-        project.value,
+        project.repoName,
         this.userId,
-        project.settings
+        project.settings,
+        project.aiConfig
       )
       .subscribe((_resp) => {
         this.projectService.getRepositories();
@@ -408,7 +442,7 @@ export class WorkgroupEditComponent {
     const name = renameProject;
     const project = this.workgroupProject;
     if (name.replace(/\s/g, "").length > 0) {
-      project.value = name;
+      project.repoName = name;
     }
     // Emits rename event
     this.projectService.renameProjectEmitter(project);

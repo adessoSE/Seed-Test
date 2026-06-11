@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router } from '@angular/router';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change-jira-account.component';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
@@ -41,7 +41,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     @ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
     @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
     @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
-    @ViewChild('importProjectModal') importProjectModal: ImportModalComponent;
 
     /**
      * Viewchild to auto open mat-select
@@ -81,6 +80,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
     searchList: RepositoryContainer[];
 
+    navigationSubscription: Subscription;
+
     downloadRepoID: string;
 
     isDark: boolean;
@@ -96,7 +97,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     updateRepositoryObservable: Subscription;
     themeObservable: Subscription;
     getRepositoriesObservable: Subscription;
-    renamePrjectObservable: Subscription;
+    renameProjectObservable: Subscription;
 
     /**
      * Constructor
@@ -113,30 +114,40 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         public loginService: LoginService,
         public managmentService: ManagementService,
         public router: Router,
-        private dialog: MatDialog,
+        public modalService: MatDialog,
         public themeService: ThemingService,
         private toastr: ToastrService
         ) {
-        this.routeSub = this.router.events.subscribe(event => {
-            if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
-                this.updateSite('Successful'); //
+            this.themeService = themeService;
+            this.navigationSubscription = this.router.events.subscribe((e: any) => {
+            // If it is a NavigationEnd event re-initalise the component
+            if (e instanceof NavigationEnd) {
+                this.ngOnInit();
             }
-        });
-        if (!this.router.events) {
-            this.getRepositoriesObservable = this.projectService.getRepositoriesEvent.subscribe((repositories) => {
-                this.seperateRepos(repositories);
             });
+            this.routeSub = this.router.events.subscribe(event => {
+                if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
+                    this.updateSite('Successful'); //
+                }
+            });
+            if (!this.router.events) {
+                this.getRepositoriesObservable = this.projectService.getRepositoriesEvent.subscribe((repositories) => {
+                    this.seperateRepos(repositories);
+                });
+            }
         }
-    }
 
     ngOnInit() {
+        if (!this.loginService.isLoggedIn()) {
+            this.router.navigate(['/login']);
+        }
         this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => this.updateRepos());
 
         this.isDark = this.themeService.isDarkMode();
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
-        this.renamePrjectObservable = this.projectService.renameProjectEvent.subscribe(proj => {
+        this.renameProjectObservable = this.projectService.renameProjectEvent.subscribe(proj => {
             this.updateRepository(proj);
         });
 
@@ -159,8 +170,11 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                 this.getRepositoriesObservable.unsubscribe();
             }
         }
-        if (this.renamePrjectObservable.closed) {
-            this.renamePrjectObservable.unsubscribe();
+        if (this.renameProjectObservable.closed) {
+            this.renameProjectObservable.unsubscribe();
+        }
+        if (this.navigationSubscription) {
+            this.navigationSubscription.unsubscribe();
         }
     }
 
@@ -282,8 +296,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      */
     selectRepository(userRepository: RepositoryContainer) {
         const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-        ref.href = 'https://github.com/' + userRepository.value;
-        localStorage.setItem('repository', userRepository.value);
+        ref.href = 'https://github.com/' + userRepository.repoName;
+        localStorage.setItem('repository', userRepository.repoName);
         localStorage.setItem('source', userRepository.source);
         localStorage.setItem('id', userRepository._id);
         this.router.navigate(['']);
@@ -295,7 +309,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             console.log(userRepo);
             const id = userRepo._id;
             this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
-                this.versionInput ? saveAs(ret, userRepo.value + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '.zip');
+                this.versionInput ? saveAs(ret, userRepo.repoName + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.repoName + '.zip');
             })
         }
     }
@@ -307,21 +321,28 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             const source = userRepo.source;
             const id = userRepo._id;
             this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {
-                this.versionInput ? saveAs(ret, userRepo.value + '-export' + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '-export' + '.zip');
+                this.versionInput ? saveAs(ret, userRepo.repoName + '-export' + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.repoName + '-export' + '.zip');
             })
         }
     }
 
     searchRepos() {
         this.searchInput = this.searchInput ? this.searchInput : '';
-        this.searchList = [].concat(this.repositories).filter(repo => {
-            if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
-                return repo;
-            }
-        });
-        if (this.searchInput != '') {
-            this.ngSelect.open();
+    
+    // Ensure this.repositories is an array before trying to concat and filter
+    const reposToFilter = this.repositories || [];
+
+    this.searchList = [].concat(reposToFilter).filter(repo => {
+        // Check if repo and repo.repoName exist before calling toLowerCase()
+        if (repo && repo.repoName && repo.repoName.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
+            return repo;
         }
+        return false; // Explicitly return false if repo or repo.repoName is missing
+    });
+
+    if (this.searchInput != '' && this.ngSelect) {
+        this.ngSelect.open();
+    }
     }
 
     /**
@@ -337,13 +358,50 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     updateRepository(project: RepositoryContainer) {
-        this.projectService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {
+        this.projectService.updateRepository(project._id, project.repoName, this.id).subscribe(_resp => {
             this.projectService.getRepositories();
             this.toastr.success('successfully saved', 'Repository');
         });
     }
 
-    openImportPopup() {
-        this.importProjectModal.openImportProjectModal(this.repositories);
-    }
+    /**
+   * Opens the 'dumb' import modal and waits for the result.
+   * This component is now responsible for calling the service.
+   */
+  openImportProjectModal() {
+    const dialogRef = this.modalService.open(ImportModalComponent, {
+        width: '800px',
+        data: { 
+          repoList: this.repositories
+        } 
+    });
+
+    dialogRef.afterClosed().subscribe(data => {
+        if (data) {
+            // *** Case 1: User clicked "Import" ***
+            console.log('Modal closed with data, starting import:', data);
+
+            this.managmentService.importProject(data.file, data.repoId, data.projectName, data.importMode)
+                .subscribe({
+                    next: (ret) => {
+                        console.log(ret);
+                        this.toastr.success('Project imported successfully!');
+                        // Refresh the repository list
+                        this.projectService.getRepositories().subscribe(resp => {
+                            this.seperateRepos(resp);
+                            this.searchRepos();
+                        });
+                    },
+                    error: (err) => {
+                        console.error('Import failed:', err);
+                        this.toastr.error(err.error?.error || 'Import failed.');
+                    }
+                });
+        } else {
+            // *** Case 2: User clicked "Cancel" ***
+            // Do nothing.
+            console.log('Modal dismissed (Cancel clicked)');
+        }
+    });
+  }
 }

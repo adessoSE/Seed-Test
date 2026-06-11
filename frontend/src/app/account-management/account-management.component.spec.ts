@@ -3,7 +3,7 @@ import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angul
 import { ToastrModule } from 'ngx-toastr';
 import { findComponent } from '../../test_helper';
 import { AccountManagementComponent } from './account-management.component';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ROUTES } from '../routes/routes';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -14,9 +14,9 @@ import {HarnessLoader} from '@angular/cdk/testing';
 import {TestbedHarnessEnvironment} from '@angular/cdk/testing/testbed';
 import { MatSelectHarness } from "@angular/material/select/testing";
 
-const repositories: RepositoryContainer[] = [{_id: '1', value: 'myFirstRepo', source: 'db', canEdit: true},
-{_id: '2', value: 'next repo', source: 'db', canEdit: true},
-{_id: '3', value: 'another repo', source: 'db', canEdit: true}]
+const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
+{_id: '2', repoName: 'next repo', source: 'db', canEdit: true},
+{_id: '3', repoName: 'another repo', source: 'db', canEdit: true}]
 
 
 describe('AccountManagementComponent', () => {

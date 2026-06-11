@@ -612,3 +612,198 @@ button#background_up {
   border: none;
   margin-right: 2px;
 }
+
+.loading-container {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 15px;
+  color: var(--ocean-blue);
+  font-weight: bold;
+}
+
+.darkTheme .loading-container {
+  color: #B0BEC5;
+}
+
+.loading-container mat-spinner {
+  margin-right: 8px;
+}
+
+.read-only-mode {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Base styles for all AI-related bars, reusing existing patterns */
+.ai-review-prompt,
+.ai-review-bar,
+.ai-scenario-selector-bar {
+  margin: 10px 0;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
+/* Specific background colors */
+.ai-review-prompt {
+  background-color: #e3f2fd; /* Light blue */
+  justify-content: space-between;
+  align-items: center;
+}
+.ai-review-bar {
+  background-color: #1e88e5; /* Prominent blue */
+  color: white;
+}
+.ai-scenario-selector-bar {
+  background-color: #f1f8e9; /* Light green */
+  border-bottom: 1px solid #dcedc8;
+  margin-top: -10px; /* Overlap slightly for a connected feel */
+}
+
+/* Metadata styles used in the prompt bar */
+.review-prompt-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.review-prompt-metadata {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 12px;
+  color: #555;
+}
+.review-prompt-metadata .metadata-item {
+  display: flex;
+  align-items: center;
+}
+.review-prompt-metadata .metadata-item mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  margin-right: 4px;
+  color: #1e88e5;
+}
+
+/* Title in the main review bar */
+.ai-review-bar .review-bar-title {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+.ai-review-bar .review-bar-title mat-icon {
+  margin-right: 8px;
+}
+
+/* Button modifiers for the review bar */
+.ai-review-bar .button-4.destructive {
+  background-color: #fbe9e7;
+  color: #d32f2f;
+  border-color: #ffcdd2;
+}
+.ai-review-bar .button-4.primary {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+/* Scenario selector styles */
+.ai-scenario-selector-bar .selector-title {
+  font-weight: bold;
+  margin-right: 15px;
+  color: #33691e;
+}
+.ai-scenario-selector-bar .scenario-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.scenario-selector-button {
+  background-color: #fff;
+  border: 1px solid #c8e6c9;
+  border-radius: 16px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease-in-out;
+}
+.scenario-selector-button:hover {
+  background-color: #e8f5e9;
+  border-color: #a5d6a7;
+}
+.scenario-selector-button.active {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+  border-color: #388e3c;
+}
+
+.review-bar-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.action-group-left,
+.action-group-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Durchbricht die Kapselung, um die Farbe des Material Icons direkt zu setzen */
+:host ::ng-deep .action-group-right .mat-warn .mat-icon {
+  color: #f44336 !important; /* Rote Warnfarbe, erzwungen */
+}
+
+/* Stil für den neutralen Schließen-Button */
+:host ::ng-deep .action-group-right .mat-icon-button:not(.mat-warn) .mat-icon {
+  color: var(--font-color) !important; 
+}
+
+.ai-generate-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Abstand zwischen Button und Icon */
+  margin-left: 15px;
+}
+
+.settings-button {
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.darkTheme .settings-button {
+    background-color: #546E7A;
+}
+
+.settings-button mat-icon {
+  color: #555;
+}
+
+.darkTheme .settings-button mat-icon {
+    color: white;
+}
+
+/* Styling für das aufklappende Menü */
+.ai-override-menu .override-fields {
+    padding: 16px 30px;
+    box-sizing: border-box; 
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    width: 300px; /* Breite des Menüs */
+}
+
+.ai-override-menu .menu-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}

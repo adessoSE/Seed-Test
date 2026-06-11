@@ -161,7 +161,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatProgressSpinnerModule,
     CarouselModule,
     LoggerModule.forRoot({
-      serverLoggingUrl: localStorage.getItem("url_backend") + "/user/log",
+      serverLoggingUrl: localStorage.getItem("url_backend") + "/log",
       level: NgxLoggerLevel.DEBUG,
       serverLogLevel: NgxLoggerLevel.DEBUG,
     }),

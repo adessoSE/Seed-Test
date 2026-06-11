@@ -11,7 +11,7 @@ import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-g
 import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
 import { UpdateGroupComponent } from '../modals/update-group/update-group.component';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
 import { ScenarioService } from '../Services/scenario.service';
@@ -125,6 +125,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     @Input() newSelectedStory: Story;
 
+    @Input() isReviewing: boolean = false;
+
     /**
      * SearchTerm for story title search
      */
@@ -204,7 +206,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         const version = localStorage.getItem('version');
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s != null);
             this.filteredStories = this.stories;
@@ -212,12 +214,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.createStoryEmitter = this.storyService.createCustomStoryEmitter.subscribe(custom => {
-            this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(_ => {
+            this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id).subscribe(_ => {
                 this.storyService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
                     this.stories = resp.filter(s => s != null);
                     this.filteredStories = this.stories;
                     this.storyTermChange();
-                    this.selectStoryScenario(resp[resp.length - 1]);
+                    this.selectStory(resp[resp.length - 1]);
                 });
             });
         });
@@ -271,13 +273,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     }
 
-    ngOnChanges(changes: SimpleChanges) {
+    ngOnChanges(changes: SimpleChanges): void {
         if (changes.newSelectedStory) {
             this.selectedStory = this.newSelectedStory;
             this.scrollToSelectedStory();
             if (this.selectedStory){
-                this.selectStoryScenario(this.selectedStory);
+                this.selectStory(this.selectedStory);
             }
+        }
+        if (changes.stories && changes.stories.currentValue) {
+            this.stories = changes.stories.currentValue.filter(s => s != null);
+            this.filteredStories = this.stories;
         }
     }
 
@@ -321,26 +327,58 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     mergeById(groups, stories) {
-        const myMap = new Map;
-        for (const story of stories) {
-            myMap.set(story._id, story);
-        }
-
-        const groupStories = [];
-        for (const group of groups) {
-            const tmpGroup = group;
-            for (const index in group.member_stories) {
-                if (!group.member_stories[index].title) {
-                    tmpGroup.member_stories[index] = {
-                        '_id': group.member_stories[index],
-                        'title': myMap.get(group.member_stories[index]).title,
-                        'issue_number': myMap.get(group.member_stories[index]).issue_number
-                    };
+        // 1. Create a Map of all valid, existing stories
+        const storyMap = new Map();
+        if (stories) {
+            for (const story of stories) {
+                if (story && story._id) {
+                   storyMap.set(story._id.toString(), story);
                 }
             }
-            groupStories.push(tmpGroup);
+        } else {
+            console.warn("mergeById called with no stories.");
+            return groups; // Return original groups
         }
-        return groupStories;
+
+        if (!groups) { return []; }
+
+        // 2. Mutate the 'member_stories' of each group "in-place"
+        //    This preserves the object references, which the
+        //    'liGroupList' (for accordion state) depends on.
+        for (const group of groups) {
+            
+            const safeMemberStories = []; // Build a new list for this group
+            if (group.member_stories) {
+                for (const storyRef of group.member_stories) {
+                    
+                    let id: string;
+                    if (!storyRef) continue; // Skip null/undefined
+                    
+                    if (typeof storyRef === 'string') {
+                        id = storyRef;
+                    } else if (storyRef._id) {
+                        id = storyRef._id.toString();
+                    } else {
+                        id = storyRef.toString(); // Handle ObjectIds
+                    }
+
+                    const fullStory = storyMap.get(id);
+
+                    if (fullStory) {
+                        safeMemberStories.push(fullStory); // Add the full story object
+                    } else {
+                        // This is a "Ghost Story"
+                        console.warn(`Story ID ${id} in group '${group.name}' not found. Skipping.`);
+                    }
+                }
+            }
+            
+            // 3. Replace the old list with the new, safe list *on the original object*
+            group.member_stories = safeMemberStories;
+        }
+        
+        // 4. Return the groups array.
+        return groups;
     }
 
     /**
@@ -416,7 +454,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     selectFirstStoryOfGroup(group: Group) {
         let story = group.member_stories[0];
         story = this.stories.find(o => o._id === story._id);
-        this.selectStoryScenario(story);
+        this.selectStory(story);
     }
 
     /**
@@ -424,7 +462,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @param scenario
      */
     selectScenario(scenario: Scenario) {
-        this.selectedScenario = scenario;
         this.scenarioChosen.emit(scenario);
     }
 
@@ -438,17 +475,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Selects a new Story and with it a new scenario
+     * Selects a new Story
      * @param story
      */
-    selectStoryScenario(story: Story) {
-        this.selectedStory = story;
-        this.initialyAddIsExample();
+    selectStory(story: Story) {
         this.storyChosen.emit(story);
-        if (story.scenarios.length > 0 && story.scenarios[0] != null && story.scenarios[0] != undefined) {
-            this.selectScenario(story.scenarios[0]);
-        } else this.deselectScenario()
-        this.backgroundService.backgroundReplaced = undefined;
     }
 
     scrollToSelectedStory() {
@@ -473,7 +504,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     selectStoryOfGroup(id) {
         const story = this.stories.find(o => o._id === id);
-        this.selectStoryScenario(story);
+        this.selectStory(story);
     }
 
     /**
@@ -704,43 +735,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
     }
 
-    initialyAddIsExample() {
-        console.log(this.selectedStory)
-        if (this.selectedStory) {
-            this.selectedStory.scenarios.forEach(scenario => {
-                scenario.stepDefinitions.given.forEach((value, index) => {
-                    if (!scenario.stepDefinitions.given[index].isExample) {
-                        scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
-                        value.values.forEach((val, i) => {
-                            scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                        })
-                    }
-                })
-                scenario.stepDefinitions.when.forEach((value, index) => {
-                    if (!scenario.stepDefinitions.when[index].isExample) {
-                        scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
-                        value.values.forEach((val, i) => {
-                            scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                        })
-                    }
-                })
-                scenario.stepDefinitions.then.forEach((value, index) => {
-                    if (!scenario.stepDefinitions.then[index].isExample) {
-                        scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
-                        value.values.forEach((val, i) => {
-                            scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
-                        })
-                    }
-                })
-    
-            })
-        }
-    }
     toTicket(story: string) {
-        const value = localStorage.getItem('repository');
+        const repoName = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = localStorage.getItem('source');
-        const repositoryContainer: RepositoryContainer = { value, source, _id };
+        const repositoryContainer: RepositoryContainer = { repoName, source, _id };
         this.storyService.goToTicket(story, repositoryContainer);
     }
 }

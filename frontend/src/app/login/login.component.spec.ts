@@ -11,9 +11,9 @@ import {  Location } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
 import { By } from '@angular/platform-browser';
-import {RepositoryContainer} from '../model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 
-const repositories: RepositoryContainer[] = [{_id: '1', value: 'myFirstRepo', source: 'db', canEdit: true}]
+const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true}]
 
 class MockedApiService {
   authenticated = false;

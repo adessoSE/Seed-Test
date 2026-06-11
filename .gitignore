@@ -81,4 +81,5 @@ backend/features/step_definitions/testing.js
 
 /act
 mongo-rs/rs_keyfile
+backend/tsconfig.tsbuildinfo
 opencode.jsonc

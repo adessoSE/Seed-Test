@@ -1,6 +1,6 @@
 
-import { checkValidGithub, jiraDecryptPassword } from "../helpers/userManagement";
 import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from "./models";
+import { checkValidGithubFormat, jiraDecryptPassword } from "../services/externalAccount.service";
 
 enum IssueTrackerOption{
     JIRA = 'jira',
@@ -40,6 +40,7 @@ abstract class IssueTracker {
     }
     abstract postComment(comment: string, issueDetail: {issueId: string, repoUser?: string, repoName?: string}, credentials: any);
 
+    //TODO: Durch ExternalServices AuthSTring ersetzen?
     protected buildAuthText(username: string, password: string, authMethod: string){
         let authString = `Bearer ${password}`
         if(authMethod === 'basic') { 
@@ -56,7 +57,7 @@ class Github extends IssueTracker {
         return super.reportText(report, testedTitle)
     }
     postComment(comment: string, issueDetail: any, credentials: any) {
-        if (!checkValidGithub(issueDetail.repoUser, issueDetail.repoName)) return;
+        if (!checkValidGithubFormat(issueDetail.repoUser, issueDetail.repoName)) return;
         if (!(new RegExp(/^\d+$/)).test(issueDetail.issueId)) return;
         const link = `https://api.github.com/repos/${issueDetail.repoUser}/${issueDetail.repoName}/issues/${issueDetail.issueId}/comments`;
         const auth = this.buildAuthText(credentials.login, credentials.githubToken, 'basic')

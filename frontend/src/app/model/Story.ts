@@ -80,4 +80,9 @@ export interface Story {
     * Host
     */
     host?: string;
+
+    /*
+    * Suggestions made by the AI
+    */
+    aiSuggestion?: object;
 }   

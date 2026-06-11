@@ -2,7 +2,7 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/model/Group';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 import { StoryService } from 'src/app/Services/story.service';
@@ -62,11 +62,12 @@ export class CreateNewStoryComponent {
     const title = this.storyForm.value.storyTitle;
     if (title.trim() !== '') {
       const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
-      const value = localStorage.getItem('repository');
+      const repoName = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
-      const source = 'db';
-      const repositoryContainer: RepositoryContainer = {value, source, _id};
+      const source = 'db';    
+      const repositoryContainer: RepositoryContainer = {repoName, source, _id};
       const story = {title, description};
+      
       this.storyService.createCustomStoryEvent({repositoryContainer, story});
     }
     this.storyForm.reset({storyTitle:'', storyDescription:''});

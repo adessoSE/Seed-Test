@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
-import { RepositoryContainer } from './model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { UntypedFormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -97,8 +97,8 @@ export class AppComponent implements OnInit{
     this.getRepositoriesObservable = this.projectService.getRepositoriesEvent.subscribe(() => this.getRepositories())
     this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
     
-    this.createRepositoryEmitter = this.storyService.createCustomStoryEmitter.subscribe(custom => {
-      this.projectService.createRepository(custom.repository.value, custom.repository._id).subscribe(_ => {
+    this.createRepositoryEmitter = this.projectService.createRepositoryEmitter.subscribe(custom => {
+      this.projectService.createRepository(custom.repository.repoName, custom.repository._id).subscribe(_ => {
           this.getRepositories()
         });
     });
@@ -201,8 +201,8 @@ export class AppComponent implements OnInit{
    */
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + userRepository.value;
-    localStorage.setItem('repository', userRepository.value);
+    ref.href = 'https://github.com/' + userRepository.repoName;
+    localStorage.setItem('repository', userRepository.repoName);
     localStorage.setItem('source', userRepository.source);
     localStorage.setItem('id', userRepository._id);
     if(this.router.url !== '/') {

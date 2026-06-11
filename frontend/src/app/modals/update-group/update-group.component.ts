@@ -3,7 +3,7 @@ import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/model/Group';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';
@@ -63,10 +63,10 @@ export class UpdateGroupComponent {
   openUpdateGroupModal(group: Group, groups: Group[]) {
     this.groups = groups;
     this.scrGroup = group;
-    const value = localStorage.getItem('repository');
+    const repoName = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
-    const repositoryContainer: RepositoryContainer = {value, source, _id};
+    const repositoryContainer: RepositoryContainer = {repoName, source, _id};
     this.storyService.getStories(repositoryContainer).subscribe(res => {
         this.stories = res;
         this.filteredStories = new MatTableDataSource(res);
@@ -130,10 +130,10 @@ export class UpdateGroupComponent {
 
   updateGroup(form: NgForm) {
     console.log('selectedStories:', this.selectedStories);
-    const value = localStorage.getItem('repository');
+    const repoName = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
-    const repositoryContainer: RepositoryContainer = {value, source, _id};
+    const repositoryContainer: RepositoryContainer = {repoName, source, _id};
     const group: Group = {_id: this.groupId, name: form.value.title, member_stories: this.selectedStories, isSequential: this.isSeq};
     this.groupService.updateGroupEvent({repositoryContainer, group});
     this.modalReference.close();

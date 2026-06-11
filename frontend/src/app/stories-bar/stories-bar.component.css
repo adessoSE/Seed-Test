@@ -365,4 +365,9 @@ a.storyListLink:hover{
   font-size: 13px  !important ;
 }
 
+fieldset[disabled] { /* For AI Review mode */
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 
