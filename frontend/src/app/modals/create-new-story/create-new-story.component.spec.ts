@@ -8,9 +8,9 @@ import { By } from '@angular/platform-browser';
 import { Story } from '@shared/models/Story';
 import { AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
 
-const _stories:Story[] = [{_id: 1, issue_number: 36523, story_id: 37727, storySource: 'github',
-	background: undefined, scenarios: [], oneDriver: true, title: 'test story', body: '',
-	state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false, host: 'my-test-host'}];
+const _stories:Story[] = [{_id: '1', issue_number: 36523, story_id: 37727, storySource: 'github',
+	background: {stepDefinitions: {when: []}}, scenarios: [], oneDriver: true, title: 'test story', body: '',
+	repo_type: 'github', state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false, host: 'my-test-host'}];
 
 
 @Component({
@@ -18,14 +18,15 @@ const _stories:Story[] = [{_id: 1, issue_number: 36523, story_id: 37727, storySo
     <div>
     <ng-container *ngTemplateOutlet="modal"> </ng-container>
     </div>
-    <app-create-new-story> </app-create-new-story> 
-    `
+    <app-create-new-story> </app-create-new-story>
+    `,
+	standalone: false
 })
 
 class WrapperComponent implements AfterViewInit {
-	@ViewChild(CreateNewStoryComponent) storyComponentRef: CreateNewStoryComponent;
+	@ViewChild(CreateNewStoryComponent) storyComponentRef!: CreateNewStoryComponent;
 
-	modal: TemplateRef<any>;
+	modal!: TemplateRef<any>;
 
 	constructor(private cdr: ChangeDetectorRef) {}
 
@@ -96,12 +97,12 @@ describe('CreateNewStoryComponent', () => {
 	it('should define title & description', fakeAsync(() => {
 		const inputElemnt = findComponent(fixture, '#storytitle');
 		inputElemnt.nativeElement.value = 'new story name';
-		inputElemnt.triggerEventHandler('input', null);
+		inputElemnt.nativeElement.dispatchEvent(new Event('input'));
 		const textElement = findComponent(fixture, '#storydescription');
 		textElement.nativeElement.value = 'a brief story desctiption';
-		textElement.triggerEventHandler('input', null);
+		textElement.nativeElement.dispatchEvent(new Event('input'));
 		fixture.detectChanges();
 		expect(inputElemnt.nativeElement.value).toEqual('new story name');
 		expect(textElement.nativeElement.value).toEqual('a brief story desctiption');
-	})); 
+	}));
 });

@@ -1,4 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { EventEmitter, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ThemingService } from '../../Services/theming.service';
+import { StoryService } from '../../Services/story.service';
 
 import { ExecutionListComponent } from './execution-list.component';
 
@@ -6,9 +10,28 @@ describe('ExecutionListComponent', () => {
 	let component: ExecutionListComponent;
 	let fixture: ComponentFixture<ExecutionListComponent>;
 
+	const mockModalService = {
+		open: jest.fn()
+	};
+
+	const mockThemingService = {
+		isDarkMode: jest.fn().mockReturnValue(false),
+		themeChanged: new EventEmitter()
+	};
+
+	const mockStoryService = {
+		getStory: jest.fn()
+	};
+
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ ExecutionListComponent ]
+			declarations: [ ExecutionListComponent ],
+			providers: [
+				{ provide: NgbModal, useValue: mockModalService },
+				{ provide: ThemingService, useValue: mockThemingService },
+				{ provide: StoryService, useValue: mockStoryService }
+			],
+			schemas: [CUSTOM_ELEMENTS_SCHEMA]
 		})
 			.compileComponents();
 

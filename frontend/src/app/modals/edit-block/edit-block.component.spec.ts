@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ToastrModule } from 'ngx-toastr';
 
 import { EditBlockComponent } from './edit-block.component';
 
@@ -8,7 +11,10 @@ describe('EditBlockComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ EditBlockComponent ]
+			declarations: [ EditBlockComponent ],
+			imports: [ HttpClientTestingModule, ToastrModule.forRoot() ],
+			// Suppress errors for child components (app-layout-modal, app-base-editor)
+			schemas: [ NO_ERRORS_SCHEMA ]
 		})
 			.compileComponents();
 	});

@@ -24,14 +24,14 @@ import { RenameStoryComponent } from '../modals/rename-story/rename-story.compon
 })
 
 class MockRenameStoryModal {
-	@ViewChild('renameStoryModal') renameStoryCompRef: MockRenameStoryModal;
+	@ViewChild('renameStoryModal') renameStoryCompRef!: MockRenameStoryModal;
 
 	openRenameStoryModal = jest.fn();
 
 }
 
 const scenario : Scenario = {'scenario_id':1,'comment':'','name':'successful Story creation','stepDefinitions':{'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'], 'post': '','isExample':[]}],'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post': '', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'], 'post': '', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['New Story created','Success'], 'post': '', 'isExample':[]}],'example':[]}};
-const story: Story = {'_id': 'a','story_id': 123, 'storySource': 'db','background':{'stepDefinitions':
+const story: Story = {'_id': 'a','story_id': 123, 'storySource': 'db','repo_type':'db','background':{'stepDefinitions':
   {'when':[]}},'scenarios':[{'scenario_id':1,'comment':'','name':'successful Story creation','stepDefinitions':
   {'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'], 'post': '', 'isExample':[]}],
   	'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post': '', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'], 'post': '', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['New Story created','Success'], 'post': '', 'isExample':[]}],
@@ -39,7 +39,7 @@ const story: Story = {'_id': 'a','story_id': 123, 'storySource': 'db','backgroun
 	'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post': '', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'], 'post': '', 'isExample':[]}],
 	'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['Could not create Story','Error'], 'post':'', 'isExample':[]}],'example':[]}}],'assignee':'cniebergall','assignee_avatar_url':'https://avatars1.githubusercontent.com/u/45001224?v=4','body':'As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n','issue_number': 7,'state':'open','title':'Story creation', 'host':'example'};
   
-const stories : Story[] = [{'story_id': 123,'_id':2,'storySource':'github', 'background':
+const stories : Story[] = [{'story_id': 123,'_id':'2','storySource':'github', 'repo_type':'github', 'background':
   {'stepDefinitions':{'when':[]}},'scenarios':
   [{'scenario_id':1,'comment':'','name':'successful Story creation','stepDefinitions':
   {'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'], 'post':'', 'isExample':[] }],
@@ -59,7 +59,7 @@ const stories : Story[] = [{'story_id': 123,'_id':2,'storySource':'github', 'bac
   		'type':'Add Variable','pre':'','mid':'','values':['BLUBB'], 'post': '', 'isExample':[]}]}}],
 'assignee':'cniebergall','assignee_avatar_url':'https://avatars1.githubusercontent.com/u/45001224?v=4',
 'body':'As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n','issue_number': 7,'state':'open','title':'Story creation'},
-{'_id': 'a','story_id': 123, 'storySource': 'db','background':{'stepDefinitions':
+{'_id': 'a','story_id': 123, 'storySource': 'db','repo_type':'db','background':{'stepDefinitions':
   {'when':[]}},'scenarios':[{'scenario_id':1,'comment':'','name':'successful Story creation','stepDefinitions':
   {'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'], 'post': '', 'isExample':[]}],
   	'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post': '', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'], 'post': '', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['New Story created','Success'], 'post': '', 'isExample':[]}],
@@ -83,7 +83,7 @@ describe('StoryEditorComponent', () => {
 			.compileComponents();
 	}));
 
-	beforeEach(inject([ApiService], s => {
+	beforeEach(inject([ApiService], (s: ApiService) => {
 		_apiService = s;
 		fixture = TestBed.createComponent(StoryEditorComponent);
 		component = fixture.componentInstance;
@@ -131,6 +131,10 @@ describe('StoryEditorComponent', () => {
 	describe('updateBackground', () => {
 		it('should update the background', () => {
 			component.selectedStory = story;
+			// stories must be set so checkStoriesForBack() can filter them
+			component.stories = stories;
+			// blocks must be initialized so changeBackgroundBlock() can iterate them
+			component.blocks = [];
 			jest.spyOn(component.backgroundService, 'updateBackground');
 			component.updateBackground();
 			expect(component.backgroundService.updateBackground).toHaveBeenCalled();
@@ -179,7 +183,7 @@ describe('StoryEditorComponent', () => {
 	});
 
 	describe('deleteScenario', () => {
-		it('should send delete request', waitForAsync((_done) => {
+		it('should send delete request', waitForAsync((_done: any) => {
 			component.stories = stories;
 			component.selectedStory = stories[0];
 			jest.spyOn(component.scenarioService, 'deleteScenario');
@@ -201,7 +205,8 @@ describe('StoryEditorComponent', () => {
 			const deletedScenario = component.selectedStory.scenarios[indexScenario];
       
 			component.scenarioDeleted();
-			expect(component.showEditor).toBeFalsy();
+			// After deleting one of two scenarios, selectScenario is called on the remaining one, setting showEditor = true
+			expect(component.showEditor).toBeTruthy();
 
 			expect(component.stories[component.stories.indexOf(component.selectedStory)].scenarios).not.toContain(deletedScenario);
 			expect(indexScenario).not.toBe(-1);

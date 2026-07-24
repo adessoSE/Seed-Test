@@ -1,10 +1,9 @@
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastrModule} from 'ngx-toastr';
-import { ROUTES } from '../routes/routes';
 import { AuthGuard } from '../guards/auth.guard';
 import { Router } from '@angular/router';
 import {  Location } from '@angular/common';
@@ -29,15 +28,15 @@ describe('LoginComponent', () => {
 	let router: Router;
 	let _service: MockedApiService;
 
-	beforeEach(waitForAsync(() => {
-		TestBed.configureTestingModule({
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
 			providers: [AuthGuard, MockedApiService],
-			imports: [ HttpClientTestingModule, ReactiveFormsModule, FormsModule, RouterTestingModule.withRoutes(ROUTES), ToastrModule.forRoot()],
+			imports: [ HttpClientTestingModule, ReactiveFormsModule, FormsModule, RouterTestingModule, ToastrModule.forRoot()],
 			declarations: [ LoginComponent ],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();
-	}));
+	});
 
 	beforeEach(() => {
 		router = TestBed.inject(Router);
@@ -56,25 +55,23 @@ describe('LoginComponent', () => {
 
 		it('should call githubLogin() on click', fakeAsync(()=> {
 			jest.spyOn(component, 'githubLogin');
-			const gitHubLink = findComponent(fixture, '.githubLoginContainer');
+			// Target the button directly — clicking the container div does not propagate down to the button
+			const gitHubLink = findComponent(fixture, '.githubLogin');
 			gitHubLink.nativeElement.click();
 			tick();
 			fixture.detectChanges();
 			expect(component.githubLogin).toHaveBeenCalled();
 		}));
 
-		it('should trigger getRepositories() on clicking at repository', fakeAsync(() => {
-			jest.spyOn(component, 'getRepositories');
-			component.repositories = repositories;
-			fixture.detectChanges();
+		it('should trigger getRepositories() when logged in without repository', fakeAsync(() => {
+			// The .repoLink element was removed from the template; test the ngOnInit path instead
+			jest.spyOn(component, 'getRepositories').mockImplementation(() => {});
+			localStorage.setItem('login', 'true');
+			localStorage.removeItem('repository');
+			component.ngOnInit();
 			tick();
-			const repoLink = findComponent(fixture, '.repoLink');
-			repoLink.nativeElement.click();
-			tick();
-			fixture.detectChanges();
-			//component.selectRepository(repositories[0]);
 			expect(component.getRepositories).toHaveBeenCalled();
-			//expect(localStorage.getItem('repository')).toEqual(repositories[0].value);
+			localStorage.removeItem('login');
 		}));
 
 		it(' onDark() should return true when user-theme set to dark in localStorage', fakeAsync(() => {

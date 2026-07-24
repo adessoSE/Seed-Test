@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ToastrModule} from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { HttpClient } from '@angular/common/http';
 import { BackgroundService } from './background.service';
 import { ApiService } from './api.service';
@@ -26,7 +26,8 @@ describe('BackgroundService', () => {
 		it('should be created', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
-			const service: BackgroundService = new BackgroundService(apiService,http);
+			const toastr = TestBed.inject(ToastrService);
+			const service: BackgroundService = new BackgroundService(apiService, http, toastr);
 			expect(service).toBeTruthy();
 		});
 	});

@@ -4,6 +4,7 @@ import { ToastrModule, ToastrService} from 'ngx-toastr';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from './api.service';
 import { BlockService } from './block.service';
+import { StoryService } from './story.service';
 
 describe('BlockService', () => {
 	let _service: BlockService;
@@ -26,7 +27,8 @@ describe('BlockService', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
 			const toast = TestBed.inject(ToastrService);
-			const service: BlockService = new BlockService(apiService,http,toast);
+			const storyService = TestBed.inject(StoryService);
+			const service: BlockService = new BlockService(apiService, http, toast, storyService);
 			expect(service).toBeTruthy();
 		});
 	});

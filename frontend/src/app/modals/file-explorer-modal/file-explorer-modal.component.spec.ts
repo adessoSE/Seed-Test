@@ -1,14 +1,40 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
+import { of } from 'rxjs';
 
 import { FileExplorerModalComponent } from './file-explorer-modal.component';
+import { ProjectService } from '../../Services/project.service';
+import { ThemingService } from '../../Services/theming.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 describe('FileExplorerModalComponent', () => {
 	let component: FileExplorerModalComponent;
 	let fixture: ComponentFixture<FileExplorerModalComponent>;
 
+	const mockProjectService = {
+		queryFiles: jest.fn().mockReturnValue(of([])),
+		uploadFile: jest.fn().mockReturnValue(of({})),
+		deleteUploadedFile: jest.fn().mockReturnValue(of({}))
+	};
+
+	const mockThemingService = {
+		isDarkMode: jest.fn().mockReturnValue(false),
+		themeChanged: new EventEmitter()
+	};
+
+	const mockModalService = {
+		open: jest.fn()
+	};
+
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ FileExplorerModalComponent ]
+			declarations: [ FileExplorerModalComponent ],
+			providers: [
+				{ provide: ProjectService, useValue: mockProjectService },
+				{ provide: ThemingService, useValue: mockThemingService },
+				{ provide: NgbModal, useValue: mockModalService }
+			],
+			schemas: [CUSTOM_ELEMENTS_SCHEMA]
 		})
 			.compileComponents();
 

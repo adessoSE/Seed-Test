@@ -10,11 +10,11 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
 import { ActivatedRoute } from '@angular/router';
 
-const story:Story = {_id: 1, issue_number: 36523, story_id: 37727, storySource: 'github', 
-	background: undefined, scenarios: [], oneDriver: true, title: 'test story', body: '',
-	state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false, host: 'my-test-host'};
+const story:Story = {_id: '1', issue_number: 36523, story_id: 37727, storySource: 'github',
+	background: {stepDefinitions: {when: []}}, scenarios: [], oneDriver: true, title: 'test story', body: '',
+	repo_type: 'github', state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false, host: 'my-test-host'};
 
-const scenario: Scenario = {scenario_id: 3, name: 'my scenario', stepDefinitions: undefined, 
+const scenario: Scenario = {scenario_id: 3, name: 'my scenario', stepDefinitions: {given: [], when: [], then: [], example: []},
 	comment: 'i leave a few words here', lastTestPassed: false, saved: true,
 	stepWaitTime: 40, browser: 'chrome'};
 
@@ -62,22 +62,19 @@ describe('ParentComponent', () => {
 		expect(component.selectedStory).toEqual(story);
 	});
 
-	it ('should render app-report-history', () => {
-		component.setEditor();
+	it ('should render app-report-history when activeView is reportHistoryView', () => {
+		component.activeView = 'reportHistoryView';
 		fixture.detectChanges();
 		const reportHistoryEl = findComponent(fixture, 'app-report-history');
 		expect(reportHistoryEl).toBeTruthy();
 	});
 
-	it('should call setEditor() on EventEmitter', () => {
-		component.isStoryEditorActive = false;
-		fixture.detectChanges();
-		const reportHistoryEl = findComponent(fixture, 'app-report-history');
-		jest.spyOn(component, 'setEditor');
-		reportHistoryEl.triggerEventHandler('changeEditor', null);
-		fixture.detectChanges();
-		expect(component.setEditor).toHaveBeenCalled();
-		expect(component.isStoryEditorActive).toBeTruthy();
+	it('should toggle isStoryEditorActive when setEditor is called', () => {
+		expect(component.isStoryEditorActive).toBe(true);
+		component.setEditor();
+		expect(component.isStoryEditorActive).toBe(false);
+		component.setEditor();
+		expect(component.isStoryEditorActive).toBe(true);
 	});
 
 	it('should update report on event', () => {

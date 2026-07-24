@@ -8,7 +8,7 @@ import { Story } from '@shared/models/Story';
 describe('StoriesBarComponent', () => {
 	let component: StoriesBarComponent;
 	let fixture: ComponentFixture<StoriesBarComponent>;
-	const storiesForAll: Story[] = [{story_id:502603476,_id:34,storySource:'github',title:'Gratis Versand',
+	const storiesForAll: Story[] = [{story_id:502603476,_id:'34',storySource:'github',repo_type:'github',title:'Gratis Versand',
 		body:'Als Premium Kunde erhalte ich freien Versand, wenn ich 5 BÜcher bestelle',
 		state:'open',issue_number:66,assignee:'adessoCucumber',
 		assignee_avatar_url:'https://avatars0.githubusercontent.com/u/50622173?v=4',
@@ -22,7 +22,7 @@ describe('StoriesBarComponent', () => {
 				pre:'So I can see the text',post:'',stepType:'then',type:'Text',
 				values:['Free Delivery','Delivery Costs'], 'isExample':[]}],example:[]}}],
 		background:{name:'New Background',stepDefinitions:{when:[]}}},
-	{'story_id':501324078,_id:46,storySource:'db',title:'Seed-Test','body':'Test the our own website','state':'open',
+	{'story_id':501324078,_id:'46',storySource:'db',repo_type:'db',title:'Seed-Test','body':'Test the our own website','state':'open',
 		issue_number:55,assignee:'adessoCucumber',
 		assignee_avatar_url:'https://avatars0.githubusercontent.com/u/50622173?v=4',
 		scenarios:[{scenario_id:1,comment:'',name:'Create Scenario',stepDefinitions:{given:[{id:1,mid:'',
@@ -71,44 +71,29 @@ describe('StoriesBarComponent', () => {
 	});
 
 	describe('selectScenario', () =>{
-		afterEach(() =>{
-			component.selectedScenario = undefined;
-		});
-
-		it('should set the selected scenario', () =>{
+		it('should emit the scenario via scenarioChosen', () =>{
 			const scenario = {scenario_id:2,comment:'',name:'New Scenario',stepDefinitions:{given:[],when:[],then:[],example:[]}};
+			jest.spyOn(component.scenarioChosen, 'emit');
 			component.selectScenario(scenario);
-			expect(component.selectedScenario).toBe(scenario);
+			expect(component.scenarioChosen.emit).toHaveBeenCalledWith(scenario);
 		});
 	});
 
-	describe('selectStoryScenario', () =>{
+	describe('selectStory', () =>{
 
 		beforeEach(() =>{
 			component.stories = storiesForAll;
 		});
 
 		afterEach(() =>{
-			component.stories = undefined;
+			component.stories = undefined as any;
 		});
 
-		it('should set the story and the scenario', () =>{
+		it('should emit the story via storyChosen', () =>{
 			const story = component.stories[0];
-			jest.spyOn(component, 'selectScenario');
-      
-			component.selectStoryScenario(story);
-			expect(component.selectScenario).toHaveBeenCalled();
-			expect(component.selectedStory).toEqual(story);
-		});
-
-		it('should not call select Scenario', () =>{
-			const story = component.stories[0];
-			story.scenarios = [];
-			jest.spyOn(component, 'selectScenario');
-      
-			component.selectStoryScenario(story);
-			expect(component.selectScenario).not.toHaveBeenCalled();
-			expect(component.selectedStory).toBe(story);
+			jest.spyOn(component.storyChosen, 'emit');
+			component.selectStory(story);
+			expect(component.storyChosen.emit).toHaveBeenCalledWith(story);
 		});
 	});
 });
