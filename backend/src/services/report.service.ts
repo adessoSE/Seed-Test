@@ -1,7 +1,7 @@
 import { ObjectId, GridFSBucket } from 'mongodb';
 import * as dbConnection from '../database/DbConnector';
-import str from 'string-to-stream';
-import toString from 'stream-to-string';
+import { Readable } from 'stream';
+import { text as streamToText } from 'stream/consumers';
 import fs from 'fs';
 import pfs from 'fs/promises';
 import path from 'path';
@@ -233,7 +233,7 @@ async function getReportFromDB(reportData: any): Promise<any> {
 		result = { _id: reportData._id, jsonReport: reportJson?.jsonReport };
 	} else if (reportData.bigReport) {
 		const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
-		const reportString = await toString(bucket.openDownloadStream(new ObjectId(reportData.bigReport.toString())));
+		const reportString = await streamToText(bucket.openDownloadStream(new ObjectId(reportData.bigReport.toString())));
 		const reportJson = JSON.parse(reportString);
 		result = { _id: reportData._id, jsonReport: reportJson.jsonReport };
 	} else 
@@ -248,9 +248,9 @@ async function uploadBigJsonData(data: any, fileName: string): Promise<ObjectId>
 	const id = new ObjectId();
 
 	return new Promise((resolve, reject) => {
-		str(JSON.stringify(data))
+		Readable.from(JSON.stringify(data))
 			.pipe(bucket.openUploadStreamWithId(id, fileName))
-			.on('error', (error) => reject(error))
+			.on('error', (error: Error) => reject(error))
 			.on('finish', () => resolve(id));
 	});
 }

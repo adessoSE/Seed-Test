@@ -3,12 +3,10 @@ dotenv.config(); // Load environment variables first
 
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 import passport from 'passport';
-import flash from 'express-flash';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import http from 'http';
@@ -101,11 +99,10 @@ app.use(cors({
 	],
 	credentials: true
 }));
-app.use(bodyParser.json({ limit: '500kb' }));
-app.use(bodyParser.urlencoded({ limit: '500kb', extended: true }));
+app.use(express.json({ limit: '500kb' }));
+app.use(express.urlencoded({ limit: '500kb', extended: true }));
 // Sanitize request data against MongoDB operator injection ($gt, $ne, etc.)
 app.use(mongoSanitize());
-app.use(flash());
 app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
