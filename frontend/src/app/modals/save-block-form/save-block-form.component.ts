@@ -16,19 +16,19 @@ import { BackgroundService } from '../../Services/background.service';
 })
 export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
-	@ViewChild('saveBlockFormModal') saveBlockFormModal: SaveBlockFormComponent;
-	selectedTemplate: string;
+	@ViewChild('saveBlockFormModal') saveBlockFormModal!: SaveBlockFormComponent;
+	selectedTemplate!: string;
 	/**
     * Sets a new selected story
     */
 	@Input()
-	set templateName(name) {
+	set templateName(name: string) {
 		this.selectedTemplate = name;
 	}
 	/**
      * Block to be saved
      */
-	block: Block;
+	block!: Block;
 
 	/**
     * Columns of the save block table
@@ -37,7 +37,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	/**
     * Columns of the second save block table
     */
-	displayedColumnsSaveBlockExample: string[];
+	displayedColumnsSaveBlockExample!: string[];
 
 	/**
     * List with the steps to be saved to the block
@@ -66,27 +66,27 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	/**
     * Parent component
     */
-	parentComponent;
-  
+	parentComponent: any;
+
 	/**
     * Boolean, whether steps should be convert to a reference
     */
-	saveAsSingleSteps: boolean;
+	saveAsSingleSteps!: boolean;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
-	blocks: Block[];
+	blocks!: Block[];
 
-	updateObservable: Subscription;
+	updateObservable!: Subscription;
 
-	isBackground: boolean;
-	backgroundName: string;
+	isBackground!: boolean;
+	backgroundName!: string;
 
 
 	constructor(private modalService: NgbModal, private toastr: ToastrService, public blockService: BlockService, public backgroundService: BackgroundService) {}
 
 	ngOnInit() {
-		const id = localStorage.getItem('id');
+		const id = localStorage.getItem('id')!;
 		this.blockService.getBlocks(id).subscribe((resp) => {
 			this.blocks = resp;
 		});
@@ -111,7 +111,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
      * @param backgroundName
      * @param stories
      */
-	openSaveBlockFormModal(block: Block, comp, isBackground?: boolean, backgroundName?) {
+	openSaveBlockFormModal(block: Block, comp: any, isBackground?: boolean, backgroundName?: string) {
 		if (this.selectedTemplate === 'background')
 			this.checkSaveAsSingleSteps();
     
@@ -119,17 +119,17 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 		this.exampleChecked = false;
 		this.block = block;
 		this.parentComponent = comp;
-		this.backgroundName = backgroundName;
-		this.isBackground = isBackground;
+		this.backgroundName = backgroundName ?? '';
+		this.isBackground = isBackground ?? false;
 		if (block.multipleScenarios && block.multipleScenarios.length > 0) 
 			this.exampleBlock = true;
     
 		this.createStepList();
 		this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
 		if (isBackground && isBackground !== undefined){
-			document.getElementById('modalHeader').innerHTML = 'Save Background';
-			document.getElementById('infoSpan').innerHTML = 'You have replaced the current story background. To save this background in your project, click Submit. If you don`t want to use it anymore and want to delete the current background, click Discard Background.';
-			document.getElementById('multipleScenarioDiv').style.display = 'none';
+			document.getElementById('modalHeader')!.innerHTML = 'Save Background';
+			document.getElementById('infoSpan')!.innerHTML = 'You have replaced the current story background. To save this background in your project, click Submit. If you don`t want to use it anymore and want to delete the current background, click Discard Background.';
+			(document.getElementById('multipleScenarioDiv') as HTMLElement).style.display = 'none';
 		}
 	}
 
@@ -142,7 +142,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 		this.displayedColumnsSaveBlockExample = [];
 		let toastrShown = false;
 		Object.keys(this.block.stepDefinitions).forEach((key, _) => {
-			this.block.stepDefinitions[key].forEach((step: StepType) => {
+			(this.block.stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach((step: StepType) => {
 				if (step.stepType !== undefined){
 					if (step._blockReferenceId && !toastrShown){
 						this.toastr.info("Please Note: To avoid complexity issues embedded blocks aren't allowed to be saved in another blocks ","You've selected at least one reference block to save in another block.", {
@@ -151,16 +151,16 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 						});
 						toastrShown = true;
 					} else if (!step._blockReferenceId)
-						this.stepListSaveBlock.push(step);
+						(this.stepListSaveBlock as StepType[]).push(step);
             
 				} else 
-					this.stepListSaveBlockExample.push(step);
+					(this.stepListSaveBlockExample as StepType[]).push(step);
           
           
 			});
 		});
 		if (this.stepListSaveBlockExample.length > 0) {
-			const valueLength = this.stepListSaveBlockExample[0].values.length;
+			const valueLength = (this.stepListSaveBlockExample[0] as StepType).values.length;
 			this.displayedColumnsSaveBlockExample.push('stepType');
 			for (let index = 0; index < valueLength; index++) 
 				this.displayedColumnsSaveBlockExample.push(index.toString());
@@ -177,7 +177,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 		if (this.exampleChecked) {
 			this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock));
 			this.stepListSaveBlock = this.stepListSaveBlock.filter(step => {
-				return step.stepType.toString() === 'example';
+				return (step as any).stepType.toString() === 'example';
 			});
 		} else 
 			this.stepListSaveBlock = JSON.parse(JSON.stringify(this.stepListComplete));
@@ -192,9 +192,9 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 		this.parentComponent.checkAllSteps(false);
 		if (this.blockBeforeSubmit(title)) {
 			this.block.name = title;
-			this.block.repository = localStorage.getItem('repository');
-			this.block.source = localStorage.getItem('source');
-			this.block.repositoryId = localStorage.getItem('id');
+			this.block.repository = localStorage.getItem('repository') ?? undefined;
+			this.block.source = localStorage.getItem('source') ?? undefined;
+			this.block.repositoryId = localStorage.getItem('id') ?? undefined;
 			this.filterResavedReferences(this.block);
 			this.blockService.saveBlock(this.block).subscribe((resp) => {
 				console.log(resp);
@@ -204,7 +204,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 					this.saveAsSingleSteps = (!this.saveAsSingleSteps);
 				}
 				this.updateBlocksEventEmitter();
-				delete this.saveAsSingleSteps;
+				(this as any).saveAsSingleSteps = undefined;
 				this.toastr.success('successfully saved', 'Block');
 			});
 			this.modalReference.close();
@@ -215,9 +215,9 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
    * Prevents reference blocks from being saved repeatedly
    */
 	filterResavedReferences(_block: Block): Block {
-		for (const stepType in this.block.stepDefinitions) 
-			this.block.stepDefinitions[stepType] = this.block.stepDefinitions[stepType].filter(
-				(step) => !step._blockReferenceId
+		for (const stepType in this.block.stepDefinitions)
+			(this.block.stepDefinitions as unknown as Record<string, StepType[]>)[stepType] = (this.block.stepDefinitions as unknown as Record<string, StepType[]>)[stepType].filter(
+				(step: StepType) => !step._blockReferenceId
 			);
     
 		return this.block; // Assuming you want to return the modified block
@@ -228,7 +228,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
    *  @param title
    *  @returns
    */
-	blockBeforeSubmit(title){
+	blockBeforeSubmit(title: string){
 		//title validation
 		let blockValid = true;
 		if (this.isBackground && this.isBackground !== undefined)
@@ -258,7 +258,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
    * If title already used
    * @param value
    */
-	isTitleEqual(value): boolean {
+	isTitleEqual(value: string): boolean {
 		let bool = false;
 		this.blocks.forEach(block => {
 			if (value === block.name && block.isBackground == this.block.isBackground)  bool = true; 
@@ -279,7 +279,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	}
 
 	closeModal(){
-		delete this.saveAsSingleSteps;
+		(this as any).saveAsSingleSteps = undefined;
 		this.modalReference.close();
 	}
 }

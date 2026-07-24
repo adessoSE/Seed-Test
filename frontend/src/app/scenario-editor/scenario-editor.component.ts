@@ -3,6 +3,7 @@ import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
+import { StepDefinition } from '@shared/models/StepDefinition';
 import { ToastrService } from 'ngx-toastr';
 import { Block } from '@shared/models/Block';
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
@@ -46,7 +47,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	/**
      * Sets a new selected story
      */
-	@Input() selectedStory: Story;
+	@Input() selectedStory!: Story;
 
 
 	/**
@@ -59,11 +60,11 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * }
      * }
      */
-	@Input() selectedScenario: Scenario;
+	@Input() selectedScenario!: Scenario;
 
 	@Input() isReviewing: boolean = false;
 
-	testRunning;
+	testRunning!: boolean;
 
 	/**
      * if the arrow left should be shown
@@ -83,43 +84,43 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	/**
      * Last step id after adding new step 
      */
-	lastStepId;
+	lastStepId: any;
 
-	indexOfExampleToDelete;
-	scenarioToUpdate: Scenario;
+	indexOfExampleToDelete!: number;
+	scenarioToUpdate!: Scenario;
 	readonly TEMPLATE_NAME = 'scenario';
 
 	/**
      * Subscriptions for all EventEmitter
      */
-	runSaveOptionObservable: Subscription;
-	renameScenarioObservable: Subscription;
-	updateRefObservable: Subscription;
-	updateScenariObservable: Subscription;
+	runSaveOptionObservable!: Subscription;
+	renameScenarioObservable!: Subscription;
+	updateRefObservable!: Subscription;
+	updateScenariObservable!: Subscription;
 
-	@Input() isDark: boolean;
+	@Input() isDark!: boolean;
 
 	/**
      * View child of the modals component
      */
-	@ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
-	@ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
-	@ViewChild('baseEditor') baseEditor: BaseEditorComponent;
+	@ViewChild('renameScenarioModal') renameScenarioModal!: RenameScenarioComponent;
+	@ViewChild('createScenarioModal') createScenarioModal!: CreateScenarioComponent;
+	@ViewChild('baseEditor') baseEditor!: BaseEditorComponent;
 
 	/**
      * Original step types not sorted or changed
      */
-	@Input() originalStepTypes: StepType[];
+	@Input() originalStepTypes!: StepType[];
     
 	/**
      * List of Blocks
      */
-	blocks: Block [];
+	blocks!: Block[];
 
 	/**
       * Currently selected block
       */
-	selectedBlock: Block;
+	selectedBlock!: Block;
 
 	/**
      * Event emitter to delete the scenario
@@ -156,7 +157,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
     * Subscribes to all necessary events
     */
 	ngOnInit() {
-		const id = localStorage.getItem('id');
+		const id = localStorage.getItem('id')!;
 		this.blockService.getBlocks(id).subscribe((resp) => {
 			this.blocks = resp;
 		});
@@ -220,7 +221,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * update a scenario
      * @returns
      */
-	updateScenario(scenario? : Scenario, storyId?) {
+	updateScenario(scenario?: Scenario, storyId?: string) {
 		let storyIdUpdate;
 		let updatingWithReferences: boolean;
 		if (scenario && storyId){
@@ -234,12 +235,12 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 		}
 		delete this.scenarioToUpdate.hasRefBlock; 
 		delete this.scenarioToUpdate.saved;
-		let steps = this.scenarioToUpdate.stepDefinitions['given'];
-		steps = steps.concat(this.scenarioToUpdate.stepDefinitions['when']);
-		steps = steps.concat(this.scenarioToUpdate.stepDefinitions['then']);
-		steps = steps.concat(this.scenarioToUpdate.stepDefinitions['example']);
+		let steps = this.scenarioToUpdate.stepDefinitions.given;
+		steps = steps.concat(this.scenarioToUpdate.stepDefinitions.when);
+		steps = steps.concat(this.scenarioToUpdate.stepDefinitions.then);
+		steps = steps.concat(this.scenarioToUpdate.stepDefinitions.example || []);
 
-		let undefined_steps = [];
+		let undefined_steps: StepType[] = [];
 		for (const element of steps) 
 			if (element !== undefined) 
 				if (String(element['type']).includes('Undefined Step')) 
@@ -247,7 +248,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
         
 
 		Object.keys(this.scenarioToUpdate.stepDefinitions).forEach((key, _) => {
-			this.scenarioToUpdate.stepDefinitions[key].forEach((step: StepType) => {
+			(this.scenarioToUpdate.stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach((step: StepType) => {
 				delete step.checked;
 				if (step.outdated) 
 					step.outdated = false;
@@ -258,7 +259,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 			console.log('There are undefined steps here');
         
 
-		this.scenarioToUpdate.lastTestPassed = null;
+		this.scenarioToUpdate.lastTestPassed = undefined;
 		this.checkOnReferences(this.scenarioToUpdate);
 		return new Promise<void>((resolve, _reject) => {
 			this.scenarioService
@@ -278,10 +279,11 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
     * @param scenario
     * @param blocks
     */
-	updateReferences(scenario){
+	updateReferences(scenario: Scenario){
 		const stepsReferences = [];
-		for (const prop in scenario.stepDefinitions) 
-			for (const step of scenario.stepDefinitions[prop]) 
+		const stepDefs = scenario.stepDefinitions as unknown as Record<string, StepType[]>;
+		for (const prop in stepDefs)
+			for (const step of stepDefs[prop])
 				for (const block of this.blocks) 
 					if (block._id === step._blockReferenceId && block.usedAsReference == undefined){
 						stepsReferences.push(step);
@@ -301,7 +303,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      
 	}
 
-	addScenarioToStory(event) {
+	addScenarioToStory(event: any) {
 		const scenarioName = event;
 		this.addScenarioEvent.emit(scenarioName);
 	}
@@ -309,9 +311,10 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
     * Checking if the scenario has a reference when saving
     * @param scenario
     */
-	checkOnReferences(scenario){
-		for (const prop in scenario.stepDefinitions) 
-			for (const step of scenario.stepDefinitions[prop]) 
+	checkOnReferences(scenario: Scenario){
+		const stepDefs = scenario.stepDefinitions as unknown as Record<string, StepType[]>;
+		for (const prop in stepDefs)
+			for (const step of stepDefs[prop])
 				if (step._blockReferenceId)
 					this.scenarioToUpdate.hasRefBlock = true;
               
@@ -331,14 +334,15 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      *
      */
 	saveExampleBlock() {
-		const saveBlock: any = {given: [], when: [], then: [], example: []};
-		for (const prop in this.selectedScenario.stepDefinitions) 
-			for (const s in this.selectedScenario.stepDefinitions[prop]) 
-				if ((prop == 'example' && this.selectedScenario.stepDefinitions[prop][s].checked) || this.includesExampleStep(this.selectedScenario.stepDefinitions[prop][s])) 
-					saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
+		const saveBlock: Record<string, StepType[]> = {given: [], when: [], then: [], example: []};
+		const stepDefs = this.selectedScenario.stepDefinitions as unknown as Record<string, StepType[]>;
+		for (const prop in stepDefs)
+			for (let s = 0; s < stepDefs[prop].length; s++)
+				if ((prop == 'example' && stepDefs[prop][s].checked) || this.includesExampleStep(stepDefs[prop][s]))
+					saveBlock[prop].push(stepDefs[prop][s]);
 				
 			
-		const _block: Block = {stepDefinitions: saveBlock};
+		const _block: Block = {stepDefinitions: saveBlock as unknown as StepDefinition};
 		//this.saveBlockModal.openSaveBlockFormModal(block, this);
 	}
 
@@ -361,7 +365,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * Renames the scenario
      * @param newTitle
      */
-	renameScenario(newTitle) {
+	renameScenario(newTitle: string) {
 		if (newTitle && newTitle.replace(/\s/g, '').length > 0) 
 			this.selectedScenario.name = newTitle;
         
@@ -372,13 +376,13 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * Selects a scenario
      * @param scenario
      */
-	selectScenario(scenario: Scenario) {
+	selectScenario(scenario: Scenario | null) {
 		if (scenario) 
 			if (!scenario.multipleScenarios) 
 				scenario.multipleScenarios = [];
             
         
-		this.selectedScenario = scenario;
+		this.selectedScenario = scenario as Scenario;
 		this.arrowLeft = this.checkArrowLeft();
 		this.arrowRight = this.checkArrowRight();
 	}
@@ -447,7 +451,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * Change the comment
      * @param newComment
      */
-	commentChange(newComment) {
+	commentChange(newComment: string) {
 		this.selectedScenario.comment = newComment;
 		this.selectedScenario.saved = false;
 	}
@@ -463,8 +467,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 		this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
 	}
 
-	blockSelectTrigger(block) {
-		this.selectedBlock =  this.blocks.find(i => i._id == block._blockReferenceId);
+	blockSelectTrigger(block: any) {
+		this.selectedBlock = this.blocks.find(i => i._id == block._blockReferenceId)!;
 		block.stepDefinitions = this.selectedBlock?.stepDefinitions;
 	}
 }

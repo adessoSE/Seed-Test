@@ -16,14 +16,14 @@ export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy
 	isNewProject: boolean = false; 
 	importMode: boolean = true; // true = Rename, false = Overwrite
 	projectName: string = '';
-	errorMessage: string;
+	errorMessage: string | null = null;
 	file: File | null = null;
-  
+
 	searchTerm: string = '';
 	searchList: RepositoryContainer[] = [];
-  
+
 	chooseFile: any; // Used by the file input's [(ngModel)]
-	selectedProject: string; // Used by the mat-select's [(ngModel)]
+	selectedProject!: string; // Used by the mat-select's [(ngModel)]
 	// ---------------------------------------------------
 
 	toggleNewProject = new UntypedFormControl(false);
@@ -31,8 +31,8 @@ export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy
 
 	repoList: RepositoryContainer[] = [];
 
-	private toggleNewProjectSub: Subscription;
-	private toggleImportModeSub: Subscription;
+	private toggleNewProjectSub!: Subscription;
+	private toggleImportModeSub!: Subscription;
 
 	constructor(
 		// Use MatDialogRef for Angular Material Modals
@@ -62,7 +62,7 @@ export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy
 
 	ngAfterViewChecked() {
 		if (this.isNewProject) 
-			delete this.projectName; 
+			this.projectName = '';
     
 	}
 
@@ -150,8 +150,8 @@ export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy
 		const inputElement = document.querySelector('.searchInputProject') as HTMLInputElement;
 		if (inputElement) inputElement.focus();
     
-		if (form.value.searchTerm) {
-			this.searchTerm = form.value.searchTerm.trim().toLowerCase();
+		if (form!.value.searchTerm) {
+			this.searchTerm = form!.value.searchTerm.trim().toLowerCase();
 			this.searchList = this.repoList.filter(repo => repo.repoName.toLowerCase().includes(this.searchTerm));
 		} else 
 			this.searchList = this.repoList; // Show all repos if search is empty

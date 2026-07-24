@@ -60,10 +60,10 @@ export class XrayService {
    * @returns {any[]} An array of objects representing the results, including precondition details and associated stories.
    */
 	getPreconditionStories(preConditions: any[]): any[] {
-		const preConditionResults = [];
+		const preConditionResults: any[] = [];
 		for (const precondition of preConditions) {
 
-			const testSetPromises = precondition.testSet.map(testKey =>
+			const testSetPromises = precondition.testSet.map((testKey: string) =>
 				this.storyService.getStoryByIssueKey(testKey).toPromise()
 			);
 

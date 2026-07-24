@@ -64,7 +64,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 			user.password = await bcrypt.hash(password, saltRounds);
 			user.transitioned = true; // Mark as new hash
             
-			await userService.updateUser(user._id, user);
+			await userService.updateUser(user._id!, user);
 			await userService.deleteRequest(user.email);
             
 			res.status(204).send(); // 204 No Content
@@ -102,7 +102,7 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 					const hashedPass = await bcrypt.hash(req.body.password, saltRounds);
 					user.password = hashedPass;
 					user.transitioned = true;
-					await userService.updateUser(user._id, user);
+					await userService.updateUser(user._id!, user);
 				} catch (hashError) {
 					return next(hashError);
 				}
@@ -194,6 +194,11 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 		// Find or register this user in our DB
 		const user = await userService.findOrRegisterGithub(githubProfile);
         
+		if (!user) {
+			res.status(500).json({ error: 'Failed to register or find GitHub user' });
+			return;
+		}
+
 		// Log the user in
 		req.logIn(user, (err) => {
 			if (err) return next(err);
@@ -217,7 +222,7 @@ export async function mergeGithub(req: Request, res: Response, next: NextFunctio
 		const user = req.user as User;
 
 		// Ensure the logged-in user is the one making the request
-		if (!user || user._id.toString() !== userId) {
+		if (!user || user._id!.toString() !== userId) {
 			res.status(403).json({ error: 'Forbidden: You can only merge your own account' });
 			return;
 		}
@@ -258,7 +263,7 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
 			return;
 		}
         
-		await userService.deleteUser(user._id);
+		await userService.deleteUser(user._id!);
         
 		req.logout((err) => {
 			if (err) console.error('Error during logout after user deletion:', err);
@@ -279,7 +284,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 		const { userID } = req.params;
 		const user = req.user as User;
          
-		if (!user || user._id.toString() !== userID) {
+		if (!user || user._id!.toString() !== userID) {
 			res.status(403).json({ error: 'Forbidden: You can only update your own account' });
 			return;
 		}

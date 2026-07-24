@@ -16,9 +16,9 @@ export class DisconnectJiraAccountComponent {
 	@Output()
 	jiraAccountResponse: EventEmitter<any> = new EventEmitter();
 
-	@ViewChild ('disconnectJiraModal') disconnectJiraModal: DisconnectJiraAccountComponent;
+	@ViewChild ('disconnectJiraModal') disconnectJiraModal!: DisconnectJiraAccountComponent;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
 	constructor(private modalService: NgbModal, public managmentService: ManagementService) { }
 

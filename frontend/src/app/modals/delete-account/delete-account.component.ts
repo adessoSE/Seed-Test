@@ -13,15 +13,15 @@ import { ManagementService } from 'src/app/Services/management.service';
 })
 export class DeleteAccountComponent {
 
-	@ViewChild ('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
+	@ViewChild ('deleteAccountModal') deleteAccountModal!: DeleteAccountComponent;
 
 	/**
      * Email of the user
      * Modal: delete account modal
      */
-	email: string;
+	email!: string;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
 	constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private toastr: ToastrService) { }
 
@@ -29,7 +29,7 @@ export class DeleteAccountComponent {
      * Opens delete account modal
      * @param email email of the user
      */
-	openDeleteAccountModal(email) {
+	openDeleteAccountModal(email: string) {
 		this.email = email;
 		this.modalReference = this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
 	}

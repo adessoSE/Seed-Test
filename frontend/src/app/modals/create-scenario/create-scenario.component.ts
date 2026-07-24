@@ -14,11 +14,11 @@ export class CreateScenarioComponent {
 	/**
      * Currently selected story
      */
-	selectedStory: Story;
+	selectedStory!: Story;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
-	@ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
+	@ViewChild('createScenarioModal') createScenarioModal!: CreateScenarioComponent;
 
 	/**
      * Event emitter to add a new scenario
@@ -31,7 +31,7 @@ export class CreateScenarioComponent {
  * Opens the rename scenario Modal
  *
  */
-	openCreateScenarioModal(selectedStory) {
+	openCreateScenarioModal(selectedStory: Story) {
 		this.selectedStory = selectedStory;
 		this.modalReference = this.modalService.open(this.createScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
 	}

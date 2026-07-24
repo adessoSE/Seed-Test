@@ -20,21 +20,21 @@ export class ApiService {
 	/**
    * url of the backend
    */
-	public apiServer: string = localStorage.getItem('url_backend');
+	public apiServer: string = localStorage.getItem('url_backend')!;
 
 	// ------------------------------- TOASTR TEMPLATE --------------------------------
 	/**
    * name of component
    */
-	public nameComponent: string;
+	public nameComponent!: string;
 	/**
    * name of the first option in the toastr
    */
-	public firstOption: string;
+	public firstOption!: string;
 	/**
    * name of the second option in the toastr
    */
-	public secondOption: string;
+	public secondOption!: string;
 	/**
    * set name of component
    * @param nameComponent
@@ -225,7 +225,7 @@ export class ApiService {
    */
 	updateUser(userID: string, user: User): Observable<User> {
 		//not used
-		this.apiServer = localStorage.getItem('url_backend');
+		this.apiServer = localStorage.getItem('url_backend')!;
 		return this.http
 			.post<User>(this.apiServer + '/user/update/' + userID, user)
 			.pipe(
@@ -240,7 +240,7 @@ export class ApiService {
    * Sets the available emulation devices of playwright
    */
 	getPlaywrightEmulators(): Observable<string[]> {
-		this.apiServer = localStorage.getItem('url_backend');
+		this.apiServer = localStorage.getItem('url_backend')!;
 		return this.http.get<string[]>(
 			this.apiServer + '/playwright/device-names',
 			ApiService.getOptions()
@@ -261,8 +261,8 @@ export class ApiService {
    * @param obj
    * @returns
    */
-	submitGithub(obj) {
-		this.apiServer = localStorage.getItem('url_backend');
+	submitGithub(obj: any) {
+		this.apiServer = localStorage.getItem('url_backend')!;
 		return this.http.post<any>(
 			this.apiServer + '/github/submitIssue/',
 			obj,
@@ -296,8 +296,8 @@ export class ApiService {
 		return repo.source === 'db';
 	}
 
-	resolveSpecialCommand(command) {
-		this.apiServer = localStorage.getItem('url_backend');
+	resolveSpecialCommand(command: any) {
+		this.apiServer = localStorage.getItem('url_backend')!;
 		return this.http.post<any>(
 			this.apiServer + '/story/specialCommands/resolve',
 			{ command: command },

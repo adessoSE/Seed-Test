@@ -56,7 +56,7 @@ export class ProjectService {
  * Emits to create repository event
  * @param repository
  */
-	createRepositoryEvent(repository) {
+	createRepositoryEvent(repository: any) {
 		this.createRepositoryEmitter.emit(repository);
 	}
 
@@ -65,7 +65,7 @@ export class ProjectService {
 	transferOwnershipEmitter() {
 		this.transferOwnershipEvent.emit();
 	}
-	changeOwner(repoId, email): Observable<RepositoryContainer> {
+	changeOwner(repoId: string, email: string): Observable<RepositoryContainer> {
 		const url = this.apiService.apiServer + '/repository/owner/' + repoId;
 		return this.http
 			.put<any>(url, { email: email }, ApiService.getOptions())
@@ -113,7 +113,7 @@ export class ProjectService {
 	//TODO: remove user, not used anymore
    * @returns
   */
-	public updateRepository(repoID, newRepoName: string, user: any, settings: any = null, aiConfig: AiConfig = null): Observable<any> {
+	public updateRepository(repoID: string, newRepoName: string, user: any, settings: any = null, aiConfig: AiConfig | null = null): Observable<any> {
 		// 1. Start with a clean base object.
 		const updateData: any = { 
 			repoName: newRepoName 
@@ -208,7 +208,7 @@ export class ProjectService {
 	//TODO: Remove user, not needed anymore
    * @returns
   */
-	deleteRepository(repo: RepositoryContainer, _user) {
+	deleteRepository(repo: RepositoryContainer, _user: any) {
 		const str = this.apiService.apiServer + '/repository/' + repo._id;
 		return this.http.delete<any>(str, ApiService.getOptions())
 			.pipe(tap(() => {
@@ -222,7 +222,7 @@ export class ProjectService {
    * @param user
    * @returns
   */
-	addToWorkgroup(_id: string, user) {
+	addToWorkgroup(_id: string, user: any) {
 		return this.http
 			.post<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
 			.pipe(tap(_ => {
@@ -236,7 +236,7 @@ export class ProjectService {
    * @param user
    * @returns
    */
-	updateWorkgroupUser(_id: string, user) {
+	updateWorkgroupUser(_id: string, user: any) {
 		return this.http
 			.put<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
 			.pipe(tap(_ => {

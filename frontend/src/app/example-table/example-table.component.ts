@@ -47,18 +47,18 @@ import { StepValidationService } from '../Services/step-validation.service';
 
 /* Example component */
 export class ExampleComponent {
-	selectedScenario;
+	selectedScenario!: Scenario;
 
-	selectedStory;
+	selectedStory!: Story;
 
-	@Input() originalStepTypes: StepType[];
+	@Input() originalStepTypes!: StepType[];
 
-	@Input() templateName: string;
+	@Input() templateName!: string;
 
 	/**
    * If the test is running
    */
-	@Input() testRunning: boolean;
+	@Input() testRunning!: boolean;
 
 	/**
    * Sets a new selected story
@@ -96,7 +96,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	/**
    * Data of the table entries
    */
-	data = [];
+	data: Record<string, string>[] = [];
 
 	/**
    * Control if dragging
@@ -105,35 +105,35 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	/**
    * Controls of the table
    */
-	controls: UntypedFormArray;
+	controls!: UntypedFormArray;
 
 	/**
    * Last row to render add button
    */
-	lastRow;
+	lastRow: any;
 
 	/**
    * selected Scenario
    */
-	selectedScenario: Scenario;
+	selectedScenario!: Scenario;
 	/**
    * toggle Edit table mode
    */
 	color: ThemePalette = 'primary';
 	toggleControl = new UntypedFormControl(false);
-	editMode: boolean;
+	editMode!: boolean;
 	/**
    * Boolean if the example table should be shown or not
    */
 	exampleThere: boolean = false;
 
-	deleteExampleObservable: Subscription;
-	toggleObservable: Subscription;
-	updateExampleTableObservable: Subscription;
-	themeObservable: Subscription;
+	deleteExampleObservable!: Subscription;
+	toggleObservable!: Subscription;
+	updateExampleTableObservable!: Subscription;
+	themeObservable!: Subscription;
 
-	indexOfExampleToDelete;
-	@ViewChild('table') table: MatTable<StepDefinition>;
+	indexOfExampleToDelete!: number;
+	@ViewChild('table') table!: MatTable<StepDefinition>;
 
 	/**
    * Event emitter to check if ththe example table should be removed or added to
@@ -151,9 +151,9 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 		this.initialRegex = true;
 	}
 
-	@Input() isDark: boolean;
+	@Input() isDark!: boolean;
 
-	@ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
+	@ViewChild('newExampleModal') newExampleModal!: NewExampleComponent;
 
 	/**
    * Event emitter to delete the example
@@ -165,7 +165,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	initialRegex: boolean = true;
 	targetOffset: number = 0;
 
-	@ViewChildren('example_input') example_input: QueryList<ElementRef>;
+	@ViewChildren('example_input') example_input!: QueryList<ElementRef>;
 
 	/**
    * @ignore
@@ -259,12 +259,12 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    */
 	addRowToExamples() {
 		const row = JSON.parse(
-			JSON.stringify(this.selectedScenario.multipleScenarios[0])
+			JSON.stringify(this.selectedScenario.multipleScenarios![0])
 		);
-		row.values.forEach((value, index) => {
+		row.values.forEach((value: string, index: number) => {
 			row.values[index] = 'value';
 		});
-		this.selectedScenario.multipleScenarios.push(row);
+		this.selectedScenario.multipleScenarios!.push(row);
 		this.updateTable();
 		this.selectedScenario.saved = false;
 	}
@@ -279,14 +279,14 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 		//});
 		//this.selectedScenario.stepDefinitions.example[0].values = Array.from(seen);
 		this.displayedColumns = [' '].concat(
-			this.selectedScenario.multipleScenarios[0].values
+			this.selectedScenario.multipleScenarios![0].values
 		);
 		const formArray: UntypedFormGroup[] = [];
-		for (let i = 1; i < this.selectedScenario.multipleScenarios.length; i++) {
+		for (let i = 1; i < this.selectedScenario.multipleScenarios!.length; i++) {
 			const toGroups = new UntypedFormGroup({}, { updateOn: 'blur' });
-			for (let j = 0; j < this.selectedScenario.multipleScenarios[i].values.length; j++) {
-				const cont1 = new UntypedFormControl(this.selectedScenario.multipleScenarios[i].values[j]);
-				toGroups.addControl(this.selectedScenario.multipleScenarios[0].values[j], cont1);
+			for (let j = 0; j < this.selectedScenario.multipleScenarios![i].values.length; j++) {
+				const cont1 = new UntypedFormControl(this.selectedScenario.multipleScenarios![i].values[j]);
+				toGroups.addControl(this.selectedScenario.multipleScenarios![0].values[j], cont1);
 			}
 			formArray.push(toGroups);
 		}
@@ -298,11 +298,11 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    */
 	initializeTable() {
 		this.data = [];
-		for (let i = 1; i < this.selectedScenario.multipleScenarios.length; i++) {
-			const js = {};
-			for (let j = 0; j < this.selectedScenario.multipleScenarios[i].values.length; j++) 
-				js[this.selectedScenario.multipleScenarios[0].values[j]] = this.selectedScenario.multipleScenarios[i].values[j];
-      
+		for (let i = 1; i < this.selectedScenario.multipleScenarios!.length; i++) {
+			const js: Record<string, string> = {};
+			for (let j = 0; j < this.selectedScenario.multipleScenarios![i].values.length; j++)
+				js[this.selectedScenario.multipleScenarios![0].values[j]] = this.selectedScenario.multipleScenarios![i].values[j];
+
 			this.data.push(js);
 		}
 		this.regexHighlightOnInit();
@@ -352,11 +352,11 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    * Updates the table controls and data
    */
 	updateTable() {
-		if (this.selectedScenario.multipleScenarios[1]) {
+		if (this.selectedScenario.multipleScenarios![1]) {
 			this.exampleThere = true;
 			this.initializeTable();
 			this.initializeTableControls();
-			this.lastRow = this.selectedScenario.multipleScenarios.slice(-1)[0];
+			this.lastRow = this.selectedScenario.multipleScenarios!.slice(-1)[0];
 			this.scenarioService.scenarioChangedEmitter();
 		} else 
 			this.exampleThere = false;
@@ -368,11 +368,11 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    * @param event change event
    * @param rowIndex row index of the changed cell
    */
-	checkExample(event, rowIndex) {
+	checkExample(event: any, rowIndex: number) {
 		this.checkRowIndex.emit(rowIndex + 1);
 	}
 
-	renameExample(columnIndex) {
+	renameExample(columnIndex: number) {
 		this.newExampleModal.openNewExampleModal(this.selectedScenario, 'rename', columnIndex - 1);
 		// this.newExampleModal.renameExample(this.selectedScenario, columnIndex - 1);
 		this.updateTable();
@@ -382,7 +382,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    * Emitts the delete scenario event
    * @param event
    */
-	deleteExample(event, columnIndex) {
+	deleteExample(event: any, columnIndex: number) {
 		this.indexOfExampleToDelete = columnIndex - 1;
 		this.deleteExampleEvent.emit();
 		this.showDeleteExampleToast(event);
@@ -405,30 +405,30 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 
 	deleteExampleFunction() {
 
-		const oldName = this.selectedScenario.multipleScenarios[0].values[this.indexOfExampleToDelete];
+		const oldName = this.selectedScenario.multipleScenarios![0].values[this.indexOfExampleToDelete];
 
-		this.selectedScenario.multipleScenarios.forEach((value, index) => {
-			this.selectedScenario.multipleScenarios[index].values.splice(this.indexOfExampleToDelete, 1);
+		this.selectedScenario.multipleScenarios!.forEach((value, index) => {
+			this.selectedScenario.multipleScenarios![index].values.splice(this.indexOfExampleToDelete, 1);
 		});
 
-		if (this.selectedScenario.multipleScenarios[0].values.length == 0) 
+		if (this.selectedScenario.multipleScenarios![0].values.length == 0)
 			this.selectedScenario.multipleScenarios = [];
-    
+
 
 		this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
 			value.values.forEach((val, i) => {
 				if (val == '<' + oldName + '>') {
 					this.selectedScenario.stepDefinitions.given[index].values[i] = '';
-					this.selectedScenario.stepDefinitions.given[index].isExample[i] = false;
+					this.selectedScenario.stepDefinitions.given[index].isExample![i] = false;
 				}
 			});
 		});
-  
+
 		this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
 			value.values.forEach((val, i) => {
 				if (val == '<' + oldName + '>') {
 					this.selectedScenario.stepDefinitions.when[index].values[i] = '';
-					this.selectedScenario.stepDefinitions.when[index].isExample[i] = false;
+					this.selectedScenario.stepDefinitions.when[index].isExample![i] = false;
 				}
 			});
 		});
@@ -437,7 +437,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 			value.values.forEach((val, i) => {
 				if (val == '<' + oldName + '>') {
 					this.selectedScenario.stepDefinitions.then[index].values[i] = '';
-					this.selectedScenario.stepDefinitions.then[index].isExample[i] = false;
+					this.selectedScenario.stepDefinitions.then[index].isExample![i] = false;
 				}
 			});
 		});
@@ -461,9 +461,9 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    * Change the order of rows
    */
 	replaceDragedValue() {
-		const newData = [];
+		const newData: string[][] = [];
 		this.data.forEach((row) => {
-			const newRow = [];
+			const newRow: string[] = [];
 			Object.keys(row).forEach((key) => {
 				newRow.push(row[key]);
 			});
@@ -471,10 +471,10 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 		});
 		for (
 			let i = 1;
-			i < this.selectedScenario.multipleScenarios.length;
+			i < this.selectedScenario.multipleScenarios!.length;
 			i++
-		) 
-			this.selectedScenario.multipleScenarios[i].values = newData[i - 1];
+		)
+			this.selectedScenario.multipleScenarios![i].values = newData[i - 1];
     
 	}
 
@@ -486,13 +486,13 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    * @param rowIndex index of changed value in example
    * @param initialCall if call is from ngDoCheck
    */
-	exampleNullValue: boolean;
+	exampleNullValue!: boolean;
 
-	private highlightRegex(el, columnIndex, rowIndex, initialCall, element?, column?) {
+	private highlightRegex(el: HTMLElement, columnIndex: number | undefined, rowIndex: number | undefined, initialCall: boolean, element?: any, column?: string) {
 		const inputValue: string = el.textContent;
 
 		if (!initialCall) {
-			this.selectedScenario.multipleScenarios[rowIndex + 1].values[columnIndex - 1] = inputValue;
+			this.selectedScenario.multipleScenarios![rowIndex! + 1].values[columnIndex! - 1] = inputValue;
 			this.selectedScenario.saved = false;
 		}
 		if (!initialCall) 

@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect, Locator } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import {
@@ -33,6 +33,11 @@ async function handleError(f: () => Promise<any>) {
 	} catch (error) {
 		throw error;
 	}
+}
+
+/** Safely extract message from an unknown error type */
+function errMsg(error: unknown): string {
+	return error instanceof Error ? error.message : String(error);
 }
 
 console.log('We are before PlaywrightWorld creation!');
@@ -167,14 +172,16 @@ function expandAttributeWildcard(locatorString: string) {
 		let isContains = false;
 
 		if (match.includes('contains')) {
-			value = match.match(/contains\(@\*\s*,\s*"([^"]*?)"\)/)[1];
+			const containsMatch = match.match(/contains\(@\*\s*,\s*"([^"]*?)"\)/);
+			value = containsMatch ? containsMatch[1] : '';
 			isContains = true;
-		} else 
+		} else
 			value = match.split('"')[1];
-    
 
-		const expansion = `(${attributes[elementType]
-			.map((attr) =>
+
+		const attrList = attributes[elementType as keyof typeof attributes] || attributes.default;
+		const expansion = `(${attrList
+			.map((attr: string) =>
 				isContains ? `contains(@${attr}, "${value}")` : `@${attr}="${value}"`
 			)
 			.join(' or ')})`;
@@ -184,10 +191,10 @@ function expandAttributeWildcard(locatorString: string) {
 }
 
 async function mapLocatorsToPromises(
-	locators,
-	action,
-	value = undefined,
-	...args
+	locators: Locator[],
+	action: string,
+	value: any = undefined,
+	...args: any[]
 ) {
 	const expandedLocators = locators.map((locator) => {
 		let locatorString = locator.toString();
@@ -249,7 +256,7 @@ async function mapLocatorsToPromises(
 							// Für alle anderen CSS-Properties
 							return await expect(locator).toHaveCSS(args[0], value);
 						default:
-							return await expect(locator)[action](value);
+							return await (expect(locator) as any)[action](value);
 					}
 				else if (action === 'check') {
 					//Nur ein Promise.any darf ausgeführt werden, deshalb Locken wir beim ersten Locator, checkStatePromises prüft aber alle
@@ -265,9 +272,9 @@ async function mapLocatorsToPromises(
 								await locator.waitFor({ state: 'attached' });
 								const currentState = await locator.isChecked();
 								return { locator, currentState, index };
-							} catch (error) {
+							} catch (error: unknown) {
 								throw new Error(
-									`Locator ${index + 1} failed state check: ${error.message}`
+									`Locator ${index + 1} failed state check: ${errMsg(error)}`
 								);
 							}
 						})();
@@ -374,7 +381,7 @@ async function mapLocatorsToPromises(
 							);
 						}
 						// Handle other errors (e.g. action execution failed)
-						throw new Error(`Action "${action}" failed: ${error.message}`);
+						throw new Error(`Action "${action}" failed: ${errMsg(error)}`);
 					}
 				} else if (action === 'fill') {
 					if (expandedLocatorsLock) 
@@ -411,20 +418,20 @@ async function mapLocatorsToPromises(
 						try {
 							console.log(`Versuche ${action} mit Locator:`, locator);
 							return await locator.fill(value, actionOptions);
-						} catch (error) {
+						} catch (error: unknown) {
 							lastError = error;
-							console.log(`Fehler bei ${action} mit Locator:`, error.message);
+							console.log(`Fehler bei ${action} mit Locator:`, errMsg(error));
 						}
-  
+
 
 					// 4. Alle Versuche fehlgeschlagen
 					throw new Error(
 						`${action} fehlgeschlagen für alle sichtbaren Locators:\n` +
       visibleLocators.map(l => l.toString()).join('\n') +
-      `\nLetzter Fehler: ${lastError.message}`
+      `\nLetzter Fehler: ${errMsg(lastError)}`
 					);
-				} else 
-					result = await locator[action](
+				} else
+					result = await (locator as any)[action](
 						...(value !== undefined ? [value, ...args] : args),
 						actionOptions
 					);
@@ -432,9 +439,10 @@ async function mapLocatorsToPromises(
 
 				console.log(`Success with locator ${index + 1}`);
 				return result;
-			} catch (error) {
-				error.message = `Locator ${index + 1} failed: ${error.message}`;
-				throw error; // Wichtig für error.errors in Promise.any
+			} catch (error: unknown) {
+				const wrapped = error instanceof Error ? error : new Error(String(error));
+				wrapped.message = `Locator ${index + 1} failed: ${wrapped.message}`;
+				throw wrapped; // Wichtig für error.errors in Promise.any
 			}
 		})();
 	});
@@ -599,7 +607,7 @@ Given(
 							preferredLocators,
 							'scrollIntoViewIfNeeded'
 						);
-					} catch (_preferredError) {
+					} catch (_preferredError: unknown) {
 						console.warn('Preferred locators failed, trying xpath locators');
 						try {
 							await mapLocatorsToPromises(
@@ -703,12 +711,12 @@ When('I click the button: {string}', async function (this: PlaywrightWorld, butt
 
 			try {
 				await mapLocatorsToPromises(preferredLocators, 'click');
-			} catch (_preferredError) {
+			} catch (_preferredError: unknown) {
 				try {
 					await mapLocatorsToPromises(xpathLocators, 'click');
-				} catch (xpathError) {
+				} catch (xpathError: unknown) {
 					throw new Error(
-						`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
 					);
 				}
 			}
@@ -790,12 +798,12 @@ When('I insert {string} into the field {string}', async function (this: Playwrig
 
 			try {
 				await mapLocatorsToPromises(preferredLocators, 'fill', value);
-			} catch (_preferredError) {
+			} catch (_preferredError: unknown) {
 				try {
 					await mapLocatorsToPromises(xpathLocators, 'fill', value);
-				} catch (xpathError) {
+				} catch (xpathError: unknown) {
 					throw new Error(
-						`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
 					);
 				}
 			}
@@ -880,12 +888,12 @@ When(
 
 				try {
 					await mapLocatorsToPromises(preferredLocators, 'check');
-				} catch (_preferredError) {
+				} catch (_preferredError: unknown) {
 					try {
 						await mapLocatorsToPromises(xpathLocators, 'check');
-					} catch (xpathError) {
+					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
 						);
 					}
 				}
@@ -969,16 +977,16 @@ When(
 						'selectOption',
 						value
 					);
-				} catch (preferredDropdownError) {
+				} catch (preferredDropdownError: unknown) {
 					try {
 						await mapLocatorsToPromises(
 							xpathDropdownLocators,
 							'selectOption',
 							value
 						);
-					} catch (xpathError) {
+					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${preferredDropdownError.message}\nXPath: ${xpathError.message}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredDropdownError)}\nXPath: ${errMsg(xpathError)}`
 						);
 					}
 				}
@@ -1016,18 +1024,18 @@ When('I select the option {string}', async function (this: PlaywrightWorld, drop
 				// 1. Versuche es mit selectOption (für Standard <select>-Elemente)
 				await page.locator('select').selectOption(dropd);
 				return; // Erfolgreich!
-			} catch (selectError) {
+			} catch (selectError: unknown) {
 				console.warn(
-					`selectOption by text failed, trying select by value: ${selectError.message}`
+					`selectOption by text failed, trying select by value: ${errMsg(selectError)}`
 				);
 				try {
 					await page
 						.locator('select')
 						.selectOption({ value: dropd.toLowerCase() });
 					return;
-				} catch (selectValueError) {
+				} catch (selectValueError: unknown) {
 					console.warn(
-						`selectOption by value failed, trying other methods: ${selectValueError.message}`
+						`selectOption by value failed, trying other methods: ${errMsg(selectValueError)}`
 					);
 				}
 			}
@@ -1038,7 +1046,7 @@ When('I select the option {string}', async function (this: PlaywrightWorld, drop
 				page.locator(`select option:has-text("${dropd}")`),
 				page.locator(`[role="listbox"] [role="option"]:has-text("${dropd}")`),
 				page.locator('select').locator(`option:has-text("${dropd}")`),
-				page.locator(`:text("${dropd}")`).click()
+				page.locator(`:text("${dropd}")`)
 			];
 
 			//Dynamischer XPath nur begrenzt in Playwright darstellbar - theoretisch über prefferedLocators gut abgedeckt
@@ -1056,12 +1064,12 @@ When('I select the option {string}', async function (this: PlaywrightWorld, drop
 
 			try {
 				await mapLocatorsToPromises(preferredLocators, 'click');
-			} catch (_preferredError) {
+			} catch (_preferredError: unknown) {
 				try {
 					await mapLocatorsToPromises(xpathLocators, 'click');
-				} catch (xpathError) {
+				} catch (xpathError: unknown) {
 					throw new Error(
-						`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
 					);
 				}
 			}
@@ -1103,15 +1111,15 @@ When(
 						preferredElementLocators,
 						'hover'
 					);
-				} catch (preferredElementError) {
+				} catch (preferredElementError: unknown) {
 					try {
 						await mapLocatorsToPromises(
 							xpathElementLocators,
 							'hover'
 						);
-					} catch (xpathError) {
+					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${preferredElementError.message}\nXPath: ${xpathError.message}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredElementError)}\nXPath: ${errMsg(xpathError)}`
 						);
 					}
 				}
@@ -1133,12 +1141,12 @@ When(
 
 				try {
 					await mapLocatorsToPromises(preferredOptionLocators, 'click');
-				} catch (preferredOptionError) {
+				} catch (preferredOptionError: unknown) {
 					try {
 						await mapLocatorsToPromises(xpathOptionLocators, 'click');
-					} catch (xpathError) {
+					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${preferredOptionError.message}\nXPath: ${xpathError.message}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredOptionError)}\nXPath: ${errMsg(xpathError)}`
 						);
 					}
 				}
@@ -1192,12 +1200,12 @@ When('I check the box {string}', async function (this: PlaywrightWorld, name: st
 
 			try {
 				await mapLocatorsToPromises(preferredLocators, 'check');
-			} catch (_preferredError) {
+			} catch (_preferredError: unknown) {
 				try {
 					await mapLocatorsToPromises(xpathLocators, 'check');
-				} catch (xpathError) {
+				} catch (xpathError: unknown) {
 					throw new Error(
-						`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
 					);
 				}
 			}
@@ -1299,16 +1307,16 @@ When(
 						'setInputFiles',
 						filePath
 					);
-				} catch (_preferredError) {
+				} catch (_preferredError: unknown) {
 					try {
 						await mapLocatorsToPromises(
 							xpathLocators,
 							'setInputFiles',
 							filePath
 						);
-					} catch (xpathError) {
+					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
 						);
 					}
 				}
@@ -1387,7 +1395,7 @@ Then(
 					locator = await mapLocatorsToPromises(
 						preferredLocators,
 						'evaluate',
-						(el) => el.options[el.selectedIndex].text
+						(el: any) => el.options[el.selectedIndex].text
 					);
 					const content = (await locator) || '';
 
@@ -1399,11 +1407,11 @@ Then(
 						);
           
 					return;
-				} catch (_preferredError) {
+				} catch (_preferredError: unknown) {
 					locator = await mapLocatorsToPromises(
 						xpathLocators,
 						'evaluate',
-						(el) => el.options[el.selectedIndex].text
+						(el: any) => el.options[el.selectedIndex].text
 					);
 					const content = (await locator) || '';
 
@@ -1498,7 +1506,7 @@ Then("So I can't see text in the textbox: {string}", async function (this: Playw
 					'inputValue'
 				);
 				await expect(content).toBe('');
-			} catch (_preferredError) {
+			} catch (_preferredError: unknown) {
 				const content = await mapLocatorsToPromises(
 					xpathLocators,
 					'inputValue'
@@ -1595,7 +1603,7 @@ Then(
 					throw new Error(
 						`Image ${name} not found in src or srcset attributes`
 					);
-				} catch (_preferredError) {
+				} catch (_preferredError: unknown) {
 					const locator = await mapLocatorsToPromises(xpathLocators, 'first');
 					// Prüfe alle möglichen Bild-Attribute
 					const src = await locator.getAttribute('src');
@@ -1692,7 +1700,7 @@ Then(
 						'toBeChecked',
 						checked
 					);
-				} catch (_preferredError) {
+				} catch (_preferredError: unknown) {
 					await mapLocatorsToPromises(
 						xpathLocators,
 						'toBeChecked',
@@ -1766,7 +1774,7 @@ Then(
           }
 
           await expect(actual).toBe(value); */
-				} catch (_preferredError) {
+				} catch (_preferredError: unknown) {
 					await mapLocatorsToPromises(
 						xpathLocators,
 						'toHaveCSS',
@@ -1849,7 +1857,7 @@ Then(
 						'aria-label',
 						'data-tooltip'
 					);
-				} catch (_preferredError) {
+				} catch (_preferredError: unknown) {
 					await mapLocatorsToPromises(
 						xpathLocators,
 						'toHaveAttribute',

@@ -12,12 +12,12 @@ import { StoryService } from 'src/app/Services/story.service';
 })
 export class RenameStoryComponent {
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
-	@ViewChild('renameStoryModal') renameStoryModal: TemplateRef<RenameStoryComponent>;
+	@ViewChild('renameStoryModal') renameStoryModal!: TemplateRef<RenameStoryComponent>;
 
-	story: Story;
-	stories: Story[];
+	story!: Story;
+	stories!: Story[];
 	storyForm = new UntypedFormGroup ({
 		storyTitle: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
 		storyDescription: new UntypedFormControl('')

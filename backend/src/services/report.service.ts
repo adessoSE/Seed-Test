@@ -426,7 +426,7 @@ export function scheduleReportDeletion(reportName: string, isGroup: boolean, del
 async function analyzeStoryReport(stories: Story[], reportName: string, jsonPath: string): Promise<StoryReport> {
 	const reportResults = new StoryReport(); // Use interface/class from shared models
 	reportResults.reportName = reportName;
-	reportResults.featureId = stories[0]._id; // Assuming only one story
+	reportResults.featureId = stories[0]._id!; // Assuming only one story
 
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
@@ -454,7 +454,7 @@ async function analyzeScenarioReport(stories: Story[], reportName: string, scena
 	const reportResults = new ScenarioReport(); // Use interface/class from shared models
 	reportResults.reportName = reportName;
 	// ScenarioReport.storyId is typed as number but stores an ObjectId at runtime
-	reportResults.storyId = oid(stories[0]._id) as any;
+	reportResults.storyId = oid(stories[0]._id!) as any;
 	reportResults.scenarioId = scenarioId;
 
 	try {
@@ -504,7 +504,7 @@ export async function analyzeGroupReport(groupName: string, stories: Story[], js
 		reportResults.storyStatuses = [];
 
 		// Map stories by ID for easier lookup
-		const storyMap = new Map(stories.map(s => [s._id.toString(), s]));
+		const storyMap = new Map(stories.map(s => [s._id!.toString(), s]));
 
 		for (const storyReport of cucumberReport) {
 			// Find the corresponding story data using feature tags or names

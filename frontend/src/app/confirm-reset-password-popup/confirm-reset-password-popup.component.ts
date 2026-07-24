@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 	standalone: false
 })
 export class ConfirmResetPasswordPopupComponent {
-	@Input() type: string; // Default background color is red
+	@Input() type!: string; // Default background color is red
 	@Input() message: string = 'Reset your password?'; // Default message
 
 	constructor(private router: Router) {}

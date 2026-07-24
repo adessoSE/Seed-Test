@@ -196,9 +196,9 @@ export async function exportProjectFeatureFiles(repoId: string, versionId?: stri
 	const zip = new AdmZip();
 
 	await Promise.all(stories.map(async (story) => {
-		const content = await exportSingleFeatureFile(story._id.toString());
+		const content = await exportSingleFeatureFile(story._id!.toString());
 		const postfix = versionId ? `-v${versionId}` : '';
-		const filename = `${cleanFileName(story.title + story._id.toString())}${postfix}.feature`;
+		const filename = `${cleanFileName(story.title + story._id!.toString())}${postfix}.feature`;
 		zip.addFile(filename, Buffer.from(content, 'utf8'));
 	}));
 

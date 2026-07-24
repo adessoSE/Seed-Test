@@ -34,20 +34,20 @@ export class GroupService {
     * Emits the create group event
     * @param group
   */
-	createGroupEvent(group) {
+	createGroupEvent(group: any) {
 		this.createCustomGroupEmitter.emit(group);
 	}
 	/**
    * Emits the create group event
    * @param group
   */
-	updateGroupEvent(group) {
+	updateGroupEvent(group: any) {
 		this.updateGroupEmitter.emit(group);
 	}
 	/**
     * Emits the delete scenario event
   */
-	public deleteGroupEvent(values) {
+	public deleteGroupEvent(values: any) {
 		this.deleteGroupEmitter.emit(values);
 	}
 	/**
@@ -88,11 +88,11 @@ export class GroupService {
     * @param isSequential
     * @returns
   */
-	createGroup(title: string, repoId: string, member_stories, isSequential): Observable<any> {
+	createGroup(title: string, repoId: string, member_stories: string[], isSequential: boolean): Observable<any> {
 		return this.http
 			.post(this.apiService.apiServer + '/group/' + repoId, { 'name': title, 'member_stories': member_stories, 'sequence': isSequential }, ApiService.getOptions());
 	}
-	updateGroupsArray(repoId: string, groupsArray) {
+	updateGroupsArray(repoId: string, groupsArray: any) {
 		return this.http
 			.put(this.apiService.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions());
 	}
@@ -129,7 +129,7 @@ export class GroupService {
     * @param params
     * @returns
   */
-	runGroup(repoID, groupID, params) {
+	runGroup(repoID: string, groupID: string, params: any) {
 		const timeout = 6000000;
 		return this.http
 			.post(this.apiService.apiServer + '/execute/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
@@ -138,7 +138,7 @@ export class GroupService {
 	/*
   * Running a temporary group with precondition storys
   */
-	runTempGroup(params): Observable<any> { 
+	runTempGroup(params: any): Observable<any> {
 		const timeout = 6000000;
 		return this.http
 			.post(this.apiService.apiServer + '/execute/TempGroup', params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });

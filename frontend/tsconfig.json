@@ -22,9 +22,7 @@
       "ES2024",
       "dom"
     ],
-    "strict": false,
-    "strictNullChecks": false,
-    "strictPropertyInitialization": false,
+    "strict": true,
     "incremental": true,
     "paths": {
       "@shared/*": ["../shared/src/*"],

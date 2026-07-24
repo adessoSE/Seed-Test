@@ -7,7 +7,7 @@ const fs = require('fs');
 const os = require('os');
 
 class SeleniumWebdriverWorld extends World {
-	constructor(options) {
+	constructor(options: any) {
 		super(options);
 
 		// Explizit die attach-Methode von Cucumber-World übernehmen
@@ -61,7 +61,7 @@ class SeleniumWebdriverWorld extends World {
 	}
 
 	// Shared Instance für oneDriver
-	static sharedInstances = {
+	static sharedInstances: { driver: any } = {
 		driver: null
 	};
 
@@ -159,8 +159,8 @@ class SeleniumWebdriverWorld extends World {
 					console.log('Reusing existing browser session (oneDriver active)');
 					this.driver = SeleniumWebdriverWorld.sharedInstances.driver;
 					return;
-				} catch (sessionError) {
-					console.log('Stored session is invalid, creating new one:', sessionError.message);
+				} catch (sessionError: unknown) {
+					console.log('Stored session is invalid, creating new one:', sessionError instanceof Error ? sessionError.message : String(sessionError));
 					SeleniumWebdriverWorld.sharedInstances.driver = null;
 				}
     
@@ -223,9 +223,9 @@ class SeleniumWebdriverWorld extends World {
 
 				console.log('Browser launched successfully:', this.testParameters.browser);
 			}
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Browser launch failed:', error);
-			throw new Error(`Browser setup failed: ${error.message}`);
+			throw new Error(`Browser setup failed: ${error instanceof Error ? error.message : String(error)}`);
 		}
 	}
 
@@ -259,7 +259,7 @@ class SeleniumWebdriverWorld extends World {
 		return this.driver;
 	}
 
-	async setScenarioCount(count) {
+	async setScenarioCount(count: number) {
 		console.log('Setting scenarioCount to:', count);
 		this.scenarioCount = count;
 

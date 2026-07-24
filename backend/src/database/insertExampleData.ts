@@ -103,7 +103,7 @@ async function insertExampleTest(user: User): Promise<void> {
 
 		if (exampleRepo) {
 			console.log('\x1b[33mExample-Repo already exists.\x1b[0m');
-			repoId = exampleRepo._id.toString();
+			repoId = exampleRepo._id!.toString();
 		} else {
 			const repoResult = await repositoryService.createRepo(user._id.toString(), 'Test Repo');
 			repoId = repoResult.toString();
@@ -117,7 +117,7 @@ async function insertExampleTest(user: User): Promise<void> {
 
 		if (exampleStory) {
 			console.log('\x1b[33mExample-Story already exists.\x1b[0m');
-			storyId = exampleStory._id.toString();
+			storyId = exampleStory._id!.toString();
 		} else {
 			const storyResult = await storyService.createStory(exampleStoryTitle, exampleDescription, repoId);
 			storyId = storyResult.toString();

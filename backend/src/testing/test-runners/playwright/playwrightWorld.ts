@@ -28,7 +28,7 @@ class PlaywrightWorld extends World {
 	private readonly defaultTimeout = 30000;
 	private parameterCollection: StoryParameters;
 	private testParameters: TestParameters;
-	private scenarioCount: number;
+	private scenarioCount: number = 0;
 	public readonly downloadDir: string;
 	public readonly tmpUploadDir: string;
 	//private readonly videoDir: string;
@@ -141,8 +141,8 @@ class PlaywrightWorld extends World {
 							if (!this.browser) 
 								this.browser = await browserType.launch({...browserConfig, timeout: 10000});
                             
-						} catch (error) {
-							throw new Error(`Browser launch failed in Emulator: ${error.message}`);
+						} catch (error: unknown) {
+							throw new Error(`Browser launch failed in Emulator: ${error instanceof Error ? error.message : String(error)}`);
 						}
 						try {
 							const deviceConfig = {...device};
@@ -162,8 +162,8 @@ class PlaywrightWorld extends World {
 								this.context.setDefaultTimeout(5000);
 								this.context.setDefaultNavigationTimeout(10000);
 							};
-						} catch (error) {
-							throw new Error(`Context creation failed in emulator: ${error.message}`);
+						} catch (error: unknown) {
+							throw new Error(`Context creation failed in emulator: ${error instanceof Error ? error.message : String(error)}`);
 						}
 					}
 				} else {
@@ -173,8 +173,8 @@ class PlaywrightWorld extends World {
 							this.browser = await browserType.launch({...browserConfig, timeout: 10000});
 							console.log('Browser launched successfully');
 						}
-					} catch (error) {
-						throw new Error(`Browser launch failed: ${error.message}`);
+					} catch (error: unknown) {
+						throw new Error(`Browser launch failed: ${error instanceof Error ? error.message : String(error)}`);
 					};
             
 					try {
@@ -189,8 +189,8 @@ class PlaywrightWorld extends World {
 							this.context.setDefaultNavigationTimeout(10000);
 							console.log('Browser context created');
 						};
-					} catch (error) {
-						throw new Error(`Context creation failed: ${error.message}`);
+					} catch (error: unknown) {
+						throw new Error(`Context creation failed: ${error instanceof Error ? error.message : String(error)}`);
 					};
 				}
 			}
@@ -198,7 +198,7 @@ class PlaywrightWorld extends World {
 			try {
 				// Neuen Page nur erstellen wenn sie nicht existieren
 				if (!this.page){
-					this.page = await this.context.newPage();
+					this.page = await this.context!.newPage();
 					// Set page-level timeouts
 					this.page.setDefaultTimeout(5000);  // Actions Timeout
 					this.page.setDefaultNavigationTimeout(10000);  // Navigation Timeout
@@ -210,15 +210,15 @@ class PlaywrightWorld extends World {
 					PlaywrightWorld.sharedInstances.context = this.context;
 					PlaywrightWorld.sharedInstances.page = this.page;
 				}
-			} catch (error) {
-				throw new Error(`Page creation failed: ${error.message}`);
+			} catch (error: unknown) {
+				throw new Error(`Page creation failed: ${error instanceof Error ? error.message : String(error)}`);
 			}
             
             
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Detailed browser launch error: \n', error);
 			await this.closeBrowser();
-			throw new Error(`Browser setup failed: ${error.message}`);
+			throw new Error(`Browser setup failed: ${error instanceof Error ? error.message : String(error)}`);
 		}
 	}
 

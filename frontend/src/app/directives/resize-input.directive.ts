@@ -11,13 +11,13 @@ export class ResizeInputDirective {
     */
 	minWidth = 10;
 
-	@Input() containerEl: HTMLElement;
+	@Input() containerEl!: HTMLElement;
 
-	@Input() parentEl: HTMLElement;
+	@Input() parentEl!: HTMLElement;
 
 	@HostBinding() maxWidth!: number;
 
-	@HostBinding() class?;
+	@HostBinding() class?: any;
 
 	@HostListener('change', ['$event']) onChange() {
 		this.resize();
@@ -31,7 +31,7 @@ export class ResizeInputDirective {
 	constructor(private el: ElementRef) {  
 		setTimeout(() => {
       
-			el.nativeElement.classList.forEach((value) => {
+			el.nativeElement.classList.forEach((value: any) => {
 				if (value === 'scenario' || value === 'background' || value === 'block-editor') 
 					this.class = value;
         
@@ -50,7 +50,7 @@ export class ResizeInputDirective {
    */
 	private resize(mode_type?: string) {
 		//Set variables
-		const parentWidth = this.setParentWidth();
+		const parentWidth = this.setParentWidth()!;
 		const string_coef = 4;
 		const string_length = this.el.nativeElement.value.length + string_coef;
 		const input_width = this.el.nativeElement.offsetWidth;

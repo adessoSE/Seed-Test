@@ -45,14 +45,14 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	/**
    * Repository container of the workgroup
    */
-	workgroupProject: RepositoryContainer;
+	workgroupProject!: RepositoryContainer;
 
 	/**
    * Email and id of the active user
    */
 	userEmail = '';
 	userId = '';
-	repos: RepositoryContainer[];
+	repos!: RepositoryContainer[];
 
 	/**
    * varibales to work with settings
@@ -66,19 +66,19 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 
 	webkit_enabled;
 
-	browser: string;
+	browser!: string;
 
-	testRunner: string;
+	testRunner!: string;
 
-	waitBetweenSteps: number;
+	waitBetweenSteps!: number;
 
-	reportComment: boolean;
+	reportComment!: boolean;
 
-	repoWidth: number;
+	repoWidth!: number;
 
-	repoHeight: number;
+	repoHeight!: number;
 
-	applyGlobalSettings: boolean;
+	applyGlobalSettings!: boolean;
 
 	windowSizeEnabled: boolean = false;
 
@@ -90,23 +90,23 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	/**
    * Model Reference for closing
    */
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
-	projectName: string;
-	@ViewChild('ownerSelect') ownerSelect: MatSelect;
+	projectName!: string;
+	@ViewChild('ownerSelect') ownerSelect!: MatSelect;
 	/**
    * Selected member to transfer Ownership
    */
-	selectedOwner: string;
+	selectedOwner!: string;
 
 	/**
    * Used to notify story editor component about globalSettings
    */
 	@Output() globalSettingsChanged = new EventEmitter<boolean>();
 
-	@ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
-	@ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
-	transferOwnershipObservable: Subscription;
+	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
+	@ViewChild('repoSwitchModal') repoSwitchModal!: RepoSwichComponent;
+	transferOwnershipObservable!: Subscription;
 	constructor(
 		private modalService: NgbModal,
 		public projectService: ProjectService,
@@ -126,18 +126,14 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		this.edge_enabled = localStorage.getItem('edge_enabled');
 		this.webkit_enabled = localStorage.getItem('webkit_enabled');
 
-		this.gecko_emulators = localStorage.getItem('gecko_emulators');
-		this.gecko_emulators =
-			this.gecko_emulators === '' ? [] : this.gecko_emulators.split(',');
-		this.chromium_emulators = localStorage.getItem('chromium_emulators');
-		this.chromium_emulators =
-			this.chromium_emulators === '' ? [] : this.chromium_emulators.split(',');
-		this.edge_emulators = localStorage.getItem('edge_emulators');
-		this.edge_emulators =
-			this.edge_emulators === '' ? [] : this.edge_emulators.split(',');
-		this.playwright_emulators = localStorage.getItem('playwright_emulators');
-		this.playwright_emulators =
-			this.playwright_emulators === null ? [] : this.playwright_emulators.split(',');
+		const geckoStr = localStorage.getItem('gecko_emulators');
+		this.gecko_emulators = !geckoStr ? [] : geckoStr.split(',');
+		const chromiumStr = localStorage.getItem('chromium_emulators');
+		this.chromium_emulators = !chromiumStr ? [] : chromiumStr.split(',');
+		const edgeStr = localStorage.getItem('edge_emulators');
+		this.edge_emulators = !edgeStr ? [] : edgeStr.split(',');
+		const playwrightStr = localStorage.getItem('playwright_emulators');
+		this.playwright_emulators = !playwrightStr ? [] : playwrightStr.split(',');
 
 	}
 
@@ -153,12 +149,12 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
     
 	}
 	onModalClosed() {
-		this.selectedOwner = undefined;
-		this.ownerSelect = null;
+		this.selectedOwner = undefined as any;
+		this.ownerSelect = null as any;
 	}
 
 	loadGlobalSettings(): void {
-		const repoId = this.workgroupProject._id;
+		const repoId = this.workgroupProject._id!;
 		this.projectService.getRepositorySettings(repoId).subscribe({
 			next: (settings) => {
 				if (settings) {
@@ -175,8 +171,8 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 							: true;
 					this.browser = settings.browser || 'chromium';
 					this.testRunner = settings.testRunner || 'seleniumWebdriver';
-					this.repoHeight = settings.height || undefined;
-					this.repoWidth = settings.width || undefined;
+					this.repoHeight = settings.height || 0;
+					this.repoWidth = settings.width || 0;
 				} else {
 					console.warn('No global settings found, default settings are used.');
 					this.applyDefaultSettings();
@@ -201,8 +197,8 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		this.testRunner = 'selenium-webdriver';
 		this.emulator_enabled = false;
 		this.emulator = undefined;
-		this.repoHeight = undefined;
-		this.repoWidth = undefined;
+		this.repoHeight = 0;
+		this.repoWidth = 0;
 	}
 
 	handleSizeChange(event: { width: number; height: number }) {
@@ -213,7 +209,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	/**
    * Opens the workgroup edit modal
    */
-	openWorkgroupEditModal(project: RepositoryContainer, userEmail, userId) {
+	openWorkgroupEditModal(project: RepositoryContainer, userEmail: string, userId: string) {
 		this.userEmail = userEmail;
 		this.userId = userId;
 		this.workgroupList = [];
@@ -241,18 +237,18 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		this.projectName = project.repoName;
 		if (project.source === 'db')
 			this.projectService
-				.getWorkgroup(this.workgroupProject._id)
+				.getWorkgroup(this.workgroupProject._id!)
 				.subscribe((res) => {
 					this.workgroupList = res.member;
 					this.workgroupOwner = res.owner.email;
 				});
 	}
 
-	transferedOwnership(newOwner) {
+	transferedOwnership(newOwner: string) {
 		document
-			.getElementById('changeOwner')
+			.getElementById('changeOwner')!
 			.setAttribute('style', 'display: none');
-		this.projectService.changeOwner(this.workgroupProject._id, newOwner).subscribe((_) => {
+		this.projectService.changeOwner(this.workgroupProject._id!, newOwner).subscribe((_) => {
 			this.toastr.success('successfully changed', 'New owner');
 		});
 		this.modalReference.close();
@@ -281,7 +277,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		const user = { email, canEdit };
 		this.workgroupError = '';
 		this.projectService
-			.addToWorkgroup(this.workgroupProject._id, user)
+			.addToWorkgroup(this.workgroupProject._id!, user)
 			.subscribe(
 				(_res) => {
 					const originList = JSON.parse(JSON.stringify(this.workgroupList));
@@ -300,9 +296,9 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    * Removes a user from the workgroup
    * @param user
    */
-	removeFromWorkgroup(user) {
+	removeFromWorkgroup(user: any) {
 		this.projectService
-			.removeFromWorkgroup(this.workgroupProject._id, user)
+			.removeFromWorkgroup(this.workgroupProject._id!, user)
 			.subscribe((res) => {
 				this.workgroupList = res.member;
 			});
@@ -313,10 +309,10 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    * @param event
    * @param user
    */
-	checkEditUser(event, user) {
+	checkEditUser(event: any, user: any) {
 		user.canEdit = !user.canEdit;
 		this.projectService
-			.updateWorkgroupUser(this.workgroupProject._id, user)
+			.updateWorkgroupUser(this.workgroupProject._id!, user)
 			.subscribe((res) => {
 				this.workgroupList = res.member;
 			});
@@ -371,23 +367,23 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		project.aiConfig = {
 			textPreparation: {
 				provider: 'custom' as const,
-				name: project.aiConfig.textPreparation.name,
-				modelName: project.aiConfig.textPreparation.modelName,
-				baseURL: project.aiConfig.textPreparation.baseURL,
-				apiKey: project.aiConfig.textPreparation.apiKey
+				name: project.aiConfig!.textPreparation.name,
+				modelName: project.aiConfig!.textPreparation.modelName,
+				baseURL: project.aiConfig!.textPreparation.baseURL,
+				apiKey: project.aiConfig!.textPreparation.apiKey
 			},
 			jsonConversion: {
 				provider: 'custom' as const,
-				name: project.aiConfig.jsonConversion.name,
-				modelName: project.aiConfig.jsonConversion.modelName,
-				baseURL: project.aiConfig.jsonConversion.baseURL,
-				apiKey: project.aiConfig.jsonConversion.apiKey
+				name: project.aiConfig!.jsonConversion.name,
+				modelName: project.aiConfig!.jsonConversion.modelName,
+				baseURL: project.aiConfig!.jsonConversion.baseURL,
+				apiKey: project.aiConfig!.jsonConversion.apiKey
 			}
 		};
 
 		this.projectService
 			.updateRepository(
-				project._id,
+				project._id!,
 				project.repoName,
 				this.userId,
 				project.settings,
@@ -427,7 +423,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		this.repoSwitchModal.openModal();
 	}
 
-	enterSubmit(event, form: NgForm) {
+	enterSubmit(event: any, form: NgForm) {
 		if (event.keyCode === 13) {
 			this.workgroupInvite(form);
 			form.reset();
@@ -437,7 +433,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	/**
    * Submits the new name for the scenario
    */
-	renameProject(renameProject) {
+	renameProject(renameProject: string) {
 		const name = renameProject;
 		const project = this.workgroupProject;
 		if (name.replace(/\s/g, '').length > 0) 
@@ -451,7 +447,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    * Set the test runner
    * @param testRunner
    */
-	setTestRunner(testRunner) {
+	setTestRunner(testRunner: string) {
 		this.testRunner = testRunner;
 		this.setEmulatorEnabled(false);
 	}
@@ -460,7 +456,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    * Set the browser
    * @param newBrowser
    */
-	setBrowser(newBrowser) {
+	setBrowser(newBrowser: string) {
 		this.browser = newBrowser;
 		this.setEmulatorEnabled(false);
 	}
@@ -474,37 +470,37 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    * To store emulator
    */
 
-	emulator;
+	emulator: any;
 	/**
    * Boolean emulator indicator
    */
-	emulator_enabled;
+	emulator_enabled: any;
 
 	/**
    * List of supported emulators for gecko
    */
-	gecko_emulators;
+	gecko_emulators: string[];
 
 	/**
    * List of supported emulators for chromium
    */
-	chromium_emulators;
+	chromium_emulators: string[];
 
 	/**
    * List of supported emulators for edge
    */
-	edge_emulators;
+	edge_emulators: string[];
 
 	/**
    * List of supported emulators for playwright
    */
-	playwright_emulators;
+	playwright_emulators: string[];
 
 	/**
    * Set if an emulator should be used
    * @param enabled Boolean
    */
-	setEmulatorEnabled(enabled) {
+	setEmulatorEnabled(enabled: boolean) {
 		this.emulator_enabled = enabled;
 		this.setEmulator(enabled ? this.getAvaiableEmulators()[0] : undefined);
 	}
@@ -527,7 +523,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    * Set the emultaor
    * @param newEmultaor
    */
-	setEmulator(newEmulator) {
+	setEmulator(newEmulator: any) {
 		this.emulator = newEmulator;
 	}
 

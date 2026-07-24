@@ -61,7 +61,7 @@ export async function disconnectGithub(req: Request, res: Response, next: NextFu
 		// Optionally clear the github part from the session user object if needed
 		const reqWithSession = req as RequestWithSession; // Cast to access session
 		if (reqWithSession.session && (req.user as User).github) {
-			delete (req.user as User).github;
+			Reflect.deleteProperty(req.user as User, 'github');
 			// Use callback for session saving as it might be async
 			reqWithSession.session.save(err => {
 				if (err) {

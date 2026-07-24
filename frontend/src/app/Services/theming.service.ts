@@ -7,7 +7,7 @@ import { of } from 'rxjs';
 })
 export class ThemingService {
 
-	currentTheme : string;
+	currentTheme!: string;
 
 	@Output () public themeChanged = new EventEmitter();
 
@@ -20,7 +20,7 @@ export class ThemingService {
 
 	loadTheme () {
 		if (localStorage.getItem('user-theme')) 
-			this.currentTheme = localStorage.getItem('user-theme');
+			this.currentTheme = localStorage.getItem('user-theme')!;
     
 		this.renderTemplate(this.currentTheme);
 	}

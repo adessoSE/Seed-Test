@@ -19,23 +19,23 @@ export class EditBlockComponent implements OnInit {
 	/**
    * Original step types not sorted or changed
    */
-	@Input() originalStepTypes: StepType[];
+	@Input() originalStepTypes!: StepType[];
 
 	/**
    * Currently selected block
    */
-	@Input() selectedBlock: Block;
+	@Input() selectedBlock!: Block;
 
-	isDark: boolean;
+	isDark!: boolean;
 
-	clipboardBlock: Block = null;
+	clipboardBlock: Block | null = null;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
 	testRunning = false;
 
 	readonly TEMPLATE_NAME = 'block-editor';
-	themeObservable: Subscription;
+	themeObservable!: Subscription;
 	/**
    * Subscriptions for all EventEmitter
    */
@@ -56,10 +56,10 @@ export class EditBlockComponent implements OnInit {
    */
 	openEditBlockModal(block: Block) {
 		this.modalReference = this.modalService.open(this.editBlockModal, { ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block' });
-		this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+		this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock')!);
 		this.selectedBlock = block;
 		Object.keys(this.selectedBlock.stepDefinitions).forEach((key, _) => {
-			this.selectedBlock.stepDefinitions[key].forEach((step: StepType) => {
+			(this.selectedBlock.stepDefinitions as any)[key].forEach((step: StepType) => {
 				//to prevent blocks to be checked after pasting
 				step.checked = false;
 			});
@@ -87,7 +87,7 @@ export class EditBlockComponent implements OnInit {
 
 	}
 
-	enterSubmit(event) {
+	enterSubmit(event: any) {
 		if (event.keyCode === 13) 
 			this.editBlockSubmit();
     

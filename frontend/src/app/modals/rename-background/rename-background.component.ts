@@ -17,15 +17,15 @@ import { BlockService } from '../../Services/block.service';
 })
 export class RenameBackgroundComponent{
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
-	@ViewChild('renameBackground') renameBackground: RenameBackgroundComponent;
-	background: Background;
-	backgrounds: Background[];
-	story: Story;
-	saveBackgroundAndRun;
-	blockToRename: Block;
-	storiesWithBlock: Story[];
+	@ViewChild('renameBackground') renameBackground!: RenameBackgroundComponent;
+	background!: Background;
+	backgrounds!: Background[];
+	story!: Story;
+	saveBackgroundAndRun: any;
+	blockToRename!: Block;
+	storiesWithBlock!: Story[];
 	backgroundTitle = new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
 
 	constructor(private modalService: NgbModal, public backgroundService: BackgroundService,  public toastr: ToastrService, public apiService: ApiService, public blockService: BlockService) { }
@@ -34,7 +34,7 @@ export class RenameBackgroundComponent{
    * @param backgrounds
    * @param background
    */
-	openRenameBackgroundModal(backgrounds: Background[], background: Background, story: Story, saveBackgroundAndRun, blockToRename, storiesWithBlock) {
+	openRenameBackgroundModal(backgrounds: Background[], background: Background, story: Story, saveBackgroundAndRun: any, blockToRename: Block, storiesWithBlock: Story[]) {
 		this.background = background;
 		this.backgrounds = backgrounds;
 		this.story = story;
@@ -65,11 +65,11 @@ export class RenameBackgroundComponent{
 					this.saveBackgroundAndRun = false;
 				}
 			});
-		this.backgroundService.backgroundReplaced = undefined;
+		this.backgroundService.backgroundReplaced = false;
 		this.modalReference.close();
 	}
 
-	enterSubmit(_event) {
+	enterSubmit(_event: Event) {
 		this.submitRenameBackground();
 	}
 

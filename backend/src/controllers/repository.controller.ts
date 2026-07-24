@@ -15,23 +15,23 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 		const user = req.user as User;
 
 		const jiraPromise = externalSyncService.getJiraRepos(user.jira);
-		const dbPromise = repositoryService.dbProjects(user._id.toString());
+		const dbPromise = repositoryService.dbProjects(user._id!.toString());
 
-		let starredPromise = Promise.resolve([]);
-		let ownedPromise = Promise.resolve([]);
+		let starredPromise: Promise<any[]> = Promise.resolve([]);
+		let ownedPromise: Promise<any[]> = Promise.resolve([]);
 
 		if (user?.github) {
 			const { login: githubName, githubToken: token, id: githubId } = user.github;
-			starredPromise = externalSyncService.starredRepositories(user._id.toString(), githubId, githubName, token);
-			ownedPromise = externalSyncService.ownRepositories(user._id.toString(), githubId, githubName, token);
+			starredPromise = externalSyncService.starredRepositories(user._id!.toString(), githubId, githubName, token);
+			ownedPromise = externalSyncService.ownRepositories(user._id!.toString(), githubId, githubName, token);
 
 		} else if (process.env.TESTACCOUNT_NAME && process.env.TESTACCOUNT_TOKEN) {
 			console.log(`User ${user.email} not linked. Using TESTACCOUNT fallback.`);
 			const githubName = process.env.TESTACCOUNT_NAME!;
 			const token = process.env.TESTACCOUNT_TOKEN!;
 			const githubId = 0;
-			starredPromise = externalSyncService.starredRepositories(user._id.toString(), githubId, githubName, token);
-			ownedPromise = externalSyncService.ownRepositories(user._id.toString(), githubId, githubName, token);
+			starredPromise = externalSyncService.starredRepositories(user._id!.toString(), githubId, githubName, token);
+			ownedPromise = externalSyncService.ownRepositories(user._id!.toString(), githubId, githubName, token);
         
 		} else 
 			console.log(`User ${user.email} not linked. TESTACCOUNT variables not set. Skipping GitHub sync.`);
@@ -85,7 +85,7 @@ export async function createRepository(req: Request, res: Response, next: NextFu
 			return;
 		}
 
-		const insertedId = await repositoryService.createRepo(user._id.toString(), name);
+		const insertedId = await repositoryService.createRepo(user._id!.toString(), name);
 		res.status(201).json({ insertedId });
 	} catch (error) {
 		// Duplicate repository name — return 409 Conflict instead of generic 500
@@ -170,7 +170,7 @@ export async function updateRepositoryOwner(req: Request, res: Response, next: N
 			return;
 		}
 
-		await repositoryService.updateOwnerInRepo(repo_id, newOwner._id.toString(), user._id.toString());
+		await repositoryService.updateOwnerInRepo(repo_id, newOwner._id!.toString(), user._id!.toString());
 		res.status(200).json({ message: 'Owner updated successfully' });
 	} catch (error) {
 		next(error);
@@ -189,7 +189,7 @@ export async function deleteRepository(req: Request, res: Response, next: NextFu
 			return;
 		}
 
-		const result = await repositoryService.deleteRepository(repo_id, user._id.toString());
+		const result = await repositoryService.deleteRepository(repo_id, user._id!.toString());
 		res.status(200).json(result);
 	} catch (error) {
 		next(error);

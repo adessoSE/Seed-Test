@@ -110,7 +110,7 @@ async function processImport(zip: AdmZip, isRenameMode: boolean, repoId: string,
 		repositoryService.getAllStoryGroups(repoId)
 	]);
 	const existingStoryNames = new Set(existingStories.map(s => s.title));
-	const existingBlockNames = new Set(existingBlocks.map(b => b.name));
+	const existingBlockNames = new Set(existingBlocks.map(b => b.name).filter((name): name is string => name !== undefined));
 	const existingGroupNames = new Set(existingGroups.map(g => g.name));
 
 	const storyEntries = zip.getEntries().filter(e => e.entryName.startsWith('stories/'));
@@ -129,7 +129,7 @@ async function processImport(zip: AdmZip, isRenameMode: boolean, repoId: string,
 
 		if (!isRenameMode && hasConflict) { // OVERWRITE
 			const existingStory = existingStories.find(s => s.title === storyObject.title);
-			newStoryId = oid(existingStory!._id);
+			newStoryId = oid(existingStory!._id!);
 			await storyService.updateStory({ ...storyObject, _id: newStoryId } as unknown as Story, client, session);
 		} else { // RENAME or NO CONFLICT
 			if (isRenameMode && hasConflict) 
@@ -152,7 +152,7 @@ async function processImport(zip: AdmZip, isRenameMode: boolean, repoId: string,
 
 		if (!isRenameMode && hasConflict) { // OVERWRITE
 			const existingBlock = existingBlocks.find(b => b.name === blockObject.name);
-			await blockService.updateBlock(existingBlock!._id, blockObject, userId, session, client);
+			await blockService.updateBlock(existingBlock!._id!, blockObject, userId!, session, client);
 		} else { // RENAME or NO CONFLICT
 			if (isRenameMode && hasConflict) 
 				blockObject.name = findAvailableName(blockObject.name!, existingBlockNames);
@@ -172,7 +172,7 @@ async function processImport(zip: AdmZip, isRenameMode: boolean, repoId: string,
 
 		if (!isRenameMode && hasConflict) { // OVERWRITE
 			const existingGroup = existingGroups.find(g => g.name === groupObject.name);
-			await repositoryService.updateStoryGroup(repoId, existingGroup!._id, groupObject, client, session);
+			await repositoryService.updateStoryGroup(repoId, existingGroup!._id!, groupObject, client, session);
 		} else { // RENAME or NO CONFLICT
 			if (isRenameMode && hasConflict) 
 				groupObject.name = findAvailableName(groupObject.name, existingGroupNames);

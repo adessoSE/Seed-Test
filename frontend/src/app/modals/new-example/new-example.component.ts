@@ -16,20 +16,20 @@ export class NewExampleComponent {
 	/**
      * Currently selected story
      */
-	step: StepType;
-	selectedScenario: Scenario;
-	newExampleName: string;
-	columnIndex;
-	exampleNames;
-	modalName: string;
+	step!: StepType;
+	selectedScenario!: Scenario;
+	newExampleName!: string;
+	columnIndex: any;
+	exampleNames: any;
+	modalName!: string;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
 	newExampleForm = new UntypedFormGroup({
 		newName: new UntypedFormControl('')
 	});
 
-	@ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
+	@ViewChild('newExampleModal') newExampleModal!: NewExampleComponent;
 
 	/**
     * Event emitter to add a new example
@@ -43,12 +43,12 @@ export class NewExampleComponent {
     * Opens the new example Modal
     *
     */
-	openNewExampleModal(selectedScenario, exampleModalUse, columnIndex?) {
+	openNewExampleModal(selectedScenario: Scenario, exampleModalUse: string, columnIndex?: number) {
 		this.selectedScenario = selectedScenario;
 		switch (exampleModalUse) {
 			case 'rename':
 				this.modalName = 'Renaming an existing scenario case';
-				this.renameExample(selectedScenario, columnIndex);
+				this.renameExample(selectedScenario, columnIndex!);
 				break;
 			case 'createNew': this.modalName = 'Define a new scenario case';
 				break;
@@ -61,14 +61,14 @@ export class NewExampleComponent {
 		this.modalReference = this.modalService.open(this.newExampleModal, { ariaLabelledBy: 'modal-basic-title' });
 	}
 
-	renameExample(scenario: Scenario, columnIndex) {
+	renameExample(scenario: Scenario, columnIndex: number) {
 		this.selectedScenario = scenario;
 		this.columnIndex = columnIndex;
-		this.newExampleName = scenario.multipleScenarios[0].values[columnIndex];
+		this.newExampleName = scenario.multipleScenarios![0].values[columnIndex];
 		this.newExampleForm.setValue({
-			newName: scenario.multipleScenarios[0].values[columnIndex]
+			newName: scenario.multipleScenarios![0].values[columnIndex]
 		});
-		this.exampleNames = this.selectedScenario.multipleScenarios[0].values;
+		this.exampleNames = this.selectedScenario.multipleScenarios![0].values;
 	}
 
 	/**
@@ -77,13 +77,13 @@ export class NewExampleComponent {
 	submitExample() {
 		if (this.newExampleName) {
 			this.exampleService.renameExampleEvent.emit({ name: this.newExampleForm.value.newName, column: this.columnIndex });
-			this.newExampleForm.get('newName').reset();
+			this.newExampleForm.get('newName')!.reset();
 			this.modalReference.close();
 		} else {
 			const exampleName = this.newExampleForm.value.newName;
 			//Create Scenario Emitter (argument scenario name) 
 			this.exampleService.newExampleEvent.emit(exampleName);
-			this.newExampleForm.get('newName').reset();
+			this.newExampleForm.get('newName')!.reset();
 			this.modalReference.close();
 		}
 

@@ -17,8 +17,8 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 })
 
 export class EditableComponent implements OnInit, OnDestroy {
-	@ContentChild(ViewModeDirective) viewModeTpl: ViewModeDirective;
-	@ContentChild(EditModeDirective) editModeTpl: EditModeDirective;
+	@ContentChild(ViewModeDirective) viewModeTpl!: ViewModeDirective;
+	@ContentChild(EditModeDirective) editModeTpl!: EditModeDirective;
 	@Output() update = new EventEmitter();
 
 	editMode = new Subject();

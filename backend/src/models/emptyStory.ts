@@ -15,7 +15,7 @@ export function emptyStory(storyTitle?: string, storyDescription?: string): Omit
 		repo_type: 'db',
 		state: 'open',
 		assignee_avatar_url: '',
-		lastTestPassed: null,
+		lastTestPassed: undefined,
 		oneDriver: false
 	};
 }

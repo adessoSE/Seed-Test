@@ -15,26 +15,26 @@ import { StoryService } from 'src/app/Services/story.service';
 })
 export class CreateNewStoryComponent {
 
-	@ViewChild('createNewStoryModal') createNewStoryModal: TemplateRef<CreateNewStoryComponent>;
+	@ViewChild('createNewStoryModal') createNewStoryModal!: TemplateRef<CreateNewStoryComponent>;
 
 	/**
      * selectable Stories when create Group
      */
-	stories: Story[];
+	stories!: Story[];
 
-	filteredStories: MatTableDataSource<Story>;
+	filteredStories!: MatTableDataSource<Story>;
 
-	groups: Group[];
+	groups!: Group[];
 
-	selectedStories: string[];
+	selectedStories!: string[];
 
-	groupTitle: string;
+	groupTitle!: string;
 
-	groupId: string;
+	groupId!: string;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
-	story: Story;
+	story!: Story;
 
 	//storytitle: string;
 
@@ -61,8 +61,8 @@ export class CreateNewStoryComponent {
 		const title = this.storyForm.value.storyTitle;
 		if (title.trim() !== '') {
 			const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
-			const repoName = localStorage.getItem('repository');
-			const _id = localStorage.getItem('id');
+			const repoName = localStorage.getItem('repository')!;
+			const _id = localStorage.getItem('id')!;
 			const source = 'db';    
 			const repositoryContainer: RepositoryContainer = {repoName, source, _id};
 			const story = {title, description};
@@ -76,7 +76,7 @@ export class CreateNewStoryComponent {
 	storyUnique() {
 		this.storyService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
 	}
-	close(modal){
+	close(modal: any){
 		this.storyForm.reset({storyTitle:'', storyDescription:''});
 		modal.dismiss('Cross click');
 	}

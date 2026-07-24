@@ -23,7 +23,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	/**
      * Repositories / projects of the user
      */
-	repositories: RepositoryContainer[];
+	repositories!: RepositoryContainer[];
 
 	/**
      * Login error
@@ -34,18 +34,18 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	/**
      * Boolean to see if the repository is loading
      */
-	isLoadingRepositories: boolean;
+	isLoadingRepositories!: boolean;
 
-	currentTheme: string;
+	currentTheme!: string;
 
-	isDark: boolean;
+	isDark!: boolean;
 
 	clientId: string;
 
 	/**
      * Subscribtions for all EventEmitter
      */
-	themeObservable: Subscription;
+	themeObservable!: Subscription;
 	routeObservable: Subscription;
 
 	/**
@@ -98,8 +98,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 		public themeService: ThemingService,
 		public projectServise: ProjectService
 	) {
-		this.error = undefined;
-		this.clientId = localStorage.getItem('clientId');
+		this.error = undefined as any;
+		this.clientId = localStorage.getItem('clientId')!;
 		this.routeObservable = this.route.queryParams.subscribe((params) => {
 			if (params.code) 
 				this.loginService.githubCallback(params.code).subscribe((resp) => {
@@ -193,7 +193,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
      */
 	async login(form: NgForm) {
 		this.isLoadingRepositories = true;
-		this.error = undefined;
+		this.error = undefined as any;
 		const user = {
 			email: form.value.email,
 			password: form.value.password,
@@ -221,9 +221,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 		const repoName = localStorage.getItem('repository');
 		const source = localStorage.getItem('source');
 		const _id = localStorage.getItem('id');
-		const repository: RepositoryContainer = {repoName, source, _id};
+		const repository: RepositoryContainer = {repoName: repoName!, source: source!, _id: _id!};
 		this.isLoadingRepositories = true;
-		const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner');
+		const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner')!;
 		if (loadingSpinner) 
 			loadingSpinner.scrollIntoView();
         
@@ -254,7 +254,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
      * Loggs in the user with Github
      */
 	githubLogin() {
-		this.error = undefined;
+		this.error = undefined as any;
 		if (localStorage.getItem('clientId') === 'undefined') {
 			this.error = 'GitHub Integration has not been set up yet.';
 			return;

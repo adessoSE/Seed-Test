@@ -45,7 +45,7 @@ export class BackgroundService {
 	/**
     * Track current background before saving changes
   */
-	public currentBackground: Background;
+	public currentBackground!: Background;
 	/* 
   * Emits background changed event 
   */
@@ -55,7 +55,7 @@ export class BackgroundService {
 	/* 
   * Emits background rename event 
   */
-	renameBackgroundEmit(newBackgroundName) {
+	renameBackgroundEmit(newBackgroundName: string) {
 		const val = newBackgroundName;
 		this.renameBackgroundEvent.emit(val);
 	}

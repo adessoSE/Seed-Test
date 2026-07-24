@@ -59,7 +59,7 @@ export class ReportService {
     * @param reportId
     * @returns
   */
-	deleteReport(reportId): Observable<any> {
+	deleteReport(reportId: any): Observable<any> {
 		return this.http
 			.delete<any>(this.apiService.apiServer + '/report/' + reportId, ApiService.getOptions())
 			.pipe(tap(_ => {
@@ -72,7 +72,7 @@ export class ReportService {
     * @param reportId
     * @returns
   */
-	saveReport(reportId): Observable<any> {
+	saveReport(reportId: any): Observable<any> {
 		return this.http
 			.put<any>(this.apiService.apiServer + '/report/save/' + reportId, {}, ApiService.getOptions())
 			.pipe(tap(_ => {
@@ -85,7 +85,7 @@ export class ReportService {
     * @param reportId
     * @returns
   */
-	unsaveReport(reportId): Observable<any> {
+	unsaveReport(reportId: any): Observable<any> {
 		return this.http
 			.put<any>(this.apiService.apiServer + '/report/unsave/' + reportId, {}, ApiService.getOptions())
 			.pipe(tap(_ => {

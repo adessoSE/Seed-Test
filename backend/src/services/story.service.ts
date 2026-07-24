@@ -91,7 +91,7 @@ export async function createStory(storyTitle: string, storyDescription: string, 
  */
 export async function updateStory(updatedStory: Story, client?: MongoClient, session?: ClientSession): Promise<any> {
 	const db = client ? client.db('Seed') : dbConnection.getConnection();
-	const doc: StoryDoc = { ...updatedStory, _id: oid(updatedStory._id) };
+	const doc: StoryDoc = { ...updatedStory, _id: oid(updatedStory._id!) };
 	return await db.collection<StoryDoc>(storiesCollection).findOneAndReplace(
 		{ _id: doc._id },
 		doc,

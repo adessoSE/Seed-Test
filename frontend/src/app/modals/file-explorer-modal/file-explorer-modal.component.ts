@@ -12,23 +12,23 @@ import { ThemingService } from '../../Services/theming.service';
 	standalone: false
 })
 export class FileExplorerModalComponent implements OnInit {
-	public fileElements: Observable<FileElement[]>;
-	modalReference: NgbModalRef;
-	repoId: string;
-	fileExlorerEmpty: boolean;
+	public fileElements!: Observable<FileElement[]>;
+	modalReference!: NgbModalRef;
+	repoId!: string;
+	fileExlorerEmpty!: boolean;
 	allFiles: FileElement[] = [];
 	searchedFiles: FileElement[] = [];
 	selectedFile: FileElement | null = null;
 	searchText: string = '';
-	isDark: boolean;
-	themeObservable: Subscription;
+	isDark!: boolean;
+	themeObservable!: Subscription;
 
-	@ViewChild ('fileExplorerModal') fileExplorerModal: FileExplorerModalComponent;
+	@ViewChild ('fileExplorerModal') fileExplorerModal!: FileExplorerModalComponent;
 
 	constructor(private modalService: NgbModal, public fileService: ProjectService, public themeService: ThemingService) {}
 
 	ngOnInit() {
-		this.repoId = localStorage.getItem('id'); // set before updateFileElementQuery
+		this.repoId = localStorage.getItem('id')!; // set before updateFileElementQuery
 		this.isDark = this.themeService.isDarkMode();
 		this.themeObservable = this.themeService.themeChanged.subscribe((_changedTheme) => {
 			this.isDark = this.themeService.isDarkMode();
@@ -50,7 +50,7 @@ export class FileExplorerModalComponent implements OnInit {
 		this.fileElements = this.fileService.queryFiles(this.repoId);
 	}
 
-	arrayBufferToBase64(buffer) {
+	arrayBufferToBase64(buffer: ArrayBuffer) {
 		const binary = new Uint8Array(buffer);
 		let base64 = '';
 		for (let i = 0; i < binary.length; i++) 
@@ -64,7 +64,7 @@ export class FileExplorerModalComponent implements OnInit {
 		this.fileService.uploadFile(this.repoId, file)
 			.subscribe((_res: FileElement) => {
 				this.updateFileElementQuery();
-				delete this.selectedFile;
+				this.selectedFile = null;
 			});
 	}
 
@@ -77,27 +77,27 @@ export class FileExplorerModalComponent implements OnInit {
 			this.searchedFiles = this.allFiles;
 		else 
 			this.searchedFiles = this.allFiles.filter(file => 
-				file.filename.toLowerCase().includes(this.searchText.toLowerCase())
+				file.filename!.toLowerCase().includes(this.searchText.toLowerCase())
 			);
     
 	}
 
 	deleteFile() {
 		console.log('delete: ', this.selectedFile);
-		this.fileService.deleteUploadedFile(this.repoId, this.selectedFile._id).subscribe(()=>{
+		this.fileService.deleteUploadedFile(this.repoId, this.selectedFile!._id!).subscribe(()=>{
 			this.updateFileElementQuery();
 		});
 		this.updateFileElementQuery();
-		delete this.selectedFile;
+		this.selectedFile = null;
 	}
 
 	submitUploadFile() {
 		this.modalReference.close(this.selectedFile);
-		delete this.selectedFile;
+		this.selectedFile = null;
 	}
 
 	closeModal(){
-		delete this.selectedFile;
+		this.selectedFile = null;
 		this.modalReference.close();
 	}
 }

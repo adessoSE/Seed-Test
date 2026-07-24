@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "declaration": true,
     "declarationMap": true,
+    "strict": true,
     "target": "es2024",
     "sourceMap": true,
     "outDir": "dist",

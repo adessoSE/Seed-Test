@@ -12,11 +12,11 @@ import { ApiService } from '../../../app/Services/api.service';
 })
 export class NewStepRequestComponent {
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
 	constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
 
-	@ViewChild('newStepRequestModal') newStepRequestModal: NewStepRequestComponent;
+	@ViewChild('newStepRequestModal') newStepRequestModal!: NewStepRequestComponent;
 
 	newStepReqForm = new UntypedFormGroup ({
 		title: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
@@ -32,7 +32,7 @@ export class NewStepRequestComponent {
     * Opens a new step request modal
     * @param stepType
   */
-	openNewStepRequestModal(stepType) {
+	openNewStepRequestModal(stepType: string) {
 		this.modalReference = this.modalService.open(this.newStepRequestModal, {ariaLabelledBy: 'modal-basic-title'});
 		const id = 'type_form_' + stepType;
 		(document.getElementById(id) as HTMLOptionElement).selected = true;

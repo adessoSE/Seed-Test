@@ -1,10 +1,10 @@
 import { Directive } from '@angular/core';
-import { AbstractControl, UntypedFormGroup, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
+import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 
 /** 
  * A user's password has to match the user's confirmed password 
 */
-export const passwordConfirmedValidator: ValidatorFn = (control: UntypedFormGroup): ValidationErrors | null => {
+export const passwordConfirmedValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
 	const password = control.get('password');
 	const confirmPassword = control.get('confirmPassword');
 	return password && confirmPassword && password.value !== confirmPassword.value ? { 'passwordConfirmed': true } : null;
@@ -19,7 +19,7 @@ export const passwordConfirmedValidator: ValidatorFn = (control: UntypedFormGrou
 	standalone: false
 })
 export class PasswordConfirmedValidatorDirective implements Validator {
-	validate(control: AbstractControl): ValidationErrors {
+	validate(control: AbstractControl): ValidationErrors | null {
 		return passwordConfirmedValidator(control);
 	}
 }

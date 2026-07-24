@@ -3,9 +3,9 @@ import {
 } from '@cucumber/cucumber';
 import fs from 'fs';
 import assert from 'assert';
-import { By, until, Key, WebDriver } from 'selenium-webdriver';
+import { By, until, Key } from 'selenium-webdriver';
 import { SeleniumWebdriverWorld } from './seleniumWebdriverWorld';
-import { applySpecialCommands } from '../../../helpers/specialCommandParser'; 
+import { applySpecialCommands } from '../../../helpers/specialCommandParser';
 
 // Welt-Konstruktor setzen
 setWorldConstructor(SeleniumWebdriverWorld);
@@ -17,7 +17,7 @@ let totalScenarios = 0;
 
 // Global variables - CAUTION: This is problematic for parallel execution!
 // These should ideally be part of the World instance 'this'
-let driver: WebDriver;
+let driver: any;
 let searchTimeout: number;
 let downloadDirectory: string;
 let tmpUploadDir: string;
@@ -82,7 +82,7 @@ Before(async function (this: SeleniumWebdriverWorld) {
 
 After(async function (this: SeleniumWebdriverWorld, scenario: ITestCaseHookParameter) {
 	// Screenshot bei Fehlern
-	if (scenario.result.status === 'FAILED') try {
+	if (scenario.result?.status === 'FAILED') try {
 		const screenshot = await this.takeScreenshot();
 		this.attach(screenshot, 'image/png');
 	} catch (e: any) {
@@ -207,7 +207,7 @@ Given('I take a screenshot', async function (this: SeleniumWebdriverWorld) {
 	await handleError(async () => {
 		const world = this;
 		await driver.wait(async () => driver.executeScript('return document.readyState')
-			.then(async (readyState) => readyState === 'complete'));
+			.then(async (readyState: string) => readyState === 'complete'));
 		try {
 			await world.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
@@ -227,7 +227,7 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 	await handleError(async () => {
 		const world = this;
 		await driver.wait(async () => driver.executeScript('return document.readyState')
-			.then(async (readyState) => readyState === 'complete'));
+			.then(async (readyState: string) => readyState === 'complete'));
 		const identifiers = [`//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
 		const promises = [];
 		for (const idString of identifiers) promises.push(driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(idString))));
@@ -335,7 +335,7 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 	});
 });
 
-const typing = async (elem, inputString) => {
+const typing = async (elem: any, inputString: string) => {
 	for (const char of inputString.split('')) await elem.sendKeys(char);
 };
 
@@ -384,10 +384,10 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 
 				const ariaOptProm = [driver.findElement(By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
 			`)), driver.findElement(By.xpath(`${value}`))];
-				const dropdownOption = await Promise.any(ariaOptProm).catch((e) => { throw e; });
+				const dropdownOption = await Promise.any(ariaOptProm).catch((e: any) => { throw e; });
 
 				// Wait for the dropdown options to be visible
-				await driver.wait(until.elementIsVisible(dropdownOption)).catch((e) => { throw e; });
+				await driver.wait(until.elementIsVisible(dropdownOption)).catch((e: any) => { throw e; });
 
 				// Select the option from the dropdown
 				await dropdownOption.click();
@@ -587,7 +587,7 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 	await handleError(async () => {
 		const world = this;
 		try {
-			await driver.getCurrentUrl().then(async (currentUrl) => {
+			await driver.getCurrentUrl().then(async (currentUrl: string) => {
 				assert.strictEqual(currentUrl.replace(/\/$/g, ''), url.replace(/[\s]|\/\s*$/g, ''), 'ERROR expected: ...');
 			});
 		} catch (e: any) {
@@ -646,10 +646,10 @@ Then('So I can see the text: {string}', async function textPresent(this: Seleniu
 		const { resultString, regexFound } = resolveRegex(expectedText);
 		const world = this;
 		try {
-			await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
+			await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState: string) => readyState === 'complete'));
 			await driver.wait(until.elementLocated(By.css('Body')), searchTimeout)
-				.then(async (body) => {
-					const cssBody = await body.getText().then((bodytext) => bodytext);
+				.then(async (body: any) => {
+					const cssBody = await body.getText().then((bodytext: string) => bodytext);
 					const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 					const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 					const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
@@ -676,7 +676,7 @@ Then('So I can\'t see text in the textbox: {string}', async function textAbsent(
 
 		await Promise.any(promises)
 			.then(async (elem) => {
-				const resp = await elem.getText().then((text) => text);
+				const resp = await elem.getText().then((text: string) => text);
 				assert.strictEqual(resp, '', 'Textfield does contain some Text');
 			})
 			.catch(async (e: any) => {
@@ -728,7 +728,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 			.then(async (elem) => {
 				if (await elem.getTagName() === 'picture') {
 					const childSourceElems = await elem.findElements(By.xpath('.//source'));
-					const elementWithSrcset = await childSourceElems.find(async (element) => {
+					const elementWithSrcset = await childSourceElems.find(async (element: any) => {
 						const srcsetValue = await element.getAttribute('srcset');
 						return srcsetValue && srcsetValue.includes(name);
 					});
@@ -740,7 +740,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 				const secSrc = await elem.getAttribute('srcset');
 				if (!finSrc && primSrc && primSrc.includes(name)) finSrc = primSrc;
 				if (!finSrc && secSrc && secSrc.includes(name)) finSrc = secSrc;
-				finSrc = finSrc.split(' ').filter((substring) => substring.includes(name));
+				finSrc = finSrc.split(' ').filter((substring: string) => substring.includes(name));
 			})
 			.catch(async (e: any) => {
 				await world.takeScreenshot().then(async (buffer) => {
@@ -777,9 +777,9 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 		const { resultString, regexFound } = resolveRegex(expectedText);
 		const world = this;
 		try {
-			await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
-			await driver.wait(until.elementLocated(By.css('Body')), searchTimeout).then(async (body) => {
-				const cssBody = await body.getText().then((bodytext) => bodytext);
+			await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState: string) => readyState === 'complete'));
+			await driver.wait(until.elementLocated(By.css('Body')), searchTimeout).then(async (body: any) => {
+				const cssBody = await body.getText().then((bodytext: string) => bodytext);
 				const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 				const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 				const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
@@ -835,7 +835,7 @@ Then('So on element {string} the css property {string} is {string}', async funct
 				if (actual.startsWith('rgba')) {
 					const colorNumbers = actual.replace('rgba(', '').replace(')', '')
 						.split(',');
-					const [r, g, b] = colorNumbers.map((v) => Number(v).toString(16));
+					const [r, g, b] = colorNumbers.map((v: string) => Number(v).toString(16));
 					const hex = `#${r}${g}${b}`;
 					assert.strictEqual(value.toString(), hex.toString(), `The css property ${property} of element ${element} does not match '${value}', actual '${hex}'`);
 				} else assert.strictEqual(value.toString(), actual.toString(), `The css property ${property} of element ${element} does not match '${value}', actual '${actual}'`);

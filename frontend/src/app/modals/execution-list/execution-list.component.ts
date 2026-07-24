@@ -21,12 +21,12 @@ export class ExecutionListComponent implements OnInit {
 
 	selectedTestRunIds: number[] = [];
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
-	executionContext: Scenario | Story | Group;
-  
-	isDark: boolean;
-	themeObservable: Subscription;
+	executionContext!: Scenario | Story | Group;
+
+	isDark!: boolean;
+	themeObservable!: Subscription;
 
 	testExecutions: { testRunId: number, testExecKey: string, selected: boolean }[] = [];
 
@@ -68,7 +68,7 @@ export class ExecutionListComponent implements OnInit {
 		this.testExecutions = [];
   
 		if (this.isScenario(executionContext))   
-			this.testExecutions = executionContext.testRunSteps.map(step => ({
+			this.testExecutions = executionContext.testRunSteps!.map(step => ({
 				testRunId: step.testRunId,
 				testExecKey: step.testExecKey,
 				selected: false
@@ -101,9 +101,9 @@ export class ExecutionListComponent implements OnInit {
 				const stories = await Promise.all(promises);
 				stories.forEach(story => {
 					if (story.scenarios && story.scenarios.length > 0) 
-						story.scenarios.forEach(scenario => {
-							if (scenario.testRunSteps && scenario.testRunSteps.length > 0) 
-								scenario.testRunSteps.forEach(step => {
+						story.scenarios.forEach((scenario: any) => {
+							if (scenario.testRunSteps && scenario.testRunSteps.length > 0)
+								scenario.testRunSteps.forEach((step: any) => {
 									this.testExecutions.push({
 										testRunId: step.testRunId,
 										testExecKey: step.testExecKey,

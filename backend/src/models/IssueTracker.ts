@@ -38,7 +38,7 @@ abstract class IssueTracker {
 		else comment += `# Test Result ${new Date(report.reportTime).toLocaleString()}\n## Tested Story: "${testedTitle}"\n### Test passed: ${report.status}${testPassedIcon}\nScenarios passed: ${report.scenariosTested.passed} :white_check_mark:\nScenarios failed: ${report.scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
 		return comment;
 	}
-	abstract postComment(comment: string, issueDetail: {issueId: string, repoUser?: string, repoName?: string}, credentials: any);
+	abstract postComment(comment: string, issueDetail: {issueId: string, repoUser?: string, repoName?: string}, credentials: any): void;
 
 	//TODO: Durch ExternalServices AuthSTring ersetzen?
 	protected buildAuthText(username: string, password: string, authMethod: string){
@@ -70,7 +70,7 @@ class Github extends IssueTracker {
 		});
 	}
 
-	private addLabelToIssue(githubName: string, githubRepo: string, password: string, issueNumber, label: string) {
+	private addLabelToIssue(githubName: string, githubRepo: string, password: string, issueNumber: string, label: string) {
 		const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels`;
 		const body = { labels: [label] };
 		const auth = this.buildAuthText(githubName, password, 'basic');
@@ -81,7 +81,7 @@ class Github extends IssueTracker {
 		});
 	}
     
-	private removeLabelOfIssue(githubName: string, githubRepo: string, password: string, issueNumber, label: string) {
+	private removeLabelOfIssue(githubName: string, githubRepo: string, password: string, issueNumber: string, label: string) {
 		const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels/${label}`;
 		const auth = this.buildAuthText(githubName, password, 'basic');
 		fetch(link, {
@@ -100,8 +100,8 @@ class Github extends IssueTracker {
 			removeLabel = 'Seed-Test Test Success :white_check_mark:';
 			addedLabel = 'Seed-Test Test Fail :x:';
 		}
-		this.removeLabelOfIssue(issueDetail.repoUser, issueDetail.repoName, githubToken, issueDetail.issueId, removeLabel);
-		this.addLabelToIssue(issueDetail.repoUser, issueDetail.repoName, githubToken, issueDetail.issueId, addedLabel);
+		this.removeLabelOfIssue(issueDetail.repoUser!, issueDetail.repoName!, githubToken, issueDetail.issueId, removeLabel);
+		this.addLabelToIssue(issueDetail.repoUser!, issueDetail.repoName!, githubToken, issueDetail.issueId, addedLabel);
 	}
 }
 

@@ -21,7 +21,7 @@ export class StepValidationService {
 		if (validation.hasIssues) {
 			element.classList.add('quote-warning');
 			this.debounceWarning(() => {
-				this.showValidationWarning(validation.message);
+				this.showValidationWarning(validation.message!);
 			});
 		} else 
 			element.classList.remove('quote-warning');

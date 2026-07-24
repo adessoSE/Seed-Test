@@ -233,8 +233,8 @@ export async function deleteRepository(repoId: string, ownerId: string): Promise
 
 
 	await db.collection(customBlocksCollection).deleteMany({ repositoryId: oid(repoId) });
-	if (workgroup) 
-		await db.collection('Workgroups').deleteOne({ _id: oid(workgroup._id) }); // Direct DB call for now
+	if (workgroup)
+		await db.collection('Workgroups').deleteOne({ _id: oid(workgroup._id!) }); // Direct DB call for now
     
 	await repoCollection.deleteOne({ _id: oid(repoId) });
 
@@ -242,7 +242,7 @@ export async function deleteRepository(repoId: string, ownerId: string): Promise
 }
 
 export async function insertStoryIdIntoRepo(storyId: string, repoId: string, client?: MongoClient, session?: ClientSession): Promise<any> {
-	const db = session ? client.db('Seed', session) : dbConnection.getConnection();
+	const db = session ? client!.db('Seed', session) : dbConnection.getConnection();
     
 	return await db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },
@@ -275,7 +275,7 @@ export async function getAllStoryGroups(repoId: string): Promise<Group[]> {
 
 export async function getOneStoryGroup(repoId: string, groupId: string): Promise<Group | undefined> {
 	const groups = await getAllStoryGroups(repoId);
-	return groups.find(g => g._id.toString() === groupId);
+	return groups.find(g => g._id?.toString() === groupId);
 }
 
 export async function createStoryGroup(repoId: string, name: string, members: string[], sequence: boolean, xrayTestSet: boolean = false, client?: MongoClient, session?: ClientSession): Promise<ObjectId> {
@@ -297,7 +297,7 @@ export async function createStoryGroup(repoId: string, name: string, members: st
 	if (!result?.groups?.length) 
 		throw new Error(`Repository ${repoId} not found or group creation failed`);
     
-	const newGroupId = result.groups.slice(-1)[0]._id;
+	const newGroupId = result.groups.slice(-1)[0]._id!;
 	return newGroupId;
 }
 
@@ -312,7 +312,7 @@ export async function updateStoryGroup(repoId: string, groupId: string, updatedG
     
 
 	// leave with double equal
-	const index = repo.groups.findIndex((g) => g._id.toString() == groupId);
+	const index = repo.groups.findIndex((g) => g._id?.toString() == groupId);
 	if (index === -1) 
 		throw new Error('Group not found in repository');
     

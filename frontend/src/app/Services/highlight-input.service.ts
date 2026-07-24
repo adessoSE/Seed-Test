@@ -25,7 +25,7 @@ export class HighlightInputService {
    * @returns if a regex was detected
    */
 	highlightInput(
-		element,
+		element: any,
 		initialCall?: boolean,
 		isDark?: boolean,
 		regexInStory?: boolean,
@@ -46,7 +46,7 @@ export class HighlightInputService {
 		let regexDetected = false;
 		let highlightedText = textContent;
 
-		if (!valueIndex || (0 == valueIndex && regexSteps.includes(stepPre))) {
+		if (!valueIndex || (0 == valueIndex && regexSteps.includes(stepPre!))) {
 			if (highlightRegex)
 				({ regexDetected, highlightedText } = this.highlightRegex(
 					highlightedText,
@@ -61,7 +61,7 @@ export class HighlightInputService {
 		// Set cursor to correct position
 		if (!initialCall) {
 			//maybe not needed
-			const selection = window.getSelection();
+			const selection = window.getSelection()!;
 			selection.removeAllRanges();
 
 			// Call the function to find the correct node and offset
@@ -97,7 +97,7 @@ export class HighlightInputService {
    * @param isDark theming Service
    * @returns an object containing {regexDetected , highlightedText}
    */
-	highlightRegex(element, isDark) {
+	highlightRegex(element: string, isDark?: boolean) {
 		const regexPattern = /(\{Regex:)(.*)(\})(.*)/g;
 
 		const textContent = element;
@@ -106,7 +106,7 @@ export class HighlightInputService {
 		// TODO: Hardcoded Styles
 		const highlightedText = textContent.replace(
 			regexPattern,
-			(match, match1, match2, match3, match4) => {
+			(match: string, match1: string, match2: string, match3: string, match4: string) => {
 				regexDetected = true;
 				return (
 					'<span>' +
@@ -131,7 +131,7 @@ export class HighlightInputService {
    * @param isDark theming Service
    * @returns an object containing {regexDetected , highlightedText}
    */
-	highlightSpecialCommands(element, isDark) {
+	highlightSpecialCommands(element: string, isDark?: boolean) {
 		const specialCommandsPattern =
 			/(((((@@(Day|Month|Year),(\d\d?\d?\d?))+)|(@@((\d|\d\d),)?[a-zA-Z]+))((\+|-)(@@((\d|\d\d),)?[a-zA-Z]+))+)|(((@@(Day|Month|Year),(\d\d?\d?\d?))+)|(@@((\d|\d\d),)?[a-zA-Z]+)))(@@format:.*€€)?/g;
 
@@ -139,29 +139,29 @@ export class HighlightInputService {
 
 		let specialCommandDetected = false;
 		// TODO: Hardcoded Styles
-		const highlightedText = textContent.replace(specialCommandsPattern, (match) => {
+		const highlightedText = textContent.replace(specialCommandsPattern, (match: string) => {
 			specialCommandDetected = true;
 			const identifier = `specialInputId${
 				Date.now().toString(36) + Math.random().toString(36).substr(2)
 			}`;
 			this.apiService.resolveSpecialCommand(match).subscribe({
 				next: (resolvedCommand) => {
-					if (resolvedCommand === match) 
+					if (resolvedCommand === match)
 						document
-							.querySelector(`#${identifier}`)
+							.querySelector(`#${identifier}`)!
 							.setAttribute(
 								'uk-tooltip',
 								`title: Unknown command: ${resolvedCommand}`
 							);
-					else 
+					else
 						document
-							.querySelector(`#${identifier}`)
+							.querySelector(`#${identifier}`)!
 							.setAttribute('uk-tooltip', `title:${resolvedCommand}`);
           
 				},
-				error: (error) => {
+				error: (error: any) => {
 					document
-						.querySelector(`#${identifier}`)
+						.querySelector(`#${identifier}`)!
 						.setAttribute('uk-tooltip', `title:Error: ${error.error.error}`);
 				}
 			});
@@ -205,7 +205,7 @@ export class HighlightInputService {
    * @param element HTMLElement
    * @returns num, offset of cursor position
    */
-	getCaretCharacterOffsetWithin(element) {
+	getCaretCharacterOffsetWithin(element: any) {
 		let caretOffset = 0;
 		const doc = element.ownerDocument || element.document;
 		const win = doc.defaultView || doc.parentWindow;

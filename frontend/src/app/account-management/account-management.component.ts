@@ -35,29 +35,29 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	/**
      * Viewchild to create the modals
      */
-	@ViewChild('changeJiraModal') changeJiraModal: ChangeJiraAccountComponent;
-	@ViewChild('disconnectJiraModal') disconnectJiraModal: DisconnectJiraAccountComponent;
-	@ViewChild('createCustomProject') createCustomProject: CreateCustomProjectComponent;
-	@ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
-	@ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
-	@ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
+	@ViewChild('changeJiraModal') changeJiraModal!: ChangeJiraAccountComponent;
+	@ViewChild('disconnectJiraModal') disconnectJiraModal!: DisconnectJiraAccountComponent;
+	@ViewChild('createCustomProject') createCustomProject!: CreateCustomProjectComponent;
+	@ViewChild('deleteAccountModal') deleteAccountModal!: DeleteAccountComponent;
+	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
+	@ViewChild('repoSwitchModal') repoSwitchModal!: RepoSwichComponent;
 
 	/**
      * Viewchild to auto open mat-select
      */
-	@ViewChild('ngSelect') ngSelect;
+	@ViewChild('ngSelect') ngSelect: any;
 
 
 	/**
      * Repositories or projects of this user
      */
 
-	repositories: RepositoryContainer[];
+	repositories!: RepositoryContainer[];
 
 	/**
      * Email of the user
      */
-	email: string;
+	email!: string;
 
 	/**
      * Github object of the user
@@ -72,32 +72,32 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	/**
      * User id
      */
-	id: string;
+	id!: string;
 
-	searchInput: string;
+	searchInput!: string;
 
-	versionInput: string;
+	versionInput!: string;
 
-	searchList: RepositoryContainer[];
+	searchList!: RepositoryContainer[];
 
 	navigationSubscription: Subscription;
 
-	downloadRepoID: string;
+	downloadRepoID!: string;
 
-	isDark: boolean;
+	isDark!: boolean;
 
-	isActualRepoToDelete: boolean;
+	isActualRepoToDelete!: boolean;
 
-	clientId: string;
+	clientId!: string;
 
 	/**
      * Subscribtions for all EventEmitter
      */
 	routeSub: Subscription;
-	updateRepositoryObservable: Subscription;
-	themeObservable: Subscription;
-	getRepositoriesObservable: Subscription;
-	renameProjectObservable: Subscription;
+	updateRepositoryObservable!: Subscription;
+	themeObservable!: Subscription;
+	getRepositoriesObservable!: Subscription;
+	renameProjectObservable!: Subscription;
 
 	/**
      * Constructor
@@ -178,7 +178,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         
 	}
 
-	seperateRepos(repos) {
+	seperateRepos(repos: RepositoryContainer[]) {
 		this.repositories = repos;
 		this.searchList = (!this.searchList) ? repos : this.searchList;
 	}
@@ -255,9 +255,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	updateSite(report: string) {
 		if (report === 'Successful') {
 			this.managmentService.getUserData().subscribe(user => {
-				this.id = user._id;
-				if (typeof user['email'] !== 'undefined') 
-					this.email = user['email'];
+				this.id = user._id!;
+				if (typeof user['email'] !== 'undefined')
+					this.email = user['email'] as string;
                 
 				if (typeof user['github'] !== 'undefined') 
 					this.github = user['github'];
@@ -267,7 +267,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 					(document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
 					(document.getElementById('disconnect-jira') as HTMLButtonElement).style.removeProperty('display');
 				}
-				this.clientId = localStorage.getItem('clientId');
+				this.clientId = localStorage.getItem('clientId') ?? '';
 			});
 			this.getSessionStorage();
 		}
@@ -299,35 +299,35 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		ref.href = 'https://github.com/' + userRepository.repoName;
 		localStorage.setItem('repository', userRepository.repoName);
 		localStorage.setItem('source', userRepository.source);
-		localStorage.setItem('id', userRepository._id);
+		localStorage.setItem('id', userRepository._id!);
 		this.router.navigate(['']);
 	}
 
-	downloadProjectFeatures(repo_id) {
+	downloadProjectFeatures(repo_id: string) {
 		if (repo_id) {
 			const userRepo = this.searchList.find(repo => repo._id == repo_id);
 			console.log(userRepo);
-			const id = userRepo._id;
+			const id = userRepo!._id!;
 			this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
-				if (this.versionInput) 
-					saveAs(ret, userRepo.repoName + '-v' + this.versionInput + '.zip');
-				else 
-					saveAs(ret, userRepo.repoName + '.zip');
+				if (this.versionInput)
+					saveAs(ret, userRepo!.repoName + '-v' + this.versionInput + '.zip');
+				else
+					saveAs(ret, userRepo!.repoName + '.zip');
 				
 			});
 		}
 	}
 
-	exportProject(repo_id) {
+	exportProject(repo_id: string) {
 		if (repo_id) {
 			const userRepo = this.searchList.find(repo => repo._id == repo_id);
 			console.log(userRepo);
-			const id = userRepo._id;
+			const id = userRepo!._id!;
 			this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {
-				if (this.versionInput) 
-					saveAs(ret, userRepo.repoName + '-export' + '-v' + this.versionInput + '.zip');
-				else 
-					saveAs(ret, userRepo.repoName + '-export' + '.zip');
+				if (this.versionInput)
+					saveAs(ret, userRepo!.repoName + '-export' + '-v' + this.versionInput + '.zip');
+				else
+					saveAs(ret, userRepo!.repoName + '-export' + '.zip');
 				
 			});
 		}
@@ -339,7 +339,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		// Ensure this.repositories is an array before trying to concat and filter
 		const reposToFilter = this.repositories || [];
 
-		this.searchList = [].concat(reposToFilter).filter(repo => {
+		this.searchList = ([] as RepositoryContainer[]).concat(reposToFilter).filter(repo => {
 			// Check if repo and repo.repoName exist before calling toLowerCase()
 			if (repo && repo.repoName && repo.repoName.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) 
 				return repo;
@@ -357,7 +357,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      */
 	updateRepos() {
 		const value = sessionStorage.getItem('repositories');
-		const repository: RepositoryContainer = JSON.parse(value);
+		const repository: RepositoryContainer[] = JSON.parse(value!);
 		this.seperateRepos(repository);
 
 		// update repo download list
@@ -365,7 +365,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	updateRepository(project: RepositoryContainer) {
-		this.projectService.updateRepository(project._id, project.repoName, this.id).subscribe(_resp => {
+		this.projectService.updateRepository(project._id!, project.repoName, this.id).subscribe(_resp => {
 			this.projectService.getRepositories();
 			this.toastr.success('successfully saved', 'Repository');
 		});

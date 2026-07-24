@@ -13,7 +13,7 @@ const customBlocksCollection = 'CustomBlocks';
  */
 export async function saveBlock(block: Block, session?: ClientSession, client?: MongoClient): Promise<any> {
 	const db = session
-		? client.db('Seed', session)
+		? client!.db('Seed', session)
 		: dbConnection.getConnection();
 	const sanitizedBlock = mongoSanitize(block);
 	// Convert string IDs to ObjectId for MongoDB storage
@@ -54,7 +54,7 @@ export async function getBlocks(repoId: string): Promise<Block[]> {
  */
 export async function updateBlock(blockId: string, updatedBlock: Block, userId: string, session?: ClientSession, client?: MongoClient): Promise<any> {
 	const db = session
-		? client.db('Seed', session)
+		? client!.db('Seed', session)
 		: dbConnection.getConnection();
 	// Convert string IDs to ObjectId for MongoDB storage
 	const doc: BlockDoc = {

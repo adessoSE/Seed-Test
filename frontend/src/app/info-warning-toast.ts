@@ -99,18 +99,18 @@ export class InfoWarningToast extends Toast implements OnInit {
 	/**
      * Name for the first option
      */
-	firstOptionString: string;
+	firstOptionString!: string;
 
 	/**
      * Name for the second option
      */
-	secondOptionString: string;
+	secondOptionString!: string;
 	/**
      * Name of the toastr
      */
-	nameToastr: string;
+	nameToastr!: string;
 
-	toastrOptions: string[];
+	toastrOptions!: string[];
 	// constructor is only necessary when not using AoT
 	/**
      * @ignore

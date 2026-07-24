@@ -25,28 +25,28 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      */
 	testDone = false;
 
-	@Input() report;
+	@Input() report: any;
 
-	reportId;
+	reportId: any;
 
-	reportComponent;
+	reportComponent: any;
 	/**
      * Changed report
      */
-	updatedReports;
+	updatedReports: any;
 	/**
      * html report of the result
      */
-	htmlReport: BlobPart;
+	htmlReport!: BlobPart;
 
 	/**
      * If the results should be shown
      */
 	showResults = false;
 
-	isDark:boolean;
+	isDark!: boolean;
 
-	@ViewChild('iframe') iframe: ElementRef;
+	@ViewChild('iframe') iframe!: ElementRef;
 
 	/**
      * Subject to get a report object and emits its current value whenever it is subscribed to
@@ -57,7 +57,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	/**
      * Subscribtions for all EventEmitter
     */
-	reportObservable: Subscription;
+	reportObservable!: Subscription;
 
 	/**
      * Retrieves the report
@@ -120,9 +120,9 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 		window.addEventListener('storage', (event) => {           
 			if (event.key === 'reportComponent' ) {
 				const storedReportComponentString = localStorage.getItem('reportComponent');
-				this.updatedReports = JSON.parse(storedReportComponentString);
+				this.updatedReports = JSON.parse(storedReportComponentString!);
 				if (this.updatedReports._id === this.reportComponent._id)
-					this.reportComponent = JSON.parse(storedReportComponentString);
+					this.reportComponent = JSON.parse(storedReportComponentString!);
             
 			}
 		});    
@@ -131,7 +131,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	/**
      * Set a report value
      */
-	setReportElement(report){
+	setReportElement(report: any){
 		this.reportComponent = report;
 	}
 	/**
@@ -146,7 +146,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      * @param reportId
      * @returns
      */
-	unsaveReport(reportId) {
+	unsaveReport(reportId: string) {
 		this.reportComponent.isSaved = false;
 		localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent));
 		return new Promise<void>((resolve, _reject) => {
@@ -163,7 +163,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      * @param reportId
      * @returns
      */
-	saveReport(reportId) {
+	saveReport(reportId: string) {
 		this.reportComponent.isSaved = true;
 		localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent));
 		return new Promise<void>((resolve, _reject) => {

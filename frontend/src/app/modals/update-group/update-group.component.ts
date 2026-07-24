@@ -16,32 +16,32 @@ import { StoryService } from 'src/app/Services/story.service';
 })
 export class UpdateGroupComponent {
 
-	@ViewChild('updateGroupModal') updateGroupModal: UpdateGroupComponent;
+	@ViewChild('updateGroupModal') updateGroupModal!: UpdateGroupComponent;
 	/**
      * selectable Stories when create Group
   */
-	stories: Story[];
+	stories!: Story[];
 
-	filteredStories: MatTableDataSource<Story>;
+	filteredStories!: MatTableDataSource<Story>;
 
 	/**
    * Existing Groups
    */
-	groups: Group[];
+	groups!: Group[];
 
-	group: Group;
+	group!: Group;
 
-	scrGroup: Group;
+	scrGroup!: Group;
 
-	selectedStories: string[];
+	selectedStories!: string[];
 
-	groupTitle: string;
+	groupTitle!: string;
 
-	groupId: string;
+	groupId!: string;
 
-	isSeq: boolean;
+	isSeq!: boolean;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
 	/**
   * Model Reference for closing
@@ -62,15 +62,15 @@ export class UpdateGroupComponent {
 	openUpdateGroupModal(group: Group, groups: Group[]) {
 		this.groups = groups;
 		this.scrGroup = group;
-		const repoName = localStorage.getItem('repository');
-		const _id = localStorage.getItem('id');
-		const source = localStorage.getItem('source');
+		const repoName = localStorage.getItem('repository') ?? '';
+		const _id = localStorage.getItem('id') ?? undefined;
+		const source = localStorage.getItem('source') ?? '';
 		const repositoryContainer: RepositoryContainer = {repoName, source, _id};
 		this.storyService.getStories(repositoryContainer).subscribe(res => {
 			this.stories = res;
 			this.filteredStories = new MatTableDataSource(res);
 		});
-		this.groupId = group._id;
+		this.groupId = group._id!;
 		this.groupTitle = group.name;
 		this.isSeq = group.isSequential;
 		this.selectedStories = [...group.member_stories];
@@ -97,7 +97,7 @@ export class UpdateGroupComponent {
      * Checks wether the Story is already added
      * @param story
      */
-	isStoryChecked(story) {
+	isStoryChecked(story: Story) {
 		if (this.selectedStories === undefined) {
 			this.selectedStories = new Array<string>();
 			return false;
@@ -110,15 +110,15 @@ export class UpdateGroupComponent {
      * Fuctionality for adding and removing Stories from a Group with a Checklist
      * @param story
      */
-	selectStory(story) {
+	selectStory(story: Story) {
 		if (this.isStoryChecked(story)) 
 			this.selectedStories = this.selectedStories.filter(item => item !== story._id);
 		else 
-			this.selectedStories.push(story._id);
+			this.selectedStories.push(story._id!);
     
 	}
 
-	deleteGroup(event) {
+	deleteGroup(event: Event) {
 		event.stopPropagation();
 		const repo_id = localStorage.getItem('id');
 		this.groupService.deleteGroupEvent({'repo_id': repo_id, 'group_id': this.groupId});
@@ -126,9 +126,9 @@ export class UpdateGroupComponent {
 
 	updateGroup(form: NgForm) {
 		console.log('selectedStories:', this.selectedStories);
-		const repoName = localStorage.getItem('repository');
-		const _id = localStorage.getItem('id');
-		const source = localStorage.getItem('source');
+		const repoName = localStorage.getItem('repository') ?? '';
+		const _id = localStorage.getItem('id') ?? undefined;
+		const source = localStorage.getItem('source') ?? '';
 		const repositoryContainer: RepositoryContainer = {repoName, source, _id};
 		const group: Group = {_id: this.groupId, name: form.value.title, member_stories: this.selectedStories, isSequential: this.isSeq};
 		this.groupService.updateGroupEvent({repositoryContainer, group});

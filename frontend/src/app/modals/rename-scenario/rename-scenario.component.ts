@@ -11,11 +11,11 @@ import { ScenarioService } from 'src/app/Services/scenario.service';
 })
 export class RenameScenarioComponent {
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
-	scenarioName:string;
+	scenarioName!: string;
 
-	@ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
+	@ViewChild('renameScenarioModal') renameScenarioModal!: RenameScenarioComponent;
 
 	constructor(private modalService: NgbModal, public scenarioService: ScenarioService) { }
 

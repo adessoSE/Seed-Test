@@ -18,19 +18,19 @@ export class ChangeJiraAccountComponent {
 	@Output()
 	jiraAccountResponse: EventEmitter<any> = new EventEmitter();
 
-	@ViewChild('changeJiraAccountModal') changeJiraAccountModal: ChangeJiraAccountComponent;
+	@ViewChild('changeJiraAccountModal') changeJiraAccountModal!: ChangeJiraAccountComponent;
 
 	/**
      * Type of the changed account
      * Modal: change Jira account modal
      */
-	type: string;
+	type!: string;
 
 	/**
   * Model Reference for closing
   */
-	modalReference: NgbModalRef;
-	activeForm: string;
+	modalReference!: NgbModalRef;
+	activeForm!: string;
 
 	jiraForm = new UntypedFormGroup({
 		jiraHost: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
@@ -53,13 +53,13 @@ export class ChangeJiraAccountComponent {
      * Opens the change Jira Account Modal
      * @param type type of the changed account
      */
-	openChangeJiraAccountModal(type) {
+	openChangeJiraAccountModal(type: string) {
 		this.modalReference = this.modalService.open(this.changeJiraAccountModal, {ariaLabelledBy: 'modal-basic-title'});
 		this.type = type;
 		this.activeForm = 'bearer';
 	}
 
-	switchForm(form){
+	switchForm(form: string){
 		this.activeForm = form;
 	}
 	/**

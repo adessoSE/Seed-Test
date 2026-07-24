@@ -18,6 +18,7 @@ export class JobQueue {
     
 		this.isProcessing = true;
 		const task = this.queue.shift(); // Get the next task
+		if (!task) return;
 
 		try {
 			await task();

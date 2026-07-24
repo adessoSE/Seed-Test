@@ -26,21 +26,21 @@ export class ParentComponent implements OnInit, OnDestroy {
 	/**
    * Stories in the selected project
    */
-	stories: Story[];
+	stories!: Story[];
 
-	repositories: RepositoryContainer[];
-  
-	selectedRepository: RepositoryContainer;
+	repositories!: RepositoryContainer[];
+
+	selectedRepository!: RepositoryContainer;
 
 	/**
    * Currently selected story
    */
-	selectedStory: Story;
+	selectedStory!: Story;
 
 	/**
    * Currently selected Scenario
    */
-	selectedScenario: Scenario;
+	selectedScenario!: Scenario;
 
 	/**
    * If the story Editor is shown or the report history
@@ -52,11 +52,11 @@ export class ParentComponent implements OnInit, OnDestroy {
    */
 	testRunningForGroup = false;
 
-	groups: Group[];
+	groups!: Group[];
 
-	report;
+	report: any;
 
-	isDark: boolean;
+	isDark!: boolean;
 
 	activeView: string = 'storyView';
 
@@ -65,10 +65,10 @@ export class ParentComponent implements OnInit, OnDestroy {
 	/**
      * Subscribtions for all EventEmitter
      */
-	getBackendUrlObservable: Subscription;
-	themeObservable: Subscription;
-	getRepositoriesObservable: Subscription;
-	activeViewObservable: Subscription;
+	getBackendUrlObservable!: Subscription;
+	themeObservable!: Subscription;
+	getRepositoriesObservable!: Subscription;
+	activeViewObservable!: Subscription;
 
 	/**
    * Constructor
@@ -139,14 +139,14 @@ export class ParentComponent implements OnInit, OnDestroy {
    * Leads the stories of the current selected repository
    */
 	loadStories() {
-		const repoId: string = localStorage.getItem('id');
+		const repoId = localStorage.getItem('id') ?? '';
 
 		// 1. Fetch the complete list of repositories
 		this.projectService.getRepositories().subscribe((allRepos: RepositoryContainer[]) => {
 			this.repositories = allRepos;
 
 			// 2. Find the full, currently selected repository object from the list
-			this.selectedRepository = this.repositories.find(repo => repo._id === repoId);
+			this.selectedRepository = this.repositories.find(repo => repo._id === repoId)!;
 
 			// 3. If the full repository object is found, load its stories
 			if (this.selectedRepository) 
@@ -171,10 +171,10 @@ export class ParentComponent implements OnInit, OnDestroy {
 		this.route.paramMap.subscribe(params => {
 			if (params.has('story_id')) {
 				const story_id = params.get('story_id');
-				this.selectedStory = this.stories.find(o => o._id === story_id);
+				this.selectedStory = this.stories.find(o => o._id === story_id)!;
 				if (params.has('scenario_id')) {
 					const scenario_id = params.get('scenario_id');
-					this.setSelectedScenario(this.selectedStory.scenarios.find(o => o.scenario_id.toString() === scenario_id));
+					this.setSelectedScenario(this.selectedStory.scenarios.find(o => o.scenario_id.toString() === scenario_id)!);
 				} else 
 					this.setSelectedScenario(this.selectedStory.scenarios[0]);
         
@@ -203,7 +203,7 @@ export class ParentComponent implements OnInit, OnDestroy {
    * @param scenario
    */
 	deselectScenario() {
-		this.selectedScenario = undefined;
+		this.selectedScenario = undefined as any;
 	}
 
 	/**
@@ -214,11 +214,11 @@ export class ParentComponent implements OnInit, OnDestroy {
 		this.isStoryEditorActive = !this.isStoryEditorActive;
 	}
 
-	viewReport($event) {
+	viewReport($event: any) {
 		this.report = $event;
 	}
 
-	testRunningGroup($event) {
+	testRunningGroup($event: any) {
 		this.isStoryEditorActive = true;
 		this.testRunningForGroup = $event;
 		if (this.testRunningForGroup === true) 

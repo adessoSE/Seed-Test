@@ -52,7 +52,7 @@ export class StoryService {
   * Emits the change the active view
   * @param viewName
   */
-	changeStoryViewEvent(viewName) {
+	changeStoryViewEvent(viewName: string) {
 		this.changeStoryViewEmitter.emit(viewName);
 	}
 
@@ -61,7 +61,7 @@ export class StoryService {
   * @param newStoryTitle
   * @param newStoryDescription
   */
-	renameStoryEmit(newStoryTitle, newStoryDescription) {
+	renameStoryEmit(newStoryTitle: string, newStoryDescription: string) {
 		const val = { newStoryTitle, newStoryDescription };
 		this.renameStoryEvent.emit(val);
 	}
@@ -69,7 +69,7 @@ export class StoryService {
   * Emits the create custom story event
   * @param story
   */
-	createCustomStoryEvent(story) {
+	createCustomStoryEvent(story: any) {
 		this.createCustomStoryEmitter.emit(story);
 	}
 	/**
@@ -77,7 +77,7 @@ export class StoryService {
     * @param _id storyID
     * @return single Story object
   */
-	public getStory(_id): Observable<any> {
+	public getStory(_id: string): Observable<any> {
 		return this.http
 			.get<Story>(this.apiService.apiServer + '/story/' + _id, ApiService.getOptions())
 			.pipe(tap(_ => {
@@ -126,7 +126,7 @@ export class StoryService {
     * @param repository Specifies the repository where a Story should be deleted
     * @param _id StoryID
   */
-	public deleteStory(repository, _id): Observable<any> {
+	public deleteStory(repository: string, _id: string): Observable<any> {
 		return this.http
 			.delete<any>(this.apiService.apiServer + '/story/' + repository + '/' + _id, ApiService.getOptions())
 			.pipe(tap());
@@ -137,14 +137,14 @@ export class StoryService {
     * @returns
   */
 	getStories(repository: RepositoryContainer): Observable<Story[]> {
-		let params;
+		let params: Record<string, string> = {};
 		if (repository.source === 'github') {
 			const repo = repository.repoName.split('/');
-			params = { repoName: repository.repoName, githubName: repo[0], repository: repo[1], source: repository.source, id: repository._id };
+			params = { repoName: repository.repoName, githubName: repo[0], repository: repo[1], source: repository.source, id: repository._id! };
 		} else if (repository.source === 'jira') 
-			params = { projectKey: repository.repoName, source: repository.source, id: repository._id };
+			params = { projectKey: repository.repoName, source: repository.source, id: repository._id! };
 		else if (repository.source === 'db') 
-			params = { repoName: repository.repoName, source: repository.source, id: repository._id };
+			params = { repoName: repository.repoName, source: repository.source, id: repository._id! };
     
 
 		return this.http
@@ -159,7 +159,7 @@ export class StoryService {
    * @param storiesList
    * @returns
   */
-	updateStoryList(repo_id, storiesList) {
+	updateStoryList(repo_id: string, storiesList: any) {
 		return this.http
 			.put(this.apiService.apiServer + '/story/' + repo_id, storiesList, ApiService.getOptions())
 			.pipe(tap());
@@ -171,7 +171,7 @@ export class StoryService {
    * @param params
    * @returns
   */
-	runTests(storyID: any, scenarioID: number, params) {
+	runTests(storyID: any, scenarioID: number, params: any) {
 		const timeout = 900000;
 		if (scenarioID) 
 			return this.http
@@ -185,7 +185,7 @@ export class StoryService {
     * @param _id
     * @returns
   */
-	downloadStoryFeatureFile(_id): Observable<Blob> {
+	downloadStoryFeatureFile(_id: string): Observable<Blob> {
 		return this.http
 			.get<Blob>(this.apiService.apiServer + '/story/download/story/' + _id, { withCredentials: true, responseType: 'blob' as 'json' });
 	}

@@ -1,11 +1,13 @@
 import * as crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
-const ENCRYPTION_KEY = process.env.ENCRYPTION_SECRET; // Must be 32 bytes (64 hex characters)
 const NONCE_LENGTH = 12; // GCM standard nonce length
 
-if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) 
+const envSecret = process.env.ENCRYPTION_SECRET; // Must be 32 bytes (64 hex characters)
+if (!envSecret || envSecret.length !== 64)
 	throw new Error('Invalid ENCRYPTION_SECRET. It must be a 64-character hex string.');
+
+const ENCRYPTION_KEY: string = envSecret;
 
 
 /**

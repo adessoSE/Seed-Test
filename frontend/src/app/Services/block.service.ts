@@ -65,10 +65,10 @@ export class BlockService {
 	/**
    * Scenarios to update when reference block is completely deleted
    */
-	scenariosToUpdate: Scenario[];
-	referenceStories: Story[];
-	referenceScenarios: Scenario[];
-	block: Block;
+	scenariosToUpdate!: Scenario[];
+	referenceStories!: Story[];
+	referenceScenarios!: Scenario[];
+	block!: Block;
 	private toastDataSubject = new BehaviorSubject<any>(null);
 	toastData$ = this.toastDataSubject.asObservable();
 
@@ -93,7 +93,7 @@ export class BlockService {
 	/**
   * Emits the convertation steps in reference block
   */
-	convertToReferenceEmitter(block) {
+	convertToReferenceEmitter(block: Block) {
 		this.convertToReferenceEvent.emit(block);
 	}
 
@@ -106,28 +106,28 @@ export class BlockService {
 	/**
   * Emits the references in scenarios
   */
-	public updateScenariosRefEmitt(scenario, storyId) {
+	public updateScenariosRefEmitt(scenario: Scenario, storyId: string) {
 		this.updateScenariosRefEvent.emit([scenario, storyId]);
 	}
 	/**
 * Emits the unpack block event
 * @param block
 */
-	public unpackBlockEmitter(block) {
+	public unpackBlockEmitter(block: Block) {
 		this.unpackBlockEvent.emit(block);
 	}
 	/**
   * Emits the update a reference block name event
   * @param block
   */
-	public updateNameRefEmitter(block) {
+	public updateNameRefEmitter(block: Block) {
 		this.updateNameRefEvent.emit(block);
 	}
 	/**
   * Emits the checking stories for references event 
   * @param blockReferenceId
   */
-	public checkRefOnRemoveEmitter(blockReferenceId) {
+	public checkRefOnRemoveEmitter(blockReferenceId: string) {
 		this.checkRefOnRemoveEvent.emit(blockReferenceId);
 	}
 	/**
@@ -195,10 +195,10 @@ export class BlockService {
    * @param block
    * @param stories
    */
-	checkBackgroundsOnDelete(block, stories) {
-		const matchingStories = stories.filter((s) => s !== null && s.background.name === block.name);
+	checkBackgroundsOnDelete(block: Block, stories: Story[]) {
+		const matchingStories = stories.filter((s: Story) => s !== null && s.background.name === block.name);
 		if (matchingStories.length == 1) 
-			this.deleteBlock(block._id).subscribe(_ =>
+			this.deleteBlock(block._id!).subscribe(_ =>
 				this.updateBlocksEvent.emit()
 			);
     
@@ -229,7 +229,7 @@ export class BlockService {
 
 		this.referenceStories = this.referenceScenarios
 			.map((scenario) => stories.find((story) => story.scenarios.includes(scenario)))
-			.filter((story, index, arr) => story && arr.indexOf(story) === index);
+			.filter((story, index, arr): story is Story => !!story && arr.indexOf(story) === index);
 	}
 	/**
   * delete a reference and update Block
@@ -256,8 +256,8 @@ export class BlockService {
     * @param stories
   */
 	checkBlockOnReference(blocks: Block[], stories: Story[], block: Block) {
-		if (!this.findRefBlockInScenarios(block, stories, 'checkOnReference')) 
-			this.updateBlockReferenceStatus(block._id, blocks);
+		if (!this.findRefBlockInScenarios(block, stories, 'checkOnReference'))
+			this.updateBlockReferenceStatus(block._id!, blocks);
     
 	}
 	/**
@@ -265,7 +265,7 @@ export class BlockService {
     * @param blockReferenceId
     * @param blocks
   */
-	updateBlockReferenceStatus(blockReferenceId: string, blocks): void {
+	updateBlockReferenceStatus(blockReferenceId: string, blocks: Block[]): void {
 		for (const block of blocks) 
 			if (block._id === blockReferenceId) {
 				block.usedAsReference = false;
@@ -278,7 +278,7 @@ export class BlockService {
   * @param block
   * @param stories
   */
-	deleteBlockReference(block, stories: Story[]) {
+	deleteBlockReference(block: Block, stories: Story[]) {
 		this.findRefBlockInScenarios(block, stories, 'deleteBlockReference');
 		//update relevant stories after unpacking
 		this.updateReferenceStories();
@@ -326,21 +326,22 @@ export class BlockService {
    * @param stepReference
    */
 	unpackStepsFromBlock(block: Block, scenario: Scenario, stepReference?: StepType) {
-		if (block && block.stepDefinitions) 
-			for (const s in block.stepDefinitions) {
-				block.stepDefinitions[s].forEach((step: StepType) => {
+		if (block && block.stepDefinitions) {
+			const blockSteps = block.stepDefinitions as unknown as Record<string, StepType[]>;
+			const scenarioSteps = scenario.stepDefinitions as unknown as Record<string, StepType[]>;
+			for (const s in blockSteps) {
+				blockSteps[s].forEach((step: StepType) => {
 					step.checked = false;
-					if (scenario.stepDefinitions[s]) 
-						scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
-          
-					else 
-						scenario.multipleScenarios.push(JSON.parse(JSON.stringify(step)));
-          
+					if (scenarioSteps[s])
+						scenarioSteps[s].push(JSON.parse(JSON.stringify(step)));
+					else
+						scenario.multipleScenarios?.push(JSON.parse(JSON.stringify(step)));
 				});
 				// Remove the block reference among the steps
-				this.removeBlocksAmongSteps(scenario.stepDefinitions[s], block, stepReference);
+				this.removeBlocksAmongSteps(scenarioSteps[s], block, stepReference);
 
 			}
+		}
     
 	}
 	/**
@@ -352,11 +353,11 @@ export class BlockService {
 	findReferenceBlocks(scenario: Scenario, block: Block): StepType[] {
 		const arrayRefBlocks: StepType[] = [];
 
-		for (const type in scenario.stepDefinitions) 
-			scenario.stepDefinitions[type].forEach((step) => {
-				if (step._blockReferenceId === block._id) 
+		const scenarioSteps = scenario.stepDefinitions as unknown as Record<string, StepType[]>;
+		for (const type in scenarioSteps)
+			scenarioSteps[type].forEach((step: StepType) => {
+				if (step._blockReferenceId === block._id)
 					arrayRefBlocks.push(step);
-        
 			});
     
 		return arrayRefBlocks;
@@ -368,10 +369,10 @@ export class BlockService {
    * @param block
    * @param stepReference
    */
-	removeBlocksAmongSteps(stepToSplice, block, stepReference? : StepType) {
+	removeBlocksAmongSteps(stepToSplice: StepType[], block: Block, stepReference? : StepType) {
 		const index = stepReference !== undefined
-			? stepToSplice?.findIndex((element) => element.stepType === stepReference.stepType && element.id === stepReference.id )
-			: stepToSplice?.findIndex((element) => element._blockReferenceId === block._id);
+			? stepToSplice?.findIndex((element: StepType) => element.stepType === stepReference.stepType && element.id === stepReference.id )
+			: stepToSplice?.findIndex((element: StepType) => element._blockReferenceId === block._id);
 
 		if (index > -1) 
 			stepToSplice.splice(index, 1);
@@ -402,12 +403,13 @@ export class BlockService {
 		let blockFound = false;
 
 		this.referenceScenarios.forEach((scenario) => {
-			for (const s in scenario.stepDefinitions) 
-				scenario.stepDefinitions[s].forEach((refStep) => {
+			const scenarioSteps = scenario.stepDefinitions as unknown as Record<string, StepType[]>;
+			for (const s in scenarioSteps)
+				scenarioSteps[s].forEach((refStep: StepType) => {
 					if (refStep._blockReferenceId == block._id) 
 						switch (event) {
 							case 'updateRefName':
-								refStep.type = block.name;
+								refStep.type = block.name!;
 								this.scenariosToUpdate.push(scenario);
 								blockFound = true;
 								break;
@@ -446,18 +448,19 @@ export class BlockService {
    * @param scenario
    */
 	findMatchingSteps(block: Block, scenario: Scenario): { indexToPush?: number; pushStepDef?: string } {
-		let indexToPush;
-		let pushStepDef;
-		for (const step in scenario.stepDefinitions) 
-			scenario.stepDefinitions[step].forEach((stepInScenario, index) => {
-				for (const stepBlock in block.stepDefinitions) 
-					block.stepDefinitions[stepBlock].forEach((stepInBlock) => {
+		let indexToPush: number | undefined;
+		let pushStepDef: string | undefined;
+		const scenarioSteps = scenario.stepDefinitions as unknown as Record<string, StepType[]>;
+		const blockSteps = block.stepDefinitions as unknown as Record<string, StepType[]>;
+		for (const step in scenarioSteps)
+			scenarioSteps[step].forEach((stepInScenario: StepType, index: number) => {
+				for (const stepBlock in blockSteps)
+					blockSteps[stepBlock].forEach((stepInBlock: StepType) => {
 						if (stepInScenario.stepType == stepInBlock.stepType && stepInScenario.id === stepInBlock.id) {
 							indexToPush = indexToPush === undefined ? index : indexToPush;
 							pushStepDef = pushStepDef === undefined ? stepInScenario.stepType : pushStepDef;
 						}
 					});
-        
 			});
     
 		return { indexToPush, pushStepDef };
@@ -469,16 +472,16 @@ export class BlockService {
    * @param scenario
    */
 	removeMatchingSteps(block: Block, scenario: Scenario): void {
-		for (const step in scenario.stepDefinitions) 
-			for (let index = scenario.stepDefinitions[step].length - 1; index >= 0; index--) {
-				const stepInScenario = scenario.stepDefinitions[step][index];
-				for (const stepBlock in block.stepDefinitions) 
-					block.stepDefinitions[stepBlock].forEach((stepInBlock) => {
-						if (stepInScenario.stepType === stepInBlock.stepType && stepInScenario.id === stepInBlock.id) 
-							scenario.stepDefinitions[step].splice(index, 1);
-            
+		const scenarioSteps = scenario.stepDefinitions as unknown as Record<string, StepType[]>;
+		const blockSteps = block.stepDefinitions as unknown as Record<string, StepType[]>;
+		for (const step in scenarioSteps)
+			for (let index = scenarioSteps[step].length - 1; index >= 0; index--) {
+				const stepInScenario = scenarioSteps[step][index];
+				for (const stepBlock in blockSteps)
+					blockSteps[stepBlock].forEach((stepInBlock: StepType) => {
+						if (stepInScenario.stepType === stepInBlock.stepType && stepInScenario.id === stepInBlock.id)
+							scenarioSteps[step].splice(index, 1);
 					});
-        
 			}
     
 	}
@@ -493,7 +496,7 @@ export class BlockService {
 			const blockReference: StepType = {
 				_blockReferenceId: block._id,
 				id: indexToPush + 1,
-				type: block.name,
+				type: block.name!,
 				stepType: pushStepDef,
 				pre: '',
 				mid: '',
@@ -501,15 +504,15 @@ export class BlockService {
 				values: []
 			};
 
-			scenario.stepDefinitions[pushStepDef].splice(indexToPush, 0, JSON.parse(JSON.stringify(blockReference)));
+			(scenario.stepDefinitions as unknown as Record<string, StepType[]>)[pushStepDef].splice(indexToPush, 0, JSON.parse(JSON.stringify(blockReference)));
 			scenario.saved = false;
 		}
 	}
 
-	//CURRENTLY NOT ACTIVATED 
+	//CURRENTLY NOT ACTIVATED
 	convertStepsInAllStories(block: Block, stories: Story[]){
-		let foundScenarios = [];
-		let foundStories = [];
+		let foundScenarios: Scenario[] = [];
+		let foundStories: Story[] = [];
 		const blockStepsToCompare = block.stepDefinitions.when;
 
 		stories.forEach((story) => story !== null && story.scenarios.forEach((scenario) => {
@@ -530,13 +533,13 @@ export class BlockService {
 		const uniqueSetStories = new Set(foundStories);
 		foundScenarios = Array.from(uniqueSetScenarios);
 		foundStories = Array.from(uniqueSetStories);
-		foundStories.forEach((story)=> story.scenarios.forEach((scenario) =>{
+		foundStories.forEach((story: Story)=> story.scenarios.forEach((scenario) =>{
 			foundScenarios.forEach((scen)=>{
 				if (scenario == scen){
-					const blockReference: StepType = {_blockReferenceId: block._id, id: 0, type: block.name, stepType: 'when',
+					const blockReference: StepType = {_blockReferenceId: block._id, id: 0, type: block.name!, stepType: 'when',
 						pre: '', mid: '', post: '', values: []};
 					scenario.stepDefinitions.when.push(JSON.parse(JSON.stringify(blockReference)));
-					this.updateScenariosRefEmitt(scen,  story._id);
+					this.updateScenariosRefEmitt(scen,  story._id!);
 				};
 			});
 		})

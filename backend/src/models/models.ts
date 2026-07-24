@@ -13,15 +13,15 @@ class PassedCount {
 }
 
 class GenericReport {
-	reportName: string;
+	reportName!: string;
 	reportOptions: any;
 	status: boolean;
 	scenariosTested: PassedCount;
-	storiesTested;
+	storiesTested: any;
 
-	reportTime: number;
-	mode: ExecutionMode;
-	smallReport: string;
+	reportTime!: number;
+	mode!: ExecutionMode;
+	smallReport!: string;
 	settings?: {reportComment: boolean, overwrite: boolean};
 
 	constructor(){
@@ -46,7 +46,7 @@ class GroupReport extends GenericReport {
 
 class StoryReport extends GenericReport {
 	scenarioStatuses: ScenarioStatus[];
-	featureId: string; // different
+	featureId!: string; // different
 	featureTestResults: StepStatus;
 	constructor(){
 		super();
@@ -59,8 +59,8 @@ class StoryReport extends GenericReport {
 
 class ScenarioReport extends GenericReport {
 	scenarioStatuses: ScenarioStatus[];
-	storyId: number;
-	scenarioId: number;
+	storyId!: number;
+	scenarioId!: number;
 	featureTestResults: StepStatus;
 	constructor(){
 		super();
@@ -72,7 +72,7 @@ class ScenarioReport extends GenericReport {
 }
 
 class ScenarioStatus {
-	scenarioId: number;
+	scenarioId!: number;
 	status: boolean;
 	stepResults: StepStatus;
 	constructor() {

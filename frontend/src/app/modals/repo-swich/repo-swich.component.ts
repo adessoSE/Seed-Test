@@ -21,13 +21,13 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
 
 	currentRepo;
 
-	updateRepositoryObservable: Subscription;
+	updateRepositoryObservable!: Subscription;
 
-	@ViewChild('repoSwitch') repoSwitch: RepoSwichComponent;
+	@ViewChild('repoSwitch') repoSwitch!: RepoSwichComponent;
 
 	constructor(private modalService: NgbModal, public projectService: ProjectService) {
 		this.currentRepo = localStorage.getItem('repository');
-		const value = sessionStorage.getItem('repositories');
+		const value = sessionStorage.getItem('repositories')!;
 		const repositories: RepositoryContainer[] = JSON.parse(value);
 		this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
 		this.filteredRepos = new MatTableDataSource(this.repos);
@@ -67,7 +67,7 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
 		ref.href = 'https://github.com/' + userRepository.repoName;
 		localStorage.setItem('repository', userRepository.repoName);
 		localStorage.setItem('source', userRepository.source);
-		localStorage.setItem('id', userRepository._id);
+		localStorage.setItem('id', userRepository._id!);
 		location.reload();
 	}
 
@@ -75,7 +75,7 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
      * Update Repositories after change
      */
 	updateRepos() {
-		const value = sessionStorage.getItem('repositories');
+		const value = sessionStorage.getItem('repositories')!;
 		const repositories: RepositoryContainer[] = JSON.parse(value);
 		this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
 		this.filteredRepos = new MatTableDataSource(this.repos);

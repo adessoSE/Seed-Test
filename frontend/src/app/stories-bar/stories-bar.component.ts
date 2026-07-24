@@ -33,17 +33,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	/**
      * Stories in the project
      */
-	stories: Story[];
+	stories!: Story[];
 
 	/**
      * Currently selected story
      */
-	selectedStory: Story;
+	selectedStory!: Story;
 
 	/**
      * Currently selected scenario
      */
-	selectedScenario: Scenario;
+	selectedScenario!: Scenario;
 
 	/**
      * If it is a custom story
@@ -53,7 +53,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	/**
      * Subscription element if a custom story should be created
      */
-	createStoryEmitter: Subscription;
+	createStoryEmitter!: Subscription;
 
 	/**
      * Emits a new chosen story
@@ -79,72 +79,72 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	/**
      * groups in the project
      */
-	groups: Group[];
+	groups!: Group[];
 
 	/**
      * Currently selected Group
      */
-	selectedGroup: Group;
+	selectedGroup!: Group;
 
 	/**
      * Subscription element if a custom Group should be created
      */
-	createGroupEmitter: Subscription;
+	createGroupEmitter!: Subscription;
 
 	/**
      * Subscription element if a custom Group should be created
      */
-	updateGroupEmitter: Subscription;
+	updateGroupEmitter!: Subscription;
 
 	/**
      * Subscription element if a custom Group should be created
      */
-	deleteGroupEmitter: Subscription;
+	deleteGroupEmitter!: Subscription;
 
 	/**
      * Subscription element if a Story should be deleted
      */
-	deleteStoryObservable: Subscription;
+	deleteStoryObservable!: Subscription;
 
 	/**
      * Subscription element if theme should change
      */
-	themeObservable: Subscription;
+	themeObservable!: Subscription;
 
 	/**
      * Subscription element to get Stories
      */
-	getStoriesObservable: Subscription;
+	getStoriesObservable!: Subscription;
 
 	/**
      * Subscription element to get status change of scenarios
      */
-	scenarioStatusChangeObservable: Subscription;
+	scenarioStatusChangeObservable!: Subscription;
 
-	@Input() isDark: boolean;
+	@Input() isDark!: boolean;
 
-	@Input() newSelectedStory: Story;
+	@Input() newSelectedStory!: Story;
 
 	@Input() isReviewing: boolean = false;
 
 	/**
      * SearchTerm for story title search
      */
-	storyString: string;
+	storyString!: string;
 
 	/**
      * SearchTerm for group title search
      */
-	groupString: string;
+	groupString!: string;
 	/**
      * Stories filtered for searchterm
      */
-	filteredStories: Story[];
+	filteredStories!: Story[];
 
 	/**
      * Groups filtered for searchterm
      */
-	filteredGroups: Group[];
+	filteredGroups!: Group[];
 
 	/**
      * List to manually open element in group list
@@ -153,13 +153,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
      * Needs to be initialized at init
      * Length = Number of Groups
      */
-	liGroupList: string[];
+	liGroupList!: string[];
 
 	isFilterActive = false;
 	showFilter = false;
-	assigneeModel;
-	testPassedModel;
-	groupModel;
+	assigneeModel: any;
+	testPassedModel: any;
+	groupModel: any;
 
 	/**
      * Emits a new chosen Group
@@ -173,12 +173,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	/**
      * View Child Modals
      */
-	@ViewChild('createNewGroup') createNewGroup: CreateNewGroupComponent;
-	@ViewChild('createNewStory') createNewStory: CreateNewStoryComponent;
-	@ViewChild('updateGroup') updateGroup: UpdateGroupComponent;
-	@ViewChild('createNewScenario') createNewScenario: CreateScenarioComponent;
-	@ViewChild('executionListModal') executionListModal: ExecutionListComponent;
-	@ViewChildren('storyElement') storyElements: QueryList<ElementRef>;
+	@ViewChild('createNewGroup') createNewGroup!: CreateNewGroupComponent;
+	@ViewChild('createNewStory') createNewStory!: CreateNewStoryComponent;
+	@ViewChild('updateGroup') updateGroup!: UpdateGroupComponent;
+	@ViewChild('createNewScenario') createNewScenario!: CreateScenarioComponent;
+	@ViewChild('executionListModal') executionListModal!: ExecutionListComponent;
+	@ViewChildren('storyElement') storyElements!: QueryList<ElementRef>;
 
 	/**
      * Constructor
@@ -198,7 +198,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 		public scenarioService: ScenarioService,
 		public reportService: ReportService,
 		public backgroundService: BackgroundService) {
-		this.groupService.getGroups(localStorage.getItem('id')).subscribe(groups => {
+		this.groupService.getGroups(localStorage.getItem('id')!).subscribe(groups => {
 			this.groups = groups;
 			this.liGroupList = new Array(this.groups.length).fill('');
 		});
@@ -207,7 +207,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 
 	ngOnInit(): void {
 		this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe(stories => {
-			this.stories = stories.filter(s => s != null);
+			this.stories = stories.filter((s: Story) => s != null);
 			this.filteredStories = this.stories;
 			this.isCustomStory = localStorage.getItem('source') === 'db';
 		});
@@ -230,7 +230,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 					this.filteredGroups = this.groups;
 					this.groupTermChange();
 
-					const allGroups = this.getSortedGroups();
+					const allGroups = this.getSortedGroups()!;
 					this.liGroupList = new Array(allGroups.length).fill('');
 					const index = allGroups.findIndex((group: any) => group.name === custom.group.title);
 					this.liGroupList[index] = 'uk-open';
@@ -281,7 +281,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
             
 		}
 		if (changes.stories && changes.stories.currentValue) {
-			this.stories = changes.stories.currentValue.filter(s => s != null);
+			this.stories = changes.stories.currentValue.filter((s: Story) => s != null);
 			this.filteredStories = this.stories;
 		}
 	}
@@ -384,7 +384,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
  * Evaluates whether to open xray execution list modal in run group.
  * @param group
  */
-	evaluateAndRunGroup(group) {
+	evaluateAndRunGroup(group: any) {
 		if (group.xrayTestSet) {
 			this.selectedGroup = group;
 			this.executionListModal.openExecutionListModal(group);
@@ -402,16 +402,16 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	}
 
 	runGroup(group: Group, selectedExecutions?: number[]) {
-		const id = localStorage.getItem('id');
+		const id = localStorage.getItem('id')!;
 		this.testRunningGroup.emit(true);
-		const params = { repository: localStorage.getItem('repository'), source: localStorage.getItem('source') };
-		this.groupService.runGroup(id, group._id, params).subscribe({
+		const params = { repository: localStorage.getItem('repository')!, source: localStorage.getItem('source')! };
+		this.groupService.runGroup(id, group._id!, params).subscribe({
 			next: (ret: any) => {
 				this.report.emit(ret);
 				this.testRunningGroup.emit(false);
 				const report = ret.report;
-				report.storyStatuses.forEach(story => {
-					story.scenarioStatuses.forEach(scenario => {
+				report.storyStatuses.forEach((story: any) => {
+					story.scenarioStatuses.forEach((scenario: any) => {
 						this.scenarioService.scenarioStatusChangeEmit(
 							story.storyId, scenario.scenarioId, scenario.status);
 
@@ -470,7 +470,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
      * @param scenario
      */
 	deselectScenario(){
-		this.selectedScenario = undefined;
+		this.selectedScenario = undefined as any;
 		this.scenarioDeselected.emit();
 	}
 
@@ -502,9 +502,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 		this.selectedGroup = group;
 	}
 
-	selectStoryOfGroup(id) {
+	selectStoryOfGroup(id: string) {
 		const story = this.stories.find(o => o._id === id);
-		this.selectStory(story);
+		this.selectStory(story!);
 	}
 
 	/**
@@ -514,7 +514,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 		this.createNewStory.openCreateNewStoryModal(this.stories);
 	}
 
-	addScenario(scenarioName) {
+	addScenario(scenarioName: string) {
 		this.scenarioService.addScenario(this.selectedStory._id, scenarioName)
 			.subscribe((resp: Scenario) => {
 				this.selectScenario(resp);
@@ -542,31 +542,31 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	}
 
 	dropStory(event: CdkDragDrop<string[]>) {
-		const repo_id = localStorage.getItem('id');
+		const repo_id = localStorage.getItem('id')!;
 		moveItemInArray(this.stories, event.previousIndex, event.currentIndex);
-		this.storyService.updateStoryList(repo_id, this.stories.map(s => s._id)).subscribe(_ => { });
+		this.storyService.updateStoryList(repo_id, this.stories.map((s: Story) => s._id)).subscribe(_ => { });
 	}
 
-	dropScenario(event: CdkDragDrop<string[]>, s) {
+	dropScenario(event: CdkDragDrop<string[]>, s: Story) {
 		const index = this.stories.findIndex(o => o._id === s._id);
 		moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
-		this.scenarioService.updateScenarioList(this.stories[index]._id, this.stories[index].scenarios).subscribe(_ => { });
+		this.scenarioService.updateScenarioList(this.stories[index]._id!, this.stories[index].scenarios).subscribe(_ => { });
 	}
 
 	dropGroup(event: CdkDragDrop<string[]>) {
-		const repo_id = localStorage.getItem('id');
+		const repo_id = localStorage.getItem('id')!;
 		moveItemInArray(this.groups, event.previousIndex, event.currentIndex);
 		// Deep copy to avoid mutating the original; member_stories already contains string IDs
 		const pass_arr = JSON.parse(JSON.stringify(this.groups));
 		this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe(_ => { });
 	}
 
-	dropGroupStory(event: CdkDragDrop<string[]>, group) {
-		const repo_id = localStorage.getItem('id');
+	dropGroupStory(event: CdkDragDrop<string[]>, group: Group) {
+		const repo_id = localStorage.getItem('id')!;
 		const index = this.groups.findIndex(o => o._id === group._id);
 		// Reorder story IDs within the group
 		moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
-		this.groupService.updateGroup(repo_id, group._id, this.groups[index]).subscribe(_ => { });
+		this.groupService.updateGroup(repo_id, group._id!, this.groups[index]).subscribe(_ => { });
 	}
 
 	/**
@@ -575,13 +575,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
     */
 	deleteStory() {
 		if (this.stories.find(x => x === this.selectedStory)) {
-			const repository = localStorage.getItem('id');
+			const repository = localStorage.getItem('id')!;
 			{
 				this.storyService
-					.deleteStory(repository, this.selectedStory._id)
+					.deleteStory(repository, this.selectedStory._id!)
 					.subscribe(_ => {
 						this.storyDeleted();
-						this.groupService.getGroups(localStorage.getItem('id')).subscribe(groups => {
+						this.groupService.getGroups(localStorage.getItem('id')!).subscribe(groups => {
 							this.groups = groups;
 						});
 						this.toastr.error('', 'Story deleted');
@@ -626,10 +626,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
      * @param varToErase either group or story
      */
 	eraseSearchTerm(varToErase: string) {
-		if (varToErase === 'story') 
-			this.storyString = null;
-		else if (varToErase === 'group') 
-			this.groupString = null;
+		if (varToErase === 'story')
+			this.storyString = null as any;
+		else if (varToErase === 'group')
+			this.groupString = null as any;
         
 	}
 
@@ -652,7 +652,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 		// filter for group membership (member_stories contains story IDs)
 		if (this.groupModel !== undefined) {
 			const group = this.groups.filter(grp => grp.name == this.groupModel)[0];
-			filter = filter.filter(story => group.member_stories.includes(story._id));
+			filter = filter.filter(story => group.member_stories.includes(story._id!));
 		}
 
 		// filter for assignee in testPassed filter result
@@ -731,9 +731,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	}
 
 	toTicket(story: string) {
-		const repoName = localStorage.getItem('repository');
-		const _id = localStorage.getItem('id');
-		const source = localStorage.getItem('source');
+		const repoName = localStorage.getItem('repository') ?? '';
+		const _id = localStorage.getItem('id') ?? undefined;
+		const source = localStorage.getItem('source') ?? '';
 		const repositoryContainer: RepositoryContainer = { repoName, source, _id };
 		this.storyService.goToTicket(story, repositoryContainer);
 	}

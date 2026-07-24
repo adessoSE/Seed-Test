@@ -38,8 +38,8 @@ export async function getStories(req: Request, res: Response, next: NextFunction
 			// If we need to match order (like the old logic), we might need the repo doc
 			const repo = await repositoryService.getOneRepositoryById(id);
 			if (repo) {
-				const storyMap = new Map(stories.map(s => [s._id.toString(), s]));
-				stories = await externalSyncService.matchStoryOrder(stories.map(s => oid(s._id)), storyMap, repo);
+				const storyMap = new Map(stories.map(s => [s._id!.toString(), s]));
+				stories = await externalSyncService.matchStoryOrder(stories.map(s => oid(s._id!)), storyMap, repo);
 			}
 
 		} else if (source === 'github' || source === 'jira') 
@@ -383,7 +383,7 @@ export async function importProjectArchive(req: Request, res: Response, next: Ne
 		}
 
 		const user = req.user as User;
-		const result = await importExportService.importProject(req.file, repoId, projectName, importMode, user._id.toString());
+		const result = await importExportService.importProject(req.file, repoId, projectName, importMode, user._id!.toString());
 		res.status(200).json(result);
 
 	} catch (error) {

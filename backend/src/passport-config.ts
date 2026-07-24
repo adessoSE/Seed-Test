@@ -15,7 +15,7 @@ export default function initialize(
 	getUserById: GetUserById,
 	getUserByGithub: GetUserByGithub
 ): void {
-	const authenticateUser = async (email: string, password, done) => {
+	const authenticateUser = async (email: string, password: string, done: (error: any, user?: Express.User | false, options?: { message: string }) => void) => {
 		try {
 			// not working yet , needs callback, or database change to Promises
 			const user = await getUserByEmail(email);
@@ -34,7 +34,7 @@ export default function initialize(
 		}
 	};
 
-	const authenticateUserGithub = async (login: string, id, done) => {
+	const authenticateUserGithub = async (login: string, id: string, done: (error: any, user?: Express.User | false, options?: { message: string }) => void) => {
 		try {
 			const githubId = parseInt(id, 10);
 			const user = await getUserByGithub(login, githubId);
@@ -50,8 +50,8 @@ export default function initialize(
 	passport.use('normal-local', new LocalStrategy({ usernameField: 'email' }, authenticateUser));
 	passport.use('github-local', new LocalStrategy({ usernameField: 'login', passwordField: process.env.PASSPORT_GITHUB_LOCAL_PW_FIELD }, authenticateUserGithub));
 
-	passport.serializeUser((user: User, done) => {
-		done(null, user._id);
+	passport.serializeUser((user, done) => {
+		done(null, (user as User)._id);
 	});
 
 	passport.deserializeUser(async (id: ObjectId, done) => {

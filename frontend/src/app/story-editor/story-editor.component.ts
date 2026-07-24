@@ -96,10 +96,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.initializeIsExampleForStory(this.selectedStory);
 		this.isReviewingAi = false;
 
-		if (this.selectedStory && this.selectedStory.aiSuggestion) 
-			this.aiSuggestions.set(this.selectedStory._id, this.selectedStory.aiSuggestion);
-		else if (this.selectedStory) 
-			this.aiSuggestions.delete(this.selectedStory._id);
+		if (this.selectedStory && this.selectedStory.aiSuggestion)
+			this.aiSuggestions.set(this.selectedStory._id!, this.selectedStory.aiSuggestion);
+		else if (this.selectedStory)
+			this.aiSuggestions.delete(this.selectedStory._id!);
     
 
 		if (this.selectedStory !== undefined && this.selectedStory.preConditions) 
@@ -132,43 +132,43 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Original step types
    */
-	originalStepTypes: StepType[];
+	originalStepTypes!: StepType[];
 
 	/**
    * List of stories
    */
-	stories: Story[];
+	stories!: Story[];
 
 	/**
    * List of backgrounds
    */
-	backgrounds: Background[];
+	backgrounds!: Background[];
 	/**
    * List of filtered backgrounds
    */
-	filteredBackgrounds: Background[];
+	filteredBackgrounds!: Background[];
 
 	/**
    * Currently selected story
    */
-	selectedStory: Story;
+	selectedStory!: Story;
 
 	/**
    * Currently selected scenario
    */
-	selectedScenario: Scenario;
+	selectedScenario!: Scenario;
 
 	/**
    * Currently selected repository
    */
 	@Input ()
-	selectedRepository: RepositoryContainer;
+	selectedRepository!: RepositoryContainer;
 
 	/**
    * Current repo Id
    */
 
-	repoId: string;
+	repoId!: string;
 	/**
    * If the story editor should be shown
    */
@@ -176,7 +176,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Currently retrieved projects
    */
-	repositories: RepositoryContainer[];
+	repositories!: RepositoryContainer[];
 
 	/**
    * If the results should be shown
@@ -207,12 +207,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * If the test is running
    */
 	testRunning = false;
-	testRunningGroup: boolean;
+	testRunningGroup!: boolean;
 
 	/**
    * html report of the result
    */
-	htmlReport: BlobPart;
+	htmlReport!: BlobPart;
 
 	/**
    * if the stories are loaded
@@ -236,24 +236,24 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * id of the story which is currently getting tested
    */
-	currentTestStoryId: number;
+	currentTestStoryId!: number;
 
 	/**
    * id of the scenario which is currently getting tested
    */
-	currentTestScenarioId: number;
+	currentTestScenarioId!: number;
 	/**
    * Currently retrieved blocks
    */
-	blocks: Block[];
+	blocks!: Block[];
 	/**
    * Converted blocks as backgrounds
    */
-	blockAsBackground: Background[];
+	blockAsBackground!: Background[];
 	/**
    *If the modal Save background as a block open
    */
-	openBlockModal;
+	openBlockModal: any;
 	/**
    * if the background should be saved and then the test run
    */
@@ -263,16 +263,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * if the report is saved
    */
 	reportIsSaved = false;
-	error: string;
+	error!: string;
 	/**
    * Object id of the current report
    */
-	reportId;
+	reportId: any;
 
 	/*
    * Report of the test
    */
-	testReport;
+	testReport: any;
 
 	/**
    * Name for a new step
@@ -287,10 +287,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Boolean driver indicator
    */
-	gecko_enabled;
-	chromium_enabled;
-	edge_enabled;
-	webkit_enabled;
+	gecko_enabled: any;
+	chromium_enabled: any;
+	edge_enabled: any;
+	webkit_enabled: any;
 
 	/**
    * Global settings indicator
@@ -300,37 +300,37 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Global settings indicator
    */
-	globalSettingsActivated: boolean;
+	globalSettingsActivated!: boolean;
 
 	/**
    * Project configuartion settings
    */
 
-	repoSettings;
+	repoSettings: any;
 
 	/*
    * Width of the window size
    */
-	width: number;
+	width!: number;
 
 	/*
    * Height of the window size
    */
-	height: number;
+	height!: number;
 
 	/**
    * Email of the user
    */
-	email: string;
+	email!: string;
 
 	/**
    * User id
    */
-	id: string;
+	id!: string;
 
-	lastToFocus;
+	lastToFocus: any;
 
-	story: Story;
+	story!: Story;
 
 	/**
    * Loading status for AI per story
@@ -352,49 +352,49 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Mapping for Precondition Stories
    */
-	preConditionResults = [];
+	preConditionResults: any[] = [];
 
 	// Properties to hold the temporary model names from the new UI
-	overrideTextModel: string;
-	overrideJsonModel: string;
+	overrideTextModel!: string;
+	overrideJsonModel!: string;
 
 	readonly TEMPLATE_NAME = 'background';
 
 	/**
    * Subscribtions for all EventEmitter
    */
-	deleteStoryObservable: Subscription;
-	storiesErrorObservable: Subscription;
-	deleteScenarioObservable: Subscription;
-	runSaveOptionObservable: Subscription;
-	renameStoryObservable: Subscription;
-	themeObservable: Subscription;
-	getBackendUrlObservable: Subscription;
-	getStoriesObservable: Subscription;
-	renameBackgroundObservable: Subscription;
-	updateObservable: Subscription;
-	applyBackgroundChangesObservable: Subscription;
-	checkReferenceObservable: Subscription;
-	deleteReferenceObservable: Subscription;
-	unpackBlockObservable: Subscription;
-	updateNameRefObservable: Subscription;
-	convertToReferenceObservable: Subscription;
+	deleteStoryObservable!: Subscription;
+	storiesErrorObservable!: Subscription;
+	deleteScenarioObservable!: Subscription;
+	runSaveOptionObservable!: Subscription;
+	renameStoryObservable!: Subscription;
+	themeObservable!: Subscription;
+	getBackendUrlObservable!: Subscription;
+	getStoriesObservable!: Subscription;
+	renameBackgroundObservable!: Subscription;
+	updateObservable!: Subscription;
+	applyBackgroundChangesObservable!: Subscription;
+	checkReferenceObservable!: Subscription;
+	deleteReferenceObservable!: Subscription;
+	unpackBlockObservable!: Subscription;
+	updateNameRefObservable!: Subscription;
+	convertToReferenceObservable!: Subscription;
 
-	@Input() isDark: boolean;
+	@Input() isDark!: boolean;
 
 	/**
    * View child of the scenario editor
    */
-	@ViewChild('scenarioChild') scenarioChild;
+	@ViewChild('scenarioChild') scenarioChild: any;
 	/**
    * View child of the modals component
    */
-	@ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
-	@ViewChild('createNewScenario') createScenarioModal: CreateScenarioComponent;
+	@ViewChild('renameStoryModal') renameStoryModal!: RenameStoryComponent;
+	@ViewChild('createNewScenario') createScenarioModal!: CreateScenarioComponent;
 	@ViewChild('renameBackgroundModal')
-	renameBackgroundModal: RenameBackgroundComponent;
-	@ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
-	@ViewChild('executionListModal') executionListModal: ExecutionListComponent;
+	renameBackgroundModal!: RenameBackgroundComponent;
+	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
+	@ViewChild('executionListModal') executionListModal!: ExecutionListComponent;
 
 	@Output()
 	deleteStoryEvent: EventEmitter<any> = new EventEmitter();
@@ -476,7 +476,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
      */
 		if (this.testRunningGroup === true) {
 			const loadingScreen = document.getElementById('loading');
-			loadingScreen.scrollIntoView();
+			loadingScreen!.scrollIntoView();
 		}
 		if (this.selectedStory !== undefined && this.stories && this.blocks) {
 			this.storeCurrentBackground(this.selectedStory.background);
@@ -577,13 +577,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 				this.renameBackground(newName);
 			});
 		// get blocks
-		const id = localStorage.getItem('id');
+		const id = localStorage.getItem('id')!;
 		this.blockService.getBlocks(id).subscribe((resp) => {
 			this.blocks = resp;
 		});
 		this.updateObservable = this.blockService.updateBlocksEvent.subscribe(
 			(_) => {
-				const id = localStorage.getItem('id');
+				const id = localStorage.getItem('id')!;
 				this.blockService.getBlocks(id).subscribe((resp) => {
 					this.blocks = resp;
 					console.log('Updated blocks:', this.blocks);
@@ -593,7 +593,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		//Event when deleting references among steps
 		this.checkReferenceObservable =
 			this.blockService.checkRefOnRemoveEvent.subscribe((blockReferenceId) => {
-				const id = localStorage.getItem('id');
+				const id = localStorage.getItem('id')!;
 				this.blockService.getBlocks(id).subscribe((resp) => {
 					this.blocks = resp;
 					if (this.blocks) {
@@ -603,7 +603,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 						this.blockService.checkBlockOnReference(
 							this.blocks,
 							this.stories,
-							referenceBlock
+							referenceBlock!
 						);
 					}
 				});
@@ -621,7 +621,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 					this.selectedScenario,
 					obj.stepReference
 				);
-				const id = localStorage.getItem('id');
+				const id = localStorage.getItem('id')!;
 				this.blockService.getBlocks(id).subscribe((resp) => {
 					this.blocks = resp;
 					this.blockService.checkBlockOnReference(
@@ -744,12 +744,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	navigateScenarioLeft() {
 		const currentList = this.isReviewingAi
-			? this.aiSuggestions.get(this.selectedStory._id)?.scenarios
+			? this.aiSuggestions.get(this.selectedStory._id!)?.scenarios
 			: this.selectedStory.scenarios;
 		if (!currentList) return;
 
 		const currentIndex = currentList.findIndex(
-			(s) => s.scenario_id === this.selectedScenario.scenario_id
+			(s: any) => s.scenario_id === this.selectedScenario.scenario_id
 		);
 		if (currentIndex > 0) 
 			this.selectNewScenario(currentList[currentIndex - 1]);
@@ -761,12 +761,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	navigateScenarioRight() {
 		const currentList = this.isReviewingAi
-			? this.aiSuggestions.get(this.selectedStory._id)?.scenarios
+			? this.aiSuggestions.get(this.selectedStory._id!)?.scenarios
 			: this.selectedStory.scenarios;
 		if (!currentList) return;
 
 		const currentIndex = currentList.findIndex(
-			(s) => s.scenario_id === this.selectedScenario.scenario_id
+			(s: any) => s.scenario_id === this.selectedScenario.scenario_id
 		);
 		if (currentIndex < currentList.length - 1) 
 			this.selectNewScenario(currentList[currentIndex + 1]);
@@ -776,7 +776,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Change the active view of a story
    */
-	changeActiveView(viewName) {
+	changeActiveView(viewName: string) {
 		this.storyService.changeStoryViewEvent(viewName);
 	}
 
@@ -791,7 +791,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 
 	setOneDriver() {
 		this.storyService
-			.changeOneDriver(this.selectedStory.oneDriver, this.selectedStory._id)
+			.changeOneDriver(this.selectedStory.oneDriver!, this.selectedStory._id!)
 			.subscribe((resp: any) => {
 				this.selectedStory = resp;
 			});
@@ -826,9 +826,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Deletes scenario
    * @param scenario
    */
-	deleteScenario(scenario: Scenario, xrayEnabled) {
+	deleteScenario(scenario: Scenario, xrayEnabled: boolean) {
 		this.scenarioService
-			.deleteScenario(this.selectedStory._id, scenario, xrayEnabled)
+			.deleteScenario(this.selectedStory._id!, scenario, xrayEnabled)
 			.subscribe((_) => {
 				this.scenarioDeleted();
 				this.toastr.error('', 'Scenario deleted');
@@ -856,10 +856,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Adds a scenario to story
    */
-	addScenario(event) {
+	addScenario(event: any) {
 		const scenarioName = event;
 		this.scenarioService
-			.addScenario(this.selectedStory._id, scenarioName)
+			.addScenario(this.selectedStory._id!, scenarioName)
 			.subscribe((resp: Scenario) => {
 				this.selectScenario(resp);
 				this.selectedStory.scenarios.push(resp);
@@ -872,7 +872,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	updateBackground() {
 		Object.keys(this.selectedStory.background.stepDefinitions).forEach(
 			(key, _) => {
-				this.selectedStory.background.stepDefinitions[key].forEach(
+				(this.selectedStory.background.stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach(
 					(step: StepType) => {
 						delete step.checked;
 						if (step.outdated) 
@@ -894,7 +894,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			this.changeBackgroundBlock();
 			delete this.selectedStory.background.saved;
 			this.backgroundService
-				.updateBackground(this.selectedStory._id, this.selectedStory.background)
+				.updateBackground(this.selectedStory._id!, this.selectedStory.background)
 				.subscribe((_) => {
 					this.backgroundService.backgroundChangedEmitter();
 					this.toastr.success('successfully saved', 'Background');
@@ -960,9 +960,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Applying changes for all relevant backgrounds in repository
    */
-	applyChangesToBackgrounds(background) {
+	applyChangesToBackgrounds(background: Background) {
 		delete this.selectedStory.background.saved;
-		const storyId = [];
+		const storyId: (string | undefined)[] = [];
 		this.stories.forEach((story) => {
 			if (story.background.name === background.name) {
 				story.background.stepDefinitions = background.stepDefinitions;
@@ -989,7 +989,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	deleteBackground() {
 		this.backgroundService
-			.deleteBackground(this.selectedStory._id)
+			.deleteBackground(this.selectedStory._id!)
 			.subscribe((_) => {
 				this.showBackground = false;
 				const blockBackgrounds = this.blocks.filter((b) => b.isBackground);
@@ -1009,8 +1009,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param scenario
    */
 
-	selectScenario(scenario: Scenario) {
-		this.selectedScenario = scenario;
+	selectScenario(scenario: Scenario | null) {
+		this.selectedScenario = scenario as Scenario;
 		this.showResults = false;
 		if (scenario) {
 			this.showEditor = true;
@@ -1056,9 +1056,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
             s.stepDefinitions.when.length !== 0
 				)
 				.map((s) => s);
-			const uniqueChars = [];
+			const uniqueChars: Background[] = [];
 			this.filteredBackgrounds.forEach((e) => {
-				if (!uniqueChars.some((x) => x.name === e.name)) 
+				if (!uniqueChars.some((x) => x.name === e.name))
 					uniqueChars.push(e);
         
 			});
@@ -1101,7 +1101,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.updateBackground();
 	}
 
-	@ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+	@ViewChild('saveBlockModal') saveBlockModal!: SaveBlockFormComponent;
 	checkAllSteps(_checkValue?: boolean) {
 		//needed by saveBlockModal
 	}
@@ -1133,7 +1133,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param scenario_id
    * @param selectedExecutions - optional parameter to update xray status
    */
-	async runTests(scenario_id, selectedExecutions?: number[]) {
+	async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
 		if (this.storySaved()) {
 			// if story is saved
 			// Reset state for new test run
@@ -1141,7 +1141,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			this.testRunning = true;
 			this.showResults = false; // Hide previous report while new test runs
 			this.report.emit(false);
-			const loadingScreen: HTMLElement = document.getElementById('loading');
+			const loadingScreen: HTMLElement = document.getElementById('loading')!;
 
 			loadingScreen.scrollIntoView();
 
@@ -1150,7 +1150,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			// CASE 1: Run a single scenario by its ID
 			if (scenario_id) 
 				this.storyService
-					.runTests(this.selectedStory._id, scenario_id, params)
+					.runTests(this.selectedStory._id!, scenario_id, params)
 					.subscribe({
 						next: (resp: any) => {
 							this.testRunResponse(resp);
@@ -1196,7 +1196,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 										this.testReport.storiesTested[
 											this.testReport.storiesTested.length - 1
 										];
-									testedStory.scenarios.forEach((scenario) => {
+									testedStory.scenarios.forEach((scenario: any) => {
 										this.xrayService.updateXrayStatus(
 											scenario,
 											selectedExecutions,
@@ -1218,16 +1218,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 				else 
 				// CASE 3: No pre-conditions — run all scenarios of the story directly
 					this.storyService
-						.runTests(this.selectedStory._id, null, params)
+						.runTests(this.selectedStory._id!, null as any, params)
 						.subscribe({
 							next: (resp: any) => {
 								this.testRunResponse(resp);
 								const testStatus = this.testReport.status ? 'PASS' : 'FAIL';
 
 								// Emit status change for each scenario and update Xray if applicable
-								this.testReport.scenarioStatuses.forEach((scenario) => {
+								this.testReport.scenarioStatuses.forEach((scenario: any) => {
 									this.scenarioService.scenarioStatusChangeEmit(
-										this.selectedStory._id,
+										this.selectedStory._id!,
 										scenario.scenarioId,
 										scenario.status
 									);
@@ -1237,9 +1237,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 									const currentScenario = this.selectedStory.scenarios.find(
 										(scenario) => scenario.scenario_id === currentScenarioId
 									);
-									if (selectedExecutions) 
+									if (selectedExecutions)
 										this.xrayService.updateXrayStatus(
-											currentScenario,
+											currentScenario!,
 											selectedExecutions,
 											testStatus
 										);
@@ -1256,7 +1256,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
       
 		} else {
 			// if story is not saved, inform user
-			this.currentTestScenarioId = scenario_id;
+			this.currentTestScenarioId = scenario_id!;
 			this.currentTestStoryId = this.selectedStory.story_id;
 			this.apiService.nameOfComponent('runSaveToast');
 			this.apiService.setToastrOptions('Save and Run', 'Run Test');
@@ -1274,10 +1274,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Creates temporary group for preconditions storys + current selected story
    */
 	async createTempGroup() {
-		const seenStories = new Set();
+		const seenStories = new Set<string | number>();
 
 		// add current story to seen stories
-		seenStories.add(this.selectedStory.issue_number);
+		seenStories.add(this.selectedStory.issue_number!);
 
 		// collect all pre-stories
 		const member_stories = await this.collectPreStories(
@@ -1305,7 +1305,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/*
    * Collects all pre-stories for a given story recursively
    */
-	async collectPreStories(story, seenStories, member_stories) {
+	async collectPreStories(story: Story, seenStories: Set<string | number>, member_stories: Story[]) {
 		console.log('Collecting pre-conditions for story:', story.issue_number);
 		// do pre-conditions exist?
 		if (story.preConditions && story.preConditions.length > 0) 
@@ -1385,7 +1385,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/*
    * Response from test run
    */
-	testRunResponse(resp) {
+	testRunResponse(resp: any) {
 		const iframe: HTMLIFrameElement = document.getElementById(
 			'testFrame'
 		) as HTMLIFrameElement;
@@ -1405,11 +1405,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Evaluates whether to open xray execution list modal in run scenario.
    * @param scenario_id
    */
-	evaluateAndRunScenario(scenario_id) {
+	evaluateAndRunScenario(scenario_id: number) {
 		if (
 			this.selectedScenario &&
       this.selectedScenario.testKey &&
-      this.selectedScenario.testRunSteps.length > 0
+      this.selectedScenario.testRunSteps!.length > 0
 		) 
 		// Open the modal if there are test execution steps
 			this.executionListModal.openExecutionListModal(this.selectedScenario);
@@ -1464,7 +1464,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param event
    * @param newTime
    */
-	setStepWaitTime(newTime) {
+	setStepWaitTime(newTime: number) {
 		if (this.selectedScenario) {
 			this.selectedScenario.stepWaitTime = newTime;
 			this.selectedScenario.saved = false;
@@ -1475,7 +1475,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Set the browser
    * @param newBrowser
    */
-	setBrowser(newBrowser) {
+	setBrowser(newBrowser: string) {
 		this.selectedScenario.browser = newBrowser;
 		this.setEmulatorEnabled(false);
 		this.selectedScenario.saved = false;
@@ -1485,7 +1485,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Set the test runner
    * @param newTestRunnner
    */
-	setTestRunner(newTestRunnner) {
+	setTestRunner(newTestRunnner: string) {
 		console.log('Setting Test Runner to ' + newTestRunnner);
 		this.setEmulatorEnabled(false);
 		this.testRunner = newTestRunnner;
@@ -1495,7 +1495,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    *  Check for global settings
    */
 	checkGlobalSettings() {
-		this.repoId = localStorage.getItem('id');
+		this.repoId = localStorage.getItem('id')!;
 		this.projectService.getRepositorySettings(this.repoId).subscribe({
 			next: (settings) => {
 				this.repoSettings = settings;
@@ -1532,7 +1532,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	setUserData() {
 		this.managmentService.getUserData().subscribe((user) => {
-			this.id = user._id;
+			this.id = user._id!;
 			if (typeof user['email'] !== 'undefined') 
 				this.email = user['email'];
       
@@ -1551,33 +1551,33 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Boolean emulator indicator
    */
-	emulator_enabled;
+	emulator_enabled: any;
 
 	/**
    * List of supported emulators for gecko
    */
-	gecko_emulators;
+	gecko_emulators: string[];
 
 	/**
    * List of supported emulators for chromium
    */
-	chromium_emulators;
+	chromium_emulators: string[];
 
 	/**
    * List of supported emulators for edge
    */
-	edge_emulators;
+	edge_emulators: string[];
 
 	/**
    * List of supported emulators for playwright
    */
-	playwright_emulators;
+	playwright_emulators: string[];
 
 	/**
    * Set if an emulator should be used
    * @param enabled Boolean
    */
-	setEmulatorEnabled(enabled) {
+	setEmulatorEnabled(enabled: boolean) {
 		this.emulator_enabled = enabled;
 		this.setEmulator(enabled ? this.getAvaiableEmulators()[0] : undefined);
 		this.selectedScenario.saved = false;
@@ -1587,7 +1587,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Set the emulator
    * @param newEmultaor
    */
-	setEmulator(newEmulator) {
+	setEmulator(newEmulator: string | undefined) {
 		this.selectedScenario.emulator = newEmulator;
 		this.selectedScenario.saved = false;
 	}
@@ -1642,7 +1642,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @returns
    */
 
-	unsaveReport(reportId) {
+	unsaveReport(reportId: any) {
 		this.reportIsSaved = false;
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService.unsaveReport(reportId).subscribe((_resp) => {
@@ -1657,7 +1657,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @returns
    */
 
-	saveReport(reportId) {
+	saveReport(reportId: any) {
 		this.reportIsSaved = true;
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService.saveReport(reportId).subscribe((_resp) => {
@@ -1682,7 +1682,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param newStoryTitle
    * @param newStoryDescription
    */
-	renameStory(newStoryTitle, newStoryDescription) {
+	renameStory(newStoryTitle: string, newStoryDescription: string) {
 		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) 
 			this.selectedStory.title = newStoryTitle;
     
@@ -1695,7 +1695,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.updateStory();
 	}
 
-	renameBackground(newBackgroundName) {
+	renameBackground(newBackgroundName: string) {
 		this.selectedStory.background.name = newBackgroundName;
 	}
 
@@ -1741,7 +1741,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	}
 
 	downloadFeature() {
-		const id = this.selectedStory._id;
+		const id = this.selectedStory._id!;
 		this.storyService.downloadStoryFeatureFile(id).subscribe((ret) => {
 			saveAs(
 				ret,
@@ -1789,8 +1789,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			background,
 			this.selectedStory,
 			this.saveBackgroundAndRun,
-			blockToRename,
-			storiesWithBlock
+			blockToRename!,
+			storiesWithBlock!
 		);
 	}
 
@@ -1816,7 +1816,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		) 
 			this.selectScenario(story.scenarios[0]);
 		else this.selectScenario(null);
-		this.backgroundService.backgroundReplaced = undefined;
+		this.backgroundService.backgroundReplaced = undefined as any;
 	}
 
 	openCreateScenario() {
@@ -1831,7 +1831,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 						value.values.length
 					);
 					value.values.forEach((val, i) => {
-						scenario.stepDefinitions.given[index].isExample[i] =
+						scenario.stepDefinitions.given[index].isExample![i] =
 							val.startsWith('<') && val.endsWith('>');
 					});
 				}
@@ -1842,7 +1842,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 						value.values.length
 					);
 					value.values.forEach((val, i) => {
-						scenario.stepDefinitions.when[index].isExample[i] =
+						scenario.stepDefinitions.when[index].isExample![i] =
 							val.startsWith('<') && val.endsWith('>');
 					});
 				}
@@ -1853,7 +1853,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 						value.values.length
 					);
 					value.values.forEach((val, i) => {
-						scenario.stepDefinitions.then[index].isExample[i] =
+						scenario.stepDefinitions.then[index].isExample![i] =
 							val.startsWith('<') && val.endsWith('>');
 					});
 				}
@@ -1896,8 +1896,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			return;
 		}
 
-		const storyId = this.selectedStory._id;
-		const repoId = this.selectedRepository._id;
+		const storyId = this.selectedStory._id!;
+		const repoId = this.selectedRepository._id!;
 		const storyTitle = this.selectedStory.title;
 		this.aiLoadingStories.add(storyId);
 
@@ -2022,19 +2022,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Enters the AI review mode for the currently selected story.
    */
 	async enterAiReviewMode() {
-		if (!this.aiSuggestions.has(this.selectedStory._id)) {
+		if (!this.aiSuggestions.has(this.selectedStory._id!)) {
 			this.toastr.info('No AI suggestion available for this story.');
 			return;
 		}
 
 		// Fetch the full suggestion from the backend
 		this.storyService
-			.getStory(this.selectedStory._id)
+			.getStory(this.selectedStory._id!)
 			.subscribe((fullStory) => {
 				const suggestion = fullStory.aiSuggestion;
 				this.initializeIsExampleForStory(suggestion);
 
-				this.aiSuggestions.set(this.selectedStory._id, suggestion);
+				this.aiSuggestions.set(this.selectedStory._id!, suggestion);
 				this.isReviewingAi = true;
 				this.reviewModeChanged.emit(true);
 
@@ -2064,7 +2064,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			if (index > -1) 
 				this.stories[index] = updatedStory;
       
-			this.aiSuggestions.delete(this.selectedStory._id);
+			this.aiSuggestions.delete(this.selectedStory._id!);
 			this.storyService.getStoriesEvent.emit(this.stories);
 		}
 
@@ -2083,8 +2083,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Discards the current AI suggestion.
    */
 	discardAiSuggestion() {
-		this.selectedStory.aiSuggestion = null; 
-    
+		this.selectedStory.aiSuggestion = undefined;
+
 		this.storyService.updateStory(this.selectedStory).subscribe(updatedStory => {
 			this.toastr.info('AI suggestion discarded.');
 			this.exitAiReviewMode(updatedStory);
@@ -2096,7 +2096,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param overwrite If true, replaces existing scenarios. If false, appends them.
    */
 	mergeAiSuggestion(overwrite: boolean) {
-		const suggestion = this.aiSuggestions.get(this.selectedStory._id);
+		const suggestion = this.aiSuggestions.get(this.selectedStory._id!);
 		if (!suggestion || !suggestion.scenarios) return;
 
 		let combinedScenarios: Scenario[];
@@ -2112,7 +2112,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		});
 
 		this.selectedStory.scenarios = combinedScenarios;
-		this.selectedStory.aiSuggestion = null; // Also clear it on the object
+		this.selectedStory.aiSuggestion = undefined; // Also clear it on the object
 
 		// Save the updated story
 		this.storyService
@@ -2162,10 +2162,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			return;
     
 
-		story.scenarios.forEach((scenario) => {
-			if (!scenario || !scenario.stepDefinitions) 
+		story.scenarios.forEach((scenario: any) => {
+			if (!scenario || !scenario.stepDefinitions)
 				return;
-      
+
 
 			const stepTypes: ('given' | 'when' | 'then')[] = [
 				'given',
@@ -2173,17 +2173,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 				'then'
 			];
 
-			for (const stepType of stepTypes) 
-				if (scenario.stepDefinitions[stepType]) 
-					scenario.stepDefinitions[stepType].forEach((step) => {
+			for (const stepType of stepTypes)
+				if (scenario.stepDefinitions[stepType])
+					scenario.stepDefinitions[stepType].forEach((step: any) => {
 						if (step && step.values) {
 							if (
 								!step.isExample ||
                 step.isExample.length !== step.values.length
-							) 
+							)
 								step.isExample = new Array(step.values.length).fill(false);
-              
-							step.values.forEach((val, i) => {
+
+							step.values.forEach((val: any, i: number) => {
 								step.isExample[i] =
 									typeof val === 'string' &&
                   val.startsWith('<') &&

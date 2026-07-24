@@ -22,7 +22,7 @@ export class ManagementService {
    * @param request
    * @returns
    */
-	createJiraAccount(request) {
+	createJiraAccount(request: any) {
 		return this.http
 			.post<any>(
 				this.apiService.apiServer + '/jira/link/',
@@ -95,7 +95,7 @@ export class ManagementService {
    * @param version_id
    * @returns
    */
-	downloadProjectFeatureFiles(repo_id, version_id = ''): Observable<Blob> {
+	downloadProjectFeatureFiles(repo_id: any, version_id = ''): Observable<Blob> {
 		return this.http.get<Blob>(
 			this.apiService.apiServer + '/story/download/project/' + repo_id,
 			{
@@ -112,7 +112,7 @@ export class ManagementService {
    * @param version_id
    * @returns
    */
-	exportProject(repo_id, version_id = ''): Observable<Blob> {
+	exportProject(repo_id: any, version_id = ''): Observable<Blob> {
 		return this.http.get<Blob>(
 			this.apiService.apiServer + '/story/download/export/' + repo_id,
 			{

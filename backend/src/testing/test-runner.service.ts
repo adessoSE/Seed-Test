@@ -126,7 +126,7 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 	try {
 		await pfs.access(featurePath, fs.constants.F_OK);
 	} catch (_err) {
-		await featureFileService.updateFeatureFile(story._id.toString());
+		await featureFileService.updateFeatureFile(story._id!.toString());
 	}
 
 	const worldParameters: CucumberWorldParameters = {

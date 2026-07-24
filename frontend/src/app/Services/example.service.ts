@@ -40,14 +40,14 @@ export class ExampleService {
   * Emits the new example event
   * @param name example name
   */
-	newExampleEmit(name) {
+	newExampleEmit(name: string) {
 		this.newExampleEvent.emit(name);
 	}
 	/**
   * Emits the renaming example event
   * @param name example name
   */
-	renameExampleEmit(name) {
+	renameExampleEmit(name: string) {
 		this.renameExampleEvent.emit(name);
 	}
 	/**

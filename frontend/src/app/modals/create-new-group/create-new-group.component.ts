@@ -16,29 +16,29 @@ import { StoryService } from 'src/app/Services/story.service';
 })
 export class CreateNewGroupComponent {
 
-	@ViewChild('createNewGroupModal') createNewGroupModal: CreateNewGroupComponent;
+	@ViewChild('createNewGroupModal') createNewGroupModal!: CreateNewGroupComponent;
 
 	/**
      * selectable Stories when create Group
   */
-	stories: Story[];
+	stories!: Story[];
 
-	filteredStories: MatTableDataSource<Story>;
+	filteredStories!: MatTableDataSource<Story>;
 
 	/**
   * Existing Groups
   */
-	groups: Group[];
+	groups!: Group[];
 
-	selectedStories: string[];
+	selectedStories: string[] | undefined = undefined;
 
-	groupId: string;
+	groupId: string | undefined = undefined;
 
-	isSequential: boolean;
+	isSequential!: boolean;
 
-	group: Group;
+	group!: Group;
 
-	modalReference: NgbModalRef;
+	modalReference!: NgbModalRef;
 
 	/**
   * Columns of the story table table
@@ -58,9 +58,9 @@ export class CreateNewGroupComponent {
 		this.groupId = undefined;
 		this.isSequential = true;
 		this.selectedStories = undefined;
-		const repoName = localStorage.getItem('repository');
-		const _id = localStorage.getItem('id');
-		const source = localStorage.getItem('source');
+		const repoName = localStorage.getItem('repository')!;
+		const _id = localStorage.getItem('id')!;
+		const source = localStorage.getItem('source')!;
 		const repositoryContainer: RepositoryContainer = {repoName, source, _id};
 		this.storyService.getStories(repositoryContainer).subscribe(res => {
 			this.stories = res;
@@ -84,7 +84,7 @@ export class CreateNewGroupComponent {
      * Checks wether the Story is already added
      * @param story
      */
-	isStoryChecked(story) {
+	isStoryChecked(story: any) {
 		if (this.selectedStories === undefined) {
 			this.selectedStories = new Array<string>();
 			return false;
@@ -97,11 +97,11 @@ export class CreateNewGroupComponent {
      * Fuctionality for adding and removing Stories from a Group with a Checklist
      * @param story
      */
-	selectStory(story) {
-		if (this.isStoryChecked(story)) 
-			this.selectedStories = this.selectedStories.filter(item => item !== story._id);
-		else 
-			this.selectedStories.push(story._id);
+	selectStory(story: any) {
+		if (this.isStoryChecked(story))
+			this.selectedStories = this.selectedStories!.filter(item => item !== story._id);
+		else
+			this.selectedStories!.push(story._id);
     
 	}
 
@@ -117,9 +117,9 @@ export class CreateNewGroupComponent {
 		if (title.trim() !== '') {
 			const member_stories = this.selectedStories;
 			const isSequential = this.isSequential;
-			const repoName = localStorage.getItem('repository');
-			const _id = localStorage.getItem('id');
-			const source = localStorage.getItem('source');
+			const repoName = localStorage.getItem('repository')!;
+			const _id = localStorage.getItem('id')!;
+			const source = localStorage.getItem('source')!;
 			const repositoryContainer: RepositoryContainer = {repoName, source, _id};
 			const group = {title, member_stories, isSequential};
 			this.groupService.createGroupEvent({repositoryContainer, group});

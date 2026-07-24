@@ -17,16 +17,16 @@ export class ResetPasswordComponent implements OnInit {
 	/**
    * Error during reset password
    */
-	error: string;
+	error!: string;
 	defaultErrorMessage = 'Reset password email faild';
 
 	/**
    * Successfully sent email
    */
-	success: string;
+	success!: string;
 	defaultSuccessMessage = 'Email has been sent!';
 
-	isDark: boolean;
+	isDark!: boolean;
 
 	/**
    * @ignore
@@ -46,15 +46,15 @@ export class ResetPasswordComponent implements OnInit {
    * @param form
    */
 	requestReset(form: NgForm) {
-		this.error = undefined;
-		this.success = undefined;
+		this.error = undefined as any;
+		this.success = undefined as any;
 		this.loginService.requestReset(form.value.email).subscribe({
 			next: (_value) => {
-				this.error = undefined;
+				this.error = undefined as any;
 				this.success = this.defaultSuccessMessage;
 			},
 			error: (error) => {
-				this.success = undefined;
+				this.success = undefined as any;
 				if (error !== 'No user found with the given email adress!') {
 					this.error = "Email couldn't be send.";
 					return;

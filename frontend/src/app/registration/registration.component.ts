@@ -20,9 +20,9 @@ export class RegistrationComponent implements OnInit {
 	/**
      * Error during user creation
      */
-	error: string;
+	error!: string;
 
-	isDark:boolean;
+	isDark!:boolean;
 
 	/**
      * @ignore
@@ -45,7 +45,7 @@ export class RegistrationComponent implements OnInit {
 		try {
 			const userId = localStorage.getItem('userId');
 			localStorage.removeItem('userId');
-			this.error = undefined;
+			this.error = undefined as any;
 			const _response = await this.loginService.registerUser(form.value.email, form.value.password, userId).toPromise();
 			localStorage.setItem('login', 'true');
 			this.toastr.success('successfully registered', 'Registration');

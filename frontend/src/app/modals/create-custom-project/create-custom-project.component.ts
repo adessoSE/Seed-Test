@@ -13,22 +13,22 @@ import { ProjectService } from 'src/app/Services/project.service';
 })
 export class CreateCustomProjectComponent {
 
-	@ViewChild('createCustomProjectModal') createCustomProjectModal: CreateCustomProjectComponent;
+	@ViewChild('createCustomProjectModal') createCustomProjectModal!: CreateCustomProjectComponent;
 
 	/**
   * Model Reference for closing
   */
 	constructor(private modalService: NgbModal, public projectService: ProjectService, private toastr: ToastrService) { }
- 
-	modalReference: NgbModalRef;
+
+	modalReference!: NgbModalRef;
 	/**
   * Existing Projects
   */
-	repositories: RepositoryContainer[];
+	repositories!: RepositoryContainer[];
 
-	repoId: string;
+	repoId!: string;
 
-	repository: RepositoryContainer;
+	repository!: RepositoryContainer;
 
 	// create custom project modal
 

@@ -53,7 +53,7 @@ export class LoginService {
    * @param id
    * @returns
    */
-	loginGithubToken(login: string, id): Observable<any> {
+	loginGithubToken(login: string, id: any): Observable<any> {
 		const str = this.apiService.apiServer + '/user/githubLogin';
 		const user = { login, id };
 
@@ -87,7 +87,7 @@ export class LoginService {
    * @param user
    * @returns
    */
-	loginUserLegacy(user): Observable<any> {
+	loginUserLegacy(user: any): Observable<any> {
 		console.log('legacy Login');
 		const str = this.apiService.apiServer + '/user/login';
 
@@ -123,7 +123,7 @@ export class LoginService {
 		);
 	}
 
-	sha256 = async (data) => {
+	sha256 = async (data: any) => {
 		const textAsBuffer = new TextEncoder().encode(data);
 		const hashBuffer = await window.crypto.subtle.digest('SHA-256', textAsBuffer);
 		const hashArray = Array.from(new Uint8Array(hashBuffer));

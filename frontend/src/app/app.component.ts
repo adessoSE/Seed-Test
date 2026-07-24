@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	/**
    * Currently retrieved projects
    */
-	repositories: RepositoryContainer[];
+	repositories!: RepositoryContainer[];
 
 	/**
    * If the impressum is shown
@@ -44,27 +44,27 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	/**
    * Error during retrieving the projects
    */
-	error: string;
+	error!: string;
 
-	@ViewChild('dropdownMenu') dropdownMenu: ElementRef;
-	@ViewChild('helpMenu') helpMenu: ElementRef;
+	@ViewChild('dropdownMenu') dropdownMenu!: ElementRef;
+	@ViewChild('helpMenu') helpMenu!: ElementRef;
 
 	closed: boolean = false;
 	helpPosition: any;
 	menuPosition: any;
 
-	isDark : boolean;
+	isDark!: boolean;
 
 	toggleControl = new UntypedFormControl(false);
 
 	/**
   * Subscribtions for all EventEmitter
   */
-	logoutObservable: Subscription;
-	getRepositoriesObservable: Subscription;
-	updateRepositoryObservable: Subscription;
-	toggleObservable: Subscription;
-	createRepositoryEmitter: Subscription;
+	logoutObservable!: Subscription;
+	getRepositoriesObservable!: Subscription;
+	updateRepositoryObservable!: Subscription;
+	toggleObservable!: Subscription;
+	createRepositoryEmitter!: Subscription;
 
 
 	/**
@@ -84,7 +84,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 		public projectService: ProjectService,
 		public storyService: StoryService
 	) {
-		this.version = localStorage.getItem('version');
+		this.version = localStorage.getItem('version')!;
 	}
 
 	/**
@@ -155,7 +155,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 		this.showImpressum = false;
 		this.showTerms = !this.showTerms;
 		if (this.showTerms) {
-			const footer: HTMLElement = document.getElementById('footer');
+			const footer: HTMLElement = document.getElementById('footer')!;
 			footer.scrollIntoView();
 		}
 	}
@@ -167,7 +167,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 		this.showTerms = false;
 		this.showImpressum = !this.showImpressum;
 		if (this.showImpressum) {
-			const footer: HTMLElement = document.getElementById('footer');
+			const footer: HTMLElement = document.getElementById('footer')!;
 			footer.scrollIntoView();
 		}
 	}
@@ -191,7 +191,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	updateRepositories() {
 		//this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
 		const value = sessionStorage.getItem('repositories');
-		const repository: RepositoryContainer[] = JSON.parse(value);
+		const repository: RepositoryContainer[] = JSON.parse(value!);
 		this.repositories = repository;
 	}
 
@@ -204,7 +204,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 		ref.href = 'https://github.com/' + userRepository.repoName;
 		localStorage.setItem('repository', userRepository.repoName);
 		localStorage.setItem('source', userRepository.source);
-		localStorage.setItem('id', userRepository._id);
+		localStorage.setItem('id', userRepository._id!);
 		if (this.router.url !== '/') 
 			this.router.navigate(['']);
 		else 
@@ -216,7 +216,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
    * Loggs out the user and redirects it to the login page
    */
 	logout() {
-		this.repositories = undefined;
+		this.repositories = undefined as any;
 		this.loginService.logoutUser().subscribe(_ => {
 			//
 		});

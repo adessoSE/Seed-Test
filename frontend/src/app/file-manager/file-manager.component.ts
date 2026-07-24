@@ -16,16 +16,16 @@ import { Observable } from 'rxjs';
 export class FileManagerComponent implements OnInit {
 
 
-	isDark: boolean;
-	repoId: string;
+	isDark!: boolean;
+	repoId!: string;
 	allFiles: FileElement[] = [];
 	searchedFiles: FileElement[] = [];
 	searchText: string = '';
-	fileElements: Observable<FileElement[]>;
+	fileElements!: Observable<FileElement[]>;
 	selection = new Set<any>();
 	isAllSelected: boolean = false;
 
-	themeObservable: Subscription;
+	themeObservable!: Subscription;
 	/**
     * @ignore
     */
@@ -40,7 +40,7 @@ export class FileManagerComponent implements OnInit {
 		this.themeObservable = this.themeService.themeChanged.subscribe((_changedTheme) => {
 			this.isDark = this.themeService.isDarkMode();
 		});
-		this.repoId = localStorage.getItem('id');
+		this.repoId = localStorage.getItem('id')!;
 		this.updateFileElementQuery(this.repoId);
 		this.fileElements.subscribe((files: FileElement[]) => {
 			this.allFiles = files;
@@ -56,7 +56,7 @@ export class FileManagerComponent implements OnInit {
 	/**
    * Updates the file elements by querying the file service with the repository ID.
    */
-	updateFileElementQuery(repoId): void {
+	updateFileElementQuery(repoId: any): void {
 		this.fileElements = this.fileService.queryFiles(repoId);
 	}
 
@@ -68,7 +68,7 @@ export class FileManagerComponent implements OnInit {
 			this.searchedFiles = this.allFiles;
 		else 
 			this.searchedFiles = this.allFiles.filter(file =>
-				file.filename.toLowerCase().includes(this.searchText.toLowerCase())
+				file.filename!.toLowerCase().includes(this.searchText.toLowerCase())
 			);
     
 	}
@@ -103,7 +103,7 @@ export class FileManagerComponent implements OnInit {
    * Set checkbox to selected file
    * @param element
    */
-	selectedRow(element) {
+	selectedRow(element: any) {
 		if (this.selection.has(element)) 
 			this.selection.delete(element);
 		else 

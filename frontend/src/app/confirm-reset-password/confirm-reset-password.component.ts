@@ -17,30 +17,30 @@ export class ConfirmResetPasswordComponent implements OnInit {
 	/**
    * Id of the reset password request
    */
-	uuid: string;
+	uuid!: string;
 
 	/**
    * New Password of the user
    */
-	password: string;
+	password!: string;
 
 	/**
    * Error during reset password
    */
-	error: boolean;
+	error!: boolean;
 	defaultErrorMessage = "Couldn't set password!";
 	/**
    * Successfully sent email
    */
-	success: boolean;
+	success!: boolean;
 	defaultSuccessMessage = 'Your Password Has Been Updated!';
 
 	/**
    * The message to display
    */
-	message: string;
+	message!: string;
 
-	isDark: boolean;
+	isDark!: boolean;
 	/**
    * Constructor
    * @param loginService

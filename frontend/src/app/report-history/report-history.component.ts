@@ -27,20 +27,20 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 	/**
    * Currently selected story
    */
-	selectedStory: Story = null;
+	selectedStory: Story = null as any;
 
 	/**
    * groups in the project
    */
-	groups: Group[];
+	groups!: Group[];
 
 	/**
    * Reports of the selected story
    */
-	reports: ReportContainer = null;
+	reports: ReportContainer = null as any;
 
-	isDark: boolean;
-	updatedReports;
+	isDark!: boolean;
+	updatedReports: any;
 
 
 	/**
@@ -59,11 +59,11 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 		window.addEventListener('storage', (event) => {
 			if (event.key === 'reportComponent') {
 				const storedReportComponentString = localStorage.getItem('reportComponent');
-				this.updatedReports = JSON.parse(storedReportComponentString);
-				for (const prop in this.reports) 
-					for (let i = this.reports[prop].length - 1; i >= 0; i--) 
-						if (this.reports[prop][i]._id == this.updatedReports._id) 
-							this.reports[prop][i] = this.updatedReports;
+				this.updatedReports = JSON.parse(storedReportComponentString!);
+				for (const prop in this.reports)
+					for (let i = (this.reports as any)[prop].length - 1; i >= 0; i--)
+						if ((this.reports as any)[prop][i]._id == this.updatedReports._id)
+							(this.reports as any)[prop][i] = this.updatedReports;
             
         
 			}
@@ -85,8 +85,8 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
    * Retrieves the reports of the story
    */
 	getReports() {
-		this.reports = null;
-		this.reportService.getReportHistory(this.selectedStory._id).subscribe(resp => {
+		this.reports = null as any;
+		this.reportService.getReportHistory(this.selectedStory._id!).subscribe(resp => {
 			this.reports = resp;
 		});
 	}
@@ -105,8 +105,8 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
    * @param reps reports
    * @returns an array, sorted by the timestamps
    */
-	sortReportsTime(reps) {
-		return reps.sort((a, b) => a.reportTime > b.reportTime);
+	sortReportsTime(reps: any[]) {
+		return reps.sort((a: any, b: any) => a.reportTime - b.reportTime);
 	}
 
 	/**
@@ -136,9 +136,9 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 			.deleteReport(report._id)
 			.subscribe(_resp => {
 				const newReports = JSON.parse(JSON.stringify(this.reports));
-				newReports.storyReports = newReports.storyReports.filter((rep) => rep._id !== report._id);
-				newReports.scenarioReports = newReports.scenarioReports.filter((rep) => rep._id !== report._id);
-				newReports.groupReports = newReports.groupReports.filter((rep) => rep._id !== report._id);
+				newReports.storyReports = newReports.storyReports.filter((rep: any) => rep._id !== report._id);
+				newReports.scenarioReports = newReports.scenarioReports.filter((rep: any) => rep._id !== report._id);
+				newReports.groupReports = newReports.groupReports.filter((rep: any) => rep._id !== report._id);
 				this.reports = newReports;
 			});
 	}
@@ -176,10 +176,10 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 
 	getStoryStatus(groupReport: GroupReport, story_id: string) {
 		console.log(story_id);
-		console.log(groupReport.storyStatuses.find(storyStatus => storyStatus.storyId === story_id).storyId);
+		console.log(groupReport.storyStatuses.find(storyStatus => storyStatus.storyId === story_id)!.storyId);
 		const storyStatusObj = groupReport.storyStatuses.find(storyStatus => storyStatus.storyId === story_id);
 		console.log(storyStatusObj);
-		return storyStatusObj.status;
+		return storyStatusObj!.status;
 
 	}
 }

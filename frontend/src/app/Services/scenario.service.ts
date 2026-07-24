@@ -49,7 +49,7 @@ export class ScenarioService {
     * Emits the rename scenario event
     * @param newTitle
   */
-	renameScenarioEmit(newTitle) {
+	renameScenarioEmit(newTitle: string) {
 		this.renameScenarioEvent.emit(newTitle);
 	}
 	/**
@@ -58,12 +58,12 @@ export class ScenarioService {
     * @param scenarioId id of the scenario thats changed
     * @param lastTestPassed value status changed to
   */
-	scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
+	scenarioStatusChangeEmit(storyId: string, scenarioId: number, lastTestPassed: boolean) {
 		const val = { storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed };
 		this.scenarioStatusChangeEvent.emit(val);
 	}
 	/* Updating scenario list */
-	public updateScenarioList(story_id, scenario_list: Scenario[]): Observable<any> {
+	public updateScenarioList(story_id: string, scenario_list: Scenario[]): Observable<any> {
 		return this.http
 			.patch(this.apiService.apiServer + '/story/' + story_id, scenario_list, ApiService.getOptions())
 			.pipe(tap(_ => {
@@ -89,7 +89,7 @@ export class ScenarioService {
   * @param storyID
   * @returns
 */
-	public addFirstScenario(storyID): Observable<Scenario> {// not used ?
+	public addFirstScenario(storyID: string): Observable<Scenario> {// not used ?
 		return this.http
 			.get<any>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions())// route doesn't exist
 			.pipe(tap(resp => {
@@ -101,7 +101,7 @@ export class ScenarioService {
    * @param storyID
    * @param scenarioID
   */
-	getScenario(storyID: any, scenarioID): Observable<Scenario> {
+	getScenario(storyID: any, scenarioID: number): Observable<Scenario> {
 		return this.http
 			.get<any>(this.apiService.apiServer + '/story/' + storyID + '/' + scenarioID, ApiService.getOptions())
 			.pipe(tap(resp => {
@@ -132,7 +132,7 @@ export class ScenarioService {
 			console.log('Xray enabled no 2: ' + xrayEnabled);
 			const headers = new HttpHeaders()
 				.set('x-xray-enabled', xrayEnabled.toString())
-				.set('x-test-key', scenario.testKey.toString());
+				.set('x-test-key', scenario.testKey!.toString());
 			const options = { headers: headers, ...ApiService.getOptions() };
 			return this.http
 				.delete<any>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, options)

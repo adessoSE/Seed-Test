@@ -254,10 +254,10 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 				assignee: issue.assignee?.login || 'unassigned',
 				assignee_avatar_url: issue.assignee?.avatar_url || null
 			};
-            
+
 			const entry = await fuseStoryWithDb(story);
-			tmpStories.set(entry._id.toString(), entry);
-			storiesArray.push(oid(entry._id));
+			tmpStories.set(entry._id!.toString(), entry);
+			storiesArray.push(oid(entry._id!));
 		}
 
 	} else if (source === Sources.JIRA && user?.jira && projectKey !== 'null') {
@@ -339,8 +339,8 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
         
 		for (const story of processedStories) {
 			const entry = await fuseStoryWithDb(story);
-			tmpStories.set(entry._id.toString(), entry);
-			storiesArray.push(oid(entry._id));
+			tmpStories.set(entry._id!.toString(), entry);
+			storiesArray.push(oid(entry._id!));
 		}
 
 	} else 
@@ -364,7 +364,7 @@ export async function matchStoryOrder(
 	const fetchedStoryIds = storiesIdList.map(s => s.toString());
     
 	// 1. Find story IDs that are in the repo, but were NOT fetched in this sync
-	const missingDbStoryIds = dbStoryIds.filter((id: string) => !storiesMap.has(id));
+	const missingDbStoryIds: string[] = dbStoryIds.filter((id: string) => !storiesMap.has(id));
 
 	// 2. Load these "missing" stories from the database to ensure the list is complete
 	if (missingDbStoryIds.length > 0) {
@@ -377,12 +377,12 @@ export async function matchStoryOrder(
 		);
         
 		// Add them to the storiesMap so they aren't lost
-		missingStories.filter(Boolean).forEach((story: Story) => {
+		missingStories.filter(Boolean).forEach((story) => {
 			if (story)  // Check if story was found
-				storiesMap.set(story._id.toString(), story);
-			else 
+				storiesMap.set(story._id!.toString(), story);
+			else
 				console.warn('Failed to load story from DB with ID, it might be orphaned.');
-            
+
 		});
 	}
 
@@ -625,7 +625,7 @@ export async function updateTestSets(testSets: any[], repo_id: string): Promise<
 					// We MUST update it to be empty.
 					console.log(`Test Set ${testSet.testSetKey} is empty. Clearing member stories from existing group.`);
 					const updatedGroup = { ...existingGroup, member_stories: [] }; // Empty the array
-					await repositoryService.updateStoryGroup(repo_id, existingGroup._id.toString(), updatedGroup);
+					await repositoryService.updateStoryGroup(repo_id, existingGroup._id!.toString(), updatedGroup);
 				} else 
 				// The Test Set is empty and no group exists. Do nothing.
 					console.log(`No stories found for Test Set ${testSet.testSetKey}. Skipping group creation.`);
@@ -638,7 +638,7 @@ export async function updateTestSets(testSets: any[], repo_id: string): Promise<
 				// Group exists, update it with the fresh list of IDs
 				// updateStoryGroup expects Group (string[]) but MongoDB stores ObjectId[]
 				const updatedGroup = { ...existingGroup, member_stories: storyIds.map(id => oid(id)) as any[] };
-				await repositoryService.updateStoryGroup(repo_id, existingGroup._id.toString(), updatedGroup); 
+				await repositoryService.updateStoryGroup(repo_id, existingGroup._id!.toString(), updatedGroup); 
 				console.log(`Updated group for Test Set: ${testSet.testSetKey}`);
 			} else {
 				// Group does not exist, create it
