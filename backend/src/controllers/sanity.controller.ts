@@ -81,10 +81,14 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 		const notificationText = formatSanityNotification(finalReport);
 		res.status(200).send(notificationText);
 
-		// Update status and schedule deletion (no HTML needed for client)
-		await reportService.updateLatestTestStatus(finalReport, ExecutionMode.GROUP);
-		const deletionTime = parseInt(process.env.REPORT_DELETION_TIME || '5') * 60000;
-		reportService.scheduleReportDeletion(finalReport.reportName, true, deletionTime); // isGroup = true
+		// Post-response cleanup — errors here must not crash the process or trigger the error handler
+		try {
+			await reportService.updateLatestTestStatus(finalReport, ExecutionMode.GROUP);
+			const deletionTime = parseInt(process.env.REPORT_DELETION_TIME || '5') * 60000;
+			reportService.scheduleReportDeletion(finalReport.reportName, true, deletionTime);
+		} catch (postErr) {
+			console.error('Error in post-response sanity cleanup:', postErr);
+		}
 
 	} catch (error) {
 		if (sanityFolderName && fs.existsSync(path.join(process.cwd(), 'features', sanityFolderName))) 

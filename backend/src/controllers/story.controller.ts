@@ -471,7 +471,12 @@ export function getAiGenerationStatus(req: Request, res: Response, _next: NextFu
 	console.log(`SSE Client connected for AI status updates for story ${storyId}`);
 
 	const listener = (result: any) => {
-		res.write(`data: ${JSON.stringify(result)}\n\n`);
+		try {
+			res.write(`data: ${JSON.stringify(result)}\n\n`);
+		} catch (err) {
+			console.error(`SSE write failed for story ${storyId}:`, err);
+			aiService.aiJobEmitter.removeListener(`job-done-${storyId}`, listener);
+		}
 	};
 
 	aiService.aiJobEmitter.on(`job-done-${storyId}`, listener);
@@ -481,7 +486,4 @@ export function getAiGenerationStatus(req: Request, res: Response, _next: NextFu
 		console.log(`SSE Client disconnected for AI status updates for story ${storyId}`);
 		res.end();
 	});
-
-	// Send an initial connected message?
-	// res.write(`data: ${JSON.stringify({ status: 'connected', storyId })}\n\n`);
 }

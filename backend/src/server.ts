@@ -174,14 +174,26 @@ app.use('/api/sanity', isAuthenticated, sanityRouter);
 
 // --- Central Error Handling Middleware ---
 // This MUST be the last middleware added
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
-	console.error('Central Error Handler caught:', err.stack); 
-    
-	// You could add more specific error handling here based on error type if needed
-    
-	res.status(500).json({ 
-		error: 'Internal Server Error' 
-		// message: err.message // Optional: Send message in dev, hide in prod
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+	// Guard: don't attempt to send if response already started (e.g. post-response errors)
+	if (res.headersSent) {
+		console.error('Error after response sent (suppressed):', err.message);
+		return;
+	}
+
+	// AppError carries an explicit status code; everything else is an unexpected 500
+	const statusCode = 'statusCode' in err && typeof (err as any).statusCode === 'number'
+		? (err as any).statusCode
+		: 500;
+
+	// Only log stack traces for unexpected errors, not operational ones
+	if (statusCode === 500)
+		console.error('Unexpected error:', err.stack);
+	else
+		console.warn(`Operational error [${statusCode}]:`, err.message);
+
+	res.status(statusCode).json({
+		error: statusCode === 500 ? 'Internal Server Error' : err.message
 	});
 });
 
@@ -253,6 +265,19 @@ async function startServer() {
 		process.exit(1);
 	}
 }
+
+// --- Process-Level Error Handlers ---
+// Catch unhandled promise rejections (e.g. forgotten awaits, uncaught async errors)
+process.on('unhandledRejection', (reason: unknown) => {
+	console.error('Unhandled Rejection:', reason);
+	// Let the process continue — Express will handle per-request errors
+});
+
+// Catch truly unexpected synchronous errors — log and exit, as state may be corrupted
+process.on('uncaughtException', (error: Error) => {
+	console.error('Uncaught Exception — shutting down:', error.stack);
+	server.close(() => process.exit(1));
+});
 
 startServer();
 
