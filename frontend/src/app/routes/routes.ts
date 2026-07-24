@@ -12,79 +12,79 @@ import { ConfirmResetPasswordComponent }  from '../confirm-reset-password/confir
  * All routs of the system
  */
 export const ROUTES = [
-    /**
+	/**
      * Login
      */
-    {
-        path: 'login',
-        component: LoginComponent
-    },
+	{
+		path: 'login',
+		component: LoginComponent
+	},
 
-    /**
+	/**
      * Account Management
      */
-    {
-        path: 'accountManagement',
-        component: AccountManagementComponent
-    },
+	{
+		path: 'accountManagement',
+		component: AccountManagementComponent
+	},
 
-    /**
+	/**
      * Parent Component with Story editor
      */
-    {
-        path: '',
-        component: ParentComponent,
-        canActivate: [AuthGuard]
-    },
+	{
+		path: '',
+		component: ParentComponent,
+		canActivate: [AuthGuard]
+	},
 
-    /**
+	/**
      * Reports
      */
-    {
-        path: 'report/:reportName',
-        component: ReportComponent
-    },
+	{
+		path: 'report/:reportName',
+		component: ReportComponent
+	},
 
-    /**
+	/**
      * Terms
      */
-    {
-        path: 'terms',
-        component: TermsComponent
-    },
+	{
+		path: 'terms',
+		component: TermsComponent
+	},
 
-    /**
+	/**
      * Register
      */
-    {
-        path: 'register',
-        component: RegistrationComponent
-    },
+	{
+		path: 'register',
+		component: RegistrationComponent
+	},
 
-    /**
+	/**
      * Reset password
      */
-    {
-        path: 'resetpassword',
-        component: ResetPasswordComponent
-    },
+	{
+		path: 'resetpassword',
+		component: ResetPasswordComponent
+	},
 
-    /**
+	/**
      * Confirm the new password
      */
-    {
-        path: 'resetpasswordconfirm',
-        component: ConfirmResetPasswordComponent
-    },
+	{
+		path: 'resetpasswordconfirm',
+		component: ConfirmResetPasswordComponent
+	},
 
-    {
-        path: 'story/:story_id',
-        component: ParentComponent
-    },
+	{
+		path: 'story/:story_id',
+		component: ParentComponent
+	},
 
-    {
-        path: 'story/:story_id/:scenario_id',
-        component: ParentComponent
-    },
+	{
+		path: 'story/:story_id/:scenario_id',
+		component: ParentComponent
+	}
 
 ];

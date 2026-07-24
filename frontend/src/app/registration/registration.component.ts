@@ -9,58 +9,58 @@ import { LoginService } from '../Services/login.service';
  * Component to register a new user
  */
 @Component({
-    selector: 'app-registration',
-    templateUrl: './registration.component.html',
-    styleUrls: ['./registration.component.css'],
-    standalone: false
+	selector: 'app-registration',
+	templateUrl: './registration.component.html',
+	styleUrls: ['./registration.component.css'],
+	standalone: false
 })
 
 export class RegistrationComponent implements OnInit {
 
-    /**
+	/**
      * Error during user creation
      */
-    error: string;
+	error: string;
 
-    isDark:boolean;
+	isDark:boolean;
 
-    /**
+	/**
      * @ignore
      */
-    constructor(public loginService: LoginService, private router: Router, private toastr: ToastrService,
-        private themeService:ThemingService) {}
+	constructor(public loginService: LoginService, private router: Router, private toastr: ToastrService,
+		private themeService:ThemingService) {}
 
-    /**
+	/**
      * @ignore
      */
-    ngOnInit() {
-        this.isDark = this.themeService.isDarkMode();
-    }
+	ngOnInit() {
+		this.isDark = this.themeService.isDarkMode();
+	}
 
-    /**
+	/**
      * Registers a user to Seed-Test and logs user in
      * @param form user form
      */
-    async registerUser(form: NgForm){
-        try{
-            let userId = localStorage.getItem('userId');
-            localStorage.removeItem('userId')
-            this.error = undefined;
-            let response = await this.loginService.registerUser(form.value.email, form.value.password, userId).toPromise()
-            localStorage.setItem('login', 'true');
-            this.toastr.success('successfully registered', 'Registration')
-            const user = {email: form.value.email, password: form.value.password}
-            this.loginService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']))
-        }  catch(err) {
+	async registerUser(form: NgForm){
+		try {
+			const userId = localStorage.getItem('userId');
+			localStorage.removeItem('userId');
+			this.error = undefined;
+			const _response = await this.loginService.registerUser(form.value.email, form.value.password, userId).toPromise();
+			localStorage.setItem('login', 'true');
+			this.toastr.success('successfully registered', 'Registration');
+			const user = {email: form.value.email, password: form.value.password};
+			this.loginService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']));
+		}  catch(_err) {
            
-            this.toastr.error('User with this email alredy exist. Please enter another email', 'Email alredy exist')
+			this.toastr.error('User with this email alredy exist. Please enter another email', 'Email alredy exist');
            
-        } 
-    }
+		} 
+	}
 
-    isDarkModeOn () {
-        this.isDark = this.themeService.isDarkMode();
-        return this.isDark
-      }
+	isDarkModeOn () {
+		this.isDark = this.themeService.isDarkMode();
+		return this.isDark;
+	}
     
 }

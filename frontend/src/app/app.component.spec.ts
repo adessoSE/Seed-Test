@@ -1,4 +1,4 @@
-import { TestBed, waitForAsync, ComponentFixture, fakeAsync} from '@angular/core/testing';
+import { TestBed, waitForAsync, ComponentFixture} from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -9,32 +9,32 @@ import { DatePipe } from '@angular/common';
 
 
 describe('AppComponent', () => {
-  let component: AppComponent;
-  let fixture: ComponentFixture<AppComponent>;
+	let component: AppComponent;
+	let fixture: ComponentFixture<AppComponent>;
   
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule, ToastrModule.forRoot()],
-      providers: [DatePipe, 
-        importProvidersFrom(LoggerModule.forRoot({
-      serverLoggingUrl: '/api/logs',
-      level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.ERROR
-    })),],
-      declarations: [
-        AppComponent
-      ],
-      schemas: [NO_ERRORS_SCHEMA]
-    }).compileComponents();
-  }));
+	beforeEach(waitForAsync(() => {
+		TestBed.configureTestingModule({
+			imports: [HttpClientTestingModule, RouterTestingModule, ToastrModule.forRoot()],
+			providers: [DatePipe, 
+				importProvidersFrom(LoggerModule.forRoot({
+					serverLoggingUrl: '/api/logs',
+					level: NgxLoggerLevel.DEBUG,
+					serverLogLevel: NgxLoggerLevel.ERROR
+				}))],
+			declarations: [
+				AppComponent
+			],
+			schemas: [NO_ERRORS_SCHEMA]
+		}).compileComponents();
+	}));
 
-  beforeEach(()=> {
-    fixture = TestBed.createComponent(AppComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  })
+	beforeEach(()=> {
+		fixture = TestBed.createComponent(AppComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create the app', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create the app', () => {
+		expect(component).toBeTruthy();
+	});
 });

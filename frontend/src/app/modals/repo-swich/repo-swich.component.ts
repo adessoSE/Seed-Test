@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
@@ -6,78 +6,78 @@ import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
 
 @Component({
-    selector: 'app-repo-swich',
-    templateUrl: './repo-swich.component.html',
-    styleUrls: ['./repo-swich.component.css', '../layout-modal/layout-modal.component.css'],
-    standalone: false
+	selector: 'app-repo-swich',
+	templateUrl: './repo-swich.component.html',
+	styleUrls: ['./repo-swich.component.css', '../layout-modal/layout-modal.component.css'],
+	standalone: false
 })
-export class RepoSwichComponent implements OnInit {
+export class RepoSwichComponent implements OnInit, OnDestroy {
 
-  repos: RepositoryContainer[];
+	repos: RepositoryContainer[];
 
-  filteredRepos: MatTableDataSource<RepositoryContainer>;
+	filteredRepos: MatTableDataSource<RepositoryContainer>;
 
-  displayedColumnsRepos: string[] = ['repository'];
+	displayedColumnsRepos: string[] = ['repository'];
 
-  currentRepo;
+	currentRepo;
 
-  updateRepositoryObservable: Subscription;
+	updateRepositoryObservable: Subscription;
 
-  @ViewChild('repoSwitch') repoSwitch: RepoSwichComponent;
+	@ViewChild('repoSwitch') repoSwitch: RepoSwichComponent;
 
-  constructor(private modalService: NgbModal, public projectService: ProjectService) {
-    this.currentRepo = localStorage.getItem('repository');
-    const value = sessionStorage.getItem('repositories');
-    const repositories: RepositoryContainer[] = JSON.parse(value);
-    this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
-    this.filteredRepos = new MatTableDataSource(this.repos);
-  }
+	constructor(private modalService: NgbModal, public projectService: ProjectService) {
+		this.currentRepo = localStorage.getItem('repository');
+		const value = sessionStorage.getItem('repositories');
+		const repositories: RepositoryContainer[] = JSON.parse(value);
+		this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
+		this.filteredRepos = new MatTableDataSource(this.repos);
+	}
 
-  ngOnInit(): void {
-    this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => {
-      this.updateRepos();
-    });
-  }
+	ngOnInit(): void {
+		this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => {
+			this.updateRepos();
+		});
+	}
 
-  ngOnDestroy() {
-    if (!this.updateRepositoryObservable.closed) {
-      this.updateRepositoryObservable.unsubscribe();
-    }
-  }
+	ngOnDestroy() {
+		if (!this.updateRepositoryObservable.closed) 
+			this.updateRepositoryObservable.unsubscribe();
+    
+	}
 
-  openModal() {
-    this.modalService.open(this.repoSwitch, {ariaLabelledBy: 'modal-basic-titles'});
-  }
+	openModal() {
+		this.modalService.open(this.repoSwitch, {ariaLabelledBy: 'modal-basic-titles'});
+	}
 
-   /**
+	/**
    * Filters reporitories for searchterm
    */
-  searchOnKey(filter: string) {
-    this.filteredRepos.filterPredicate =  (data: RepositoryContainer, repoFilter: string) => data.repoName.trim().toLowerCase().indexOf(repoFilter) != -1;
-    /* Apply filter */
-    this.filteredRepos.filter = filter.trim().toLowerCase();
-  }
+	searchOnKey(filter: string) {
+		this.filteredRepos.filterPredicate =  (data: RepositoryContainer, repoFilter: string) => data.repoName.trim().toLowerCase().indexOf(repoFilter) != -1;
+		/* Apply filter */
+		this.filteredRepos.filter = filter.trim().toLowerCase();
+	}
 
-  /**
+	/**
      * Selects the repository and redirects the user to the story editor
      * @param userRepository
      */
-  selectRepository(userRepository: RepositoryContainer) {
-    const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + userRepository.repoName;
-    localStorage.setItem('repository', userRepository.repoName);
-    localStorage.setItem('source', userRepository.source);
-    localStorage.setItem('id', userRepository._id);
-    location.reload();
-  }
+	selectRepository(userRepository: RepositoryContainer) {
+		const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
+		ref.href = 'https://github.com/' + userRepository.repoName;
+		localStorage.setItem('repository', userRepository.repoName);
+		localStorage.setItem('source', userRepository.source);
+		localStorage.setItem('id', userRepository._id);
+		location.reload();
+	}
 
-  /**
+	/**
      * Update Repositories after change
      */
-  updateRepos() {
-    const value = sessionStorage.getItem('repositories');
-    const repositories: RepositoryContainer[] = JSON.parse(value);
-    this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
-    this.filteredRepos = new MatTableDataSource(this.repos);
-  }
+	updateRepos() {
+		const value = sessionStorage.getItem('repositories');
+		const repositories: RepositoryContainer[] = JSON.parse(value);
+		this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
+		this.filteredRepos = new MatTableDataSource(this.repos);
+	}
 }

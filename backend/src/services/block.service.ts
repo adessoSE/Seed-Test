@@ -1,6 +1,7 @@
-import { Collection, ObjectId, Filter, ClientSession, MongoClient } from 'mongodb';
+import { ClientSession, MongoClient } from 'mongodb';
 import * as dbConnection from '../database/DbConnector';
 import { Block } from '@shared/models/Block';
+import { BlockDoc, oid } from '../types/mongo.types';
 
 const customBlocksCollection = 'CustomBlocks';
 
@@ -11,17 +12,17 @@ const customBlocksCollection = 'CustomBlocks';
  * @returns The result of the insertion operation.
  */
 export async function saveBlock(block: Block, session?: ClientSession, client?: MongoClient): Promise<any> {
-    const db = session
-                ? client.db('Seed', session)
-                : dbConnection.getConnection();
-    const sanitizedBlock = mongoSanitize(block);
-    if (sanitizedBlock.repositoryId) {
-        sanitizedBlock.repositoryId = new ObjectId(sanitizedBlock.repositoryId);
-    }
-    if (sanitizedBlock.owner) {
-        sanitizedBlock.owner = new ObjectId(sanitizedBlock.owner);
-    }
-    return await db.collection<Block>(customBlocksCollection).insertOne(sanitizedBlock as Block, { session });
+	const db = session
+		? client.db('Seed', session)
+		: dbConnection.getConnection();
+	const sanitizedBlock = mongoSanitize(block);
+	// Convert string IDs to ObjectId for MongoDB storage
+	const doc: BlockDoc = {
+		...sanitizedBlock,
+		repositoryId: sanitizedBlock.repositoryId ? oid(sanitizedBlock.repositoryId) : undefined,
+		owner: sanitizedBlock.owner ? oid(sanitizedBlock.owner) : undefined
+	};
+	return await db.collection<BlockDoc>(customBlocksCollection).insertOne(doc as BlockDoc, { session });
 }
 
 /**
@@ -30,8 +31,8 @@ export async function saveBlock(block: Block, session?: ClientSession, client?: 
  * @returns A Promise that resolves to the block object or null if not found.
  */
 export async function getBlock(blockId: string): Promise<Block | null> {
-    const db = dbConnection.getConnection();
-    return await db.collection<Block>(customBlocksCollection).findOne({ _id: new ObjectId(blockId) });
+	const db = dbConnection.getConnection();
+	return await db.collection<BlockDoc>(customBlocksCollection).findOne({ _id: oid(blockId) }) as unknown as Block | null;
 }
 
 /**
@@ -40,8 +41,8 @@ export async function getBlock(blockId: string): Promise<Block | null> {
  * @returns A Promise that resolves to an array of block objects.
  */
 export async function getBlocks(repoId: string): Promise<Block[]> {
-    const db = dbConnection.getConnection();
-    return await db.collection<Block>(customBlocksCollection).find({ repositoryId: new ObjectId(repoId) }).toArray();
+	const db = dbConnection.getConnection();
+	return await db.collection<BlockDoc>(customBlocksCollection).find({ repositoryId: oid(repoId) }).toArray() as unknown as Block[];
 }
 
 /**
@@ -51,19 +52,23 @@ export async function getBlocks(repoId: string): Promise<Block[]> {
  * @param session Optional ClientSession for transaction support.
  * @returns The result of the replacement operation.
  */
-export async function updateBlock(blockId: string, updatedBlock: Block, session?: ClientSession, client?: MongoClient): Promise<any> {
-    const db = session
-                ? client.db('Seed', session)
-                : dbConnection.getConnection();
-    updatedBlock._id = new ObjectId(blockId);
-    if (updatedBlock.repositoryId) {
-        updatedBlock.repositoryId = new ObjectId(updatedBlock.repositoryId);
-    }
-    if (updatedBlock.owner) {
-        updatedBlock.owner = new ObjectId(updatedBlock.owner);
-    }
-    
-    return await db.collection<Block>(customBlocksCollection).findOneAndReplace({ _id: new ObjectId(blockId) }, updatedBlock, { session });
+export async function updateBlock(blockId: string, updatedBlock: Block, userId: string, session?: ClientSession, client?: MongoClient): Promise<any> {
+	const db = session
+		? client.db('Seed', session)
+		: dbConnection.getConnection();
+	// Convert string IDs to ObjectId for MongoDB storage
+	const doc: BlockDoc = {
+		...updatedBlock,
+		_id: oid(blockId),
+		repositoryId: updatedBlock.repositoryId ? oid(updatedBlock.repositoryId) : undefined,
+		owner: oid(userId)
+	};
+
+	return await db.collection<BlockDoc>(customBlocksCollection).findOneAndReplace(
+		{ _id: oid(blockId), owner: oid(userId) },
+		doc,
+		{ session }
+	);
 }
 
 /**
@@ -73,24 +78,23 @@ export async function updateBlock(blockId: string, updatedBlock: Block, session?
  * @returns The result of the deletion operation.
  */
 export async function deleteBlock(blockId: string, userId: string): Promise<any> {
-    const db = dbConnection.getConnection();
-    return await db.collection<Block>(customBlocksCollection).deleteOne({
-        _id: new ObjectId(blockId),
-        owner: new ObjectId(userId)
-    });
+	const db = dbConnection.getConnection();
+	return await db.collection<BlockDoc>(customBlocksCollection).deleteOne({
+		_id: oid(blockId),
+		owner: oid(userId)
+	});
 }
 
 
 // Simple sanitizer function to prevent NoSQL injection
 function mongoSanitize(v: any): any {
-	if (v instanceof Object) {
-		for (const key in v) {
-			if (/^\$/.test(key)) {
+	if (v instanceof Object) 
+		for (const key in v) 
+			if (/^\$/.test(key)) 
 				delete v[key];
-			} else {
+			else 
 				mongoSanitize(v[key]);
-			}
-		}
-	}
+		
+	
 	return v;
 }

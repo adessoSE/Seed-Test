@@ -5,24 +5,24 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { DeleteAccountComponent } from './delete-account.component';
 
 describe('DeleteAccountComponent', () => {
-  let component: DeleteAccountComponent;
-  let fixture: ComponentFixture<DeleteAccountComponent>;
+	let component: DeleteAccountComponent;
+	let fixture: ComponentFixture<DeleteAccountComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ DeleteAccountComponent, LayoutModalComponent ],
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()]
-    })
-    .compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			declarations: [ DeleteAccountComponent, LayoutModalComponent ],
+			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+		})
+			.compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DeleteAccountComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(DeleteAccountComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

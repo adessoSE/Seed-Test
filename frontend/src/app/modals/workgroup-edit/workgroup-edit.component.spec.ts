@@ -6,25 +6,25 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { WorkgroupEditComponent } from './workgroup-edit.component';
 
 describe('WorkgroupEditComponent', () => {
-  let component: WorkgroupEditComponent;
-  let fixture: ComponentFixture<WorkgroupEditComponent>;
+	let component: WorkgroupEditComponent;
+	let fixture: ComponentFixture<WorkgroupEditComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ WorkgroupEditComponent, LayoutModalComponent ],
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
-      schemas: [NO_ERRORS_SCHEMA]
-    })
-    .compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			declarations: [ WorkgroupEditComponent, LayoutModalComponent ],
+			imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
+			.compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(WorkgroupEditComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(WorkgroupEditComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

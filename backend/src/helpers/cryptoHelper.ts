@@ -4,9 +4,9 @@ const ALGORITHM = 'aes-256-gcm';
 const ENCRYPTION_KEY = process.env.ENCRYPTION_SECRET; // Must be 32 bytes (64 hex characters)
 const NONCE_LENGTH = 12; // GCM standard nonce length
 
-if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
-    throw new Error('Invalid ENCRYPTION_SECRET. It must be a 64-character hex string.');
-}
+if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) 
+	throw new Error('Invalid ENCRYPTION_SECRET. It must be a 64-character hex string.');
+
 
 /**
  * Encrypts a text string using AES-256-GCM.
@@ -14,17 +14,17 @@ if (!ENCRYPTION_KEY || ENCRYPTION_KEY.length !== 64) {
  * @returns The encrypted text in format 'nonce:encrypted:authTag', or null if input is empty.
  */
 export function encrypt(text: string): string | null {
-    if (!text) return null;
+	if (!text) return null;
 
-    const nonce = crypto.randomBytes(NONCE_LENGTH);
-    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), nonce);
+	const nonce = crypto.randomBytes(NONCE_LENGTH);
+	const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), nonce);
 
-    let encrypted = cipher.update(text, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
+	let encrypted = cipher.update(text, 'utf8', 'hex');
+	encrypted += cipher.final('hex');
 
-    const authTag = cipher.getAuthTag().toString('hex');
+	const authTag = cipher.getAuthTag().toString('hex');
 
-    return `${nonce.toString('hex')}:${encrypted}:${authTag}`;
+	return `${nonce.toString('hex')}:${encrypted}:${authTag}`;
 }
 
 /**
@@ -33,25 +33,25 @@ export function encrypt(text: string): string | null {
  * @returns The original decrypted text, or null if decryption fails (tampered data).
  */
 export function decrypt(encryptedText: string): string | null {
-    if (!encryptedText) return null;
+	if (!encryptedText) return null;
 
-    try {
-        const textParts = encryptedText.split(':');
-        if (textParts.length !== 3) throw new Error('Invalid encrypted text format.');
+	try {
+		const textParts = encryptedText.split(':');
+		if (textParts.length !== 3) throw new Error('Invalid encrypted text format.');
 
-        const nonce = Buffer.from(textParts[0], 'hex');
-        const encrypted = textParts[1];
-        const authTag = Buffer.from(textParts[2], 'hex');
+		const nonce = Buffer.from(textParts[0], 'hex');
+		const encrypted = textParts[1];
+		const authTag = Buffer.from(textParts[2], 'hex');
 
-        const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), nonce);
-        decipher.setAuthTag(authTag);
+		const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), nonce);
+		decipher.setAuthTag(authTag);
 
-        let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
+		let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+		decrypted += decipher.final('utf8');
 
-        return decrypted;
-    } catch (error) {
-        console.error("Decryption failed. Data might be tampered with or key is wrong.", error);
-        return null;
-    }
+		return decrypted;
+	} catch (error) {
+		console.error('Decryption failed. Data might be tampered with or key is wrong.', error);
+		return null;
+	}
 }

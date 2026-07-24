@@ -1,39 +1,16 @@
 import express from 'express';
-import cors from 'cors';
 import multer from 'multer';
-import bodyParser from 'body-parser';
 import * as storyController from '../controllers/story.controller';
-import * as repositoryService from '../services/repository.service';
 
 const router = express.Router();
 
+// CORS, body parsing, and authentication are handled globally in server.ts.
+
 // Setup multer for file uploads (used in import route)
 const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
+	storage: multer.memoryStorage(),
+	limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
 });
-
-// --- Basic Middleware (CORS, BodyParser, Headers, Logging) ---
-router
-    .use(cors({
-        origin: [process.env.FRONTEND_URL || 'http://localhost:4200'],
-        credentials: true
-    }))
-    .use(bodyParser.json({ limit: '500kb' }))
-    .use(bodyParser.urlencoded({
-        limit: '500kb',
-        extended: true
-    }))
-    .use((req, res, next) => { // Standard Headers
-		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
-		res.header('Access-Control-Allow-Credentials', 'true');
-		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect, repoId');
-		next();
-	})
-    .use((_, __, next) => { // Simple request logging
-        console.log(`Time of story router request: ${_.method} ${_.originalUrl}`, Date.now());
-        next();
-    });
 
 
 // Static and specific routes MUST be defined before dynamic routes.

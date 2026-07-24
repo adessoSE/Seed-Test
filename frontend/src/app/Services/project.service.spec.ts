@@ -6,27 +6,27 @@ import { ApiService } from './api.service';
 import { ProjectService } from './project.service';
 
 describe('ProjectService', () => {
-  let service: ProjectService;
-  let httpMock: HttpTestingController;
+	let _service: ProjectService;
+	let _httpMock: HttpTestingController;
 
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
-    });
-    service = TestBed.inject(ProjectService);
-    httpMock = TestBed.inject(HttpTestingController);
-    sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
-  });
-  afterEach(() => {
-    sessionStorage.removeItem('url_backend');
-  });
-  describe('create', () => {
-    it('should be created', () => {
-      const http: HttpClient = TestBed.inject(HttpClient);
-      const apiService =TestBed.inject(ApiService);
-      const service: ProjectService = new ProjectService(apiService,http);
-      expect(service).toBeTruthy();
-    });
-  });
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+		});
+		_service = TestBed.inject(ProjectService);
+		_httpMock = TestBed.inject(HttpTestingController);
+		sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
+	});
+	afterEach(() => {
+		sessionStorage.removeItem('url_backend');
+	});
+	describe('create', () => {
+		it('should be created', () => {
+			const http: HttpClient = TestBed.inject(HttpClient);
+			const apiService = TestBed.inject(ApiService);
+			const service: ProjectService = new ProjectService(apiService,http);
+			expect(service).toBeTruthy();
+		});
+	});
 });

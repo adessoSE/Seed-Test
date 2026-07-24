@@ -8,7 +8,7 @@ export interface GroupReport {
   /**
    * Object id of the report of the database
    */
-  _id?: any;
+  _id?: string;
 
   /**
    * Name of the report
@@ -23,7 +23,7 @@ export interface GroupReport {
   /**
    * included options to create html
    */
-  reportOptions: any;
+  reportOptions: Record<string, unknown>;
 
   /**
    * Mode: either feature, scenario

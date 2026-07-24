@@ -10,6 +10,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "preserveSymlinks": true,
+    "typeRoots": ["./node_modules/@types"],
     "paths": {
       "@shared/*": ["../shared/src/*"]
     },

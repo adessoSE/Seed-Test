@@ -5,24 +5,24 @@ import { ToastrModule } from 'ngx-toastr';
 import { ReportHistoryComponent } from './report-history.component';
 
 describe('ReportHistoryComponent', () => {
-  let component: ReportHistoryComponent;
-  let fixture: ComponentFixture<ReportHistoryComponent>;
+	let component: ReportHistoryComponent;
+	let fixture: ComponentFixture<ReportHistoryComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ ReportHistoryComponent ],
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()]
-    })
-    .compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			declarations: [ ReportHistoryComponent ],
+			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+		})
+			.compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ReportHistoryComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(ReportHistoryComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

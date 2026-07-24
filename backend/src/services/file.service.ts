@@ -3,7 +3,10 @@ import * as dbConnection from '../database/DbConnector';
 import { Readable } from 'stream';
 import fs from 'fs';
 import os from 'os';
+import path from 'path';
+import crypto from 'crypto';
 import { FileElement } from '@shared/models/FileElement';
+import { oid } from '../types/mongo.types';
 
 /**
  * Generates a unique filename if a file with the same name already exists in the target repository.
@@ -14,14 +17,14 @@ import { FileElement } from '@shared/models/FileElement';
  * @returns A unique filename.
  */
 function generateUniqueFilename(existingFilenames: string[], baseFilename: string, originalFilename: string): string {
-    let newFilename = originalFilename;
-    let count = 2;
-    const extension = originalFilename.split('.').pop();
+	let newFilename = originalFilename;
+	let count = 2;
+	const extension = originalFilename.split('.').pop();
 
-    while (existingFilenames.includes(newFilename)) {
-        newFilename = `${baseFilename} (${count++}).${extension}`;
-    }
-    return newFilename;
+	while (existingFilenames.includes(newFilename)) 
+		newFilename = `${baseFilename} (${count++}).${extension}`;
+    
+	return newFilename;
 }
 
 /**
@@ -32,45 +35,50 @@ function generateUniqueFilename(existingFilenames: string[], baseFilename: strin
  * @returns A promise that resolves with the metadata of the uploaded file.
  */
 export async function fileUpload(originalname: string, repoId: string, buffer: Buffer): Promise<any> {
-    const db = dbConnection.getConnection();
-    const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
-    const repoObjId = new ObjectId(repoId);
+	const db = dbConnection.getConnection();
+	const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
+	const repoObjId = oid(repoId);
 
-    // base filename may be the same as filename, excluding extension
-    const baseFilename = originalname.replace(/\s?(\(\d+\))?\.\w+$/, '');
-    // the regex searches for files <filename> and any <filename> (0-9)
-    const existingFiles = await db.collection('GridFS.files').find({
-        filename: { $regex: `^${baseFilename}` },
-        'metadata.repoId': repoObjId
-    }, { projection: { filename: 1 } }).toArray();
+	// base filename may be the same as filename, excluding extension
+	const baseFilename = originalname.replace(/\s?(\(\d+\))?\.\w+$/, '');
+	// the regex searches for files <filename> and any <filename> (0-9)
+	const escapedBase = baseFilename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	const existingFiles = await db.collection('GridFS.files').find({
+		filename: { $regex: `^${escapedBase}` },
+		'metadata.repoId': repoObjId
+	}, { projection: { filename: 1 } }).toArray();
 
-    const existingFilenames = existingFiles.map(file => file.filename);
-    const newFilename = generateUniqueFilename(existingFilenames, baseFilename, originalname);
+	const existingFilenames = existingFiles.map(file => file.filename);
+	const newFilename = generateUniqueFilename(existingFilenames, baseFilename, originalname);
 
-    const id = new ObjectId();
+	const id = new ObjectId();
 
-    const readableStream = Readable.from(buffer);
+	const readableStream = Readable.from(buffer);
 
-    return new Promise((resolve, reject) => {
-        readableStream.pipe(bucket.openUploadStreamWithId(id, newFilename, { metadata: { repoId: repoObjId } }))
-            .on('error', (error) => reject(error))
-            .on('finish', () => resolve({
-                _id: id,
-                filename: newFilename,
-                uploadDate: new Date(),
-                metadata: { repoId: repoObjId }
-            }));
-    });
+	return new Promise((resolve, reject) => {
+		readableStream.pipe(bucket.openUploadStreamWithId(id, newFilename, { metadata: { repoId: repoObjId } }))
+			.on('error', (error) => reject(error))
+			.on('finish', () => resolve({
+				_id: id,
+				filename: newFilename,
+				uploadDate: new Date(),
+				metadata: { repoId: repoObjId }
+			}));
+	});
 }
 
 /**
  * Deletes a file from GridFS by its ObjectId.
  * @param fileId - The ObjectId of the file to delete.
  */
-export async function deleteFile(fileId: string): Promise<void> {
-    const db = dbConnection.getConnection();
-    const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
-    await bucket.delete(new ObjectId(fileId));
+export async function deleteFile(fileId: string, repoId: string): Promise<void> {
+	const db = dbConnection.getConnection();
+	const fileDoc = await db.collection('GridFS.files').findOne({ _id: oid(fileId) });
+	if (!fileDoc || fileDoc.metadata?.repoId?.toString() !== repoId) 
+		throw new Error('File not found or not authorized');
+    
+	const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
+	await bucket.delete(oid(fileId));
 }
 
 /**
@@ -79,9 +87,10 @@ export async function deleteFile(fileId: string): Promise<void> {
  * @returns A promise that resolves to an array of file metadata.
  */
 export async function getFileList(repoId: string): Promise<FileElement[]> {
-    const db = dbConnection.getConnection();
-    const files = await db.collection('GridFS.files').find({ 'metadata.repoId': new ObjectId(repoId) }).toArray();
-    return files as FileElement[];
+	const db = dbConnection.getConnection();
+	const files = await db.collection('GridFS.files').find({ 'metadata.repoId': oid(repoId) }).toArray();
+	// MongoDB returns ObjectId for _id, cast to shared interface (string _id)
+	return files as unknown as FileElement[];
 }
 
 /**
@@ -90,49 +99,38 @@ export async function getFileList(repoId: string): Promise<FileElement[]> {
  * @param repoId - The ObjectId of the repository where the files are stored.
  */
 export async function getFiles(fileTitles: string[], repoId: string): Promise<void> {
-    const db = dbConnection.getConnection();
-    const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
+	const db = dbConnection.getConnection();
+	const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
 
-    let destinationDirectory: string;
-    switch (process.platform) {
-        case 'win32': //Windows
-            destinationDirectory = 'C:\\Users\\Public\\SeedTmp\\';
-            break;
-        case 'darwin': //macOS
-            destinationDirectory = `/Users/${os.userInfo().username}/SeedTmp/`;
-            break;
-        default:
-            destinationDirectory = '/home/public/SeedTmp/';
-    }
+	const uniqueDir = crypto.randomUUID();
+	const destinationDirectory = path.join(os.tmpdir(), 'SeedTmp', repoId, uniqueDir) + path.sep;
 
-    if (!fs.existsSync(destinationDirectory)) {
-        fs.mkdirSync(destinationDirectory, { recursive: true });
-    }
+	fs.mkdirSync(destinationDirectory, { recursive: true });
 
-    for (const fileTitle of fileTitles) {
-        const fileInfo = await db.collection('GridFS.files').findOne({ 'metadata.repoId': new ObjectId(repoId), filename: fileTitle });
-        if (!fileInfo) {
-            console.warn(`File not found in GridFS: ${fileTitle}`);
-            continue;
-        }
+	for (const fileTitle of fileTitles) {
+		const fileInfo = await db.collection('GridFS.files').findOne({ 'metadata.repoId': oid(repoId), filename: fileTitle });
+		if (!fileInfo) {
+			console.warn(`File not found in GridFS: ${fileTitle}`);
+			continue;
+		}
 
-        const downloadStream = bucket.openDownloadStream(fileInfo._id);
-        const destinationPath = `${destinationDirectory}${fileInfo.filename}`;
-        const fileWriteStream = fs.createWriteStream(destinationPath);
+		const downloadStream = bucket.openDownloadStream(fileInfo._id);
+		const destinationPath = `${destinationDirectory}${fileInfo.filename}`;
+		const fileWriteStream = fs.createWriteStream(destinationPath);
 
-        // Set a timeout to delete the temporary file after 5 hours
-        setTimeout(() => {
-            fs.unlink(destinationPath, (err) => {
-                if (err) console.error(`Error deleting temp file ${destinationPath}:`, err);
-                else console.log(`Temp file ${fileInfo.filename} deleted.`);
-            });
-        }, 18000000); // 5 hours in milliseconds
+		// Set a timeout to delete the temporary file after 5 hours
+		setTimeout(() => {
+			fs.unlink(destinationPath, (err) => {
+				if (err) console.error(`Error deleting temp file ${destinationPath}:`, err);
+				else console.log(`Temp file ${fileInfo.filename} deleted.`);
+			});
+		}, 18000000); // 5 hours in milliseconds
 
-        await new Promise<void>((resolve, reject) => {
-            downloadStream.pipe(fileWriteStream);
-            downloadStream.on('error', reject);
-            fileWriteStream.on('finish', resolve);
-            fileWriteStream.on('error', reject);
-        });
-    }
+		await new Promise<void>((resolve, reject) => {
+			downloadStream.pipe(fileWriteStream);
+			downloadStream.on('error', reject);
+			fileWriteStream.on('finish', resolve);
+			fileWriteStream.on('error', reject);
+		});
+	}
 }

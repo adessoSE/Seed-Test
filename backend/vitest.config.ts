@@ -12,7 +12,9 @@ export default defineConfig(({ mode }) => {
   return {
     test: {
       // Make globals (describe, it, expect) automatically available
-      globals: true, 
+      globals: true,
+      // Use forks pool for process-level isolation — prevents vi.mock leaks between test files
+      pool: 'forks',
       coverage: {
         provider: 'v8', // or 'istanbul'
         reporter: ['text', 'json', 'html'],

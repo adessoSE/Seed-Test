@@ -1,35 +1,34 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import * as fileService from '../services/file.service';
-import { FileElement } from '@shared/models/FileElement';
 
 /**
  * Handles the upload of a single file to a repository.
  * Expects 'repoId' in params and the file in 'req.file'.
  */
 export async function fileUpload(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        if (!req.file) {
-            res.status(400).json({ error: 'No file uploaded.' });
-            return;
-        }
-        const { repoId } = req.params;
-        if (!ObjectId.isValid(repoId)) {
-            res.status(400).json({ error: 'Invalid repository ID format' });
-            return;
-        }
+	try {
+		if (!req.file) {
+			res.status(400).json({ error: 'No file uploaded.' });
+			return;
+		}
+		const { repoId } = req.params;
+		if (!ObjectId.isValid(repoId)) {
+			res.status(400).json({ error: 'Invalid repository ID format' });
+			return;
+		}
 
-        // The file service handles GridFS upload
-        const fileMetadata = await fileService.fileUpload(
-            req.file.originalname, 
-            repoId, 
-            req.file.buffer
-        );
+		// The file service handles GridFS upload
+		const fileMetadata = await fileService.fileUpload(
+			req.file.originalname, 
+			repoId, 
+			req.file.buffer
+		);
         
-        res.status(200).json(fileMetadata);
-    } catch (error) {
-        next(error);
-    }
+		res.status(200).json(fileMetadata);
+	} catch (error) {
+		next(error);
+	}
 }
 
 /**
@@ -37,18 +36,18 @@ export async function fileUpload(req: Request, res: Response, next: NextFunction
  * Expects 'repoId' in params.
  */
 export async function getFileList(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        const { repoId } = req.params;
-        if (!ObjectId.isValid(repoId)) {
-            res.status(400).json({ error: 'Invalid repository ID format' });
-            return;
-        }
+	try {
+		const { repoId } = req.params;
+		if (!ObjectId.isValid(repoId)) {
+			res.status(400).json({ error: 'Invalid repository ID format' });
+			return;
+		}
 
-        const files = await fileService.getFileList(repoId);
-        res.status(200).json(files);
-    } catch (error) {
-        next(error);
-    }
+		const files = await fileService.getFileList(repoId);
+		res.status(200).json(files);
+	} catch (error) {
+		next(error);
+	}
 }
 
 /**
@@ -56,16 +55,16 @@ export async function getFileList(req: Request, res: Response, next: NextFunctio
  * Expects 'fileId' in params.
  */
 export async function deleteFile(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        const { fileId } = req.params;
-        if (!ObjectId.isValid(fileId)) {
-            res.status(400).json({ error: 'Invalid file ID format' });
-            return;
-        }
+	try {
+		const { repoId, fileId } = req.params;
+		if (!ObjectId.isValid(fileId) || !ObjectId.isValid(repoId)) {
+			res.status(400).json({ error: 'Invalid file or repository ID format' });
+			return;
+		}
 
-        await fileService.deleteFile(fileId);
-        res.status(200).json({ message: 'File deleted successfully' });
-    } catch (error) {
-        next(error);
-    }
+		await fileService.deleteFile(fileId, repoId);
+		res.status(200).json({ message: 'File deleted successfully' });
+	} catch (error) {
+		next(error);
+	}
 }

@@ -8,7 +8,7 @@ export interface Story {
     /**
      * Object id of the story in the database
      */
-    _id?: any;
+    _id?: string;
 
     /**
      * Id of the story received from github

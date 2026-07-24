@@ -1,32 +1,16 @@
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import passport from 'passport';
+import express, { Request, Response, NextFunction } from 'express';
 import * as userController from '../controllers/user.controller';
 
 const router = express.Router();
 
-// --- Middleware (CORS, BodyParser, etc.) ---
-router
-    .use(cors({
-        origin: [process.env.FRONTEND_URL || 'http://localhost:4200'],
-        credentials: true
-    }))
-    .use(bodyParser.json({ limit: '100kb' }))
-    .use(bodyParser.urlencoded({
-        limit: '100kb',
-        extended: true
-    }))
-    .use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
-		res.header('Access-Control-Allow-Credentials', 'true');
-		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect');
-		next();
-	})
-    .use((_, __, next) => {
-        console.log('Time of user router request:', Date.now());
-        next();
-    });
+// CORS, body parsing, and authentication are handled globally in server.ts.
+// This local isAuthenticated guard is used for routes that need auth within this public router.
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+	if (req.isAuthenticated()) 
+		return next();
+	
+	res.status(401).json({ error: 'Unauthorized: Please log in.' });
+};
 
 // --- Authentication Routes ---
 
@@ -81,7 +65,7 @@ router.get('/callback', userController.githubCallback);
  * @desc    Merges a GitHub account with the logged-in user
  * @access  Private
  */
-router.post('/mergeGithub', userController.mergeGithub);
+router.post('/mergeGithub', isAuthenticated, userController.mergeGithub);
 
 // --- User Management Routes ---
 
@@ -90,21 +74,21 @@ router.post('/mergeGithub', userController.mergeGithub);
  * @desc    Get the logged-in user's data
  * @access  Private
  */
-router.get('/', userController.getUser);
+router.get('/', isAuthenticated, userController.getUser);
 
 /**
  * @route   DELETE /api/user/
  * @desc    Delete the logged-in user's account
  * @access  Private
  */
-router.delete('/', userController.deleteUser);
+router.delete('/', isAuthenticated, userController.deleteUser);
 
 /**
  * @route   POST /api/user/update/:userID
  * @desc    Update the logged-in user's data (Note: PUT or PATCH might be better REST verbs)
  * @access  Private
  */
-router.post('/update/:userID', userController.updateUser);
+router.post('/update/:userID', isAuthenticated, userController.updateUser);
 
 // Note: /githubLogin and /githubRegister from the old router seem redundant 
 // if the main flow is via the OAuth callback. They are omitted here.

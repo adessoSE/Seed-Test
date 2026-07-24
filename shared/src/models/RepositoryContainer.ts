@@ -43,7 +43,7 @@ export interface RepositoryContainer {
     /**
      * Object id of the repository container from the database
      */
-    _id?: any;
+    _id?: string;
 
     /**
      * Name of the repository

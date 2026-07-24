@@ -6,57 +6,57 @@ import { LoginService } from 'src/app/Services/login.service';
 import { ManagementService } from 'src/app/Services/management.service';
 
 @Component({
-    selector: 'app-delete-account',
-    templateUrl: './delete-account.component.html',
-    styleUrls: ['./delete-account.component.css', '../layout-modal/layout-modal.component.css'],
-    standalone: false
+	selector: 'app-delete-account',
+	templateUrl: './delete-account.component.html',
+	styleUrls: ['./delete-account.component.css', '../layout-modal/layout-modal.component.css'],
+	standalone: false
 })
 export class DeleteAccountComponent {
 
-  @ViewChild ('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
+	@ViewChild ('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
 
-  /**
+	/**
      * Email of the user
      * Modal: delete account modal
      */
-  email: string;
+	email: string;
 
-  modalReference: NgbModalRef;
+	modalReference: NgbModalRef;
 
-  constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private toastr: ToastrService) { }
+	constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private toastr: ToastrService) { }
 
-  /**
+	/**
      * Opens delete account modal
      * @param email email of the user
      */
-  openDeleteAccountModal(email) {
-    this.email = email;
-    this.modalReference = this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
-  }
+	openDeleteAccountModal(email) {
+		this.email = email;
+		this.modalReference = this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+	}
 
-  /**
+	/**
  * Deletes The Seed-Test account
  */
-  deleteAccount(form: NgForm) {
-    const insertedEmail = form.value.insertedEmail;
-    if (insertedEmail !== undefined && insertedEmail === this.email) {
-        this.managmentService.deleteUser().subscribe(resp => {
-            this.toastr.info('', 'User Deleted');
-            this.loginService.logoutEvent.emit();
-        });
-      this.modalReference.close();
-    } else {
-      this.unallowableNameToast();
-      this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
-    }
-  }
+	deleteAccount(form: NgForm) {
+		const insertedEmail = form.value.insertedEmail;
+		if (insertedEmail !== undefined && insertedEmail === this.email) {
+			this.managmentService.deleteUser().subscribe(_resp => {
+				this.toastr.info('', 'User Deleted');
+				this.loginService.logoutEvent.emit();
+			});
+			this.modalReference.close();
+		} else {
+			this.unallowableNameToast();
+			this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+		}
+	}
 
-  /**
+	/**
  * Opens warning toast
  */
 
-  unallowableNameToast() {
-    this.toastr.warning('', 'Enter a valid e-mail', {
-    });
-  }
+	unallowableNameToast() {
+		this.toastr.warning('', 'Enter a valid e-mail', {
+		});
+	}
 }

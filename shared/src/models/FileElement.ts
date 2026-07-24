@@ -1,5 +1,5 @@
 export class FileElement {
-  _id?: any;
+  _id?: string;
   uploadDate?: string | Date;
   filename?: string;
 }

@@ -1,26 +1,26 @@
 export interface Group {
-    /**
+	/**
      * Object id of the story in the database
      */
-    _id: any;
+	_id: any;
 
-    /**
+	/**
      * Title of the Group
      */
-    name: string;
+	name: string;
 
-    /**
+	/**
      * ids of memberStories
      */
-    member_stories: string[];
+	member_stories: string[];
 
-     /**
+	/**
      * boolean for sequential execution of the tests
      */
-    isSequential: boolean;
+	isSequential: boolean;
 
-    /**
+	/**
      *  xray test set
      */
-    xrayTestSet?: boolean;
+	xrayTestSet?: boolean;
 }

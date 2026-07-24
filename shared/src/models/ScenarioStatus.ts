@@ -8,7 +8,7 @@ export interface ScenarioStatus {
   /**
    * scenario id of the executed test
    */
-  scenarioId: any;
+  scenarioId: string;
 
   /**
    * Status if the test was successful or not

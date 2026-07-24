@@ -9,7 +9,7 @@ export interface StoryReport {
     /**
      * Object id of the report of the databse
      */
-    _id: any;
+    _id: string;
 
     /**
      * Name of the report
@@ -24,12 +24,12 @@ export interface StoryReport {
     /**
      * included options to create html
      */
-    reportOptions: any;
+    reportOptions: Record<string, unknown>;
 
     /**
      * Story id of the executed test
      */
-    storyId: any;
+    storyId: string;
 
     /**
      * Mode: either feature, scenario
@@ -39,7 +39,7 @@ export interface StoryReport {
     /**
      * scenario id of the executed test
      */
-    scenarioId?: any;
+    scenarioId?: string;
 
     /**
      * Status of the report if it is marked as saved or not

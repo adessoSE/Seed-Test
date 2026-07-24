@@ -1,85 +1,84 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Group } from 'src/app/model/Group';
+import { Group } from '@shared/models/Group';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { Story } from 'src/app/model/Story';
+import { Story } from '@shared/models/Story';
 import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
-    selector: 'app-create-new-story',
-    templateUrl: './create-new-story.component.html',
-    styleUrls: ['./create-new-story.component.css', '../layout-modal/layout-modal.component.css'],
-    standalone: false
+	selector: 'app-create-new-story',
+	templateUrl: './create-new-story.component.html',
+	styleUrls: ['./create-new-story.component.css', '../layout-modal/layout-modal.component.css'],
+	standalone: false
 })
 export class CreateNewStoryComponent {
 
-  @ViewChild('createNewStoryModal') createNewStoryModal: TemplateRef<CreateNewStoryComponent>;
+	@ViewChild('createNewStoryModal') createNewStoryModal: TemplateRef<CreateNewStoryComponent>;
 
-  /**
+	/**
      * selectable Stories when create Group
      */
-  stories: Story[];
+	stories: Story[];
 
-  filteredStories: MatTableDataSource<Story>;
+	filteredStories: MatTableDataSource<Story>;
 
-  groups: Group[];
+	groups: Group[];
 
-  selectedStories: string[];
+	selectedStories: string[];
 
-  groupTitle: string;
+	groupTitle: string;
 
-  groupId: string;
+	groupId: string;
 
-  modalReference: NgbModalRef;
+	modalReference: NgbModalRef;
 
-  story: Story;
+	story: Story;
 
-  //storytitle: string;
+	//storytitle: string;
 
-  storyForm = new UntypedFormGroup ({
-    storyTitle: new UntypedFormControl('',[Validators.required, Validators.pattern(/[\S]/)]),
-    storyDescription: new UntypedFormControl(''),
-  });
+	storyForm = new UntypedFormGroup ({
+		storyTitle: new UntypedFormControl('',[Validators.required, Validators.pattern(/[\S]/)]),
+		storyDescription: new UntypedFormControl('')
+	});
 
 
+	constructor(private modalService: NgbModal, public storyService: StoryService) { }
 
-  constructor(private modalService: NgbModal, public storyService: StoryService) { }
-
-    /**
+	/**
      * Opens the create new story modal
      */
-  openCreateNewStoryModal(stories: Story[]) {
-    this.stories = stories;
-    this.modalReference = this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
-  }
+	openCreateNewStoryModal(stories: Story[]) {
+		this.stories = stories;
+		this.modalReference = this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+	}
 
-  /**
+	/**
    * Creates a new custom story
    */
-  createNewStory() {
-    const title = this.storyForm.value.storyTitle;
-    if (title.trim() !== '') {
-      const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
-      const repoName = localStorage.getItem('repository');
-      const _id = localStorage.getItem('id');
-      const source = 'db';    
-      const repositoryContainer: RepositoryContainer = {repoName, source, _id};
-      const story = {title, description};
+	createNewStory() {
+		const title = this.storyForm.value.storyTitle;
+		if (title.trim() !== '') {
+			const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
+			const repoName = localStorage.getItem('repository');
+			const _id = localStorage.getItem('id');
+			const source = 'db';    
+			const repositoryContainer: RepositoryContainer = {repoName, source, _id};
+			const story = {title, description};
       
-      this.storyService.createCustomStoryEvent({repositoryContainer, story});
-    }
-    this.storyForm.reset({storyTitle:'', storyDescription:''});
-    this.modalReference.close();
-  }
+			this.storyService.createCustomStoryEvent({repositoryContainer, story});
+		}
+		this.storyForm.reset({storyTitle:'', storyDescription:''});
+		this.modalReference.close();
+	}
 
-  storyUnique() {
-    this.storyService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
-  }
-  close(modal){
-    this.storyForm.reset({storyTitle:'', storyDescription:''});
-    modal.dismiss('Cross click');
-  }
+	storyUnique() {
+		this.storyService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
+	}
+	close(modal){
+		this.storyForm.reset({storyTitle:'', storyDescription:''});
+		modal.dismiss('Cross click');
+	}
 }
 

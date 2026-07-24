@@ -1,32 +1,9 @@
 import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
 import * as groupController from '../controllers/group.controller';
 
 const router = express.Router();
 
-// --- Basic Middleware (CORS, BodyParser, Headers, Logging) ---
-// Authentication is assumed to be handled globally.
-router
-    .use(cors({
-        origin: [process.env.FRONTEND_URL || 'http://localhost:4200'],
-        credentials: true
-    }))
-    .use(bodyParser.json({ limit: '100kb' }))
-    .use(bodyParser.urlencoded({
-        limit: '100kb',
-        extended: true
-    }))
-    .use((req, res, next) => { // Standard Headers
-		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
-		res.header('Access-Control-Allow-Credentials', 'true');
-		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-		next();
-	})
-    .use((_, __, next) => { // Simple request logging
-        console.log('Time of group router request:', Date.now());
-        next();
-    });
+// CORS, body parsing, and authentication are handled globally in server.ts.
 
 // --- Route Definitions ---
 

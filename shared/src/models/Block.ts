@@ -8,12 +8,12 @@ export interface Block {
     /**
      * Object id of the block from the database
      */
-    _id?: any;
+    _id?: string;
 
     /**
      * Creator of the block
      */
-    owner?: any;
+    owner?: string;
 
     /**
      * Name of the block
@@ -28,7 +28,7 @@ export interface Block {
     /**
      * Id of the repository which the block belongs to
      */
-    repositoryId?: any;
+    repositoryId?: string;
 
     /**
      * Name of the repository which the block belongs to
@@ -48,4 +48,8 @@ export interface Block {
      */
     usedAsReference?: boolean;
 
+    /**
+     * Multiple scenarios associated with this block
+     */
+    multipleScenarios?: MultipleScenario[];
 }

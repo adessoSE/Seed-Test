@@ -2,7 +2,7 @@ export interface Group {
     /**
      * Object id of the story in the database
      */
-    _id?: any;
+    _id?: string;
 
     /**
      * Title of the Group

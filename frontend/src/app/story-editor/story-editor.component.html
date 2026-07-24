@@ -54,7 +54,7 @@
             As a <...>, I want <...> so that <...>
           </span>
         </dfn>
-        <div class="ai-generate-container">
+        <div class="ai-generate-container" *ngIf="isAiAvailable">
           <button class="button" mat-fab extended color="accent" (click)="generateAiScenarios()"
             [disabled]="aiLoadingStories.has(selectedStory._id)">
             <em class="material-icons">psychology</em>
@@ -66,7 +66,7 @@
             <mat-icon>settings</mat-icon>
           </button>
         </div>
-        <div class="loading-container" *ngIf="aiLoadingStories.has(selectedStory._id)">
+        <div class="loading-container" *ngIf="isAiAvailable && aiLoadingStories.has(selectedStory._id)">
           <mat-spinner diameter="24"></mat-spinner>
           <span>Generating...</span>
         </div>

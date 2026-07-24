@@ -39,16 +39,17 @@ import userRouter from './routes/user.routes';
 import workgroupRouter from './routes/workgroup.routes';
 
 import * as stepTypeService from './services/step-type.service';
+import * as aiService from './services/ai.service';
 
 // Import logging middleware
 import { httpLog } from './logging';
 
 // Initialize Passport
 initializePassport(
-    passport,
-    userService.getUserByEmail,
-    userService.getUserById,
-    userService.getUserByGithub
+	passport,
+	userService.getUserByEmail,
+	userService.getUserById,
+	userService.getUserByGithub
 );
 
 const app: Application = express();
@@ -56,34 +57,37 @@ app.disable('x-powered-by');
 
 // --- Session Configuration ---
 const sessionConfig: session.SessionOptions = {
-    store: MongoStore.create({
-        mongoUrl: process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
-        dbName: 'Seed',
-        collectionName: 'Sessions',
-    }),
-    secret: process.env.SESSION_SECRET || 'unsaveSecret',
-    resave: false,
-    saveUninitialized: false,
-    proxy: true, // Important if behind a reverse proxy (like Nginx)
-    cookie: {
-        secure: process.env.NODE_ENV === 'production', // Use secure cookies in production (HTTPS needed!)
-        httpOnly: true, // Prevent client-side script access
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-site, 'lax' for same-site
-        maxAge: 24 * 60 * 60 * 1000 // 1 day
-    }
+	store: MongoStore.create({
+		mongoUrl: process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
+		dbName: 'Seed',
+		collectionName: 'Sessions'
+	}),
+	secret: process.env.SESSION_SECRET || (() => {
+		console.warn('WARNING: SESSION_SECRET not set. Using insecure default. Set SESSION_SECRET in production!');
+		return 'unsaveSecret';
+	})(),
+	resave: false,
+	saveUninitialized: false,
+	proxy: true, // Important if behind a reverse proxy (like Nginx)
+	cookie: {
+		secure: process.env.NODE_ENV === 'production', // Use secure cookies in production (HTTPS needed!)
+		httpOnly: true, // Prevent client-side script access
+		sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-site, 'lax' for same-site
+		maxAge: 24 * 60 * 60 * 1000 // 1 day
+	}
 };
 
 // Trust first proxy if running behind one (e.g., Nginx, Heroku)
-if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', 1); 
-}
+if (process.env.NODE_ENV === 'production') 
+	app.set('trust proxy', 1); 
+
 
 // --- Core Middleware ---
 app.use(cors({
-    origin: [
-        process.env.FRONTEND_URL || 'http://localhost:4200'
-    ],
-    credentials: true
+	origin: [
+		process.env.FRONTEND_URL || 'http://localhost:4200'
+	],
+	credentials: true
 }));
 app.use(bodyParser.json({ limit: '500kb' })); // Adjust limits as needed
 app.use(bodyParser.urlencoded({ limit: '500kb', extended: true }));
@@ -99,17 +103,21 @@ app.use(httpLog); // Add request logging
  * If not authenticated, it sends a 401 Unauthorized response.
  */
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    console.log('Authentication check failed for:', req.method, req.originalUrl);
-    res.status(401).json({ error: 'Unauthorized: Please log in.' });
+	if (req.isAuthenticated()) 
+		return next();
+    
+	console.log('Authentication check failed for:', req.method, req.originalUrl);
+	res.status(401).json({ error: 'Unauthorized: Please log in.' });
 };
 
 // --- API Routes ---
 
 // Public routes (authentication handled within specific controllers/passport strategies if needed)
 app.get('/api/health', (_, res) => res.status(200).send('OK'));
+app.get('/api/ai/available', async (_, res) => {
+	const available = await aiService.isAiParserAvailable();
+	res.json({ available });
+});
 app.get('/api', (_, res) => res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname }));
 app.use('/api/log', loggingRouter); // Frontend logging
 app.use('/api/user', userRouter); // Contains login, register, password reset, callback which are public
@@ -118,12 +126,12 @@ app.use('/api/playwright', playwrightRouter);
 
 // Protected routes (require authentication via isAuthenticated middleware)
 app.get('/api/stepTypes', isAuthenticated, async (_, res, next) => {
-    try {
-        const result = await stepTypeService.showSteptypes();
-        res.status(200).json(result);
-    } catch (error) {
-        next(error); // Pass error to central handler
-    }
+	try {
+		const result = await stepTypeService.showSteptypes();
+		res.status(200).json(result);
+	} catch (error) {
+		next(error); // Pass error to central handler
+	}
 });
 app.use('/api/repository', isAuthenticated, repositoryRouter);
 app.use('/api/story', isAuthenticated, storyRouter);
@@ -141,15 +149,15 @@ app.use('/api/sanity', isAuthenticated, sanityRouter);
 
 // --- Central Error Handling Middleware ---
 // This MUST be the last middleware added
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.error("Central Error Handler caught:", err.stack); 
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+	console.error('Central Error Handler caught:', err.stack); 
     
-    // You could add more specific error handling here based on error type if needed
+	// You could add more specific error handling here based on error type if needed
     
-    res.status(500).json({ 
-        error: 'Internal Server Error', 
-        // message: err.message // Optional: Send message in dev, hide in prod
-    });
+	res.status(500).json({ 
+		error: 'Internal Server Error' 
+		// message: err.message // Optional: Send message in dev, hide in prod
+	});
 });
 
 async function checkAndInstallEdge() {
@@ -168,7 +176,7 @@ async function checkAndInstallEdge() {
 }
 
 async function checkAndInstallGeneralBrowsers() {
-    const browsers: { engine: BrowserType; name: string }[] = [
+	const browsers: { engine: BrowserType; name: string }[] = [
 		{ engine: firefox, name: 'Firefox' },
 		{ engine: chromium, name: 'Chromium' },
 		{ engine: webkit, name: 'WebKit' }
@@ -188,9 +196,9 @@ async function checkAndInstallGeneralBrowsers() {
 		} else if (error.message.includes('browserType.launch')) {
 			console.warn('Installing missing Playwright browsers...');
 			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
-		} else {
-            console.error('An unexpected error occurred during browser check:', error.message);
-        }
+		} else 
+			console.error('An unexpected error occurred during browser check:', error.message);
+        
 	}
 }
 
@@ -199,26 +207,26 @@ const port = process.env.PORT || 8080;
 const server = http.createServer(app);
 
 async function startServer() {
-    try {
-        console.log('Checking general browser availability ...');
-        await Promise.all([
-            checkAndInstallGeneralBrowsers(),
-            checkAndInstallEdge()
-        ]);
-        console.log('\x1b[32mBrowser check complete.\x1b[0m');
-        console.log('Connecting to database...');
+	try {
+		console.log('Checking general browser availability ...');
+		await Promise.all([
+			checkAndInstallGeneralBrowsers(),
+			checkAndInstallEdge()
+		]);
+		console.log('\x1b[32mBrowser check complete.\x1b[0m');
+		console.log('Connecting to database...');
         
-        await dbConnector.establishConnection();
-        console.log('\x1b[32mDatabase connection established successfully.\x1b[0m');
+		await dbConnector.establishConnection();
+		console.log('\x1b[32mDatabase connection established successfully.\x1b[0m');
         
-        server.listen(port, () => {
-            console.log(`App now running on port: ${port}`);
-        });
-        server.setTimeout(600000); // 10 minutes timeout
-    } catch (error) {
-        console.error('\x1b[31mFailed to start server:\x1b[0m', error);
-        process.exit(1);
-    }
+		server.listen(port, () => {
+			console.log(`App now running on port: ${port}`);
+		});
+		server.setTimeout(600000); // 10 minutes timeout
+	} catch (error) {
+		console.error('\x1b[31mFailed to start server:\x1b[0m', error);
+		process.exit(1);
+	}
 }
 
 startServer();

@@ -8,6 +8,6 @@ const stepTypesCollection = 'stepTypes';
  * @returns A Promise that resolves to an array of StepType objects.
  */
 export async function showSteptypes(): Promise<StepType[]> {
-    const db = dbConnection.getConnection();
-    return await db.collection<StepType>(stepTypesCollection).find({}).toArray();
+	const db = dbConnection.getConnection();
+	return await db.collection<StepType>(stepTypesCollection).find({}).toArray();
 }

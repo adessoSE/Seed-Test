@@ -83,3 +83,4 @@ backend/features/step_definitions/testing.js
 mongo-rs/rs_keyfile
 backend/tsconfig.tsbuildinfo
 opencode.jsonc
+.claude/

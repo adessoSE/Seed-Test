@@ -12,21 +12,21 @@ import { LoginService } from '../Services/login.service';
 @Injectable()
 export class AuthGuard  {
 
-    /**
+	/**
      * Constructor
      * @param loginService 
      * @param router 
      */
-    constructor(private loginService: LoginService,
-                private router: Router) {}
+	constructor(private loginService: LoginService,
+		private router: Router) {}
 
-    /**
+	/**
      * Checks if the user is logged in
      * @returns boolean if the user is logged in
      */
-    canActivate(): boolean {
-        if (this.loginService.isLoggedIn()) { return true; }
-        this.router.navigate(['/login']);
-        return false;
-    }
+	canActivate(): boolean {
+		if (this.loginService.isLoggedIn())  return true; 
+		this.router.navigate(['/login']);
+		return false;
+	}
 }

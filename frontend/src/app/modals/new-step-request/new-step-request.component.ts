@@ -5,70 +5,70 @@ import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
-    selector: 'app-new-step-request',
-    templateUrl: './new-step-request.component.html',
-    styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
-    standalone: false
+	selector: 'app-new-step-request',
+	templateUrl: './new-step-request.component.html',
+	styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
+	standalone: false
 })
 export class NewStepRequestComponent {
 
-  modalReference: NgbModalRef;
+	modalReference: NgbModalRef;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+	constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
 
-  @ViewChild('newStepRequestModal') newStepRequestModal: NewStepRequestComponent;
+	@ViewChild('newStepRequestModal') newStepRequestModal: NewStepRequestComponent;
 
-  newStepReqForm = new UntypedFormGroup ({
-    title: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
-    type: new UntypedFormControl(''),
-    description: new UntypedFormControl(''),
-    email: new UntypedFormControl(''),
-  },
-  {updateOn: "blur"});
+	newStepReqForm = new UntypedFormGroup ({
+		title: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+		type: new UntypedFormControl(''),
+		description: new UntypedFormControl(''),
+		email: new UntypedFormControl('')
+	},
+	{updateOn: 'blur'});
 
-  get title() { return this.newStepReqForm.get('title'); }
+	get title() { return this.newStepReqForm.get('title'); }
 
-  /**
+	/**
     * Opens a new step request modal
     * @param stepType
   */
-  openNewStepRequestModal(stepType) {
-    this.modalReference = this.modalService.open(this.newStepRequestModal, {ariaLabelledBy: 'modal-basic-title'});
-    const id = 'type_form_' + stepType;
-    (document.getElementById(id) as HTMLOptionElement).selected = true;
-    //Updates the type 
-    this.newStepReqForm.patchValue({
-      type: (document.getElementById(id) as HTMLOptionElement).value
-    }); 
-  }
+	openNewStepRequestModal(stepType) {
+		this.modalReference = this.modalService.open(this.newStepRequestModal, {ariaLabelledBy: 'modal-basic-title'});
+		const id = 'type_form_' + stepType;
+		(document.getElementById(id) as HTMLOptionElement).selected = true;
+		//Updates the type 
+		this.newStepReqForm.patchValue({
+			type: (document.getElementById(id) as HTMLOptionElement).value
+		}); 
+	}
 
-  /**
+	/**
    * Submits a request to create a new step
    * 
    */
-  submitNewStepRequest() {
-    const title = this.newStepReqForm.value.title; 
-    const type = 'Type: '.concat(this.newStepReqForm.value.type.value);
-    const description = 'Description: '.concat(this.newStepReqForm.value.description, '\n');
-    const email = 'Email: '.concat(this.newStepReqForm.value.email, '\n');
-    const body = type.concat(description, email);
-    const obj = {
-      'title': title,
-      'body': body,
-      'assignees': [
-          'adessoCucumber'
-      ],
-      'milestone': null,
-      'labels': [
-          'generated',
-          'ToDo'
-      ]
-    };
-    console.log(obj.title, obj.body);
-    this.apiService.submitGithub(obj).subscribe((resp) => {
-      console.log(resp);
-    });
-    this.modalReference.close();
-  }
+	submitNewStepRequest() {
+		const title = this.newStepReqForm.value.title; 
+		const type = 'Type: '.concat(this.newStepReqForm.value.type.value);
+		const description = 'Description: '.concat(this.newStepReqForm.value.description, '\n');
+		const email = 'Email: '.concat(this.newStepReqForm.value.email, '\n');
+		const body = type.concat(description, email);
+		const obj = {
+			'title': title,
+			'body': body,
+			'assignees': [
+				'adessoCucumber'
+			],
+			'milestone': null,
+			'labels': [
+				'generated',
+				'ToDo'
+			]
+		};
+		console.log(obj.title, obj.body);
+		this.apiService.submitGithub(obj).subscribe((resp) => {
+			console.log(resp);
+		});
+		this.modalReference.close();
+	}
 
 }

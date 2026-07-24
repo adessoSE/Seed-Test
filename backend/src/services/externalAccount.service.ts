@@ -5,8 +5,12 @@ import { User } from '@shared/models/User';
 
 const cryptoAlgorithm = 'aes-256-ccm';
 // It's recommended to move secrets to environment variables or a config service
-const jiraSecret = process.env.JIRA_SECRET || "anotherUnsaveSecret";
-const jiraSalt = process.env.JIRA_SALT || "9bNyV23AbaC7";
+const jiraSecret = process.env.JIRA_SECRET;
+const jiraSalt = process.env.JIRA_SALT;
+if (!jiraSecret || !jiraSalt) {
+	console.error('FATAL: JIRA_SECRET and JIRA_SALT environment variables must be set.');
+	process.exit(1);
+}
 const key = scryptSync(jiraSecret, jiraSalt, 32);
 
 /**
@@ -14,10 +18,10 @@ const key = scryptSync(jiraSecret, jiraSalt, 32);
  * (often seen in manual queries or stringified output).
  */
 type BsonBinary = {
-  $binary: {
-    base64: string;
-    subType: string;
-  }
+	$binary: {
+		base64: string;
+		subType: string;
+	}
 };
 
 /**
@@ -31,33 +35,33 @@ type CipherInput = Buffer | BsonBinary | Binary;
 // --- Jira Credential Encryption/Decryption (Specific to this service) ---
 
 function jiraEncryptPassword(pass: string): { ciphertext: Buffer, nonce: Buffer, tag: Buffer } {
-    const nonce = randomBytes(13);
-    const cipher = createCipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
-    const ciphertext = Buffer.concat([cipher.update(pass, 'utf8'), cipher.final()]);
-    const tag = cipher.getAuthTag();
-    return { ciphertext, nonce, tag };
+	const nonce = randomBytes(13);
+	const cipher = createCipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+	const ciphertext = Buffer.concat([cipher.update(pass, 'utf8'), cipher.final()]);
+	const tag = cipher.getAuthTag();
+	return { ciphertext, nonce, tag };
 }
 
 export function jiraDecryptPassword(
-    ciphertext: CipherInput,
-    nonce: CipherInput,
-    tag: CipherInput
+	ciphertext: CipherInput,
+	nonce: CipherInput,
+	tag: CipherInput
 ): string {
     
-    // Ensure all inputs are Buffers using the helper
-    const cipherBuffer = toBuffer(ciphertext);
-    const nonceBuffer = toBuffer(nonce);
-    const tagBuffer = toBuffer(tag);
+	// Ensure all inputs are Buffers using the helper
+	const cipherBuffer = toBuffer(ciphertext);
+	const nonceBuffer = toBuffer(nonce);
+	const tagBuffer = toBuffer(tag);
 
-    try {
-        const decipher = createDecipheriv(cryptoAlgorithm, key, nonceBuffer, { authTagLength: 16 });
-        decipher.setAuthTag(tagBuffer);
-        const receivedPlaintext = Buffer.concat([decipher.update(cipherBuffer), decipher.final()]).toString('utf8');
-        return receivedPlaintext;
-    } catch (err) {
-        console.error(`Jira Decryption Failed: ${err}`); // Log appropriately
-        throw new Error('Jira password decryption failed!');
-    }
+	try {
+		const decipher = createDecipheriv(cryptoAlgorithm, key, nonceBuffer, { authTagLength: 16 });
+		decipher.setAuthTag(tagBuffer);
+		const receivedPlaintext = Buffer.concat([decipher.update(cipherBuffer), decipher.final()]).toString('utf8');
+		return receivedPlaintext;
+	} catch (err) {
+		console.error(`Jira Decryption Failed: ${err}`); // Log appropriately
+		throw new Error('Jira password decryption failed!');
+	}
 }
 
 /**
@@ -68,49 +72,49 @@ export function jiraDecryptPassword(
  * @returns The formatted Authorization header value.
  */
 export function buildAuthString(accountName: string, clearPass: string, authMethod?: string): string {
-    if (authMethod === 'basic') {
-        const auth = Buffer.from(`${accountName}:${clearPass}`).toString('base64');
-        return `Basic ${auth}`;
-    }
-    // Default to Bearer or PAT
-    return `Bearer ${clearPass}`;
+	if (authMethod === 'basic') {
+		const auth = Buffer.from(`${accountName}:${clearPass}`).toString('base64');
+		return `Basic ${auth}`;
+	}
+	// Default to Bearer or PAT
+	return `Bearer ${clearPass}`;
 }
 
 // --- Jira Account Linking ---
 
 export async function updateJiraCredential(
-    userId: string | ObjectId,
-    username: string,
-    jiraClearPassword: string,
-    host: string,
-    jiraAuthMethod: string
+	userId: string | ObjectId,
+	username: string,
+	jiraClearPassword: string,
+	host: string,
+	jiraAuthMethod: string
 ): Promise<void> {
-    const { ciphertext, nonce, tag } = jiraEncryptPassword(jiraClearPassword);
-    const jiraCredentials = {
-        AccountName: username,
-        Password: ciphertext, // Store Buffer directly if possible, or handle binary structure
-        Password_Nonce: nonce,
-        Password_Tag: tag,
-        Host: host,
+	const { ciphertext, nonce, tag } = jiraEncryptPassword(jiraClearPassword);
+	const jiraCredentials = {
+		AccountName: username,
+		Password: ciphertext, // Store Buffer directly if possible, or handle binary structure
+		Password_Nonce: nonce,
+		Password_Tag: tag,
+		Host: host,
 		AuthMethod: jiraAuthMethod
-    };
+	};
 
-    const user = await userService.getUserById(userId);
-    if (!user) {
-        throw new Error('User not found for updating Jira credentials.');
-    }
+	const user = await userService.getUserById(userId);
+	if (!user) 
+		throw new Error('User not found for updating Jira credentials.');
+    
 
-    const updatedUser: User = { ...user, jira: jiraCredentials as any }; // Cast needed due to Buffer/Binary discrepancy
-    await userService.updateUser(userId, updatedUser);
+	const updatedUser: User = { ...user, jira: jiraCredentials as any }; // Cast needed due to Buffer/Binary discrepancy
+	await userService.updateUser(userId, updatedUser);
 }
 
 export async function disconnectJira(userId: string | ObjectId): Promise<void> {
-    const user = await userService.getUserById(userId);
-	if (!user) {
-        throw new Error('User not found for disconnecting Jira.');
-    }
-    // Create a new object without the jira property
-    const { jira, ...userWithoutJira } = user;
+	const user = await userService.getUserById(userId);
+	if (!user) 
+		throw new Error('User not found for disconnecting Jira.');
+    
+	// Create a new object without the jira property
+	const { jira: _jira, ...userWithoutJira } = user;
 	await userService.updateUser(userId, userWithoutJira as User);
 }
 
@@ -119,28 +123,28 @@ export async function disconnectJira(userId: string | ObjectId): Promise<void> {
 // but saving/removing the token would happen here.
 
 export async function updateGithubToken(userId: string | ObjectId, token: string, githubProfile: { login: string; id: number }): Promise<void> {
-     const user = await userService.getUserById(userId);
-    if (!user) {
-        throw new Error('User not found for updating GitHub token.');
-    }
-     const updatedUser: User = {
-        ...user,
-        github: {
-            githubToken: token,
-            login: githubProfile.login,
-            id: githubProfile.id
-        }
-    };
-    await userService.updateUser(userId, updatedUser);
+	const user = await userService.getUserById(userId);
+	if (!user) 
+		throw new Error('User not found for updating GitHub token.');
+    
+	const updatedUser: User = {
+		...user,
+		github: {
+			githubToken: token,
+			login: githubProfile.login,
+			id: githubProfile.id
+		}
+	};
+	await userService.updateUser(userId, updatedUser);
 }
 
 
 export async function disconnectGithub(userId: string | ObjectId): Promise<void> {
-     const user = await userService.getUserById(userId);
-	if (!user) {
-        throw new Error('User not found for disconnecting GitHub.');
-    }
-    const { github, ...userWithoutGithub } = user;
+	const user = await userService.getUserById(userId);
+	if (!user) 
+		throw new Error('User not found for disconnecting GitHub.');
+    
+	const { github: _github, ...userWithoutGithub } = user;
 	await userService.updateUser(userId, userWithoutGithub as User);
 }
 
@@ -151,10 +155,10 @@ export async function disconnectGithub(userId: string | ObjectId): Promise<void>
 * @returns boolean, true if they are valid.
 */
 export function checkValidGithubFormat(userName?: string, repoName?: string): boolean {
-    if (!userName || !repoName) return false;
-    const githubUsernameCheck = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
-    const githubReponameCheck = /^([a-z\d._-]){0,100}$/i;
-    return !!(githubUsernameCheck.test(userName) && githubReponameCheck.test(repoName));
+	if (!userName || !repoName) return false;
+	const githubUsernameCheck = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+	const githubReponameCheck = /^([a-z\d._-]){0,100}$/i;
+	return !!(githubUsernameCheck.test(userName) && githubReponameCheck.test(repoName));
 }
 
 // --- Helper functions ---
@@ -164,25 +168,25 @@ export function checkValidGithubFormat(userName?: string, repoName?: string): bo
  * @returns A Buffer instance.
  */
 function toBuffer(input: CipherInput): Buffer {
-    // Priority 1: Already a Buffer
-    if (Buffer.isBuffer(input)) {
-        return input;
-    }
+	// Priority 1: Already a Buffer
+	if (Buffer.isBuffer(input)) 
+		return input;
     
-    // Priority 2: MongoDB v6+ Binary type (has a .buffer property)
-    // We check for 'instanceof' for robustness.
-    if (input instanceof Binary) {
-        // input.buffer is a standard Uint8Array. We must convert it to a full Node.js Buffer
-        return Buffer.from(input.buffer);
-    }
+    
+	// Priority 2: MongoDB v6+ Binary type (has a .buffer property)
+	// We check for 'instanceof' for robustness.
+	if (input instanceof Binary) 
+	// input.buffer is a standard Uint8Array. We must convert it to a full Node.js Buffer
+		return Buffer.from(input.buffer);
+    
 
-    // Priority 3: BSON object structure (e.g., from logs or older drivers)
-    // Check if input is a plain object and has the $binary key
-    if (typeof input === 'object' && input !== null && (input as BsonBinary).$binary) {
-        return Buffer.from((input as BsonBinary).$binary.base64, 'base64');
-    }
+	// Priority 3: BSON object structure (e.g., from logs or older drivers)
+	// Check if input is a plain object and has the $binary key
+	if (typeof input === 'object' && input !== null && (input as BsonBinary).$binary) 
+		return Buffer.from((input as BsonBinary).$binary.base64, 'base64');
+    
 
-    // Fallback/Error
-    console.error('Failed to convert crypto input to Buffer. Input type:', typeof input);
-    throw new Error('Invalid crypto input type: unable to convert to Buffer.');
+	// Fallback/Error
+	console.error('Failed to convert crypto input to Buffer. Input type:', typeof input);
+	throw new Error('Invalid crypto input type: unable to convert to Buffer.');
 }

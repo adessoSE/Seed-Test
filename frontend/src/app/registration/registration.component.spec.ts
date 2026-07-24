@@ -9,31 +9,31 @@ import { ROUTES } from '../routes/routes';
 import { RegistrationComponent } from './registration.component';
 
 describe('RegistrationComponent', () => {
-    let component: RegistrationComponent;
-    let fixture: ComponentFixture<RegistrationComponent>;
+	let component: RegistrationComponent;
+	let fixture: ComponentFixture<RegistrationComponent>;
 
-    beforeEach(waitForAsync(() => {
-        TestBed.configureTestingModule({
-          imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, RouterTestingModule.withRoutes(ROUTES), ToastrModule.forRoot()],
-          declarations: [RegistrationComponent],
-          providers: [{
-            provide: ActivatedRoute,
-            useValue: {
-              snapshot: {params: {story_id: 45, scenario_id: 4}}
-            }
-          }],
-          schemas: [NO_ERRORS_SCHEMA]
-        })
-        .compileComponents();
-      }));
+	beforeEach(waitForAsync(() => {
+		TestBed.configureTestingModule({
+			imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, RouterTestingModule.withRoutes(ROUTES), ToastrModule.forRoot()],
+			declarations: [RegistrationComponent],
+			providers: [{
+				provide: ActivatedRoute,
+				useValue: {
+					snapshot: {params: {story_id: 45, scenario_id: 4}}
+				}
+			}],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
+			.compileComponents();
+	}));
       
-    beforeEach(() => {
-        fixture = TestBed.createComponent(RegistrationComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(RegistrationComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });

@@ -9,7 +9,7 @@ export interface StoryStatus {
   /**
    * Story id of the executed test
    */
-  storyId: any;
+  storyId: string;
 
   /**
    * Status if the test was successful or not

@@ -8,26 +8,26 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 jest.mock('./repo-swich.component');
 
 
-const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
-{_id: '2', repoName: 'githubRepo', source: 'github', canEdit: true},
-{_id: '', repoName: 'jiraRepo', source: 'jira', canEdit: true}]
+const _repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
+	{_id: '2', repoName: 'githubRepo', source: 'github', canEdit: true},
+	{_id: '', repoName: 'jiraRepo', source: 'jira', canEdit: true}];
 
 
 describe('RepoSwichComponent', () => {
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ LayoutModalComponent ],
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
-      schemas: [NO_ERRORS_SCHEMA]
-    })
-    .compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			declarations: [ LayoutModalComponent ],
+			imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
+			.compileComponents();
+	});
 
-  beforeEach( () => {
-  });
+	beforeEach( () => {
+	});
 
-  it('should create', fakeAsync(() => {
-    //
-  }));
+	it('should create', fakeAsync(() => {
+		//
+	}));
 });

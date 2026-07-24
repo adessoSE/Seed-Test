@@ -1,21 +1,20 @@
-import { expect, Page } from "@playwright/test";
-import path from "path";
-import fs from "fs";
+import { expect } from '@playwright/test';
+import path from 'path';
+import fs from 'fs';
 import {
-  Given,
-  When,
-  Then,
-  setWorldConstructor,
-  defineParameterType,
-  Before,
-  After,
-  Status,
-  setDefaultTimeout,
-  ITestCaseHookParameter
-} from "@cucumber/cucumber";
-// @ts-ignore
-import { applySpecialCommands } from "../../../helpers/specialCommandParser"; 
-import { PlaywrightWorld } from "./playwrightWorld";
+	Given,
+	When,
+	Then,
+	setWorldConstructor,
+	defineParameterType,
+	Before,
+	After,
+	Status,
+	setDefaultTimeout,
+	ITestCaseHookParameter
+} from '@cucumber/cucumber';
+import { applySpecialCommands } from '../../../helpers/specialCommandParser';
+import { PlaywrightWorld } from './playwrightWorld';
 
 const searchTimeout = 15000;
 
@@ -27,117 +26,84 @@ let scenarioCount = 0;
 let totalScenarios = 0;
 
 // Error Handling and other helpers
-const NotFoundError = (e: string) => Error(`ElementNotFoundError: ${e}`);
-
-class CustomError extends Error {
-  constructor(message: string) {
-    super();
-    const cutOff = message.indexOf(": expected");
-    this.message = cutOff === -1 ? message : message.substring(0, cutOff);
-    this.stack = "";
-  }
-}
-
-function betterError(error: Error) {
-  const myError = new CustomError(error.message);
-  myError.stack = `${myError.message}\n${error.stack}`;
-  return myError;
-}
 
 async function handleError(f: () => Promise<any>) {
-  try {
-    await f();
-  } catch (error) {
-    throw error;
-  }
+	try {
+		await f();
+	} catch (error) {
+		throw error;
+	}
 }
 
-// Überarbeiten, page Problem
-async function takeScreenshot(this: PlaywrightWorld, inputPage: Page | undefined = undefined) {
-  try {
-    const page = inputPage == undefined ? await this.getPage() : inputPage;
-    const timestamp = Date.now();
-    const screenshotPath = path.join(
-      this.downloadDir,
-      `manual-${timestamp}.png`
-    );
-    const buffer = await page.screenshot({ path: screenshotPath });
-    await this.attach(buffer, "image/png");
-  } catch (error) {
-    console.error("Screenshot creation failed!");
-    throw error;
-  }
-}
-
-console.log("We are before PlaywrightWorld creation!");
+console.log('We are before PlaywrightWorld creation!');
 // Cucumber configuration
 setWorldConstructor(PlaywrightWorld);
 
 defineParameterType({
-  name: "Bool",
-  regexp: /true|false/,
-  transformer: (b: string) => b === "true",
+	name: 'Bool',
+	regexp: /true|false/,
+	transformer: (b: string) => b === 'true'
 });
 
 // ###################### HOOKS ########################################
 Before(async function (this: PlaywrightWorld) {
-  console.log("\n=== Starting Test Execution ===");
-  console.log("World Parameters:", this.parameters);
+	console.log('\n=== Starting Test Execution ===');
+	console.log('World Parameters:', this.parameters);
 
-  if (scenarioCount === 0) {
-    totalScenarios = this.parameters.scenarios.length;
-    console.log(`Total scenarios to run: ${totalScenarios}`);
-  }
+	if (scenarioCount === 0) {
+		totalScenarios = this.parameters.scenarios.length;
+		console.log(`Total scenarios to run: ${totalScenarios}`);
+	}
   
-  // Szenario-Index an die World-Instanz übergeben
-  console.log("Scenario count is: ", scenarioCount);
-  await this.setScenarioCount(scenarioCount);
-  console.log(`Starting Scenario with Index: ${scenarioCount + 1}`);
-  await this.launchBrowser(this.parameters.scenarios[scenarioCount]);
+	// Szenario-Index an die World-Instanz übergeben
+	console.log('Scenario count is: ', scenarioCount);
+	await this.setScenarioCount(scenarioCount);
+	console.log(`Starting Scenario with Index: ${scenarioCount + 1}`);
+	await this.launchBrowser(this.parameters.scenarios[scenarioCount]);
 });
 
 After(async function (this: PlaywrightWorld, { pickle, result }: ITestCaseHookParameter) {
-  console.log(`\n=== Finishing scenario: ${pickle.name} ===`);
-  console.log(`Status: ${result?.status}`);
-  console.log(`Finished Scenario ${scenarioCount + 1}/${totalScenarios}`);
+	console.log(`\n=== Finishing scenario: ${pickle.name} ===`);
+	console.log(`Status: ${result?.status}`);
+	console.log(`Finished Scenario ${scenarioCount + 1}/${totalScenarios}`);
 
-  // Screenshot if Scenario failed
-  if (result?.status === Status.FAILED) {
-    const timestamp = Date.now();
-    const screenshotPath = path.join(
-      this.downloadDir,
-      `${pickle.name}-failed-${timestamp}.png`
-    );
-    try {
-      const img = await this.getPage().screenshot({ path: screenshotPath });
-      await this.attach(img, "image/png");
-      console.log(`Screenshot saved: ${screenshotPath}`);
-    } catch (e: any) {
-      console.error("Failed to take screenshot on failure:", e);
-    }
-  }
+	// Screenshot if Scenario failed
+	if (result?.status === Status.FAILED) {
+		const timestamp = Date.now();
+		const screenshotPath = path.join(
+			this.downloadDir,
+			`${pickle.name}-failed-${timestamp}.png`
+		);
+		try {
+			const img = await this.getPage().screenshot({ path: screenshotPath });
+			await this.attach(img, 'image/png');
+			console.log(`Screenshot saved: ${screenshotPath}`);
+		} catch (e: any) {
+			console.error('Failed to take screenshot on failure:', e);
+		}
+	}
   
-  if (
-    !this.parameters.scenarios[scenarioCount].oneDriver ||
+	if (
+		!this.parameters.scenarios[scenarioCount].oneDriver ||
     scenarioCount === totalScenarios - 1
-  ) {
-    await this.closeBrowser();
-  }
+	) 
+		await this.closeBrowser();
+  
 
-  // Counter erhöhen oder zurücksetzen
-  if (scenarioCount === totalScenarios - 1) {
-    scenarioCount = 0;
-    totalScenarios = 0;
-    console.log(
-      "WIR SETZTEN DEN SCENARIOCOUNT ZURÜCK!",
-      scenarioCount,
-      totalScenarios
-    );
-    process.env.CUCUMBER_TOTAL_WORKERS = undefined;
-    process.env.CUCUMBER_WORKER_ID = undefined;
-  } else {
-    scenarioCount++;
-  }
+	// Counter erhöhen oder zurücksetzen
+	if (scenarioCount === totalScenarios - 1) {
+		scenarioCount = 0;
+		totalScenarios = 0;
+		console.log(
+			'WIR SETZTEN DEN SCENARIOCOUNT ZURÜCK!',
+			scenarioCount,
+			totalScenarios
+		);
+		delete process.env.CUCUMBER_TOTAL_WORKERS;
+		delete process.env.CUCUMBER_WORKER_ID;
+	} else 
+		scenarioCount++;
+  
 });
 
 /* 
@@ -170,181 +136,181 @@ Sie werden im Laufe der Analyse durch (X), (/) oder (-) ersetzt.
  * @returns Einen String mit umgewandelten @* in die gängigsten Attribute
  */
 function expandAttributeWildcard(locatorString: string) {
-  // Finde alle @*="value" und contains(@*, "value") Ausdrücke
-  const attrMatches = locatorString.match(
-    /(@\*\s*=\s*"([^"]*?)")|contains\(@\*\s*,\s*"([^"]*?)"\)/g
-  );
-  if (!attrMatches) return locatorString;
+	// Finde alle @*="value" und contains(@*, "value") Ausdrücke
+	const attrMatches = locatorString.match(
+		/(@\*\s*=\s*"([^"]*?)")|contains\(@\*\s*,\s*"([^"]*?)"\)/g
+	);
+	if (!attrMatches) return locatorString;
 
-  // Bestimme Element-Typ nur aus dem XPath-Teil
-  const elementType =
-    locatorString.match(/checkbox|button|input/)?.[0] || "default";
+	// Bestimme Element-Typ nur aus dem XPath-Teil
+	const elementType =
+		locatorString.match(/checkbox|button|input/)?.[0] || 'default';
 
-  const attributes = {
-    default: ["id", "name", "class", "data-testid", "aria-label", "title"],
-    checkbox: ["id", "name", "value", "class", "data-testid", "aria-label"],
-    button: [
-      "id",
-      "name",
-      "value",
-      "class",
-      "data-testid",
-      "aria-label",
-      "role",
-    ],
-    input: ["id", "name", "value", "class", "placeholder", "aria-label"],
-  };
+	const attributes = {
+		default: ['id', 'name', 'class', 'data-testid', 'aria-label', 'title'],
+		checkbox: ['id', 'name', 'value', 'class', 'data-testid', 'aria-label'],
+		button: [
+			'id',
+			'name',
+			'value',
+			'class',
+			'data-testid',
+			'aria-label',
+			'role'
+		],
+		input: ['id', 'name', 'value', 'class', 'placeholder', 'aria-label']
+	};
 
-  // Ersetze jeden @*= und contains(@*) Ausdruck
-  return attrMatches.reduce((acc, match) => {
-    let value;
-    let isContains = false;
+	// Ersetze jeden @*= und contains(@*) Ausdruck
+	return attrMatches.reduce((acc, match) => {
+		let value;
+		let isContains = false;
 
-    if (match.includes("contains")) {
-      value = match.match(/contains\(@\*\s*,\s*"([^"]*?)"\)/)[1];
-      isContains = true;
-    } else {
-      value = match.split('"')[1];
-    }
+		if (match.includes('contains')) {
+			value = match.match(/contains\(@\*\s*,\s*"([^"]*?)"\)/)[1];
+			isContains = true;
+		} else 
+			value = match.split('"')[1];
+    
 
-    const expansion = `(${attributes[elementType]
-      .map((attr) =>
-        isContains ? `contains(@${attr}, "${value}")` : `@${attr}="${value}"`
-      )
-      .join(" or ")})`;
+		const expansion = `(${attributes[elementType]
+			.map((attr) =>
+				isContains ? `contains(@${attr}, "${value}")` : `@${attr}="${value}"`
+			)
+			.join(' or ')})`;
 
-    return acc.replace(match, expansion);
-  }, locatorString);
+		return acc.replace(match, expansion);
+	}, locatorString);
 }
 
 async function mapLocatorsToPromises(
-  locators,
-  action,
-  value = undefined,
-  ...args
+	locators,
+	action,
+	value = undefined,
+	...args
 ) {
-  const expandedLocators = locators.map((locator) => {
-    let locatorString = locator.toString();
-    if (locatorString.includes("@*")) {
-      // Entferne locator()-Wrapper
-      console.log("VOR TRIMMUNG:" + locatorString);
-      locatorString = locatorString.replace(/^locator\(["'](.*)["']\)$/, "$1");
-      console.log("NACH TRIMMUNG:" + locatorString);
-      const expandedXPath = expandAttributeWildcard(locatorString);
-      // Erstelle einen neuen Locator mit dem expandierten XPath und dem originalen Kontext
-      console.log("REAL LOCATOR: " + locator.page().locator(expandedXPath));
+	const expandedLocators = locators.map((locator) => {
+		let locatorString = locator.toString();
+		if (locatorString.includes('@*')) {
+			// Entferne locator()-Wrapper
+			console.log('VOR TRIMMUNG:' + locatorString);
+			locatorString = locatorString.replace(/^locator\(["'](.*)["']\)$/, '$1');
+			console.log('NACH TRIMMUNG:' + locatorString);
+			const expandedXPath = expandAttributeWildcard(locatorString);
+			// Erstelle einen neuen Locator mit dem expandierten XPath und dem originalen Kontext
+			console.log('REAL LOCATOR: ' + locator.page().locator(expandedXPath));
 
-      return locator.page().locator(expandedXPath);
-    }
-    return locator;
-  });
+			return locator.page().locator(expandedXPath);
+		}
+		return locator;
+	});
 
-  let expandedLocatorsLock = false;
-  const promises = expandedLocators.map((locator, index) => {
-    return (async () => {
-      try {
-        console.log(`Testing locator ${index + 1}: ${locator.toString()}`);
+	let expandedLocatorsLock = false;
+	const promises = expandedLocators.map((locator, index) => {
+		return (async () => {
+			try {
+				console.log(`Testing locator ${index + 1}: ${locator.toString()}`);
 
-        let result;
+				let result;
 
-        const actionOptions = {
-          force: true,
-        };
+				const actionOptions = {
+					force: true
+				};
 
-        // Special Assertions handling
-        if (action.startsWith("to")) {
-          switch (action) {
-            case "toBeChecked":
-              return await expect(locator).toBeChecked({ checked: value });
-            case "toHaveAttribute":
-              return await Promise.any(
-                args.map((attr) => expect(locator).toHaveAttribute(attr, value))
-              );
-            case "toHaveCSS":
-              // Spezialfall für Farben
-              if (args[0].toLowerCase() === "color") {
-                // Hole den computed style
-                const computedColor = await locator.evaluate(
-                  (el) => window.getComputedStyle(el).color
-                );
+				// Special Assertions handling
+				if (action.startsWith('to')) 
+					switch (action) {
+						case 'toBeChecked':
+							return await expect(locator).toBeChecked({ checked: value });
+						case 'toHaveAttribute':
+							return await Promise.any(
+								args.map((attr) => expect(locator).toHaveAttribute(attr, value))
+							);
+						case 'toHaveCSS':
+							// Spezialfall für Farben
+							if (args[0].toLowerCase() === 'color') {
+								// Hole den computed style
+								const computedColor = await locator.evaluate(
+									(el) => window.getComputedStyle(el).color
+								);
 
-                // Erstelle ein temporäres Element zur Farbkonvertierung
-                const normalizedColor = await locator.evaluate((el, color) => {
-                  const span = document.createElement("span");
-                  span.style.color = color;
-                  document.body.appendChild(span);
-                  const computed = window.getComputedStyle(span).color;
-                  span.remove();
-                  return computed;
-                }, value);
+								// Erstelle ein temporäres Element zur Farbkonvertierung
+								const normalizedColor = await locator.evaluate((el, color) => {
+									const span = document.createElement('span');
+									span.style.color = color;
+									document.body.appendChild(span);
+									const computed = window.getComputedStyle(span).color;
+									span.remove();
+									return computed;
+								}, value);
 
-                return await expect(computedColor).toBe(normalizedColor);
-              }
-              // Für alle anderen CSS-Properties
-              return await expect(locator).toHaveCSS(args[0], value);
-            default:
-              return await expect(locator)[action](value);
-          }
-        } else if (action === "check") {
-          //Nur ein Promise.any darf ausgeführt werden, deshalb Locken wir beim ersten Locator, checkStatePromises prüft aber alle
-          if (expandedLocatorsLock) {
-            throw new Error("Lock active");
-          }
-          expandedLocatorsLock = true;
-          // Warum so kompliziert? Promise.any bricht nicht sofort ab => Doppelausführung
-          // Erst den Status mit allen Locators parallel prüfen
-          const checkStatePromises = expandedLocators.map((locator, index) => {
-            return (async () => {
-              try {
-                await locator.waitFor({ state: "attached" });
-                const currentState = await locator.isChecked();
-                return { locator, currentState, index };
-              } catch (error) {
-                throw new Error(
-                  `Locator ${index + 1} failed state check: ${error.message}`
-                );
-              }
-            })();
-          });
+								return await expect(computedColor).toBe(normalizedColor);
+							}
+							// Für alle anderen CSS-Properties
+							return await expect(locator).toHaveCSS(args[0], value);
+						default:
+							return await expect(locator)[action](value);
+					}
+				else if (action === 'check') {
+					//Nur ein Promise.any darf ausgeführt werden, deshalb Locken wir beim ersten Locator, checkStatePromises prüft aber alle
+					if (expandedLocatorsLock) 
+						throw new Error('Lock active');
+          
+					expandedLocatorsLock = true;
+					// Warum so kompliziert? Promise.any bricht nicht sofort ab => Doppelausführung
+					// Erst den Status mit allen Locators parallel prüfen
+					const checkStatePromises = expandedLocators.map((locator, index) => {
+						return (async () => {
+							try {
+								await locator.waitFor({ state: 'attached' });
+								const currentState = await locator.isChecked();
+								return { locator, currentState, index };
+							} catch (error) {
+								throw new Error(
+									`Locator ${index + 1} failed state check: ${error.message}`
+								);
+							}
+						})();
+					});
 
-          // Neue Promises für setChecked mit ALLEN Locators
-          const { locator, currentState, index } = await Promise.any(
-            checkStatePromises
-          );
-          console.log(
-            `Success checking state with locator ${
-              index + 1
-            }. The value is ${currentState}`
-          );
+					// Neue Promises für setChecked mit ALLEN Locators
+					const { locator, currentState, index } = await Promise.any(
+						checkStatePromises
+					);
+					console.log(
+						`Success checking state with locator ${
+							index + 1
+						}. The value is ${currentState}`
+					);
 
-          try {
-            // 1. Erst setChecked versuchen
-            await locator.setChecked(!currentState, { force: true });
-            return;
-          } catch (setCheckedError) {
-            console.log("setChecked failed, trying click");
-            try {
-              // 2. Dann click versuchen
-              await locator.click({ force: true });
-              return;
-            } catch (clickError) {
-              console.log("click failed, trying focus + space");
-              // 3. Als letztes focus + space
-              await locator.focus();
-              return await locator.page().keyboard.press("Space");
-            }
-          }
-          // Backup-Strategie: focus + space
-          // Dann die Aktion ausführen
-          //Aus irgendeinem Grund spinnen bei vielen Locatoren die Viewportprüfungen (für click(), setChecked()), deshalb jetzt so
-          /* await locator.focus();
+					try {
+						// 1. Erst setChecked versuchen
+						await locator.setChecked(!currentState, { force: true });
+						return;
+					} catch (_setCheckedError) {
+						console.log('setChecked failed, trying click');
+						try {
+							// 2. Dann click versuchen
+							await locator.click({ force: true });
+							return;
+						} catch (_clickError) {
+							console.log('click failed, trying focus + space');
+							// 3. Als letztes focus + space
+							await locator.focus();
+							return await locator.page().keyboard.press('Space');
+						}
+					}
+					// Backup-Strategie: focus + space
+					// Dann die Aktion ausführen
+					//Aus irgendeinem Grund spinnen bei vielen Locatoren die Viewportprüfungen (für click(), setChecked()), deshalb jetzt so
+					/* await locator.focus();
           result = await locator.page().keyboard.press("Space");
           return result; */
 
-          //return await locator.click({ force: true });
-          //return await locator.setChecked(!currentState, { force: true });
+					//return await locator.click({ force: true });
+					//return await locator.setChecked(!currentState, { force: true });
 
-          /*  // Neue Promises für setChecked mit ALLEN Locators
+					/*  // Neue Promises für setChecked mit ALLEN Locators
           const setCheckedPromises = expandedLocators.map((locator, index) => {
             return (async () => {
               try {
@@ -362,237 +328,237 @@ async function mapLocatorsToPromises(
           });
           // Versuche setChecked mit allen Locators
           return await Promise.any(setCheckedPromises); */
-        } else if (action === "click") {
-          if (expandedLocatorsLock) {
-            throw new Error("Lock active");
-          }
-          console.log("Starting click operation, locking...");
-          expandedLocatorsLock = true;
-          const visibilityPromises = expandedLocators.map(
-            async (locator, index) => {
-              try {
-                console.log(`Checking visibility for locator ${index}`);
-                await expect(locator).toBeVisible({ timeout: 3000 });
-                console.log(`Locator ${index} is visible`);
-                return { locator, index };
-              } catch {
-                console.log(`Locator ${index + 1}, ${locator} not visible`);
-                throw new Error(`Locator ${index + 1}, ${locator} not visible`);
-              }
-            }
-          );
-          try {
-            try {
-              const { locator } = await Promise.any(visibilityPromises);
-            } catch (error) {
-              if (error instanceof AggregateError) {
-                const errors = error.errors
-                  .map((e) => `- ${e.message}`)
-                  .join("\n");
-                throw new Error(`Kein sichtbarer Button gefunden:\n${errors}`);
-              }
-              throw error;
-            }
-            console.log("Performing action:", action);
-            return await locator[action](actionOptions);
-          } catch (error) {
-            if (error instanceof AggregateError) {
-              // Handle Promise.any failure (no locator found)
-              const errorMessages = error.errors?.map((e) => e.message) || [];
-              throw new Error(
-                [
-                  `No visible locator found for "${action}"`,
-                  `Tried ${expandedLocators.length} locators:`,
-                  ...errorMessages,
-                ].join("\n")
-              );
-            }
-            // Handle other errors (e.g. action execution failed)
-            throw new Error(`Action "${action}" failed: ${error.message}`);
-          }
-        } else if (action === "fill") {
-          if (expandedLocatorsLock) {
-            throw new Error("Lock active");
-          }
-          console.log("Starting fill operation, locking...");
-            expandedLocatorsLock = true;
-          // 1. Sichtbare Locators sammeln
-    const visibilityResults = await Promise.allSettled(
-      expandedLocators.map(async (locator, index) => {
-          try {
-              console.log(`Prüfe Sichtbarkeit Locator ${index}`);
-              await locator.waitFor({ state: "visible", timeout: 2000 });
-              return { locator, index };
-          } catch (error) {
-              console.log(`Locator ${index} nicht sichtbar`);
-              return Promise.reject(error);
-          }
-      })
-  );
+				} else if (action === 'click') {
+					if (expandedLocatorsLock) 
+						throw new Error('Lock active');
+          
+					console.log('Starting click operation, locking...');
+					expandedLocatorsLock = true;
+					const visibilityPromises = expandedLocators.map(
+						async (locator, index) => {
+							try {
+								console.log(`Checking visibility for locator ${index}`);
+								await expect(locator).toBeVisible({ timeout: 3000 });
+								console.log(`Locator ${index} is visible`);
+								return { locator, index };
+							} catch {
+								console.log(`Locator ${index + 1}, ${locator} not visible`);
+								throw new Error(`Locator ${index + 1}, ${locator} not visible`);
+							}
+						}
+					);
+					try {
+						try {
+							await Promise.any(visibilityPromises);
+						} catch (error) {
+							if (error instanceof AggregateError) {
+								const errors = error.errors
+									.map((e) => `- ${e.message}`)
+									.join('\n');
+								throw new Error(`Kein sichtbarer Button gefunden:\n${errors}`);
+							}
+							throw error;
+						}
+						console.log('Performing action:', action);
+						return await locator[action](actionOptions);
+					} catch (error) {
+						if (error instanceof AggregateError) {
+							// Handle Promise.any failure (no locator found)
+							const errorMessages = error.errors?.map((e) => e.message) || [];
+							throw new Error(
+								[
+									`No visible locator found for "${action}"`,
+									`Tried ${expandedLocators.length} locators:`,
+									...errorMessages
+								].join('\n')
+							);
+						}
+						// Handle other errors (e.g. action execution failed)
+						throw new Error(`Action "${action}" failed: ${error.message}`);
+					}
+				} else if (action === 'fill') {
+					if (expandedLocatorsLock) 
+						throw new Error('Lock active');
+          
+					console.log('Starting fill operation, locking...');
+					expandedLocatorsLock = true;
+					// 1. Sichtbare Locators sammeln
+					const visibilityResults = await Promise.allSettled(
+						expandedLocators.map(async (locator, index) => {
+							try {
+								console.log(`Prüfe Sichtbarkeit Locator ${index}`);
+								await locator.waitFor({ state: 'visible', timeout: 2000 });
+								return { locator, index };
+							} catch (error) {
+								console.log(`Locator ${index} nicht sichtbar`);
+								return Promise.reject(error);
+							}
+						})
+					);
 
-  // 2. Erfolgreiche Locators extrahieren
-  const visibleLocators = visibilityResults
-      .filter(result => result.status === 'fulfilled')
-      .map(result => result.value.locator);
+					// 2. Erfolgreiche Locators extrahieren
+					const visibleLocators = visibilityResults
+						.filter(result => result.status === 'fulfilled')
+						.map(result => result.value.locator);
 
-  if (visibleLocators.length === 0) {
-      throw new Error(`Keine sichtbaren Locators für "${action}" gefunden`);
-  }
+					if (visibleLocators.length === 0) 
+						throw new Error(`Keine sichtbaren Locators für "${action}" gefunden`);
+  
 
-  // 3. Serielles Ausprobieren der sichtbaren Locators
-  let lastError;
-  for (const locator of visibleLocators) {
-      try {
-          console.log(`Versuche ${action} mit Locator:`, locator);
-          return await locator.fill(value, actionOptions);
-      } catch (error) {
-          lastError = error;
-          console.log(`Fehler bei ${action} mit Locator:`, error.message);
-      }
-  }
+					// 3. Serielles Ausprobieren der sichtbaren Locators
+					let lastError;
+					for (const locator of visibleLocators) 
+						try {
+							console.log(`Versuche ${action} mit Locator:`, locator);
+							return await locator.fill(value, actionOptions);
+						} catch (error) {
+							lastError = error;
+							console.log(`Fehler bei ${action} mit Locator:`, error.message);
+						}
+  
 
-  // 4. Alle Versuche fehlgeschlagen
-  throw new Error(
-      `${action} fehlgeschlagen für alle sichtbaren Locators:\n` +
+					// 4. Alle Versuche fehlgeschlagen
+					throw new Error(
+						`${action} fehlgeschlagen für alle sichtbaren Locators:\n` +
       visibleLocators.map(l => l.toString()).join('\n') +
       `\nLetzter Fehler: ${lastError.message}`
-  );
-        } else {
-          result = await locator[action](
-            ...(value !== undefined ? [value, ...args] : args),
-            actionOptions
-          );
-        }
+					);
+				} else 
+					result = await locator[action](
+						...(value !== undefined ? [value, ...args] : args),
+						actionOptions
+					);
+        
 
-        console.log(`Success with locator ${index + 1}`);
-        return result;
-      } catch (error) {
-        error.message = `Locator ${index + 1} failed: ${error.message}`;
-        throw error; // Wichtig für error.errors in Promise.any
-      }
-    })();
-  });
+				console.log(`Success with locator ${index + 1}`);
+				return result;
+			} catch (error) {
+				error.message = `Locator ${index + 1} failed: ${error.message}`;
+				throw error; // Wichtig für error.errors in Promise.any
+			}
+		})();
+	});
 
-  try {
-    return await Promise.any(promises);
-  } catch (error) {
-    if (error instanceof AggregateError) {
-      const errorMessages = error.errors?.map((e) => e.message) || [];
-      throw new Error(
-        [
-          `No locator found for: "${action}".`,
-          `Tried ${expandedLocators.length} locators:`,
-          ...errorMessages,
-        ].join("\n")
-      );
-    }
-    throw error; // Andere Fehler weiterwerfen
-  }
+	try {
+		return await Promise.any(promises);
+	} catch (error) {
+		if (error instanceof AggregateError) {
+			const errorMessages = error.errors?.map((e) => e.message) || [];
+			throw new Error(
+				[
+					`No locator found for: "${action}".`,
+					`Tried ${expandedLocators.length} locators:`,
+					...errorMessages
+				].join('\n')
+			);
+		}
+		throw error; // Andere Fehler weiterwerfen
+	}
 }
 
 // / #################### GIVEN ########################################
-Given("As a {string}", async function (userRole: string) {
-  this.role = userRole;
-  // await driver.sleep(100 + currentParameters.waitTime);
+Given('As a {string}', async function (userRole: string) {
+	this.role = userRole;
+	// await driver.sleep(100 + currentParameters.waitTime);
 });
 
-Given("I am on the website: {string}", async function (this: PlaywrightWorld, url: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      await page.goto(url);
-      await page.waitForLoadState();
-      //await page.waitForTimeout(searchTimeout + this.parameters.waitTime);
-    } catch (e: any) {
-      throw e;
-    }
-  });
-});
-
-Given(
-  "I add a cookie with the name {string} and value {string}",
-  async function (this: PlaywrightWorld, name: string, value: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        await page.context().addCookies([
-          {
-            name,
-            value,
-            url: await page.url(),
-          },
-        ]);
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
-);
-
-Given("I remove a cookie with the name {string}", async function (this: PlaywrightWorld, name: string) {
-  await handleError(async () => {
-    try {
-      const context = this.getPage().context();
-      const cookies = await context.cookies();
-      const filteredCookies = cookies.filter((cookie) => cookie.name !== name);
-      await context.clearCookies();
-      await context.addCookies(filteredCookies);
-    } catch (e: any) {
-      throw e;
-    }
-  });
+Given('I am on the website: {string}', async function (this: PlaywrightWorld, url: string) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			await page.goto(url);
+			await page.waitForLoadState();
+			//await page.waitForTimeout(searchTimeout + this.parameters.waitTime);
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 Given(
-  "I add a session-storage with the name {string} and value {string}",
-  async function (this: PlaywrightWorld, name: string, value: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        await page.evaluate(
-          ([key, val]) => {
-            window.sessionStorage.setItem(key, val);
-          },
-          [name, value]
-        );
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+	'I add a cookie with the name {string} and value {string}',
+	async function (this: PlaywrightWorld, name: string, value: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				await page.context().addCookies([
+					{
+						name,
+						value,
+						url: await page.url()
+					}
+				]);
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
+);
+
+Given('I remove a cookie with the name {string}', async function (this: PlaywrightWorld, name: string) {
+	await handleError(async () => {
+		try {
+			const context = this.getPage().context();
+			const cookies = await context.cookies();
+			const filteredCookies = cookies.filter((cookie) => cookie.name !== name);
+			await context.clearCookies();
+			await context.addCookies(filteredCookies);
+		} catch (e: any) {
+			throw e;
+		}
+	});
+});
+
+Given(
+	'I add a session-storage with the name {string} and value {string}',
+	async function (this: PlaywrightWorld, name: string, value: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				await page.evaluate(
+					([key, val]) => {
+						window.sessionStorage.setItem(key, val);
+					},
+					[name, value]
+				);
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 Given(
-  "I remove a session-storage with the name {string}",
-  async function (this: PlaywrightWorld, name: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        await page.evaluate((key) => {
-          window.sessionStorage.removeItem(key);
-        }, name);
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+	'I remove a session-storage with the name {string}',
+	async function (this: PlaywrightWorld, name: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				await page.evaluate((key) => {
+					window.sessionStorage.removeItem(key);
+				}, name);
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
-Given("I take a screenshot", async function (this: PlaywrightWorld) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      const timestamp = Date.now();
-      const screenshotPath = path.join(
-        this.downloadDir,
-        `manual-${timestamp}.png`
-      );
-      const buffer = await page.screenshot({ path: screenshotPath });
-      await this.attach(buffer, "image/png");
-    } catch (e: any) {
-      throw e;
-    }
-  });
+Given('I take a screenshot', async function (this: PlaywrightWorld) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			const timestamp = Date.now();
+			const screenshotPath = path.join(
+				this.downloadDir,
+				`manual-${timestamp}.png`
+			);
+			const buffer = await page.screenshot({ path: screenshotPath });
+			await this.attach(buffer, 'image/png');
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 /*
@@ -603,90 +569,90 @@ Given("I take a screenshot", async function (this: PlaywrightWorld) {
  * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Given(
-  "I take a screenshot. Optionally: Focus the page on the element {string}",
-  async function (this: PlaywrightWorld, element: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
+	'I take a screenshot. Optionally: Focus the page on the element {string}',
+	async function (this: PlaywrightWorld, element: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
 
-        if (element) {
-          const preferredLocators = [
-            page.getByRole("generic", { name: element }),
-            page.getByText(element, { exact: true }),
-            page.getByLabel(element),
-            page.locator(`#${element}`),
-            page.locator(`[id*="${element}"]`),
-          ];
+				if (element) {
+					const preferredLocators = [
+						page.getByRole('generic', { name: element }),
+						page.getByText(element, { exact: true }),
+						page.getByLabel(element),
+						page.locator(`#${element}`),
+						page.locator(`[id*="${element}"]`)
+					];
 
-          const xpathLocators = [
-            page.locator(`xpath=//${element}`),
-            page.locator(`xpath=${element}`),
-            page.locator(`xpath=//*[contains(text(),"${element}")]`),
-            page.locator(`xpath=//*[@*="${element}"]`),
-            page.locator(`xpath=//*[contains(@id, "${element}")]`),
-            page.locator(`xpath=//*[@id="${element}"]`),
-            page.locator(`xpath=//*[@name="${element}"]`),
-          ];
+					const xpathLocators = [
+						page.locator(`xpath=//${element}`),
+						page.locator(`xpath=${element}`),
+						page.locator(`xpath=//*[contains(text(),"${element}")]`),
+						page.locator(`xpath=//*[@*="${element}"]`),
+						page.locator(`xpath=//*[contains(@id, "${element}")]`),
+						page.locator(`xpath=//*[@id="${element}"]`),
+						page.locator(`xpath=//*[@name="${element}"]`)
+					];
 
-          try {
-            await mapLocatorsToPromises(
-              preferredLocators,
-              "scrollIntoViewIfNeeded"
-            );
-          } catch (preferredError) {
-            console.warn("Preferred locators failed, trying xpath locators");
-            try {
-              await mapLocatorsToPromises(
-                xpathLocators,
-                "scrollIntoViewIfNeeded"
-              );
-            } catch (scrollError) {
-              throw new Error(
-                `Element "${element}" could not be found for screenshot focusing`
-              );
-            }
-          }
+					try {
+						await mapLocatorsToPromises(
+							preferredLocators,
+							'scrollIntoViewIfNeeded'
+						);
+					} catch (_preferredError) {
+						console.warn('Preferred locators failed, trying xpath locators');
+						try {
+							await mapLocatorsToPromises(
+								xpathLocators,
+								'scrollIntoViewIfNeeded'
+							);
+						} catch (_scrollError) {
+							throw new Error(
+								`Element "${element}" could not be found for screenshot focusing`
+							);
+						}
+					}
 
-          // Screenshot logic (bleibt gleich)
-          const timestamp = Date.now();
-          const screenshotPath = path.join(
-            this.downloadDir,
-            element
-              ? `manual-${element}-${timestamp}.png`
-              : `manual-${timestamp}.png`
-          );
-          const buffer = await page.screenshot({ path: screenshotPath });
-          await this.attach(buffer, "image/png");
-        } else {
-          const timestamp = Date.now();
-          const screenshotPath = path.join(
-            this.downloadDir,
-            element
-              ? `manual-${element}-${timestamp}.png`
-              : `manual-${timestamp}.png`
-          );
-          const buffer = await page.screenshot({ path: screenshotPath });
-          await this.attach(buffer, "image/png");
-        }
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+					// Screenshot logic (bleibt gleich)
+					const timestamp = Date.now();
+					const screenshotPath = path.join(
+						this.downloadDir,
+						element
+							? `manual-${element}-${timestamp}.png`
+							: `manual-${timestamp}.png`
+					);
+					const buffer = await page.screenshot({ path: screenshotPath });
+					await this.attach(buffer, 'image/png');
+				} else {
+					const timestamp = Date.now();
+					const screenshotPath = path.join(
+						this.downloadDir,
+						element
+							? `manual-${element}-${timestamp}.png`
+							: `manual-${timestamp}.png`
+					);
+					const buffer = await page.screenshot({ path: screenshotPath });
+					await this.attach(buffer, 'image/png');
+				}
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 // ################### WHEN ##########################################
 // driver navigates to the Website
-When("I go to the website: {string}", async function getUrl(this: PlaywrightWorld, url: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      await page.goto(url);
-      await page.waitForLoadState();
-    } catch (e: any) {
-      throw e;
-    }
-  });
+When('I go to the website: {string}', async function getUrl(this: PlaywrightWorld, url: string) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			await page.goto(url);
+			await page.waitForLoadState();
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 /*
@@ -697,84 +663,84 @@ When("I go to the website: {string}", async function getUrl(this: PlaywrightWorl
  * (X) //*[contains(text(),"${button}")], XPath (enthält Text)
  * (X) ${button}, Implizite Suche (ID oder Name, kontextabhängig)
  */
-When("I click the button: {string}", async function (this: PlaywrightWorld, button: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
+When('I click the button: {string}', async function (this: PlaywrightWorld, button: string) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
 
-      let downloadHandled = false;
+			let downloadHandled = false;
 
-      // Download-Promise mit Fehlerbehandlung
-      const downloadPromise = page
-        .waitForEvent("download", { timeout: 1000 })
-        .then((download) => {
-          downloadHandled = true;
-          this.setLastDownload(download);
-        })
-        .catch((e) => {
-          if (!e.message.includes("Timeout")) throw e;
-          console.log("Download timeout - ignored");
-        });
+			// Download-Promise mit Fehlerbehandlung
+			const downloadPromise = page
+				.waitForEvent('download', { timeout: 1000 })
+				.then((download) => {
+					downloadHandled = true;
+					this.setLastDownload(download);
+				})
+				.catch((e) => {
+					if (!e.message.includes('Timeout')) throw e;
+					console.log('Download timeout - ignored');
+				});
 
-      const preferredLocators = [
-        page.getByRole("button", { name: button }),
-        page.getByText(button, { exact: true }),
-        page.getByLabel(button),
-        page.locator(`#${button}`),
-        page.locator(`[id*="${button}"]`),
-      ];
+			const preferredLocators = [
+				page.getByRole('button', { name: button }),
+				page.getByText(button, { exact: true }),
+				page.getByLabel(button),
+				page.locator(`#${button}`),
+				page.locator(`[id*="${button}"]`)
+			];
 
-      const xpathLocators = [
-        page.locator(`xpath=//*[@id="${button}"]`),
-        page.locator(`xpath=//*[contains(@id,"${button}")]`),
-        page.locator(`xpath=//*[text()="${button}"]`),
-        page.locator(`xpath=//*[@*="${button}"]`),
-        page.locator(`xpath=//*[contains(text(),"${button}")]`),
-        page.locator(`xpath=//button[text()="${button}"]`),
-        page.locator(`xpath=//button[contains(text(),"${button}")]`),
-        page.locator(`xpath=//*[@name="${button}"]`),
-      ];
+			const xpathLocators = [
+				page.locator(`xpath=//*[@id="${button}"]`),
+				page.locator(`xpath=//*[contains(@id,"${button}")]`),
+				page.locator(`xpath=//*[text()="${button}"]`),
+				page.locator(`xpath=//*[@*="${button}"]`),
+				page.locator(`xpath=//*[contains(text(),"${button}")]`),
+				page.locator(`xpath=//button[text()="${button}"]`),
+				page.locator(`xpath=//button[contains(text(),"${button}")]`),
+				page.locator(`xpath=//*[@name="${button}"]`)
+			];
 
-      try {
-        await mapLocatorsToPromises(preferredLocators, "click");
-      } catch (preferredError) {
-        try {
-          await mapLocatorsToPromises(xpathLocators, "click");
-        } catch (xpathError) {
-          throw new Error(
-            `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
-          );
-        }
-      }
+			try {
+				await mapLocatorsToPromises(preferredLocators, 'click');
+			} catch (_preferredError) {
+				try {
+					await mapLocatorsToPromises(xpathLocators, 'click');
+				} catch (xpathError) {
+					throw new Error(
+						`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+					);
+				}
+			}
 
-      //Auf Download-Ende warten (falls gestartet)
-      await downloadPromise.catch(() => {});
+			//Auf Download-Ende warten (falls gestartet)
+			await downloadPromise.catch(() => {});
 
-      //Verzögerung für stabilere Seiten
-      if (downloadHandled) await page.waitForTimeout(500);
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			//Verzögerung für stabilere Seiten
+			if (downloadHandled) await page.waitForTimeout(500);
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 // Playwright sleeps for a certain amount of time
 When(
-  "The site should wait for {string} milliseconds",
-  { timeout: -1 },
-  async function (this: PlaywrightWorld, ms: string) {
-    let waitTime = parseInt(ms, 10);
-    waitTime = waitTime + 1000; // 1 Sekunde Buffer
+	'The site should wait for {string} milliseconds',
+	{ timeout: -1 },
+	async function (this: PlaywrightWorld, ms: string) {
+		let waitTime = parseInt(ms, 10);
+		waitTime = waitTime + 1000; // 1 Sekunde Buffer
 
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        await page.waitForTimeout(waitTime);
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				await page.waitForTimeout(waitTime);
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 /*
@@ -790,53 +756,53 @@ When(
  * (X) //label[contains(text(),"${label}")]/following::input[@type='text'], XPath (Input nach Label mit Text)
  * (X) ${label}, Implizite Suche (ID oder Name, kontextabhängig)
  */
-When("I insert {string} into the field {string}", async function (this: PlaywrightWorld, text: string, label: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      const value = applySpecialCommands(text);
+When('I insert {string} into the field {string}', async function (this: PlaywrightWorld, text: string, label: string) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			const value = applySpecialCommands(text);
 
-      const preferredLocators = [
-        page.getByLabel(label),
-        page.getByPlaceholder(label),
-        page.getByRole("textbox", { name: label }),
-        page.locator(`input#${label}`),
-        page.locator(`textarea#${label}`),
-        page.locator(`[id="${label}"]`),
-        page.locator(`[name="${label}"]`),
-        page.locator(`label:has-text("${label}") + input`),
-        page.locator(`label:has-text("${label}") + textarea`),
-      ];
+			const preferredLocators = [
+				page.getByLabel(label),
+				page.getByPlaceholder(label),
+				page.getByRole('textbox', { name: label }),
+				page.locator(`input#${label}`),
+				page.locator(`textarea#${label}`),
+				page.locator(`[id="${label}"]`),
+				page.locator(`[name="${label}"]`),
+				page.locator(`label:has-text("${label}") + input`),
+				page.locator(`label:has-text("${label}") + textarea`)
+			];
 
-      const xpathLocators = [
-        page.locator(`xpath=//input[@id="${label}"]`),
-        page.locator(`xpath=//input[contains(@id,"${label}")]`),
-        page.locator(`xpath=//input[@type="text" and @*="${label}"]`),
-        page.locator(`xpath=//textarea[@id="${label}"]`),
-        page.locator(`xpath=//textarea[contains(@id,"${label}")]`),
-        page.locator(`xpath=//textarea[@*="${label}"]`),
-        page.locator(`xpath=//textarea[contains(@*,"${label}")]`),
-        page.locator(`xpath=//*[@id="${label}"]`),
-        page.locator(
-          `xpath=//label[contains(text(),"${label}")]/following::input[@type='text']`
-        ),
-      ];
+			const xpathLocators = [
+				page.locator(`xpath=//input[@id="${label}"]`),
+				page.locator(`xpath=//input[contains(@id,"${label}")]`),
+				page.locator(`xpath=//input[@type="text" and @*="${label}"]`),
+				page.locator(`xpath=//textarea[@id="${label}"]`),
+				page.locator(`xpath=//textarea[contains(@id,"${label}")]`),
+				page.locator(`xpath=//textarea[@*="${label}"]`),
+				page.locator(`xpath=//textarea[contains(@*,"${label}")]`),
+				page.locator(`xpath=//*[@id="${label}"]`),
+				page.locator(
+					`xpath=//label[contains(text(),"${label}")]/following::input[@type='text']`
+				)
+			];
 
-      try {
-        await mapLocatorsToPromises(preferredLocators, "fill", value);
-      } catch (preferredError) {
-        try {
-          await mapLocatorsToPromises(xpathLocators, "fill", value);
-        } catch (xpathError) {
-          throw new Error(
-            `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
-          );
-        }
-      }
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			try {
+				await mapLocatorsToPromises(preferredLocators, 'fill', value);
+			} catch (_preferredError) {
+				try {
+					await mapLocatorsToPromises(xpathLocators, 'fill', value);
+				} catch (xpathError) {
+					throw new Error(
+						`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+					);
+				}
+			}
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 // "Radio"
@@ -850,84 +816,84 @@ When("I insert {string} into the field {string}", async function (this: Playwrig
  * (X) ${radioname}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 When(
-  "I select {string} from the selection {string}",
-  async function (this: PlaywrightWorld, radioname: string, label: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        const locators = [
-          // Modern Locators
-          page.getByRole("radio", { name: radioname }),
-          page.getByLabel(label).filter({ hasText: radioname }),
-          page
-            .getByText(radioname)
-            .filter({ has: page.locator('input[type="radio"]') }),
-          // CSS Fallbacks
-          page.locator(`input[name="${label}"][value="${radioname}"]`),
-          page.locator(`[role="radio"]:has-text("${radioname}")`),
-        ];
+	'I select {string} from the selection {string}',
+	async function (this: PlaywrightWorld, radioname: string, label: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				const _locators = [
+					// Modern Locators
+					page.getByRole('radio', { name: radioname }),
+					page.getByLabel(label).filter({ hasText: radioname }),
+					page
+						.getByText(radioname)
+						.filter({ has: page.locator('input[type="radio"]') }),
+					// CSS Fallbacks
+					page.locator(`input[name="${label}"][value="${radioname}"]`),
+					page.locator(`[role="radio"]:has-text("${radioname}")`)
+				];
 
-        const preferredLocators = [
-          page.getByRole("radio", { name: radioname }),
-          page.getByLabel(label).filter({ hasText: radioname }),
-          page
-            .getByText(radioname)
-            .filter({ has: page.locator('input[type="radio"]') }),
-          page.locator(`input[name="${label}"][value="${radioname}"]`),
-          page.locator(`[role="radio"]:has-text("${radioname}")`),
-        ];
+				const preferredLocators = [
+					page.getByRole('radio', { name: radioname }),
+					page.getByLabel(label).filter({ hasText: radioname }),
+					page
+						.getByText(radioname)
+						.filter({ has: page.locator('input[type="radio"]') }),
+					page.locator(`input[name="${label}"][value="${radioname}"]`),
+					page.locator(`[role="radio"]:has-text("${radioname}")`)
+				];
 
-        const xpathLocators = [
-          page.locator(
-            `xpath=//input[@type="radio"][@name="${label}"][@value="${radioname}"]`
-          ),
-          page.locator(
-            `xpath=//input[@type="radio"][contains(@name, "${label}")][contains(@value, "${radioname}")]`
-          ),
-          page.locator(
-            `xpath=//label[contains(text(), "${label}")]/following::input[@type="radio"][@value="${radioname}"]`
-          ),
-          page.locator(
-            `xpath=//input[@type="radio"][@name="${label}"][@value="${radioname}"]`
-          ),
-          page.locator(
-            `xpath=//input[@type="radio"][following-sibling::label[contains(text(), "${radioname}")]]`
-          ),
-          /* page.locator(
+				const xpathLocators = [
+					page.locator(
+						`xpath=//input[@type="radio"][@name="${label}"][@value="${radioname}"]`
+					),
+					page.locator(
+						`xpath=//input[@type="radio"][contains(@name, "${label}")][contains(@value, "${radioname}")]`
+					),
+					page.locator(
+						`xpath=//label[contains(text(), "${label}")]/following::input[@type="radio"][@value="${radioname}"]`
+					),
+					page.locator(
+						`xpath=//input[@type="radio"][@name="${label}"][@value="${radioname}"]`
+					),
+					page.locator(
+						`xpath=//input[@type="radio"][following-sibling::label[contains(text(), "${radioname}")]]`
+					),
+					/* page.locator(
             `//input[@${label}="${radioname}"]/following-sibling::label[1]`
           ), */
-          /* page.locator(
+					/* page.locator(
             `//input[contains(@${label}, "${radioname}")]/following-sibling::label[1]`
           ), */
-          page.locator(`xpath=//input[@value="${radioname}" or @name="${radioname}" or @id="${radioname}"]
+					page.locator(`xpath=//input[@value="${radioname}" or @name="${radioname}" or @id="${radioname}"]
 `),
-          page.locator(
-            `//label[contains(text(), "${label}")]/following::input[@value="${radioname}"]/following-sibling::label[1]`
-          ),
-          page.locator(
-            `//input[@name="${label}" and @value="${radioname}"]/following-sibling::label[1]`
-          ),
-          page.locator(
-            `//input[contains(@*,"${label}")]/following-sibling::label[contains(text(), "${radioname}")]`
-          ),
-        ];
+					page.locator(
+						`//label[contains(text(), "${label}")]/following::input[@value="${radioname}"]/following-sibling::label[1]`
+					),
+					page.locator(
+						`//input[@name="${label}" and @value="${radioname}"]/following-sibling::label[1]`
+					),
+					page.locator(
+						`//input[contains(@*,"${label}")]/following-sibling::label[contains(text(), "${radioname}")]`
+					)
+				];
 
-        try {
-          await mapLocatorsToPromises(preferredLocators, "check");
-        } catch (preferredError) {
-          try {
-            await mapLocatorsToPromises(xpathLocators, "check");
-          } catch (xpathError) {
-            throw new Error(
-              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
-            );
-          }
-        }
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+				try {
+					await mapLocatorsToPromises(preferredLocators, 'check');
+				} catch (_preferredError) {
+					try {
+						await mapLocatorsToPromises(xpathLocators, 'check');
+					} catch (xpathError) {
+						throw new Error(
+							`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+						);
+					}
+				}
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 // Select an Option from a dropdown-menu
@@ -941,35 +907,35 @@ When(
  * (X) ${dropd}//option[contains(text(),"${value}") or contains(@id, "${value}") or contains(@*,"${value}")], XPath (Implizite Suche und Option mit enthaltendem Text/ID/Attribut)
  */
 When(
-  "I select the option {string} from the drop-down-menue {string}",
-  async function (this: PlaywrightWorld, value: string, dropd: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
+	'I select the option {string} from the drop-down-menue {string}',
+	async function (this: PlaywrightWorld, value: string, dropd: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
 
-        const preferredDropdownLocators = [
-          page.getByRole("combobox", { name: dropd }),
-          page.getByLabel(dropd),
-          page.getByText(dropd).filter({ has: page.locator("select") }),
-          page.locator(`select[id="${dropd}"]`),
-          page.locator(`[role="combobox"][name="${dropd}"]`),
-          page.locator(`[aria-label="${dropd}"]`),
-        ];
+				const preferredDropdownLocators = [
+					page.getByRole('combobox', { name: dropd }),
+					page.getByLabel(dropd),
+					page.getByText(dropd).filter({ has: page.locator('select') }),
+					page.locator(`select[id="${dropd}"]`),
+					page.locator(`[role="combobox"][name="${dropd}"]`),
+					page.locator(`[aria-label="${dropd}"]`)
+				];
 
-        const xpathDropdownLocators = [
-          page.locator(`xpath=//*[@*="${dropd}"]`),
-          page.locator(
-            `xpath=//label[contains(text(),"${dropd}")]/following::button`
-          ),
-          page.locator(
-            `xpath=//label[contains(text(),"${dropd}")]/following::span`
-          ),
-          page.locator(`xpath=//*[contains(text(),"${dropd}")]/following::*`),
-          page.locator(`xpath=//*[@role='listbox']`),
-          page.locator(`xpath=//*[contains(text(),"${dropd}")]`),
-        ];
+				const xpathDropdownLocators = [
+					page.locator(`xpath=//*[@*="${dropd}"]`),
+					page.locator(
+						`xpath=//label[contains(text(),"${dropd}")]/following::button`
+					),
+					page.locator(
+						`xpath=//label[contains(text(),"${dropd}")]/following::span`
+					),
+					page.locator(`xpath=//*[contains(text(),"${dropd}")]/following::*`),
+					page.locator('xpath=//*[@role=\'listbox\']'),
+					page.locator(`xpath=//*[contains(text(),"${dropd}")]`)
+				];
 
-        /* const preferredOptionLocators = [
+				/* const preferredOptionLocators = [
           page.getByRole("option", { name: value }),
           page.getByText(value).filter({ has: page.locator("option") }),
           page.locator(`option:has-text("${value}")`),
@@ -997,27 +963,27 @@ When(
         ];
 
         let dropdownLocator; */
-        try {
-          await mapLocatorsToPromises(
-            preferredDropdownLocators,
-            "selectOption",
-            value
-          );
-        } catch (preferredDropdownError) {
-          try {
-            await mapLocatorsToPromises(
-              xpathDropdownLocators,
-              "selectOption",
-              value
-            );
-          } catch (xpathError) {
-            throw new Error(
-              `No element found with either preferred or xpath locators:\nPreferred: ${preferredDropdownError.message}\nXPath: ${xpathError.message}`
-            );
-          }
-        }
+				try {
+					await mapLocatorsToPromises(
+						preferredDropdownLocators,
+						'selectOption',
+						value
+					);
+				} catch (preferredDropdownError) {
+					try {
+						await mapLocatorsToPromises(
+							xpathDropdownLocators,
+							'selectOption',
+							value
+						);
+					} catch (xpathError) {
+						throw new Error(
+							`No element found with either preferred or xpath locators:\nPreferred: ${preferredDropdownError.message}\nXPath: ${xpathError.message}`
+						);
+					}
+				}
 
-        /* let optionLocator;
+				/* let optionLocator;
         try {
           optionLocator = await mapLocatorsToPromises(
             preferredOptionLocators,
@@ -1029,11 +995,11 @@ When(
             "click"
           );
         } */
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 // Dropdown via Playwright Locator:
@@ -1041,68 +1007,68 @@ When(
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
  * (/) By.xpath(`${dropd}`), XPath (Dynamischer XPath)
  */
-When("I select the option {string}", async function (this: PlaywrightWorld, dropd: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
+When('I select the option {string}', async function (this: PlaywrightWorld, dropd: string) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
 
-      try {
-        // 1. Versuche es mit selectOption (für Standard <select>-Elemente)
-        await page.locator("select").selectOption(dropd);
-        return; // Erfolgreich!
-      } catch (selectError) {
-        console.warn(
-          `selectOption by text failed, trying select by value: ${selectError.message}`
-        );
-        try {
-          await page
-            .locator("select")
-            .selectOption({ value: dropd.toLowerCase() });
-          return;
-        } catch (selectValueError) {
-          console.warn(
-            `selectOption by value failed, trying other methods: ${selectValueError.message}`
-          );
-        }
-      }
+			try {
+				// 1. Versuche es mit selectOption (für Standard <select>-Elemente)
+				await page.locator('select').selectOption(dropd);
+				return; // Erfolgreich!
+			} catch (selectError) {
+				console.warn(
+					`selectOption by text failed, trying select by value: ${selectError.message}`
+				);
+				try {
+					await page
+						.locator('select')
+						.selectOption({ value: dropd.toLowerCase() });
+					return;
+				} catch (selectValueError) {
+					console.warn(
+						`selectOption by value failed, trying other methods: ${selectValueError.message}`
+					);
+				}
+			}
 
-      const preferredLocators = [
-        page.getByRole("option", { name: dropd }),
-        page.getByText(dropd).filter({ has: page.locator("select") }),
-        page.locator(`select option:has-text("${dropd}")`),
-        page.locator(`[role="listbox"] [role="option"]:has-text("${dropd}")`),
-        page.locator("select").locator(`option:has-text("${dropd}")`),
-        page.locator(`:text("${dropd}")`).click(),
-      ];
+			const preferredLocators = [
+				page.getByRole('option', { name: dropd }),
+				page.getByText(dropd).filter({ has: page.locator('select') }),
+				page.locator(`select option:has-text("${dropd}")`),
+				page.locator(`[role="listbox"] [role="option"]:has-text("${dropd}")`),
+				page.locator('select').locator(`option:has-text("${dropd}")`),
+				page.locator(`:text("${dropd}")`).click()
+			];
 
-      //Dynamischer XPath nur begrenzt in Playwright darstellbar - theoretisch über prefferedLocators gut abgedeckt
-      const xpathLocators = [
-        page.locator(`//*[normalize-space(text())="${dropd}"]`, {
-          hasText: dropd,
-        }),
-        page.locator(`xpath=//select/option[text()="${dropd}"]`), //Allgemeiner Select Fall
-        page.locator(`xpath=//*[@role='option'][text()="${dropd}"]`), // Sehr spezifisch für ARIA-Optionen
-        page.locator(`xpath=//*[@role='listbox']//*[text()="${dropd}"]`), // Für Listboxen
-        page.locator(`xpath=//li[text()="${dropd}"]`), // Für Listen-Einträge
-        page.locator(`xpath=//span[text()="${dropd}"]`), // Für Spans
-        page.locator(`xpath=//*[contains(text(), "${dropd}")]`), // Allgemeiner Fallback (nur als letzte Option)
-      ];
+			//Dynamischer XPath nur begrenzt in Playwright darstellbar - theoretisch über prefferedLocators gut abgedeckt
+			const xpathLocators = [
+				page.locator(`//*[normalize-space(text())="${dropd}"]`, {
+					hasText: dropd
+				}),
+				page.locator(`xpath=//select/option[text()="${dropd}"]`), //Allgemeiner Select Fall
+				page.locator(`xpath=//*[@role='option'][text()="${dropd}"]`), // Sehr spezifisch für ARIA-Optionen
+				page.locator(`xpath=//*[@role='listbox']//*[text()="${dropd}"]`), // Für Listboxen
+				page.locator(`xpath=//li[text()="${dropd}"]`), // Für Listen-Einträge
+				page.locator(`xpath=//span[text()="${dropd}"]`), // Für Spans
+				page.locator(`xpath=//*[contains(text(), "${dropd}")]`) // Allgemeiner Fallback (nur als letzte Option)
+			];
 
-      try {
-        await mapLocatorsToPromises(preferredLocators, "click");
-      } catch (preferredError) {
-        try {
-          await mapLocatorsToPromises(xpathLocators, "click");
-        } catch (xpathError) {
-          throw new Error(
-            `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
-          );
-        }
-      }
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			try {
+				await mapLocatorsToPromises(preferredLocators, 'click');
+			} catch (_preferredError) {
+				try {
+					await mapLocatorsToPromises(xpathLocators, 'click');
+				} catch (xpathError) {
+					throw new Error(
+						`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+					);
+				}
+			}
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 // Hover over element and Select an Option
@@ -1115,79 +1081,78 @@ When("I select the option {string}", async function (this: PlaywrightWorld, drop
  * (X) `//*[contains(text(),"${option}"')]`, XPath (Element mit enthaltendem Text, weiterer Fallback für die Auswahl)
  */
 When(
-  "I hover over the element {string} and select the option {string}",
-  async function (this: PlaywrightWorld, element: string, option: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
+	'I hover over the element {string} and select the option {string}',
+	async function (this: PlaywrightWorld, element: string, option: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
 
-        const preferredElementLocators = [
-          page.getByRole("button", { name: element }),
-          page.getByText(element, { exact: true }),
-          page.getByLabel(element),
-          page.locator(`[title="${element}"]`),
-          page.locator(`[aria-label="${element}"]`),
-        ];
-        const xpathElementLocators = [
-          page.locator(`xpath=//*[contains(text(),"${element}")]`),
-        ];
+				const preferredElementLocators = [
+					page.getByRole('button', { name: element }),
+					page.getByText(element, { exact: true }),
+					page.getByLabel(element),
+					page.locator(`[title="${element}"]`),
+					page.locator(`[aria-label="${element}"]`)
+				];
+				const xpathElementLocators = [
+					page.locator(`xpath=//*[contains(text(),"${element}")]`)
+				];
 
-        let hoveredElement;
-        try {
-          hoveredElement = await mapLocatorsToPromises(
-            preferredElementLocators,
-            "hover"
-          );
-        } catch (preferredElementError) {
-          try {
-            hoveredElement = await mapLocatorsToPromises(
-              xpathElementLocators,
-              "hover"
-            );
-          } catch (xpathError) {
-            throw new Error(
-              `No element found with either preferred or xpath locators:\nPreferred: ${preferredElementError.message}\nXPath: ${xpathError.message}`
-            );
-          }
-        }
+				try {
+					await mapLocatorsToPromises(
+						preferredElementLocators,
+						'hover'
+					);
+				} catch (preferredElementError) {
+					try {
+						await mapLocatorsToPromises(
+							xpathElementLocators,
+							'hover'
+						);
+					} catch (xpathError) {
+						throw new Error(
+							`No element found with either preferred or xpath locators:\nPreferred: ${preferredElementError.message}\nXPath: ${xpathError.message}`
+						);
+					}
+				}
 
-        const preferredOptionLocators = [
-          page.getByRole("menuitem", { name: option }),
-          page.getByText(option, { exact: true }),
-          page.getByLabel(option),
-          page.locator(`[title="${option}"]`),
-          page.locator(`[aria-label="${option}"]`),
-        ];
+				const preferredOptionLocators = [
+					page.getByRole('menuitem', { name: option }),
+					page.getByText(option, { exact: true }),
+					page.getByLabel(option),
+					page.locator(`[title="${option}"]`),
+					page.locator(`[aria-label="${option}"]`)
+				];
 
-        const xpathOptionLocators = [
-          page.locator(
-            `xpath=//*[contains(text(),"${element}")]/following::*[text()="${option}"]`
-          ),
-          page.locator(`xpath=//*[contains(text(),"${option}")]`),
-        ];
+				const xpathOptionLocators = [
+					page.locator(
+						`xpath=//*[contains(text(),"${element}")]/following::*[text()="${option}"]`
+					),
+					page.locator(`xpath=//*[contains(text(),"${option}")]`)
+				];
 
-        try {
-          await mapLocatorsToPromises(preferredOptionLocators, "click");
-        } catch (preferredOptionError) {
-          try {
-            await mapLocatorsToPromises(xpathOptionLocators, "click");
-          } catch (xpathError) {
-            throw new Error(
-              `No element found with either preferred or xpath locators:\nPreferred: ${preferredOptionError.message}\nXPath: ${xpathError.message}`
-            );
-          }
-        }
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+				try {
+					await mapLocatorsToPromises(preferredOptionLocators, 'click');
+				} catch (preferredOptionError) {
+					try {
+						await mapLocatorsToPromises(xpathOptionLocators, 'click');
+					} catch (xpathError) {
+						throw new Error(
+							`No element found with either preferred or xpath locators:\nPreferred: ${preferredOptionError.message}\nXPath: ${xpathError.message}`
+						);
+					}
+				}
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 // TODO:
 When(
-  "I select from the {string} multiple selection, the values {string}{string}{string}",
-  async () => {}
+	'I select from the {string} multiple selection, the values {string}{string}{string}',
+	async () => {}
 );
 
 // Check the Checkbox with a specific name or id
@@ -1198,110 +1163,110 @@ When(
  * (X) //*[contains(text(),"${name}") or @*="${name}"], XPath (Element mit enthaltenem Text oder Attribut mit dynamischem Wert)
  * (X) ${name}
  */
-When("I check the box {string}", async function (this: PlaywrightWorld, name: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      name = name.trim();
-      const preferredLocators = [
-        page.getByRole("checkbox", { name }),
-        page
-          .getByLabel(name)
-          .filter({ has: page.locator('[type="checkbox"]') }),
-        page
-          .locator(`#${name}`)
-          .filter({ has: page.locator('input[type="checkbox"]') }),
-        page.locator(`[type="checkbox"][id="${name}"]`),
-        page.locator(`[type="checkbox"][name="${name}"]`),
-        page.locator(`label:has-text("${name}") input[type="checkbox"]`),
-      ];
+When('I check the box {string}', async function (this: PlaywrightWorld, name: string) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			name = name.trim();
+			const preferredLocators = [
+				page.getByRole('checkbox', { name }),
+				page
+					.getByLabel(name)
+					.filter({ has: page.locator('[type="checkbox"]') }),
+				page
+					.locator(`#${name}`)
+					.filter({ has: page.locator('input[type="checkbox"]') }),
+				page.locator(`[type="checkbox"][id="${name}"]`),
+				page.locator(`[type="checkbox"][name="${name}"]`),
+				page.locator(`label:has-text("${name}") input[type="checkbox"]`)
+			];
 
-      const xpathLocators = [
-        page.locator(`xpath=//${name}`),
-        page.locator(`xpath=${name}`),
-        page.locator(`xpath=//input[@type="checkbox"][@*="${name}"]`),
-        page.locator(`xpath=//*[@type="checkbox" and @*="${name}"]`),
-        page.locator(`xpath=//*[contains(text(),"${name}")]//parent::label`),
-        page.locator(`xpath=//*[contains(text(),"${name}") or @*="${name}"]`),
-      ];
+			const xpathLocators = [
+				page.locator(`xpath=//${name}`),
+				page.locator(`xpath=${name}`),
+				page.locator(`xpath=//input[@type="checkbox"][@*="${name}"]`),
+				page.locator(`xpath=//*[@type="checkbox" and @*="${name}"]`),
+				page.locator(`xpath=//*[contains(text(),"${name}")]//parent::label`),
+				page.locator(`xpath=//*[contains(text(),"${name}") or @*="${name}"]`)
+			];
 
-      try {
-        await mapLocatorsToPromises(preferredLocators, "check");
-      } catch (preferredError) {
-        try {
-          await mapLocatorsToPromises(xpathLocators, "check");
-        } catch (xpathError) {
-          throw new Error(
-            `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
-          );
-        }
-      }
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			try {
+				await mapLocatorsToPromises(preferredLocators, 'check');
+			} catch (_preferredError) {
+				try {
+					await mapLocatorsToPromises(xpathLocators, 'check');
+				} catch (xpathError) {
+					throw new Error(
+						`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+					);
+				}
+			}
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
-When("Switch to the newly opened tab", async function (this: PlaywrightWorld) {
-  if (this.parameters.browser === "webkit") {
-    console.log("Skipping tab management test in WebKit");
-    this.attach(
-      "Tab management test skipped - not supported in WebKit",
-      "text/plain"
-    );
-    return "skipped";
-  }
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      const context = page.context();
-      const pages = context.pages();
+When('Switch to the newly opened tab', async function (this: PlaywrightWorld) {
+	if (this.parameters.browser === 'webkit') {
+		console.log('Skipping tab management test in WebKit');
+		this.attach(
+			'Tab management test skipped - not supported in WebKit',
+			'text/plain'
+		);
+		return 'skipped';
+	}
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			const context = page.context();
+			const pages = context.pages();
 
-      // Switch to the last opened page
-      await pages[pages.length - 1].bringToFront();
-      this.page = pages[pages.length - 1];
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			// Switch to the last opened page
+			await pages[pages.length - 1].bringToFront();
+			this.page = pages[pages.length - 1];
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
-When("Switch to the tab number {string}", async function (this: PlaywrightWorld, numberOfTabs: string) {
-  await handleError(async () => {
-    if (this.parameters.browser === "webkit") {
-      console.log("Skipping tab management test in WebKit");
-      this.attach(
-        "Tab management test skipped - not supported in WebKit",
-        "text/plain"
-      );
-      return "skipped";
-    }
-    try {
-      const page = this.getPage();
-      const context = page.context();
-      const pages = context.pages();
-      const tabIndex = parseInt(numberOfTabs, 10);
+When('Switch to the tab number {string}', async function (this: PlaywrightWorld, numberOfTabs: string) {
+	await handleError(async () => {
+		if (this.parameters.browser === 'webkit') {
+			console.log('Skipping tab management test in WebKit');
+			this.attach(
+				'Tab management test skipped - not supported in WebKit',
+				'text/plain'
+			);
+			return 'skipped';
+		}
+		try {
+			const page = this.getPage();
+			const context = page.context();
+			const pages = context.pages();
+			const tabIndex = parseInt(numberOfTabs, 10);
 
-      if (tabIndex === 1) {
-        await pages[0].bringToFront();
-        this.page = pages[0];
-      } else {
-        const targetIndex = pages.length - (tabIndex - 1);
-        if (targetIndex >= 0 && targetIndex < pages.length) {
-          await pages[targetIndex].bringToFront();
-          this.page = pages[targetIndex];
-        } else {
-          throw new Error(
-            `Tab index ${tabIndex} is out of range. Available tabs: ${pages.length}`
-          );
-        }
-      }
+			if (tabIndex === 1) {
+				await pages[0].bringToFront();
+				this.page = pages[0];
+			} else {
+				const targetIndex = pages.length - (tabIndex - 1);
+				if (targetIndex >= 0 && targetIndex < pages.length) {
+					await pages[targetIndex].bringToFront();
+					this.page = pages[targetIndex];
+				} else 
+					throw new Error(
+						`Tab index ${tabIndex} is out of range. Available tabs: ${pages.length}`
+					);
+        
+			}
 
-      await this.getPage().waitForLoadState("networkidle");
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			await this.getPage().waitForLoadState('networkidle');
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 /*
@@ -1310,75 +1275,75 @@ When("Switch to the tab number {string}", async function (this: PlaywrightWorld,
  * (X) ${input}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 When(
-  "I want to upload the file from this path: {string} into this uploadfield: {string}",
-  async function (this: PlaywrightWorld, file: string, input: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        const filePath = path.join(this.tmpUploadDir, file);
+	'I want to upload the file from this path: {string} into this uploadfield: {string}',
+	async function (this: PlaywrightWorld, file: string, input: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				const filePath = path.join(this.tmpUploadDir, file);
 
-        const preferredLocators = [
-          page.getByRole("textbox", { name: input }),
-          page.getByLabel(input),
-          page.locator(`input[type="file"][name="${input}"]`),
-          page.locator(`input[type="file"][id="${input}"]`),
-        ];
+				const preferredLocators = [
+					page.getByRole('textbox', { name: input }),
+					page.getByLabel(input),
+					page.locator(`input[type="file"][name="${input}"]`),
+					page.locator(`input[type="file"][id="${input}"]`)
+				];
 
-        const xpathLocators = [
-          page.locator(`xpath=//input[@*="${input}"]`), // Playwright doesn't support implicit searching
-        ];
+				const xpathLocators = [
+					page.locator(`xpath=//input[@*="${input}"]`) // Playwright doesn't support implicit searching
+				];
 
-        try {
-          await mapLocatorsToPromises(
-            preferredLocators,
-            "setInputFiles",
-            filePath
-          );
-        } catch (preferredError) {
-          try {
-            await mapLocatorsToPromises(
-              xpathLocators,
-              "setInputFiles",
-              filePath
-            );
-          } catch (xpathError) {
-            throw new Error(
-              `No element found with either preferred or xpath locators:\nPreferred: ${preferredError.message}\nXPath: ${xpathError.message}`
-            );
-          }
-        }
+				try {
+					await mapLocatorsToPromises(
+						preferredLocators,
+						'setInputFiles',
+						filePath
+					);
+				} catch (_preferredError) {
+					try {
+						await mapLocatorsToPromises(
+							xpathLocators,
+							'setInputFiles',
+							filePath
+						);
+					} catch (xpathError) {
+						throw new Error(
+							`No element found with either preferred or xpath locators:\nPreferred: ${_preferredError.message}\nXPath: ${xpathError.message}`
+						);
+					}
+				}
 
-        // Wait for upload to complete
-        await page.waitForLoadState("networkidle");
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+				// Wait for upload to complete
+				await page.waitForLoadState('networkidle');
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
-Then("So I will be navigated to the website: {string}", async function (this: PlaywrightWorld, url: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      await expect(page).toHaveURL(url.replace(/[\s]|\/\s*$/g, ""));
-    } catch (e: any) {
-      throw e;
-    }
+Then('So I will be navigated to the website: {string}', async function (this: PlaywrightWorld, url: string) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			await expect(page).toHaveURL(url.replace(/[\s]|\/\s*$/g, ''));
+		} catch (e: any) {
+			throw e;
+		}
 
-    if (this.parameters.waitTime)
-      await this.getPage().waitForTimeout(this.parameters.waitTime);
-  });
+		if (this.parameters.waitTime)
+			await this.getPage().waitForTimeout(this.parameters.waitTime);
+	});
 });
 
 const resolveRegex = (rawString?: string): { resultString: string, regexFound: boolean } => {
-  const string = !rawString ? "" : rawString;
-  const regex = /(\{Regex:)(.*)(\})(.*)/g;
-  const regexFound = regex.test(string);
-  const resultString = regexFound ? string.replace(regex, "$2$4") : string;
-  return { resultString, regexFound };
+	const string = !rawString ? '' : rawString;
+	const regex = /(\{Regex:)(.*)(\})(.*)/g;
+	const regexFound = regex.test(string);
+	const resultString = regexFound ? string.replace(regex, '$2$4') : string;
+	return { resultString, regexFound };
 };
 
 // Search a textfield in the html code and assert it with a Text
@@ -1391,71 +1356,71 @@ const resolveRegex = (rawString?: string): { resultString: string, regexFound: b
  * (X) ${label}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
-  "So I can see the text {string} in the textbox: {string}",
-  async function (this: PlaywrightWorld, expectedText: string, label: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        const text = applySpecialCommands(expectedText.toString());
-        const { resultString, regexFound } = resolveRegex(text);
+	'So I can see the text {string} in the textbox: {string}',
+	async function (this: PlaywrightWorld, expectedText: string, label: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				const text = applySpecialCommands(expectedText.toString());
+				const { resultString, regexFound } = resolveRegex(text);
 
-        const preferredLocators = [
-          page.getByRole("textbox", { name: label }),
-          page.getByLabel(label),
-          page.getByPlaceholder(label),
-          page.locator(`#${label}`),
-          page.locator(`[name="${label}"]`),
-          page.locator(`label:has-text("${label}") + input`),
-        ];
+				const preferredLocators = [
+					page.getByRole('textbox', { name: label }),
+					page.getByLabel(label),
+					page.getByPlaceholder(label),
+					page.locator(`#${label}`),
+					page.locator(`[name="${label}"]`),
+					page.locator(`label:has-text("${label}") + input`)
+				];
 
-        const xpathLocators = [
-          page.locator(`xpath=//*[@id="${label}"]`),
-          page.locator(`xpath=//*[@*="${label}"]`),
-          page.locator(`xpath=//*[contains(@*, "${label}")]`),
-          page.locator(
-            `xpath=//label[contains(text(),"${label}")]/following::input[@type='text']`
-          ),
-        ];
+				const xpathLocators = [
+					page.locator(`xpath=//*[@id="${label}"]`),
+					page.locator(`xpath=//*[@*="${label}"]`),
+					page.locator(`xpath=//*[contains(@*, "${label}")]`),
+					page.locator(
+						`xpath=//label[contains(text(),"${label}")]/following::input[@type='text']`
+					)
+				];
 
-        let locator;
-        try {
-          locator = await mapLocatorsToPromises(
-            preferredLocators,
-            "evaluate",
-            (el) => el.options[el.selectedIndex].text
-          );
-          const content = (await locator) || "";
+				let locator;
+				try {
+					locator = await mapLocatorsToPromises(
+						preferredLocators,
+						'evaluate',
+						(el) => el.options[el.selectedIndex].text
+					);
+					const content = (await locator) || '';
 
-          if (regexFound) {
-            await expect(content).toMatch(new RegExp(resultString));
-          } else {
-            await expect(content.toLowerCase()).toBe(
-              resultString.toLowerCase()
-            );
-          }
-          return;
-        } catch (preferredError) {
-          locator = await mapLocatorsToPromises(
-            xpathLocators,
-            "evaluate",
-            (el) => el.options[el.selectedIndex].text
-          );
-          const content = (await locator) || "";
+					if (regexFound) 
+						await expect(content).toMatch(new RegExp(resultString));
+					else 
+						await expect(content.toLowerCase()).toBe(
+							resultString.toLowerCase()
+						);
+          
+					return;
+				} catch (_preferredError) {
+					locator = await mapLocatorsToPromises(
+						xpathLocators,
+						'evaluate',
+						(el) => el.options[el.selectedIndex].text
+					);
+					const content = (await locator) || '';
 
-          if (regexFound) {
-            await expect(content).toMatch(new RegExp(resultString));
-          } else {
-            await expect(content.toLowerCase()).toBe(
-              resultString.toLowerCase()
-            );
-          }
-          return;
-        }
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+					if (regexFound) 
+						await expect(content).toMatch(new RegExp(resultString));
+					else 
+						await expect(content.toLowerCase()).toBe(
+							resultString.toLowerCase()
+						);
+          
+					return;
+				}
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 // Search if a is text in html code
@@ -1463,14 +1428,14 @@ Then(
  * Übersicht der bisherigen Selenium-Identifikatoren und ihrer Strategien:
  * (X) By.css('Body'), CSS-Selektor (Body)
  */
-Then("So I can see the text: {string}", async function (this: PlaywrightWorld, text: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      const expectedText = applySpecialCommands(text.toString());
-      const { resultString, regexFound } = resolveRegex(expectedText);
+Then('So I can see the text: {string}', async function (this: PlaywrightWorld, text: string) {
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			const expectedText = applySpecialCommands(text.toString());
+			const { resultString, regexFound } = resolveRegex(expectedText);
 
-      /* const preferredLocators = [
+			/* const preferredLocators = [
                 page.getByText(resultString, { exact: !regexFound }),
             ];
 
@@ -1480,20 +1445,20 @@ Then("So I can see the text: {string}", async function (this: PlaywrightWorld, t
                 await mapLocatorsToPromises(preferredLocators, 'toBeVisible');
             } */
 
-      // Ersetze mehrere Whitespaces durch ein einzelnes Leerzeichen und trimme den String
-      const normalizedExpectedText = expectedText.replace(/\s+/g, " ").trim();
+			// Ersetze mehrere Whitespaces durch ein einzelnes Leerzeichen und trimme den String
+			const normalizedExpectedText = expectedText.replace(/\s+/g, ' ').trim();
 
-      const pageHTML = await page.content();
-      if (regexFound) {
-        expect(pageHTML).toMatch(new RegExp(resultString));
-      } else {
-        // Regulärer Ausdruck, um WHitespaces vorne und hinten zu ignorieren
-        expect(pageHTML).toContain(normalizedExpectedText);
-      }
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			const pageHTML = await page.content();
+			if (regexFound) 
+				expect(pageHTML).toMatch(new RegExp(resultString));
+			else 
+			// Regulärer Ausdruck, um WHitespaces vorne und hinten zu ignorieren
+				expect(pageHTML).toContain(normalizedExpectedText);
+      
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 // Search a textfield in the html code and assert if it's empty
@@ -1505,83 +1470,83 @@ Then("So I can see the text: {string}", async function (this: PlaywrightWorld, t
  * (X) ${label}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then("So I can't see text in the textbox: {string}", async function (this: PlaywrightWorld, label: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
 
-      const preferredLocators = [
-        page.getByRole("textbox", { name: label }),
-        page.getByLabel(label),
-        page.getByPlaceholder(label),
-        page.locator(`#${label}`),
-        page.locator(`[name="${label}"]`),
-      ];
+			const preferredLocators = [
+				page.getByRole('textbox', { name: label }),
+				page.getByLabel(label),
+				page.getByPlaceholder(label),
+				page.locator(`#${label}`),
+				page.locator(`[name="${label}"]`)
+			];
 
-      const xpathLocators = [
-        page.locator(`xpath=${label}`),
-        page.locator(`xpath=//*[@id="${label}"]`),
-        page.locator(`xpath=//*[@*="${label}"]`),
-        page.locator(`xpath=//*[contains(@id, "${label}")]`),
-        page.locator(`xpath=//*[@name="${label}"]`),
-        page.locator(`xpath=//*[contains(@name, "${label}")]`),
-        page.locator(`xpath=//*[contains(text(), "${label}")]`),
-      ];
+			const xpathLocators = [
+				page.locator(`xpath=${label}`),
+				page.locator(`xpath=//*[@id="${label}"]`),
+				page.locator(`xpath=//*[@*="${label}"]`),
+				page.locator(`xpath=//*[contains(@id, "${label}")]`),
+				page.locator(`xpath=//*[@name="${label}"]`),
+				page.locator(`xpath=//*[contains(@name, "${label}")]`),
+				page.locator(`xpath=//*[contains(text(), "${label}")]`)
+			];
 
-      try {
-        const content = await mapLocatorsToPromises(
-          preferredLocators,
-          "inputValue"
-        );
-        await expect(content).toBe("");
-      } catch (preferredError) {
-        const content = await mapLocatorsToPromises(
-          xpathLocators,
-          "inputValue"
-        );
-        await expect(content).toBe("");
-      }
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			try {
+				const content = await mapLocatorsToPromises(
+					preferredLocators,
+					'inputValue'
+				);
+				await expect(content).toBe('');
+			} catch (_preferredError) {
+				const content = await mapLocatorsToPromises(
+					xpathLocators,
+					'inputValue'
+				);
+				await expect(content).toBe('');
+			}
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 Then(
-  "So a file with the name {string} is downloaded in this Directory {string}",
-  async function (this: PlaywrightWorld, fileName: string) {
-    await handleError(async () => {
-      try {
-        // Get last download from World instance
-        const download = this.getLastDownload();
-        if (!download) {
-          throw new Error("No download was initiated");
-        }
+	'So a file with the name {string} is downloaded in this Directory {string}',
+	async function (this: PlaywrightWorld, fileName: string) {
+		await handleError(async () => {
+			try {
+				// Get last download from World instance
+				const download = this.getLastDownload();
+				if (!download) 
+					throw new Error('No download was initiated');
+        
 
-        // Verify filename
-        const suggestedFilename = download.suggestedFilename();
-        expect(suggestedFilename).toBe(fileName);
+				// Verify filename
+				const suggestedFilename = download.suggestedFilename();
+				expect(suggestedFilename).toBe(fileName);
 
-        // Save file with timestamp
-        const timestamp = Date.now();
-        const basePath = this.downloadDir; //directory nutzen wir nicht (bei Playwright aber sinnvoll, wenn DAtei gespeichert werden soll)
-        const newPath = path.join(
-          basePath,
-          `Seed_Download-${timestamp}_${fileName}`
-        );
+				// Save file with timestamp
+				const timestamp = Date.now();
+				const basePath = this.downloadDir; //directory nutzen wir nicht (bei Playwright aber sinnvoll, wenn DAtei gespeichert werden soll)
+				const newPath = path.join(
+					basePath,
+					`Seed_Download-${timestamp}_${fileName}`
+				);
 
-        await download.saveAs(newPath);
+				await download.saveAs(newPath);
 
-        // Verify file exists
-        const fileExists = fs.existsSync(newPath);
-        console.log("Downloaded to: ", newPath);
-        if (!fileExists) {
-          throw new Error(`Download file ${fileName} could not be saved`);
-        }
-      } catch (e: any) {
-        throw new Error(`Download file ${fileName} failed: ${e.message}`);
-      }
-    });
-  }
+				// Verify file exists
+				const fileExists = fs.existsSync(newPath);
+				console.log('Downloaded to: ', newPath);
+				if (!fileExists) 
+					throw new Error(`Download file ${fileName} could not be saved`);
+        
+			} catch (e: any) {
+				throw new Error(`Download file ${fileName} failed: ${e.message}`);
+			}
+		});
+	}
 );
 
 /*
@@ -1591,62 +1556,62 @@ Then(
  * (X) ${picture}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
-  "So the picture {string} has the name {string}",
-  async function (this: PlaywrightWorld, picture: string, name: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        const preferredLocators = [
-          page.getByRole("img", { name: picture }),
-          page.getByAltText(picture),
-          page.locator(`picture source[srcset*="${picture}"]`),
-          page.locator(`img[srcset*="${picture}"]`),
-          page.locator(`img[srcset*="${picture}"]`),
-          page.locator(`img[src*="${picture}"]`),
-          page.locator(`img[src*="${picture}"]`),
-          page.locator(`#${picture}`),
-        ];
+	'So the picture {string} has the name {string}',
+	async function (this: PlaywrightWorld, picture: string, name: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				const preferredLocators = [
+					page.getByRole('img', { name: picture }),
+					page.getByAltText(picture),
+					page.locator(`picture source[srcset*="${picture}"]`),
+					page.locator(`img[srcset*="${picture}"]`),
+					page.locator(`img[srcset*="${picture}"]`),
+					page.locator(`img[src*="${picture}"]`),
+					page.locator(`img[src*="${picture}"]`),
+					page.locator(`#${picture}`)
+				];
 
-        const xpathLocators = [
-          page.locator(
-            `xpath=//picture[source[contains(@srcset, "${picture}")] or img[contains(@src, "${picture}") or contains(@alt, "${picture}") or @id="${picture}" or contains(@title, "${picture}")]]`
-          ),
-          page.locator(
-            `xpath=//img[contains(@src, "${picture}") or contains(@alt, "${picture}") or @id="${picture}" or contains(@title, "${picture}")]`
-          ),
-        ];
+				const xpathLocators = [
+					page.locator(
+						`xpath=//picture[source[contains(@srcset, "${picture}")] or img[contains(@src, "${picture}") or contains(@alt, "${picture}") or @id="${picture}" or contains(@title, "${picture}")]]`
+					),
+					page.locator(
+						`xpath=//img[contains(@src, "${picture}") or contains(@alt, "${picture}") or @id="${picture}" or contains(@title, "${picture}")]`
+					)
+				];
 
-        try {
-          const locator = await mapLocatorsToPromises(
-            preferredLocators,
-            "first"
-          );
-          // Prüfe alle möglichen Bild-Attribute
-          const src = await locator.getAttribute("src");
-          const srcset = await locator.getAttribute("srcset");
+				try {
+					const locator = await mapLocatorsToPromises(
+						preferredLocators,
+						'first'
+					);
+					// Prüfe alle möglichen Bild-Attribute
+					const src = await locator.getAttribute('src');
+					const srcset = await locator.getAttribute('srcset');
 
-          if (src?.includes(name) || srcset?.includes(name)) return;
+					if (src?.includes(name) || srcset?.includes(name)) return;
 
-          throw new Error(
-            `Image ${name} not found in src or srcset attributes`
-          );
-        } catch (preferredError) {
-          const locator = await mapLocatorsToPromises(xpathLocators, "first");
-          // Prüfe alle möglichen Bild-Attribute
-          const src = await locator.getAttribute("src");
-          const srcset = await locator.getAttribute("srcset");
+					throw new Error(
+						`Image ${name} not found in src or srcset attributes`
+					);
+				} catch (_preferredError) {
+					const locator = await mapLocatorsToPromises(xpathLocators, 'first');
+					// Prüfe alle möglichen Bild-Attribute
+					const src = await locator.getAttribute('src');
+					const srcset = await locator.getAttribute('srcset');
 
-          if (src?.includes(name) || srcset?.includes(name)) return;
+					if (src?.includes(name) || srcset?.includes(name)) return;
 
-          throw new Error(
-            `Image ${name} not found in src or srcset attributes`
-          );
-        }
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+					throw new Error(
+						`Image ${name} not found in src or srcset attributes`
+					);
+				}
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 // Search if a text isn't in html code
@@ -1655,13 +1620,13 @@ Then(
  * (x) By.css('Body'), CSS-Selektor (Body)
  */
 Then("So I can't see the text: {string}", async function (this: PlaywrightWorld, text: string) {
-  await handleError(async () => {
-    try {
-      const page = this.getPage();
-      const expectedText = applySpecialCommands(text.toString());
-      const { resultString, regexFound } = resolveRegex(expectedText);
+	await handleError(async () => {
+		try {
+			const page = this.getPage();
+			const expectedText = applySpecialCommands(text.toString());
+			const { resultString, regexFound } = resolveRegex(expectedText);
 
-      /* const preferredLocators = [
+			/* const preferredLocators = [
                 page.getByText(resultString, { exact: !regexFound }),
             ];
 
@@ -1671,18 +1636,18 @@ Then("So I can't see the text: {string}", async function (this: PlaywrightWorld,
                 await mapLocatorsToPromises(preferredLocators, 'not.toContainText', resultString);
             } */
 
-      // Check in HTML content
-      const pageHTML = await page.content();
-      console.log(pageHTML);
-      if (regexFound) {
-        expect(pageHTML).not.toMatch(new RegExp(resultString));
-      } else {
-        expect(pageHTML).not.toContain(resultString);
-      }
-    } catch (e: any) {
-      throw e;
-    }
-  });
+			// Check in HTML content
+			const pageHTML = await page.content();
+			console.log(pageHTML);
+			if (regexFound) 
+				expect(pageHTML).not.toMatch(new RegExp(resultString));
+			else 
+				expect(pageHTML).not.toContain(resultString);
+      
+		} catch (e: any) {
+			throw e;
+		}
+	});
 });
 
 // Check if a checkbox is set (true) or not (false)
@@ -1694,51 +1659,51 @@ Then("So I can't see the text: {string}", async function (this: PlaywrightWorld,
  * (X) ${checkboxName}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
-  "So the checkbox {string} is set to {string} [true OR false]",
-  async function (this: PlaywrightWorld, checkboxName: string, checkedString: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
-        const checked = checkedString.toLowerCase() === "true"; // Konvertierung in Boolean
+	'So the checkbox {string} is set to {string} [true OR false]',
+	async function (this: PlaywrightWorld, checkboxName: string, checkedString: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
+				const checked = checkedString.toLowerCase() === 'true'; // Konvertierung in Boolean
 
-        const preferredLocators = [
-          page.getByRole("checkbox", { name: checkboxName }),
-          page.getByLabel(checkboxName),
-          page.locator(`[type="checkbox"][name="${checkboxName}"]`),
-          page.locator(`[type="checkbox"][id="${checkboxName}"]`),
-          page.locator(
-            `label:has-text("${checkboxName}") input[type="checkbox"]`
-          ),
-        ];
+				const preferredLocators = [
+					page.getByRole('checkbox', { name: checkboxName }),
+					page.getByLabel(checkboxName),
+					page.locator(`[type="checkbox"][name="${checkboxName}"]`),
+					page.locator(`[type="checkbox"][id="${checkboxName}"]`),
+					page.locator(
+						`label:has-text("${checkboxName}") input[type="checkbox"]`
+					)
+				];
 
-        const xpathLocators = [
-          page.locator(`xpath=//*[@type="checkbox" and @*="${checkboxName}"]`),
-          page.locator(
-            `xpath=//*[contains(text(),"${checkboxName}")]//parent::label`
-          ),
-          page.locator(
-            `xpath=//*[contains(text(),"${checkboxName}") or @*="${checkboxName}"]`
-          ),
-        ];
+				const xpathLocators = [
+					page.locator(`xpath=//*[@type="checkbox" and @*="${checkboxName}"]`),
+					page.locator(
+						`xpath=//*[contains(text(),"${checkboxName}")]//parent::label`
+					),
+					page.locator(
+						`xpath=//*[contains(text(),"${checkboxName}") or @*="${checkboxName}"]`
+					)
+				];
 
-        try {
-          await mapLocatorsToPromises(
-            preferredLocators,
-            "toBeChecked",
-            checked
-          );
-        } catch (preferredError) {
-          await mapLocatorsToPromises(
-            xpathLocators,
-            "toBeChecked",
-            checked
-          );
-        }
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+				try {
+					await mapLocatorsToPromises(
+						preferredLocators,
+						'toBeChecked',
+						checked
+					);
+				} catch (_preferredError) {
+					await mapLocatorsToPromises(
+						xpathLocators,
+						'toBeChecked',
+						checked
+					);
+				}
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 /*
@@ -1751,37 +1716,37 @@ Then(
  * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
-  "So on element {string} the css property {string} is {string}",
-  async function (this: PlaywrightWorld, element: string, property: string, value: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
+	'So on element {string} the css property {string} is {string}',
+	async function (this: PlaywrightWorld, element: string, property: string, value: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
 
-        const preferredLocators = [
-          page.getByRole("generic", { name: element }),
-          page.getByText(element, { exact: true }),
-          page.getByLabel(element),
-          page.locator(`#${element}`),
-          page.locator(`[role="${element}"]`),
-          page.locator(`[data-testid="${element}"]`),
-        ];
+				const preferredLocators = [
+					page.getByRole('generic', { name: element }),
+					page.getByText(element, { exact: true }),
+					page.getByLabel(element),
+					page.locator(`#${element}`),
+					page.locator(`[role="${element}"]`),
+					page.locator(`[data-testid="${element}"]`)
+				];
 
-        const xpathLocators = [
-          page.locator(`xpath=//*[contains(text(),"${element}")]`),
-          page.locator(`xpath=//*[@id="${element}"]`),
-          page.locator(`xpath=//*[@*="${element}"]`),
-          page.locator(`xpath=//*[contains(@*, "${element}")]`),
-          page.locator(`xpath=//*[contains(@id, "${element}")]`),
-        ];
+				const xpathLocators = [
+					page.locator(`xpath=//*[contains(text(),"${element}")]`),
+					page.locator(`xpath=//*[@id="${element}"]`),
+					page.locator(`xpath=//*[@*="${element}"]`),
+					page.locator(`xpath=//*[contains(@*, "${element}")]`),
+					page.locator(`xpath=//*[contains(@id, "${element}")]`)
+				];
 
-        try {
-          await mapLocatorsToPromises(
-            preferredLocators,
-            "toBeChecked",
-            value,
-            property
-          );
-          /* const actual = await mapLocatorsToPromises(
+				try {
+					await mapLocatorsToPromises(
+						preferredLocators,
+						'toBeChecked',
+						value,
+						property
+					);
+					/* const actual = await mapLocatorsToPromises(
             preferredLocators,
             "toHaveCSS",
     (element, prop) => window.getComputedStyle(element)[prop],
@@ -1801,14 +1766,14 @@ Then(
           }
 
           await expect(actual).toBe(value); */
-        } catch (preferredError) {
-          await mapLocatorsToPromises(
-            xpathLocators,
-            "toHaveCSS",
-            value,
-            property
-          );
-          /* const actual = await mapLocatorsToPromises(
+				} catch (_preferredError) {
+					await mapLocatorsToPromises(
+						xpathLocators,
+						'toHaveCSS',
+						value,
+						property
+					);
+					/* const actual = await mapLocatorsToPromises(
             xpathLocators,
             "toHaveCSS",
     (element, prop) => window.getComputedStyle(element)[prop],
@@ -1828,12 +1793,12 @@ Then(
           }
 
           await expect(actual).toBe(value); */
-        }
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+				}
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 /*
@@ -1847,58 +1812,58 @@ Then(
  * (X) ${element}, Implizite Suche (ID oder Name, kontextabhängig)
  */
 Then(
-  "So the element {string} has the tool-tip {string}",
-  async function (this: PlaywrightWorld, element: string, value: string) {
-    await handleError(async () => {
-      try {
-        const page = this.getPage();
+	'So the element {string} has the tool-tip {string}',
+	async function (this: PlaywrightWorld, element: string, value: string) {
+		await handleError(async () => {
+			try {
+				const page = this.getPage();
 
-        const preferredLocators = [
-          page.getByRole("tooltip", { name: value }),
-          page.getByLabel(value),
-          page
-            .getByText(element)
-            .filter({ has: page.locator('[role="tooltip"]') }),
-          page.locator(`[title="${value}"]`),
-          page.locator(`[aria-label="${value}"]`),
-          page.locator(`[data-tooltip="${value}"]`),
-          page.locator(`#${element}`),
-        ];
+				const preferredLocators = [
+					page.getByRole('tooltip', { name: value }),
+					page.getByLabel(value),
+					page
+						.getByText(element)
+						.filter({ has: page.locator('[role="tooltip"]') }),
+					page.locator(`[title="${value}"]`),
+					page.locator(`[aria-label="${value}"]`),
+					page.locator(`[data-tooltip="${value}"]`),
+					page.locator(`#${element}`)
+				];
 
-        const xpathLocators = [
-          page.locator(`xpath=${element}`),
-          page.locator(`xpath=//*[contains(text(),"${element}")]`),
-          page.locator(`xpath=//*[@id="${element}"]`),
-          page.locator(`xpath=//*[@*="${element}" and @role="tooltip"]`),
-          page.locator(`xpath=//*[contains(@*, "${element}")]`),
-          page.locator(`xpath=//*[@*="${element}"]`),
-          page.locator(`xpath=//*[contains(@id, "${element}")]`),
-        ];
+				const xpathLocators = [
+					page.locator(`xpath=${element}`),
+					page.locator(`xpath=//*[contains(text(),"${element}")]`),
+					page.locator(`xpath=//*[@id="${element}"]`),
+					page.locator(`xpath=//*[@*="${element}" and @role="tooltip"]`),
+					page.locator(`xpath=//*[contains(@*, "${element}")]`),
+					page.locator(`xpath=//*[@*="${element}"]`),
+					page.locator(`xpath=//*[contains(@id, "${element}")]`)
+				];
 
-        try {
-          await mapLocatorsToPromises(
-            preferredLocators,
-            "toHaveAttribute",
-            (value = value),
-            "title",
-            "aria-label",
-            "data-tooltip"
-          );
-        } catch (preferredError) {
-          await mapLocatorsToPromises(
-            xpathLocators,
-            "toHaveAttribute",
-            (value = value),
-            "title",
-            "aria-label",
-            "data-tooltip"
-          );
-        }
-      } catch (e: any) {
-        throw e;
-      }
-    });
-  }
+				try {
+					await mapLocatorsToPromises(
+						preferredLocators,
+						'toHaveAttribute',
+						value,
+						'title',
+						'aria-label',
+						'data-tooltip'
+					);
+				} catch (_preferredError) {
+					await mapLocatorsToPromises(
+						xpathLocators,
+						'toHaveAttribute',
+						value,
+						'title',
+						'aria-label',
+						'data-tooltip'
+					);
+				}
+			} catch (e: any) {
+				throw e;
+			}
+		});
+	}
 );
 
 //TODO: Implement across application?

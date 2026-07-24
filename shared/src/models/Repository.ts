@@ -2,12 +2,12 @@ import { AiConfig } from './RepositoryContainer';
 import { Group } from './Group';
 
 export interface Repository {
-    _id?: any;
-    owner: any;
+    _id?: string;
+    owner: string;
     repoName: string;
-    stories: any[];
+    stories: string[];
     repoType: 'db' | 'github' | 'jira';
-    customBlocks?: any[];
+    customBlocks?: string[];
     groups: Group[];
     settings?: {
         stepWaitTime?: number;

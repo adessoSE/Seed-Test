@@ -6,29 +6,29 @@ import { ApiService } from './api.service';
 import { StoryService } from './story.service';
 
 describe('StoryService', () => {
-  let service: StoryService;
-  let httpMock: HttpTestingController;
+	let _service: StoryService;
+	let _httpMock: HttpTestingController;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
 
-    });
-    service = TestBed.inject(StoryService);
-    httpMock = TestBed.inject(HttpTestingController);
-    sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
-  });
-  afterEach(() => {
-    sessionStorage.removeItem('url_backend');
-  });
+		});
+		_service = TestBed.inject(StoryService);
+		_httpMock = TestBed.inject(HttpTestingController);
+		sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
+	});
+	afterEach(() => {
+		sessionStorage.removeItem('url_backend');
+	});
 
-  describe('create', () => {
-    it('should be created', () => {
-      const http: HttpClient = TestBed.inject(HttpClient);
-      const apiService =TestBed.inject(ApiService);
-      const toast =TestBed.inject(ToastrService);
-      const service: StoryService = new StoryService(apiService,http, toast);
-      expect(service).toBeTruthy();
-    });
-  });
+	describe('create', () => {
+		it('should be created', () => {
+			const http: HttpClient = TestBed.inject(HttpClient);
+			const apiService = TestBed.inject(ApiService);
+			const toast = TestBed.inject(ToastrService);
+			const service: StoryService = new StoryService(apiService,http, toast);
+			expect(service).toBeTruthy();
+		});
+	});
 });

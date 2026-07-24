@@ -34,9 +34,9 @@ function getLogger(): Logger {
 const logger: Logger = getLogger();
 
 export function httpLog(req: Request, res: Response, next: NextFunction): void {
-	if (req.url.endsWith('log')) {
+	if (req.url.endsWith('log')) 
 		next();
-	} else {
+	else {
 		const requestStart = Date.now();
 		let errorMessage: string | null = null;
 

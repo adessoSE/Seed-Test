@@ -7,7 +7,7 @@ export interface ScenarioReport {
   /**
    * Object id of the report of the database
    */
-  _id?: any;
+  _id?: string;
 
   /**
    * Name of the report
@@ -22,12 +22,12 @@ export interface ScenarioReport {
   /**
    * included options to create html
    */
-  reportOptions: any;
+  reportOptions: Record<string, unknown>;
 
   /**
    * Story id of the executed test
    */
-  storyId: any;
+  storyId: string;
 
   /**
    * Mode: either feature, scenario
@@ -37,7 +37,7 @@ export interface ScenarioReport {
   /**
    * scenario id of the executed test
    */
-  scenarioId: any;
+  scenarioId: string;
 
   /**
    * Status if the test was successful or not

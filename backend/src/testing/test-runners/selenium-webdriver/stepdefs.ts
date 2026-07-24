@@ -1,5 +1,5 @@
 import {
-	Given, When, Then, Before, After, setWorldConstructor, setDefaultTimeout, ITestCaseHookParameter, Status
+	Given, When, Then, Before, After, setWorldConstructor, setDefaultTimeout, ITestCaseHookParameter
 } from '@cucumber/cucumber';
 import fs from 'fs';
 import assert from 'assert';
@@ -38,7 +38,7 @@ class CustomError extends Error {
 
 function betterError(error: Error): CustomError {
 	const myError = new CustomError(error.message);
-    myError.stack = `${myError.message}\n${error.stack}`;
+	myError.stack = `${myError.message}\n${error.stack}`;
 	return myError;
 }
 
@@ -115,8 +115,8 @@ After(async function (this: SeleniumWebdriverWorld, scenario: ITestCaseHookParam
 			scenarioCount,
 			totalScenarios
 		);
-		process.env.CUCUMBER_TOTAL_WORKERS = undefined;
-		process.env.CUCUMBER_WORKER_ID = undefined;
+		delete process.env.CUCUMBER_TOTAL_WORKERS;
+		delete process.env.CUCUMBER_WORKER_ID;
 	} else scenarioCount++;
 });
 
@@ -447,12 +447,12 @@ When('I hover over the element {string} and select the option {string}', async f
 				const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`)), maxWait, waitText, waitRetryTime);
 				await action2.move({ origin: selection }).click()
 					.perform();
-			} catch (e2) {
+			} catch (_e2) {
 				try {
 					const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), maxWait, waitText, waitRetryTime);
 					await action2.move({ origin: selection }).click()
 						.perform();
-				} catch (e3) {
+				} catch (_e3) {
 					await world.takeScreenshot().then(async (buffer) => {
 						world.attach(buffer, 'image/png');
 					});
@@ -695,7 +695,7 @@ Then('So I can\'t see text in the textbox: {string}', async function textAbsent(
 
 Then(
 	'So a file with the name {string} is downloaded in this Directory {string}',
-	async function checkDownloadedFile(this: SeleniumWebdriverWorld, fileName: string, directory: string) {
+	async function checkDownloadedFile(this: SeleniumWebdriverWorld, fileName: string, _directory: string) {
 		await handleError(async () => {
 			const world = this;
 			try {
@@ -732,9 +732,9 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 						const srcsetValue = await element.getAttribute('srcset');
 						return srcsetValue && srcsetValue.includes(name);
 					});
-					if (elementWithSrcset) {
-					    finSrc = await elementWithSrcset.getAttribute('srcset');
-                    }
+					if (elementWithSrcset) 
+						finSrc = await elementWithSrcset.getAttribute('srcset');
+                    
 				}
 				const primSrc = await elem.getAttribute('src');
 				const secSrc = await elem.getAttribute('srcset');
@@ -751,10 +751,10 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 			});
 			
 		// Ensure finSrc is not an empty array before fetch
-        const srcToFetch = Array.isArray(finSrc) ? finSrc[0] : finSrc; 
-        if (!srcToFetch) {
-            throw new Error(`Image source for "${name}" could not be determined.`);
-        }
+		const srcToFetch = Array.isArray(finSrc) ? finSrc[0] : finSrc; 
+		if (!srcToFetch) 
+			throw new Error(`Image source for "${name}" could not be determined.`);
+        
 		await fetch(domain + finSrc, { method: 'HEAD' })
 			.then((response) => {
 				if (!response.ok) throw Error(`Image ${finSrc} not Found`);
@@ -797,7 +797,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 });
 
 // Check if a checkbox is set (true) or not (false)
-// eslint-disable-next-line prefer-template
+ 
 Then('So the checkbox {string} is set to {string} [true OR false]', async function checkBoxIsChecked(this: SeleniumWebdriverWorld, checkboxName: string, checked1: string) {
 	await handleError(async () => {
 		const world = this;

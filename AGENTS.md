@@ -95,6 +95,57 @@ Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
 - **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report → docs/testing.md
 - **Branching**: Feature branches → `dev`; `master` reserved for official release tags (triggers Docker Hub build)
 
+## Code comments
+
+Comments are a required part of this codebase. Do NOT remove existing comments when editing code. When writing new code, follow these conventions:
+
+### When to comment
+- **Always comment:** Business logic branches, async flow control paths (subscribe/promise chains), non-obvious constraints or consequences, workarounds, and integration points with external systems (Jira, Xray, MongoDB)
+- **Always JSDoc:** All exported functions, classes, and interfaces — describe purpose, parameters, return values, and side effects
+- **Skip comments for:** Self-explanatory one-liners where naming makes intent obvious
+
+### What to write
+- **Explain WHY** (intent, business reason, consequence) — not WHAT (the code already shows what)
+- **Warn of consequences:** `// Irreversible — deletes all associated reports`, `// Order matters: groups reference story IDs created above`
+- **Label code paths:** In branching logic, prefix each branch with a short description: `// CASE 1: Single scenario`, `// CASE 2: Story with pre-conditions`
+- **Document constraints:** `// Must be called after loadParser() — returns null if parser unavailable`
+
+### Format
+- `/** JSDoc */` for public API (exported functions, classes, interfaces). Omit `@param`/`@return` types already expressed by TypeScript — only add them when the name alone is ambiguous
+- `// single-line` for implementation notes. Place above the subject line, not at end of line
+- `// TODO:` for planned improvements, `// FIXME:` for known broken things
+- Never leave commented-out code — delete it; git remembers
+
+### Anti-patterns
+- Restating code: `// increment counter` above `counter++`
+- Changelog comments: `// Added 2026-07-24 by SM` — that's git's job
+- Closing-brace labels: `} // end if` — if the block is too long to follow, extract a function
+
+### Examples from this codebase
+```typescript
+// Good: explains WHY (business rule + consequence)
+// Toggle oneDriver — when active, all scenarios share a single browser session
+const oneDriver = !currentOneDriver;
+
+// Good: labels a code path with context
+// CASE 2: Story has pre-conditions — run as temporary group (pre-condition stories + this story)
+
+// Good: JSDoc for exported function
+/**
+ * Fetches a single story by its MongoDB ObjectId or its numeric story_id.
+ * Returns null if not found.
+ */
+export async function getOneStory(storyId: string | number): Promise<Story | null> {
+
+// Bad: restates code
+// Set testRunning to true
+this.testRunning = true;
+
+// Bad: no intent
+// Call updateOne
+await db.collection(storiesCollection).updateOne(...);
+```
+
 ## Style conventions (backend)
 `backend/.eslintrc.json` extends `airbnb-base` with these overrides:
 - **Tabs** for indentation (`"indent": [2, "tab"]`)

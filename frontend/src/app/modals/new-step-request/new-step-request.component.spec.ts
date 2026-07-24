@@ -5,24 +5,24 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { NewStepRequestComponent } from './new-step-request.component';
 
 describe('NewStepRequestComponent', () => {
-  let component: NewStepRequestComponent;
-  let fixture: ComponentFixture<NewStepRequestComponent>;
+	let component: NewStepRequestComponent;
+	let fixture: ComponentFixture<NewStepRequestComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ NewStepRequestComponent, LayoutModalComponent ],
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()]
-    })
-    .compileComponents();
-  });
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			declarations: [ NewStepRequestComponent, LayoutModalComponent ],
+			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+		})
+			.compileComponents();
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(NewStepRequestComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	beforeEach(() => {
+		fixture = TestBed.createComponent(NewStepRequestComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	it('should create', () => {
+		expect(component).toBeTruthy();
+	});
 });
