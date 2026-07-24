@@ -12,7 +12,7 @@ export interface Group {
     /**
      * ids of memberStories
      */
-    member_stories: any[];
+    member_stories: string[];
 
      /**
      * boolean for sequential execution of the tests

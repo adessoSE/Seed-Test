@@ -74,10 +74,7 @@ export class UpdateGroupComponent {
     this.groupId = group._id;
     this.groupTitle = group.name;
     this.isSeq = group.isSequential;
-    this.selectedStories = [];
-    for (const s of group.member_stories) {
-        this.selectedStories.push(s._id);
-    }
+    this.selectedStories = [...group.member_stories];
     this.modalReference = this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 

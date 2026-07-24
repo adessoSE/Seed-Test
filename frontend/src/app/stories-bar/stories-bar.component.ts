@@ -326,59 +326,57 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         }
     }
 
-    mergeById(groups, stories) {
-        // 1. Create a Map of all valid, existing stories
-        const storyMap = new Map();
+    /**
+     * Filters out "ghost stories" (deleted or non-existent story IDs) from each group's member_stories.
+     * member_stories contains string IDs — this method keeps them as IDs and only removes
+     * entries that no longer correspond to an existing story.
+     * Mutates group.member_stories in-place to preserve object references for accordion state (liGroupList).
+     * @param groups Groups to validate
+     * @param stories Currently loaded stories to validate against
+     * @returns The groups array with invalid story IDs removed
+     */
+    mergeById(groups: Group[], stories: Story[]): Group[] {
+        // 1. Build a Set of all valid, existing story IDs
+        const validIds = new Set<string>();
         if (stories) {
             for (const story of stories) {
                 if (story && story._id) {
-                   storyMap.set(story._id.toString(), story);
+                    validIds.add(story._id.toString());
                 }
             }
         } else {
             console.warn("mergeById called with no stories.");
-            return groups; // Return original groups
+            return groups;
         }
 
         if (!groups) { return []; }
 
-        // 2. Mutate the 'member_stories' of each group "in-place"
-        //    This preserves the object references, which the
-        //    'liGroupList' (for accordion state) depends on.
+        // 2. Filter each group's member_stories to only keep valid IDs
         for (const group of groups) {
-            
-            const safeMemberStories = []; // Build a new list for this group
             if (group.member_stories) {
-                for (const storyRef of group.member_stories) {
-                    
-                    let id: string;
-                    if (!storyRef) continue; // Skip null/undefined
-                    
-                    if (typeof storyRef === 'string') {
-                        id = storyRef;
-                    } else if (storyRef._id) {
-                        id = storyRef._id.toString();
-                    } else {
-                        id = storyRef.toString(); // Handle ObjectIds
+                group.member_stories = group.member_stories.filter(id => {
+                    if (!id) return false;
+                    const strId = id.toString();
+                    if (!validIds.has(strId)) {
+                        console.warn(`Story ID ${strId} in group '${group.name}' not found. Skipping.`);
+                        return false;
                     }
-
-                    const fullStory = storyMap.get(id);
-
-                    if (fullStory) {
-                        safeMemberStories.push(fullStory); // Add the full story object
-                    } else {
-                        // This is a "Ghost Story"
-                        console.warn(`Story ID ${id} in group '${group.name}' not found. Skipping.`);
-                    }
-                }
+                    return true;
+                });
             }
-            
-            // 3. Replace the old list with the new, safe list *on the original object*
-            group.member_stories = safeMemberStories;
         }
-        
-        // 4. Return the groups array.
+
         return groups;
+    }
+
+    /**
+     * Resolves a story ID to the full Story object from the loaded stories list.
+     * Used by the template to display story details (title, issue_number) for group member_stories.
+     * @param id The story ID to look up
+     * @returns The Story object, or undefined if not found
+     */
+    getStoryById(id: string): Story | undefined {
+        return this.stories?.find(s => s._id === id);
     }
 
     /**
@@ -452,9 +450,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @param group
      */
     selectFirstStoryOfGroup(group: Group) {
-        let story = group.member_stories[0];
-        story = this.stories.find(o => o._id === story._id);
-        this.selectStory(story);
+        if (!group?.member_stories?.length) return;
+        const story = this.stories.find(o => o._id === group.member_stories[0]);
+        if (story) {
+            this.selectStory(story);
+        }
     }
 
     /**
@@ -556,20 +556,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     dropGroup(event: CdkDragDrop<string[]>) {
         const repo_id = localStorage.getItem('id');
         moveItemInArray(this.groups, event.previousIndex, event.currentIndex);
-        const pass_arr = JSON.parse(JSON.stringify(this.groups)); // deepCopy
-        for (const groupIndex in pass_arr) {
-            pass_arr[groupIndex].member_stories = pass_arr[groupIndex].member_stories.map(o => o._id);
-        }
+        // Deep copy to avoid mutating the original; member_stories already contains string IDs
+        const pass_arr = JSON.parse(JSON.stringify(this.groups));
         this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe(_ => { });
     }
 
     dropGroupStory(event: CdkDragDrop<string[]>, group) {
         const repo_id = localStorage.getItem('id');
         const index = this.groups.findIndex(o => o._id === group._id);
+        // Reorder story IDs within the group
         moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
-        const pass_gr = this.groups[index];
-        pass_gr.member_stories = this.groups[index].member_stories.map(o => o._id);
-        this.groupService.updateGroup(repo_id, group._id, pass_gr).subscribe(_ => { });
+        this.groupService.updateGroup(repo_id, group._id, this.groups[index]).subscribe(_ => { });
     }
 
     /**
@@ -652,11 +649,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 filter = this.stories;
                 break;
         }
+        // filter for group membership (member_stories contains story IDs)
         if (this.groupModel !== undefined) {
             const group = this.groups.filter(grp => grp.name == this.groupModel)[0];
-            const storiesIds = group.member_stories.map(story => story._id);
-            filter = filter.filter(story => storiesIds.includes(story._id));
-            console.log(filter);
+            filter = filter.filter(story => group.member_stories.includes(story._id));
         }
 
         // filter for assignee in testPassed filter result

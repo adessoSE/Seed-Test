@@ -92,11 +92,9 @@ export class ExecutionListComponent {
         index === self.findIndex(t => t.testExecKey === execution.testExecKey && t.testRunId === execution.testRunId)
       );
     } else if (this.isGroup(executionContext)) {
-      if (executionContext.member_stories) {
-
-        const storyIds = executionContext.member_stories.filter(story => story.title !== undefined && story.title !== null).map(story => story._id);
-
-        const promises = storyIds.map(storyId =>
+      // member_stories contains string IDs — fetch each story to collect test executions
+      if (executionContext.member_stories && executionContext.member_stories.length > 0) {
+        const promises = executionContext.member_stories.map(storyId =>
           lastValueFrom(this.storyService.getStory(storyId))
         );
   

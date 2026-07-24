@@ -161,11 +161,13 @@
               </div>
               <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList
                 cdkDropListLockAxis="y">
-                <li *ngFor="let story of g.member_stories" (click)="selectStoryOfGroup(story._id)">
-                  <a class="Largecaption scenarioListItem" cdkDrag>
-                    <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                    {{story.issue_number}} {{story.title | titlecase}}
-                  </a>
+                <li *ngFor="let storyId of g.member_stories" (click)="selectStoryOfGroup(storyId)">
+                  <ng-container *ngIf="getStoryById(storyId) as story">
+                    <a class="Largecaption scenarioListItem" cdkDrag>
+                      <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                      {{story.issue_number}} {{story.title | titlecase}}
+                    </a>
+                  </ng-container>
                 </li>
               </ul>
             </li>
