@@ -1,5 +1,5 @@
-import pfs from 'fs/promises';
-import path from 'path';
+import pfs from 'node:fs/promises';
+import path from 'node:path';
 import AdmZip from 'adm-zip';
 import { Story } from '@shared/models/Story';
 import { Background } from '@shared/models/Background';

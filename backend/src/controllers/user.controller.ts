@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { User } from '@shared/models/User';
 import * as userService from '../services/user.service';
 import * as nodeMail from '../nodemailer';

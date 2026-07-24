@@ -1,10 +1,10 @@
 import { ObjectId, GridFSBucket } from 'mongodb';
 import * as dbConnection from '../database/DbConnector';
-import { Readable } from 'stream';
-import { text as streamToText } from 'stream/consumers';
-import fs from 'fs';
-import pfs from 'fs/promises';
-import path from 'path';
+import { Readable } from 'node:stream';
+import { text as streamToText } from 'node:stream/consumers';
+import fs from 'node:fs';
+import pfs from 'node:fs/promises';
+import path from 'node:path';
 import reporter from 'cucumber-html-reporter'; // Import the reporter
 import { ReportContainer } from '@shared/models/ReportContainer';
 import * as storyService from './story.service';

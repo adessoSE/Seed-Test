@@ -9,8 +9,8 @@ import { Story } from '@shared/models/Story';
 import { User } from '@shared/models/User';
 import { IssueTracker, IssueTrackerOption, Github } from '../models/IssueTracker';
 import { ExecutionMode } from '../models/models';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 
 // Helper function to extract common parameters

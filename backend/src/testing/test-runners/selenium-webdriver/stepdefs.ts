@@ -1,7 +1,7 @@
 import {
 	Given, When, Then, Before, After, setWorldConstructor, setDefaultTimeout, ITestCaseHookParameter
 } from '@cucumber/cucumber';
-import fs from 'fs';
+import fs from 'node:fs';
 import assert from 'assert';
 import { By, until, Key } from 'selenium-webdriver';
 import { SeleniumWebdriverWorld } from './seleniumWebdriverWorld';

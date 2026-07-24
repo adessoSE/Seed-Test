@@ -9,8 +9,8 @@ import mongoSanitize from 'express-mongo-sanitize';
 import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import http from 'http';
-import { execSync } from 'child_process';
+import http from 'node:http';
+import { execSync } from 'node:child_process';
 import { chromium, firefox, webkit, BrowserType } from '@playwright/test';
 
 import * as dbConnector from './database/DbConnector';

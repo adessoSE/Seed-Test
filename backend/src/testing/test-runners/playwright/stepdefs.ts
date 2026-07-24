@@ -1,6 +1,6 @@
 import { expect, Locator } from '@playwright/test';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import {
 	Given,
 	When,

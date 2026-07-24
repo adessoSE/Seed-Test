@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { JobQueue } from '../helpers/jobQueue';
 import * as repositoryService from './repository.service';
 import * as storyService from './story.service';

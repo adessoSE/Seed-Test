@@ -5,8 +5,8 @@ import * as storyService from '../services/story.service';
 import * as testRunnerService from '../testing/test-runner.service'; // Assuming executeTest is here now
 import { Story } from '@shared/models/Story';
 import { User } from '@shared/models/User';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import * as featureFileService from '../services/feature-file.service'; // For cleanFileName
 import { handleReportResult } from './testExecution.controller'; // Re-use the helper
 import { ExecutionMode } from '../models/models';

@@ -1,10 +1,10 @@
 import { ObjectId, GridFSBucket } from 'mongodb';
 import * as dbConnection from '../database/DbConnector';
-import { Readable } from 'stream';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import crypto from 'crypto';
+import { Readable } from 'node:stream';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import crypto from 'node:crypto';
 import { FileElement } from '@shared/models/FileElement';
 import { oid } from '../types/mongo.types';
 

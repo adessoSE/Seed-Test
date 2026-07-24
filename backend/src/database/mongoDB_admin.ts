@@ -3,9 +3,9 @@
 
 
 import { MongoClient, Db, ObjectId } from 'mongodb';
-import fs from 'fs';
-import pfs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs';
+import pfs from 'node:fs/promises';
+import path from 'node:path';
 import * as dbConnector from './DbConnector';
 import { Story } from '@shared/models/Story';
 import dotenv from 'dotenv';

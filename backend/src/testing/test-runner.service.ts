@@ -1,6 +1,6 @@
-import fs from 'fs';
-import pfs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs';
+import pfs from 'node:fs/promises';
+import path from 'node:path';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
 import { User } from '@shared/models/User';

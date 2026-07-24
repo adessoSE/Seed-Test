@@ -6,8 +6,8 @@ import * as testRunnerService from '../testing/test-runner.service';
 import * as reportService from '../services/report.service';
 import * as featureFileService from '../services/feature-file.service';
 import { Story } from '@shared/models/Story';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { GroupReport, ExecutionMode, PassedCount } from '../models/models';
 
 /**

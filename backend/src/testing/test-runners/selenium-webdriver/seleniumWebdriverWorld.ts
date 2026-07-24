@@ -1,10 +1,12 @@
+// Selenium World uses dynamic properties (this.driver, this.downloadDir, etc.)
+// that bypass TypeScript's type system — keep require() until the class is properly typed
 const { World } = require('@cucumber/cucumber');
 const webdriver = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const firefox = require('selenium-webdriver/firefox');
 const edge = require('selenium-webdriver/edge');
-const fs = require('fs');
-const os = require('os');
+const fs = require('node:fs');
+const os = require('node:os');
 
 class SeleniumWebdriverWorld extends World {
 	constructor(options: any) {

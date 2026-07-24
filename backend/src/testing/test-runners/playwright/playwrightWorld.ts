@@ -1,7 +1,7 @@
 import { IWorldOptions, World } from '@cucumber/cucumber';
-import { Browser, BrowserContext, Download, Page, chromium, firefox, webkit } from '@playwright/test';
-import * as fs from 'fs';
-import * as os from 'os';
+import { Browser, BrowserContext, Download, Page, chromium, firefox, webkit, devices } from '@playwright/test';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 
 // Typdefinitionen
 interface TestParameters {
@@ -133,7 +133,6 @@ class PlaywrightWorld extends World {
 
 				// Emulator-Konfiguration
 				if (parameters.emulator) {
-					const devices = require('playwright').devices;
 					const device = devices[parameters.emulator];
 					if (device) {
 						try {
@@ -145,11 +144,11 @@ class PlaywrightWorld extends World {
 							throw new Error(`Browser launch failed in Emulator: ${error instanceof Error ? error.message : String(error)}`);
 						}
 						try {
-							const deviceConfig = {...device};
-                            
-							// Entferne isMobile für Firefox und WebKit
-							if (this.testParameters.browser === 'firefox' || this.testParameters.browser === 'webkit') 
-								delete deviceConfig.isMobile;
+							// Spread device config, omitting isMobile for Firefox/WebKit (they don't support it)
+							const { isMobile, ...baseConfig } = device;
+							const deviceConfig = (this.testParameters.browser === 'firefox' || this.testParameters.browser === 'webkit')
+								? baseConfig
+								: { ...device };
                             
 							// Neuen Context nur erstellen wenn sie nicht existieren
 							if (!this.context) {
