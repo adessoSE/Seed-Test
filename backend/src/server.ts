@@ -4,11 +4,14 @@ dotenv.config(); // Load environment variables first
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
 import passport from 'passport';
 import flash from 'express-flash';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import http from 'http'; // Import http module
+import http from 'http';
 import { execSync } from 'child_process';
 import { chromium, firefox, webkit, BrowserType } from '@playwright/test';
 
@@ -53,26 +56,35 @@ initializePassport(
 );
 
 const app: Application = express();
-app.disable('x-powered-by');
+
+// --- Security Middleware ---
+// Helmet sets HTTP security headers (CSP, HSTS, X-Frame-Options, etc.)
+app.use(helmet());
 
 // --- Session Configuration ---
+const databaseUri = process.env.DATABASE_URI;
+if (!databaseUri)
+	console.warn('WARNING: DATABASE_URI not set. Using Docker default. Set DATABASE_URI in .env for production!');
+
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret && process.env.NODE_ENV === 'production')
+	throw new Error('SESSION_SECRET must be set in production. Aborting.');
+
 const sessionConfig: session.SessionOptions = {
 	store: MongoStore.create({
-		mongoUrl: process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
+		mongoUrl: databaseUri || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
 		dbName: 'Seed',
 		collectionName: 'Sessions'
 	}),
-	secret: process.env.SESSION_SECRET || (() => {
-		console.warn('WARNING: SESSION_SECRET not set. Using insecure default. Set SESSION_SECRET in production!');
-		return 'unsaveSecret';
-	})(),
+	secret: sessionSecret || 'dev-only-secret-not-for-production',
 	resave: false,
 	saveUninitialized: false,
-	proxy: true, // Important if behind a reverse proxy (like Nginx)
+	proxy: true,
 	cookie: {
-		secure: process.env.NODE_ENV === 'production', // Use secure cookies in production (HTTPS needed!)
-		httpOnly: true, // Prevent client-side script access
-		sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-site, 'lax' for same-site
+		secure: process.env.NODE_ENV === 'production',
+		httpOnly: true,
+		// 'lax' prevents CSRF while allowing normal navigation; 'none' only for explicit cross-origin setups
+		sameSite: process.env.COOKIE_SAMESITE === 'none' ? 'none' : 'lax',
 		maxAge: 24 * 60 * 60 * 1000 // 1 day
 	}
 };
@@ -89,13 +101,15 @@ app.use(cors({
 	],
 	credentials: true
 }));
-app.use(bodyParser.json({ limit: '500kb' })); // Adjust limits as needed
+app.use(bodyParser.json({ limit: '500kb' }));
 app.use(bodyParser.urlencoded({ limit: '500kb', extended: true }));
+// Sanitize request data against MongoDB operator injection ($gt, $ne, etc.)
+app.use(mongoSanitize());
 app.use(flash());
 app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(httpLog); // Add request logging
+app.use(httpLog);
 
 // --- Central Authentication Middleware ---
 /**
@@ -110,17 +124,28 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
 	res.status(401).json({ error: 'Unauthorized: Please log in.' });
 };
 
+// --- Rate Limiting ---
+// Protects auth endpoints against brute-force attacks
+const authLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 20, // max 20 attempts per window
+	standardHeaders: true,
+	legacyHeaders: false,
+	message: { error: 'Too many requests. Please try again later.' }
+});
+
 // --- API Routes ---
 
-// Public routes (authentication handled within specific controllers/passport strategies if needed)
+// Public routes
 app.get('/api/health', (_, res) => res.status(200).send('OK'));
 app.get('/api/ai/available', async (_, res) => {
 	const available = await aiService.isAiParserAvailable();
 	res.json({ available });
 });
 app.get('/api', (_, res) => res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname }));
-app.use('/api/log', loggingRouter); // Frontend logging
-app.use('/api/user', userRouter); // Contains login, register, password reset, callback which are public
+app.use('/api/log', loggingRouter);
+// Rate-limit auth endpoints (login, register, password reset)
+app.use('/api/user', authLimiter, userRouter);
 app.use('/api/playwright', playwrightRouter);
 
 

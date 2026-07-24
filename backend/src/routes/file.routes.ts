@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import * as fileController from '../controllers/file.controller';
+import { authorizeRepo } from '../middleware/authorize';
 
 const router = express.Router();
 
@@ -12,28 +13,32 @@ const upload = multer({
 	limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
 });
 
+// Authorization: all file operations require repo-level access
+const canRead = authorizeRepo('repoId');
+const canEdit = authorizeRepo('repoId', { requireEdit: true });
+
 // --- File Routes ---
 
 /**
  * @route   POST /api/files/:repoId
  * @desc    Upload a new file to a repository
- * @access  Private
+ * @access  Private (repo editor)
  */
-router.post('/:repoId', upload.single('file'), fileController.fileUpload);
+router.post('/:repoId', canEdit, upload.single('file'), fileController.fileUpload);
 
 /**
  * @route   GET /api/files/:repoId
  * @desc    Get a list of all files for a repository
- * @access  Private
+ * @access  Private (repo member)
  */
-router.get('/:repoId', fileController.getFileList);
+router.get('/:repoId', canRead, fileController.getFileList);
 
 /**
  * @route   DELETE /api/files/:repoId/:fileId
  * @desc    Delete a specific file from a repository
- * @access  Private
+ * @access  Private (repo editor)
  */
-router.delete('/:repoId/:fileId', fileController.deleteFile);
+router.delete('/:repoId/:fileId', canEdit, fileController.deleteFile);
 
 
 export default router;

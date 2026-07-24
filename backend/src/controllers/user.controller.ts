@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
-import { v1 as uuidv1 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { User } from '@shared/models/User';
 import * as userService from '../services/user.service';
 import * as nodeMail from '../nodemailer';
@@ -29,7 +29,7 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
 
 		const user = await userService.getUserByEmail(email);
 		if (user) {
-			const id = uuidv1();
+			const id = randomUUID();
 			await userService.createResetRequest({
 				createdAt: new Date(),
 				uuid: id,

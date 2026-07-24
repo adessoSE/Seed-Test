@@ -100,6 +100,17 @@ export async function getOneRepositoryById(repoId: string): Promise<Repository |
 	return await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }) as unknown as Repository | null;
 }
 
+/**
+ * Finds the repository that contains a given story ID in its stories array.
+ * Used by authorization middleware to resolve repo ownership from a story reference.
+ */
+export async function getRepoByStoryId(storyId: string): Promise<Repository | null> {
+	const db = dbConnection.getConnection();
+	return await db.collection<RepositoryDoc>(repositoriesCollection).findOne(
+		{ stories: oid(storyId) }
+	) as unknown as Repository | null;
+}
+
 export async function getOneRepository(ownerId: string, name: string): Promise<Repository | null> {
 	const db = dbConnection.getConnection();
 	return await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ owner: oid(ownerId), repoName: name }) as unknown as Repository | null;
