@@ -5,7 +5,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import mongoSanitize from 'express-mongo-sanitize';
+import { sanitize, hasDangerousKeys } from './helpers/sanitize';
 import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
@@ -102,7 +102,17 @@ app.use(cors({
 app.use(express.json({ limit: '500kb' }));
 app.use(express.urlencoded({ limit: '500kb', extended: true }));
 // Sanitize request data against MongoDB operator injection ($gt, $ne, etc.)
-app.use(mongoSanitize());
+// Express 5 makes req.query a read-only getter, so we sanitize body/params in place
+// and reject requests with dangerous operators in query strings.
+app.use((req: Request, res: Response, next: NextFunction) => {
+	if (req.body) sanitize(req.body);
+	if (req.params) sanitize(req.params);
+	if (hasDangerousKeys(req.query)) {
+		res.status(400).json({ error: 'Invalid query parameters' });
+		return;
+	}
+	next();
+});
 app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());

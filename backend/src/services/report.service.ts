@@ -96,7 +96,15 @@ export async function uploadReport(reportResults: any): Promise<any> {
 	const db = dbConnection.getConnection();
 	const reportData = { ...reportResults }; // Create a mutable copy
 
-	const data = await fs.promises.readFile(reportResults.reportOptions.jsonFile, 'utf8');
+	const jsonFilePath = reportResults.reportOptions?.jsonFile;
+	if (!jsonFilePath || !fs.existsSync(jsonFilePath)) {
+		// No readable JSON report (generation failed or file missing) — store metadata only
+		console.warn(`Report JSON not available at ${jsonFilePath}, storing metadata only`);
+		await db.collection(ReportDataCollection).insertOne(reportData);
+		return reportData;
+	}
+
+	const data = await fs.promises.readFile(jsonFilePath, 'utf8');
 	const jReport = { jsonReport: data, created: new Date() };
 	const len = Buffer.byteLength(JSON.stringify(data));
 
@@ -332,6 +340,41 @@ function setHtmlOptions(reportName: string, jsonPath: string, isGroup: boolean =
 	return myOptions;
 }
 
+/**
+ * Validates JSON report files in a directory. Replaces corrupt/truncated files with
+ * a minimal valid Cucumber JSON so the reporter still shows them as "undefined"
+ * instead of crashing. Returns the count of files (valid + repaired).
+ */
+function validateReportJsonFiles(dirPath: string): number {
+	const jsonFiles = fs.readdirSync(dirPath).filter(f => f.endsWith('.json'));
+	for (const file of jsonFiles) {
+		const filePath = path.join(dirPath, file);
+		try {
+			JSON.parse(fs.readFileSync(filePath, 'utf8'));
+		} catch {
+			console.warn(`Repairing corrupt report JSON (truncated test output): ${file}`);
+			// Replace with minimal valid Cucumber JSON — shows as "undefined" in the HTML report
+			const placeholder = JSON.stringify([{
+				keyword: 'Feature',
+				name: `Unknown (corrupt report: ${file})`,
+				uri: file.replace('.json', '.feature'),
+				elements: [{
+					keyword: 'Scenario',
+					name: 'Unknown (report data truncated)',
+					type: 'scenario',
+					steps: [{
+						keyword: 'Given ',
+						name: 'scenario report was truncated',
+						result: { status: 'undefined', duration: 0 }
+					}]
+				}]
+			}]);
+			fs.writeFileSync(filePath, placeholder, 'utf8');
+		}
+	}
+	return jsonFiles.length;
+}
+
 // ######## Analysis Functions ##########
 
 /**
@@ -341,16 +384,28 @@ function setHtmlOptions(reportName: string, jsonPath: string, isGroup: boolean =
  * @param isGroup - Indicates if this is a group report (jsonDir mode).
  * @returns The options used for generation.
  */
-export function generateHtmlReport(reportName: string, jsonPath: string, isGroup: boolean = false): reporter.Options {
+export function generateHtmlReport(reportName: string, jsonPath: string, isGroup: boolean = false): reporter.Options | null {
 	const reportOptions = setHtmlOptions(reportName, jsonPath, isGroup);
 	try {
+		if (isGroup) {
+			// Validate JSON files before generation — removes truncated files that would crash the reporter
+			const groupDir = reportOptions.jsonDir ?? path.dirname(jsonPath);
+			const validCount = validateReportJsonFiles(groupDir);
+			if (validCount === 0) {
+				console.error(`No valid JSON report files found for group ${reportName}`);
+				return null;
+			}
+		} else {
+			// Validate single JSON file before generation
+			JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+		}
 		reporter.generate(reportOptions);
 		console.log(`Generated HTML report at: ${reportOptions.output}`);
+		return reportOptions;
 	} catch (e) {
 		console.error(`Could not generate HTML Report for ${reportName}. Error:`, e);
-		// Decide if we should throw or just log
+		return null;
 	}
-	return reportOptions;
 }
 
 /**
@@ -371,24 +426,28 @@ export async function resolveAndSaveReport(reportResult: any, mode: ExecutionMod
 		const groupDirName = executionParams.name; // The directory name created in controller
 		jsonPath = path.join(reportPathBase, groupDirName, `${groupDirName}.html.json`); // Path for combined group JSON
 		isGroupReport = true;
-		// Generate the combined JSON first by running the HTML reporter in jsonDir mode
-		generateHtmlReport(groupDirName, path.join(reportPathBase, groupDirName), true); // Pass dir for jsonDir
+		// Generate HTML report — pass jsonPath so setHtmlOptions derives the correct group directory
+		generateHtmlReport(groupDirName, jsonPath, true);
 		analysisResult = await analyzeGroupReport(groupDirName, stories, jsonPath);
 		reportName = groupDirName; // Use the group name as the final report name
 	} else {
 		jsonPath = path.join(reportPathBase, `${reportName}.json`);
-		generateHtmlReport(reportName, jsonPath, false); // Generate HTML from single JSON
-		if (mode === ExecutionMode.SCENARIO) 
+		generateHtmlReport(reportName, jsonPath, false);
+		if (mode === ExecutionMode.SCENARIO)
 			analysisResult = await analyzeScenarioReport(stories, reportName, parseInt(reportResult.scenarioId, 10), jsonPath);
 		else  // ExecutionMode.STORY
 			analysisResult = await analyzeStoryReport(stories, reportName, jsonPath);
-        
+
 	}
 
 	// Add common fields
 	analysisResult.reportTime = reportResult.reportTime;
 	analysisResult.mode = mode;
-	analysisResult.reportOptions = setHtmlOptions(reportName, jsonPath, isGroupReport); // Store options used
+	analysisResult.reportOptions = setHtmlOptions(reportName, jsonPath, isGroupReport);
+	// For group reports, jsonFile is null in reportOptions (jsonDir mode) — set it explicitly
+	// so uploadReport knows which JSON to read
+	if (isGroupReport)
+		analysisResult.reportOptions.jsonFile = jsonPath;
 
 	// Upload the final analysis result to DB
 	const uploadedReport = await uploadReport(analysisResult);
