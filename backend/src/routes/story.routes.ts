@@ -13,12 +13,16 @@ const upload = multer({
 	limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
 });
 
-// Authorization helpers
+// Authorization helpers — URL-param-based
 const canReadRepo = authorizeRepo('repo_id');
 const canEditRepo = authorizeRepo('repo_id', { requireEdit: true });
 const canEditByStory = authorizeByStory('story_id', { requireEdit: true });
 const canEditByStoryAlt = authorizeByStory('storyID', { requireEdit: true });
 const canEditById = authorizeByStory('_id', { requireEdit: true });
+const canReadById = authorizeByStory('_id');
+// Body/query-based authorization for routes without repo ID in URL
+const canReadRepoByQuery = authorizeRepo('id', { source: 'query' });
+const canEditRepoByBody = authorizeRepo('_id', { requireEdit: true, source: 'body' });
 
 // Static and specific routes MUST be defined before dynamic routes.
 
@@ -51,10 +55,10 @@ router.patch('/:story_id', canEditByStory, storyController.updateScenarioList);
  * @desc    Get all stories for a specific repository (from DB, GitHub, or Jira)
  * @access  Private (repo access checked in controller via query param)
  */
-router.get('/', storyController.getStories);
-router.post('/', storyController.createStory);
+router.get('/', canReadRepoByQuery, storyController.getStories);
+router.post('/', canEditRepoByBody, storyController.createStory);
 router.put('/list/:repo_id', canEditRepo, storyController.updateStoryOrder);
-router.get('/:_id', storyController.getStoryById);
+router.get('/:_id', canReadById, storyController.getStoryById);
 router.put('/:_id', canEditById, storyController.updateStory);
 router.delete('/:repo_id/:_id', canEditRepo, storyController.deleteStory);
 

@@ -1,4 +1,5 @@
 import * as crypto from 'node:crypto';
+import { logger } from '../logging';
 
 const ALGORITHM = 'aes-256-gcm';
 const NONCE_LENGTH = 12; // GCM standard nonce length
@@ -53,7 +54,7 @@ export function decrypt(encryptedText: string): string | null {
 
 		return decrypted;
 	} catch (error) {
-		console.error('Decryption failed. Data might be tampered with or key is wrong.', error);
+		logger.error(`Decryption failed. Data might be tampered with or key is wrong. ${error}`);
 		return null;
 	}
 }

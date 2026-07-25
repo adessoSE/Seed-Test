@@ -1,4 +1,5 @@
 import { ObjectId, GridFSBucket } from 'mongodb';
+import { logger } from '../logging';
 import * as dbConnection from '../database/DbConnector';
 import { Readable } from 'node:stream';
 import { text as streamToText } from 'node:stream/consumers';
@@ -99,7 +100,7 @@ export async function uploadReport(reportResults: any): Promise<any> {
 	const jsonFilePath = reportResults.reportOptions?.jsonFile;
 	if (!jsonFilePath || !fs.existsSync(jsonFilePath)) {
 		// No readable JSON report (generation failed or file missing) — store metadata only
-		console.warn(`Report JSON not available at ${jsonFilePath}, storing metadata only`);
+		logger.warn(`Report JSON not available at ${jsonFilePath}, storing metadata only`);
 		await db.collection(ReportDataCollection).insertOne(reportData);
 		return reportData;
 	}
@@ -352,7 +353,7 @@ function validateReportJsonFiles(dirPath: string): number {
 		try {
 			JSON.parse(fs.readFileSync(filePath, 'utf8'));
 		} catch {
-			console.warn(`Repairing corrupt report JSON (truncated test output): ${file}`);
+			logger.warn(`Repairing corrupt report JSON (truncated test output): ${file}`);
 			// Replace with minimal valid Cucumber JSON — shows as "undefined" in the HTML report
 			const placeholder = JSON.stringify([{
 				keyword: 'Feature',
@@ -392,7 +393,7 @@ export function generateHtmlReport(reportName: string, jsonPath: string, isGroup
 			const groupDir = reportOptions.jsonDir ?? path.dirname(jsonPath);
 			const validCount = validateReportJsonFiles(groupDir);
 			if (validCount === 0) {
-				console.error(`No valid JSON report files found for group ${reportName}`);
+				logger.error(`No valid JSON report files found for group ${reportName}`);
 				return null;
 			}
 		} else {
@@ -400,10 +401,10 @@ export function generateHtmlReport(reportName: string, jsonPath: string, isGroup
 			JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 		}
 		reporter.generate(reportOptions);
-		console.log(`Generated HTML report at: ${reportOptions.output}`);
+		logger.info(`Generated HTML report at: ${reportOptions.output}`);
 		return reportOptions;
 	} catch (e) {
-		console.error(`Could not generate HTML Report for ${reportName}. Error:`, e);
+		logger.error(`Could not generate HTML Report for ${reportName}. Error: ${e}`);
 		return null;
 	}
 }
@@ -467,8 +468,8 @@ export function scheduleReportDeletion(reportName: string, isGroup: boolean, del
 		const dirPath = path.join(reportPathBase, reportName);
 		setTimeout(() => {
 			fs.rm(dirPath, { recursive: true, force: true }, (err) => {
-				if (err) console.error(`Error deleting group report directory ${dirPath}:`, err);
-				else console.log(`Group report directory ${dirPath} deleted after timeout.`);
+				if (err) logger.error(`Error deleting group report directory ${dirPath}: ${err}`);
+				else logger.info(`Group report directory ${dirPath} deleted after timeout.`);
 			});
 		}, delayMs);
 	} else {
@@ -503,7 +504,7 @@ async function analyzeStoryReport(stories: Story[], reportName: string, jsonPath
 		return reportResults;
 
 	} catch (error: any) {
-		console.error(`Error analyzing story report ${reportName}:`, error);
+		logger.error(`Error analyzing story report ${reportName}: ${error}`);
 		reportResults.status = false;
 		return reportResults; // Return default error state
 	}
@@ -541,7 +542,7 @@ async function analyzeScenarioReport(stories: Story[], reportName: string, scena
 		return reportResults;
 
 	} catch (error: any) {
-		console.error(`Error analyzing scenario report ${reportName}:`, error);
+		logger.error(`Error analyzing scenario report ${reportName}: ${error}`);
 		reportResults.status = false;
 		return reportResults; // Return default error state
 	}
@@ -572,7 +573,7 @@ export async function analyzeGroupReport(groupName: string, stories: Story[], js
 			const story = storyIdMatch ? storyMap.get(storyIdMatch) : stories.find(s => s.title === storyReport.name); // Fallback to name match
 
 			if (!story) {
-				console.warn(`Could not find matching story data for report feature: ${storyReport.name}`);
+				logger.warn(`Could not find matching story data for report feature: ${storyReport.name}`);
 				continue; // Skip if no matching story data
 			}
 
@@ -593,7 +594,7 @@ export async function analyzeGroupReport(groupName: string, stories: Story[], js
 
 		return reportResults;
 	} catch (error: any) {
-		console.error(`Error analyzing group report ${groupName}:`, error);
+		logger.error(`Error analyzing group report ${groupName}: ${error}`);
 		reportResults.status = false;
 		return reportResults;
 	}
@@ -624,7 +625,7 @@ function featureResult(featureReport: any, feature: Story): any { // Define a pr
 		const scenario = scenarioId ? feature.scenarios.find(s => s.scenario_id === scenarioId) : feature.scenarios.find(s => s.name === scenReport.name); // Fallback to name
 
 		if (!scenario) {
-			console.warn(`Could not find matching scenario data for report element: ${scenReport.name}`);
+			logger.warn(`Could not find matching scenario data for report element: ${scenReport.name}`);
 			continue;
 		}
 
@@ -657,18 +658,18 @@ function scenarioResult(scenarioReport: any, scenario: Scenario): ScenarioStatus
 			case 'skipped': scenarioSkippedSteps++; break;
 			case 'undefined': // Handle undefined steps if necessary
 				scenarioFailedSteps++; // Treat undefined as failure?
-				console.warn(`Undefined step found: ${step.keyword}${step.name}`);
+				logger.warn(`Undefined step found: ${step.keyword}${step.name}`);
 				break;
 			case 'ambiguous': // Handle ambiguous steps if necessary
 				scenarioFailedSteps++; // Treat ambiguous as failure?
-				console.warn(`Ambiguous step found: ${step.keyword}${step.name}`);
+				logger.warn(`Ambiguous step found: ${step.keyword}${step.name}`);
 				break;
 			case 'pending': // Handle pending steps if necessary
 				scenarioSkippedSteps++; // Treat pending as skipped?
-				console.warn(`Pending step found: ${step.keyword}${step.name}`);
+				logger.warn(`Pending step found: ${step.keyword}${step.name}`);
 				break;
 			default:
-				console.warn(`Unknown step status: ${step.result?.status} for step: ${step.keyword}${step.name}`);
+				logger.warn(`Unknown step status: ${step.result?.status} for step: ${step.keyword}${step.name}`);
 				// Decide how to count unknown status, maybe skipped or failed?
 				scenarioSkippedSteps++;
 		}
@@ -694,9 +695,9 @@ function testPassed(failed: number, passed: number): boolean {
 function deleteReportFile(filePath: string): void {
 	fs.unlink(filePath, (err) => {
 		if (err && err.code !== 'ENOENT')  // Ignore 'file not found' errors
-			console.error(`Error deleting report file ${filePath}:`, err);
-		else if (!err) 
-			console.log(`Report file ${filePath} deleted.`);
+			logger.error(`Error deleting report file ${filePath}: ${err}`);
+		else if (!err)
+			logger.info(`Report file ${filePath} deleted.`);
         
 	});
 }

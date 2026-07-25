@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import * as reportService from '../services/report.service';
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from '../logging';
 
 /**
  * Handles fetching specific report data by its ID.
@@ -51,8 +52,8 @@ export async function regenerateReport(req: Request, res: Response, next: NextFu
 		res.json({ htmlFile: htmlContent, reportId: fullReport._id }); // Send HTML content
 
 		// Clean up temporary files
-		await fs.promises.unlink(tempJsonPath).catch(err => console.error(`Failed to delete temp JSON: ${err}`));
-		await fs.promises.unlink(htmlPath).catch(err => console.error(`Failed to delete temp HTML: ${err}`)); // Optional: keep HTML?
+		await fs.promises.unlink(tempJsonPath).catch(err => logger.error(`Failed to delete temp JSON: ${err}`));
+		await fs.promises.unlink(htmlPath).catch(err => logger.error(`Failed to delete temp HTML: ${err}`)); // Optional: keep HTML?
 
 	} catch (error) {
 		next(error);
@@ -91,19 +92,29 @@ export async function deleteReport(req: Request, res: Response, next: NextFuncti
 	}
 }
 
-/**
- * Handles setting the 'isSaved' status of a report.
- */
-export async function setReportSavedStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+/** Marks a report as saved. */
+export async function saveReport(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const reportId = req.params.reportId;
-		// Save status is set by the route middleware (true for /save, false for /unsave)
-		const isSaved = (req as any).saveStatus === true;
+		const { reportId } = req.params;
 		if (!ObjectId.isValid(reportId)) {
 			res.status(400).json({ error: 'Invalid report ID format' }); return;
 		}
-		await reportService.setIsSavedTestReport(reportId, isSaved);
-		res.status(200).json({ message: `Report marked as ${isSaved ? 'saved' : 'unsaved'}.` });
+		await reportService.setIsSavedTestReport(reportId, true);
+		res.status(200).json({ message: 'Report marked as saved.' });
+	} catch (error) {
+		next(error);
+	}
+}
+
+/** Marks a report as unsaved. */
+export async function unsaveReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+	try {
+		const { reportId } = req.params;
+		if (!ObjectId.isValid(reportId)) {
+			res.status(400).json({ error: 'Invalid report ID format' }); return;
+		}
+		await reportService.setIsSavedTestReport(reportId, false);
+		res.status(200).json({ message: 'Report marked as unsaved.' });
 	} catch (error) {
 		next(error);
 	}

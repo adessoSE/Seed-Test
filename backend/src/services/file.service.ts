@@ -1,4 +1,5 @@
 import { ObjectId, GridFSBucket } from 'mongodb';
+import { logger } from '../logging';
 import * as dbConnection from '../database/DbConnector';
 import { Readable } from 'node:stream';
 import fs from 'node:fs';
@@ -110,7 +111,7 @@ export async function getFiles(fileTitles: string[], repoId: string): Promise<vo
 	for (const fileTitle of fileTitles) {
 		const fileInfo = await db.collection('GridFS.files').findOne({ 'metadata.repoId': oid(repoId), filename: fileTitle });
 		if (!fileInfo) {
-			console.warn(`File not found in GridFS: ${fileTitle}`);
+			logger.warn(`File not found in GridFS: ${fileTitle}`);
 			continue;
 		}
 
@@ -121,8 +122,8 @@ export async function getFiles(fileTitles: string[], repoId: string): Promise<vo
 		// Set a timeout to delete the temporary file after 5 hours
 		setTimeout(() => {
 			fs.unlink(destinationPath, (err) => {
-				if (err) console.error(`Error deleting temp file ${destinationPath}:`, err);
-				else console.log(`Temp file ${fileInfo.filename} deleted.`);
+				if (err) logger.error(`Error deleting temp file ${destinationPath}: ${err}`);
+				else logger.info(`Temp file ${fileInfo.filename} deleted.`);
 			});
 		}, 18000000); // 5 hours in milliseconds
 

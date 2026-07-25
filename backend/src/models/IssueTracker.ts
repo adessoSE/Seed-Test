@@ -1,4 +1,5 @@
 
+import { logger } from '../logging';
 import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from './models';
 import { checkValidGithubFormat, jiraDecryptPassword } from '../services/externalAccount.service';
 
@@ -65,8 +66,8 @@ class Github extends IssueTracker {
 			method: 'post',
 			body: JSON.stringify({ body: comment }),
 			headers: { Authorization: auth }
-		}).then( async (response) => {
-			console.log(await response.json());
+		}).then(async (response) => {
+			logger.info(`GitHub comment posted: ${JSON.stringify(await response.json())}`);
 		});
 	}
 
@@ -141,7 +142,7 @@ class Jira extends IssueTracker {
 			headers: { Authorization: authString, 'Content-Type': 'application/json' }
 		}).then(async (response: Response) => {
 			const data = await response.json();
-			console.log(data);
+			logger.info(`Jira comment posted: ${JSON.stringify(data)}`);
 		});
 	}
 	decryptPassword(credentials: any){

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Session, SessionData } from 'express-session';
 import * as userService from '../services/user.service';
 import { User } from '@shared/models/User';
+import { logger } from '../logging';
 
 // Define a type combining Request with Session properties for cleaner casting
 type RequestWithSession = Request & { session: Session & Partial<SessionData> };
@@ -15,7 +16,7 @@ export async function submitIssue(req: Request, res: Response, next: NextFunctio
 		const { body } = req;
 		const token = process.env.TESTACCOUNT_TOKEN;
 		if (!token) {
-			console.error('TESTACCOUNT_TOKEN environment variable is not set.');
+			logger.error('TESTACCOUNT_TOKEN environment variable is not set.');
 			res.status(500).json({ error: 'Server configuration error: GitHub token missing.' });
 			return;
 		}
@@ -65,7 +66,7 @@ export async function disconnectGithub(req: Request, res: Response, next: NextFu
 			// Use callback for session saving as it might be async
 			reqWithSession.session.save(err => {
 				if (err) {
-					console.error('Session save error:', err);
+					logger.error(`Session save error: ${err}`);
 					// Decide how to handle session save errors, maybe still send success?
 					// For now, pass to error handler for consistency
 					return next(err);

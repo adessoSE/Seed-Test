@@ -1,4 +1,5 @@
 import { ObjectId, Filter, ClientSession, MongoClient } from 'mongodb';
+import { logger } from '../logging';
 import * as dbConnection from '../database/DbConnector';
 import { Story } from '@shared/models/Story';
 import { StoryDoc, oid } from '../types/mongo.types';
@@ -185,7 +186,7 @@ export async function upsertStoryByExternalId(storyId: number, updatedContent: P
 		return result;
 
 	} catch (e) {
-		console.error(`ERROR in upsertStoryByExternalId: ${e}`);
+		logger.error(`ERROR in upsertStoryByExternalId: ${e}`);
 		throw e;
 	}
 }

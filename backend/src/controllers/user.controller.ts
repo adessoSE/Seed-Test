@@ -6,6 +6,7 @@ import { User } from '@shared/models/User';
 import * as userService from '../services/user.service';
 import * as nodeMail from '../nodemailer';
 import { Session, SessionData } from 'express-session';
+import { logger } from '../logging';
 
 const saltRounds = 10;
 
@@ -163,7 +164,7 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 	const params = new URLSearchParams();
 
 	if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
-		console.error('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET not set.');
+		logger.error('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET not set.');
 		res.status(501).send('Server configuration error.');
 		return;
 	}
@@ -266,7 +267,7 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
 		await userService.deleteUser(user._id!);
         
 		req.logout((err) => {
-			if (err) console.error('Error during logout after user deletion:', err);
+			if (err) logger.error(`Error during logout after user deletion: ${err}`);
 			res.clearCookie('connect.sid', { path: '/' });
 			res.status(200).json({ message: 'User deleted successfully' });
 		});

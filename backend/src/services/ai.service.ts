@@ -3,6 +3,7 @@ import { JobQueue } from '../helpers/jobQueue';
 import * as repositoryService from './repository.service';
 import * as storyService from './story.service';
 import { decrypt } from '../helpers/cryptoHelper';
+import { logger } from '../logging';
 
 let parseTextToStory: ((opts: any) => Promise<any>) | null = null;
 let _parserChecked = false;
@@ -14,10 +15,10 @@ async function loadParser(): Promise<boolean> {
 		const parserModule = '@seed-test/ai-parser';
 		const mod = await import(/* webpackIgnore: true */ parserModule);
 		parseTextToStory = mod.parseTextToStory;
-		console.log('AI Parser (@seed-test/ai-parser) loaded successfully.');
+		logger.info('AI Parser (@seed-test/ai-parser) loaded successfully.');
 		return true;
 	} catch {
-		console.log('AI Parser (@seed-test/ai-parser) not available. AI features disabled.');
+		logger.info('AI Parser (@seed-test/ai-parser) not available. AI features disabled.');
 		return false;
 	}
 }
@@ -88,7 +89,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
 			}
 		}
 
-		console.log(`Starting AI parser for Story ${story.title} with ID: ${storyId}`);
+		logger.info(`Starting AI parser for Story ${story.title} with ID: ${storyId}`);
         
 		// Call the AI parser
 		const parsedStory = await parseTextToStory({
@@ -100,7 +101,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
 			throw new Error('AI-Parser did not generate any valid scenarios.');
         
 
-		console.log(`AI results for story ${storyId} are ready. Saving as suggestion.`);
+		logger.info(`AI results for story ${storyId} are ready. Saving as suggestion.`);
         
 		// Save the AI-generated result as a suggestion on the story object
 		story.aiSuggestion = {
@@ -125,7 +126,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
 		});
 
 	} catch (error: any) {
-		console.error(`Error in generateAiScenariosForStory for storyId ${storyId}:`, error);
+		logger.error(`Error in generateAiScenariosForStory for storyId ${storyId}: ${error}`);
 		// Notify listeners (SSE client) about the error
 		aiJobEmitter.emit(`job-done-${storyId}`, { status: 'error', error: error.message });
 	}
@@ -140,5 +141,5 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
 export function queueAiScenarioGeneration(storyId: string, aiConfig: any, repoId: string): void {
 	const task = () => generateAiScenariosForStory(storyId, aiConfig, repoId);
 	aiJobQueue.add(task);
-	console.log(`AI Job for story ${storyId} has been added to the queue.`);
+	logger.info(`AI Job for story ${storyId} has been added to the queue.`);
 }

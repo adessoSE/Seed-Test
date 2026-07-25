@@ -2,13 +2,14 @@ import { ObjectId, Binary } from 'mongodb';
 import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import * as userService from './user.service'; // To fetch/update the user document
 import { User } from '@shared/models/User';
+import { logger } from '../logging';
 
 const cryptoAlgorithm = 'aes-256-ccm';
 // It's recommended to move secrets to environment variables or a config service
 const jiraSecret = process.env.JIRA_SECRET;
 const jiraSalt = process.env.JIRA_SALT;
 if (!jiraSecret || !jiraSalt) {
-	console.error('FATAL: JIRA_SECRET and JIRA_SALT environment variables must be set.');
+	logger.error('FATAL: JIRA_SECRET and JIRA_SALT environment variables must be set.');
 	process.exit(1);
 }
 const key = scryptSync(jiraSecret, jiraSalt, 32);
@@ -59,7 +60,7 @@ export function jiraDecryptPassword(
 		const receivedPlaintext = Buffer.concat([decipher.update(cipherBuffer), decipher.final()]).toString('utf8');
 		return receivedPlaintext;
 	} catch (err) {
-		console.error(`Jira Decryption Failed: ${err}`); // Log appropriately
+		logger.error(`Jira Decryption Failed: ${err}`);
 		throw new Error('Jira password decryption failed!');
 	}
 }
@@ -187,6 +188,6 @@ function toBuffer(input: CipherInput): Buffer {
     
 
 	// Fallback/Error
-	console.error('Failed to convert crypto input to Buffer. Input type:', typeof input);
+	logger.error(`Failed to convert crypto input to Buffer. Input type: ${typeof input}`);
 	throw new Error('Invalid crypto input type: unable to convert to Buffer.');
 }

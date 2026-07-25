@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 import { jiraDecryptPassword, buildAuthString, checkValidGithubFormat } from './externalAccount.service';
+import { logger } from '../logging';
 import * as repositoryService from './repository.service';
 import * as storyService from './story.service';
 import * as featureFileService from './feature-file.service';
@@ -86,7 +87,7 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
 		const jiraProjects = await response.json();
 		return jiraProjects.map((project: any) => project.name);
 	} catch (error: any) {
-		console.error('Error fetching Jira projects:', error.stack || error); 
+		logger.error(`Error fetching Jira projects: ${error.stack || error}`);
 		return [];
 	}
 }
@@ -204,7 +205,7 @@ async function execRepositoryRequests(link: string, user: string, password: stri
 		}
 		return projects;
 	} catch (reason) {
-		console.error('Problem getting GitHub projects:', reason);
+		logger.error(`Problem getting GitHub projects: ${reason}`);
 		return [];
 	}
 }
@@ -219,7 +220,7 @@ async function execRepositoryRequests(link: string, user: string, password: stri
  * @returns A promise resolving to an array of synchronized stories.
  */
 export async function getStoriesFromSource(user: User, query: { [key: string]: string }): Promise<Story[]> {
-	console.log('getStoriesFromSource called for source:', query.source, 'userId:', user?._id);
+	logger.info(`getStoriesFromSource called for source: ${query.source} userId: ${user?._id}`);
 	const { source, githubName, repository, projectKey, id: _id } = query;
     
 	const tmpStories = new Map<string, Story>();
@@ -242,7 +243,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
         
 		const issues = await response.json();
-		console.log(`Fetched ${issues.length} issues from GitHub`);
+		logger.info(`Fetched ${issues.length} issues from GitHub`);
 		for (const issue of issues) {
 			const story: Partial<Story> = {
 				story_id: issue.id,
@@ -368,7 +369,7 @@ export async function matchStoryOrder(
 
 	// 2. Load these "missing" stories from the database to ensure the list is complete
 	if (missingDbStoryIds.length > 0) {
-		console.log(`Loading ${missingDbStoryIds.length} existing stories from DB that were not in the JQL sync...`);
+		logger.info(`Loading ${missingDbStoryIds.length} existing stories from DB that were not in the JQL sync...`);
         
 		// Load missing stories (assuming story.service.ts has getOneStory)
 		// A 'getStoriesByIds' would be more efficient, but this is safer
@@ -381,7 +382,7 @@ export async function matchStoryOrder(
 			if (story)  // Check if story was found
 				storiesMap.set(story._id!.toString(), story);
 			else
-				console.warn('Failed to load story from DB with ID, it might be orphaned.');
+				logger.warn('Failed to load story from DB with ID, it might be orphaned.');
 
 		});
 	}
@@ -401,7 +402,7 @@ export async function matchStoryOrder(
          
 		// Update the repo in the background, don't await
 		repositoryService.updateStoriesArrayInRepo(repoDoc._id.toString(), validFinalIdList)
-			.catch(err => console.error('Failed to update story order in repo:', err));
+			.catch(err => logger.error(`Failed to update story order in repo: ${err}`));
 	}
 
 	// 5. Return the complete list, mapped from the now-complete storiesMap
@@ -427,7 +428,7 @@ async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
 	try {
 		result = await storyService.getOneStory(lookupId);
 	} catch (_e) {
-		console.warn(`Story with ID ${lookupId} not found in DB, will create new.`);
+		logger.warn(`Story with ID ${lookupId} not found in DB, will create new.`);
 	}
 
 	let finalStoryData: Partial<Story>;
@@ -606,7 +607,7 @@ function mergeTestRunSteps(dbTestRunSteps: any, jiraTestRunSteps: any): any {
 export async function updateTestSets(testSets: any[], repo_id: string): Promise<void> {
 	const repository = await repositoryService.getOneRepositoryById(repo_id);
 	if (!repository) {
-		console.warn(`Repository ${repo_id} not found. Skipping all Test Set updates.`);
+		logger.warn(`Repository ${repo_id} not found. Skipping all Test Set updates.`);
 		return;
 	}
 	for (const testSet of testSets) 
@@ -623,12 +624,12 @@ export async function updateTestSets(testSets: any[], repo_id: string): Promise<
 				if (existingGroup) {
 					// The Test Set is empty, but a group with old stories exists.
 					// We MUST update it to be empty.
-					console.log(`Test Set ${testSet.testSetKey} is empty. Clearing member stories from existing group.`);
+					logger.info(`Test Set ${testSet.testSetKey} is empty. Clearing member stories from existing group.`);
 					const updatedGroup = { ...existingGroup, member_stories: [] }; // Empty the array
 					await repositoryService.updateStoryGroup(repo_id, existingGroup._id!.toString(), updatedGroup);
 				} else 
 				// The Test Set is empty and no group exists. Do nothing.
-					console.log(`No stories found for Test Set ${testSet.testSetKey}. Skipping group creation.`);
+					logger.info(`No stories found for Test Set ${testSet.testSetKey}. Skipping group creation.`);
                 
 				continue; // Move to the next test set
 			}
@@ -639,7 +640,7 @@ export async function updateTestSets(testSets: any[], repo_id: string): Promise<
 				// updateStoryGroup expects Group (string[]) but MongoDB stores ObjectId[]
 				const updatedGroup = { ...existingGroup, member_stories: storyIds.map(id => oid(id)) as any[] };
 				await repositoryService.updateStoryGroup(repo_id, existingGroup._id!.toString(), updatedGroup); 
-				console.log(`Updated group for Test Set: ${testSet.testSetKey}`);
+				logger.info(`Updated group for Test Set: ${testSet.testSetKey}`);
 			} else {
 				// Group does not exist, create it
 				await repositoryService.createStoryGroup( 
@@ -649,10 +650,10 @@ export async function updateTestSets(testSets: any[], repo_id: string): Promise<
 					true, // Assuming sequential is true for test sets
 					testSet.xrayTestSet
 				);
-				console.log(`Group created for Test Set: ${testSet.testSetKey}`);
+				logger.info(`Group created for Test Set: ${testSet.testSetKey}`);
 			}
 		} catch (e: any) {
-			console.error(`Error processing group for Test Set ${testSet.testSetKey}:`, e.message || e);
+			logger.error(`Error processing group for Test Set ${testSet.testSetKey}: ${e.message || e}`);
 		}
     
 }

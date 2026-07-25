@@ -1,5 +1,6 @@
 import pfs from 'node:fs/promises';
 import path from 'node:path';
+import { logger } from '../logging';
 import AdmZip from 'adm-zip';
 import { Story } from '@shared/models/Story';
 import { Background } from '@shared/models/Background';
@@ -140,12 +141,12 @@ export async function deleteFeatureFile(storyTitle: string, storyId: any): Promi
 	const filePath = path.join(process.cwd(), 'features', `${cleanFileName(storyTitle + storyId)}.feature`);
 	try {
 		await pfs.unlink(filePath);
-		console.log('FeatureFile deleted!', storyTitle + storyId);
+		logger.info(`FeatureFile deleted! ${storyTitle}${storyId}`);
 	} catch (e: any) {
 		if (e?.code === 'ENOENT') 
-			console.warn('Feature file not found:', filePath);
+			logger.warn(`Feature file not found: ${filePath}`);
 		else 
-			console.error('Error deleting feature file:', e);
+			logger.error(`Error deleting feature file: ${e}`);
         
 	}
 }

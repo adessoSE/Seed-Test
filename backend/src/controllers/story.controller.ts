@@ -13,6 +13,7 @@ import * as externalSyncService from '../services/externalSync.service';
 import { AiConfig } from '@shared/models/RepositoryContainer';
 import { User } from '@shared/models/User';
 import { oid } from '../types/mongo.types';
+import { logger } from '../logging';
 
 // --- Story CRUD ---
 
@@ -225,7 +226,7 @@ export async function updateScenario(req: Request, res: Response, next: NextFunc
 			// Case: Old 'example' field exists, but new 'multipleScenarios' is empty or missing.
 			// Perform the migration.
 			if (!scenarioData.multipleScenarios || scenarioData.multipleScenarios.length === 0) {
-				console.log(`MIGRATING stepDefinitions.example to multipleScenarios for story ${story_id}, scenario ${scenarioId}`);
+				logger.info(`MIGRATING stepDefinitions.example to multipleScenarios for story ${story_id}, scenario ${scenarioId}`);
 				// Also clean the old data while migrating (filter out nulls)
 				scenarioData.multipleScenarios = oldExamples.filter(item => item != null);
 			}
@@ -260,7 +261,7 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 		await storyService.deleteScenario(story_id, scenarioId);
 		await featureFileService.updateFeatureFile(story_id);
 	} catch (error: any) {
-		console.error('Database error during scenario deletion:', error);
+		logger.error(`Database error during scenario deletion: ${error}`);
 		dbError = error;
 	}
 
@@ -274,7 +275,7 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 			// Call the new XRay service
 			await xrayService.deleteXrayStep(user, testKey, scenarioId);
 		} catch (error: any) {
-			console.error('Error while deleting XRay step:', error);
+			logger.error(`Error while deleting XRay step: ${error}`);
 			xrayError = error;
 		}
     
@@ -468,13 +469,13 @@ export function getAiGenerationStatus(req: Request, res: Response, _next: NextFu
 	res.setHeader('Connection', 'keep-alive');
 	res.flushHeaders();
 
-	console.log(`SSE Client connected for AI status updates for story ${storyId}`);
+	logger.info(`SSE Client connected for AI status updates for story ${storyId}`);
 
 	const listener = (result: any) => {
 		try {
 			res.write(`data: ${JSON.stringify(result)}\n\n`);
 		} catch (err) {
-			console.error(`SSE write failed for story ${storyId}:`, err);
+			logger.error(`SSE write failed for story ${storyId}: ${err}`);
 			aiService.aiJobEmitter.removeListener(`job-done-${storyId}`, listener);
 		}
 	};
@@ -483,7 +484,7 @@ export function getAiGenerationStatus(req: Request, res: Response, _next: NextFu
 
 	req.on('close', () => {
 		aiService.aiJobEmitter.removeListener(`job-done-${storyId}`, listener);
-		console.log(`SSE Client disconnected for AI status updates for story ${storyId}`);
+		logger.info(`SSE Client disconnected for AI status updates for story ${storyId}`);
 		res.end();
 	});
 }

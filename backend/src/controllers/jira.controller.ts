@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '@shared/models/User';
 import * as externalAccountService from '../services/externalAccount.service';
+import { logger } from '../logging';
 
 /**
  * Handles linking/updating Jira credentials for the logged-in user.
@@ -43,7 +44,7 @@ export async function linkJiraCredentials(req: Request, res: Response, next: Nex
 		res.status(200).json({ message: 'Jira credentials updated successfully.' });
 
 	} catch (error) {
-		console.error('Error linking Jira credentials:', error);
+		logger.error(`Error linking Jira credentials: ${error}`);
 		// Provide more specific feedback if possible
 		if (error instanceof Error && error.message.includes('verification failed')) 
 			next(new Error('Invalid Jira username, password, or host.')); // Pass specific error
@@ -98,7 +99,7 @@ export async function jiraLogin(req: Request, res: Response, next: NextFunction)
 		const response = await fetch(`https://${jiraServer}/rest/auth/1/session`, options);
 
 		if (!response.ok) {
-			console.log('Failed to log in to Jira-Server.');
+			logger.info('Failed to log in to Jira-Server.');
 			res.status(401).json({ error: 'Failed to log in to Jira-Server.' });
 			return;
 		}
@@ -175,7 +176,7 @@ export async function updateXrayStatus(req: Request, res: Response, next: NextFu
 		res.status(response.status).json(data);
 
 	} catch (error) {
-		console.error('Error while updating Xray status:', error);
+		logger.error(`Error while updating Xray status: ${error}`);
 		next(error);
 	}
 }

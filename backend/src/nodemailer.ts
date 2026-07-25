@@ -1,12 +1,13 @@
 import nodemailer from 'nodemailer';
+import { logger } from './logging';
 
 export async function sendResetLink(email: string, id: string): Promise<void> {
 	if (process.env.EMAIL_HOST === undefined || process.env.EMAIL_PORT === undefined) {
-		console.log('To send emails please provide a email server and port. You can see how to do it in the README.');
+		logger.warn('To send emails please provide a email server and port. You can see how to do it in the README.');
 		throw new Error('Bad email config');
 	}
 	if (process.env.EMAIL_AUTH === undefined || process.env.EMAIL_PW === undefined) {
-		console.log('To send emails please provide a valid email account. You can see how to do it in the README.');
+		logger.warn('To send emails please provide a valid email account. You can see how to do it in the README.');
 		throw new Error('Bad email config');
 	}
 
@@ -112,8 +113,8 @@ export async function sendResetLink(email: string, id: string): Promise<void> {
 
 	try {
 		const info = await transporter.sendMail(mailOptions);
-		console.log(`Email sent: ${info.response}`);
+		logger.info(`Email sent: ${info.response}`);
 	} catch (error) {
-		console.log(error);
+		logger.error(`Failed to send email: ${error}`);
 	}
 }

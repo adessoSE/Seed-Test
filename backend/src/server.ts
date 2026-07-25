@@ -12,6 +12,7 @@ import MongoStore from 'connect-mongo';
 import http from 'node:http';
 import { execSync } from 'node:child_process';
 import { chromium, firefox, webkit, BrowserType } from '@playwright/test';
+import { logger } from './logging';
 
 import * as dbConnector from './database/DbConnector';
 
@@ -62,7 +63,7 @@ app.use(helmet());
 // --- Session Configuration ---
 const databaseUri = process.env.DATABASE_URI;
 if (!databaseUri)
-	console.warn('WARNING: DATABASE_URI not set. Using Docker default. Set DATABASE_URI in .env for production!');
+	logger.warn('DATABASE_URI not set. Using Docker default. Set DATABASE_URI in .env for production!');
 
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret && process.env.NODE_ENV === 'production')
@@ -127,7 +128,7 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
 	if (req.isAuthenticated()) 
 		return next();
     
-	console.log('Authentication check failed for:', req.method, req.originalUrl);
+	logger.warn(`Authentication check failed for: ${req.method} ${req.originalUrl}`);
 	res.status(401).json({ error: 'Unauthorized: Please log in.' });
 };
 
@@ -184,7 +185,7 @@ app.use('/api/sanity', isAuthenticated, sanityRouter);
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 	// Guard: don't attempt to send if response already started (e.g. post-response errors)
 	if (res.headersSent) {
-		console.error('Error after response sent (suppressed):', err.message);
+		logger.error(`Error after response sent (suppressed): ${err.message}`);
 		return;
 	}
 
@@ -195,9 +196,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 	// Only log stack traces for unexpected errors, not operational ones
 	if (statusCode === 500)
-		console.error('Unexpected error:', err.stack);
+		logger.error(`Unexpected error: ${err.stack}`);
 	else
-		console.warn(`Operational error [${statusCode}]:`, err.message);
+		logger.warn(`Operational error [${statusCode}]: ${err.message}`);
 
 	res.status(statusCode).json({
 		error: statusCode === 500 ? 'Internal Server Error' : err.message
@@ -208,13 +209,13 @@ async function checkAndInstallEdge() {
 	try {
 		const edgeBrowser = await chromium.launch({ channel: 'msedge' });
 		await edgeBrowser.close();
-		console.log('✓ Microsoft Edge is available');
+		logger.info('Microsoft Edge is available');
 	} catch (error: any) {
 		try {
-			console.warn(error.message, '\nMicrosoft Edge is not launchable, trying to install...');
+			logger.warn(`${error.message} — Microsoft Edge is not launchable, trying to install...`);
 			execSync('npx playwright install msedge --with-deps', { stdio: 'inherit' });
 		} catch (edge_error: any) {
-			console.error('Microsoft Edge not launchable nor installable. This might be caused by corporate policies.', edge_error.message);
+			logger.error(`Microsoft Edge not launchable nor installable (corporate policies?): ${edge_error.message}`);
 		}
 	}
 }
@@ -230,18 +231,18 @@ async function checkAndInstallGeneralBrowsers() {
 		for (const browser of browsers) {
 			const instance = await browser.engine.launch();
 			await instance.close();
-			console.log(`✓ ${browser.name} is available`);
+			logger.info(`${browser.name} is available`);
 		}
 	} catch (error: any) {
 		if (error.message.includes('Executable doesn') || 
             error.message.includes('Browser version')) {
-			console.warn('Browser version incompatible or executable missing, reinstalling browsers...');
+			logger.warn('Browser version incompatible or executable missing, reinstalling browsers...');
 			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
 		} else if (error.message.includes('browserType.launch')) {
-			console.warn('Installing missing Playwright browsers...');
+			logger.warn('Installing missing Playwright browsers...');
 			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
 		} else 
-			console.error('An unexpected error occurred during browser check:', error.message);
+			logger.error(`Unexpected error during browser check: ${error.message}`);
         
 	}
 }
@@ -252,23 +253,23 @@ const server = http.createServer(app);
 
 async function startServer() {
 	try {
-		console.log('Checking general browser availability ...');
+		logger.info('Checking general browser availability...');
 		await Promise.all([
 			checkAndInstallGeneralBrowsers(),
 			checkAndInstallEdge()
 		]);
-		console.log('\x1b[32mBrowser check complete.\x1b[0m');
-		console.log('Connecting to database...');
+		logger.info('Browser check complete.');
+		logger.info('Connecting to database...');
         
 		await dbConnector.establishConnection();
-		console.log('\x1b[32mDatabase connection established successfully.\x1b[0m');
+		logger.info('Database connection established successfully.');
         
 		server.listen(port, () => {
-			console.log(`App now running on port: ${port}`);
+			logger.info(`App now running on port: ${port}`);
 		});
 		server.setTimeout(600000); // 10 minutes timeout
 	} catch (error) {
-		console.error('\x1b[31mFailed to start server:\x1b[0m', error);
+		logger.error('Failed to start server:', error);
 		process.exit(1);
 	}
 }
@@ -276,13 +277,13 @@ async function startServer() {
 // --- Process-Level Error Handlers ---
 // Catch unhandled promise rejections (e.g. forgotten awaits, uncaught async errors)
 process.on('unhandledRejection', (reason: unknown) => {
-	console.error('Unhandled Rejection:', reason);
+	logger.error('Unhandled Rejection:', reason);
 	// Let the process continue — Express will handle per-request errors
 });
 
 // Catch truly unexpected synchronous errors — log and exit, as state may be corrupted
 process.on('uncaughtException', (error: Error) => {
-	console.error('Uncaught Exception — shutting down:', error.stack);
+	logger.error(`Uncaught Exception — shutting down: ${error.stack}`);
 	server.close(() => process.exit(1));
 });
 

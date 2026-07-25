@@ -6,8 +6,9 @@ const router = express.Router();
 
 // CORS, body parsing, and authentication are handled globally in server.ts.
 
-// Authorization: GET checks repo access; PUT/DELETE already enforce block ownership in the service layer
+// Authorization: GET checks repo access via URL param; POST checks via body; PUT/DELETE enforce block ownership in service layer
 const canRead = authorizeRepo('repoId');
+const canCreateBlock = authorizeRepo('repositoryId', { requireEdit: true, source: 'body' });
 
 // --- Route Definitions ---
 
@@ -16,7 +17,7 @@ const canRead = authorizeRepo('repoId');
  * @desc    Save a new custom block
  * @access  Private (Authenticated users)
  */
-router.post('/', blockController.saveBlock);
+router.post('/', canCreateBlock, blockController.saveBlock);
 
 /**
  * @route   GET /api/block/getBlocks/:repoId

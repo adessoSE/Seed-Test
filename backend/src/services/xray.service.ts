@@ -1,4 +1,5 @@
 import { User } from '@shared/models/User';
+import { logger } from '../logging';
 import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
 import * as externalAccountService from './externalAccount.service';
@@ -44,7 +45,7 @@ export async function deleteXrayStep(user: User, testKey: string, stepId: number
 		};
 
 		// 3. Send DELETE request to XRay
-		console.log(`Sending XRay DELETE request to: ${url}`);
+		logger.info(`Sending XRay DELETE request to: ${url}`);
 		const response = await fetch(url, options);
         
 		if (!response.ok) {
@@ -52,10 +53,10 @@ export async function deleteXrayStep(user: User, testKey: string, stepId: number
 			throw new Error(`XRay API error! Status: ${response.status} ${response.statusText}. Body: ${errorBody}`);
 		}
 
-		console.log(`Successfully deleted XRay step ${stepId} from test ${testKey}`);
+		logger.info(`Successfully deleted XRay step ${stepId} from test ${testKey}`);
 
 	} catch (error: any) {
-		console.error('Error in deleteXrayStep service:', error);
+		logger.error(`Error in deleteXrayStep service: ${error}`);
 		throw new Error(`Failed to delete XRay step: ${error.message}`);
 	}
 }
@@ -108,7 +109,7 @@ async function processTestSteps(steps: any[], resolvedTestRuns: any[], issueKey:
 
 	for (const step of steps) {
 		if (!step.fields) {
-			console.log(`Fields missing for step ${step.id}`);
+			logger.info(`Fields missing for step ${step.id}`);
 			continue;
 		}
 
@@ -319,7 +320,7 @@ function extractRaw(givenField: string): string {
 		if (typeof givenField === 'string') 
 			return givenField;
         
-		console.error('Error while parsing Given field of xRay execution step', e);
+		logger.error(`Error while parsing Given field of xRay execution step: ${e}`);
 	}
 	return ''; // Fallback
 }

@@ -58,4 +58,4 @@ export function httpLog(req: Request, res: Response, next: NextFunction): void {
 	}
 }
 
-export { getLogger };
+export { logger, getLogger };

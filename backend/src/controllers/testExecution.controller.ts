@@ -11,6 +11,7 @@ import { IssueTracker, IssueTrackerOption, Github } from '../models/IssueTracker
 import { ExecutionMode } from '../models/models';
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from '../logging';
 
 
 // Helper function to extract common parameters
@@ -39,7 +40,7 @@ export async function handleReportResult(res: Response, reportResult: any, mode:
 		const htmlContent = await fs.promises.readFile(htmlPath, 'utf8');
 		res.json({ htmlFile: htmlContent, reportId: finalReport._id, report: finalReport });
 	} catch (readError) {
-		console.error('Error reading HTML report:', readError);
+		logger.error(`Error reading HTML report: ${readError}`);
 		res.status(500).json({ error: 'Failed to read HTML report file.', reportId: finalReport._id });
 	} finally {
 		// Clean up temporary files after a delay
@@ -53,7 +54,7 @@ export async function handleReportResult(res: Response, reportResult: any, mode:
 		await reportService.updateLatestTestStatus(finalReport, mode);
 		await postCommentsToTrackers(finalReport, parameters.stories || [reportResult.story], mode, user, parameters);
 	} catch (postResponseError) {
-		console.error('Post-response processing error (response already sent):', postResponseError);
+		logger.error(`Post-response processing error (response already sent): ${postResponseError}`);
 	}
 }
 
@@ -215,7 +216,7 @@ async function postCommentsToTrackers(finalReport: any, stories: Story[], mode: 
 	// Check global settings for commenting preference
 	const repoSettings = parameters?.repositoryId ? await repositoryService.getRepoSettingsById(parameters.repositoryId) : null;
 	if (repoSettings && repoSettings.reportComment === false) {
-		console.log(`Report comments disabled for repository ${parameters.repositoryId}`);
+		logger.info(`Report comments disabled for repository ${parameters.repositoryId}`);
 		return; // Skip posting comments if disabled globally
 	}
 
@@ -228,7 +229,7 @@ async function postCommentsToTrackers(finalReport: any, stories: Story[], mode: 
 
 			if (story.storySource === IssueTrackerOption.GITHUB && user.github) {
 				if (!parameters?.repository) {
-					console.warn(`Cannot post GitHub comment for story ${story.title}: Missing repository name.`);
+					logger.warn(`Cannot post GitHub comment for story ${story.title}: Missing repository name.`);
 					continue;
 				}
 				const [repoUser, repoName] = parameters.repository.split('/');
@@ -244,7 +245,7 @@ async function postCommentsToTrackers(finalReport: any, stories: Story[], mode: 
 				issueTracker.postComment(comment, { issueId: story.issue_number.toString() }, user.jira);
 			}
 		} catch (commentError) {
-			console.error(`Failed to post comment for story ${story.title} (${story.storySource}):`, commentError);
+			logger.error(`Failed to post comment for story ${story.title} (${story.storySource}): ${commentError}`);
 		}
     
 }

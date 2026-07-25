@@ -9,6 +9,7 @@ import { Story } from '@shared/models/Story';
 import fs from 'node:fs';
 import path from 'node:path';
 import { GroupReport, ExecutionMode, PassedCount } from '../models/models';
+import { logger } from '../logging';
 
 /**
  * Handles the execution of a sanity test for a specific group.
@@ -87,13 +88,13 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 			const deletionTime = parseInt(process.env.REPORT_DELETION_TIME || '5') * 60000;
 			reportService.scheduleReportDeletion(finalReport.reportName, true, deletionTime);
 		} catch (postErr) {
-			console.error('Error in post-response sanity cleanup:', postErr);
+			logger.error(`Error in post-response sanity cleanup: ${postErr}`);
 		}
 
 	} catch (error) {
 		if (sanityFolderName && fs.existsSync(path.join(process.cwd(), 'features', sanityFolderName))) 
 			fs.rm(path.join(process.cwd(), 'features', sanityFolderName), { recursive: true, force: true }, (err) => {
-				if (err) console.error('Error cleaning up sanity test folder on failure:', err);
+				if (err) logger.error(`Error cleaning up sanity test folder on failure: ${err}`);
 			});
         
 		next(error);

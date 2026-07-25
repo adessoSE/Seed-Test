@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import pfs from 'node:fs/promises';
 import path from 'node:path';
+import { logger } from '../logging';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
 import { User } from '@shared/models/User';
@@ -167,7 +168,7 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 		return { success, reportTime, story, scenarioId: req.params.scenarioId, reportName };
 
 	} catch (error) {
-		console.error('Test execution failed: ', error);
+		logger.error(`Test execution failed: ${error}`);
 		return { success: false, reportTime, story, scenarioId: req.params.scenarioId, reportName };
 	}
 }

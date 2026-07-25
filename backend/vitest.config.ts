@@ -13,8 +13,9 @@ export default defineConfig(({ mode }) => {
     test: {
       // Make globals (describe, it, expect) automatically available
       globals: true,
-      // Use forks pool for process-level isolation — prevents vi.mock leaks between test files
-      pool: 'forks',
+      // Sequential execution — parallel forks cause vi.mock leaks between specs in Vitest v4.
+      // At 143 tests in <2s, parallelism adds overhead without meaningful speedup.
+      fileParallelism: false,
       coverage: {
         provider: 'v8', // or 'istanbul'
         reporter: ['text', 'json', 'html'],

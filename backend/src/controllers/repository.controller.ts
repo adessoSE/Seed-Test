@@ -5,6 +5,7 @@ import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContaine
 import * as repositoryService from '../services/repository.service';
 import * as userService from '../services/user.service';
 import * as externalSyncService from '../services/externalSync.service';
+import { logger } from '../logging';
 
 
 /**
@@ -26,7 +27,7 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 			ownedPromise = externalSyncService.ownRepositories(user._id!.toString(), githubId, githubName, token);
 
 		} else if (process.env.TESTACCOUNT_NAME && process.env.TESTACCOUNT_TOKEN) {
-			console.log(`User ${user.email} not linked. Using TESTACCOUNT fallback.`);
+			logger.info(`User ${user.email} not linked. Using TESTACCOUNT fallback.`);
 			const githubName = process.env.TESTACCOUNT_NAME!;
 			const token = process.env.TESTACCOUNT_TOKEN!;
 			const githubId = 0;
@@ -34,7 +35,7 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 			ownedPromise = externalSyncService.ownRepositories(user._id!.toString(), githubId, githubName, token);
         
 		} else 
-			console.log(`User ${user.email} not linked. TESTACCOUNT variables not set. Skipping GitHub sync.`);
+			logger.info(`User ${user.email} not linked. TESTACCOUNT variables not set. Skipping GitHub sync.`);
         
 
 		// Use the new/correct services for each source
@@ -49,7 +50,7 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 			if (result.status === 'fulfilled') 
 				return result.value;
 			else {
-				console.error(`Error fetching ${name}:`, result.reason?.message || result.reason);
+				logger.error(`Error fetching ${name}: ${result.reason?.message || result.reason}`);
 				return [];
 			}
 		};

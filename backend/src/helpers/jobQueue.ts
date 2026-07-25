@@ -1,3 +1,5 @@
+import { logger } from '../logging';
+
 // A very simple, in-memory promise-based queue.
 export class JobQueue {
 	private queue: (() => Promise<any>)[] = [];
@@ -22,9 +24,9 @@ export class JobQueue {
 
 		try {
 			await task();
-			console.log('Job finished successfully.');
+			logger.info('Job finished successfully.');
 		} catch (error) {
-			console.error('A job in the queue failed:', error);
+			logger.error(`A job in the queue failed: ${error}`);
 		} finally {
 			this.isProcessing = false;
 			this.processNext(); // Check for the next item in the queue
