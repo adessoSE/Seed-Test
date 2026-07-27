@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
@@ -16,6 +16,7 @@ import { ProjectService } from '../Services/project.service';
 	selector: 'app-login',
 	templateUrl: './login.component.html',
 	styleUrls: ['./login.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {

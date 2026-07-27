@@ -1,10 +1,11 @@
-import { Input, Component, ViewChild, Output, EventEmitter, SimpleChanges, OnInit, OnChanges } from '@angular/core';
+import { Input, Component, ViewChild, Output, EventEmitter, SimpleChanges, OnInit, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
 	selector: 'app-window-size',
 	templateUrl: './window-size.component.html',
 	styleUrls: ['./window-size.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class WindowSizeComponent implements OnInit, OnChanges {

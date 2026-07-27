@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -8,6 +8,7 @@ import { ApiService } from '../../../app/Services/api.service';
 	selector: 'app-new-step-request',
 	templateUrl: './new-step-request.component.html',
 	styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class NewStepRequestComponent {

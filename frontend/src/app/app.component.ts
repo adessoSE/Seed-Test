@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild, OnDestroy, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -17,6 +17,7 @@ import { StoryService } from './Services/story.service';
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit{

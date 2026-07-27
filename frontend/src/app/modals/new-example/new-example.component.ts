@@ -1,7 +1,7 @@
 import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { ExampleService } from 'src/app/Services/example.service';
 
@@ -9,6 +9,7 @@ import { ExampleService } from 'src/app/Services/example.service';
 	selector: 'app-new-example',
 	templateUrl: './new-example.component.html',
 	styleUrls: ['./new-example.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class NewExampleComponent {

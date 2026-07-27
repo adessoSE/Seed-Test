@@ -1,4 +1,4 @@
-import { Component, Inject, Optional, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, Optional, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { NgForm, UntypedFormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 	selector: 'app-import-modal',
 	templateUrl: './import-modal.component.html',
 	styleUrls: ['./import-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class ImportModalComponent implements OnInit, OnDestroy {

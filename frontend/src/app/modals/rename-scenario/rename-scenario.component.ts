@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ScenarioService } from 'src/app/Services/scenario.service';
@@ -7,6 +7,7 @@ import { ScenarioService } from 'src/app/Services/scenario.service';
 	selector: 'app-rename-scenario',
 	templateUrl: './rename-scenario.component.html',
 	styleUrls: ['./rename-scenario.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class RenameScenarioComponent {

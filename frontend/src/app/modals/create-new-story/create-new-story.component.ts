@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from '@shared/models/Group';
@@ -11,6 +11,7 @@ import { StoryService } from 'src/app/Services/story.service';
 	selector: 'app-create-new-story',
 	templateUrl: './create-new-story.component.html',
 	styleUrls: ['./create-new-story.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class CreateNewStoryComponent {

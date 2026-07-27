@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { ROUTES } from './routes/routes';
 import { AppComponent } from './app.component';
 import { ScenarioEditorComponent } from './scenario-editor/scenario-editor.component';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { ApiService } from './Services/api.service';
 import { StoriesBarComponent } from './stories-bar/stories-bar.component';
 import { ParentComponent } from './parent/parent.component';
@@ -194,7 +194,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		],
 		[{ provide: DEFAULT_TIMEOUT, useValue: 120000 }],
 		ThemingService,
-		provideHttpClient(withInterceptorsFromDi())
+		provideHttpClient(withXhr(), withInterceptorsFromDi())
 	],
 	bootstrap: [AppComponent],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]

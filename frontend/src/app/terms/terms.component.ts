@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * Component of the terms
@@ -7,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
 	selector: 'app-terms',
 	templateUrl: './terms.component.html',
 	styleUrls: ['./terms.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class TermsComponent implements OnInit {

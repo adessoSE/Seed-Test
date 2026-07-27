@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
@@ -8,6 +8,7 @@ import { StoryService } from 'src/app/Services/story.service';
 	selector: 'app-rename-story',
 	templateUrl: './rename-story.component.html',
 	styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class RenameStoryComponent {

@@ -6,7 +6,7 @@ import {
 	transition,
 	trigger
 } from '@angular/animations';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
 import { BlockService } from './Services/block.service';
@@ -118,6 +118,7 @@ import { StoryService } from './Services/story.service';
 		])
 	],
 	preserveWhitespaces: false,
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class XrayToast extends Toast implements OnInit {

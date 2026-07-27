@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -27,6 +27,7 @@ import { ImportModalComponent } from '../modals/import-modal/import-modal.compon
 	selector: 'app-account-management',
 	templateUrl: './account-management.component.html',
 	styleUrls: ['./account-management.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 

@@ -1,12 +1,13 @@
 import { Router } from '@angular/router';
 import {
-	Component,
-	OnInit,
-	Input,
-	ViewChild,
-	EventEmitter,
-	Output,
-	OnDestroy, AfterViewChecked
+  Component,
+  OnInit,
+  Input,
+  ViewChild,
+  EventEmitter,
+  Output,
+  OnDestroy, AfterViewChecked,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
@@ -60,6 +61,7 @@ const emptyBackground: Background = {
 		'../base-editor/base-editor.component.css',
 		'./story-editor.component.css'
 	],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked {

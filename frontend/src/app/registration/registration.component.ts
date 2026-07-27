@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
@@ -12,6 +12,7 @@ import { LoginService } from '../Services/login.service';
 	selector: 'app-registration',
 	templateUrl: './registration.component.html',
 	styleUrls: ['./registration.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 

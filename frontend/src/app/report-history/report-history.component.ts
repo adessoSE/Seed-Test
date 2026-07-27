@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterContentInit } from '@angular/core';
+import { Component, Input, OnInit, AfterContentInit, ChangeDetectionStrategy } from '@angular/core';
 import { StoryReport } from '@shared/models/StoryReport';
 import { ReportContainer } from '@shared/models/ReportContainer';
 import { Scenario } from '@shared/models/Scenario';
@@ -20,6 +20,7 @@ type Report = ScenarioReport | StoryReport | GroupReport;
 	selector: 'app-report-history',
 	templateUrl: './report-history.component.html',
 	styleUrls: ['./report-history.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 

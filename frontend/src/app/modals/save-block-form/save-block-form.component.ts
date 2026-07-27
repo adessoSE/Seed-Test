@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -12,6 +12,7 @@ import { BackgroundService } from '../../Services/background.service';
 	selector: 'app-save-block-form',
 	templateUrl: './save-block-form.component.html',
 	styleUrls: ['./save-block-form.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class SaveBlockFormComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
@@ -13,6 +13,7 @@ import { FormControl } from '@angular/forms';
 	selector: 'app-add-block-form',
 	templateUrl: './add-block-form.component.html',
 	styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class AddBlockFormComponent implements OnInit,OnDestroy {

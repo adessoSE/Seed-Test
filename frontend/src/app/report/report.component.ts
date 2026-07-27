@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, ElementRef, OnChanges, AfterContentInit} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
@@ -16,6 +16,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 	selector: 'app-report',
 	templateUrl: './report.component.html',
 	styleUrls: ['./report.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class ReportComponent implements OnInit, OnChanges, AfterContentInit {

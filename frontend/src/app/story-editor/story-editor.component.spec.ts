@@ -12,12 +12,13 @@ import { MatTableModule } from '@angular/material/table';
 import { EditableComponent } from '../editable/editable.component';
 import { ParentComponent } from '../parent/parent.component';
 import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
-import { Component, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { findComponent } from '../../test_helper';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 
 @Component({
+	changeDetection: ChangeDetectionStrategy.Eager,
 	template: `
     <ng-template #renameStoryModal>The modal window is open!</ng-template>
   `

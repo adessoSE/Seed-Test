@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild} from '@angular/core';
+import { Component, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -12,6 +12,7 @@ import { StoryService } from 'src/app/Services/story.service';
 	selector: 'app-create-new-group',
 	templateUrl: './create-new-group.component.html',
 	styleUrls: ['./create-new-group.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class CreateNewGroupComponent {

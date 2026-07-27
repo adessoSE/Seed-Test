@@ -2,15 +2,16 @@ import { Subscription } from 'rxjs';
 import { DeleteToast } from './../delete-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
 import {
-	Component,
-	OnInit,
-	Input,
-	Output,
-	EventEmitter,
-	ViewChild,
-	ElementRef,
-	QueryList,
-	ViewChildren, AfterViewInit, AfterViewChecked
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  QueryList,
+  ViewChildren, AfterViewInit, AfterViewChecked,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {
 	UntypedFormGroup,
@@ -42,6 +43,7 @@ import { StepValidationService } from '../Services/step-validation.service';
     [originalStepTypes]="originalStepTypes"
   ></app-base-editor> `,
 	styleUrls: ['./example-table.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 
@@ -86,6 +88,7 @@ export class ExampleComponent {
 	selector: 'app-example-table',
 	templateUrl: './example-table.component.html',
 	styleUrls: ['./example-table.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewChecked {

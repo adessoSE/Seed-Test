@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -19,6 +19,7 @@ import { ProjectService } from '../Services/project.service';
 	selector: 'app-parent',
 	templateUrl: './parent.component.html',
 	styleUrls: ['./parent.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class ParentComponent implements OnInit, OnDestroy {

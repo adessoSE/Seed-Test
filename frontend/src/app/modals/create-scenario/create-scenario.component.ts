@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
@@ -7,6 +7,7 @@ import { Story } from '@shared/models/Story';
 	selector: 'app-create-scenario',
 	templateUrl: './create-scenario.component.html',
 	styleUrls: ['./create-scenario.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class CreateScenarioComponent {

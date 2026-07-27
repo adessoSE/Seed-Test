@@ -6,7 +6,7 @@ import {
 	transition,
 	trigger
 } from '@angular/animations';
-import { Component, OnInit} from '@angular/core';  
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';  
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
 import { BackgroundService } from './Services/background.service';
@@ -105,6 +105,7 @@ import { BackgroundService } from './Services/background.service';
 		])
 	],
 	preserveWhitespaces: false,
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, OnInit } from '@angular/core';
+import { Component, Input, ViewChild, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 	selector: 'app-edit-block',
 	templateUrl: './edit-block.component.html',
 	styleUrls: ['./edit-block.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class EditBlockComponent implements OnInit {

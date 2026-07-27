@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BackgroundService } from 'src/app/Services/background.service';
@@ -13,6 +13,7 @@ import { BlockService } from '../../Services/block.service';
 	selector: 'app-rename-background',
 	templateUrl: './rename-background.component.html',
 	styleUrls: ['./rename-background.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class RenameBackgroundComponent{

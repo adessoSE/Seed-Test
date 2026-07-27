@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -9,6 +9,7 @@ import { ManagementService } from 'src/app/Services/management.service';
 	selector: 'app-delete-account',
 	templateUrl: './delete-account.component.html',
 	styleUrls: ['./delete-account.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class DeleteAccountComponent {

@@ -1,10 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-confirm-reset-password-popup',
 	templateUrl: './confirm-reset-password-popup.component.html',
 	styleUrls: ['./confirm-reset-password-popup.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class ConfirmResetPasswordPopupComponent {

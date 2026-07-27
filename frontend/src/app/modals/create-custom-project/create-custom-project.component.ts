@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -9,6 +9,7 @@ import { ProjectService } from 'src/app/Services/project.service';
 	selector: 'app-create-custom-project',
 	templateUrl: './create-custom-project.component.html',
 	styleUrls: ['./create-custom-project.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class CreateCustomProjectComponent {

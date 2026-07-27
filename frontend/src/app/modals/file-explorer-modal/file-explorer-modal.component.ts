@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
@@ -9,6 +9,7 @@ import { ThemingService } from '../../Services/theming.service';
 	selector: 'app-file-explorer-modal',
 	templateUrl: './file-explorer-modal.component.html',
 	styleUrls: ['./file-explorer-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class FileExplorerModalComponent implements OnInit {

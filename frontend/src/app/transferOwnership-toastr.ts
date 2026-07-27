@@ -6,7 +6,7 @@ import {
 	transition,
 	trigger
 } from '@angular/animations';
-import { Component, EventEmitter, Output} from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ProjectService } from './Services/project.service';
 /**
@@ -105,6 +105,7 @@ import { ProjectService } from './Services/project.service';
 		])
 	],
 	preserveWhitespaces: false,
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class TransferOwnershipToast extends Toast {

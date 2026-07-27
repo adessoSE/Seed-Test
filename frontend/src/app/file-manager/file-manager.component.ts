@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ThemingService } from '../Services/theming.service';
 import { StoryService } from '../Services/story.service';
 import { Subscription } from 'rxjs/internal/Subscription';
@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 	selector: 'app-file-manager',
 	templateUrl: './file-manager.component.html',
 	styleUrl: './file-manager.component.css',
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 

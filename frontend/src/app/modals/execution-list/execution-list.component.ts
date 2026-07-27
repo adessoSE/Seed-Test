@@ -1,4 +1,4 @@
-import { Component, ViewChild, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, ViewChild, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Scenario } from '@shared/models/Scenario';
 import { Story } from '@shared/models/Story';
@@ -11,6 +11,7 @@ import { StoryService } from '../../Services/story.service';
 	selector: 'app-execution-list',
 	templateUrl: './execution-list.component.html',
 	styleUrls: ['./execution-list.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class ExecutionListComponent implements OnInit {

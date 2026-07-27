@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
@@ -11,6 +11,7 @@ import { LoginService } from '../Services/login.service';
 	selector: 'app-confirm-reset-password',
 	templateUrl: './confirm-reset-password.component.html',
 	styleUrls: ['./confirm-reset-password.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class ConfirmResetPasswordComponent implements OnInit {

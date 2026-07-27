@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -31,6 +31,7 @@ import { StepValidationService } from '../Services/step-validation.service';
 	selector: 'app-base-editor',
 	templateUrl: './base-editor.component.html',
 	styleUrls: ['./base-editor.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit {

@@ -176,7 +176,7 @@
                     <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>
                   </div>
                   <hr>
-                    <div [class.itemListDiv]="this.groups?.length !== 0 && this.groups?.length !== null">
+                    <div [class.itemListDiv]="this.groups?.length !== 0 && $safeNavigationMigration(this.groups?.length) !== null">
                       <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
                         @for (g of getSortedGroups(); track g; let i = $index) {
                           <li class="{{liGroupList[i]}}" cdkDrag>

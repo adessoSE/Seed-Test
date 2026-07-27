@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
@@ -26,6 +26,7 @@ import { ExecutionListComponent } from '../modals/execution-list/execution-list.
 	selector: 'app-stories-bar',
 	templateUrl: './stories-bar.component.html',
 	styleUrls: ['./stories-bar.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {

@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, OnDestroy} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -21,6 +21,7 @@ import { BlockService } from '../Services/block.service';
 	selector: 'app-scenario-editor',
 	templateUrl: './scenario-editor.component.html',
 	styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 

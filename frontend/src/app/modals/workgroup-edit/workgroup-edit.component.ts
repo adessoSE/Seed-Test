@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -19,6 +19,7 @@ import { MatDialog } from '@angular/material/dialog';
 		'./workgroup-edit.component.css',
 		'../layout-modal/layout-modal.component.css'
 	],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class WorkgroupEditComponent implements OnInit, OnDestroy {

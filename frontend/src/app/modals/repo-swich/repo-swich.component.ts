@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
@@ -9,6 +9,7 @@ import { ProjectService } from 'src/app/Services/project.service';
 	selector: 'app-repo-swich',
 	templateUrl: './repo-swich.component.html',
 	styleUrls: ['./repo-swich.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 export class RepoSwichComponent implements OnInit, OnDestroy {

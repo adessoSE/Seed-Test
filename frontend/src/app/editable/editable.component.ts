@@ -1,5 +1,8 @@
-import { Component, ContentChild, ElementRef, EventEmitter,
-	Output, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component, ContentChild, ElementRef, EventEmitter,
+  Output, OnInit, OnDestroy,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { ViewModeDirective } from '../directives/view-mode.directive';
 import { EditModeDirective } from '../directives/edit-mode.directive';
 import { fromEvent, Subject } from 'rxjs';
@@ -13,6 +16,7 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 	selector: 'editable',
 	templateUrl: './editable.component.html',
 	styleUrls: ['./editable.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
 

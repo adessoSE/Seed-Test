@@ -313,7 +313,7 @@
                                 <div class="review-prompt-metadata">
                                   <span class="metadata-item" uk-tooltip="Generation Time">
                                     <mat-icon>schedule</mat-icon>
-                                    {{ selectedStory.aiSuggestion.metadata?.generationTimestamp | date:'short' }}
+                                    {{ $safeNavigationMigration(selectedStory.aiSuggestion.metadata?.generationTimestamp) | date:'short' }}
                                   </span>
                                   <span class="metadata-item" uk-tooltip="Models Used (Text / JSON)">
                                     <mat-icon>memory</mat-icon>
@@ -527,7 +527,7 @@
                                   (navigateLeft)="navigateScenarioLeft()" (navigateRight)="navigateScenarioRight()"
                                   [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [selectedStory]="selectedStory"
                                   [selectedScenario]="selectedScenario"
-                                  [scenarios]="isReviewingAi ? aiSuggestions.get(selectedStory._id)?.scenarios : selectedStory.scenarios">
+                                  [scenarios]="isReviewingAi ? $safeNavigationMigration(aiSuggestions.get(selectedStory._id)?.scenarios) : selectedStory.scenarios">
                                 </app-scenario-editor>
                               </div>
                               <app-rename-story #renameStoryModal></app-rename-story>
