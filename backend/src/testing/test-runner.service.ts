@@ -121,7 +121,10 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 
 	const reportTime = Date.now();
 	const featurePath = `./features/${featureFileService.cleanFileName(story.title + story._id)}.feature`;
-	const reportName = req.user?.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
+	// Include story._id to avoid report file collisions when stories run in parallel
+	const reportName = req.user?.github
+		? `${req.user.github.login}_${story._id}_${reportTime}`
+		: `reporting_${story._id}_${reportTime}`;
 
 	// Ensure the .feature file exists before running the test
 	try {
