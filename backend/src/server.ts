@@ -298,6 +298,9 @@ async function startServer() {
 			logger.info(`App now running on port: ${port}`);
 		});
 		server.setTimeout(600000); // 10 minutes timeout
+
+		// Pre-load AI parser in the background so the first /api/ai/available call is instant
+		aiService.isAiParserAvailable().catch(() => {});
 	} catch (error) {
 		logger.error('Failed to start server:', error);
 		process.exit(1);

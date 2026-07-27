@@ -206,7 +206,7 @@ async function execRepositoryRequests(link: string, user: string, password: stri
 		}
 		return projects;
 	} catch (reason) {
-		logger.error(`Problem getting GitHub projects: ${reason}`);
+		logger.warn(`Problem getting GitHub projects: ${reason}`);
 		return [];
 	}
 }
