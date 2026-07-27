@@ -6,6 +6,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ResizeInputDirective } from '../directives/resize-input.directive';
 import { ScenarioEditorComponent } from './scenario-editor.component';
+import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { Scenario } from '@shared/models/Scenario';
 import { Story } from '@shared/models/Story';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -22,10 +23,10 @@ describe('ScenarioEditorComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule, MatSnackBarModule],
-			declarations: [ ScenarioEditorComponent, ResizeInputDirective],
-			schemas: [NO_ERRORS_SCHEMA]
-		})
+    imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule, MatSnackBarModule, ScenarioEditorComponent, ResizeInputDirective],
+    schemas: [NO_ERRORS_SCHEMA]
+})
+			.overrideComponent(BaseEditorComponent, { set: { template: '', imports: [] } })
 			.compileComponents();
 	}));
 

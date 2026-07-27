@@ -15,17 +15,17 @@ describe('WindowSizeComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ WindowSizeComponent ],
-			imports: [
-				FormsModule,
-				NoopAnimationsModule,
-				MatMenuModule,
-				MatFormFieldModule,
-				MatSelectModule,
-				MatInputModule,
-				MatButtonModule
-			]
-		})
+    imports: [
+        FormsModule,
+        NoopAnimationsModule,
+        MatMenuModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatInputModule,
+        MatButtonModule,
+        WindowSizeComponent
+    ]
+})
 			.compileComponents();
 
 		fixture = TestBed.createComponent(WindowSizeComponent);

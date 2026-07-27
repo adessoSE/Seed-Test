@@ -106,7 +106,7 @@
                       <label id="blockAddAslabel">Insert Block into:</label>
                     </div>
                     <div class="addBlockDropDownDiv">
-                      <mat-form-field appearance="standard" class="addBlockDropDown">
+                      <mat-form-field appearance="outline" class="addBlockDropDown">
                         <mat-select [formControl]="currentStepType">
                           @for (addBlockOption of this.addBlockToStepType; track addBlockOption) {
                             <mat-option [value]="addBlockOption">

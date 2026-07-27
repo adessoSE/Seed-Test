@@ -1,23 +1,24 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import {ApiService} from '../Services/api.service';
-import {Router, ActivatedRoute} from '@angular/router';
-import {NgForm} from '@angular/forms';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { NgForm, FormsModule } from '@angular/forms';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
 import { Subscription } from 'rxjs';
-import { OwlOptions } from 'ngx-owl-carousel-o';
+import { OwlOptions, CarouselModule } from 'ngx-owl-carousel-o';
 import { LoginService } from '../Services/login.service';
 import { ProjectService } from '../Services/project.service';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 /**
  * Component to handle the client login
  */
 @Component({
-	selector: 'app-login',
-	templateUrl: './login.component.html',
-	styleUrls: ['./login.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CarouselModule, FormsModule, MatProgressSpinner, RouterLink]
 })
 export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	loginService = inject(LoginService);
@@ -160,10 +161,10 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		if (!this.themeObservable.closed) 
+		if (this.themeObservable && !this.themeObservable.closed) 
 			this.themeObservable.unsubscribe();
         
-		if (!this.routeObservable.closed) 
+		if (this.routeObservable && !this.routeObservable.closed) 
 			this.routeObservable.unsubscribe();
         
 	}

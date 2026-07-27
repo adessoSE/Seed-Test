@@ -10,9 +10,8 @@ describe('RenameScenarioComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ RenameScenarioComponent, LayoutModalComponent ],
-			imports: [HttpClientTestingModule, MatSnackBarModule]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, RenameScenarioComponent, LayoutModalComponent]
+})
 			.compileComponents();
 	});
 

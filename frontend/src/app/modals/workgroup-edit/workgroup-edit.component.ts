@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -8,18 +8,22 @@ import { ProjectService } from 'src/app/Services/project.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 import { Subscription } from 'rxjs';
-import { MatSelect } from '@angular/material/select';
+import { MatSelect, MatFormField, MatLabel, MatOption } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { WindowSizeComponent } from '../window-size/window-size.component';
+import { NgStyle } from '@angular/common';
+import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 
 @Component({
-	selector: 'app-workgroup-edit',
-	templateUrl: './workgroup-edit.component.html',
-	styleUrls: [
-		'./workgroup-edit.component.css',
-		'../layout-modal/layout-modal.component.css'
-	],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-workgroup-edit',
+    templateUrl: './workgroup-edit.component.html',
+    styleUrls: [
+        './workgroup-edit.component.css',
+        '../layout-modal/layout-modal.component.css'
+    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, NgStyle, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	private modalService = inject(NgbModal);
@@ -144,7 +148,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 			});
 	}
 	ngOnDestroy() {
-		if (!this.transferOwnershipObservable.closed) 
+		if (this.transferOwnershipObservable && !this.transferOwnershipObservable.closed) 
 			this.transferOwnershipObservable.unsubscribe();
     
 	}

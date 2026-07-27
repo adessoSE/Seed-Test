@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
-import { UntypedFormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BackgroundService } from 'src/app/Services/background.service';
 import { Background } from '@shared/models/Background';
@@ -8,13 +8,15 @@ import { NotificationService } from '../../Services/notification.service';
 import { ApiService } from '../../Services/api.service';
 import { Block } from '@shared/models/Block';
 import { BlockService } from '../../Services/block.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { NgStyle } from '@angular/common';
 
 @Component({
-	selector: 'app-rename-background',
-	templateUrl: './rename-background.component.html',
-	styleUrls: ['./rename-background.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-rename-background',
+    templateUrl: './rename-background.component.html',
+    styleUrls: ['./rename-background.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, NgStyle]
 })
 export class RenameBackgroundComponent{
 	private modalService = inject(NgbModal);

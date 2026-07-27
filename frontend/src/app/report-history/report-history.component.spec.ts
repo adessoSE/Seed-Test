@@ -10,9 +10,8 @@ describe('ReportHistoryComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ ReportHistoryComponent ],
-			imports: [HttpClientTestingModule, MatSnackBarModule]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, ReportHistoryComponent]
+})
 			.compileComponents();
 	});
 

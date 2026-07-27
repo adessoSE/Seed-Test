@@ -11,11 +11,10 @@ describe('EditBlockComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ EditBlockComponent ],
-			imports: [ HttpClientTestingModule, MatSnackBarModule ],
-			// Suppress errors for child components (app-layout-modal, app-base-editor)
-			schemas: [ NO_ERRORS_SCHEMA ]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, EditBlockComponent],
+    // Suppress errors for child components (app-layout-modal, app-base-editor)
+    schemas: [NO_ERRORS_SCHEMA]
+})
 			.compileComponents();
 	});
 

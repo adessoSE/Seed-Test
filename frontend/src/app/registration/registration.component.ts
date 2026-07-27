@@ -1,19 +1,20 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import {Router} from '@angular/router';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormsModule } from '@angular/forms';
 import { NotificationService } from '../Services/notification.service';
 import { ThemingService } from '../Services/theming.service';
 import { LoginService } from '../Services/login.service';
+import { PasswordConfirmedValidatorDirective } from '../directives/password-confirmed.directive';
 
 /**
  * Component to register a new user
  */
 @Component({
-	selector: 'app-registration',
-	templateUrl: './registration.component.html',
-	styleUrls: ['./registration.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-registration',
+    templateUrl: './registration.component.html',
+    styleUrls: ['./registration.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [FormsModule, PasswordConfirmedValidatorDirective]
 })
 
 export class RegistrationComponent implements OnInit {

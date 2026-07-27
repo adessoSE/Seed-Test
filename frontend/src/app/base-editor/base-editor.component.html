@@ -200,7 +200,7 @@
                                         @if (currentStep.isExample[0] == true && name!=='block-editor') {
                                           <div
                                             class="exampleListContainer">
-                                            <mat-form-field appearance="standard" class="exampleList">
+                                            <mat-form-field appearance="outline" class="exampleList">
                                               <mat-select [ngModel]="currentStep.values[0] | slice:1:-1"
                                                 (selectionChange)="addToValues($event.value, j, 0, currentStep.stepType, currentStep)"
                                                 class="exampleMatSelect"
@@ -235,7 +235,7 @@
                                       }
                                       @if (currentStep.selectionValue==0) {
                                         <div>
-                                          <mat-form-field appearance="standard">
+                                          <mat-form-field appearance="outline">
                                             <mat-select [(ngModel)]="currentStep.values[0]"
                                               (selectionChange)="addToValues(currentStep.values[0], j, 0, currentStep.stepType)">
                                               @for (dropdownValue of currentStep.selection; track dropdownValue; let odd = $odd) {
@@ -256,7 +256,7 @@
                                             @if (currentStep.isExample[1] == true && name!=='block-editor') {
                                               <div
                                                 class="exampleListContainer">
-                                                <mat-form-field appearance="standard" class="exampleList">
+                                                <mat-form-field appearance="outline" class="exampleList">
                                                   <mat-select [ngModel]="currentStep.values[1] | slice:1:-1"
                                                     (selectionChange)="addToValues($event.value, j, 1, currentStep.stepType,currentStep)"
                                                     class="exampleMatSelect"
@@ -291,7 +291,7 @@
                                           }
                                           @if (currentStep.selectionValue==1) {
                                             <div>
-                                              <mat-form-field appearance="standard">
+                                              <mat-form-field appearance="outline">
                                                 <mat-select [(ngModel)]="currentStep.values[1]"
                                                   (selectionChange)="addToValues(currentStep.values[1], j, 1, currentStep.stepType)">
                                                   @for (dropdownValue of currentStep.selection; track dropdownValue; let odd = $odd) {
@@ -317,7 +317,7 @@
                                                 @if (currentStep.isExample[2] == true && name!=='block-editor') {
                                                   <div
                                                     class="exampleListContainer">
-                                                    <mat-form-field appearance="standard" class="exampleList">
+                                                    <mat-form-field appearance="outline" class="exampleList">
                                                       <mat-select [ngModel]="currentStep.values[2] | slice:1:-1"
                                                         (selectionChange)="addToValues($event.value, j, 2, currentStep.stepType,currentStep)"
                                                         class="exampleMatSelect"
@@ -376,7 +376,7 @@
                                           }
                                           @if (currentStep.selectionValue==2) {
                                             <div>
-                                              <mat-form-field appearance="standard">
+                                              <mat-form-field appearance="outline">
                                                 <mat-select [(ngModel)]="currentStep.values[2]"
                                                   (selectionChange)="addToValues(currentStep.values[2], j, 2, currentStep.stepType)">
                                                   @for (dropdownValue of currentStep.selection; track dropdownValue; let odd = $odd) {
@@ -410,7 +410,7 @@
                                               {{ currentStep.values[index].indexOf('<') !== -1 && currentStep.values[index].indexOf('>') !== -1 ? '<  ' + currentStep.values[index].replace('<', '').replace('>', '') + '  >' : currentStep.values[index]}}
                                             </div>
                                           </div>
-                                          @if (name!=='block-editor' && this.selectedScenario.multipleScenarios[0] !== undefined) {
+                                          @if (name!=='block-editor' && this.selectedScenario?.multipleScenarios?.[0] !== undefined) {
                                             <button
                                               class="scenarioTitle" (click)="addIsExample('example', j, index, currentStep.stepType)"
                                               uk-tooltip="title: Use Multiple Scenarios; pos: right">
@@ -792,8 +792,10 @@
                       </div>
                     </ng-template>
 
-                    <app-edit-block #editBlockModal [originalStepTypes]="originalStepTypes()"
-                    [selectedBlock]="selectedBlock" />
+                    @defer {
+                      <app-edit-block #editBlockModal [originalStepTypes]="originalStepTypes()"
+                      [selectedBlock]="selectedBlock" />
+                    }
                     <app-new-example #newExampleModal />
                     <app-new-step-request #newStepRequest />
                     <app-add-block-form #addBlockModal [templateName]="name"  />

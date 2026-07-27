@@ -5,13 +5,17 @@ import { Subscription } from 'rxjs/internal/Subscription';
 import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../Services/project.service';
 import { Observable } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { NgStyle, DatePipe } from '@angular/common';
 
 @Component({
-	selector: 'app-file-manager',
-	templateUrl: './file-manager.component.html',
-	styleUrl: './file-manager.component.css',
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-file-manager',
+    templateUrl: './file-manager.component.html',
+    styleUrl: './file-manager.component.css',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, NgStyle, DatePipe]
 })
 
 export class FileManagerComponent implements OnInit {

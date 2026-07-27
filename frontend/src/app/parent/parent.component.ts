@@ -10,17 +10,22 @@ import { Subscription } from 'rxjs';
 import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
 import { ProjectService } from '../Services/project.service';
+import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
+import { StoryEditorComponent } from '../story-editor/story-editor.component';
+import { ReportHistoryComponent } from '../report-history/report-history.component';
+import { FileManagerComponent } from '../file-manager/file-manager.component';
+import { ReportComponent } from '../report/report.component';
 
 
 /**
  * Component containing the Story-Bar and Story Editor
  */
 @Component({
-	selector: 'app-parent',
-	templateUrl: './parent.component.html',
-	styleUrls: ['./parent.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-parent',
+    templateUrl: './parent.component.html',
+    styleUrls: ['./parent.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [StoriesBarComponent, StoryEditorComponent, ReportHistoryComponent, FileManagerComponent, ReportComponent]
 })
 export class ParentComponent implements OnInit, OnDestroy {
 	apiService = inject(ApiService);
@@ -64,7 +69,7 @@ export class ParentComponent implements OnInit, OnDestroy {
 
 	report: any;
 
-	isDark!: boolean;
+	isDark = false;
 
 	activeView: string = 'storyView';
 
@@ -109,18 +114,18 @@ export class ParentComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		if (!this.themeObservable.closed) 
+		if (this.themeObservable && !this.themeObservable.closed) 
 			this.themeObservable.unsubscribe();
     
-		if (!this.getBackendUrlObservable.closed) 
+		if (this.getBackendUrlObservable && !this.getBackendUrlObservable.closed) 
 			this.getBackendUrlObservable.unsubscribe();
     
 		if (this.getRepositoriesObservable) 
-			if (!this.getRepositoriesObservable.closed) 
+			if (this.getRepositoriesObservable && !this.getRepositoriesObservable.closed) 
 				this.getRepositoriesObservable.unsubscribe();
       
     
-		if (!this.activeViewObservable.closed) 
+		if (this.activeViewObservable && !this.activeViewObservable.closed) 
 			this.activeViewObservable.unsubscribe();
     
 	}

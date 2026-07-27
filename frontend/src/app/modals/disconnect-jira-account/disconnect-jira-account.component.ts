@@ -1,13 +1,14 @@
 import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 @Component({
-	selector: 'app-disconnect-jira-account',
-	templateUrl: './disconnect-jira-account.component.html',
-	styleUrls: ['./disconnect-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-disconnect-jira-account',
+    templateUrl: './disconnect-jira-account.component.html',
+    styleUrls: ['./disconnect-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent]
 })
 export class DisconnectJiraAccountComponent {
 	private modalService = inject(NgbModal);

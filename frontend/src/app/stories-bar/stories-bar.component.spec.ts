@@ -40,10 +40,9 @@ describe('StoriesBarComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, MatSnackBarModule],
-			declarations: [ StoriesBarComponent ],
-			schemas: [NO_ERRORS_SCHEMA]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, StoriesBarComponent],
+    schemas: [NO_ERRORS_SCHEMA]
+})
 			.compileComponents();
 	}));
 

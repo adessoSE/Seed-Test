@@ -1,9 +1,6 @@
 import { Directive, ElementRef, HostBinding, HostListener, inject, input } from '@angular/core';
 
-@Directive({
-	selector: '[appResizeInput]',
-	standalone: false
-})
+@Directive({ selector: '[appResizeInput]' })
 export class ResizeInputDirective {
 	private el = inject(ElementRef);
 
@@ -17,7 +14,7 @@ export class ResizeInputDirective {
 
 	readonly parentEl = input.required<HTMLElement>();
 
-	@HostBinding() maxWidth!: number;
+	maxWidth!: number;
 
 	@HostBinding() class?: any;
 

@@ -14,16 +14,15 @@ describe('RegistrationComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, RouterTestingModule.withRoutes(ROUTES), MatSnackBarModule],
-			declarations: [RegistrationComponent],
-			providers: [{
-				provide: ActivatedRoute,
-				useValue: {
-					snapshot: {params: {story_id: 45, scenario_id: 4}}
-				}
-			}],
-			schemas: [NO_ERRORS_SCHEMA]
-		})
+    imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, RouterTestingModule.withRoutes(ROUTES), MatSnackBarModule, RegistrationComponent],
+    providers: [{
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: { params: { story_id: 45, scenario_id: 4 } }
+            }
+        }],
+    schemas: [NO_ERRORS_SCHEMA]
+})
 			.compileComponents();
 	}));
       

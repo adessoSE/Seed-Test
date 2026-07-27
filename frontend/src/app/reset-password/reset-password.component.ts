@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
 import { LoginService } from '../Services/login.service';
@@ -8,11 +8,11 @@ import { LoginService } from '../Services/login.service';
  * Component to reset the password
  */
 @Component({
-	selector: 'app-reset-password',
-	templateUrl: './reset-password.component.html',
-	styleUrls: ['./reset-password.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-reset-password',
+    templateUrl: './reset-password.component.html',
+    styleUrls: ['./reset-password.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [FormsModule]
 })
 export class ResetPasswordComponent implements OnInit {
 	loginService = inject(LoginService);

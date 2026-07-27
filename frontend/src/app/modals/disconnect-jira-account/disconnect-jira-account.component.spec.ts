@@ -10,9 +10,8 @@ describe('DisconnectJiraAccountComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ DisconnectJiraAccountComponent, LayoutModalComponent ],
-			imports: [HttpClientTestingModule, MatSnackBarModule]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, DisconnectJiraAccountComponent, LayoutModalComponent]
+})
 			.compileComponents();
 	});
 

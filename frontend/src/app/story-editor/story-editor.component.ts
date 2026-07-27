@@ -31,6 +31,22 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 import { ManagementService } from '../Services/management.service';
 import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatFabButton, MatIconButton } from '@angular/material/button';
+import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
+import { MatIcon } from '@angular/material/icon';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatFormField, MatLabel } from '@angular/material/select';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription } from '@angular/material/expansion';
+import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { MatTooltip } from '@angular/material/tooltip';
+import { NgClass, NgStyle, TitleCasePipe, DatePipe } from '@angular/common';
+import { BaseEditorComponent } from '../base-editor/base-editor.component';
+import { WindowSizeComponent } from '../modals/window-size/window-size.component';
+import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
+import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 
 /**
  * Empty background
@@ -44,14 +60,14 @@ const emptyBackground: Background = {
  * Component for the Story editor
  */
 @Component({
-	selector: 'app-story-editor',
-	templateUrl: './story-editor.component.html',
-	styleUrls: [
-		'../base-editor/base-editor.component.css',
-		'./story-editor.component.css'
-	],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-story-editor',
+    templateUrl: './story-editor.component.html',
+    styleUrls: [
+        '../base-editor/base-editor.component.css',
+        './story-editor.component.css'
+    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CdkScrollable, MatFabButton, MatIconButton, MatMenuTrigger, MatIcon, MatProgressSpinner, MatMenu, MatFormField, MatLabel, MatInput, FormsModule, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatTooltip, NgClass, BaseEditorComponent, NgStyle, WindowSizeComponent, CdkCopyToClipboard, ScenarioEditorComponent, RenameStoryComponent, RenameBackgroundComponent, SaveBlockFormComponent, CreateScenarioComponent, WorkgroupEditComponent, ExecutionListComponent, TitleCasePipe, DatePipe]
 })
 export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked {
 	apiService = inject(ApiService);
@@ -645,38 +661,38 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	}
 
 	ngOnDestroy() {
-		if (!this.deleteStoryObservable.closed) 
+		if (this.deleteStoryObservable && !this.deleteStoryObservable.closed) 
 			this.deleteStoryObservable.unsubscribe();
     
-		if (!this.storiesErrorObservable.closed) 
+		if (this.storiesErrorObservable && !this.storiesErrorObservable.closed) 
 			this.storiesErrorObservable.unsubscribe();
     
-		if (!this.deleteScenarioObservable.closed) 
+		if (this.deleteScenarioObservable && !this.deleteScenarioObservable.closed) 
 			this.deleteScenarioObservable.unsubscribe();
     
-		if (!this.runSaveOptionObservable.closed) 
+		if (this.runSaveOptionObservable && !this.runSaveOptionObservable.closed) 
 			this.runSaveOptionObservable.unsubscribe();
     
 
-		if (!this.renameStoryObservable.closed) 
+		if (this.renameStoryObservable && !this.renameStoryObservable.closed) 
 			this.renameStoryObservable.unsubscribe();
     
-		if (!this.themeObservable.closed) 
+		if (this.themeObservable && !this.themeObservable.closed) 
 			this.themeObservable.unsubscribe();
     
-		if (!this.getBackendUrlObservable.closed) 
+		if (this.getBackendUrlObservable && !this.getBackendUrlObservable.closed) 
 			this.getBackendUrlObservable.unsubscribe();
     
-		if (!this.getStoriesObservable.closed) 
+		if (this.getStoriesObservable && !this.getStoriesObservable.closed) 
 			this.getStoriesObservable.unsubscribe();
     
-		if (!this.renameBackgroundObservable.closed) 
+		if (this.renameBackgroundObservable && !this.renameBackgroundObservable.closed) 
 			this.renameBackgroundObservable.unsubscribe();
     
-		if (!this.applyBackgroundChangesObservable.closed) 
+		if (this.applyBackgroundChangesObservable && !this.applyBackgroundChangesObservable.closed) 
 			this.applyBackgroundChangesObservable.unsubscribe();
     
-		if (!this.unpackBlockObservable.closed) 
+		if (this.unpackBlockObservable && !this.unpackBlockObservable.closed) 
 			this.unpackBlockObservable.unsubscribe();
     
 		if (this.updateObservable && !this.updateObservable.closed) 

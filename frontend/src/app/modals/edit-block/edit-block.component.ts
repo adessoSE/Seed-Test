@@ -5,13 +5,15 @@ import { BlockService } from 'src/app/Services/block.service';
 import { StepType } from '@shared/models/StepType';
 import { ThemingService } from '../../Services/theming.service';
 import { Subscription } from 'rxjs';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { BaseEditorComponent } from '../../base-editor/base-editor.component';
 
 @Component({
-	selector: 'app-edit-block',
-	templateUrl: './edit-block.component.html',
-	styleUrls: ['./edit-block.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-edit-block',
+    templateUrl: './edit-block.component.html',
+    styleUrls: ['./edit-block.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, BaseEditorComponent]
 })
 export class EditBlockComponent implements OnInit {
 	private modalService = inject(NgbModal);

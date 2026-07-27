@@ -42,7 +42,7 @@
             </div>
             <div [hidden]="!showFilter" style="margin-top: 10px;">
               @if (!isCustomStory) {
-                <mat-form-field appearance="standard" class="filterFormField">
+                <mat-form-field appearance="outline" class="filterFormField">
                   <mat-label>Assignee</mat-label>
                   <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
                     <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
@@ -55,7 +55,7 @@
                   </mat-select>
                 </mat-form-field>
               }
-              <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
+              <mat-form-field appearance="outline" class="filterFormField rightFilterFormField">
                 <mat-label>Status Of Story</mat-label>
                 <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter()">
                   <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
@@ -67,7 +67,7 @@
                   }
                 </mat-select>
               </mat-form-field>
-              <mat-form-field appearance="standard" class="filterFormField">
+              <mat-form-field appearance="outline" class="filterFormField">
                 <mat-label>Group</mat-label>
                 <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
                   <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>

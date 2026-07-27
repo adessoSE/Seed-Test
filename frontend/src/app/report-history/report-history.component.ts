@@ -9,6 +9,8 @@ import {ScenarioReport} from '@shared/models/ScenarioReport';
 import {GroupReport} from '@shared/models/GroupReport';
 import { ReportService } from '../Services/report.service';
 import { StoryService } from '../Services/story.service';
+import { RouterLink } from '@angular/router';
+import { NgTemplateOutlet } from '@angular/common';
 
 
 type Report = ScenarioReport | StoryReport | GroupReport;
@@ -17,11 +19,11 @@ type Report = ScenarioReport | StoryReport | GroupReport;
  * Component of the report history
  */
 @Component({
-	selector: 'app-report-history',
-	templateUrl: './report-history.component.html',
-	styleUrls: ['./report-history.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-report-history',
+    templateUrl: './report-history.component.html',
+    styleUrls: ['./report-history.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [RouterLink, NgTemplateOutlet]
 })
 
 export class ReportHistoryComponent implements OnInit, AfterContentInit {

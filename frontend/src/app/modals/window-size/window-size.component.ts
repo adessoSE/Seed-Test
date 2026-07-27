@@ -1,12 +1,16 @@
 import { Input, Component, SimpleChanges, OnInit, OnChanges, ChangeDetectionStrategy, output, viewChild } from '@angular/core';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
+import { FormsModule } from '@angular/forms';
+import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
+import { MatInput } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
 
 @Component({
-	selector: 'app-window-size',
-	templateUrl: './window-size.component.html',
-	styleUrls: ['./window-size.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-window-size',
+    templateUrl: './window-size.component.html',
+    styleUrls: ['./window-size.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [MatMenu, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatButton, MatMenuTrigger]
 })
 export class WindowSizeComponent implements OnInit, OnChanges {
 

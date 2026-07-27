@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { Subscription } from 'rxjs';
@@ -7,13 +7,16 @@ import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
 import { BackgroundService } from '../../Services/background.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '@angular/material/table';
+import { NgStyle } from '@angular/common';
 
 @Component({
-	selector: 'app-save-block-form',
-	templateUrl: './save-block-form.component.html',
-	styleUrls: ['./save-block-form.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-save-block-form',
+    templateUrl: './save-block-form.component.html',
+    styleUrls: ['./save-block-form.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, NgStyle]
 })
 export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	private modalService = inject(NgbModal);
@@ -101,7 +104,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		if (!this.updateObservable.closed) 
+		if (this.updateObservable && !this.updateObservable.closed) 
 			this.updateObservable.unsubscribe();
     
 	}

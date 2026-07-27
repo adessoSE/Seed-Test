@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change-jira-account.component';
 import { Subscription } from 'rxjs/internal/Subscription';
@@ -19,16 +19,20 @@ import { LoginService } from '../Services/login.service';
 import { ManagementService } from '../Services/management.service';
 import { DisconnectJiraAccountComponent } from '../modals/disconnect-jira-account/disconnect-jira-account.component';
 import { ImportModalComponent } from '../modals/import-modal/import-modal.component';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
+import { NgClass, NgStyle } from '@angular/common';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
  */
 @Component({
-	selector: 'app-account-management',
-	templateUrl: './account-management.component.html',
-	styleUrls: ['./account-management.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-account-management',
+    templateUrl: './account-management.component.html',
+    styleUrls: ['./account-management.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [RouterLink, MatIcon, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, NgClass, NgStyle, ChangeJiraAccountComponent, DisconnectJiraAccountComponent, CreateCustomProjectComponent, DeleteAccountComponent, WorkgroupEditComponent, RepoSwichComponent]
 })
 
 
@@ -160,17 +164,17 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		if (!this.themeObservable.closed) 
+		if (this.themeObservable && !this.themeObservable.closed) 
 			this.themeObservable.unsubscribe();
         
-		if (!this.updateRepositoryObservable.closed) 
+		if (this.updateRepositoryObservable && !this.updateRepositoryObservable.closed) 
 			this.updateRepositoryObservable.unsubscribe();
         
-		if (!this.routeSub.closed) 
+		if (this.routeSub && !this.routeSub.closed) 
 			this.routeSub.unsubscribe();
         
 		if (this.getRepositoriesObservable) 
-			if (!this.getRepositoriesObservable.closed) 
+			if (this.getRepositoriesObservable && !this.getRepositoriesObservable.closed) 
 				this.getRepositoriesObservable.unsubscribe();
             
         

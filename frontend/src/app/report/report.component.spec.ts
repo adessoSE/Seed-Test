@@ -12,15 +12,14 @@ describe('ReportComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			declarations: [ ReportComponent ],
-			imports: [HttpClientTestingModule, MatSnackBarModule],
-			providers: [{
-				provide: ActivatedRoute,
-				useValue: {
-					snapshot: {params: {reportName: '24fkzrw3487943uf358lovd'}}
-				}
-			}]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, ReportComponent],
+    providers: [{
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: { params: { reportName: '24fkzrw3487943uf358lovd' } }
+            }
+        }]
+})
 			.compileComponents();
 	}));
 

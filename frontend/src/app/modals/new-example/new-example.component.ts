@@ -2,15 +2,17 @@ import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ExampleService } from 'src/app/Services/example.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { NgStyle } from '@angular/common';
 
 @Component({
-	selector: 'app-new-example',
-	templateUrl: './new-example.component.html',
-	styleUrls: ['./new-example.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-new-example',
+    templateUrl: './new-example.component.html',
+    styleUrls: ['./new-example.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, NgStyle]
 })
 export class NewExampleComponent {
 	private modalService = inject(NgbModal);

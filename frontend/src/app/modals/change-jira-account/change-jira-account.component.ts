@@ -1,15 +1,17 @@
 import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { NgStyle } from '@angular/common';
 
 
 @Component({
-	selector: 'app-change-jira-account',
-	templateUrl: './change-jira-account.component.html',
-	styleUrls: ['./change-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-change-jira-account',
+    templateUrl: './change-jira-account.component.html',
+    styleUrls: ['./change-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, NgStyle]
 })
 export class ChangeJiraAccountComponent {
 	private modalService = inject(NgbModal);

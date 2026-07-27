@@ -69,7 +69,7 @@
                 <input class="versionInput" type="text" #versionbar [(ngModel)]="versionInput" placeholder="Optional: Version"/>
               </div>
               <div class="dropDownProject">
-                <mat-form-field appearance="standard" style="width: 100%;">
+                <mat-form-field appearance="outline" style="width: 100%;">
                   <mat-label>Project</mat-label>
                   <mat-select #ngSelect [(ngModel)]="downloadRepoID">
                     @for (repo of searchList; track repo; let odd = $odd) {
@@ -232,4 +232,3 @@
   <app-delete-account #deleteAccountModal />
   <app-workgroup-edit #workgroupEditModal />
   <app-repo-swich #repoSwitchModal />
-  <app-rename-project #renameProjectModal />

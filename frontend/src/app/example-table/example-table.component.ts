@@ -1,11 +1,7 @@
 import { Subscription } from 'rxjs';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
 import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
-import {
-	UntypedFormGroup,
-	UntypedFormArray,
-	UntypedFormControl
-} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Scenario } from '@shared/models/Scenario';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,70 +11,26 @@ import { StepType } from '@shared/models/StepType';
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ApiService } from '../Services/api.service';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { MatTable } from '@angular/material/table';
+import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDragHandle, CdkDrag } from '@angular/cdk/drag-drop';
+import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { StepDefinition } from '@shared/models/StepDefinition';
 import { ThemePalette } from '@angular/material/core';
 import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
 import { StepValidationService } from '../Services/step-validation.service';
-
-@Component({
-	selector: 'app-example',
-	template: `<app-base-editor [templateName]="TEMPLATE_NAME"
-    [testRunning]="testRunning()"
-    [newlySelectedScenario]="selectedScenario"
-    [newlySelectedStory]="selectedStory"
-    [originalStepTypes]="originalStepTypes()"
-   /> `,
-	styleUrls: ['./example-table.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
-})
-
-/* Example component */
-export class ExampleComponent {
-	selectedScenario!: Scenario;
-
-	selectedStory!: Story;
-
-	readonly originalStepTypes = input<StepType[]>([]);
-
-	readonly templateName = input<string>('');
-
-	/**
-   * If the test is running
-   */
-	readonly testRunning = input(false);
-
-	/**
-   * Sets a new selected story
-   */
-	@Input()
-	set newlySelectedStory(story: Story) {
-		this.selectedStory = story;
-	}
-
-	/**
-   * Sets a new selected scenaio
-   */
-	@Input()
-	set newlySelectedScenario(scenario: Scenario) {
-		this.selectedScenario = scenario;
-	}
-
-	readonly TEMPLATE_NAME = 'example';
-}
+import { NgClass } from '@angular/common';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { NewExampleComponent as NewExampleComponent_1 } from '../modals/new-example/new-example.component';
 
 /**
  * Component of for the Example Table
  */
 @Component({
-	selector: 'app-example-table',
-	templateUrl: './example-table.component.html',
-	styleUrls: ['./example-table.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-example-table',
+    templateUrl: './example-table.component.html',
+    styleUrls: ['./example-table.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [MatTable, CdkDropList, MatColumnDef, MatHeaderCellDef, MatHeaderCell, NgClass, MatSlideToggle, FormsModule, ReactiveFormsModule, MatCellDef, MatCell, CdkDragHandle, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, CdkDrag, NewExampleComponent_1]
 })
 export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewChecked {
 	scenarioService = inject(ScenarioService);
@@ -196,16 +148,16 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 
 	// eslint-disable-next-line @angular-eslint/use-lifecycle-interface
 	ngOnDestroy() {
-		if (!this.deleteExampleObservable.closed) 
+		if (this.deleteExampleObservable && !this.deleteExampleObservable.closed) 
 			this.deleteExampleObservable.unsubscribe();
     
-		if (!this.updateExampleTableObservable.closed) 
+		if (this.updateExampleTableObservable && !this.updateExampleTableObservable.closed) 
 			this.updateExampleTableObservable.unsubscribe();
     
-		if (!this.themeObservable.closed) 
+		if (this.themeObservable && !this.themeObservable.closed) 
 			this.themeObservable.unsubscribe();
     
-		if (!this.toggleObservable.closed) 
+		if (this.toggleObservable && !this.toggleObservable.closed) 
 			this.toggleObservable.unsubscribe();
     
 	}

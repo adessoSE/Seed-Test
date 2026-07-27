@@ -9,6 +9,7 @@ import { Scenario } from '@shared/models/Scenario';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
 import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 const story:Story = {_id: '1', issue_number: 36523, story_id: 37727, storySource: 'github',
 	background: {stepDefinitions: {when: []}}, scenarios: [], oneDriver: true, title: 'test story', body: '',
@@ -25,16 +26,16 @@ describe('ParentComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, RouterTestingModule.withRoutes(ROUTES), MatSnackBarModule],
-			declarations: [ParentComponent],
-			providers: [{
-				provide: ActivatedRoute,
-				useValue: {
-					snapshot: {params: {story_id: 45, scenario_id: 4}}
-				}
-			}],
-			schemas: [NO_ERRORS_SCHEMA]
-		})
+    imports: [HttpClientTestingModule, RouterTestingModule.withRoutes(ROUTES), MatSnackBarModule, ParentComponent],
+    providers: [{
+            provide: ActivatedRoute,
+            useValue: {
+                snapshot: { params: { story_id: 45, scenario_id: 4 } },
+                params: of({ story_id: 45, scenario_id: 4 })
+            }
+        }],
+    schemas: [NO_ERRORS_SCHEMA]
+})
 			.compileComponents();
 	}));
   
@@ -110,7 +111,7 @@ describe('ParentComponent', () => {
   
 		it('should succeed as isDark expected to be false at beginning', (() => {
 			const stories_bar = findComponent(fixture, 'app-stories-bar');
-			expect(stories_bar.properties.isDark).toBe(false);
+			expect(stories_bar.componentInstance.isDark).toBe(false);
 		}));
 
 	}));

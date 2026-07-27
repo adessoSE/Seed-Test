@@ -4,7 +4,7 @@ import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { Group } from '@shared/models/Group';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { NotificationService } from '../Services/notification.service';
 import { ThemingService } from '../Services/theming.service';
 import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-group.component';
@@ -18,16 +18,23 @@ import { ScenarioService } from '../Services/scenario.service';
 import { ReportService } from '../Services/report.service';
 import { BackgroundService } from '../Services/background.service';
 import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import { MatTabGroup, MatTab, MatTabLabel } from '@angular/material/tabs';
+import { MatTooltip } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
+import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 /**
  * Component of the Stories bar
  */
 @Component({
-	selector: 'app-stories-bar',
-	templateUrl: './stories-bar.component.html',
-	styleUrls: ['./stories-bar.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-stories-bar',
+    templateUrl: './stories-bar.component.html',
+    styleUrls: ['./stories-bar.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CdkScrollable, MatTabGroup, MatTab, MatTabLabel, MatTooltip, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, NgClass, CdkDropList, CdkDrag, MatIcon, CdkDragHandle, CreateNewGroupComponent, CreateNewStoryComponent, UpdateGroupComponent, CreateScenarioComponent, ExecutionListComponent, TitleCasePipe]
 })
 export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	notify = inject(NotificationService);
@@ -289,13 +296,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 		this.createGroupEmitter.unsubscribe();
 		this.updateGroupEmitter.unsubscribe();
 		this.deleteGroupEmitter.unsubscribe();
-		if (!this.deleteStoryObservable.closed) 
+		if (this.deleteStoryObservable && !this.deleteStoryObservable.closed) 
 			this.deleteStoryObservable.unsubscribe();
         
-		if (!this.themeObservable.closed) 
+		if (this.themeObservable && !this.themeObservable.closed) 
 			this.themeObservable.unsubscribe();
         
-		if (!this.getStoriesObservable.closed) 
+		if (this.getStoriesObservable && !this.getStoriesObservable.closed) 
 			this.getStoriesObservable.unsubscribe();
         
 		if (this.scenarioStatusChangeObservable && !this.scenarioStatusChangeObservable.closed) 

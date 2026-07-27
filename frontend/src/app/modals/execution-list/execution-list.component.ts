@@ -6,13 +6,15 @@ import { Group } from '@shared/models/Group';
 import { ThemingService } from '../../Services/theming.service';
 import { Subscription, lastValueFrom } from 'rxjs';
 import { StoryService } from '../../Services/story.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-	selector: 'app-execution-list',
-	templateUrl: './execution-list.component.html',
-	styleUrls: ['./execution-list.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-execution-list',
+    templateUrl: './execution-list.component.html',
+    styleUrls: ['./execution-list.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule]
 })
 export class ExecutionListComponent implements OnInit {
 	private modalService = inject(NgbModal);

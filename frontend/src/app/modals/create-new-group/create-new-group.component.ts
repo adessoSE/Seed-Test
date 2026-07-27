@@ -1,19 +1,23 @@
 import { Component, EventEmitter, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { NgForm, FormsModule } from '@angular/forms';
+import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from '@shared/models/Group';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { Story } from '@shared/models/Story';
 import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { MatIcon } from '@angular/material/icon';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { NgStyle } from '@angular/common';
 
 @Component({
-	selector: 'app-create-new-group',
-	templateUrl: './create-new-group.component.html',
-	styleUrls: ['./create-new-group.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-create-new-group',
+    templateUrl: './create-new-group.component.html',
+    styleUrls: ['./create-new-group.component.css', '../layout-modal/layout-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, NgStyle]
 })
 export class CreateNewGroupComponent {
 	private modalService = inject(NgbModal);

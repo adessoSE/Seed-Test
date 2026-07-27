@@ -1,16 +1,18 @@
 import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { NgStyle } from '@angular/common';
 
 @Component({
-	selector: 'app-create-custom-project',
-	templateUrl: './create-custom-project.component.html',
-	styleUrls: ['./create-custom-project.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-create-custom-project',
+    templateUrl: './create-custom-project.component.html',
+    styleUrls: ['./create-custom-project.component.css', '../layout-modal/layout-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, NgStyle]
 })
 export class CreateCustomProjectComponent {
 	private modalService = inject(NgbModal);

@@ -1,18 +1,19 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
 import { LoginService } from '../Services/login.service';
+import { ConfirmResetPasswordPopupComponent } from '../confirm-reset-password-popup/confirm-reset-password-popup.component';
 
 /**
  * Component to enable to reset the password
  */
 @Component({
-	selector: 'app-confirm-reset-password',
-	templateUrl: './confirm-reset-password.component.html',
-	styleUrls: ['./confirm-reset-password.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-confirm-reset-password',
+    templateUrl: './confirm-reset-password.component.html',
+    styleUrls: ['./confirm-reset-password.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [ConfirmResetPasswordPopupComponent, FormsModule]
 })
 export class ConfirmResetPasswordComponent implements OnInit {
 	loginService = inject(LoginService);

@@ -8,11 +8,10 @@ describe('EditableComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [],
-			declarations: [ EditableComponent],
-			providers: [TemplateRef ],
-			schemas: [NO_ERRORS_SCHEMA]
-		})
+    imports: [EditableComponent],
+    providers: [TemplateRef],
+    schemas: [NO_ERRORS_SCHEMA]
+})
 			.compileComponents();
 	}));
 

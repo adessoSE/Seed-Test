@@ -26,10 +26,9 @@ describe('AccountManagementComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			declarations: [ AccountManagementComponent],
-			imports: [HttpClientTestingModule, MatSnackBarModule, RouterTestingModule.withRoutes(ROUTES)],
-			schemas: [NO_ERRORS_SCHEMA]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, RouterTestingModule.withRoutes(ROUTES), AccountManagementComponent],
+    schemas: [NO_ERRORS_SCHEMA]
+})
 			.compileComponents();
 	}));
 

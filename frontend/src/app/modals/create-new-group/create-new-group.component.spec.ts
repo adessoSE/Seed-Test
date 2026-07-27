@@ -10,9 +10,8 @@ describe('CreateNewGroupComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ CreateNewGroupComponent, LayoutModalComponent ],
-			imports: [HttpClientTestingModule, MatSnackBarModule]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, CreateNewGroupComponent, LayoutModalComponent]
+})
 			.compileComponents();
 	});
 

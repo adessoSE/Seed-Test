@@ -8,8 +8,8 @@ describe('ConfirmResetPasswordPopupComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ ConfirmResetPasswordPopupComponent ]
-		})
+    imports: [ConfirmResetPasswordPopupComponent]
+})
 			.compileComponents();
 
 		fixture = TestBed.createComponent(ConfirmResetPasswordPopupComponent);

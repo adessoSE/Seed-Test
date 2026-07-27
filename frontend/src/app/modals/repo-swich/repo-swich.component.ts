@@ -1,16 +1,18 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-	selector: 'app-repo-swich',
-	templateUrl: './repo-swich.component.html',
-	styleUrls: ['./repo-swich.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-repo-swich',
+    templateUrl: './repo-swich.component.html',
+    styleUrls: ['./repo-swich.component.css', '../layout-modal/layout-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class RepoSwichComponent implements OnInit, OnDestroy {
 	private modalService = inject(NgbModal);
@@ -31,8 +33,8 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
 
 	constructor() {
 		this.currentRepo = localStorage.getItem('repository');
-		const value = sessionStorage.getItem('repositories')!;
-		const repositories: RepositoryContainer[] = JSON.parse(value);
+		const value = sessionStorage.getItem('repositories');
+		const repositories: RepositoryContainer[] = value ? JSON.parse(value) : [];
 		this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
 		this.filteredRepos = new MatTableDataSource(this.repos);
 	}
@@ -44,9 +46,9 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		if (!this.updateRepositoryObservable.closed) 
+		if (this.updateRepositoryObservable && !this.updateRepositoryObservable.closed)
 			this.updateRepositoryObservable.unsubscribe();
-    
+
 	}
 
 	openModal() {

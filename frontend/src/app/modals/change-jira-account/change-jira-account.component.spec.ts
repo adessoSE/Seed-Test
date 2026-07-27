@@ -10,9 +10,8 @@ describe('ChangeJiraAccountComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ ChangeJiraAccountComponent, LayoutModalComponent ],
-			imports: [HttpClientTestingModule, MatSnackBarModule]
-		})
+    imports: [HttpClientTestingModule, MatSnackBarModule, ChangeJiraAccountComponent, LayoutModalComponent]
+})
 			.compileComponents();
 	});
 

@@ -1,15 +1,21 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { NgForm, UntypedFormControl } from '@angular/forms';
+import { NgForm, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { MatIcon } from '@angular/material/icon';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { NgClass, NgStyle } from '@angular/common';
+import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
+import { MatButton } from '@angular/material/button';
 
 @Component({
-	selector: 'app-import-modal',
-	templateUrl: './import-modal.component.html',
-	styleUrls: ['./import-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-import-modal',
+    templateUrl: './import-modal.component.html',
+    styleUrls: ['./import-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, ReactiveFormsModule, NgClass, MatFormField, MatLabel, MatSelect, MatOption, MatButton, NgStyle]
 })
 export class ImportModalComponent implements OnInit, OnDestroy {
 	dialogRef = inject<MatDialogRef<ImportModalComponent>>(MatDialogRef);

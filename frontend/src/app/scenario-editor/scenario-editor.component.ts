@@ -12,17 +12,19 @@ import { CreateScenarioComponent } from '../modals/create-scenario/create-scenar
 import { ScenarioService } from '../Services/scenario.service';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { BlockService } from '../Services/block.service';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { ExampleComponent } from '../example-table/example.component';
 
 
 /**
  * Component of the Scenario Editor
  */
 @Component({
-	selector: 'app-scenario-editor',
-	templateUrl: './scenario-editor.component.html',
-	styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-scenario-editor',
+    templateUrl: './scenario-editor.component.html',
+    styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [NgClass, BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe]
 })
 
 export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
@@ -190,10 +192,10 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	}
 
 	ngOnDestroy() {
-		if (!this.runSaveOptionObservable.closed) 
+		if (this.runSaveOptionObservable && !this.runSaveOptionObservable.closed) 
 			this.runSaveOptionObservable.unsubscribe();
         
-		if (!this.renameScenarioObservable.closed) 
+		if (this.renameScenarioObservable && !this.renameScenarioObservable.closed) 
 			this.renameScenarioObservable.unsubscribe();
         
 	}

@@ -1,5 +1,5 @@
 import { ApiService } from 'src/app/Services/api.service';
-import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,19 +20,24 @@ import { NewExampleComponent } from '../modals/new-example/new-example.component
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { BackgroundService } from '../Services/background.service';
-import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
+import type { EditBlockComponent } from '../modals/edit-block/edit-block.component';
 import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
 import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
 import { MultipleScenario } from '@shared/models/MuiltipleScenario';
 import { StepValidationService } from '../Services/step-validation.service';
+import { NgTemplateOutlet, NgStyle, NgClass, SlicePipe } from '@angular/common';
+import { MatFormField, MatSelect, MatOption } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription } from '@angular/material/expansion';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
-	selector: 'app-base-editor',
-	templateUrl: './base-editor.component.html',
-	styleUrls: ['./base-editor.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-base-editor',
+    templateUrl: './base-editor.component.html',
+    styleUrls: ['./base-editor.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [NgTemplateOutlet, NgStyle, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe]
 })
 export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit {
 	notify = inject(NotificationService);
@@ -322,25 +327,25 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	}
 
 	ngOnDestroy(): void {
-		if (!this.addBlocktoScenarioObservable.closed) 
+		if (this.addBlocktoScenarioObservable && !this.addBlocktoScenarioObservable.closed) 
 			this.addBlocktoScenarioObservable.unsubscribe();
     
-		if (!this.newExampleObservable.closed) 
+		if (this.newExampleObservable && !this.newExampleObservable.closed) 
 			this.newExampleObservable.unsubscribe();
     
-		if (!this.renameExampleObservable.closed) 
+		if (this.renameExampleObservable && !this.renameExampleObservable.closed) 
 			this.renameExampleObservable.unsubscribe();
     
-		if (!this.scenarioChangedObservable.closed) 
+		if (this.scenarioChangedObservable && !this.scenarioChangedObservable.closed) 
 			this.scenarioChangedObservable.unsubscribe();
     
-		if (!this.backgroundChangedObservable.closed) 
+		if (this.backgroundChangedObservable && !this.backgroundChangedObservable.closed) 
 			this.backgroundChangedObservable.unsubscribe();
     
-		if (!this.copyExampleOptionObservable.closed) 
+		if (this.copyExampleOptionObservable && !this.copyExampleOptionObservable.closed) 
 			this.copyExampleOptionObservable.unsubscribe();
     
-		if (!this.themeObservable.closed) 
+		if (this.themeObservable && !this.themeObservable.closed) 
 			this.themeObservable.unsubscribe();
     
 	}

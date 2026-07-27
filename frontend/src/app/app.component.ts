@@ -120,16 +120,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	}
 
 	ngOnDestroy(){
-		if (!this.logoutObservable.closed)
+		if (this.logoutObservable && !this.logoutObservable.closed)
 			this.logoutObservable.unsubscribe();
     
-		if (!this.getRepositoriesObservable.closed)
+		if (this.getRepositoriesObservable && !this.getRepositoriesObservable.closed)
 			this.getRepositoriesObservable.unsubscribe();
     
-		if (!this.updateRepositoryObservable.closed)
+		if (this.updateRepositoryObservable && !this.updateRepositoryObservable.closed)
 			this.updateRepositoryObservable.unsubscribe();
     
-		if (!this.toggleObservable.closed)
+		if (this.toggleObservable && !this.toggleObservable.closed)
 			this.toggleObservable.unsubscribe();
     
 	}

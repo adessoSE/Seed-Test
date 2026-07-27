@@ -1,16 +1,18 @@
 import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { LoginService } from 'src/app/Services/login.service';
 import { ManagementService } from 'src/app/Services/management.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { NgStyle } from '@angular/common';
 
 @Component({
-	selector: 'app-delete-account',
-	templateUrl: './delete-account.component.html',
-	styleUrls: ['./delete-account.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-delete-account',
+    templateUrl: './delete-account.component.html',
+    styleUrls: ['./delete-account.component.css', '../layout-modal/layout-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, NgStyle]
 })
 export class DeleteAccountComponent {
 	private modalService = inject(NgbModal);

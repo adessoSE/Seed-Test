@@ -13,10 +13,9 @@ describe('CreateNewStoryComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [CreateNewStoryComponent],
-			imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule],
-			schemas: [NO_ERRORS_SCHEMA]
-		})
+    imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule, CreateNewStoryComponent],
+    schemas: [NO_ERRORS_SCHEMA]
+})
 			.compileComponents();
 	});
 

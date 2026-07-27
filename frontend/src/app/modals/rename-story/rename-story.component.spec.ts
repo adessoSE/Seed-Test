@@ -13,10 +13,9 @@ describe('RenameStoryComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [RenameStoryComponent],
-			imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule],
-			schemas: [NO_ERRORS_SCHEMA]
-		})
+    imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule, RenameStoryComponent],
+    schemas: [NO_ERRORS_SCHEMA]
+})
 			.compileComponents();
 	});
 

@@ -4,16 +4,17 @@ import { EditModeDirective } from '../directives/edit-mode.directive';
 import { fromEvent, Subject } from 'rxjs';
 import { filter, take, switchMapTo } from 'rxjs/operators';
 import { untilDestroyed } from '@ngneat/until-destroy';
+import { NgTemplateOutlet } from '@angular/common';
 
 /**
  * Component to enable editable cells in the example table
  */
 @Component({
-	selector: 'editable',
-	templateUrl: './editable.component.html',
-	styleUrls: ['./editable.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'editable',
+    templateUrl: './editable.component.html',
+    styleUrls: ['./editable.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [NgTemplateOutlet]
 })
 
 export class EditableComponent implements OnInit, OnDestroy {

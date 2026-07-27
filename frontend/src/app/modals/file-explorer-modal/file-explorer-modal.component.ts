@@ -4,13 +4,17 @@ import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ThemingService } from '../../Services/theming.service';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { FormsModule } from '@angular/forms';
+import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { NgStyle, DatePipe } from '@angular/common';
 
 @Component({
-	selector: 'app-file-explorer-modal',
-	templateUrl: './file-explorer-modal.component.html',
-	styleUrls: ['./file-explorer-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-file-explorer-modal',
+    templateUrl: './file-explorer-modal.component.html',
+    styleUrls: ['./file-explorer-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, NgStyle, DatePipe]
 })
 export class FileExplorerModalComponent implements OnInit {
 	private modalService = inject(NgbModal);

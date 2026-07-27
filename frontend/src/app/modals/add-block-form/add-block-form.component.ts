@@ -8,14 +8,18 @@ import { NotificationService } from 'src/app/Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
 import { ApiService } from 'src/app/Services/api.service';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { MatSelectionList, MatListOption } from '@angular/material/list';
+import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '@angular/material/table';
+import { MatFormField, MatSelect, MatOption } from '@angular/material/select';
 
 @Component({
-	selector: 'app-add-block-form',
-	templateUrl: './add-block-form.component.html',
-	styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+    selector: 'app-add-block-form',
+    templateUrl: './add-block-form.component.html',
+    styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [LayoutModalComponent, MatSelectionList, FormsModule, MatListOption, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatFormField, MatSelect, ReactiveFormsModule, MatOption]
 })
 export class AddBlockFormComponent implements OnInit,OnDestroy {
 	private modalService = inject(NgbModal);
@@ -111,7 +115,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 	}
     
 	ngOnDestroy() {
-		if (!this.deleteBlockObservable.closed) 
+		if (this.deleteBlockObservable && !this.deleteBlockObservable.closed) 
 			this.deleteBlockObservable.unsubscribe();
       
 	}
