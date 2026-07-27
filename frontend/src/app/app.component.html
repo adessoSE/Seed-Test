@@ -81,7 +81,7 @@
             <div class="slide-toggle-container">
               <mat-icon>brightness_5</mat-icon>
               <mat-slide-toggle [formControl]="toggleControl" [ngClass]="{'mat-checked mat-slide-toggle-thumb':isDark}"
-              [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark}" title="Switch to dark/light mode"></mat-slide-toggle>
+              [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark}" title="Switch to dark/light mode" />
               <mat-icon>bedtime</mat-icon>
             </div>
             <div class="dropdown">
@@ -101,7 +101,7 @@
         </div>
 
         <div class="router">
-          <router-outlet></router-outlet>
+          <router-outlet />
         </div>
 
         <footer id="footer" class="footer">

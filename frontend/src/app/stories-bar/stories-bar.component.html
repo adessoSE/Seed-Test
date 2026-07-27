@@ -218,9 +218,9 @@
                 </mat-tab-group>
                 <hr>
                 </div>
-                <app-create-new-group #createNewGroup></app-create-new-group>
-                <app-create-new-story #createNewStory></app-create-new-story>
-                <app-update-group #updateGroup></app-update-group>
-                <app-create-scenario #createNewScenario (createScenarioEvent)="addScenario($event)"></app-create-scenario>
-                <app-execution-list #executionListModal (selectedExecutions)="executeTests($event)"></app-execution-list>
+                <app-create-new-group #createNewGroup />
+                <app-create-new-story #createNewStory />
+                <app-update-group #updateGroup />
+                <app-create-scenario #createNewScenario (createScenarioEvent)="addScenario($event)" />
+                <app-execution-list #executionListModal (selectedExecutions)="executeTests($event)" />
               </fieldset>

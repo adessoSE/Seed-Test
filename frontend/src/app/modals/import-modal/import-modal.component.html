@@ -1,7 +1,6 @@
-<ng-template #importProjectModal let-modal>
-</ng-template>
+<ng-template #importProjectModal let-modal />
 
-<app-layout-modal></app-layout-modal>
+<app-layout-modal />
 <div class="modal-header">
   <span class="MediumSubline1H4 modal-title">Import project</span>
   <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
@@ -32,7 +31,7 @@
           <div class="modalsContent">
             <div class="toggle-container">
               <span class="import-label">Import into:</span>
-              <mat-slide-toggle [formControl]="toggleNewProject" color="primary" (ngModelChange)="onSlideToggleChange()"></mat-slide-toggle>
+              <mat-slide-toggle [formControl]="toggleNewProject" color="primary" (ngModelChange)="onSlideToggleChange()" />
               <span class="toggle-label" [ngClass]="{ 'text-primary': isNewProject }">{{ isNewProject ? "New Project" :
                 "Existing Project" }}
               </span>
@@ -66,7 +65,7 @@
                   <div class="toggle-container">
                     <span class="import-label">Import mode:</span>
                     <mat-slide-toggle [formControl]="toggleImportMode" color="primary"
-                    (ngModelChange)="onImportToggleChange()"></mat-slide-toggle>
+                    (ngModelChange)="onImportToggleChange()" />
                     <span class="toggle-label" [ngClass]="{ 'text-primary': !importMode }">
                       {{ importMode ? "Rename conflicts" : "Overwrite conflicts" }}
                     </span>

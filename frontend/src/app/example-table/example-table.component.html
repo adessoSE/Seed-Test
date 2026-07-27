@@ -14,7 +14,7 @@
               <label class="edit-mode" [class.icon]="editMode" [ngClass]="{'darkTheme': isDark && editMode}">Edit</label>
               <mat-slide-toggle [formControl]="toggleControl" [color]="color"
                 [ngClass]="{'mat-accent': isDark}"
-              title="Switch on/off edit mode"></mat-slide-toggle>
+              title="Switch on/off edit mode" />
             </span>
           }
           @if (!first) {
@@ -62,5 +62,5 @@
 </table>
 }
 
-<app-new-example #newExampleModal></app-new-example>
+<app-new-example #newExampleModal />
 

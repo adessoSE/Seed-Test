@@ -40,7 +40,7 @@
                     <button id="Login" class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
                     @if (this.isLoadingRepositories) {
                       <div id="loadingSpinner">
-                        <mat-spinner [diameter]="40" id="loadingSpinnerlogin" class="loadingSpinner"></mat-spinner>
+                        <mat-spinner [diameter]="40" id="loadingSpinnerlogin" class="loadingSpinner" />
                       </div>
                     }
                   </form>

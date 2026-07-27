@@ -1,4 +1,4 @@
-<ng-container *ngTemplateOutlet="actionBarAndStepsTemplate; context: {templateName : templateName }"></ng-container>
+<ng-container *ngTemplateOutlet="actionBarAndStepsTemplate; context: {templateName : templateName }" />
 
 <!-- Action Bar and Steps Template for Background, Scenarios & Examples -->
 <ng-template #actionBarAndStepsTemplate let-name="templateName">
@@ -110,7 +110,7 @@
         </div>
       </div>
     } @else {
-      <ng-template [ngTemplateOutlet]="''"></ng-template>
+      <ng-template [ngTemplateOutlet]="''" />
     }
     <div class="uk-steps" [class]="name === 'block-editor' ? 'scrollable blockEditorElement' : ''">
 
@@ -121,10 +121,8 @@
           @if (this.selectedBlock && name === 'block-editor') {
             @for (sd of getKeysList(this.selectedBlock.stepDefinitions); track sd; let i = $index) {
               <div>
-                <ng-template
-              *ngTemplateOutlet="steps;
-              context: {$implicit: sd , index:i, stepDefs:this.selectedBlock.stepDefinitions, templateName : templateName}">
-                </ng-template>
+                <ng-template *ngTemplateOutlet="steps;
+              context: {$implicit: sd , index:i, stepDefs:this.selectedBlock.stepDefinitions, templateName : templateName}" />
               </div>
             }
           }
@@ -132,10 +130,8 @@
           @if ( this.selectedScenario && name === 'scenario') {
             @for (sd of getKeysList(this.selectedScenario.stepDefinitions); track sd; let i = $index) {
               <div>
-                <ng-template
-              *ngTemplateOutlet="steps;
-            context: {$implicit: sd , index:i, stepDefs:this.selectedScenario.stepDefinitions, templateName : templateName}">
-                </ng-template>
+                <ng-template *ngTemplateOutlet="steps;
+            context: {$implicit: sd , index:i, stepDefs:this.selectedScenario.stepDefinitions, templateName : templateName}" />
               </div>
             }
           }
@@ -191,8 +187,7 @@
                                 <div
                                   style="width: 100%; margin-left: 6px; margin-right: 15px;">
                       <ng-template *ngTemplateOutlet="stepBlockReference;
-                        context: {$implicit: currentStep}">
-                                  </ng-template>
+                        context: {$implicit: currentStep}" />
                                 </div>
                               }
                               &nbsp;<div #step_type_pre>{{currentStep.pre}}</div>
@@ -231,10 +226,10 @@
                                             }&nbsp;
                                           }
                                           @if (currentStep.isExample[0] !== true && name!=='block-editor') {
-                                            <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 0}"></ng-container>
+                                            <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 0}" />
                                           }
                                           @if (name==='block-editor') {
-                                            <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 0}"></ng-container>
+                                            <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 0}" />
                                           }
                                         </div>
                                       }
@@ -287,10 +282,10 @@
                                                 }&nbsp;
                                               }
                                               @if (currentStep.isExample[1] !== true && name!=='block-editor') {
-                                                <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 1}"></ng-container>
+                                                <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 1}" />
                                               }
                                               @if (name==='block-editor') {
-                                                <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 1}"></ng-container>
+                                                <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 1}" />
                                               }
                                             </div>
                                           }
@@ -348,10 +343,10 @@
                                                     }&nbsp;
                                                   }
                                                   @if (currentStep.isExample[2] !== true && name!=='block-editor') {
-                                                    <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 2}"></ng-container>
+                                                    <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 2}" />
                                                   }
                                                   @if (name==='block-editor') {
-                                                    <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 2}"></ng-container>
+                                                    <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 2}" />
                                                   }
                                                 </div>
                                               }
@@ -593,11 +588,11 @@
                               </div>
                             </div>
                           } @else {
-                            <ng-template [ngTemplateOutlet]="''"></ng-template>
+                            <ng-template [ngTemplateOutlet]="''" />
                           }
                           @if (getExampleList()!=undefined) {
                             <app-example-table #exampleChildView
-                            [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>
+                            [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)" />
                           }
                         }
 
@@ -767,8 +762,7 @@
                             @for (currentStep of getStepsListBlockPreview(blockStep.stepDefinitions); track currentStep; let j = $index) {
                               <div>
           <ng-template *ngTemplateOutlet="blockstep;
-            context: {$implicit: currentStep , index:j}">
-                                </ng-template>
+            context: {$implicit: currentStep , index:j}" />
                               </div>
                             }
                           </div>
@@ -799,10 +793,10 @@
                     </ng-template>
 
                     <app-edit-block #editBlockModal [originalStepTypes]="originalStepTypes"
-                    [selectedBlock]="selectedBlock"></app-edit-block>
-                    <app-new-example #newExampleModal></app-new-example>
-                    <app-new-step-request #newStepRequest></app-new-step-request>
-                    <app-add-block-form #addBlockModal [templateName]="name" ></app-add-block-form>
-                    <app-save-block-form #saveBlockModal [templateName]="name" ></app-save-block-form>
-                    <app-file-explorer-modal #fileExplorerModal></app-file-explorer-modal>
+                    [selectedBlock]="selectedBlock" />
+                    <app-new-example #newExampleModal />
+                    <app-new-step-request #newStepRequest />
+                    <app-add-block-form #addBlockModal [templateName]="name"  />
+                    <app-save-block-form #saveBlockModal [templateName]="name"  />
+                    <app-file-explorer-modal #fileExplorerModal />
                   </ng-template>

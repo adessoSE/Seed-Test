@@ -36,13 +36,12 @@ import { StepValidationService } from '../Services/step-validation.service';
 
 @Component({
 	selector: 'app-example',
-	template: `<app-base-editor
-    [templateName]="TEMPLATE_NAME"
+	template: `<app-base-editor [templateName]="TEMPLATE_NAME"
     [testRunning]="testRunning"
     [newlySelectedScenario]="selectedScenario"
     [newlySelectedStory]="selectedStory"
     [originalStepTypes]="originalStepTypes"
-  ></app-base-editor> `,
+   /> `,
 	styleUrls: ['./example-table.component.css'],
 	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false

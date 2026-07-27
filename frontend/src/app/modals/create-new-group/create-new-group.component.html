@@ -1,6 +1,6 @@
 <!--Create New Group -->
 <ng-template #createNewGroupModal let-modal>
-    <app-layout-modal></app-layout-modal>
+    <app-layout-modal />
     <div class="modal-header">
         <span class="MediumSubline1H4 modal-title">Create new group</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -34,7 +34,7 @@
                         </dfn>
                     </span>
                     <mat-icon>alt_route</mat-icon>
-                    <mat-slide-toggle name="slideToggleCreate" [(ngModel)]="isSequential"></mat-slide-toggle>
+                    <mat-slide-toggle name="slideToggleCreate" [(ngModel)]="isSequential" />
                     <mat-icon>format_list_numbered</mat-icon>
                 </div>
                 <br>

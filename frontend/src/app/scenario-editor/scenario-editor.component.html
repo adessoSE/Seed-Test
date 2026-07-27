@@ -63,10 +63,10 @@
 </div>
 <!-- Shared template: Scenario's action bar & steps -->
 <app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [isReviewing]="isReviewing" [newlySelectedScenario]="selectedScenario"
-[newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"[selectedBlock]="selectedBlock" (blockSelectTriggerEvent)="blockSelectTrigger($event)"></app-base-editor>
+[newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"[selectedBlock]="selectedBlock" (blockSelectTriggerEvent)="blockSelectTrigger($event)" />
 
 <app-example [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
-[newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-example>
+[newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes" />
 <br>
   <div class="comment MediumButton1">
     <label>Comment</label><br>
@@ -77,5 +77,5 @@
   </div>
 </div>
 
-<app-rename-scenario #renameScenarioModal></app-rename-scenario>
-<app-create-scenario #createScenarioModal (createScenarioEvent)="addScenarioToStory($event)"></app-create-scenario>
+<app-rename-scenario #renameScenarioModal />
+<app-create-scenario #createScenarioModal (createScenarioEvent)="addScenarioToStory($event)" />

@@ -48,7 +48,7 @@
         @for (rep of reports.storyReports; track rep; let i = $index) {
           <div class="report">
             <a [class.notPassed]="rep.scenariosTested.failed>0" [class.passed]="!rep.scenariosTested.failed" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
-            <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: rep}"></ng-template>
+            <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: rep}" />
           </div>
         }
       </div>
@@ -66,7 +66,7 @@
               @for (scenrep of filterScenarioReports(scen); track scenrep; let j = $index) {
                 <div class="report">
                   <a [class.notPassed]="scenrep.scenariosTested.failed>0" [class.passed]="!scenrep.scenariosTested.failed" [routerLink]="'/report/' + scenrep.reportName" target="_blank">{{stringifyReportTime(scenrep.reportTime)}}</a>
-                  <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: scenrep}"></ng-template>
+                  <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: scenrep}" />
                 </div>
               }
             </div>
@@ -101,7 +101,7 @@
                 }
                 in this Report.
               </div>
-              <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: grprep}"></ng-template>
+              <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: grprep}" />
             </div>
           }
         </div>

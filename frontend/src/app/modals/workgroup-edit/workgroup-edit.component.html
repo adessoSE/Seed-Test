@@ -1,7 +1,7 @@
 <!-- Workgroup edit Modal-->
-<app-repo-swich #repoSwitchModal></app-repo-swich>
+<app-repo-swich #repoSwitchModal />
 <ng-template #workgroupEditModal let-modal>
-  <app-layout-modal></app-layout-modal>
+  <app-layout-modal />
   <div class="modal-header">
     <span class="MediumSubline1H4 modal-title">Project Settings</span>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click'); onModalClosed();">
@@ -153,7 +153,7 @@
                 <div>
                   <app-window-size id="windowSizeButton" #windoSizeModal [width]="repoWidth"
                     [height]="repoHeight" [emulator]="emulator_enabled"
-                  (sizeChange)="handleSizeChange($event)"></app-window-size>
+                  (sizeChange)="handleSizeChange($event)" />
                 </div>
                 <div>
                   <dfn class="def">

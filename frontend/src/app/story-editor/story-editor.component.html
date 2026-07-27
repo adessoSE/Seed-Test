@@ -80,7 +80,7 @@
           }
           @if (isAiAvailable && aiLoadingStories.has(selectedStory._id)) {
             <div class="loading-container">
-              <mat-spinner diameter="24"></mat-spinner>
+              <mat-spinner diameter="24" />
               <span>Generating...</span>
             </div>
           }
@@ -118,16 +118,14 @@
       <br>
         <div>
           <mat-accordion>
-            <mat-expansion-panel hideToggle>
-            </mat-expansion-panel>
+            <mat-expansion-panel hideToggle />
             <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
               id="widened-expansion-panel">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   <div class="Smallnavigation1">Description</div>
                 </mat-panel-title>
-                <mat-panel-description>
-                </mat-panel-description>
+                <mat-panel-description />
               </mat-expansion-panel-header>
               <br>
                 <div style="white-space: pre-wrap;">
@@ -140,16 +138,14 @@
           <br>
             <div>
               <mat-accordion>
-                <mat-expansion-panel hideToggle>
-                </mat-expansion-panel>
+                <mat-expansion-panel hideToggle />
                 <mat-expansion-panel (opened)="sourceStepsPanelOpenState = true" (closed)="sourceStepsPanelOpenState = false"
                   id="source-steps-expansion-panel">
                   <mat-expansion-panel-header>
                     <mat-panel-title>
                       <div class="Smallnavigation1">Source Steps</div>
                     </mat-panel-title>
-                    <mat-panel-description>
-                    </mat-panel-description>
+                    <mat-panel-description />
                   </mat-expansion-panel-header>
                   <br>
                     <div style="white-space: pre-wrap;">
@@ -227,8 +223,7 @@
                   <!--Background-->
                   <br>
                     <mat-accordion>
-                      <mat-expansion-panel hideToggle>
-                      </mat-expansion-panel>
+                      <mat-expansion-panel hideToggle />
                       <mat-expansion-panel (opened)="showBackground = true" (closed)="showBackground = false"
                         id="widened-expansion-panel">
                         <mat-expansion-panel-header class="scenarioHeaderContainer">
@@ -296,7 +291,7 @@
                         @if (showBackground) {
                           <app-base-editor [templateName]="TEMPLATE_NAME" [newlySelectedScenario]="selectedScenario"
                             [newlySelectedStory]="selectedStory" [testRunning]="testRunning" [originalStepTypes]="originalStepTypes"
-                          [uncheckBackgroundCheckboxes]="showBackground"></app-base-editor>
+                          [uncheckBackgroundCheckboxes]="showBackground" />
                         }
                       </mat-expansion-panel>
                     </mat-accordion>
@@ -463,7 +458,7 @@
                                         <!-- Window Size -->
                                         <app-window-size #windoSizeModal [width]="this.selectedScenario.width"
                                           [height]="this.selectedScenario.height" [emulator]="emulator_enabled"
-                                        (sizeChange)="handleSizeChange($event)"></app-window-size>
+                                        (sizeChange)="handleSizeChange($event)" />
                                       </div>
                                     }
                                     @if (this.globalSettingsActivated) {
@@ -527,11 +522,10 @@
                                   (navigateLeft)="navigateScenarioLeft()" (navigateRight)="navigateScenarioRight()"
                                   [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [selectedStory]="selectedStory"
                                   [selectedScenario]="selectedScenario"
-                                  [scenarios]="isReviewingAi ? $safeNavigationMigration(aiSuggestions.get(selectedStory._id)?.scenarios) : selectedStory.scenarios">
-                                </app-scenario-editor>
+                                  [scenarios]="isReviewingAi ? $safeNavigationMigration(aiSuggestions.get(selectedStory._id)?.scenarios) : selectedStory.scenarios" />
                               </div>
-                              <app-rename-story #renameStoryModal></app-rename-story>
-                              <app-rename-background #renameBackgroundModal></app-rename-background>
+                              <app-rename-story #renameStoryModal />
+                              <app-rename-background #renameBackgroundModal />
                               <!--Buttons Run Scenario-->
                               <div class="storyEditorHeadContainer" id="storyEditorFooter">
                                 <div class="storyInfoLeft">
@@ -589,7 +583,7 @@
                                     <div id="loading" [class.darkTheme]="isDark">
                                       <div class="loading mat-mdc-progress-spinner" [hidden]="!testRunning && !testRunningGroup">
                                         <!-- Loading . . . -->
-                                        <mat-spinner id="loadingSpinnerRun"></mat-spinner>
+                                        <mat-spinner id="loadingSpinnerRun" />
                                       </div>
                                     </div>
                                     <!-- Shows report after Tests ran-->
@@ -604,9 +598,9 @@
                                       </div>
                                     </div>
                                   </div>
-                                  <app-save-block-form #saveBlockModal [templateName]="TEMPLATE_NAME"></app-save-block-form>
+                                  <app-save-block-form #saveBlockModal [templateName]="TEMPLATE_NAME" />
                                 </div>
                               }
-                              <app-create-scenario #createNewScenario (createScenarioEvent)="addScenario($event)"></app-create-scenario>
-                              <app-workgroup-edit #workgroupEditModal (globalSettingsChanged)="updateGlobalSettings($event)"> </app-workgroup-edit>
-                              <app-execution-list #executionListModal (selectedExecutions)="executeTests($event)"></app-execution-list>
+                              <app-create-scenario #createNewScenario (createScenarioEvent)="addScenario($event)" />
+                              <app-workgroup-edit #workgroupEditModal (globalSettingsChanged)="updateGlobalSettings($event)" />
+                              <app-execution-list #executionListModal (selectedExecutions)="executeTests($event)" />
