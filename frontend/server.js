@@ -7,9 +7,8 @@ const path = require('path');
 const app = express();
 app.disable('x-powered-by');
 const ngPath = path.join(__dirname, 'dist/cucumber-frontend/browser');
-const environment = '../frontend/src/environments/environment';
 
-// Serve only the static files form the dist directory
+// Serve only the static files from the dist directory
 app.use(express.static(ngPath));
 
 app.get('/backendInfo', (_, res) => {
@@ -28,12 +27,13 @@ app.get('/backendInfo', (_, res) => {
   });
 });
 
-app.get('/*', (_, res) => {
+// Express 5: wildcard catch-all requires named parameter
+app.get('/{*path}', (_, res) => {
   res.sendFile(path.join(ngPath, 'index.html'));
 });
 
-// Start the app by listening on the default Heroku port
-app.listen(process.env.PORT || environment.PORT || 4200, function () {
+// Start the app by listening on the default port
+app.listen(process.env.PORT || 4200, function () {
   const port = this.address().port;
   console.log('App now running on port', port);
 });

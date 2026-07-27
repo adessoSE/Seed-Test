@@ -41,7 +41,6 @@
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.theme.default.min.css"
             ],
             "scripts": [
-              "./node_modules/jquery/dist/jquery.min.js",
               "./node_modules/uikit/dist/js/uikit.min.js",
               "./node_modules/uikit/dist/js/uikit-icons.min.js"
             ],
