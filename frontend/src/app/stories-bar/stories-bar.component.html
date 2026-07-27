@@ -45,10 +45,10 @@
                 <mat-form-field appearance="outline" class="filterFormField">
                   <mat-label>Assignee</mat-label>
                   <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
-                    <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
+                    <mat-option [class.odd-row-mat-option]="true">--</mat-option>
                     @for (assignee of createDistictList('assignee'); track assignee; let odd = $odd) {
                       <mat-option [value]="assignee"
-                        [ngClass]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
+                        [class]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
                         {{assignee}}
                       </mat-option>
                     }
@@ -58,10 +58,10 @@
               <mat-form-field appearance="outline" class="filterFormField rightFilterFormField">
                 <mat-label>Status Of Story</mat-label>
                 <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter()">
-                  <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
+                  <mat-option [class.odd-row-mat-option]="true">--</mat-option>
                   @for (testPassed of createDistictList('lastTestPassed'); track testPassed; let odd = $odd) {
                     <mat-option
-                      [value]="testPassed" [ngClass]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
+                      [value]="testPassed" [class]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
                       {{testPassed}}
                     </mat-option>
                   }
@@ -70,10 +70,10 @@
               <mat-form-field appearance="outline" class="filterFormField">
                 <mat-label>Group</mat-label>
                 <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
-                  <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
+                  <mat-option [class.odd-row-mat-option]="true">--</mat-option>
                   @for (group of createDistictList('group'); track group; let odd = $odd) {
                     <mat-option [value]="group"
-                      [ngClass]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
+                      [class]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
                       {{group}}
                     </mat-option>
                   }

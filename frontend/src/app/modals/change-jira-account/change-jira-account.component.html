@@ -68,13 +68,13 @@
       <div class="modal-footer">
         @if (activeForm === 'bearer') {
           <button type="submit" class="normalButton" [disabled]="!jiraForm.valid || !jiraBearer.valid"
-            [ngStyle]="{'opacity': (!jiraForm.valid || !jiraBearer.valid) ?  '50%' : '100%'}">
+            [style.opacity]="(!jiraForm.valid || !jiraBearer.valid) ?  '50%' : '100%'">
             Submit
           </button>
         }
         @if (activeForm === 'basic') {
           <button type="submit" class="normalButton" [disabled]="!jiraForm.valid || !jiraBasic.valid"
-            [ngStyle]="{'opacity':  (!jiraForm.valid || !jiraBasic.valid)  ?  '50%' : '100%'}">
+            [style.opacity]="(!jiraForm.valid || !jiraBasic.valid)  ?  '50%' : '100%'">
             Submit
           </button>
         }

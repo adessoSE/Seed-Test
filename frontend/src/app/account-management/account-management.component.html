@@ -73,7 +73,7 @@
                   <mat-label>Project</mat-label>
                   <mat-select #ngSelect [(ngModel)]="downloadRepoID">
                     @for (repo of searchList; track repo; let odd = $odd) {
-                      <mat-option [value]="repo._id" [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.repoName}}</mat-option>
+                      <mat-option [value]="repo._id" [class]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.repoName}}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
@@ -116,9 +116,9 @@
     </div>
     <!------------------------------------->
     <div class="grid_github uk-card uk-card-default">
-      <h2 class="LargeHeadline3" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">Github</h2>
+      <h2 class="LargeHeadline3" [style.opacity]="clientId==='undefined' ? '0.5' : '1'">Github</h2>
       @if (github) {
-        <div [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
+        <div [style.opacity]="clientId==='undefined' ? '0.5' : '1'">
           <p class="SmallHeadline5">Github-Account: </p>
           <label class="active MediumBody2">{{github['login']}}</label>
           <div>
@@ -149,7 +149,7 @@
       <!------------------Repositories GITHUB------------------->
       @if (repositories) {
         <div class="grid_githubRepos repositories"
-          [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
+          [style.opacity]="clientId==='undefined' ? '0.5' : '1'">
           <div id="GitHubRepositoriesList">
             <label class="MediumHeadline5">Github Projects:</label>
             <ul class="uk-list">

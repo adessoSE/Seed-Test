@@ -203,7 +203,7 @@
                     @if (!this.workgroupList.length == 0) {
                       <mat-form-field
                         style="margin-right: 10px; position: inherit;" appearance="fill"
-                        [ngStyle]="{'width': workgroupOwner.length + 6 +'ch'}">
+                        [style.width]="workgroupOwner.length + 6 +'ch'">
                         <mat-label>Project Owner</mat-label>
                         <mat-select #ownerSelect [(ngModel)]="selectedOwner">
                           @for (element of workgroupList; track element) {
@@ -215,7 +215,7 @@
                       </mat-form-field>
                     }
                     <button id="changeOwner" type="button" class="normalButton"
-                      [ngStyle]="{'opacity': this.workgroupList.length == 0 || selectedOwner == undefined  ?  '50%' : '100%'}"
+                      [style.opacity]="this.workgroupList.length == 0 || selectedOwner == undefined  ?  '50%' : '100%'"
                       [disabled]="this.workgroupList.length == 0 || selectedOwner == undefined "
                       (click)="transferOwnership(selectedOwner);">Transfer Ownership
                     </button>

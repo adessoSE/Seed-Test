@@ -4,14 +4,14 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
 import { StoryService } from 'src/app/Services/story.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
-import { NgStyle } from '@angular/common';
+
 
 @Component({
     selector: 'app-rename-story',
     templateUrl: './rename-story.component.html',
     styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, NgStyle]
+    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameStoryComponent {
 	private modalService = inject(NgbModal);

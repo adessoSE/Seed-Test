@@ -24,7 +24,7 @@
         </div>
         <div class="modal-footer">
             <button id="submitExample" class="normalButton"  type="submit" [disabled]="!newExampleForm.valid"
-            [ngStyle]="{'opacity': !newExampleForm.valid ?  '50%' : '100%'}" (click)="uniqueExampleName()">Submit</button>
+            [style.opacity]="!newExampleForm.valid ?  '50%' : '100%'" (click)="uniqueExampleName()">Submit</button>
         </div> 
     </form>   
 </ng-template>

@@ -26,7 +26,7 @@ import { HighlightInputService } from '../Services/highlight-input.service';
 import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
 import { MultipleScenario } from '@shared/models/MuiltipleScenario';
 import { StepValidationService } from '../Services/step-validation.service';
-import { NgTemplateOutlet, NgStyle, NgClass, SlicePipe } from '@angular/common';
+import { NgTemplateOutlet, NgClass, SlicePipe } from '@angular/common';
 import { MatFormField, MatSelect, MatOption } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription } from '@angular/material/expansion';
@@ -37,7 +37,7 @@ import { MatTooltip } from '@angular/material/tooltip';
     templateUrl: './base-editor.component.html',
     styleUrls: ['./base-editor.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [NgTemplateOutlet, NgStyle, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe]
+    imports: [NgTemplateOutlet, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe]
 })
 export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit {
 	notify = inject(NotificationService);

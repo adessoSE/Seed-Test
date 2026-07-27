@@ -22,7 +22,7 @@ import { ImportModalComponent } from '../modals/import-modal/import-modal.compon
 import { MatIcon } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
-import { NgClass, NgStyle } from '@angular/common';
+
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -32,7 +32,7 @@ import { NgClass, NgStyle } from '@angular/common';
     templateUrl: './account-management.component.html',
     styleUrls: ['./account-management.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [RouterLink, MatIcon, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, NgClass, NgStyle, ChangeJiraAccountComponent, DisconnectJiraAccountComponent, CreateCustomProjectComponent, DeleteAccountComponent, WorkgroupEditComponent, RepoSwichComponent]
+    imports: [RouterLink, MatIcon, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, ChangeJiraAccountComponent, DisconnectJiraAccountComponent, CreateCustomProjectComponent, DeleteAccountComponent, WorkgroupEditComponent, RepoSwichComponent]
 })
 
 

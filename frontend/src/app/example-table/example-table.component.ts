@@ -18,7 +18,7 @@ import { ThemePalette } from '@angular/material/core';
 import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
 import { StepValidationService } from '../Services/step-validation.service';
-import { NgClass } from '@angular/common';
+
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { NewExampleComponent as NewExampleComponent_1 } from '../modals/new-example/new-example.component';
 
@@ -30,7 +30,7 @@ import { NewExampleComponent as NewExampleComponent_1 } from '../modals/new-exam
     templateUrl: './example-table.component.html',
     styleUrls: ['./example-table.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [MatTable, CdkDropList, MatColumnDef, MatHeaderCellDef, MatHeaderCell, NgClass, MatSlideToggle, FormsModule, ReactiveFormsModule, MatCellDef, MatCell, CdkDragHandle, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, CdkDrag, NewExampleComponent_1]
+    imports: [MatTable, CdkDropList, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatSlideToggle, FormsModule, ReactiveFormsModule, MatCellDef, MatCell, CdkDragHandle, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, CdkDrag, NewExampleComponent_1]
 })
 export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewChecked {
 	scenarioService = inject(ScenarioService);

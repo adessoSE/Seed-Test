@@ -9,14 +9,14 @@ import { ApiService } from '../../Services/api.service';
 import { Block } from '@shared/models/Block';
 import { BlockService } from '../../Services/block.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
-import { NgStyle } from '@angular/common';
+
 
 @Component({
     selector: 'app-rename-background',
     templateUrl: './rename-background.component.html',
     styleUrls: ['./rename-background.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, NgStyle]
+    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameBackgroundComponent{
 	private modalService = inject(NgbModal);

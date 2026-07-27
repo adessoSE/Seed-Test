@@ -62,7 +62,7 @@
             </div>
             <div class="modal-footer">
                 <button id="submitCreateNewGroup" type="submit" class="normalButton" [disabled]="!newGroupForm.valid" 
-                [ngStyle]="{'opacity': !newGroupForm.valid ?  '50%' : '100%'}">Save</button>
+                [style.opacity]="!newGroupForm.valid ?  '50%' : '100%'">Save</button>
             </div>
         </form>
     </div>

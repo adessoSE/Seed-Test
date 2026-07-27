@@ -103,7 +103,7 @@
       <button class="normalButton deleteButton" type="button" (click)="closeModal()">Discard Background</button>
     }
     <button class="normalButton" type="submit" [disabled]="!saveBlockForm.valid"
-    [ngStyle]="{'opacity': !saveBlockForm.valid ?  '50%' : '100%'}">Submit</button>
+    [style.opacity]="!saveBlockForm.valid ?  '50%' : '100%'">Submit</button>
   </div>
 </form>
 </ng-template>

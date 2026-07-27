@@ -23,7 +23,7 @@ import { MatTabGroup, MatTab, MatTabLabel } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
-import { NgClass, TitleCasePipe } from '@angular/common';
+import { TitleCasePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
 /**
@@ -34,7 +34,7 @@ import { MatIcon } from '@angular/material/icon';
     templateUrl: './stories-bar.component.html',
     styleUrls: ['./stories-bar.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CdkScrollable, MatTabGroup, MatTab, MatTabLabel, MatTooltip, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, NgClass, CdkDropList, CdkDrag, MatIcon, CdkDragHandle, CreateNewGroupComponent, CreateNewStoryComponent, UpdateGroupComponent, CreateScenarioComponent, ExecutionListComponent, TitleCasePipe]
+    imports: [CdkScrollable, MatTabGroup, MatTab, MatTabLabel, MatTooltip, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, CdkDropList, CdkDrag, MatIcon, CdkDragHandle, CreateNewGroupComponent, CreateNewStoryComponent, UpdateGroupComponent, CreateScenarioComponent, ExecutionListComponent, TitleCasePipe]
 })
 export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	notify = inject(NotificationService);

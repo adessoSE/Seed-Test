@@ -33,7 +33,7 @@
         </div>
         <div class="modal-footer">
             <button type="submit" class="normalButton deleteButton" [disabled]="!deleteAccountForm.valid"
-            [ngStyle]="{'opacity': !deleteAccountForm.valid ?  '50%' : '100%'}">Delete my Account
+            [style.opacity]="!deleteAccountForm.valid ?  '50%' : '100%'">Delete my Account
             </button>
         </div> 
     </form>  

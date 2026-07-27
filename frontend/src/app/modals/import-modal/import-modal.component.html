@@ -32,7 +32,7 @@
             <div class="toggle-container">
               <span class="import-label">Import into:</span>
               <mat-slide-toggle [formControl]="toggleNewProject" color="primary" (ngModelChange)="onSlideToggleChange()" />
-              <span class="toggle-label" [ngClass]="{ 'text-primary': isNewProject }">{{ isNewProject ? "New Project" :
+              <span class="toggle-label" [class.text-primary]="isNewProject">{{ isNewProject ? "New Project" :
                 "Existing Project" }}
               </span>
             </div>
@@ -56,7 +56,7 @@
                         <mat-select id="projectDropDownSelect" [(ngModel)]="selectedProject" name="selectedProject" required>
                           @for (repo of searchList; track repo; let odd = $odd) {
                             <mat-option [value]="repo._id"
-                            [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.repoName}}</mat-option>
+                            [class]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">{{repo.repoName}}</mat-option>
                           }
                         </mat-select>
                       </mat-form-field>
@@ -66,7 +66,7 @@
                     <span class="import-label">Import mode:</span>
                     <mat-slide-toggle [formControl]="toggleImportMode" color="primary"
                     (ngModelChange)="onImportToggleChange()" />
-                    <span class="toggle-label" [ngClass]="{ 'text-primary': !importMode }">
+                    <span class="toggle-label" [class.text-primary]="!importMode">
                       {{ importMode ? "Rename conflicts" : "Overwrite conflicts" }}
                     </span>
                     @if (!importMode) {
@@ -84,7 +84,7 @@
       <div class="modal-footer">
         <button mat-raised-button class="normalButton" color="primary" type="button" (click)="submitImportData(importForm)"
           [disabled]="!file || (isNewProject && !projectName) || (!isNewProject && !selectedProject)"
-          [ngStyle]="{'opacity': (!file || (isNewProject && !projectName) || (!isNewProject && !selectedProject)) ? '50%': '100%'}">
+          [style.opacity]="(!file || (isNewProject && !projectName) || (!isNewProject && !selectedProject)) ? '50%': '100%'">
           Import
         </button>
         <button mat-button (click)="onCancel()" class="normalButton" color="warn" type="button">

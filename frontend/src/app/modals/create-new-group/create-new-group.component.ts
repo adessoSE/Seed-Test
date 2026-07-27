@@ -10,14 +10,14 @@ import { StoryService } from 'src/app/Services/story.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { NgStyle } from '@angular/common';
+
 
 @Component({
     selector: 'app-create-new-group',
     templateUrl: './create-new-group.component.html',
     styleUrls: ['./create-new-group.component.css', '../layout-modal/layout-modal.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, NgStyle]
+    imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class CreateNewGroupComponent {
 	private modalService = inject(NgbModal);

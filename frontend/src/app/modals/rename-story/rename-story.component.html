@@ -23,7 +23,7 @@
             </div>
             <div class="modal-footer">
                 <button id="submitRenameStory" type="submit" class="normalButton" [disabled]="!storyForm.valid"
-                 [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit</button>
+                 [style.opacity]="!storyForm.valid ?  '50%' : '100%'">Submit</button>
             </div>
         </form>
     </div>

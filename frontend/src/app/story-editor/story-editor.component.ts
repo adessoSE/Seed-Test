@@ -42,7 +42,7 @@ import { FormsModule } from '@angular/forms';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription } from '@angular/material/expansion';
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
-import { NgClass, NgStyle, TitleCasePipe, DatePipe } from '@angular/common';
+import { NgStyle, TitleCasePipe, DatePipe } from '@angular/common';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { WindowSizeComponent } from '../modals/window-size/window-size.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
@@ -67,7 +67,7 @@ const emptyBackground: Background = {
         './story-editor.component.css'
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CdkScrollable, MatFabButton, MatIconButton, MatMenuTrigger, MatIcon, MatProgressSpinner, MatMenu, MatFormField, MatLabel, MatInput, FormsModule, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatTooltip, NgClass, BaseEditorComponent, NgStyle, WindowSizeComponent, CdkCopyToClipboard, ScenarioEditorComponent, RenameStoryComponent, RenameBackgroundComponent, SaveBlockFormComponent, CreateScenarioComponent, WorkgroupEditComponent, ExecutionListComponent, TitleCasePipe, DatePipe]
+    imports: [CdkScrollable, MatFabButton, MatIconButton, MatMenuTrigger, MatIcon, MatProgressSpinner, MatMenu, MatFormField, MatLabel, MatInput, FormsModule, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatTooltip, BaseEditorComponent, NgStyle, WindowSizeComponent, CdkCopyToClipboard, ScenarioEditorComponent, RenameStoryComponent, RenameBackgroundComponent, SaveBlockFormComponent, CreateScenarioComponent, WorkgroupEditComponent, ExecutionListComponent, TitleCasePipe, DatePipe]
 })
 export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked {
 	apiService = inject(ApiService);

@@ -9,14 +9,14 @@ import { BlockService } from 'src/app/Services/block.service';
 import { BackgroundService } from '../../Services/background.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '@angular/material/table';
-import { NgStyle } from '@angular/common';
+
 
 @Component({
     selector: 'app-save-block-form',
     templateUrl: './save-block-form.component.html',
     styleUrls: ['./save-block-form.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, NgStyle]
+    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow]
 })
 export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	private modalService = inject(NgbModal);

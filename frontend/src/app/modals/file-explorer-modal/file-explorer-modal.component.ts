@@ -7,14 +7,14 @@ import { ThemingService } from '../../Services/theming.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
-import { NgStyle, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-file-explorer-modal',
     templateUrl: './file-explorer-modal.component.html',
     styleUrls: ['./file-explorer-modal.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, NgStyle, DatePipe]
+    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe]
 })
 export class FileExplorerModalComponent implements OnInit {
 	private modalService = inject(NgbModal);

@@ -12,7 +12,7 @@ import { CreateScenarioComponent } from '../modals/create-scenario/create-scenar
 import { ScenarioService } from '../Services/scenario.service';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { BlockService } from '../Services/block.service';
-import { NgClass, TitleCasePipe } from '@angular/common';
+import { TitleCasePipe } from '@angular/common';
 import { ExampleComponent } from '../example-table/example.component';
 
 
@@ -24,7 +24,7 @@ import { ExampleComponent } from '../example-table/example.component';
     templateUrl: './scenario-editor.component.html',
     styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [NgClass, BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe]
+    imports: [BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe]
 })
 
 export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{

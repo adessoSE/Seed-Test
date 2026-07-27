@@ -42,7 +42,7 @@
       </button>
       @if (this.scenarioUnSaved()) {
         <button name="saveScenario" id="saveButton" [class.disabled]="isReviewing() || this.scenarioSaved()" [disabled]="isReviewing() || this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
-          title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.scenarioUnSaved()}"
+          title="Save Scenario" [class.iconButton_unsaved]="this.scenarioUnSaved()"
           (click)="updateScenario();">
           <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
         </button>

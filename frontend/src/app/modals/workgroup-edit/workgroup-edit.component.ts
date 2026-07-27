@@ -12,7 +12,7 @@ import { MatSelect, MatFormField, MatLabel, MatOption } from '@angular/material/
 import { MatDialog } from '@angular/material/dialog';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { WindowSizeComponent } from '../window-size/window-size.component';
-import { NgStyle } from '@angular/common';
+
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 
 @Component({
@@ -23,7 +23,7 @@ import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, Ma
         '../layout-modal/layout-modal.component.css'
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, NgStyle, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
+    imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	private modalService = inject(NgbModal);

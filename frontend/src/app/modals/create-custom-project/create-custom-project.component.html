@@ -19,7 +19,7 @@
             </div>    
             <div class="modal-footer">
                 <button id="submitCreateNewProject" type="submit" [disabled]="!createProjectForm.valid" 
-                [ngStyle]="{'opacity': !createProjectForm.valid ?  '50%' : '100%'}" class="normalButton">Save</button>
+                [style.opacity]="!createProjectForm.valid ?  '50%' : '100%'" class="normalButton">Save</button>
             </div>    
         </div>
       </form>

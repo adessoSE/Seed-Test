@@ -3,14 +3,14 @@ import { UntypedFormControl, UntypedFormGroup, Validators, FormsModule, Reactive
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from '../../../app/Services/api.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
-import { NgStyle } from '@angular/common';
+
 
 @Component({
     selector: 'app-new-step-request',
     templateUrl: './new-step-request.component.html',
     styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, NgStyle]
+    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class NewStepRequestComponent {
 	private modalService = inject(NgbModal);

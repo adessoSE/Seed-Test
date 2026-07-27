@@ -65,7 +65,7 @@
               }
               <div class="body-footer">
                 <button class="normalButton deleteButton" type="button" [disabled]="selection.size === 0"
-                  [ngStyle]="{'opacity': selection.size === 0 ? '50%' : '100%'}" (click)="deleteFile()">Delete Selected Files
+                  [style.opacity]="selection.size === 0 ? '50%' : '100%'" (click)="deleteFile()">Delete Selected Files
                 </button>
               </div>
             </div>

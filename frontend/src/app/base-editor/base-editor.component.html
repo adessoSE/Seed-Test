@@ -6,7 +6,7 @@
   <!-- Action Bar -->
 
   @if (name === 'background' || name === 'scenario' || name === 'block-editor' ) {
-    <div class="scenarioBarContainer" [ngStyle]="{'margin': (name==='example') ? '0px' : ''}">
+    <div class="scenarioBarContainer" [style.margin]="(name==='example') ? '0px' : ''">
       <div class="actionBarButtonGroup">
         <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()"
           [checked]="this.allChecked" uk-tooltip title="Check All Steps" />
@@ -156,9 +156,7 @@
                       <div #scenarioContainerEl class="stepsContainer">
                         <div #scenarioParentEl class="text-inline SmallBody1regularLH stepLine"
                           [class.deactivated]="stepDefs[currentStep.stepType][j].deactivated"
-                    [ngClass]="{'blockReference': currentStep._blockReferenceId}" [ngStyle]="{
-                      'width': (currentStep.isExample !== undefined && (currentStep.isExample[0] == true || currentStep.isExample[1] === true)) ? '100%' : ''
-                     }" style="max-width: 100%;">
+                    [class.blockReference]="currentStep._blockReferenceId" [style.width]="(currentStep.isExample !== undefined && (currentStep.isExample[0] == true || currentStep.isExample[1] === true)) ? '100%' : ''" style="max-width: 100%;">
                           <div class="dragIconContainer" cdkDragHandle>
                             <em class="material-icons dragIcon">drag_indicator</em>
                           </div>
@@ -208,7 +206,7 @@
                                                 @for (exampleList of getExampleList(); track exampleList; let odd = $odd) {
                                                   <mat-option
                                                     [value]="exampleList"
-                                                    [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
+                                                    [class]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
                                                     style="padding-left: 5px;" class="exampleListOption">
                                                     {{exampleList}}
                                                   </mat-option>
@@ -241,7 +239,7 @@
                                               @for (dropdownValue of currentStep.selection; track dropdownValue; let odd = $odd) {
                                                 <mat-option
                                                   [value]="dropdownValue"
-                                                  [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
+                                                  [class]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
                                                   {{dropdownValue}}
                                                 </mat-option>
                                               }
@@ -264,7 +262,7 @@
                                                     @for (exampleList of getExampleList(); track exampleList; let odd = $odd) {
                                                       <mat-option
                                                         [value]="exampleList"
-                                                        [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
+                                                        [class]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
                                                         class="exampleListOption">
                                                         {{exampleList}}
                                                       </mat-option>
@@ -297,7 +295,7 @@
                                                   @for (dropdownValue of currentStep.selection; track dropdownValue; let odd = $odd) {
                                                     <mat-option
                                                       [value]="dropdownValue"
-                                                      [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
+                                                      [class]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
                                                       {{dropdownValue}}
                                                     </mat-option>
                                                   }
@@ -325,7 +323,7 @@
                                                         @for (exampleList of getExampleList(); track exampleList; let odd = $odd) {
                                                           <mat-option
                                                             [value]="exampleList"
-                                                            [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
+                                                            [class]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}"
                                                             class="exampleListOption">
                                                             {{exampleList}}
                                                           </mat-option>
@@ -382,7 +380,7 @@
                                                   @for (dropdownValue of currentStep.selection; track dropdownValue; let odd = $odd) {
                                                     <mat-option
                                                       [value]="dropdownValue"
-                                                      [ngClass]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
+                                                      [class]="{'even-row-mat-option': odd, 'odd-row-mat-option': !odd}">
                                                       {{dropdownValue}}
                                                     </mat-option>
                                                   }
@@ -484,7 +482,7 @@
                           }
                         </div>
                         @if (getExampleList()!=undefined) {
-                          <div class="scenarioBarContainer" [ngStyle]="{'margin': (name==='example') ? '0px' : ''}">
+                          <div class="scenarioBarContainer" [style.margin]="(name==='example') ? '0px' : ''">
                             <div class="actionBarButtonGroup">
                               <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()"
                                 [checked]="this.allChecked" uk-tooltip title="Check All Steps" />

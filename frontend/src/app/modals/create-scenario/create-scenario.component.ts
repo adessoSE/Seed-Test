@@ -3,14 +3,14 @@ import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
-import { NgStyle } from '@angular/common';
+
 
 @Component({
     selector: 'app-create-scenario',
     templateUrl: './create-scenario.component.html',
     styleUrls: ['./create-scenario.component.css', '../layout-modal/layout-modal.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, NgStyle]
+    imports: [LayoutModalComponent, FormsModule]
 })
 export class CreateScenarioComponent {
 	private modalService = inject(NgbModal);

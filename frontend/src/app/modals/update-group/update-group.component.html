@@ -63,7 +63,7 @@
             <div class="modal-footer">
                 <button type="button" class="normalButton deleteButton" (click)="deleteGroup($event); modal.dismiss()">Delete</button>
                 <button id="submitUpdateGroup" type="submit" class="normalButton"
-                [disabled]="!updateGroupForm.valid" [ngStyle]="{'opacity': !updateGroupForm.valid ?  '50%' : '100%'}">Update</button>
+                [disabled]="!updateGroupForm.valid" [style.opacity]="!updateGroupForm.valid ?  '50%' : '100%'">Update</button>
             </div>
         </form>
     </div>
