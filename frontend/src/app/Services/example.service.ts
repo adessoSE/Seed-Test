@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject } from '@angular/core';
+import { EventEmitter, Injectable, inject, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { NotificationService } from './notification.service';
 
@@ -12,47 +12,52 @@ export class ExampleService {
 	apiService = inject(ApiService);
 	notify = inject(NotificationService);
 
-	/**
-  * Event emitter to delete the example
-  */
+	/** Signal for delete example trigger */
+	readonly deleteExampleTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to deleteExampleTrigger() signal in Phase 2 */
 	public deleteExampleEvent = new EventEmitter();
-	/**
-  * Event emitter to add a example to a scenario
-  */
+
+	/** Signal for new example action — carries the example name */
+	readonly newExampleValue = signal<string | null>(null);
+	/** @deprecated EventEmitter bridge — subscribe to newExampleValue() signal in Phase 2 */
 	public newExampleEvent = new EventEmitter();
-	/**
-  * Event emitter to rename a example
-  */
+
+	/** Signal for rename example action — carries the new name */
+	readonly renameExampleValue = signal<string | null>(null);
+	/** @deprecated EventEmitter bridge — subscribe to renameExampleValue() signal in Phase 2 */
 	public renameExampleEvent = new EventEmitter();
-	/**
-     * Event emitter to update mutliple scenario table
-     */
+
+	/** Signal for update example table trigger */
+	readonly updateExampleTableTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to updateExampleTableTrigger() signal in Phase 2 */
 	public updateExampleTableEvent = new EventEmitter();
 
-	/**
-  * Emits the delete example event
-  */
+	/** Triggers the delete example signal */
 	public deleteExampleEmitter() {
+		this.deleteExampleTrigger.update(n => n + 1);
 		this.deleteExampleEvent.emit();
 	}
 	/**
-  * Emits the new example event
+  * Sets the new example value
   * @param name example name
   */
 	newExampleEmit(name: string) {
+		this.newExampleValue.set(name);
 		this.newExampleEvent.emit(name);
 	}
 	/**
-  * Emits the renaming example event
+  * Sets the rename example value
   * @param name example name
   */
 	renameExampleEmit(name: string) {
+		this.renameExampleValue.set(name);
 		this.renameExampleEvent.emit(name);
 	}
 	/**
-   * Emits the update example table event
+   * Triggers the update example table signal
    */
 	updateExampleTableEmit() {
+		this.updateExampleTableTrigger.update(n => n + 1);
 		this.updateExampleTableEvent.emit();
 	}
 	/**

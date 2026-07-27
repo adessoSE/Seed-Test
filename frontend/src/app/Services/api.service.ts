@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject } from '@angular/core';
+import { EventEmitter, Injectable, inject, signal } from '@angular/core';
 import { catchError, tap } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
@@ -27,26 +27,24 @@ export class ApiService {
 		localStorage.getItem('url_backend') &&
     localStorage.getItem('url_backend') !== 'undefined';
 
-	/**
-   * Event Emitter if the stories could not be retrieved
-   * Api
-   */
+	/** Signal for stories error trigger */
+	readonly storiesErrorTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to storiesErrorTrigger() signal in Phase 2 */
 	public storiesErrorEvent = new EventEmitter();
 
-	/**
-   * Event Emitter to signal that the backend url is available
-   * Api
-   */
+	/** Signal for backend URL ready trigger */
+	readonly backendUrlReadyTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to backendUrlReadyTrigger() signal in Phase 2 */
 	public getBackendUrlEvent = new EventEmitter();
 
-	/**
-   * Event emitter to save the story / scenario and then run the test
-   */
+	/** Signal for run/save option — carries the option string */
+	readonly runSaveOptionValue = signal<string | null>(null);
+	/** @deprecated EventEmitter bridge — subscribe to runSaveOptionValue() signal in Phase 2 */
 	public runSaveOptionEvent = new EventEmitter();
 
-	/**
-   * Event emitter for handling copy of steps with example
-   */
+	/** Signal for copy step with example — carries the option string */
+	readonly copyStepWithExampleValue = signal<string | null>(null);
+	/** @deprecated EventEmitter bridge — subscribe to copyStepWithExampleValue() signal in Phase 2 */
 	public copyStepWithExampleEvent = new EventEmitter();
 
 	/**
@@ -72,14 +70,16 @@ export class ApiService {
    * @param option
    */
 	public runSaveOption(option: string) {
+		this.runSaveOptionValue.set(option);
 		this.runSaveOptionEvent.emit(option);
 	}
 
 	/**
-   * Emits the copy with example option
+   * Sets the copy with example option value
    * @param option
    */
 	public copyStepWithExampleOption(option: string) {
+		this.copyStepWithExampleValue.set(option);
 		this.copyStepWithExampleEvent.emit(option);
 	}
 
@@ -90,6 +90,7 @@ export class ApiService {
    * @returns
    */
 	handleStoryError = (_error: HttpErrorResponse, _caught: Observable<any>) => {
+		this.storiesErrorTrigger.update(n => n + 1);
 		this.storiesErrorEvent.emit();
 		return of([]);
 	};
@@ -137,6 +138,7 @@ export class ApiService {
       playwright_emulators !== 'undefined'
 		) {
 			this.urlReceived = true;
+			this.backendUrlReadyTrigger.update(n => n + 1);
 			this.getBackendUrlEvent.emit();
 			return Promise.resolve(url);
 		} else 
@@ -166,6 +168,7 @@ export class ApiService {
 					this.getPlaywrightEmulators().subscribe();
           
 					this.urlReceived = true;
+					this.backendUrlReadyTrigger.update(n => n + 1);
 					this.getBackendUrlEvent.emit();
           
 				});

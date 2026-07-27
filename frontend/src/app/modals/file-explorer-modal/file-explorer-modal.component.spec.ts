@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
 import { of } from 'rxjs';
 
 import { FileExplorerModalComponent } from './file-explorer-modal.component';
@@ -18,8 +18,9 @@ describe('FileExplorerModalComponent', () => {
 	};
 
 	const mockThemingService = {
+		isDark: signal(false),
 		isDarkMode: vi.fn().mockReturnValue(false),
-		themeChanged: new EventEmitter()
+		themeChanged: of(false)
 	};
 
 	const mockModalService = {

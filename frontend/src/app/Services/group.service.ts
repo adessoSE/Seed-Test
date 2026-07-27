@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject } from '@angular/core';
+import { EventEmitter, Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -17,36 +17,42 @@ export class GroupService {
 	private http = inject(HttpClient);
 	notify = inject(NotificationService);
 
+	/** Signal for create custom group action — carries the group object */
+	readonly createCustomGroupValue = signal<any>(null);
+	/** @deprecated EventEmitter bridge — subscribe to createCustomGroupValue() signal in Phase 2 */
+	public createCustomGroupEmitter = new EventEmitter();
+
+	/** Signal for update group action — carries the group object */
+	readonly updateGroupValue = signal<any>(null);
+	/** @deprecated EventEmitter bridge — subscribe to updateGroupValue() signal in Phase 2 */
+	public updateGroupEmitter = new EventEmitter();
+
+	/** Signal for delete group action — carries the values */
+	readonly deleteGroupValue = signal<any>(null);
+	/** @deprecated EventEmitter bridge — subscribe to deleteGroupValue() signal in Phase 2 */
+	public deleteGroupEmitter = new EventEmitter();
+
 	/**
-    * Event emitter to create a custom group
-  */
-	public createCustomGroupEmitter: EventEmitter<any> = new EventEmitter();
-	/**
-    * Event emitter to update a custom group
-  */
-	public updateGroupEmitter: EventEmitter<any> = new EventEmitter();
-	/**
-    * Event emitter to delete a custom group
-  */
-	public deleteGroupEmitter: EventEmitter<any> = new EventEmitter();
-	/**
-    * Emits the create group event
+    * Sets the create group value
     * @param group
   */
 	createGroupEvent(group: any) {
+		this.createCustomGroupValue.set(group);
 		this.createCustomGroupEmitter.emit(group);
 	}
 	/**
-   * Emits the create group event
+   * Sets the update group value
    * @param group
   */
 	updateGroupEvent(group: any) {
+		this.updateGroupValue.set(group);
 		this.updateGroupEmitter.emit(group);
 	}
 	/**
-    * Emits the delete scenario event
+    * Sets the delete group value
   */
 	public deleteGroupEvent(values: any) {
+		this.deleteGroupValue.set(values);
 		this.deleteGroupEmitter.emit(values);
 	}
 	/**

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EventEmitter, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { of } from 'rxjs';
 import { ThemingService } from '../../Services/theming.service';
 import { StoryService } from '../../Services/story.service';
 
@@ -15,8 +16,9 @@ describe('ExecutionListComponent', () => {
 	};
 
 	const mockThemingService = {
+		isDark: signal(false),
 		isDarkMode: vi.fn().mockReturnValue(false),
-		themeChanged: new EventEmitter()
+		themeChanged: of(false)
 	};
 
 	const mockStoryService = {

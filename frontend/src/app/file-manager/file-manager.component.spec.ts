@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EventEmitter } from '@angular/core';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 
 import { FileManagerComponent } from './file-manager.component';
@@ -18,8 +18,9 @@ describe('FileManagerComponent', () => {
 				{
 					provide: ThemingService,
 					useValue: {
+						isDark: signal(false),
 						isDarkMode: () => false,
-						themeChanged: new EventEmitter()
+						themeChanged: of(false)
 					}
 				},
 				{

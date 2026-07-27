@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject } from '@angular/core';
+import { EventEmitter, Injectable, inject, signal } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -15,10 +15,16 @@ export class LoginService {
 	apiService = inject(ApiService);
 	private http = inject(HttpClient);
 
-	/**
-   * Event emitter to logout the user
-   */
+	/** Signal for logout trigger */
+	readonly logoutTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to logoutTrigger() signal in Phase 2 */
 	public logoutEvent = new EventEmitter();
+
+	/** Triggers the logout signal and emits event */
+	public logoutEmitter() {
+		this.logoutTrigger.update(n => n + 1);
+		this.logoutEvent.emit();
+	}
 
 	/** TODO: Look, if it still needed as it seems callback is doing this now?
    * Starts the github login

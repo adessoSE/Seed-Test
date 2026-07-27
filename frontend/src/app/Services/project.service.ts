@@ -1,6 +1,6 @@
 import { AiConfig, RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { EventEmitter, Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { Observable, of, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -17,50 +17,61 @@ export class ProjectService {
 	apiService = inject(ApiService);
 	private http = inject(HttpClient);
 
-	/**
-    * Event emitter to rename the project
-  */
+	/** Signal for rename project action — carries the RepositoryContainer */
+	readonly renameProjectValue = signal<RepositoryContainer | null>(null);
+	/** @deprecated EventEmitter bridge — subscribe to renameProjectValue() signal in Phase 2 */
 	public renameProjectEvent = new EventEmitter();
-	/**
-    * Event emitter to create the repository
-  */
-	public createRepositoryEmitter: EventEmitter<any> = new EventEmitter();
-	/**
-    * Event emitter to update the repository
-  */
-	public updateRepositoryEvent: EventEmitter<any> = new EventEmitter();
-	/**
-    * Event emitter to delete the repository
-  */
+
+	/** Signal for create repository action — carries the repository object */
+	readonly createRepositoryValue = signal<any>(null);
+	/** @deprecated EventEmitter bridge — subscribe to createRepositoryValue() signal in Phase 2 */
+	public createRepositoryEmitter = new EventEmitter();
+
+	/** Signal for update repository trigger */
+	readonly updateRepositoryTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to updateRepositoryTrigger() signal in Phase 2 */
+	public updateRepositoryEvent = new EventEmitter();
+
+	/** Signal for delete repository trigger */
+	readonly deleteRepositoryTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to deleteRepositoryTrigger() signal in Phase 2 */
 	public deleteRepositoryEvent = new EventEmitter();
-	/**
-    * Event Emitter to distribute the repositories to all components
-  */
+
+	/** Signal for get repositories trigger */
+	readonly getRepositoriesTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to getRepositoriesTrigger() signal in Phase 2 */
 	public getRepositoriesEvent = new EventEmitter();
-	/**
-    * Emits the delete repository event
-  */
+
+	/** Triggers the delete repository signal */
 	public deleteRepositoryEmitter() {
+		this.deleteRepositoryTrigger.update(n => n + 1);
 		this.deleteRepositoryEvent.emit();
 	}
 	/**
-    * Emits to rename project event
+    * Sets the rename project value
     * @param proj
   */
 	renameProjectEmitter(proj: RepositoryContainer) {
+		this.renameProjectValue.set(proj);
 		this.renameProjectEvent.emit(proj);
 	}
 	/**
- * Emits to create repository event
- * @param repository
- */
+  * Sets the create repository value
+  * @param repository
+  */
 	createRepositoryEvent(repository: any) {
+		this.createRepositoryValue.set(repository);
 		this.createRepositoryEmitter.emit(repository);
 	}
 
+	/** Signal for transfer ownership trigger */
+	readonly transferOwnershipTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to transferOwnershipTrigger() signal in Phase 2 */
 	public transferOwnershipEvent = new EventEmitter();
 
+	/** Triggers the transfer ownership signal and emits event */
 	transferOwnershipEmitter() {
+		this.transferOwnershipTrigger.update(n => n + 1);
 		this.transferOwnershipEvent.emit();
 	}
 	changeOwner(repoId: string, email: string): Observable<RepositoryContainer> {
@@ -79,12 +90,14 @@ export class ProjectService {
     * Emits if repositories changed
   */
 	public updateRepositoryEmitter() {
+		this.updateRepositoryTrigger.update(n => n + 1);
 		this.updateRepositoryEvent.emit();
 	}
 	/**
- * Emits if repositories should be reloaded
- */
+  * Triggers repositories reload signal
+  */
 	public getRepositoriesEmitter() {
+		this.getRepositoriesTrigger.update(n => n + 1);
 		this.getRepositoriesEvent.emit();
 	}
 
@@ -275,12 +288,13 @@ export class ProjectService {
 	}
 
 
-	private querySubject: BehaviorSubject<FileElement[]> = new BehaviorSubject<FileElement[]>([]);
+	/** Reactive file elements state — replaces BehaviorSubject */
+	readonly fileElements = signal<FileElement[]>([]);
 
 	public getUploadedFiles(repoId: string): Observable<FileElement[]> {
 		return this.http.get<FileElement[]>(this.apiService.apiServer + '/files/' + repoId, ApiService.getOptions())
 			.pipe(
-				tap(files => console.log(files)), // Optional: Log files
+				tap(files => console.log(files)),
 				catchError(error => {
 					console.error('Error fetching uploaded files:', error);
 					return throwError(error);
@@ -288,18 +302,17 @@ export class ProjectService {
 			);
 	}
 
+	/** Fetches files from backend and updates the fileElements signal */
 	public queryFiles(repoId: string): Observable<FileElement[]> {
-		// Perform API call if querySubject is empty
-		this.getUploadedFiles(repoId).subscribe(
-			response => {
-				this.querySubject.next(response);
-			},
-			error => {
+		return this.getUploadedFiles(repoId).pipe(
+			tap(response => {
+				this.fileElements.set(response);
+			}),
+			catchError(error => {
 				console.error('Error fetching uploaded files:', error);
-				this.querySubject.error(error);
-			}
+				return of([] as FileElement[]);
+			})
 		);
-		return this.querySubject.asObservable();
 	}
 
 	/**
@@ -309,7 +322,7 @@ export class ProjectService {
 		return this.http
 			.delete(this.apiService.apiServer + '/files/' + repoId + '/' + fileId, ApiService.getOptions())
 			.pipe(tap(_ => {
-				this.querySubject.next([...this.querySubject.value.filter((item) => item._id != fileId)]);
+				this.fileElements.update(files => files.filter((item) => item._id != fileId));
 			}));
 	}
 
@@ -325,7 +338,7 @@ export class ProjectService {
 				const currentDate = new Date();
 				const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
 				result.uploadDate = formattedDate;
-				this.querySubject.next([...this.querySubject.value, result]);
+				this.fileElements.update(files => [...files, result]);
 				return result;
 			}));
 	}

@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject } from '@angular/core';
+import { EventEmitter, Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -19,10 +19,9 @@ export class ReportService {
 	apiService = inject(ApiService);
 	private http = inject(HttpClient);
 
-
-	/**
-   * Event emitter to distribute the reports to all components
-   */
+	/** Signal for get reports trigger (currently unused — never emitted) */
+	readonly getReportsTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to getReportsTrigger() signal in Phase 2 */
 	public getReportsEvent = new EventEmitter();
 
 	/**

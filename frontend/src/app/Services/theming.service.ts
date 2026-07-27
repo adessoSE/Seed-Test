@@ -1,6 +1,5 @@
 
-import { Injectable, Renderer2, RendererFactory2, DOCUMENT, inject, EventEmitter } from '@angular/core';
-import { of } from 'rxjs';
+import { EventEmitter, Injectable, Renderer2, RendererFactory2, DOCUMENT, inject, signal } from '@angular/core';
 
 @Injectable({
 	providedIn: 'root'
@@ -8,53 +7,52 @@ import { of } from 'rxjs';
 export class ThemingService {
 	private document = inject<Document>(DOCUMENT);
 
+	/** Reactive dark-mode state — replaces currentTheme + isDarkMode() */
+	readonly isDark = signal(false);
 
-	currentTheme!: string;
-
-	// EventEmitter used as observable in services — not a component output
-	public readonly themeChanged = new EventEmitter<string>();
+	/** @deprecated EventEmitter bridge — subscribe to isDark() signal in Phase 2 */
+	public themeChanged = new EventEmitter<boolean>();
 
 	private renderer: Renderer2;
 
 	constructor() {
 		const rendererFactory = inject(RendererFactory2);
- 
+
 		this.renderer = rendererFactory.createRenderer(null, null);
 	}
 
+	/** Loads the persisted theme from localStorage and applies it */
 	loadTheme () {
-		if (localStorage.getItem('user-theme')) 
-			this.currentTheme = localStorage.getItem('user-theme')!;
-    
-		this.renderTemplate(this.currentTheme);
+		const stored = localStorage.getItem('user-theme');
+		if (stored === 'darkTheme') {
+			this.isDark.set(true);
+			this.themeChanged.emit(true);
+		}
+		this.renderTemplate(stored ?? '');
 	}
 
-	getCurrentTheme () {
-		return of(this.currentTheme);
+	/**
+	 * Toggles between dark and light theme
+	 * @param dark whether dark mode should be enabled
+	 */
+	setNewTheme (dark: boolean) {
+		this.isDark.set(dark);
+		this.themeChanged.emit(dark);
+		const theme = dark ? 'darkTheme' : '';
+		this.renderTemplate(theme);
+		localStorage.setItem('user-theme', theme);
 	}
 
-	setNewTheme (isDark:boolean) {
-		if (isDark) 
-			this.currentTheme = 'darkTheme';
-		else 
-			this.currentTheme = '';
-    
-		this.renderTemplate(this.currentTheme);
-		localStorage.setItem('user-theme', this.currentTheme);
-		this.themeChanged.emit(this.currentTheme);
-	}
-
+	/** @deprecated Use isDark() signal directly */
 	isDarkMode() {
-		return this.currentTheme === 'darkTheme';
+		return this.isDark();
 	}
 
-	renderTemplate (theme : string) {
-		if (theme === 'darkTheme') 
+	private renderTemplate (theme : string) {
+		if (theme === 'darkTheme')
 			this.renderer.addClass(this.document.body, theme);
-		else 
+		else
 			this.renderer.removeClass(this.document.body, 'darkTheme');
-    
-    
 	}
 
 }

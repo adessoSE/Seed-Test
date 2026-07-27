@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject } from '@angular/core';
+import { EventEmitter, Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -17,27 +17,32 @@ export class BackgroundService {
 	private http = inject(HttpClient);
 	notify = inject(NotificationService);
 
-	/**
-  * Event emitter to remane backgrounf of a story
-  */
-	public renameBackgroundEvent: EventEmitter<string> = new EventEmitter();
-	/**
-    * Event emitter to change a background
-  */
-	public backgroundChangedEvent: EventEmitter<Scenario> = new EventEmitter();
+	/** Signal for rename background action — carries the new name */
+	readonly renameBackgroundValue = signal<string | null>(null);
+	/** @deprecated EventEmitter bridge — subscribe to renameBackgroundValue() signal in Phase 2 */
+	public renameBackgroundEvent = new EventEmitter();
+
+	/** Signal for background changed trigger */
+	readonly backgroundChangedTrigger = signal(0);
+	/** @deprecated EventEmitter bridge — subscribe to backgroundChangedTrigger() signal in Phase 2 */
+	public backgroundChangedEvent = new EventEmitter();
+
 	/**
     * Track if background was replaced
   */
 	public backgroundReplaced = false;
-	/**
-    * Event emitter for applying changes to Backgrounds(current or centrally)
-  */
+
+	/** Signal for apply background changes action — carries the option string */
+	readonly applyChangesBackgroundValue = signal<string | null>(null);
+	/** @deprecated EventEmitter bridge — subscribe to applyChangesBackgroundValue() signal in Phase 2 */
 	public applyChangesBackgroundEvent = new EventEmitter();
+
 	/**
-    * Emits the applying changes for background
+    * Sets the apply background changes value
     * @param option
   */
 	public applyBackgroundChanges(option: string) {
+		this.applyChangesBackgroundValue.set(option);
 		this.applyChangesBackgroundEvent.emit(option);
 	}
 
@@ -45,18 +50,19 @@ export class BackgroundService {
     * Track current background before saving changes
   */
 	public currentBackground!: Background;
-	/* 
-  * Emits background changed event 
+	/**
+  * Triggers the background changed signal
   */
 	public backgroundChangedEmitter() {
+		this.backgroundChangedTrigger.update(n => n + 1);
 		this.backgroundChangedEvent.emit();
 	}
-	/* 
-  * Emits background rename event 
+	/**
+  * Sets the background rename value
   */
 	renameBackgroundEmit(newBackgroundName: string) {
-		const val = newBackgroundName;
-		this.renameBackgroundEvent.emit(val);
+		this.renameBackgroundValue.set(newBackgroundName);
+		this.renameBackgroundEvent.emit(newBackgroundName);
 	}
 	/**
    * Updates the background
