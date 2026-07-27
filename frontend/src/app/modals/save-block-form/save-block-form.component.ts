@@ -12,11 +12,11 @@ import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '
 
 
 @Component({
-    selector: 'app-save-block-form',
-    templateUrl: './save-block-form.component.html',
-    styleUrls: ['./save-block-form.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow]
+	selector: 'app-save-block-form',
+	templateUrl: './save-block-form.component.html',
+	styleUrls: ['./save-block-form.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow]
 })
 export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	private modalService = inject(NgbModal);

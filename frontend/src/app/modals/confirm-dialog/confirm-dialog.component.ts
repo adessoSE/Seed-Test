@@ -27,8 +27,8 @@ export interface ConfirmDialogData {
  * Returns the clicked button's `value` string, or `undefined` if dismissed.
  */
 @Component({
-    selector: 'app-confirm-dialog',
-    template: `
+	selector: 'app-confirm-dialog',
+	template: `
 		<h2 mat-dialog-title>{{ data.title }}</h2>
 		<mat-dialog-content>
 			<p>{{ data.message }}</p>
@@ -47,8 +47,8 @@ export interface ConfirmDialogData {
 			}
 		</mat-dialog-actions>
 	`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatDialogActions, MatButton]
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatDialogActions, MatButton]
 })
 export class ConfirmDialogComponent {
 	dialogRef = inject<MatDialogRef<ConfirmDialogComponent>>(MatDialogRef);

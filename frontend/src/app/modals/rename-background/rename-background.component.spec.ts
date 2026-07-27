@@ -11,9 +11,9 @@ describe('RenameBackgroundComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, RenameBackgroundComponent],
-    providers: [provideRouter([])]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, RenameBackgroundComponent],
+			providers: [provideRouter([])]
+		})
 			.compileComponents();
 	});
 

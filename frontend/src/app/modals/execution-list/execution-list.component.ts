@@ -10,11 +10,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-execution-list',
-    templateUrl: './execution-list.component.html',
-    styleUrls: ['./execution-list.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule]
+	selector: 'app-execution-list',
+	templateUrl: './execution-list.component.html',
+	styleUrls: ['./execution-list.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule]
 })
 export class ExecutionListComponent implements OnInit {
 	private modalService = inject(NgbModal);
@@ -25,9 +25,9 @@ export class ExecutionListComponent implements OnInit {
 	readonly executionListModal = viewChild<any>('executionListModal');
 
 	readonly selectedExecutions = output<{
-    scenarioId: number | null;
-    selectedExecutions: number[];
-}>();
+		scenarioId: number | null;
+		selectedExecutions: number[];
+	}>();
 
 	selectedTestRunIds: number[] = [];
 

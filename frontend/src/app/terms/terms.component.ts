@@ -1,25 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * Component of the terms
  */
 @Component({
-    selector: 'app-terms',
-    templateUrl: './terms.component.html',
-    styleUrls: ['./terms.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager
+	selector: 'app-terms',
+	templateUrl: './terms.component.html',
+	styleUrls: ['./terms.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager
 })
-export class TermsComponent implements OnInit {
-
-	/**
-   * @ignore
-   */
-	constructor() { }
-
-	/**
-   * @ignore
-   */
-	ngOnInit() {
-	}
-
-}
+export class TermsComponent {}

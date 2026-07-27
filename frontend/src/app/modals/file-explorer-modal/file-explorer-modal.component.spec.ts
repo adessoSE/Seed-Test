@@ -28,14 +28,14 @@ describe('FileExplorerModalComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [FileExplorerModalComponent],
-    providers: [
-        { provide: ProjectService, useValue: mockProjectService },
-        { provide: ThemingService, useValue: mockThemingService },
-        { provide: NgbModal, useValue: mockModalService }
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
-})
+			imports: [FileExplorerModalComponent],
+			providers: [
+				{ provide: ProjectService, useValue: mockProjectService },
+				{ provide: ThemingService, useValue: mockThemingService },
+				{ provide: NgbModal, useValue: mockModalService }
+			],
+			schemas: [CUSTOM_ELEMENTS_SCHEMA]
+		})
 			.compileComponents();
 
 		fixture = TestBed.createComponent(FileExplorerModalComponent);

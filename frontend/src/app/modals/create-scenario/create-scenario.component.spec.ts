@@ -12,10 +12,10 @@ describe('CreateScenarioComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, CreateScenarioComponent, LayoutModalComponent],
-    providers: [provideRouter([])],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, CreateScenarioComponent, LayoutModalComponent],
+			providers: [provideRouter([])],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	});
 

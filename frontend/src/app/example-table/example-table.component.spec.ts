@@ -11,9 +11,9 @@ describe('ExampleTableComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, ExampleTableComponent],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, ExampleTableComponent],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	}));
 

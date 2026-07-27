@@ -12,9 +12,9 @@ describe('NewExampleComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, ReactiveFormsModule, NewExampleComponent],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, ReactiveFormsModule, NewExampleComponent],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	});
 

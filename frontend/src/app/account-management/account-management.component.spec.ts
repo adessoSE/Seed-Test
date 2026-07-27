@@ -25,10 +25,10 @@ describe('AccountManagementComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, AccountManagementComponent],
-    providers: [provideRouter(ROUTES)],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, AccountManagementComponent],
+			providers: [provideRouter(ROUTES)],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	}));
 

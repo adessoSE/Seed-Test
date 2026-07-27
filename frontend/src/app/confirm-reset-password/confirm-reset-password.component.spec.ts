@@ -13,10 +13,10 @@ describe('ConfirmResetPasswordComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, FormsModule, ConfirmResetPasswordComponent],
-    providers: [provideRouter(ROUTES)],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, FormsModule, ConfirmResetPasswordComponent],
+			providers: [provideRouter(ROUTES)],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	}));
 

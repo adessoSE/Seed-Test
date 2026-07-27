@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, ChangeDetectionStrategy, inject, output, contentChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ChangeDetectionStrategy, inject, output, contentChild } from '@angular/core';
 import { ViewModeDirective } from '../directives/view-mode.directive';
 import { EditModeDirective } from '../directives/edit-mode.directive';
 import { fromEvent, Subject } from 'rxjs';
@@ -10,14 +10,14 @@ import { NgTemplateOutlet } from '@angular/common';
  * Component to enable editable cells in the example table
  */
 @Component({
-    selector: 'editable',
-    templateUrl: './editable.component.html',
-    styleUrls: ['./editable.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [NgTemplateOutlet]
+	selector: 'editable',
+	templateUrl: './editable.component.html',
+	styleUrls: ['./editable.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [NgTemplateOutlet]
 })
 
-export class EditableComponent implements OnInit, OnDestroy {
+export class EditableComponent implements OnInit {
 	private host = inject(ElementRef);
 
 	readonly viewModeTpl = contentChild.required(ViewModeDirective);
@@ -36,11 +36,6 @@ export class EditableComponent implements OnInit, OnDestroy {
 		this.viewModeHandler();
 		this.editModeHandler();
 	}
-
-	/**
-   * @ignore
-   */
-	ngOnDestroy() {}
 
 	/**
    * Changes to the view mode

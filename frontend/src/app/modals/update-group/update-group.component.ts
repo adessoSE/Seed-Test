@@ -13,11 +13,11 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 
 @Component({
-    selector: 'app-update-group',
-    templateUrl: './update-group.component.html',
-    styleUrls: ['./update-group.component.css', '../layout-modal/layout-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
+	selector: 'app-update-group',
+	templateUrl: './update-group.component.html',
+	styleUrls: ['./update-group.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class UpdateGroupComponent {
 	private modalService = inject(NgbModal);

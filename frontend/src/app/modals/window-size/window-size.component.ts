@@ -6,11 +6,11 @@ import { MatInput } from '@angular/material/input';
 import { MatButton } from '@angular/material/button';
 
 @Component({
-    selector: 'app-window-size',
-    templateUrl: './window-size.component.html',
-    styleUrls: ['./window-size.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [MatMenu, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatButton, MatMenuTrigger]
+	selector: 'app-window-size',
+	templateUrl: './window-size.component.html',
+	styleUrls: ['./window-size.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [MatMenu, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatButton, MatMenuTrigger]
 })
 export class WindowSizeComponent implements OnInit, OnChanges {
 
@@ -19,9 +19,9 @@ export class WindowSizeComponent implements OnInit, OnChanges {
 	@Input() height!: number;
 	@Input() emulator!: boolean;
 	readonly sizeChange = output<{
-    width: number;
-    height: number;
-}>();
+		width: number;
+		height: number;
+	}>();
 
 	selectedResolution!: string;
 	predefinedResolutions = ['3840x2160', '2560x1440', '1920x1080', '1600x900', '1536x864', '1440x900', '1366x768',  '1280x720'];

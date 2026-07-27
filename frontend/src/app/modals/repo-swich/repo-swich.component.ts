@@ -8,11 +8,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-repo-swich',
-    templateUrl: './repo-swich.component.html',
-    styleUrls: ['./repo-swich.component.css', '../layout-modal/layout-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
+	selector: 'app-repo-swich',
+	templateUrl: './repo-swich.component.html',
+	styleUrls: ['./repo-swich.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class RepoSwichComponent implements OnInit, OnDestroy {
 	private modalService = inject(NgbModal);

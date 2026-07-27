@@ -9,11 +9,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { BaseEditorComponent } from '../../base-editor/base-editor.component';
 
 @Component({
-    selector: 'app-edit-block',
-    templateUrl: './edit-block.component.html',
-    styleUrls: ['./edit-block.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, BaseEditorComponent]
+	selector: 'app-edit-block',
+	templateUrl: './edit-block.component.html',
+	styleUrls: ['./edit-block.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, BaseEditorComponent]
 })
 export class EditBlockComponent implements OnInit {
 	private modalService = inject(NgbModal);

@@ -12,7 +12,7 @@ declare const Zone: any;
 const g = globalThis as any;
 const ambientZone = Zone.current;
 const ProxyZoneSpec = Zone['ProxyZoneSpec'];
-const SyncTestZoneSpec = Zone['SyncTestZoneSpec'];
+const _SyncTestZoneSpec = Zone['SyncTestZoneSpec'];
 
 if (!ProxyZoneSpec)
 	throw new Error('zone-testing must be loaded before test-setup');

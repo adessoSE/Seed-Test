@@ -10,8 +10,8 @@ describe('NewStepRequestComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, NewStepRequestComponent, LayoutModalComponent]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, NewStepRequestComponent, LayoutModalComponent]
+		})
 			.compileComponents();
 	});
 

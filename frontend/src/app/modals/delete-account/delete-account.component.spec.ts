@@ -10,8 +10,8 @@ describe('DeleteAccountComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, DeleteAccountComponent, LayoutModalComponent]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, DeleteAccountComponent, LayoutModalComponent]
+		})
 			.compileComponents();
 	});
 

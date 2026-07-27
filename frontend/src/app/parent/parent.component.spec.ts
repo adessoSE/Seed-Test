@@ -25,16 +25,16 @@ describe('ParentComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, ParentComponent],
-    providers: [provideRouter(ROUTES), {
-            provide: ActivatedRoute,
-            useValue: {
-                snapshot: { params: { story_id: 45, scenario_id: 4 } },
-                params: of({ story_id: 45, scenario_id: 4 })
-            }
-        }],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, ParentComponent],
+			providers: [provideRouter(ROUTES), {
+				provide: ActivatedRoute,
+				useValue: {
+					snapshot: { params: { story_id: 45, scenario_id: 4 } },
+					params: of({ story_id: 45, scenario_id: 4 })
+				}
+			}],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	}));
   

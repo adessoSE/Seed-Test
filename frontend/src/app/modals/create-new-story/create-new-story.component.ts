@@ -10,11 +10,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
 @Component({
-    selector: 'app-create-new-story',
-    templateUrl: './create-new-story.component.html',
-    styleUrls: ['./create-new-story.component.css', '../layout-modal/layout-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
+	selector: 'app-create-new-story',
+	templateUrl: './create-new-story.component.html',
+	styleUrls: ['./create-new-story.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class CreateNewStoryComponent {
 	private modalService = inject(NgbModal);

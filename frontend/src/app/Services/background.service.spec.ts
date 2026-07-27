@@ -25,9 +25,9 @@ describe('BackgroundService', () => {
   
 	describe('create', () => {
 		it('should be created', () => {
-			const http: HttpClient = TestBed.inject(HttpClient);
-			const apiService = TestBed.inject(ApiService);
-			const toastr = TestBed.inject(NotificationService);
+			const _http: HttpClient = TestBed.inject(HttpClient);
+			const _apiService = TestBed.inject(ApiService);
+			const _toastr = TestBed.inject(NotificationService);
 			const service = TestBed.inject(BackgroundService);
 			expect(service).toBeTruthy();
 		});

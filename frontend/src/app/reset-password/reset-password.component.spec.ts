@@ -13,9 +13,9 @@ describe('ResetPasswordComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MatSnackBarModule, ResetPasswordComponent],
-    providers: [provideRouter([])]
-})
+			imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MatSnackBarModule, ResetPasswordComponent],
+			providers: [provideRouter([])]
+		})
 			.compileComponents();
 	}));
 

@@ -10,11 +10,11 @@ import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, Ma
 import { DatePipe } from '@angular/common';
 
 @Component({
-    selector: 'app-file-explorer-modal',
-    templateUrl: './file-explorer-modal.component.html',
-    styleUrls: ['./file-explorer-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe]
+	selector: 'app-file-explorer-modal',
+	templateUrl: './file-explorer-modal.component.html',
+	styleUrls: ['./file-explorer-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe]
 })
 export class FileExplorerModalComponent implements OnInit {
 	private modalService = inject(NgbModal);

@@ -14,9 +14,9 @@ describe('RepoSwichComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, LayoutModalComponent],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, LayoutModalComponent],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	});
 

@@ -10,7 +10,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 
-const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true}];
+const _repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true}];
 
 class MockedApiService {
 	authenticated = false;
@@ -29,10 +29,10 @@ describe('LoginComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    providers: [AuthGuard, MockedApiService, provideRouter([])],
-    imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MatSnackBarModule, LoginComponent],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			providers: [AuthGuard, MockedApiService, provideRouter([])],
+			imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MatSnackBarModule, LoginComponent],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	});
 

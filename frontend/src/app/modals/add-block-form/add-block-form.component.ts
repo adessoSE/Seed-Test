@@ -15,11 +15,11 @@ import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '
 import { MatFormField, MatSelect, MatOption } from '@angular/material/select';
 
 @Component({
-    selector: 'app-add-block-form',
-    templateUrl: './add-block-form.component.html',
-    styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, MatSelectionList, FormsModule, MatListOption, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatFormField, MatSelect, ReactiveFormsModule, MatOption]
+	selector: 'app-add-block-form',
+	templateUrl: './add-block-form.component.html',
+	styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, MatSelectionList, FormsModule, MatListOption, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatFormField, MatSelect, ReactiveFormsModule, MatOption]
 })
 export class AddBlockFormComponent implements OnInit,OnDestroy {
 	private modalService = inject(NgbModal);

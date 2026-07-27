@@ -33,11 +33,11 @@ import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, Mat
 import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
-    selector: 'app-base-editor',
-    templateUrl: './base-editor.component.html',
-    styleUrls: ['./base-editor.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [NgTemplateOutlet, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe]
+	selector: 'app-base-editor',
+	templateUrl: './base-editor.component.html',
+	styleUrls: ['./base-editor.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [NgTemplateOutlet, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe]
 })
 export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit {
 	notify = inject(NotificationService);
@@ -399,7 +399,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
     
 
 		const exampleChildren = this.exampleChildren();
-  if (exampleChildren.at(-1)! != undefined) 
+		if (exampleChildren.at(-1)! != undefined) 
 			this.exampleChild = exampleChildren.at(-1)!;
     
 	}

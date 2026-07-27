@@ -19,11 +19,11 @@ type Report = ScenarioReport | StoryReport | GroupReport;
  * Component of the report history
  */
 @Component({
-    selector: 'app-report-history',
-    templateUrl: './report-history.component.html',
-    styleUrls: ['./report-history.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [RouterLink, NgTemplateOutlet]
+	selector: 'app-report-history',
+	templateUrl: './report-history.component.html',
+	styleUrls: ['./report-history.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [RouterLink, NgTemplateOutlet]
 })
 
 export class ReportHistoryComponent implements OnInit, AfterContentInit {

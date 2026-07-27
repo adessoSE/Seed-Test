@@ -15,10 +15,10 @@ describe('WorkgroupEditComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, WorkgroupEditComponent, LayoutModalComponent],
-    providers: [{ provide: NotificationService, useValue: notificationMock }],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, WorkgroupEditComponent, LayoutModalComponent],
+			providers: [{ provide: NotificationService, useValue: notificationMock }],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	});
 

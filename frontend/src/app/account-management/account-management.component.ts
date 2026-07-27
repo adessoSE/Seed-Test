@@ -28,11 +28,11 @@ import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/
  * Component to show all account data including the projects of Github, Jira and custom sources
  */
 @Component({
-    selector: 'app-account-management',
-    templateUrl: './account-management.component.html',
-    styleUrls: ['./account-management.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [RouterLink, MatIcon, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, ChangeJiraAccountComponent, DisconnectJiraAccountComponent, CreateCustomProjectComponent, DeleteAccountComponent, WorkgroupEditComponent, RepoSwichComponent]
+	selector: 'app-account-management',
+	templateUrl: './account-management.component.html',
+	styleUrls: ['./account-management.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [RouterLink, MatIcon, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, ChangeJiraAccountComponent, DisconnectJiraAccountComponent, CreateCustomProjectComponent, DeleteAccountComponent, WorkgroupEditComponent, RepoSwichComponent]
 })
 
 
@@ -356,7 +356,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		});
 
 		const ngSelect = this.ngSelect();
-  if (this.searchInput != '' && ngSelect) 
+		if (this.searchInput != '' && ngSelect) 
 			ngSelect.open();
     
 	}

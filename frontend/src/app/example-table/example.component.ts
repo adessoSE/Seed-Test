@@ -5,16 +5,16 @@ import { StepType } from '@shared/models/StepType';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 
 @Component({
-    selector: 'app-example',
-    template: `<app-base-editor [templateName]="TEMPLATE_NAME"
+	selector: 'app-example',
+	template: `<app-base-editor [templateName]="TEMPLATE_NAME"
     [testRunning]="testRunning()"
     [newlySelectedScenario]="selectedScenario"
     [newlySelectedStory]="selectedStory"
     [originalStepTypes]="originalStepTypes()"
    /> `,
-    styleUrls: ['./example-table.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [BaseEditorComponent]
+	styleUrls: ['./example-table.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [BaseEditorComponent]
 })
 
 /* Example component */

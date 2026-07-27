@@ -8,11 +8,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
 @Component({
-    selector: 'app-new-example',
-    templateUrl: './new-example.component.html',
-    styleUrls: ['./new-example.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
+	selector: 'app-new-example',
+	templateUrl: './new-example.component.html',
+	styleUrls: ['./new-example.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class NewExampleComponent {
 	private modalService = inject(NgbModal);

@@ -7,11 +7,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
 @Component({
-    selector: 'app-rename-story',
-    templateUrl: './rename-story.component.html',
-    styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
+	selector: 'app-rename-story',
+	templateUrl: './rename-story.component.html',
+	styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameStoryComponent {
 	private modalService = inject(NgbModal);

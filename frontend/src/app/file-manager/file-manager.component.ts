@@ -11,18 +11,17 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { DatePipe } from '@angular/common';
 
 @Component({
-    selector: 'app-file-manager',
-    templateUrl: './file-manager.component.html',
-    styleUrl: './file-manager.component.css',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe]
+	selector: 'app-file-manager',
+	templateUrl: './file-manager.component.html',
+	styleUrl: './file-manager.component.css',
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe]
 })
 
 export class FileManagerComponent implements OnInit {
 	private themeService = inject(ThemingService);
 	storyService = inject(StoryService);
 	fileService = inject(ProjectService);
-
 
 
 	isDark!: boolean;

@@ -10,8 +10,8 @@ describe('CreateCustomProjectComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, CreateCustomProjectComponent, LayoutModalComponent]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, CreateCustomProjectComponent, LayoutModalComponent]
+		})
 			.compileComponents();
 	});
 

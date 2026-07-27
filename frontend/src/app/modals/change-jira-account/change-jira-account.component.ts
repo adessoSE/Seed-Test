@@ -5,13 +5,12 @@ import { ManagementService } from 'src/app/Services/management.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
-
 @Component({
-    selector: 'app-change-jira-account',
-    templateUrl: './change-jira-account.component.html',
-    styleUrls: ['./change-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
+	selector: 'app-change-jira-account',
+	templateUrl: './change-jira-account.component.html',
+	styleUrls: ['./change-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class ChangeJiraAccountComponent {
 	private modalService = inject(NgbModal);

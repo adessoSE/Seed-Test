@@ -13,10 +13,10 @@ import { BehaviorSubject, Subscription } from 'rxjs';
  * Component to show the report
  */
 @Component({
-    selector: 'app-report',
-    templateUrl: './report.component.html',
-    styleUrls: ['./report.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager
+	selector: 'app-report',
+	templateUrl: './report.component.html',
+	styleUrls: ['./report.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager
 })
 export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	apiService = inject(ApiService);

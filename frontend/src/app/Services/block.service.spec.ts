@@ -24,9 +24,9 @@ describe('BlockService', () => {
 
 	describe('create', () => {
 		it('should be created', () => {
-			const http: HttpClient = TestBed.inject(HttpClient);
-			const apiService = TestBed.inject(ApiService);
-			const storyService = TestBed.inject(StoryService);
+			const _http: HttpClient = TestBed.inject(HttpClient);
+			const _apiService = TestBed.inject(ApiService);
+			const _storyService = TestBed.inject(StoryService);
 			const service = TestBed.inject(BlockService);
 			expect(service).toBeTruthy();
 		});

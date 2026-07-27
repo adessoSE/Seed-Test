@@ -9,9 +9,9 @@ describe('TermsComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [TermsComponent],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [TermsComponent],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 	}));
 

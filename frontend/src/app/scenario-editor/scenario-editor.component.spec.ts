@@ -23,9 +23,9 @@ describe('ScenarioEditorComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule, MatSnackBarModule, ScenarioEditorComponent, ResizeInputDirective],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule, MatSnackBarModule, ScenarioEditorComponent, ResizeInputDirective],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.overrideComponent(BaseEditorComponent, { set: { template: '', imports: [] } })
 			.compileComponents();
 	}));

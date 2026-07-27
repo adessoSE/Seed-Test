@@ -7,7 +7,6 @@
     "declaration": false,
     "module": "esnext",
     "moduleResolution": "bundler",
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "ES2024",
     "typeRoots": [

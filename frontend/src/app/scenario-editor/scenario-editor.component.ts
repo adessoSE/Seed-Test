@@ -20,11 +20,11 @@ import { ExampleComponent } from '../example-table/example.component';
  * Component of the Scenario Editor
  */
 @Component({
-    selector: 'app-scenario-editor',
-    templateUrl: './scenario-editor.component.html',
-    styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe]
+	selector: 'app-scenario-editor',
+	templateUrl: './scenario-editor.component.html',
+	styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe]
 })
 
 export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
@@ -175,7 +175,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	ngOnChanges(changes: SimpleChanges) {
 		// When a new scenarioList is being transferred (used for usual Scenarios and AI)
 		const scenarios = this.scenarios();
-  if (changes['scenarios']) 
+		if (changes['scenarios']) 
 			if (scenarios && scenarios.length > 0) 
 				this.selectScenario(scenarios[0]);
 			else 

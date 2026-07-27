@@ -1,13 +1,11 @@
 import { Subscription } from 'rxjs';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Scenario } from '@shared/models/Scenario';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
-import { Story } from '@shared/models/Story';
-import { StepType } from '@shared/models/StepType';
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ApiService } from '../Services/api.service';
@@ -26,11 +24,11 @@ import { NewExampleComponent as NewExampleComponent_1 } from '../modals/new-exam
  * Component of for the Example Table
  */
 @Component({
-    selector: 'app-example-table',
-    templateUrl: './example-table.component.html',
-    styleUrls: ['./example-table.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [MatTable, CdkDropList, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatSlideToggle, FormsModule, ReactiveFormsModule, MatCellDef, MatCell, CdkDragHandle, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, CdkDrag, NewExampleComponent_1]
+	selector: 'app-example-table',
+	templateUrl: './example-table.component.html',
+	styleUrls: ['./example-table.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [MatTable, CdkDropList, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatSlideToggle, FormsModule, ReactiveFormsModule, MatCellDef, MatCell, CdkDragHandle, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, CdkDrag, NewExampleComponent_1]
 })
 export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewChecked {
 	scenarioService = inject(ScenarioService);

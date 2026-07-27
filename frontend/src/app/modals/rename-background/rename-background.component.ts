@@ -12,11 +12,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
 @Component({
-    selector: 'app-rename-background',
-    templateUrl: './rename-background.component.html',
-    styleUrls: ['./rename-background.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
+	selector: 'app-rename-background',
+	templateUrl: './rename-background.component.html',
+	styleUrls: ['./rename-background.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameBackgroundComponent{
 	private modalService = inject(NgbModal);

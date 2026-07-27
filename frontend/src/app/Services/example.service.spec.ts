@@ -23,8 +23,8 @@ describe('ExampleService', () => {
 
 	describe('create', () => {
 		it('should be created', () => {
-			const apiService = TestBed.inject(ApiService);
-			const toast = TestBed.inject(NotificationService);
+			const _apiService = TestBed.inject(ApiService);
+			const _toast = TestBed.inject(NotificationService);
 			const service = TestBed.inject(ExampleService);
 			expect(service).toBeTruthy();
 		});

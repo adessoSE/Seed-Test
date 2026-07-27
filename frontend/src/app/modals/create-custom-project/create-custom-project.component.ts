@@ -8,11 +8,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
 @Component({
-    selector: 'app-create-custom-project',
-    templateUrl: './create-custom-project.component.html',
-    styleUrls: ['./create-custom-project.component.css', '../layout-modal/layout-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule]
+	selector: 'app-create-custom-project',
+	templateUrl: './create-custom-project.component.html',
+	styleUrls: ['./create-custom-project.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule]
 })
 export class CreateCustomProjectComponent {
 	private modalService = inject(NgbModal);

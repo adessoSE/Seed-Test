@@ -30,11 +30,11 @@ import { MatIcon } from '@angular/material/icon';
  * Component of the Stories bar
  */
 @Component({
-    selector: 'app-stories-bar',
-    templateUrl: './stories-bar.component.html',
-    styleUrls: ['./stories-bar.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CdkScrollable, MatTabGroup, MatTab, MatTabLabel, MatTooltip, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, CdkDropList, CdkDrag, MatIcon, CdkDragHandle, CreateNewGroupComponent, CreateNewStoryComponent, UpdateGroupComponent, CreateScenarioComponent, ExecutionListComponent, TitleCasePipe]
+	selector: 'app-stories-bar',
+	templateUrl: './stories-bar.component.html',
+	styleUrls: ['./stories-bar.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [CdkScrollable, MatTabGroup, MatTab, MatTabLabel, MatTooltip, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, CdkDropList, CdkDrag, MatIcon, CdkDragHandle, CreateNewGroupComponent, CreateNewStoryComponent, UpdateGroupComponent, CreateScenarioComponent, ExecutionListComponent, TitleCasePipe]
 })
 export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	notify = inject(NotificationService);

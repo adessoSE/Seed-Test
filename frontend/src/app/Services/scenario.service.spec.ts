@@ -24,8 +24,8 @@ describe('ScenarioService', () => {
 
 	describe('create', () => {
 		it('should be created', () => {
-			const http: HttpClient = TestBed.inject(HttpClient);
-			const apiService = TestBed.inject(ApiService);
+			const _http: HttpClient = TestBed.inject(HttpClient);
+			const _apiService = TestBed.inject(ApiService);
 			const service = TestBed.inject(ScenarioService);
 			expect(service).toBeTruthy();
 		});

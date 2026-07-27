@@ -12,8 +12,8 @@ describe('AddBlockFormComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, AddBlockFormComponent, LayoutModalComponent]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, AddBlockFormComponent, LayoutModalComponent]
+		})
 			.compileComponents();
 	});
 

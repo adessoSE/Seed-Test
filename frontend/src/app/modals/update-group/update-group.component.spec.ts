@@ -9,8 +9,8 @@ describe('UpdateGroupComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, UpdateGroupComponent]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, UpdateGroupComponent]
+		})
 			.compileComponents();
 	});
 

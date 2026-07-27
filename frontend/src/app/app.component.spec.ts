@@ -14,16 +14,16 @@ describe('AppComponent', () => {
   
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule],
-    providers: [provideRouter([]), DatePipe,
-        importProvidersFrom(LoggerModule.forRoot({
-            serverLoggingUrl: '/api/logs',
-            level: NgxLoggerLevel.DEBUG,
-            serverLogLevel: NgxLoggerLevel.ERROR
-        }))],
-    declarations: [AppComponent],
-    schemas: [NO_ERRORS_SCHEMA]
-}).compileComponents();
+			imports: [HttpClientTestingModule, MatSnackBarModule],
+			providers: [provideRouter([]), DatePipe,
+				importProvidersFrom(LoggerModule.forRoot({
+					serverLoggingUrl: '/api/logs',
+					level: NgxLoggerLevel.DEBUG,
+					serverLogLevel: NgxLoggerLevel.ERROR
+				}))],
+			declarations: [AppComponent],
+			schemas: [NO_ERRORS_SCHEMA]
+		}).compileComponents();
 	}));
 
 	beforeEach(()=> {

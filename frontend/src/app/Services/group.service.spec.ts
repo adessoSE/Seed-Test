@@ -23,9 +23,9 @@ describe('GroupService', () => {
 	});
 	describe('create', () => {
 		it('should be created', () => {
-			const http: HttpClient = TestBed.inject(HttpClient);
-			const apiService = TestBed.inject(ApiService);
-			const toast = TestBed.inject(NotificationService);
+			const _http: HttpClient = TestBed.inject(HttpClient);
+			const _apiService = TestBed.inject(ApiService);
+			const _toast = TestBed.inject(NotificationService);
 			const service = TestBed.inject(GroupService);
 			expect(service).toBeTruthy();
 		});

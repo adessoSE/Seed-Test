@@ -21,11 +21,11 @@ import { ReportComponent } from '../report/report.component';
  * Component containing the Story-Bar and Story Editor
  */
 @Component({
-    selector: 'app-parent',
-    templateUrl: './parent.component.html',
-    styleUrls: ['./parent.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [StoriesBarComponent, StoryEditorComponent, ReportHistoryComponent, FileManagerComponent, ReportComponent]
+	selector: 'app-parent',
+	templateUrl: './parent.component.html',
+	styleUrls: ['./parent.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [StoriesBarComponent, StoryEditorComponent, ReportHistoryComponent, FileManagerComponent, ReportComponent]
 })
 export class ParentComponent implements OnInit, OnDestroy {
 	apiService = inject(ApiService);

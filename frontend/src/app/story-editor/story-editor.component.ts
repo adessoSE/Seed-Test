@@ -60,14 +60,14 @@ const emptyBackground: Background = {
  * Component for the Story editor
  */
 @Component({
-    selector: 'app-story-editor',
-    templateUrl: './story-editor.component.html',
-    styleUrls: [
-        '../base-editor/base-editor.component.css',
-        './story-editor.component.css'
-    ],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CdkScrollable, MatFabButton, MatIconButton, MatMenuTrigger, MatIcon, MatProgressSpinner, MatMenu, MatFormField, MatLabel, MatInput, FormsModule, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatTooltip, BaseEditorComponent, NgStyle, WindowSizeComponent, CdkCopyToClipboard, ScenarioEditorComponent, RenameStoryComponent, RenameBackgroundComponent, SaveBlockFormComponent, CreateScenarioComponent, WorkgroupEditComponent, ExecutionListComponent, TitleCasePipe, DatePipe]
+	selector: 'app-story-editor',
+	templateUrl: './story-editor.component.html',
+	styleUrls: [
+		'../base-editor/base-editor.component.css',
+		'./story-editor.component.css'
+	],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [CdkScrollable, MatFabButton, MatIconButton, MatMenuTrigger, MatIcon, MatProgressSpinner, MatMenu, MatFormField, MatLabel, MatInput, FormsModule, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatTooltip, BaseEditorComponent, NgStyle, WindowSizeComponent, CdkCopyToClipboard, ScenarioEditorComponent, RenameStoryComponent, RenameBackgroundComponent, SaveBlockFormComponent, CreateScenarioComponent, WorkgroupEditComponent, ExecutionListComponent, TitleCasePipe, DatePipe]
 })
 export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked {
 	apiService = inject(ApiService);

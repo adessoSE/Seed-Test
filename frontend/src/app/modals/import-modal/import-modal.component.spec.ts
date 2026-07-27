@@ -15,13 +15,13 @@ describe('ImportModalComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [FormsModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatSlideToggleModule, NoopAnimationsModule, ImportModalComponent],
-    providers: [
-        { provide: MatDialogRef, useValue: { close: vi.fn() } },
-        { provide: MAT_DIALOG_DATA, useValue: { repoList: [] } }
-    ],
-    schemas: [NO_ERRORS_SCHEMA]
-})
+			imports: [FormsModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatSlideToggleModule, NoopAnimationsModule, ImportModalComponent],
+			providers: [
+				{ provide: MatDialogRef, useValue: { close: vi.fn() } },
+				{ provide: MAT_DIALOG_DATA, useValue: { repoList: [] } }
+			],
+			schemas: [NO_ERRORS_SCHEMA]
+		})
 			.compileComponents();
 
 		fixture = TestBed.createComponent(ImportModalComponent);

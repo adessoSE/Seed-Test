@@ -10,8 +10,8 @@ describe('SaveBlockFormComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, SaveBlockFormComponent, LayoutModalComponent]
-})
+			imports: [HttpClientTestingModule, MatSnackBarModule, SaveBlockFormComponent, LayoutModalComponent]
+		})
 			.compileComponents();
 	});
 

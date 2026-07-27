@@ -6,11 +6,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
 @Component({
-    selector: 'app-new-step-request',
-    templateUrl: './new-step-request.component.html',
-    styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
+	selector: 'app-new-step-request',
+	templateUrl: './new-step-request.component.html',
+	styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class NewStepRequestComponent {
 	private modalService = inject(NgbModal);

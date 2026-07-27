@@ -10,11 +10,11 @@ import { PasswordConfirmedValidatorDirective } from '../directives/password-conf
  * Component to register a new user
  */
 @Component({
-    selector: 'app-registration',
-    templateUrl: './registration.component.html',
-    styleUrls: ['./registration.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [FormsModule, PasswordConfirmedValidatorDirective]
+	selector: 'app-registration',
+	templateUrl: './registration.component.html',
+	styleUrls: ['./registration.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [FormsModule, PasswordConfirmedValidatorDirective]
 })
 
 export class RegistrationComponent implements OnInit {

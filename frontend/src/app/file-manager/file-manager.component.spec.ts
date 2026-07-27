@@ -13,31 +13,31 @@ describe('FileManagerComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    imports: [FileManagerComponent],
-    providers: [
-        {
-            provide: ThemingService,
-            useValue: {
-                isDarkMode: () => false,
-                themeChanged: new EventEmitter()
-            }
-        },
-        {
-            provide: StoryService,
-            useValue: {
-                changeStoryViewEvent: vi.fn()
-            }
-        },
-        {
-            provide: ProjectService,
-            useValue: {
-                queryFiles: () => of([]),
-                deleteUploadedFile: vi.fn(),
-                uploadFile: vi.fn()
-            }
-        }
-    ]
-})
+			imports: [FileManagerComponent],
+			providers: [
+				{
+					provide: ThemingService,
+					useValue: {
+						isDarkMode: () => false,
+						themeChanged: new EventEmitter()
+					}
+				},
+				{
+					provide: StoryService,
+					useValue: {
+						changeStoryViewEvent: vi.fn()
+					}
+				},
+				{
+					provide: ProjectService,
+					useValue: {
+						queryFiles: () => of([]),
+						deleteUploadedFile: vi.fn(),
+						uploadFile: vi.fn()
+					}
+				}
+			]
+		})
 			.compileComponents();
 
 		fixture = TestBed.createComponent(FileManagerComponent);

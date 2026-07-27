@@ -14,11 +14,11 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
  * Component to handle the client login
  */
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CarouselModule, FormsModule, MatProgressSpinner, RouterLink]
+	selector: 'app-login',
+	templateUrl: './login.component.html',
+	styleUrls: ['./login.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [CarouselModule, FormsModule, MatProgressSpinner, RouterLink]
 })
 export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	loginService = inject(LoginService);

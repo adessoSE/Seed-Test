@@ -50,13 +50,12 @@ export default defineConfig([
 				caughtErrorsIgnorePattern: '^_'
 			}],
 			'@typescript-eslint/no-explicit-any': 'warn',
-			'@typescript-eslint/no-require-imports': 'off',
 
-			// --- Angular migration rules (gradual adoption) ---
-			'@angular-eslint/prefer-inject': 'warn',
+			// --- Angular rules ---
+			'@angular-eslint/prefer-inject': 'error',
 			'@angular-eslint/prefer-standalone': 'warn',
 			'@angular-eslint/prefer-on-push-component-change-detection': 'warn',
-			'@angular-eslint/no-empty-lifecycle-method': 'warn',
+			'@angular-eslint/no-empty-lifecycle-method': 'error',
 
 			// --- Angular selectors (warn — existing components use non-standard selectors) ---
 			'@angular-eslint/directive-selector': ['warn', {

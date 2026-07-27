@@ -16,14 +16,14 @@ import { WindowSizeComponent } from '../window-size/window-size.component';
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 
 @Component({
-    selector: 'app-workgroup-edit',
-    templateUrl: './workgroup-edit.component.html',
-    styleUrls: [
-        './workgroup-edit.component.css',
-        '../layout-modal/layout-modal.component.css'
-    ],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
+	selector: 'app-workgroup-edit',
+	templateUrl: './workgroup-edit.component.html',
+	styleUrls: [
+		'./workgroup-edit.component.css',
+		'../layout-modal/layout-modal.component.css'
+	],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	private modalService = inject(NgbModal);

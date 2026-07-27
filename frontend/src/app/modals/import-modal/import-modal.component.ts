@@ -11,17 +11,17 @@ import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/
 import { MatButton } from '@angular/material/button';
 
 @Component({
-    selector: 'app-import-modal',
-    templateUrl: './import-modal.component.html',
-    styleUrls: ['./import-modal.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatButton]
+	selector: 'app-import-modal',
+	templateUrl: './import-modal.component.html',
+	styleUrls: ['./import-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatButton]
 })
 export class ImportModalComponent implements OnInit, OnDestroy {
 	dialogRef = inject<MatDialogRef<ImportModalComponent>>(MatDialogRef);
 	data = inject<{
-    repoList: RepositoryContainer[];
-}>(MAT_DIALOG_DATA, { optional: true });
+		repoList: RepositoryContainer[];
+	}>(MAT_DIALOG_DATA, { optional: true });
 
 
 	// --- Class properties for the template bindings ---

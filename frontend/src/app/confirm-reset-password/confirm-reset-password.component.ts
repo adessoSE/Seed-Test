@@ -9,11 +9,11 @@ import { ConfirmResetPasswordPopupComponent } from '../confirm-reset-password-po
  * Component to enable to reset the password
  */
 @Component({
-    selector: 'app-confirm-reset-password',
-    templateUrl: './confirm-reset-password.component.html',
-    styleUrls: ['./confirm-reset-password.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [ConfirmResetPasswordPopupComponent, FormsModule]
+	selector: 'app-confirm-reset-password',
+	templateUrl: './confirm-reset-password.component.html',
+	styleUrls: ['./confirm-reset-password.component.css'],
+	changeDetection: ChangeDetectionStrategy.Eager,
+	imports: [ConfirmResetPasswordPopupComponent, FormsModule]
 })
 export class ConfirmResetPasswordComponent implements OnInit {
 	loginService = inject(LoginService);
