@@ -1,6 +1,6 @@
 import express from 'express';
-import * as reportController from '../controllers/report.controller';
-import { authorizeByStory } from '../middleware/authorize';
+import * as reportController from '../controllers/report.controller.js';
+import { authorizeByStory } from '../middleware/authorize.js';
 
 const router = express.Router();
 

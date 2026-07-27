@@ -41,7 +41,7 @@ describe('AddBlockFormComponent', () => {
 			component.newBlockName = 'Updated Block Name';
 			component.saveBlockButtonDisable = false;
 
-			jest.spyOn(component.blockService, 'updateBlock').mockReturnValue(of(mockBlock));
+			vi.spyOn(component.blockService, 'updateBlock').mockReturnValue(of(mockBlock));
 			component.updateBlock();
 			expect(component.blockService.updateBlock).toHaveBeenCalled();
 		});

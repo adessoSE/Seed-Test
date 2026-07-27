@@ -1,6 +1,6 @@
 import express from 'express';
-import * as repositoryController from '../controllers/repository.controller';
-import { authorizeRepo } from '../middleware/authorize';
+import * as repositoryController from '../controllers/repository.controller.js';
+import { authorizeRepo } from '../middleware/authorize.js';
 
 const router = express.Router();
 

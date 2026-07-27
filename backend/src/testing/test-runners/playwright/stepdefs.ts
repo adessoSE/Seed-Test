@@ -13,8 +13,8 @@ import {
 	setDefaultTimeout,
 	ITestCaseHookParameter
 } from '@cucumber/cucumber';
-import { applySpecialCommands } from '../../../helpers/specialCommandParser';
-import { PlaywrightWorld } from './playwrightWorld';
+import { applySpecialCommands } from '../../../helpers/specialCommandParser.js';
+import { PlaywrightWorld } from './playwrightWorld.js';
 
 const searchTimeout = 15000;
 

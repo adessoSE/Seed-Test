@@ -4,14 +4,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 
 // Import the service to test (dynamically, to handle cycles)
-import type * as ExternalSyncService from './externalSync.service';
+import type * as ExternalSyncService from './externalSync.service.js';
 
 // Import types
-import { User } from '@shared/models/User';
-import { Story } from '@shared/models/Story';
-import { Repository } from '@shared/models/Repository';
-import { StepType } from '@shared/models/StepType';
-import { Scenario } from '@shared/models/Scenario';
+import { User } from '@shared/models/User.js';
+import { Story } from '@shared/models/Story.js';
+import { Repository } from '@shared/models/Repository.js';
+import { StepType } from '@shared/models/StepType.js';
+import { Scenario } from '@shared/models/Scenario.js';
 
 // --- 1. Mock all external dependencies ---
 const mockDb = { collection: vi.fn() };

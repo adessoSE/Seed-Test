@@ -1,17 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as testRunnerService from '../testing/test-runner.service';
-import * as storyService from '../services/story.service';
-import * as repositoryService from '../services/repository.service';
-import * as reportService from '../services/report.service';
-import * as featureFileService from '../services/feature-file.service';
-import { Story } from '@shared/models/Story';
-import { User } from '@shared/models/User';
-import { IssueTracker, IssueTrackerOption, Github } from '../models/IssueTracker';
-import { ExecutionMode } from '../models/models';
+import * as testRunnerService from '../testing/test-runner.service.js';
+import * as storyService from '../services/story.service.js';
+import * as repositoryService from '../services/repository.service.js';
+import * as reportService from '../services/report.service.js';
+import * as featureFileService from '../services/feature-file.service.js';
+import { Story } from '@shared/models/Story.js';
+import { User } from '@shared/models/User.js';
+import { IssueTracker, IssueTrackerOption, Github } from '../models/IssueTracker.js';
+import { ExecutionMode } from '../models/models.js';
 import fs from 'node:fs';
 import path from 'node:path';
-import { logger } from '../logging';
+import { logger } from '../logging.js';
 
 
 // Helper function to extract common parameters

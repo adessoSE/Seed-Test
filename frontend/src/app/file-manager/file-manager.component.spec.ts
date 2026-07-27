@@ -26,15 +26,15 @@ describe('FileManagerComponent', () => {
 				{
 					provide: StoryService,
 					useValue: {
-						changeStoryViewEvent: jest.fn()
+						changeStoryViewEvent: vi.fn()
 					}
 				},
 				{
 					provide: ProjectService,
 					useValue: {
 						queryFiles: () => of([]),
-						deleteUploadedFile: jest.fn(),
-						uploadFile: jest.fn()
+						deleteUploadedFile: vi.fn(),
+						uploadFile: vi.fn()
 					}
 				}
 			]

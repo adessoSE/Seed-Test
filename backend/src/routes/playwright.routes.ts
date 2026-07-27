@@ -1,5 +1,5 @@
 import express from 'express';
-import * as playwrightController from '../controllers/playwright.controller';
+import * as playwrightController from '../controllers/playwright.controller.js';
 
 const router = express.Router();
 

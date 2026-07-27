@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import type { Story } from '@shared/models/Story';
-import type { AiConfig } from '@shared/models/RepositoryContainer';
+import type { Story } from '@shared/models/Story.js';
+import type { AiConfig } from '@shared/models/RepositoryContainer.js';
 
 // --- Mock Dependencies ---
 

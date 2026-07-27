@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import { authorizeRepo, authorizeByStory } from './authorize';
+import { authorizeRepo, authorizeByStory } from './authorize.js';
 
 // Mock service dependencies
 vi.mock('../services/repository.service', () => ({
@@ -11,8 +11,8 @@ vi.mock('../services/workgroup.service', () => ({
 	getWorkgroup: vi.fn(),
 }));
 
-import * as repositoryService from '../services/repository.service';
-import * as workgroupService from '../services/workgroup.service';
+import * as repositoryService from '../services/repository.service.js';
+import * as workgroupService from '../services/workgroup.service.js';
 
 // Helper to create mock Express req/res/next
 function mockReqResNext(overrides: {

@@ -1,19 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as repositoryService from '../services/repository.service';
-import * as storyService from '../services/story.service';
-import * as featureFileService from '../services/feature-file.service';
-import * as importExportService from '../services/import-export.service';
-import * as specialCommandParser from '../helpers/specialCommandParser';
-import { Story } from '@shared/models/Story';
-import { Scenario } from '@shared/models/Scenario';
-import * as aiService from '../services/ai.service';
-import * as xrayService from '../services/xray.service';
-import * as externalSyncService from '../services/externalSync.service';
-import { AiConfig } from '@shared/models/RepositoryContainer';
-import { User } from '@shared/models/User';
-import { oid } from '../types/mongo.types';
-import { logger } from '../logging';
+import * as repositoryService from '../services/repository.service.js';
+import * as storyService from '../services/story.service.js';
+import * as featureFileService from '../services/feature-file.service.js';
+import * as importExportService from '../services/import-export.service.js';
+import * as specialCommandParser from '../helpers/specialCommandParser.js';
+import { Story } from '@shared/models/Story.js';
+import { Scenario } from '@shared/models/Scenario.js';
+import * as aiService from '../services/ai.service.js';
+import * as xrayService from '../services/xray.service.js';
+import * as externalSyncService from '../services/externalSync.service.js';
+import { AiConfig } from '@shared/models/RepositoryContainer.js';
+import { User } from '@shared/models/User.js';
+import { oid } from '../types/mongo.types.js';
+import { logger } from '../logging.js';
 
 // --- Story CRUD ---
 

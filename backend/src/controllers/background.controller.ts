@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as storyService from '../services/story.service';
-import * as featureFileService from '../services/feature-file.service';
-import { Background } from '@shared/models/Background';
+import * as storyService from '../services/story.service.js';
+import * as featureFileService from '../services/feature-file.service.js';
+import { Background } from '@shared/models/Background.js';
 
 /**
  * Handles updating the background section of a story.

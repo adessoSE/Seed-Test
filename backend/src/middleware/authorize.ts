@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import { User } from '@shared/models/User';
-import * as repositoryService from '../services/repository.service';
-import * as workgroupService from '../services/workgroup.service';
+import { User } from '@shared/models/User.js';
+import * as repositoryService from '../services/repository.service.js';
+import * as workgroupService from '../services/workgroup.service.js';
 
 /** Where to read the ID from: URL params (default), request body, or query string. */
 type IdSource = 'params' | 'body' | 'query';

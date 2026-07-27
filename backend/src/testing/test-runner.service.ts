@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import pfs from 'node:fs/promises';
 import path from 'node:path';
-import { logger } from '../logging';
-import { Story } from '@shared/models/Story';
-import { Scenario } from '@shared/models/Scenario';
-import { User } from '@shared/models/User';
-import * as repositoryService from '../services/repository.service';
-import * as featureFileService from '../services/feature-file.service';
+import { logger } from '../logging.js';
+import { Story } from '@shared/models/Story.js';
+import { Scenario } from '@shared/models/Scenario.js';
+import { User } from '@shared/models/User.js';
+import * as repositoryService from '../services/repository.service.js';
+import * as featureFileService from '../services/feature-file.service.js';
 import { IConfiguration } from '@cucumber/cucumber/api';
 
 // --- Types and Interfaces ---

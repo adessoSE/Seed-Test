@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import initializePassport from '../passport-config';
-import * as userService from '../services/user.service';
-import * as scriptController from '../controllers/script.controller';
+import initializePassport from '../passport-config.js';
+import * as userService from '../services/user.service.js';
+import * as scriptController from '../controllers/script.controller.js';
 import { Session, SessionData } from 'express-session';
 
 const router = express.Router();

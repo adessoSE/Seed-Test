@@ -1,14 +1,14 @@
 import { ObjectId, Filter, ClientSession, MongoClient } from 'mongodb';
-import { logger } from '../logging';
-import * as dbConnection from '../database/DbConnector';
-import { Story } from '@shared/models/Story';
-import { StoryDoc, oid } from '../types/mongo.types';
-import { Scenario } from '@shared/models/Scenario';
-import { Background } from '@shared/models/Background';
-import { emptyStory } from '../models/emptyStory';
-import { emptyScenario } from '../models/emptyScenario';
-import { emptyBackground } from '../models/emptyBackground';
-import { deleteReport } from './report.service';
+import { logger } from '../logging.js';
+import * as dbConnection from '../database/DbConnector.js';
+import { Story } from '@shared/models/Story.js';
+import { StoryDoc, oid } from '../types/mongo.types.js';
+import { Scenario } from '@shared/models/Scenario.js';
+import { Background } from '@shared/models/Background.js';
+import { emptyStory } from '../models/emptyStory.js';
+import { emptyScenario } from '../models/emptyScenario.js';
+import { emptyBackground } from '../models/emptyBackground.js';
+import { deleteReport } from './report.service.js';
 
 const storiesCollection = 'Stories';
 const repositoriesCollection = 'Repositories';

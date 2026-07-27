@@ -1,7 +1,7 @@
 
-import { logger } from '../logging';
-import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from './models';
-import { checkValidGithubFormat, jiraDecryptPassword } from '../services/externalAccount.service';
+import { logger } from '../logging.js';
+import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from './models.js';
+import { checkValidGithubFormat, jiraDecryptPassword } from '../services/externalAccount.service.js';
 
 enum IssueTrackerOption{
 	JIRA = 'jira',

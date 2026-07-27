@@ -1,8 +1,8 @@
 import { ObjectId, Binary } from 'mongodb';
 import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
-import * as userService from './user.service'; // To fetch/update the user document
-import { User } from '@shared/models/User';
-import { logger } from '../logging';
+import * as userService from './user.service.js'; // To fetch/update the user document
+import { User } from '@shared/models/User.js';
+import { logger } from '../logging.js';
 
 const cryptoAlgorithm = 'aes-256-ccm';
 // It's recommended to move secrets to environment variables or a config service

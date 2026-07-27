@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as reportService from '../services/report.service';
+import * as reportService from '../services/report.service.js';
 import fs from 'node:fs';
 import path from 'node:path';
-import { logger } from '../logging';
+import { logger } from '../logging.js';
 
 /**
  * Handles fetching specific report data by its ID.

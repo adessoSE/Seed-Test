@@ -3,17 +3,16 @@
   "compilerOptions": {
     "outDir": "../out-tsc/spec",
     "types": [
-      "jest",
       "node"
-    ]
+    ],
+    "skipLibCheck": true
   },
   "files": [
-    "src/setup.jest.ts",
     "src/polyfills.ts",
     "src/test_helper.ts"
   ],
   "include": [
-    "**/*.spec.ts",
+    "src/**/*.ts",
     "**/*.d.ts"
   ]
 }

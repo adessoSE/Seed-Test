@@ -1,20 +1,20 @@
 import { ObjectId } from 'mongodb';
 
-import { jiraDecryptPassword, buildAuthString, checkValidGithubFormat } from './externalAccount.service';
-import { logger } from '../logging';
-import * as repositoryService from './repository.service';
-import * as storyService from './story.service';
-import * as featureFileService from './feature-file.service';
-import * as xrayService from './xray.service';
+import { jiraDecryptPassword, buildAuthString, checkValidGithubFormat } from './externalAccount.service.js';
+import { logger } from '../logging.js';
+import * as repositoryService from './repository.service.js';
+import * as storyService from './story.service.js';
+import * as featureFileService from './feature-file.service.js';
+import * as xrayService from './xray.service.js';
 
-import { emptyScenario } from '../models/emptyScenario';
-import { emptyBackground } from '../models/emptyBackground';
-import { Story } from '@shared/models/Story';
-import { Scenario } from '@shared/models/Scenario';
-import { StepType } from '@shared/models/StepType';
-import { StepDefinition } from '@shared/models/StepDefinition';
-import { User } from '@shared/models/User';
-import { oid } from '../types/mongo.types';
+import { emptyScenario } from '../models/emptyScenario.js';
+import { emptyBackground } from '../models/emptyBackground.js';
+import { Story } from '@shared/models/Story.js';
+import { Scenario } from '@shared/models/Scenario.js';
+import { StepType } from '@shared/models/StepType.js';
+import { StepDefinition } from '@shared/models/StepDefinition.js';
+import { User } from '@shared/models/User.js';
+import { oid } from '../types/mongo.types.js';
 
 
 enum Sources {

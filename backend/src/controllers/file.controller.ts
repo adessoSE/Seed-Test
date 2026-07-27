@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as fileService from '../services/file.service';
+import * as fileService from '../services/file.service.js';
 
 /**
  * Handles the upload of a single file to a repository.

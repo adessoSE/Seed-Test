@@ -1,5 +1,5 @@
 import express from 'express';
-import * as jiraController from '../controllers/jira.controller';
+import * as jiraController from '../controllers/jira.controller.js';
 
 const router = express.Router();
 

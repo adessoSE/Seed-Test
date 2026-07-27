@@ -1,4 +1,4 @@
-import { logger } from '../logging';
+import { logger } from '../logging.js';
 
 // A very simple, in-memory promise-based queue.
 export class JobQueue {

@@ -1,6 +1,6 @@
 import express from 'express';
-import * as testExecutionController from '../controllers/testExecution.controller';
-import { authorizeRepo, authorizeByStory } from '../middleware/authorize';
+import * as testExecutionController from '../controllers/testExecution.controller.js';
+import { authorizeRepo, authorizeByStory } from '../middleware/authorize.js';
 
 const router = express.Router();
 

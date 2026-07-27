@@ -1,9 +1,9 @@
-import { User } from '@shared/models/User';
-import { logger } from '../logging';
-import { Scenario } from '@shared/models/Scenario';
-import { StepType } from '@shared/models/StepType';
-import * as externalAccountService from './externalAccount.service';
-import * as stepTypeService from './step-type.service';
+import { User } from '@shared/models/User.js';
+import { logger } from '../logging.js';
+import { Scenario } from '@shared/models/Scenario.js';
+import { StepType } from '@shared/models/StepType.js';
+import * as externalAccountService from './externalAccount.service.js';
+import * as stepTypeService from './step-type.service.js';
 
 
 // --- XRay Write Operations ---

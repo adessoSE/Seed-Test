@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as workgroupService from '../services/workgroup.service';
-import * as userService from '../services/user.service';
+import * as workgroupService from '../services/workgroup.service.js';
+import * as userService from '../services/user.service.js';
 
 /**
  * Handles fetching all members (including owner) of a workgroup for a given repository.

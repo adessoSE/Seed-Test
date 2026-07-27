@@ -54,7 +54,7 @@ describe('LoginComponent', () => {
 		});
 
 		it('should call githubLogin() on click', fakeAsync(()=> {
-			jest.spyOn(component, 'githubLogin');
+			vi.spyOn(component, 'githubLogin');
 			// Target the button directly — clicking the container div does not propagate down to the button
 			const gitHubLink = findComponent(fixture, '.githubLogin');
 			gitHubLink.nativeElement.click();
@@ -65,7 +65,7 @@ describe('LoginComponent', () => {
 
 		it('should trigger getRepositories() when logged in without repository', fakeAsync(() => {
 			// The .repoLink element was removed from the template; test the ngOnInit path instead
-			jest.spyOn(component, 'getRepositories').mockImplementation(() => {});
+			vi.spyOn(component, 'getRepositories').mockImplementation(() => {});
 			localStorage.setItem('login', 'true');
 			localStorage.removeItem('repository');
 			component.ngOnInit();
@@ -75,7 +75,7 @@ describe('LoginComponent', () => {
 		}));
 
 		it(' onDark() should return true when user-theme set to dark in localStorage', fakeAsync(() => {
-			jest.spyOn(component, 'onDark');
+			vi.spyOn(component, 'onDark');
 			localStorage.setItem('user-theme', 'dark');
 			tick();
 			component.onDark();

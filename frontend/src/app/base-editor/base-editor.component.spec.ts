@@ -82,7 +82,7 @@ describe('BaseEditorComponent', () => {
 
 		it('should add a when step to the background', fakeAsync(() => {
 			const step: StepType = {'_id':'5dce728851e70f2894a170b0','id': 0,'stepType':'when','type':'Button','pre':'I click the button:','mid':'', 'post': '','values':[''], 'isExample':[]};
-			jest.spyOn(component, 'addStep');
+			vi.spyOn(component, 'addStep');
 			const newStep = component.createNewStep(step, component.selectedStory.background.stepDefinitions);
 			component.addStep(step, component.selectedStory, 'background');
 			tick();
@@ -127,7 +127,7 @@ describe('BaseEditorComponent', () => {
    
 		it('should add a when step', fakeAsync(() => {
 			const step: StepType = {'_id':'5dce728851e70f2894a170b0','id': 0,'stepType':'when','type':'Button','pre':'I click the button:','mid':'', 'post': '','values':[''], 'isExample':[]};
-			jest.spyOn(component, 'createNewStep');
+			vi.spyOn(component, 'createNewStep');
 			const newStep = component.createNewStep( step, component.selectedScenario.stepDefinitions);
 			component.addStep(step, component.selectedScenario, 'scenario');
 			expect(component.createNewStep).toHaveBeenCalled();
@@ -146,7 +146,7 @@ describe('BaseEditorComponent', () => {
       
 			const stepType = 'given';
 			const returnNumber = 0;
-			jest.spyOn(component, 'buildID');
+			vi.spyOn(component, 'buildID');
 			component.getLastIDinStep(stepDefs , stepType);
 			expect(component.buildID).toHaveReturnedWith(returnNumber);
 		});
@@ -161,7 +161,7 @@ describe('BaseEditorComponent', () => {
       
 			const stepType = 'when';
 			const returnNumber = 5;
-			jest.spyOn(component, 'buildID');
+			vi.spyOn(component, 'buildID');
 			component.getLastIDinStep(stepDefs, stepType);
 			expect(component.buildID).toHaveReturnedWith(returnNumber);
 		});
@@ -176,7 +176,7 @@ describe('BaseEditorComponent', () => {
       
 			const stepType = 'then';
 			const returnNumber = 5;
-			jest.spyOn(component, 'buildID');
+			vi.spyOn(component, 'buildID');
 			component.getLastIDinStep(stepDefs, stepType);
 			expect(component.buildID).toHaveReturnedWith(returnNumber);
 		});

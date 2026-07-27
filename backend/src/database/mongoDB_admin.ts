@@ -6,8 +6,8 @@ import { MongoClient, Db, ObjectId } from 'mongodb';
 import fs from 'node:fs';
 import pfs from 'node:fs/promises';
 import path from 'node:path';
-import * as dbConnector from './DbConnector';
-import { Story } from '@shared/models/Story';
+import * as dbConnector from './DbConnector.js';
+import { Story } from '@shared/models/Story.js';
 import dotenv from 'dotenv';
 
 dotenv.config();

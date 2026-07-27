@@ -1,9 +1,9 @@
 import { ObjectId } from 'mongodb';
-import * as dbConnection from '../database/DbConnector';
-import { User } from '@shared/models/User';
-import * as repositoryService from './repository.service';
-import * as workgroupService from './workgroup.service';
-import { UserDoc, RepositoryDoc, oid } from '../types/mongo.types';
+import * as dbConnection from '../database/DbConnector.js';
+import { User } from '@shared/models/User.js';
+import * as repositoryService from './repository.service.js';
+import * as workgroupService from './workgroup.service.js';
+import { UserDoc, RepositoryDoc, oid } from '../types/mongo.types.js';
 
 const userCollection = 'User';
 const PwResetReqCollection = 'PwResetRequests';

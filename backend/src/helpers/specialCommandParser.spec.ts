@@ -1,7 +1,7 @@
 // src/helpers/specialCommandParser.spec.ts
 
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
-import * as specialCommandParser from './specialCommandParser';
+import * as specialCommandParser from './specialCommandParser.js';
 
 describe('SpecialCommandParser', () => {
 

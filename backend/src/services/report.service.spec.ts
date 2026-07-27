@@ -2,10 +2,10 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import { ExecutionMode, GroupReport, PassedCount, type StoryReport } from '../models/models';
+import { ExecutionMode, GroupReport, PassedCount, type StoryReport } from '../models/models.js';
 
 // --- 1. Import types only ---
-import type * as ReportService from './report.service';
+import type * as ReportService from './report.service.js';
 
 // --- 2. Mock all dependencies ---
 const mockDb = { collection: vi.fn() };

@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
-import * as storyController from '../controllers/story.controller';
-import { authorizeRepo, authorizeByStory } from '../middleware/authorize';
+import * as storyController from '../controllers/story.controller.js';
+import { authorizeRepo, authorizeByStory } from '../middleware/authorize.js';
 
 const router = express.Router();
 

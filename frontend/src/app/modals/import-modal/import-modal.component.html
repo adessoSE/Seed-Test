@@ -47,7 +47,7 @@
                   placeholder="Search for project" />
               </div>
               <div class="projectDropDownContainer">
-                  <mat-form-field appearance="standard" style="width: 100%;">
+                  <mat-form-field appearance="fill" style="width: 100%;">
                     <mat-label>Project</mat-label>
                     <mat-select id="projectDropDownSelect" [(ngModel)]="selectedProject" name="selectedProject" required>
                       <mat-option *ngFor="let repo of searchList; let odd = odd" [value]="repo._id" 

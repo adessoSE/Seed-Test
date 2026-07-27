@@ -4,10 +4,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 
 // Import the services we are testing or mocking
-import * as userService from './user.service';
-import * as dbConnection from '../database/DbConnector';
-import * as repositoryService from './repository.service';
-import * as workgroupService from './workgroup.service';
+import * as userService from './user.service.js';
+import * as dbConnection from '../database/DbConnector.js';
+import * as repositoryService from './repository.service.js';
+import * as workgroupService from './workgroup.service.js';
 
 // --- 1. Mock all external dependencies ---
 

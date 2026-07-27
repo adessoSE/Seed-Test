@@ -5,46 +5,46 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { sanitize, hasDangerousKeys } from './helpers/sanitize';
+import { sanitize, hasDangerousKeys } from './helpers/sanitize.js';
 import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import http from 'node:http';
 import { execSync } from 'node:child_process';
 import { chromium, firefox, webkit, BrowserType } from '@playwright/test';
-import { logger } from './logging';
+import { logger } from './logging.js';
 
-import * as dbConnector from './database/DbConnector';
+import * as dbConnector from './database/DbConnector.js';
 
 // Import Passport configuration
-import initializePassport from './passport-config'; 
+import initializePassport from './passport-config.js'; 
 
 // Import services needed for Passport initialization
-import * as userService from './services/user.service';
+import * as userService from './services/user.service.js';
 
 // Import new TypeScript routers
-import backgroundRouter from './routes/background.routes';
-import blockRouter from './routes/block.routes';
-import fileRouter from './routes/file.routes';
-import githubRouter from './routes/github.routes';
-import groupRouter from './routes/group.routes';
-import jiraRouter from './routes/jira.routes';
-import loggingRouter from './routes/logging.routes';
-import playwrightRouter from './routes/playwright.routes';
-import reportRouter from './routes/report.routes';
-import repositoryRouter from './routes/repository.routes';
-import sanityRouter from './routes/sanity.routes';
-import scriptRouter from './routes/script.routes';
-import storyRouter from './routes/story.routes';
-import testExecutionRouter from './routes/testExecution.routes';
-import userRouter from './routes/user.routes';
-import workgroupRouter from './routes/workgroup.routes';
+import backgroundRouter from './routes/background.routes.js';
+import blockRouter from './routes/block.routes.js';
+import fileRouter from './routes/file.routes.js';
+import githubRouter from './routes/github.routes.js';
+import groupRouter from './routes/group.routes.js';
+import jiraRouter from './routes/jira.routes.js';
+import loggingRouter from './routes/logging.routes.js';
+import playwrightRouter from './routes/playwright.routes.js';
+import reportRouter from './routes/report.routes.js';
+import repositoryRouter from './routes/repository.routes.js';
+import sanityRouter from './routes/sanity.routes.js';
+import scriptRouter from './routes/script.routes.js';
+import storyRouter from './routes/story.routes.js';
+import testExecutionRouter from './routes/testExecution.routes.js';
+import userRouter from './routes/user.routes.js';
+import workgroupRouter from './routes/workgroup.routes.js';
 
-import * as stepTypeService from './services/step-type.service';
-import * as aiService from './services/ai.service';
+import * as stepTypeService from './services/step-type.service.js';
+import * as aiService from './services/ai.service.js';
 
 // Import logging middleware
-import { httpLog } from './logging';
+import { httpLog } from './logging.js';
 
 // Initialize Passport
 initializePassport(
@@ -150,7 +150,7 @@ app.get('/api/ai/available', async (_, res) => {
 	const available = await aiService.isAiParserAvailable();
 	res.json({ available });
 });
-app.get('/api', (_, res) => res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname }));
+app.get('/api', (_, res) => res.sendFile('htmlresponse/apistandartresponse.html', { root: import.meta.dirname }));
 app.use('/api/log', loggingRouter);
 // Rate-limit auth endpoints (login, register, password reset)
 app.use('/api/user', authLimiter, userRouter);

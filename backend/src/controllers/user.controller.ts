@@ -2,11 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
-import { User } from '@shared/models/User';
-import * as userService from '../services/user.service';
-import * as nodeMail from '../nodemailer';
+import { User } from '@shared/models/User.js';
+import * as userService from '../services/user.service.js';
+import * as nodeMail from '../nodemailer.js';
 import { Session, SessionData } from 'express-session';
-import { logger } from '../logging';
+import { logger } from '../logging.js';
 
 const saltRounds = 10;
 

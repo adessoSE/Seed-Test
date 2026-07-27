@@ -1,6 +1,6 @@
 import express from 'express';
-import * as groupController from '../controllers/group.controller';
-import { authorizeRepo } from '../middleware/authorize';
+import * as groupController from '../controllers/group.controller.js';
+import { authorizeRepo } from '../middleware/authorize.js';
 
 const router = express.Router();
 

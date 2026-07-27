@@ -1,13 +1,13 @@
 import { ObjectId, ClientSession, MongoClient } from 'mongodb';
-import { RepositoryDoc, UserDoc, GroupDoc, oid } from '../types/mongo.types';
-import * as dbConnection from '../database/DbConnector';
-import { Group } from '@shared/models/Group';
-import { Repository } from '@shared/models/Repository';
-import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContainer';
-import { deleteStory } from './story.service';
-import { getUserById } from './user.service';
-import * as workgroupService from './workgroup.service';
-import { encrypt } from '../helpers/cryptoHelper';
+import { RepositoryDoc, UserDoc, GroupDoc, oid } from '../types/mongo.types.js';
+import * as dbConnection from '../database/DbConnector.js';
+import { Group } from '@shared/models/Group.js';
+import { Repository } from '@shared/models/Repository.js';
+import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContainer.js';
+import { deleteStory } from './story.service.js';
+import { getUserById } from './user.service.js';
+import * as workgroupService from './workgroup.service.js';
+import { encrypt } from '../helpers/cryptoHelper.js';
 
 // Note: ObjectId casts needed — shared models use string, MongoDB uses ObjectId
 const ENCRYPTED_FORMAT = /^[0-9a-f]{24}:[0-9a-f]+:[0-9a-f]{32}$/;

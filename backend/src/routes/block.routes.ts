@@ -1,6 +1,6 @@
 import express from 'express';
-import * as blockController from '../controllers/block.controller';
-import { authorizeRepo } from '../middleware/authorize';
+import * as blockController from '../controllers/block.controller.js';
+import { authorizeRepo } from '../middleware/authorize.js';
 
 const router = express.Router();
 

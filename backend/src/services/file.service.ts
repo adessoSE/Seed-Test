@@ -1,13 +1,13 @@
 import { ObjectId, GridFSBucket } from 'mongodb';
-import { logger } from '../logging';
-import * as dbConnection from '../database/DbConnector';
+import { logger } from '../logging.js';
+import * as dbConnection from '../database/DbConnector.js';
 import { Readable } from 'node:stream';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { FileElement } from '@shared/models/FileElement';
-import { oid } from '../types/mongo.types';
+import { FileElement } from '@shared/models/FileElement.js';
+import { oid } from '../types/mongo.types.js';
 
 /**
  * Generates a unique filename if a file with the same name already exists in the target repository.

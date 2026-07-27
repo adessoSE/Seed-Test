@@ -1,7 +1,7 @@
 import { ClientSession, MongoClient } from 'mongodb';
-import * as dbConnection from '../database/DbConnector';
-import { Block } from '@shared/models/Block';
-import { BlockDoc, oid } from '../types/mongo.types';
+import * as dbConnection from '../database/DbConnector.js';
+import { Block } from '@shared/models/Block.js';
+import { BlockDoc, oid } from '../types/mongo.types.js';
 
 const customBlocksCollection = 'CustomBlocks';
 

@@ -4,9 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 
 // --- 1. Import types and the module under test ---
-import type { AiConfig } from '@shared/models/RepositoryContainer';
-import type { Workgroup } from './workgroup.service';
-import type { Repository } from '@shared/models/Repository';
+import type { AiConfig } from '@shared/models/RepositoryContainer.js';
+import type { Workgroup } from './workgroup.service.js';
+import type { Repository } from '@shared/models/Repository.js';
 
 // --- 2. Mock all external dependencies ---
 // vi.hoisted runs at hoist-time alongside vi.mock, avoiding TDZ errors
@@ -45,7 +45,7 @@ vi.mock('./user.service', () => mockedUserService);
 vi.mock('../helpers/cryptoHelper', () => mockedCryptoHelper);
 
 // Import the module under test after mocks are registered
-import * as repositoryService from './repository.service';
+import * as repositoryService from './repository.service.js';
 
 // --- 3. Define mock collections ---
 const mockRepoCollection = {

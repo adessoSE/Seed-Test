@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitize, hasDangerousKeys } from './sanitize';
+import { sanitize, hasDangerousKeys } from './sanitize.js';
 
 describe('sanitize', () => {
 	it('strips keys starting with $', () => {

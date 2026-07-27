@@ -1,6 +1,6 @@
 import express from 'express';
-import * as backgroundController from '../controllers/background.controller';
-import { authorizeByStory } from '../middleware/authorize';
+import * as backgroundController from '../controllers/background.controller.js';
+import { authorizeByStory } from '../middleware/authorize.js';
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as repositoryService from '../services/repository.service';
-import { Group } from '@shared/models/Group';
+import * as repositoryService from '../services/repository.service.js';
+import { Group } from '@shared/models/Group.js';
 
 /**
  * Handles fetching all story groups for a repository.

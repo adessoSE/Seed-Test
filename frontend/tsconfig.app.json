@@ -5,8 +5,8 @@
     "types": []
   },
   "exclude": [
-    "src/setup.jest.ts",
     "src/**/*.spec.ts",
-    "src/test_helper.ts"
+    "src/test_helper.ts",
+    "src/vitest.d.ts"
   ]
 }

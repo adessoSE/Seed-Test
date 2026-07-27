@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { Session, SessionData } from 'express-session';
-import * as userService from '../services/user.service';
-import { User } from '@shared/models/User';
-import { logger } from '../logging';
+import * as userService from '../services/user.service.js';
+import { User } from '@shared/models/User.js';
+import { logger } from '../logging.js';
 
 // Define a type combining Request with Session properties for cleaner casting
 type RequestWithSession = Request & { session: Session & Partial<SessionData> };

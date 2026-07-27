@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 process.env.ENCRYPTION_SECRET = 'a'.repeat(64);
 
-import { encrypt, decrypt } from './cryptoHelper';
+import { encrypt, decrypt } from './cryptoHelper.js';
 
 describe('CryptoHelper', () => {
 

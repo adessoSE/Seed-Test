@@ -38,7 +38,7 @@ describe('AccountManagementComponent', () => {
 		_location = TestBed.inject(Location);
 		fixture = TestBed.createComponent(AccountManagementComponent);
 		component = fixture.componentInstance;
-		jest.spyOn(component.loginService, 'isLoggedIn').mockReturnValue(true);
+		vi.spyOn(component.loginService, 'isLoggedIn').mockReturnValue(true);
 		component.loginService.isLoggedIn();
 		component.repositories = repositories;
 		component.searchInput = '';
@@ -53,7 +53,7 @@ describe('AccountManagementComponent', () => {
 	});
 
 	it('should call login() on click', fakeAsync(()=> {
-		jest.spyOn(component, 'login');
+		vi.spyOn(component, 'login');
 		const gitHubLink = findComponent(fixture, '.githubLoginContainer');
 		gitHubLink.nativeElement.click();
 		tick();
@@ -63,8 +63,8 @@ describe('AccountManagementComponent', () => {
 	/* it('should return null as no index in the list', waitForAsync(async ()=> {
     const inputValue =  'myFirstRepo';
     const select = await loader.getHarness(MatSelectHarness);
-    jest.spyOn(component,'searchRepos');
-    jest.spyOn(component.ngSelect, 'open').mockImplementation(select.open);
+    vi.spyOn(component,'searchRepos');
+    vi.spyOn(component.ngSelect, 'open').mockImplementation(select.open);
     component.searchRepos();
     fixture.whenStable().then(() => {
       expect(component.searchRepos).toHaveBeenCalledTimes(1);

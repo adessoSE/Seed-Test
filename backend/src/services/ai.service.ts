@@ -1,9 +1,9 @@
 import { EventEmitter } from 'node:events';
-import { JobQueue } from '../helpers/jobQueue';
-import * as repositoryService from './repository.service';
-import * as storyService from './story.service';
-import { decrypt } from '../helpers/cryptoHelper';
-import { logger } from '../logging';
+import { JobQueue } from '../helpers/jobQueue.js';
+import * as repositoryService from './repository.service.js';
+import * as storyService from './story.service.js';
+import { decrypt } from '../helpers/cryptoHelper.js';
+import { logger } from '../logging.js';
 
 let parseTextToStory: ((opts: any) => Promise<any>) | null = null;
 let _parserChecked = false;

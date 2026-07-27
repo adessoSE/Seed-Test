@@ -49,14 +49,14 @@ describe('ParentComponent', () => {
 	});
 
 	it('should set selectedScenario proprety', () => {
-		jest.spyOn(component, 'setSelectedScenario');
+		vi.spyOn(component, 'setSelectedScenario');
 		component.setSelectedScenario(scenario);
 		expect(component.setSelectedScenario).toHaveBeenCalled();
 		expect(component.selectedScenario).toEqual(scenario);
 	});
 
 	it('should set selectedStory property', () => {
-		jest.spyOn(component, 'setSelectedStory');
+		vi.spyOn(component, 'setSelectedStory');
 		component.setSelectedStory(story);
 		expect(component.setSelectedStory).toHaveBeenCalled();
 		expect(component.selectedStory).toEqual(story);
@@ -79,7 +79,7 @@ describe('ParentComponent', () => {
 
 	it('should update report on event', () => {
 		const childStoryBar = findComponent(fixture, 'app-stories-bar');
-		jest.spyOn(component, 'viewReport');
+		vi.spyOn(component, 'viewReport');
 		childStoryBar.triggerEventHandler('report', 'Hello, I am the new report');
 		fixture.detectChanges();
 		expect(component.viewReport).toHaveBeenCalled();
@@ -87,7 +87,7 @@ describe('ParentComponent', () => {
 	});
 
 	it('should fail because of the wrong event value', ()=> {
-		jest.spyOn(component, 'testRunningGroup');
+		vi.spyOn(component, 'testRunningGroup');
 		component.testRunningGroup(false);
 		expect(component.isStoryEditorActive).toEqual(true);
 		expect(component.report).toEqual(undefined);
@@ -97,7 +97,7 @@ describe('ParentComponent', () => {
 	describe('stories-bar child', (() => {
 
 		it('should listen to changes', () => {
-			jest.spyOn(component, 'setSelectedStory');
+			vi.spyOn(component, 'setSelectedStory');
 			const stories_bar = findComponent(fixture, 'app-stories-bar');
 			stories_bar.triggerEventHandler('storyChosen', story); 
 			expect(component.setSelectedStory).toHaveBeenCalledWith(story);

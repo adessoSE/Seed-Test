@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import type { Repository } from '@shared/models/Repository';
-import type { Workgroup } from './workgroup.service';
+import type { Repository } from '@shared/models/Repository.js';
+import type { Workgroup } from './workgroup.service.js';
 
 const mockDb = { collection: vi.fn() };
 vi.mock('../database/DbConnector', () => ({

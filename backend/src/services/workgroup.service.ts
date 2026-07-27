@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
-import * as dbConnection from '../database/DbConnector';
-import { getUserById } from './user.service';
-import { oid, RepositoryDoc } from '../types/mongo.types';
+import * as dbConnection from '../database/DbConnector.js';
+import { getUserById } from './user.service.js';
+import { oid, RepositoryDoc } from '../types/mongo.types.js';
 
 const repositoriesCollection = 'Repositories';
 const workgroupsCollection = 'Workgroups';

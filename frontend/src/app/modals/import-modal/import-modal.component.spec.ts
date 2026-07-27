@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -14,9 +16,9 @@ describe('ImportModalComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			declarations: [ ImportModalComponent ],
-			imports: [ FormsModule, ReactiveFormsModule, MatSlideToggleModule, NoopAnimationsModule ],
+			imports: [ FormsModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatSlideToggleModule, NoopAnimationsModule ],
 			providers: [
-				{ provide: MatDialogRef, useValue: { close: jest.fn() } },
+				{ provide: MatDialogRef, useValue: { close: vi.fn() } },
 				{ provide: MAT_DIALOG_DATA, useValue: { repoList: [] } }
 			],
 			schemas: [NO_ERRORS_SCHEMA]

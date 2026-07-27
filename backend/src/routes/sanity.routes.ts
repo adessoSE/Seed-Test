@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import initializePassport from '../passport-config';
-import * as userService from '../services/user.service';
-import * as sanityController from '../controllers/sanity.controller';
+import initializePassport from '../passport-config.js';
+import * as userService from '../services/user.service.js';
+import * as sanityController from '../controllers/sanity.controller.js';
 
 const router = express.Router();
 

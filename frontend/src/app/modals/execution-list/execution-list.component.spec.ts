@@ -11,16 +11,16 @@ describe('ExecutionListComponent', () => {
 	let fixture: ComponentFixture<ExecutionListComponent>;
 
 	const mockModalService = {
-		open: jest.fn()
+		open: vi.fn()
 	};
 
 	const mockThemingService = {
-		isDarkMode: jest.fn().mockReturnValue(false),
+		isDarkMode: vi.fn().mockReturnValue(false),
 		themeChanged: new EventEmitter()
 	};
 
 	const mockStoryService = {
-		getStory: jest.fn()
+		getStory: vi.fn()
 	};
 
 	beforeEach(async () => {

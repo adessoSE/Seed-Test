@@ -26,7 +26,7 @@ import { RenameStoryComponent } from '../modals/rename-story/rename-story.compon
 class MockRenameStoryModal {
 	@ViewChild('renameStoryModal') renameStoryCompRef!: MockRenameStoryModal;
 
-	openRenameStoryModal = jest.fn();
+	openRenameStoryModal = vi.fn();
 
 }
 
@@ -104,7 +104,7 @@ describe('StoryEditorComponent', () => {
 
 	describe('set newSelectedScenario', () => {
 		it('should set newSelectedScenario without selectScenario', () => {
-			jest.spyOn(component, 'selectScenario');
+			vi.spyOn(component, 'selectScenario');
 			fixture.componentInstance.newSelectedScenario = story.scenarios[1];
 			expect(component.selectedScenario).toBe(story.scenarios[1]);
 			expect(component.selectScenario).toHaveBeenCalledWith(story.scenarios[1]);
@@ -112,7 +112,7 @@ describe('StoryEditorComponent', () => {
   
 		it('should set newSelectedScenario with selectScenario', () => {
 			component.selectedStory = story;
-			jest.spyOn(component, 'selectScenario');
+			vi.spyOn(component, 'selectScenario');
 			fixture.componentInstance.newSelectedScenario = scenario;
 			expect(component.selectedScenario).toBe(scenario);
 			expect(component.selectScenario).toHaveBeenCalled();
@@ -135,7 +135,7 @@ describe('StoryEditorComponent', () => {
 			component.stories = stories;
 			// blocks must be initialized so changeBackgroundBlock() can iterate them
 			component.blocks = [];
-			jest.spyOn(component.backgroundService, 'updateBackground');
+			vi.spyOn(component.backgroundService, 'updateBackground');
 			component.updateBackground();
 			expect(component.backgroundService.updateBackground).toHaveBeenCalled();
 		});
@@ -186,8 +186,8 @@ describe('StoryEditorComponent', () => {
 		it('should send delete request', waitForAsync((_done: any) => {
 			component.stories = stories;
 			component.selectedStory = stories[0];
-			jest.spyOn(component.scenarioService, 'deleteScenario');
-			jest.spyOn(component, 'scenarioDeleted');
+			vi.spyOn(component.scenarioService, 'deleteScenario');
+			vi.spyOn(component, 'scenarioDeleted');
 			//expect(component.stories).toContain(scenario);
 			component.deleteScenario(component.selectedStory.scenarios[0], false);
 			fixture.detectChanges();
@@ -221,7 +221,7 @@ describe('StoryEditorComponent', () => {
       component.scenarioChild = findComponent(fixture, '#scenarioChild');
       //component.selectedScenario = scenario;
       component.selectedStory = story;
-      jest.spyOn(component, 'runTests');
+      vi.spyOn(component, 'runTests');
       component.runTests(scenarioId);
       expect(component.runTests).toHaveBeenCalled();
       expect(component.apiService.runTests).toHaveBeenCalled();
@@ -232,7 +232,7 @@ describe('StoryEditorComponent', () => {
 			component.selectedStory = story;
 			component.scenarioChild = findComponent(fixture, '#scenarioChild');
 			const html = '<h1 #testFrame>Hi</h1>';
-			jest.spyOn(component.storyService, 'runTests');
+			vi.spyOn(component.storyService, 'runTests');
 			component.storyService.runTests(component.selectedStory._id, scenarioId, {}).subscribe((_resp)=> {
 				expect(component.htmlReport).toBe(html);
 				expect(component.testDone).toBeTruthy();
@@ -249,7 +249,7 @@ describe('StoryEditorComponent', () => {
 			const scenarioName = 'my new name';
 			component.selectedStory = stories[0];
 			const scenariosAmount = component.selectedStory.scenarios.length;
-			jest.spyOn(component.scenarioService, 'addScenario');
+			vi.spyOn(component.scenarioService, 'addScenario');
 			component.scenarioService.addScenario(component.selectedStory._id, scenarioName).subscribe((_resp)=> {
 				expect(component.scenarioService.addScenario).toHaveBeenCalled();
 				expect(component.selectedStory.scenarios.length).toBe(scenariosAmount + 1);
@@ -261,7 +261,7 @@ describe('StoryEditorComponent', () => {
 			component.selectedStory = story;
 			const scenariosAmount = component.selectedStory.scenarios.length;
 			fixture.detectChanges();
-			jest.spyOn(component, 'selectScenario');
+			vi.spyOn(component, 'selectScenario');
 			component.scenarioService.addScenario(component.selectedStory._id, scenarioName).subscribe((_resp)=> {
 				expect(component.selectScenario).toHaveBeenCalled();
 				expect(component.selectedStory.scenarios.length).toEqual(scenariosAmount + 1);
@@ -285,7 +285,7 @@ describe('StoryEditorComponent', () => {
 	describe('selectStoryScenario', () => {
 		it('should select the Story', () => {
 			component.stories = stories;
-			jest.spyOn(component, 'selectScenario');
+			vi.spyOn(component, 'selectScenario');
 			component.selectStoryScenario(stories[0]);
 			expect(component.selectedStory).toBe(stories[0]);
 			expect(component.showResults).toBeFalsy();
@@ -298,7 +298,7 @@ describe('StoryEditorComponent', () => {
 		it('should emit', () => {
 			const newStoryTitle = 'This is my new story title';
 			const newStoryDescription = 'I let here a brief description';
-			jest.spyOn(component.storyService.renameStoryEvent, 'emit');
+			vi.spyOn(component.storyService.renameStoryEvent, 'emit');
 			component.storyService.renameStoryEmit(newStoryTitle, newStoryDescription);
 			expect(component.storyService.renameStoryEvent.emit).toHaveBeenCalled();
 			expect(component.storyService.renameStoryEvent.emit).toHaveBeenCalledTimes(1);
@@ -314,7 +314,7 @@ describe('StoryEditorComponent', () => {
 		it('should call openRenameStoryModal',() => {
 			component.stories = stories;
 			//component.selectedStory = story;
-			jest.spyOn(component, 'changeStoryTitle').mockImplementation(mockComp.openRenameStoryModal);
+			vi.spyOn(component, 'changeStoryTitle').mockImplementation(mockComp.openRenameStoryModal);
 			component.changeStoryTitle();
 			expect(mockComp.openRenameStoryModal).toHaveBeenCalled();
 			expect(mockComp.openRenameStoryModal).toHaveBeenCalledTimes(1);

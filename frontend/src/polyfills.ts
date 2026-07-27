@@ -70,8 +70,8 @@ import 'hammerjs/hammer';
 
 /***************************************************************************************************
  * Zone JS is required by default for Angular itself.
+ * Loaded via angular.json polyfills config — do not import here.
  */
-import 'zone.js';  // Included with Angular CLI.
 
 
 /***************************************************************************************************

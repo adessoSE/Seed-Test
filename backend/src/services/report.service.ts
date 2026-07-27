@@ -1,20 +1,20 @@
 import { ObjectId, GridFSBucket } from 'mongodb';
-import { logger } from '../logging';
-import * as dbConnection from '../database/DbConnector';
+import { logger } from '../logging.js';
+import * as dbConnection from '../database/DbConnector.js';
 import { Readable } from 'node:stream';
 import { text as streamToText } from 'node:stream/consumers';
 import fs from 'node:fs';
 import pfs from 'node:fs/promises';
 import path from 'node:path';
 import reporter from 'cucumber-html-reporter'; // Import the reporter
-import { ReportContainer } from '@shared/models/ReportContainer';
-import * as storyService from './story.service';
-import { Story } from '@shared/models/Story';
-import { Scenario } from '@shared/models/Scenario';
+import { ReportContainer } from '@shared/models/ReportContainer.js';
+import * as storyService from './story.service.js';
+import { Story } from '@shared/models/Story.js';
+import { Scenario } from '@shared/models/Scenario.js';
 import {
 	GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ExecutionMode, ScenarioStatus
-} from '../models/models';
-import { oid } from '../types/mongo.types';
+} from '../models/models.js';
+import { oid } from '../types/mongo.types.js';
 
 const ReportDataCollection = 'ReportData';
 const ReportsCollection = 'Reports';

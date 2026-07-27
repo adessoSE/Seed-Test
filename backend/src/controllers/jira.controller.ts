@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from '@shared/models/User';
-import * as externalAccountService from '../services/externalAccount.service';
-import { logger } from '../logging';
+import { User } from '@shared/models/User.js';
+import * as externalAccountService from '../services/externalAccount.service.js';
+import { logger } from '../logging.js';
 
 /**
  * Handles linking/updating Jira credentials for the logged-in user.

@@ -1,13 +1,13 @@
 import pfs from 'node:fs/promises';
 import path from 'node:path';
-import { logger } from '../logging';
+import { logger } from '../logging.js';
 import AdmZip from 'adm-zip';
-import { Story } from '@shared/models/Story';
-import { Background } from '@shared/models/Background';
-import { Scenario } from '@shared/models/Scenario';
-import { StepType } from '@shared/models/StepType';
-import * as storyService from './story.service';
-import * as blockService from './block.service';
+import { Story } from '@shared/models/Story.js';
+import { Background } from '@shared/models/Background.js';
+import { Scenario } from '@shared/models/Scenario.js';
+import { StepType } from '@shared/models/StepType.js';
+import * as storyService from './story.service.js';
+import * as blockService from './block.service.js';
 
 
 // --- Feature File Generation ---

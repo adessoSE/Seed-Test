@@ -1,6 +1,6 @@
 import express from 'express';
-import * as workgroupController from '../controllers/workgroup.controller';
-import { authorizeRepo } from '../middleware/authorize';
+import * as workgroupController from '../controllers/workgroup.controller.js';
+import { authorizeRepo } from '../middleware/authorize.js';
 
 const router = express.Router();
 

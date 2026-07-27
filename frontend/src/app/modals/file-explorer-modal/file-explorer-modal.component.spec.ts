@@ -12,18 +12,18 @@ describe('FileExplorerModalComponent', () => {
 	let fixture: ComponentFixture<FileExplorerModalComponent>;
 
 	const mockProjectService = {
-		queryFiles: jest.fn().mockReturnValue(of([])),
-		uploadFile: jest.fn().mockReturnValue(of({})),
-		deleteUploadedFile: jest.fn().mockReturnValue(of({}))
+		queryFiles: vi.fn().mockReturnValue(of([])),
+		uploadFile: vi.fn().mockReturnValue(of({})),
+		deleteUploadedFile: vi.fn().mockReturnValue(of({}))
 	};
 
 	const mockThemingService = {
-		isDarkMode: jest.fn().mockReturnValue(false),
+		isDarkMode: vi.fn().mockReturnValue(false),
 		themeChanged: new EventEmitter()
 	};
 
 	const mockModalService = {
-		open: jest.fn()
+		open: vi.fn()
 	};
 
 	beforeEach(async () => {

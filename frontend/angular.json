@@ -27,6 +27,7 @@
             "index": "src/index.html",
             "polyfills": [
               "@angular/localize/init",
+              "zone.js",
               "src/polyfills.ts"
             ],
             "tsConfig": "./tsconfig.app.json",
@@ -48,6 +49,11 @@
             "browser": "src/main.ts"
           },
           "configurations": {
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "extractLicenses": false
+            },
             "optimization": {
               "scripts": true,
               "styles": {
@@ -95,6 +101,15 @@
           "builder": "@angular/build:extract-i18n",
           "options": {
             "buildTarget": "cucumber-frontend:build"
+          }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "tsconfig.spec.json",
+            "runner": "vitest",
+            "buildTarget": "cucumber-frontend:build:development",
+            "setupFiles": ["src/test-setup.ts"]
           }
         },
         "lint": {

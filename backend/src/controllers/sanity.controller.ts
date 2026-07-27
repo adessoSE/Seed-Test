@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as repositoryService from '../services/repository.service';
-import * as storyService from '../services/story.service';
-import * as testRunnerService from '../testing/test-runner.service';
-import * as reportService from '../services/report.service';
-import * as featureFileService from '../services/feature-file.service';
-import { Story } from '@shared/models/Story';
+import * as repositoryService from '../services/repository.service.js';
+import * as storyService from '../services/story.service.js';
+import * as testRunnerService from '../testing/test-runner.service.js';
+import * as reportService from '../services/report.service.js';
+import * as featureFileService from '../services/feature-file.service.js';
+import { Story } from '@shared/models/Story.js';
 import fs from 'node:fs';
 import path from 'node:path';
-import { GroupReport, ExecutionMode, PassedCount } from '../models/models';
-import { logger } from '../logging';
+import { GroupReport, ExecutionMode, PassedCount } from '../models/models.js';
+import { logger } from '../logging.js';
 
 /**
  * Handles the execution of a sanity test for a specific group.

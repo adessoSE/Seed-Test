@@ -1,7 +1,7 @@
 import { MongoClient, Db } from 'mongodb';
 import { exit } from 'process';
-import * as dbConnector from './DbConnector';
-import { stepDefs } from './stepTypes';
+import * as dbConnector from './DbConnector.js';
+import { stepDefs } from './stepTypes.js';
 import dotenv from 'dotenv';
 
 dotenv.config();

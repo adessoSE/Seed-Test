@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { logger } from './logging';
+import { logger } from './logging.js';
 
 export async function sendResetLink(email: string, id: string): Promise<void> {
 	if (process.env.EMAIL_HOST === undefined || process.env.EMAIL_PORT === undefined) {

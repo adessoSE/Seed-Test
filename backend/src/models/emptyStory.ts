@@ -1,6 +1,6 @@
-import { Story } from '@shared/models/Story';
-import { emptyBackground } from './emptyBackground';
-import { emptyScenario } from './emptyScenario';
+import { Story } from '@shared/models/Story.js';
+import { emptyBackground } from './emptyBackground.js';
+import { emptyScenario } from './emptyScenario.js';
 
 export function emptyStory(storyTitle?: string, storyDescription?: string): Omit<Story, '_id'> {
 	return {

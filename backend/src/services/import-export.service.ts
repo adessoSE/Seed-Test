@@ -1,14 +1,14 @@
 import { ClientSession, MongoClient, ObjectId } from 'mongodb';
 import AdmZip from 'adm-zip';
-import * as repositoryService from './repository.service';
-import * as storyService from './story.service';
-import * as blockService from './block.service';
-import * as dbConnector from '../database/DbConnector';
-import { Story } from '@shared/models/Story';
-import { Block } from '@shared/models/Block';
-import { Group } from '@shared/models/Group';
-import { Repository } from '@shared/models/Repository';
-import { oid } from '../types/mongo.types';
+import * as repositoryService from './repository.service.js';
+import * as storyService from './story.service.js';
+import * as blockService from './block.service.js';
+import * as dbConnector from '../database/DbConnector.js';
+import { Story } from '@shared/models/Story.js';
+import { Block } from '@shared/models/Block.js';
+import { Group } from '@shared/models/Group.js';
+import { Repository } from '@shared/models/Repository.js';
+import { oid } from '../types/mongo.types.js';
 
 // --- Main Import/Export Functions ---
 

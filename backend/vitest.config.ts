@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       // Important so that vitest understands shared folders alias
       alias: {
-        '@shared': path.resolve(__dirname, '../shared/src'),
+        '@shared': path.resolve(import.meta.dirname, '../shared/src'),
       },
     },
   };

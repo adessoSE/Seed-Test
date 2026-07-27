@@ -1,5 +1,5 @@
 import * as crypto from 'node:crypto';
-import { logger } from '../logging';
+import { logger } from '../logging.js';
 
 const ALGORITHM = 'aes-256-gcm';
 const NONCE_LENGTH = 12; // GCM standard nonce length

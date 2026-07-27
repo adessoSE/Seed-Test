@@ -1,49 +1,19 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { AfterViewInit, ChangeDetectorRef, Component, NO_ERRORS_SCHEMA, TemplateRef, ViewChild } from '@angular/core';
+import { NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
-import { Story } from '@shared/models/Story';
 import { findComponent } from '../../../test_helper';
 import { RenameStoryComponent } from './rename-story.component';
 
 
-const _stories:Story[] = [{_id: '1', issue_number: 36523, story_id: 37727, storySource: 'github',
-	background: {stepDefinitions: {when: []}}, scenarios: [], oneDriver: true, title: 'test story', body: '',
-	repo_type: 'github', state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false}];
-
-
-@Component({
-	template: `
-    <div>
-    <ng-container *ngTemplateOutlet="modal"> </ng-container>
-    </div>
-    <app-rename-story> </app-rename-story>
-    `,
-	standalone: false
-})
-
-class WrapperComponent implements AfterViewInit {
-	@ViewChild(RenameStoryComponent) renameStoryComponentRef!: RenameStoryComponent;
-
-	modal!: TemplateRef<any>;
-
-	constructor(private cdr: ChangeDetectorRef) {}
-
-	ngAfterViewInit() {
-		this.modal = this.renameStoryComponentRef.renameStoryModal;
-		this.cdr.detectChanges();
-	}
-}
-
 describe('RenameStoryComponent', () => {
-	let fixture: ComponentFixture<WrapperComponent>;
-	let wrapperComponent: WrapperComponent;
-   
+	let fixture: ComponentFixture<RenameStoryComponent>;
+	let component: RenameStoryComponent;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [ RenameStoryComponent, WrapperComponent ],
+			declarations: [RenameStoryComponent],
 			imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, ToastrModule.forRoot()],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
@@ -51,17 +21,21 @@ describe('RenameStoryComponent', () => {
 	});
 
 	beforeEach(() => {
-		fixture = TestBed.createComponent(WrapperComponent);
-		wrapperComponent = fixture.debugElement.componentInstance;
+		fixture = TestBed.createComponent(RenameStoryComponent);
+		component = fixture.componentInstance;
+		fixture.detectChanges();
+
+		// Render the ng-template content — the component wraps its form in <ng-template #renameStoryModal>
+		const vcRef = fixture.debugElement.injector.get(ViewContainerRef);
+		vcRef.createEmbeddedView(component.renameStoryModal);
 		fixture.detectChanges();
 	});
 
 	it('should create', () => {
-		expect(wrapperComponent).toBeDefined();
-		expect(wrapperComponent.renameStoryComponentRef).toBeDefined();
+		expect(component).toBeDefined();
 	});
 
-	describe('reactive form', ()=> {
+	describe('reactive form', () => {
 
 		it('should update story title & description', fakeAsync(() => {
 			const inputElemnt = findComponent(fixture, '#newStoryTitle');

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import * as blockService from '../services/block.service';
-import { Block } from '@shared/models/Block';
-import { oid } from '../types/mongo.types';
+import * as blockService from '../services/block.service.js';
+import { Block } from '@shared/models/Block.js';
+import { oid } from '../types/mongo.types.js';
 
 /**
  * Handles the creation of a new block.

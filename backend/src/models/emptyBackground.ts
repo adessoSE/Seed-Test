@@ -1,4 +1,4 @@
-import { Background } from '@shared/models/Background';
+import { Background } from '@shared/models/Background.js';
 
 export function emptyBackground(): Background {
 	return {

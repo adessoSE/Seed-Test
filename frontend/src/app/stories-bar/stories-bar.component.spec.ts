@@ -73,7 +73,7 @@ describe('StoriesBarComponent', () => {
 	describe('selectScenario', () =>{
 		it('should emit the scenario via scenarioChosen', () =>{
 			const scenario = {scenario_id:2,comment:'',name:'New Scenario',stepDefinitions:{given:[],when:[],then:[],example:[]}};
-			jest.spyOn(component.scenarioChosen, 'emit');
+			vi.spyOn(component.scenarioChosen, 'emit');
 			component.selectScenario(scenario);
 			expect(component.scenarioChosen.emit).toHaveBeenCalledWith(scenario);
 		});
@@ -91,7 +91,7 @@ describe('StoriesBarComponent', () => {
 
 		it('should emit the story via storyChosen', () =>{
 			const story = component.stories[0];
-			jest.spyOn(component.storyChosen, 'emit');
+			vi.spyOn(component.storyChosen, 'emit');
 			component.selectStory(story);
 			expect(component.storyChosen.emit).toHaveBeenCalledWith(story);
 		});

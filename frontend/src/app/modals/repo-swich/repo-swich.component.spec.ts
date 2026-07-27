@@ -5,7 +5,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
-jest.mock('./repo-swich.component');
+vi.mock('./repo-swich.component');
 
 
 const _repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},

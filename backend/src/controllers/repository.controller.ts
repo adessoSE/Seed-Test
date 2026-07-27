@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import { User } from '@shared/models/User';
-import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContainer';
-import * as repositoryService from '../services/repository.service';
-import * as userService from '../services/user.service';
-import * as externalSyncService from '../services/externalSync.service';
-import { logger } from '../logging';
+import { User } from '@shared/models/User.js';
+import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContainer.js';
+import * as repositoryService from '../services/repository.service.js';
+import * as userService from '../services/user.service.js';
+import * as externalSyncService from '../services/externalSync.service.js';
+import { logger } from '../logging.js';
 
 
 /**

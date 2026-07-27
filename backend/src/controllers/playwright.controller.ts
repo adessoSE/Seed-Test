@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { devices } from '@playwright/test';
-import { logger } from '../logging';
+import { logger } from '../logging.js';
 
 /**
  * Handles fetching all available Playwright device descriptors.

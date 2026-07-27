@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
-import * as fileController from '../controllers/file.controller';
-import { authorizeRepo } from '../middleware/authorize';
+import * as fileController from '../controllers/file.controller.js';
+import { authorizeRepo } from '../middleware/authorize.js';
 
 const router = express.Router();
 

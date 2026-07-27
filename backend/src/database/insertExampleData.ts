@@ -1,10 +1,10 @@
 import { exit } from 'process';
 import bcrypt from 'bcrypt';
-import * as userService from '../services/user.service';
-import * as repositoryService from '../services/repository.service';
-import * as storyService from '../services/story.service';
-import { Scenario } from '@shared/models/Scenario';
-import { User } from '@shared/models/User';
+import * as userService from '../services/user.service.js';
+import * as repositoryService from '../services/repository.service.js';
+import * as storyService from '../services/story.service.js';
+import { Scenario } from '@shared/models/Scenario.js';
+import { User } from '@shared/models/User.js';
 import dotenv from 'dotenv';
 
 dotenv.config();

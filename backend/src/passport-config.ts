@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
 import { PassportStatic } from 'passport';
 import { ObjectId } from 'mongodb';
-import { User } from '@shared/models/User';
+import { User } from '@shared/models/User.js';
 
 type GetUserByEmail = (email: string) => Promise<User | null>;
 type GetUserById = (id: string | ObjectId) => Promise<User | null>;

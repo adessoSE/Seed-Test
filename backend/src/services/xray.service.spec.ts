@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { StepType } from '@shared/models/StepType';
+import type { StepType } from '@shared/models/StepType.js';
 
 const mockedExternalAccountService = {
 	jiraDecryptPassword: vi.fn().mockReturnValue('decrypted-pass'),

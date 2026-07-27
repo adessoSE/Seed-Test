@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import type { User } from '@shared/models/User';
+import type { User } from '@shared/models/User.js';
 
 process.env.JIRA_SECRET = 'test-jira-secret';
 process.env.JIRA_SALT = 'test-jira-salt';

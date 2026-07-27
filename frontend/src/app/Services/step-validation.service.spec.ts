@@ -52,7 +52,7 @@ describe('StepValidationService', () => {
 
 	describe('showValidationWarning', () => {
 		it('should call toastr.warning with the given message', () => {
-			const spy = jest.spyOn(toastr, 'warning');
+			const spy = vi.spyOn(toastr, 'warning');
 			service.showValidationWarning('Test warning');
 			expect(spy).toHaveBeenCalledWith(
 				'Test warning',

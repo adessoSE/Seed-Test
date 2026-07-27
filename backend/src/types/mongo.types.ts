@@ -14,12 +14,12 @@
  * at service function boundaries: `return doc as unknown as Story | null;`
  */
 import { ObjectId } from 'mongodb';
-import { Block } from '@shared/models/Block';
-import { Story } from '@shared/models/Story';
-import { Repository } from '@shared/models/Repository';
-import { Group } from '@shared/models/Group';
-import { User } from '@shared/models/User';
-import { FileElement } from '@shared/models/FileElement';
+import { Block } from '@shared/models/Block.js';
+import { Story } from '@shared/models/Story.js';
+import { Repository } from '@shared/models/Repository.js';
+import { Group } from '@shared/models/Group.js';
+import { User } from '@shared/models/User.js';
+import { FileElement } from '@shared/models/FileElement.js';
 
 // --- Conversion Helpers ---
 

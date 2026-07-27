@@ -1,19 +1,29 @@
 // Selenium World uses dynamic properties (this.driver, this.downloadDir, etc.)
-// that bypass TypeScript's type system — keep require() until the class is properly typed
-const { World } = require('@cucumber/cucumber');
-const webdriver = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
-const firefox = require('selenium-webdriver/firefox');
-const edge = require('selenium-webdriver/edge');
-const fs = require('node:fs');
-const os = require('node:os');
+// that bypass TypeScript's type system — typed via class declaration below
+import { World } from '@cucumber/cucumber';
+import webdriver from 'selenium-webdriver';
+import { createRequire } from 'node:module';
+import fs from 'node:fs';
+import os from 'node:os';
+
+// selenium-webdriver subpath imports lack TypeScript declarations — use createRequire bridge
+const require = createRequire(import.meta.url);
+const chrome = require('selenium-webdriver/chrome') as typeof import('selenium-webdriver/chrome');
+const firefox = require('selenium-webdriver/firefox') as typeof import('selenium-webdriver/firefox');
+const edge = require('selenium-webdriver/edge') as typeof import('selenium-webdriver/edge');
 
 class SeleniumWebdriverWorld extends World {
+	// Dynamic properties used across Cucumber step definitions
+	downloadDir!: string;
+	tmpUploadDir!: string;
+	parameterCollection: any;
+	scenarioCount!: number;
+	testParameters: any;
+	driver: any;
+	searchTimeout!: number;
+
 	constructor(options: any) {
 		super(options);
-
-		// Explizit die attach-Methode von Cucumber-World übernehmen
-		this.attach = options.attach;
 
 		// Verzeichnisse basierend auf Betriebssystem festlegen
 		switch (os.platform()) {
@@ -294,6 +304,12 @@ class SeleniumWebdriverWorld extends World {
 			console.error('Screenshot failed:', error);
 			return null;
 		}
+	}
+
+	/** Takes a screenshot and attaches it to the Cucumber report (no-op if screenshot fails). */
+	async attachScreenshot() {
+		const buffer = await this.takeScreenshot();
+		if (buffer) this.attach(buffer, 'image/png');
 	}
 }
 

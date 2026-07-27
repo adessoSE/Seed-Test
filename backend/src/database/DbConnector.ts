@@ -1,6 +1,6 @@
 import { MongoClient, Db } from 'mongodb';
 import { setTimeout } from 'node:timers/promises';
-import { logger } from '../logging';
+import { logger } from '../logging.js';
 
 const uri: string = process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017';
 // Docker default above matches docker-compose.yml — override via DATABASE_URI in .env for production
