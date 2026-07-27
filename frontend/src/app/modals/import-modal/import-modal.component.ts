@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, Inject, Optional, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, Optional, OnInit, OnDestroy } from '@angular/core';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { NgForm, UntypedFormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
 	styleUrls: ['./import-modal.component.css'],
 	standalone: false
 })
-export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy {
+export class ImportModalComponent implements OnInit, OnDestroy {
 
 	// --- Class properties for the template bindings ---
 	isNewProject: boolean = false; 
@@ -61,10 +61,6 @@ export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy
 		// Set initial values
 		this.isNewProject = this.toggleNewProject.value;
 		this.importMode = this.toggleImportMode.value;
-	}
-
-	ngAfterViewChecked() {
-		// intentionally empty — lifecycle hook preserved for potential future use
 	}
 
 	ngOnDestroy() {
@@ -139,8 +135,7 @@ export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy
 	}
 
 	onImportToggleChange() {
-		// This just logs the state of the toggle
-		console.log(this.toggleImportMode.value ? 'Import Mode: Rename' : 'Import Mode: Overwrite');
+		this.errorMessage = null;
 	}
 
 	searchRepos(form?: NgForm) {
