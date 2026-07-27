@@ -2,7 +2,7 @@ import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { StoriesBarComponent } from './stories-bar.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Story } from '@shared/models/Story';
 
 describe('StoriesBarComponent', () => {
@@ -40,7 +40,7 @@ describe('StoriesBarComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+			imports: [HttpClientTestingModule, MatSnackBarModule],
 			declarations: [ StoriesBarComponent ],
 			schemas: [NO_ERRORS_SCHEMA]
 		})

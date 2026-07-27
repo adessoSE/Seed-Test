@@ -2,7 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { findComponent } from '../../../test_helper';
 import { RenameStoryComponent } from './rename-story.component';
 
@@ -14,7 +14,7 @@ describe('RenameStoryComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			declarations: [RenameStoryComponent],
-			imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, ToastrModule.forRoot()],
+			imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();

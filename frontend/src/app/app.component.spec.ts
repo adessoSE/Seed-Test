@@ -2,7 +2,7 @@ import { TestBed, waitForAsync, ComponentFixture} from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { importProvidersFrom, NO_ERRORS_SCHEMA } from '@angular/core';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 import { DatePipe } from '@angular/common';
@@ -14,7 +14,7 @@ describe('AppComponent', () => {
   
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, RouterTestingModule, ToastrModule.forRoot()],
+			imports: [HttpClientTestingModule, RouterTestingModule, MatSnackBarModule],
 			providers: [DatePipe, 
 				importProvidersFrom(LoggerModule.forRoot({
 					serverLoggingUrl: '/api/logs',

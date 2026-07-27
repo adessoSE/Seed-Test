@@ -1,7 +1,6 @@
 import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
@@ -15,7 +14,7 @@ export class NewStepRequestComponent {
 
 	modalReference!: NgbModalRef;
 
-	constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+	constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
 	@ViewChild('newStepRequestModal') newStepRequestModal!: NewStepRequestComponent;
 

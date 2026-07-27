@@ -1,7 +1,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "esModuleInterop": true,
@@ -25,9 +24,8 @@
     "incremental": true,
     "paths": {
       "@shared/*": ["../shared/src/*"],
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "src/*": ["./src/*"]
     }
   },
   "references": [

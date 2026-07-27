@@ -1,7 +1,7 @@
 import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {Router} from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../Services/notification.service';
 import { ThemingService } from '../Services/theming.service';
 import { LoginService } from '../Services/login.service';
 
@@ -28,7 +28,7 @@ export class RegistrationComponent implements OnInit {
 	/**
      * @ignore
      */
-	constructor(public loginService: LoginService, private router: Router, private toastr: ToastrService,
+	constructor(public loginService: LoginService, private router: Router, private notify: NotificationService,
 		private themeService:ThemingService) {}
 
 	/**
@@ -49,12 +49,12 @@ export class RegistrationComponent implements OnInit {
 			this.error = undefined as any;
 			const _response = await this.loginService.registerUser(form.value.email, form.value.password, userId).toPromise();
 			localStorage.setItem('login', 'true');
-			this.toastr.success('successfully registered', 'Registration');
+			this.notify.success('successfully registered', 'Registration');
 			const user = {email: form.value.email, password: form.value.password};
 			this.loginService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']));
 		}  catch(_err) {
            
-			this.toastr.error('User with this email alredy exist. Please enter another email', 'Email alredy exist');
+			this.notify.error('User with this email alredy exist. Please enter another email', 'Email alredy exist');
            
 		} 
 	}

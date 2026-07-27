@@ -1,6 +1,6 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
 import { Story } from '@shared/models/Story';
@@ -50,7 +50,7 @@ describe('BaseEditorComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			declarations: [ BaseEditorComponent ],
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+			imports: [HttpClientTestingModule, MatSnackBarModule],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { HighlightInputService } from './highlight-input.service';
 
@@ -9,7 +9,7 @@ describe('HighlightInputService', () => {
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+			imports: [HttpClientTestingModule, MatSnackBarModule]
 		});
 		service = TestBed.inject(HighlightInputService);
 	});

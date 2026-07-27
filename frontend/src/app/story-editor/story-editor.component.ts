@@ -14,9 +14,7 @@ import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
 import { Background } from '@shared/models/Background';
-import { ToastrService } from 'ngx-toastr';
-import { DeleteToast } from '../delete-toast';
-import { XrayToast } from '../delete-toast-xray';
+import { NotificationService } from '../Services/notification.service';
 import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
@@ -36,8 +34,8 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
 import { Block } from '@shared/models/Block';
 import { StepDefinition } from '@shared/models/StepDefinition';
 import { BlockService } from '../Services/block.service';
-import { InfoWarningToast } from '../info-warning-toast';
 import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 import { ManagementService } from '../Services/management.service';
@@ -418,7 +416,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	constructor(
 		public apiService: ApiService,
-		public toastr: ToastrService,
+		public notify: NotificationService,
 		public themeService: ThemingService,
 		public backgroundService: BackgroundService,
 		public storyService: StoryService,
@@ -643,7 +641,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.applyBackgroundChangesObservable =
 			this.backgroundService.applyChangesBackgroundEvent.subscribe((option) => {
 				if (option == 'toCurrentBackground') {
-					this.toastr.info(
+					this.notify.info(
 						'Please enter a new Background name to save your changes'
 					);
 					this.changeBackgroundTitle();
@@ -804,24 +802,39 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param scenario
    */
 	showDeleteScenarioToast($event: any) {
-		this.apiService.nameOfComponent('scenario');
-		if ($event.testKey) 
-			this.toastr.warning(
-				'Are your sure you want to delete this scenario?  It cannot be restored.',
-				'Delete Scenario?',
-				{
-					toastComponent: XrayToast
-				}
-			);
-		else 
-			this.toastr.warning(
-				'Are your sure you want to delete this scenario?  It cannot be restored.',
-				'Delete Scenario?',
-				{
-					toastComponent: DeleteToast
-				}
-			);
-    
+		if ($event.testKey) {
+			// XrayToast — scenario with xRay test key gets 3-button dialog
+			const ref = this.dialog.open(ConfirmDialogComponent, {
+				data: {
+					title: 'Delete Scenario?',
+					message: 'Are you sure you want to delete this scenario? It cannot be restored.',
+					buttons: [
+						{ label: 'Delete', value: 'delete', color: 'warn' },
+						{ label: 'Delete with xRay', value: 'delete-xray', color: 'warn' },
+						{ label: 'Cancel', value: 'cancel' }
+					]
+				} as ConfirmDialogData
+			});
+			ref.afterClosed().subscribe(result => {
+				if (result === 'delete') this.scenarioService.deleteScenarioEmitter(false);
+				else if (result === 'delete-xray') this.scenarioService.deleteScenarioEmitter(true);
+			});
+		} else {
+			// DeleteToast — standard 2-button delete confirmation
+			const ref = this.dialog.open(ConfirmDialogComponent, {
+				data: {
+					title: 'Delete Scenario?',
+					message: 'Are you sure you want to delete this scenario? It cannot be restored.',
+					buttons: [
+						{ label: 'Delete', value: 'delete', color: 'warn' },
+						{ label: 'Cancel', value: 'cancel' }
+					]
+				} as ConfirmDialogData
+			});
+			ref.afterClosed().subscribe(result => {
+				if (result === 'delete') this.scenarioService.deleteScenarioEmitter(false);
+			});
+		}
 	}
 
 	/**
@@ -833,7 +846,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			.deleteScenario(this.selectedStory._id!, scenario, xrayEnabled)
 			.subscribe((_) => {
 				this.scenarioDeleted();
-				this.toastr.error('', 'Scenario deleted');
+				this.notify.error('', 'Scenario deleted');
 			});
 	}
 
@@ -865,7 +878,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			.subscribe((resp: Scenario) => {
 				this.selectScenario(resp);
 				this.selectedStory.scenarios.push(resp);
-				this.toastr.info('', 'Scenario added');
+				this.notify.info('', 'Scenario added');
 			});
 	}
 	/**
@@ -899,7 +912,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 				.updateBackground(this.selectedStory._id!, this.selectedStory.background)
 				.subscribe((_) => {
 					this.backgroundService.backgroundChangedEmitter();
-					this.toastr.success('successfully saved', 'Background');
+					this.notify.success('successfully saved', 'Background');
 					if (this.saveBackgroundAndRun) {
 						this.apiService.runSaveOption('saveScenario');
 						this.saveBackgroundAndRun = false;
@@ -944,20 +957,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Toastr: background changes in multiple Stories or in current background
    */
 	backgroundChecks() {
-		this.apiService.nameOfComponent('applyBackgroundChanges');
-		this.apiService.setToastrOptions(
-			'Save Changes for All Stories',
-			'Save as New Background'
-		);
-		this.toastr.info(
-			'',
-			'You are about to save a Background used in multiple Stories. How should the changes apply?',
-			{
-				toastComponent: InfoWarningToast,
-				timeOut: 10000,
-				extendedTimeOut: 3000
-			}
-		);
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: '',
+				message: 'You are about to save a Background used in multiple Stories. How should the changes apply?',
+				buttons: [
+					{ label: 'Save Changes for All Stories', value: 'centrally', color: 'primary' },
+					{ label: 'Save as New Background', value: 'toCurrentBackground' }
+				]
+			} as ConfirmDialogData
+		});
+		ref.afterClosed().subscribe(result => {
+			if (result === 'centrally') this.backgroundService.applyBackgroundChanges('centrally');
+			else if (result === 'toCurrentBackground') this.backgroundService.applyBackgroundChanges('toCurrentBackground');
+		});
 	}
 	/**
    * Applying changes for all relevant backgrounds in repository
@@ -983,7 +996,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 					}
 				});
 		});
-		this.toastr.success('successfully saved', 'Backgrounds');
+		this.notify.success('successfully saved', 'Backgrounds');
 	}
 
 	/**
@@ -1174,7 +1187,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 						error: (err) => {
 							console.error('Test execution failed:', err);
 							this.testRunning = false;
-							this.toastr.error('', 'Test execution failed');
+							this.notify.error('', 'Test execution failed');
 						}
 					});
 			else 
@@ -1210,7 +1223,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 							error: (err) => {
 								console.error('Test execution failed:', err);
 								this.testRunning = false;
-								this.toastr.error('', 'Test execution failed');
+								this.notify.error('', 'Test execution failed');
 							}
 						});
 					} catch (error) {
@@ -1251,7 +1264,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 							error: (err) => {
 								console.error('Test execution failed:', err);
 								this.testRunning = false;
-								this.toastr.error('', 'Test execution failed');
+								this.notify.error('', 'Test execution failed');
 							}
 						});
         
@@ -1260,15 +1273,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			// if story is not saved, inform user
 			this.currentTestScenarioId = scenario_id!;
 			this.currentTestStoryId = this.selectedStory.story_id;
-			this.apiService.nameOfComponent('runSaveToast');
-			this.apiService.setToastrOptions('Save and Run', 'Run Test');
-			this.toastr.info(
-				'Do you want to save before running the test?',
-				'Scenario was not saved',
-				{
-					toastComponent: InfoWarningToast
-				}
-			);
+			const ref = this.dialog.open(ConfirmDialogComponent, {
+				data: {
+					title: 'Scenario was not saved',
+					message: 'Do you want to save before running the test?',
+					buttons: [
+						{ label: 'Save and Run', value: 'saveRun', color: 'primary' },
+						{ label: 'Run Test', value: 'run' }
+					]
+				} as ConfirmDialogData
+			});
+			ref.afterClosed().subscribe(result => {
+				if (result === 'saveRun') this.apiService.runSaveOption('saveRun');
+				else if (result === 'run') this.apiService.runSaveOption('run');
+			});
 		}
 	}
 
@@ -1399,7 +1417,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.showResults = true;
 		this.testRunning = false;
 		setTimeout(() => iframe.scrollIntoView(), 10);
-		this.toastr.info('', 'Test is done');
+		this.notify.info('', 'Test is done');
 		this.runUnsaved = false;
 	}
 
@@ -1707,7 +1725,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	updateStory() {
 		this.storyService.updateStory(this.selectedStory).subscribe((_resp) => {
-			this.toastr.success('successfully saved', 'Story');
+			this.notify.success('successfully saved', 'Story');
 		});
 	}
 
@@ -1723,7 +1741,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	}
 
 	showStoryLinkToast() {
-		this.toastr.success('', 'Successfully added Link to Clipboard!');
+		this.notify.success('', 'Successfully added Link to Clipboard!');
 	}
 
 	/**
@@ -1732,14 +1750,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 
 	showDeleteStoryToast() {
-		this.apiService.nameOfComponent('story');
-		this.toastr.warning(
-			'Are your sure you want to delete this story? It cannot be restored.',
-			'Delete Story?',
-			{
-				toastComponent: DeleteToast
-			}
-		);
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: 'Delete Story?',
+				message: 'Are you sure you want to delete this story? It cannot be restored.',
+				buttons: [
+					{ label: 'Delete', value: 'delete', color: 'warn' },
+					{ label: 'Cancel', value: 'cancel' }
+				]
+			} as ConfirmDialogData
+		});
+		ref.afterClosed().subscribe(result => {
+			if (result === 'delete') this.storyService.deleteStoryEmitter();
+		});
 	}
 
 	downloadFeature() {
@@ -1909,7 +1932,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			next: (projectAiConfig) => {
 				// Check if the config was successfully loaded
 				if (!projectAiConfig) {
-					this.toastr.error('AI configuration for this project could not be loaded.');
+					this.notify.error('AI configuration for this project could not be loaded.');
 					this.aiLoadingStories.delete(storyId);
 					return;
 				}
@@ -2015,7 +2038,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			},
 			error: (err) => {
 				this.aiLoadingStories.delete(storyId);
-				this.toastr.error('Could not load AI configuration for this project.', 'Configuration Error');
+				this.notify.error('Could not load AI configuration for this project.', 'Configuration Error');
 				console.error('Failed to fetch AI config:', err);
 			}
 		});
@@ -2025,7 +2048,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	async enterAiReviewMode() {
 		if (!this.aiSuggestions.has(this.selectedStory._id!)) {
-			this.toastr.info('No AI suggestion available for this story.');
+			this.notify.info('No AI suggestion available for this story.');
 			return;
 		}
 
@@ -2088,7 +2111,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.selectedStory.aiSuggestion = undefined;
 
 		this.storyService.updateStory(this.selectedStory).subscribe(updatedStory => {
-			this.toastr.info('AI suggestion discarded.');
+			this.notify.info('AI suggestion discarded.');
 			this.exitAiReviewMode(updatedStory);
 		});
 	}
@@ -2120,7 +2143,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.storyService
 			.updateStory(this.selectedStory)
 			.subscribe((updatedStory) => {
-				this.toastr.success(
+				this.notify.success(
 					'AI scenarios have been saved to the story!',
 					'Saved'
 				);

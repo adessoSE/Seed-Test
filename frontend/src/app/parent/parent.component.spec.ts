@@ -4,7 +4,7 @@ import { ParentComponent } from './parent.component';
 import { Story } from '@shared/models/Story';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ROUTES } from '../routes/routes';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Scenario } from '@shared/models/Scenario';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
@@ -25,7 +25,7 @@ describe('ParentComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, RouterTestingModule.withRoutes(ROUTES), ToastrModule.forRoot()],
+			imports: [HttpClientTestingModule, RouterTestingModule.withRoutes(ROUTES), MatSnackBarModule],
 			declarations: [ParentComponent],
 			providers: [{
 				provide: ActivatedRoute,

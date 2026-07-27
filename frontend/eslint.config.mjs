@@ -1,9 +1,10 @@
 import js from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 import angular from 'angular-eslint';
 import stylistic from '@stylistic/eslint-plugin';
 
-export default tseslint.config(
+export default defineConfig([
 	{
 		ignores: ['src/assets/documentation/**']
 	},
@@ -11,8 +12,8 @@ export default tseslint.config(
 		files: ['src/**/*.ts'],
 		extends: [
 			js.configs.recommended,
-			...tseslint.configs.recommended,
-			...angular.configs.tsRecommended
+			tseslint.configs.recommended,
+			angular.configs.tsRecommended
 		],
 		processor: angular.processInlineTemplates,
 		languageOptions: {
@@ -54,6 +55,7 @@ export default tseslint.config(
 			// --- Angular migration rules (gradual adoption) ---
 			'@angular-eslint/prefer-inject': 'warn',
 			'@angular-eslint/prefer-standalone': 'warn',
+			'@angular-eslint/prefer-on-push-component-change-detection': 'warn',
 			'@angular-eslint/no-empty-lifecycle-method': 'warn',
 
 			// --- Angular selectors (warn — existing components use non-standard selectors) ---
@@ -72,8 +74,8 @@ export default tseslint.config(
 	{
 		files: ['src/**/*.html'],
 		extends: [
-			...angular.configs.templateRecommended,
-			...angular.configs.templateAccessibility
+			angular.configs.templateRecommended,
+			angular.configs.templateAccessibility
 		],
 		rules: {
 			// Accessibility rules — real issues but gradual adoption
@@ -94,4 +96,4 @@ export default tseslint.config(
 			'@typescript-eslint/no-explicit-any': 'off'
 		}
 	}
-);
+]);

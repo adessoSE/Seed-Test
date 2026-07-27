@@ -3,7 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { findComponent } from '../../../test_helper';
 import { CreateNewStoryComponent } from './create-new-story.component';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
 
@@ -14,7 +14,7 @@ describe('CreateNewStoryComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			declarations: [CreateNewStoryComponent],
-			imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, ToastrModule.forRoot()],
+			imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, MatSnackBarModule],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();

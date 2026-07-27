@@ -1,12 +1,11 @@
 import { Component, OnInit, ViewChild, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
-import { DeleteToast } from 'src/app/delete-toast';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ApiService } from 'src/app/Services/api.service';
 import { ProjectService } from 'src/app/Services/project.service';
-import { TransferOwnershipToast } from 'src/app/transferOwnership-toastr';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 import { Subscription } from 'rxjs';
 import { MatSelect } from '@angular/material/select';
@@ -111,7 +110,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	constructor(
 		private modalService: NgbModal,
 		public projectService: ProjectService,
-		private toastr: ToastrService,
+		private notify: NotificationService,
 		public dialog: MatDialog,
 		public apiService: ApiService
 	) {
@@ -250,20 +249,26 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 			.getElementById('changeOwner')!
 			.setAttribute('style', 'display: none');
 		this.projectService.changeOwner(this.workgroupProject._id!, newOwner).subscribe((_) => {
-			this.toastr.success('successfully changed', 'New owner');
+			this.notify.success('successfully changed', 'New owner');
 		});
 		this.modalReference.close();
 	}
 
 	transferOwnership(selectedMember: string) {
 		this.selectedOwner = selectedMember;
-		this.toastr.warning(
-			'',
-			'Do you really want to transfer your ownership? You will lose your administrator rights.',
-			{
-				toastComponent: TransferOwnershipToast
-			}
-		);
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: 'Transfer Ownership',
+				message: 'Do you really want to transfer your ownership? You will lose your administrator rights.',
+				buttons: [
+					{ label: 'Confirm', value: 'confirm', color: 'warn' },
+					{ label: 'Cancel', value: 'cancel' }
+				]
+			} as ConfirmDialogData
+		});
+		ref.afterClosed().subscribe(result => {
+			if (result === 'confirm') this.projectService.transferOwnershipEmitter();
+		});
 	}
 	/**
    * Invites a user to the workgroup
@@ -339,7 +344,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		if (this.workgroupProject.repoName === currentRepo) 
 			this.openRepoSwitchModal();
 		else if (this.workgroupList.length > 0)
-			this.toastr.info(
+			this.notify.info(
 				'Your project has other members, either remove them beforehand or transfer your projects ownership',
 				'Other members affected'
 			);
@@ -392,7 +397,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 			)
 			.subscribe((_resp) => {
 				this.projectService.getRepositories();
-				this.toastr.success('successfully saved', 'Repository');
+				this.notify.success('successfully saved', 'Repository');
 			});
 	}
 
@@ -403,18 +408,23 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	}
 
 	showDeleteRepositoryToast() {
-		this.apiService.nameOfComponent('repository');
-		this.toastr.warning(
-			'Are your sure you want to delete this Project? It cannot be restored.',
-			'Delete Project?',
-			{
-				toastComponent: DeleteToast
-			}
-		);
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: 'Delete Project?',
+				message: 'Are you sure you want to delete this Project? It cannot be restored.',
+				buttons: [
+					{ label: 'Delete', value: 'delete', color: 'warn' },
+					{ label: 'Cancel', value: 'cancel' }
+				]
+			} as ConfirmDialogData
+		});
+		ref.afterClosed().subscribe(result => {
+			if (result === 'delete') this.projectService.deleteRepositoryEmitter();
+		});
 	}
 
 	showErrorToast() {
-		this.toastr.error(this.workgroupError);
+		this.notify.error(this.workgroupError);
 	}
 
 	/**

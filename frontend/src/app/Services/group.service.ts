@@ -2,7 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from './notification.service';
 import { Group } from '@shared/models/Group';
 
 
@@ -17,7 +17,7 @@ export class GroupService {
 	/**
   * @ignore
   */
-	constructor(public apiService: ApiService, private http: HttpClient, public toastr: ToastrService) { }
+	constructor(public apiService: ApiService, private http: HttpClient, public notify: NotificationService) { }
 	/**
     * Event emitter to create a custom group
   */
@@ -115,10 +115,10 @@ export class GroupService {
 		else 
 			if (input.length == 0) {
 				button.disabled = true;
-				this.toastr.error('The field can not be empty');
+				this.notify.error('The field can not be empty');
 			} else {
 				button.disabled = true;
-				this.toastr.error('This Group Title is already in use. Please choose another Title');
+				this.notify.error('This Group Title is already in use. Please choose another Title');
 			}
     
 	}

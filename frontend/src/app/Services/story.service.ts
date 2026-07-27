@@ -2,7 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from './notification.service';
 import { Story } from '@shared/models/Story';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { catchError, tap } from 'rxjs/operators';
@@ -16,7 +16,7 @@ import { StepType } from '@shared/models/StepType';
 })
 export class StoryService {
 
-	constructor(public apiService: ApiService, private http: HttpClient, public toastr: ToastrService) { }
+	constructor(public apiService: ApiService, private http: HttpClient, public notify: NotificationService) { }
 	/**
   * Event Emitter to distribute the stories to all components
   */
@@ -216,7 +216,7 @@ export class StoryService {
 			button.disabled = false;
 		else {
 			button.disabled = true;
-			this.toastr.error('This Story Title is already in use. Please choose another Title');
+			this.notify.error('This Story Title is already in use. Please choose another Title');
 		}
 	}
 	/**

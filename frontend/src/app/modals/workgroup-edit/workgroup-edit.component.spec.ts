@@ -1,9 +1,13 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { WorkgroupEditComponent } from './workgroup-edit.component';
+
+// Mock to prevent MatSnackBar overlay calls after injector teardown
+const notificationMock = { success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() };
 
 describe('WorkgroupEditComponent', () => {
 	let component: WorkgroupEditComponent;
@@ -12,7 +16,8 @@ describe('WorkgroupEditComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			declarations: [ WorkgroupEditComponent, LayoutModalComponent ],
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+			imports: [HttpClientTestingModule, MatSnackBarModule],
+			providers: [{ provide: NotificationService, useValue: notificationMock }],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();

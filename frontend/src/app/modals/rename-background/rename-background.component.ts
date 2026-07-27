@@ -4,7 +4,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BackgroundService } from 'src/app/Services/background.service';
 import { Background } from '@shared/models/Background';
 import { Story } from '@shared/models/Story';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../Services/notification.service';
 import { ApiService } from '../../Services/api.service';
 import { Block } from '@shared/models/Block';
 import { BlockService } from '../../Services/block.service';
@@ -29,7 +29,7 @@ export class RenameBackgroundComponent{
 	storiesWithBlock!: Story[];
 	backgroundTitle = new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
 
-	constructor(private modalService: NgbModal, public backgroundService: BackgroundService,  public toastr: ToastrService, public apiService: ApiService, public blockService: BlockService) { }
+	constructor(private modalService: NgbModal, public backgroundService: BackgroundService,  public notify: NotificationService, public apiService: ApiService, public blockService: BlockService) { }
 	/**
    * Opens the rename story Modal
    * @param backgrounds
@@ -60,7 +60,7 @@ export class RenameBackgroundComponent{
 			.updateBackground(this.story._id, this.story.background)
 			.subscribe(_ => {
 				this.backgroundService.backgroundChangedEmitter();
-				this.toastr.success('successfully saved', 'Background');
+				this.notify.success('successfully saved', 'Background');
 				if (this.saveBackgroundAndRun) {
 					this.apiService.runSaveOption('saveScenario');
 					this.saveBackgroundAndRun = false;
@@ -87,11 +87,11 @@ export class RenameBackgroundComponent{
 		if ((input && !array.find(i => i.name === input))) 
 			button.disabled = false;
 		else if (input.length == 0){
-			this.toastr.error('Background Title can not be empty. Please enter the Title');
+			this.notify.error('Background Title can not be empty. Please enter the Title');
 			button.disabled = true;
 		} else {
 			button.disabled = true;
-			this.toastr.error('This Background Title is already in use. Please choose another Title');
+			this.notify.error('This Background Title is already in use. Please choose another Title');
 		}
 	}
 }

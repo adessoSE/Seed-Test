@@ -1,7 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ReportComponent } from './report.component';
 
@@ -13,7 +13,7 @@ describe('ReportComponent', () => {
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [ ReportComponent ],
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+			imports: [HttpClientTestingModule, MatSnackBarModule],
 			providers: [{
 				provide: ActivatedRoute,
 				useValue: {

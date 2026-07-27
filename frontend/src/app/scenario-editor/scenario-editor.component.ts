@@ -4,7 +4,7 @@ import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
 import { StepDefinition } from '@shared/models/StepDefinition';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../Services/notification.service';
 import { Block } from '@shared/models/Block';
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
 import { Subscription } from 'rxjs';
@@ -31,13 +31,13 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * Constructor
      * @param apiService
      * @param scenarioService
-     * @param toastr
+     * @param notify
      */
 	constructor(
 		public apiService: ApiService,
 		public blockService: BlockService,
 		public scenarioService: ScenarioService,
-		public toastr: ToastrService
+		public notify: NotificationService
 	) {}
 
 	/**
@@ -269,7 +269,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 					this.updateReferences(this.scenarioToUpdate);
 					this.scenarioService.scenarioChangedEmitter();
 					if (!updatingWithReferences)
-						this.toastr.success('successfully saved', 'Scenario');
+						this.notify.success('successfully saved', 'Scenario');
                 
 					resolve();
 				});

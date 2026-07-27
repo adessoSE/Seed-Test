@@ -65,11 +65,4 @@ export default defineConfig([
 			'@typescript-eslint/no-this-alias': 'off'
 		}
 	},
-	{
-		// Dead code admin utilities — not imported anywhere, kept for manual DB operations
-		files: ['src/database/mongoDB_admin.ts'],
-		rules: {
-			'@typescript-eslint/no-unused-vars': 'off'
-		}
-	}
 ]);

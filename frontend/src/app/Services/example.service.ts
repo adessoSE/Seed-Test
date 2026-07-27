@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from './notification.service';
 
 /**
  * Service for communication between example component and the backend
@@ -12,7 +12,7 @@ export class ExampleService {
 	/**
     * @ignore
   */
-	constructor(public apiService: ApiService, public toastr: ToastrService) { }
+	constructor(public apiService: ApiService, public notify: NotificationService) { }
 	/**
   * Event emitter to delete the example
   */
@@ -69,7 +69,7 @@ export class ExampleService {
 			button.disabled = false;
 		else {
 			button.disabled = true;
-			this.toastr.error('This Example Name is already in use. Please choose another Name');
+			this.notify.error('This Example Name is already in use. Please choose another Name');
 		}
 	}
 }

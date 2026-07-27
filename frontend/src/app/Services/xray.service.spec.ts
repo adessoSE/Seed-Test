@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { XrayService } from './xray.service';
 
@@ -9,7 +9,7 @@ describe('XrayService', () => {
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+			imports: [HttpClientTestingModule, MatSnackBarModule]
 		});
 		service = TestBed.inject(XrayService);
 	});

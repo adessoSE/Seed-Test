@@ -22,50 +22,6 @@ export class ApiService {
    */
 	public apiServer: string = localStorage.getItem('url_backend')!;
 
-	// ------------------------------- TOASTR TEMPLATE --------------------------------
-	/**
-   * name of component
-   */
-	public nameComponent!: string;
-	/**
-   * name of the first option in the toastr
-   */
-	public firstOption!: string;
-	/**
-   * name of the second option in the toastr
-   */
-	public secondOption!: string;
-	/**
-   * set name of component
-   * @param nameComponent
-   */
-	nameOfComponent(nameComponent: string) {
-		this.nameComponent = nameComponent;
-	}
-	/**
-   * get name of component that user wants to delete
-   * @returns
-   */
-	getNameOfComponent() {
-		return this.nameComponent;
-	}
-	/**
-   * set options for info-warning-toster
-   * @param nameComponent
-   */
-	setToastrOptions(first: string, second: string) {
-		this.firstOption = first;
-		this.secondOption = second;
-	}
-	/**
-   * get name of options that user wants to execute
-   * @returns
-   */
-	getNameOfToastrOptions() {
-		return [this.firstOption, this.secondOption];
-	}
-	// ------------------------------- TOASTR TEMPLATE -----------------------------
-
 	/**
    * If the backend url was received
    */

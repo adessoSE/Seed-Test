@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { SaveBlockFormComponent } from './save-block-form.component';
 
@@ -11,7 +11,7 @@ describe('SaveBlockFormComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			declarations: [ SaveBlockFormComponent, LayoutModalComponent ],
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+			imports: [HttpClientTestingModule, MatSnackBarModule]
 		})
 			.compileComponents();
 	});

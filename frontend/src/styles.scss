@@ -1168,5 +1168,29 @@ mat-expansion-panel.stepBlockContainer .mat-expansion-panel-body{
 }
 
 html, body { height: 100%; }
-// duplication?: 
+// duplication?:
 // body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// --- Snackbar notification styles (replacement for ngx-toastr) ---
+.snackbar-success .mdc-snackbar__surface {
+  background-color: #51a351 !important;
+  color: #fff !important;
+}
+.snackbar-error .mdc-snackbar__surface {
+  background-color: #bd362f !important;
+  color: #fff !important;
+}
+.snackbar-warning .mdc-snackbar__surface {
+  background-color: #f89406 !important;
+  color: #fff !important;
+}
+.snackbar-info .mdc-snackbar__surface {
+  background-color: #2f96b4 !important;
+  color: #fff !important;
+}
+.snackbar-success .mdc-snackbar__surface .mat-mdc-button,
+.snackbar-error .mdc-snackbar__surface .mat-mdc-button,
+.snackbar-warning .mdc-snackbar__surface .mat-mdc-button,
+.snackbar-info .mdc-snackbar__surface .mat-mdc-button {
+  color: #fff !important;
+}

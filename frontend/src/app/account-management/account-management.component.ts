@@ -13,7 +13,7 @@ import { CreateCustomProjectComponent } from '../modals/create-custom-project/cr
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 import { RepoSwichComponent } from '../modals/repo-swich/repo-swich.component';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../Services/notification.service';
 import { ProjectService } from '../Services/project.service';
 import { LoginService } from '../Services/login.service';
 import { ManagementService } from '../Services/management.service';
@@ -108,7 +108,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param managmentService Connection to the managment service
      * @param router router to handle url changes
      * @param themeService
-     * @param toastr
+     * @param notify
      */
 	constructor(public apiService: ApiService,
 		public projectService: ProjectService,
@@ -117,7 +117,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		public router: Router,
 		public modalService: MatDialog,
 		public themeService: ThemingService,
-		private toastr: ToastrService
+		private notify: NotificationService
 	) {
 		this.themeService = themeService;
 		this.navigationSubscription = this.router.events.subscribe((e: any) => {
@@ -368,7 +368,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	updateRepository(project: RepositoryContainer) {
 		this.projectService.updateRepository(project._id!, project.repoName, this.id).subscribe(_resp => {
 			this.projectService.getRepositories();
-			this.toastr.success('successfully saved', 'Repository');
+			this.notify.success('successfully saved', 'Repository');
 		});
 	}
 
@@ -393,7 +393,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 					.subscribe({
 						next: (ret) => {
 							console.log(ret);
-							this.toastr.success('Project imported successfully!');
+							this.notify.success('Project imported successfully!');
 							// Refresh the repository list
 							this.projectService.getRepositories().subscribe(resp => {
 								this.seperateRepos(resp);
@@ -402,7 +402,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 						},
 						error: (err) => {
 							console.error('Import failed:', err);
-							this.toastr.error(err.error?.error || 'Import failed.');
+							this.notify.error(err.error?.error || 'Import failed.');
 						}
 					});
 			} else 

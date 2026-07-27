@@ -1,18 +1,19 @@
 import { TestBed } from '@angular/core/testing';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 
 import { StepValidationService } from './step-validation.service';
 
 describe('StepValidationService', () => {
 	let service: StepValidationService;
-	let toastr: ToastrService;
+	let toastr: NotificationService;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			imports: [ToastrModule.forRoot()]
+			imports: [MatSnackBarModule]
 		});
 		service = TestBed.inject(StepValidationService);
-		toastr = TestBed.inject(ToastrService);
+		toastr = TestBed.inject(NotificationService);
 	});
 
 	it('should be created', () => {
@@ -51,16 +52,14 @@ describe('StepValidationService', () => {
 	});
 
 	describe('showValidationWarning', () => {
-		it('should call toastr.warning with the given message', () => {
+		it('should call notify.warning with the given message', () => {
 			const spy = vi.spyOn(toastr, 'warning');
 			service.showValidationWarning('Test warning');
 			expect(spy).toHaveBeenCalledWith(
 				'Test warning',
 				'Step Definition Warning',
 				expect.objectContaining({
-					timeOut: 5000,
-					progressBar: true,
-					positionClass: 'toast-top-right'
+					timeOut: 5000
 				})
 			);
 		});

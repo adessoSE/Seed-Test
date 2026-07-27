@@ -1,49 +1,39 @@
-import { Location } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ToastrModule } from 'ngx-toastr';
-import { RegistrationComponent } from '../registration/registration.component';
-import { ROUTES } from '../routes/routes';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ResetPasswordComponent } from './reset-password.component';
 
 describe('ResetPasswordComponent', () => {
 	let component: ResetPasswordComponent;
 	let fixture: ComponentFixture<ResetPasswordComponent>;
-	let location: Location;
 	let router: Router;
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			declarations: [ ResetPasswordComponent, RegistrationComponent ],
-			imports: [ HttpClientTestingModule, ReactiveFormsModule, FormsModule, RouterTestingModule.withRoutes(ROUTES), ToastrModule.forRoot()]
+			declarations: [ ResetPasswordComponent ],
+			imports: [ HttpClientTestingModule, ReactiveFormsModule, FormsModule, RouterTestingModule, MatSnackBarModule]
 		})
 			.compileComponents();
 	}));
 
 	beforeEach(() => {
 		router = TestBed.inject(Router);
-		location = TestBed.inject(Location);
 		fixture = TestBed.createComponent(ResetPasswordComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
-		router.currentNavigation();
 	});
 
-	describe('PasswortComponent', () => {
-		it('should create', () => {
-			expect(component).toBeTruthy();
-		});
+	it('should create', () => {
+		expect(component).toBeTruthy();
 	});
 
-	describe('redirectToRegister function', (() => {
-		it('should route to RegistrationComponent', fakeAsync(() => {
-			component.redirectToRegister();
-			tick();
-			expect(location.path()).toBe('/register');
-		})); 
-	}));
+	it('should navigate to /register on redirectToRegister', () => {
+		const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+		component.redirectToRegister();
+		expect(navigateSpy).toHaveBeenCalledWith(['/register']);
+	});
 });

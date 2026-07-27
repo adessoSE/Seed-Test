@@ -5,7 +5,7 @@ import { Scenario } from '@shared/models/Scenario';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { Group } from '@shared/models/Group';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../Services/notification.service';
 import { ThemingService } from '../Services/theming.service';
 import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-group.component';
 import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
@@ -183,7 +183,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 
 	/**
      * Constructor
-     * @param toastr
+     * @param notify
      * @param themeService
      * @param storyService
      * @param groupService
@@ -191,7 +191,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
      * @param reportService
      */
 	constructor(
-		public toastr: ToastrService,
+		public notify: NotificationService,
 		public themeService: ThemingService,
 		public storyService: StoryService,
 		public xrayService: XrayService,
@@ -520,7 +520,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 			.subscribe((resp: Scenario) => {
 				this.selectScenario(resp);
 				this.selectedStory.scenarios.push(resp);
-				this.toastr.info('Successfully added', 'Scenario');
+				this.notify.info('Successfully added', 'Scenario');
 			});
 	}
 
@@ -585,7 +585,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 						this.groupService.getGroups(localStorage.getItem('id')!).subscribe(groups => {
 							this.groups = groups;
 						});
-						this.toastr.error('', 'Story deleted');
+						this.notify.error('', 'Story deleted');
 					});
 			}
 		}

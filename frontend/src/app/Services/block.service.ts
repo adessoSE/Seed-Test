@@ -3,7 +3,6 @@ import { Block } from '@shared/models/Block';
 import { BehaviorSubject, Observable} from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
 import { Story } from '@shared/models/Story';
 import { StepType } from '@shared/models/StepType';
@@ -21,7 +20,7 @@ export class BlockService {
 	/**
   * @ignore
   */
-	constructor(public apiService: ApiService, private http: HttpClient, public toastr: ToastrService, public storyService: StoryService) { }
+	constructor(public apiService: ApiService, private http: HttpClient, public storyService: StoryService) { }
 
 	/**
    * Event emitter to add a block to the current scenario

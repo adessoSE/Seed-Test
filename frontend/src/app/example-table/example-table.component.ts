@@ -1,5 +1,4 @@
 import { Subscription } from 'rxjs';
-import { DeleteToast } from './../delete-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
 import {
   Component,
@@ -19,7 +18,9 @@ import {
 	UntypedFormControl
 } from '@angular/forms';
 import { Scenario } from '@shared/models/Scenario';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../Services/notification.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
 import { Story } from '@shared/models/Story';
 import { StepType } from '@shared/models/StepType';
 import { ExampleService } from '../Services/example.service';
@@ -175,7 +176,8 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    */
 	constructor(
 		public scenarioService: ScenarioService,
-		private toastr: ToastrService,
+		private notify: NotificationService,
+		private dialog: MatDialog,
 		public exampleService: ExampleService,
 		public apiService: ApiService,
 		public themeService: ThemingService,
@@ -396,14 +398,19 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    * @param scenario
    */
 	showDeleteExampleToast(_scenario: Scenario) {
-		this.apiService.nameOfComponent('example');
-		this.toastr.warning(
-			'Are your sure you want to delete this variable?',
-			'Delete variable?',
-			{
-				toastComponent: DeleteToast
-			}
-		);
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: 'Delete variable?',
+				message: 'Are you sure you want to delete this variable?',
+				buttons: [
+					{ label: 'Delete', value: 'delete', color: 'warn' },
+					{ label: 'Cancel', value: 'cancel' }
+				]
+			} as ConfirmDialogData
+		});
+		ref.afterClosed().subscribe(result => {
+			if (result === 'delete') this.exampleService.deleteExampleEmitter();
+		});
 	}
 
 	deleteExampleFunction() {

@@ -1,7 +1,7 @@
 import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
 
@@ -19,7 +19,7 @@ export class CreateCustomProjectComponent {
 	/**
   * Model Reference for closing
   */
-	constructor(private modalService: NgbModal, public projectService: ProjectService, private toastr: ToastrService) { }
+	constructor(private modalService: NgbModal, public projectService: ProjectService, private notify: NotificationService) { }
 
 	modalReference!: NgbModalRef;
 	/**
@@ -49,7 +49,7 @@ export class CreateCustomProjectComponent {
 		const id = form.value._id;
 		if (!this.isEmptyOrSpaces(title)) 
 			this.projectService.createRepository(title, id).subscribe(_resp => {
-				this.toastr.info('', 'Project created');
+				this.notify.info('', 'Project created');
 				this.projectService.getRepositoriesEmitter();
 				this.projectService.updateRepositoryEmitter();
 			});
@@ -72,10 +72,10 @@ export class CreateCustomProjectComponent {
 		else 
 			if (input.length == 0) {
 				button.disabled = true;
-				this.toastr.error('The field can not be empty');
+				this.notify.error('The field can not be empty');
 			} else {
 				button.disabled = true;
-				this.toastr.error('This Project Title is already in use. Please choose another Title'); 
+				this.notify.error('This Project Title is already in use. Please choose another Title'); 
 			}
   
 	}

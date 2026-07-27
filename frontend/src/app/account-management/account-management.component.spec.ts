@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { findComponent } from '../../test_helper';
 import { AccountManagementComponent } from './account-management.component';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -27,7 +27,7 @@ describe('AccountManagementComponent', () => {
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			declarations: [ AccountManagementComponent],
-			imports: [HttpClientTestingModule, ToastrModule.forRoot(), RouterTestingModule.withRoutes(ROUTES)],
+			imports: [HttpClientTestingModule, MatSnackBarModule, RouterTestingModule.withRoutes(ROUTES)],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();

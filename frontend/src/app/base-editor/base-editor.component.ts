@@ -1,7 +1,9 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../Services/notification.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
@@ -18,9 +20,7 @@ import { NewExampleComponent } from '../modals/new-example/new-example.component
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { BackgroundService } from '../Services/background.service';
-import { InfoWarningToast } from '../info-warning-toast';
 import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
-import { DeleteToast } from '../delete-toast';
 import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
 import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
@@ -211,7 +211,8 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	updateBlockObservable!: Subscription;
 
 	constructor(
-		public toastr: ToastrService,
+		public notify: NotificationService,
+		public dialog: MatDialog,
 		public blockService: BlockService,
 		public exampleService: ExampleService,
 		public scenarioService: ScenarioService,
@@ -232,7 +233,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 				const whenSteps = block[1].stepDefinitions['when'] || [];
 				if (whenSteps.length === 0) {
 					// Background only supports 'when' steps — warn user if block has none
-					this.toastr.warning(
+					this.notify.warning(
 						'The selected block contains no "When" steps. Background only supports "When" steps.',
 						'Block not applicable'
 					);
@@ -1718,7 +1719,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
         }*/
 				backgroundBlock = { stepDefinitions: block as unknown as StepDefinition };
 				sessionStorage.setItem('scenarioBlock', JSON.stringify(backgroundBlock));
-				this.toastr.success('successfully copied', 'Step(s)');
+				this.notify.success('successfully copied', 'Step(s)');
 				break;
 
 			case 'scenario': {
@@ -1735,7 +1736,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
         }*/
 				const scenarioBlock: Block = { stepDefinitions: block as unknown as StepDefinition };
 				sessionStorage.setItem('scenarioBlock', JSON.stringify(scenarioBlock));
-				this.toastr.success('successfully copied', 'Step(s)');
+				this.notify.success('successfully copied', 'Step(s)');
 				break;
 			}
 
@@ -1751,7 +1752,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 				};
 				console.log('exampleBlock in copyBlock', exampleBlock);
 				sessionStorage.setItem('copiedExampleBlock', JSON.stringify(exampleBlock));
-				this.toastr.success('successfully copied', 'Examples');
+				this.notify.success('successfully copied', 'Examples');
 				break;
 			}
 
@@ -1761,7 +1762,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 				);
 				const editBlock: Block = { stepDefinitions: block as unknown as StepDefinition };
 				sessionStorage.setItem('copiedEditBlock', JSON.stringify(editBlock));
-				this.toastr.success('successfully copied', 'Step(s)');
+				this.notify.success('successfully copied', 'Step(s)');
 				break;
 			}
 
@@ -1869,10 +1870,19 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	}
 
 	handleScenarioWithExample(): void {
-		this.apiService.nameOfComponent('copyExampleToast');
-		this.apiService.setToastrOptions('Copy with multiple scenario(s)', 'Copy without multiple scenario(s)');
-		this.toastr.info('Do you want to copy it?', 'Block contains multiple scenario(s)', {
-			toastComponent: InfoWarningToast
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: 'Block contains multiple scenario(s)',
+				message: 'Do you want to copy it?',
+				buttons: [
+					{ label: 'Copy with multiple scenario(s)', value: 'copy', color: 'primary' },
+					{ label: 'Copy without multiple scenario(s)', value: 'dontCopy' }
+				]
+			} as ConfirmDialogData
+		});
+		ref.afterClosed().subscribe(result => {
+			if (result === 'copy') this.apiService.copyStepWithExampleOption('copy');
+			else if (result === 'dontCopy') this.apiService.copyStepWithExampleOption('dontCopy');
 		});
 	}
 
@@ -2124,16 +2134,24 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 
 	showUnpackBlockToast(block: Block | null, stepReference: StepType, event: Event) {
 		event.stopPropagation();
-		if (!block) 
+		if (!block)
 			block = this.getBlockInSteps(stepReference._blockReferenceId!);
-    
+
 		const toastData = { block: block, stepReference: stepReference };
-		this.blockService.updateToastData(toastData);
-		this.apiService.nameOfComponent('unpackBlock');
-		this.toastr.warning(
-			'Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?', 'Unpack Block', {
-				toastComponent: DeleteToast
-			});
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: 'Unpack Block',
+				message: 'Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?',
+				buttons: [
+					{ label: 'Unpack', value: 'unpack', color: 'warn' },
+					{ label: 'Cancel', value: 'cancel' }
+				]
+			} as ConfirmDialogData
+		});
+		// Emitter expects Block but subscriber uses { block, stepReference } — legacy type mismatch
+		ref.afterClosed().subscribe(result => {
+			if (result === 'unpack') this.blockService.unpackBlockEmitter(toastData as any);
+		});
 	}
 
 	/* Example case methods */

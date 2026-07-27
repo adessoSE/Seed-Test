@@ -1,7 +1,7 @@
 import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { LoginService } from 'src/app/Services/login.service';
 import { ManagementService } from 'src/app/Services/management.service';
 
@@ -24,7 +24,7 @@ export class DeleteAccountComponent {
 
 	modalReference!: NgbModalRef;
 
-	constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private toastr: ToastrService) { }
+	constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private notify: NotificationService) { }
 
 	/**
      * Opens delete account modal
@@ -42,7 +42,7 @@ export class DeleteAccountComponent {
 		const insertedEmail = form.value.insertedEmail;
 		if (insertedEmail !== undefined && insertedEmail === this.email) {
 			this.managmentService.deleteUser().subscribe(_resp => {
-				this.toastr.info('', 'User Deleted');
+				this.notify.info('', 'User Deleted');
 				this.loginService.logoutEvent.emit();
 			});
 			this.modalReference.close();
@@ -57,7 +57,7 @@ export class DeleteAccountComponent {
  */
 
 	unallowableNameToast() {
-		this.toastr.warning('', 'Enter a valid e-mail', {
+		this.notify.warning('', 'Enter a valid e-mail', {
 		});
 	}
 }

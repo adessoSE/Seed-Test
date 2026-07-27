@@ -1,14 +1,18 @@
-import { Injectable } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
+import { Injectable, OnDestroy } from '@angular/core';
+import { NotificationService } from './notification.service';
 
 @Injectable({
 	providedIn: 'root'
 })
-export class StepValidationService {
+export class StepValidationService implements OnDestroy {
 
 	private warningTimeout: any;
-  
-	constructor(private toastr: ToastrService) {}
+
+	constructor(private notify: NotificationService) {}
+
+	ngOnDestroy(): void {
+		clearTimeout(this.warningTimeout);
+	}
 
 	/**
    * Validates quotes and handles visual feedback for HTML elements
@@ -57,14 +61,10 @@ export class StepValidationService {
    * @param message - Warning message
    */
 	showValidationWarning(message: string): void {
-		this.toastr.warning(
+		this.notify.warning(
 			message,
 			'Step Definition Warning',
-			{
-				timeOut: 5000,
-				progressBar: true,
-				positionClass: 'toast-top-right'
-			}
+			{ timeOut: 5000 }
 		);
 	}
 }

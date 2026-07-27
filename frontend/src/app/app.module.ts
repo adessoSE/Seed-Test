@@ -32,13 +32,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
-import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
-import { DeleteToast } from './delete-toast';
-import { XrayToast } from './delete-toast-xray';
 import {
 	DEFAULT_TIMEOUT,
 	TimeoutInterceptor
@@ -73,14 +70,15 @@ import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
-import { TransferOwnershipToast } from './transferOwnership-toastr';
-import { InfoWarningToast } from './info-warning-toast';
 import { ImportModalComponent } from './modals/import-modal/import-modal.component';
+import { ConfirmDialogComponent } from './modals/confirm-dialog/confirm-dialog.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditBlockComponent } from './modals/edit-block/edit-block.component';
 import { ThemingService } from './Services/theming.service';
 import { ConfirmResetPasswordPopupComponent } from './confirm-reset-password-popup/confirm-reset-password-popup.component';
 import { MatInputModule} from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { WindowSizeComponent } from './modals/window-size/window-size.component';
@@ -109,7 +107,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		RegistrationComponent,
 		PasswordConfirmedValidatorDirective,
 		ReportComponent,
-		InfoWarningToast,
 		ResetPasswordComponent,
 		ConfirmResetPasswordComponent,
 		ReportHistoryComponent,
@@ -135,10 +132,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		BaseEditorComponent,
 		NewExampleComponent,
 		ExampleComponent,
-		DeleteToast,
-		XrayToast,
-		TransferOwnershipToast,
 		ImportModalComponent,
+		ConfirmDialogComponent,
 		ConfirmResetPasswordPopupComponent,
 		WindowSizeComponent,
 		FileExplorerModalComponent,
@@ -165,16 +160,14 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 			level: NgxLoggerLevel.DEBUG,
 			serverLogLevel: NgxLoggerLevel.DEBUG
 		}),
-		ToastrModule.forRoot({
-			timeOut: 3000
-		}),
+		MatSnackBarModule,
 		MatSlideToggleModule,
 		MatIconModule,
 		MatExpansionModule,
 		MatTabsModule,
+		MatButtonModule,
 		MatDialogModule,
 		MatTooltipModule,
-		MatDialogModule,
 		MatFormFieldModule,
 		MatInputModule,
 		MatMenuModule,

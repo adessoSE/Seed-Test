@@ -4,8 +4,9 @@ import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
 import { Subscription } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
-import { DeleteToast } from 'src/app/delete-toast';
+import { NotificationService } from 'src/app/Services/notification.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
 import { ApiService } from 'src/app/Services/api.service';
 import { FormControl } from '@angular/forms';
 
@@ -95,7 +96,8 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
    
 	constructor(private modalService: NgbModal, 
 		public blockService: BlockService, 
-		public toastr: ToastrService,
+		public notify: NotificationService,
+		public dialog: MatDialog,
 		public apiService: ApiService) {}
      
 	ngOnInit() {
@@ -156,7 +158,6 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Deletes a block(call a toastr)
      */
 	deleteBlock() {
-		this.apiService.nameOfComponent('block');
 		let warningMessage;
 		let warningQuestion;
 		if (this.selectedBlock.usedAsReference){
@@ -166,8 +167,18 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 			warningMessage = 'Are you sure you want to delete this block? It cannot be restored.';
 			warningQuestion = 'Delete Block?';
 		}
-		this.toastr.warning(warningMessage, warningQuestion, {
-			toastComponent: DeleteToast
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: warningQuestion,
+				message: warningMessage,
+				buttons: [
+					{ label: 'Delete', value: 'delete', color: 'warn' },
+					{ label: 'Cancel', value: 'cancel' }
+				]
+			} as ConfirmDialogData
+		});
+		ref.afterClosed().subscribe(result => {
+			if (result === 'delete') this.blockService.deleteBlockEmitter();
 		});
 	}  
 
@@ -188,7 +199,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 					this.selectedBlock = null as any;
 					console.log(resp);
 					this.updateBlocksEventEmitter();
-					this.toastr.error('', 'Block deleted');
+					this.notify.error('', 'Block deleted');
 				}); 
       
 	}
@@ -209,9 +220,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 		this.saveBlockButtonDisable = !(isNameValid && isNameUnique);
       
 		if (!isNameValid) 
-			this.toastr.warning('', 'The field cannot be empty. Enter a name.', {});
-		else if (!isNameUnique) 
-			this.toastr.warning('', 'This name already exists. Enter a unique name.', {});
+			this.notify.warning('', 'The field cannot be empty. Enter a name.');
+		else if (!isNameUnique)
+			this.notify.warning('', 'This name already exists. Enter a unique name.');
       
 	}
 	/**
@@ -272,7 +283,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 							this.blockService.updateNameRefEmitter(this.selectedBlock);
             
 						this.updateBlocksEventEmitter();
-						this.toastr.success('successfully saved', 'Block');
+						this.notify.success('successfully saved', 'Block');
 					});
 			}
 			this.blockSaved = true;

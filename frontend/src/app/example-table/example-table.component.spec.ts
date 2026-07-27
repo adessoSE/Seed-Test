@@ -1,6 +1,6 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExampleTableComponent } from './example-table.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
@@ -11,7 +11,7 @@ describe('ExampleTableComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+			imports: [HttpClientTestingModule, MatSnackBarModule],
 			declarations: [ ExampleTableComponent ],
 			schemas: [NO_ERRORS_SCHEMA]
 		})

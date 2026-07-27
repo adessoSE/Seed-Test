@@ -3,7 +3,7 @@ import { LoginComponent } from './login.component';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ToastrModule} from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthGuard } from '../guards/auth.guard';
 import { Router } from '@angular/router';
 import {  Location } from '@angular/common';
@@ -31,7 +31,7 @@ describe('LoginComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			providers: [AuthGuard, MockedApiService],
-			imports: [ HttpClientTestingModule, ReactiveFormsModule, FormsModule, RouterTestingModule, ToastrModule.forRoot()],
+			imports: [ HttpClientTestingModule, ReactiveFormsModule, FormsModule, RouterTestingModule, MatSnackBarModule],
 			declarations: [ LoginComponent ],
 			schemas: [NO_ERRORS_SCHEMA]
 		})

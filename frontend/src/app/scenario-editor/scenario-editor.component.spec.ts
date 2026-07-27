@@ -3,7 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import {ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ResizeInputDirective } from '../directives/resize-input.directive';
 import { ScenarioEditorComponent } from './scenario-editor.component';
 import { Scenario } from '@shared/models/Scenario';
@@ -21,7 +21,7 @@ describe('ScenarioEditorComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule, ToastrModule.forRoot()],
+			imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule, MatSnackBarModule],
 			declarations: [ ScenarioEditorComponent, ResizeInputDirective],
 			schemas: [NO_ERRORS_SCHEMA]
 		})

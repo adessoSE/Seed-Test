@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { Subscription } from 'rxjs';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
@@ -84,7 +84,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	backgroundName!: string;
 
 
-	constructor(private modalService: NgbModal, private toastr: ToastrService, public blockService: BlockService, public backgroundService: BackgroundService) {}
+	constructor(private modalService: NgbModal, private notify: NotificationService, public blockService: BlockService, public backgroundService: BackgroundService) {}
 
 	ngOnInit() {
 		const id = localStorage.getItem('id')!;
@@ -146,9 +146,8 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 			(this.block.stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach((step: StepType) => {
 				if (step.stepType !== undefined){
 					if (step._blockReferenceId && !toastrShown){
-						this.toastr.info("Please Note: To avoid complexity issues embedded blocks aren't allowed to be saved in another blocks ","You've selected at least one reference block to save in another block.", {
-							timeOut: 8000,
-							extendedTimeOut: 3000
+						this.notify.info("Please Note: To avoid complexity issues embedded blocks aren't allowed to be saved in another blocks ","You've selected at least one reference block to save in another block.", {
+							timeOut: 8000
 						});
 						toastrShown = true;
 					} else if (!step._blockReferenceId)
@@ -206,7 +205,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 				}
 				this.updateBlocksEventEmitter();
 				(this as any).saveAsSingleSteps = undefined;
-				this.toastr.success('successfully saved', 'Block');
+				this.notify.success('successfully saved', 'Block');
 			});
 			this.modalReference.close();
 		}
@@ -239,7 +238,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 			title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
     
 		if (this.isTitleEqual(title)) {
-			this.toastr.warning('', 'This name exists already. Enter unique name.', {});
+			this.notify.warning('', 'This name exists already. Enter unique name.');
 			blockValid = false;
 			return blockValid;
 		}

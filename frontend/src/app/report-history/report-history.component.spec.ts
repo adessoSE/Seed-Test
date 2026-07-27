@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ReportHistoryComponent } from './report-history.component';
 
@@ -11,7 +11,7 @@ describe('ReportHistoryComponent', () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			declarations: [ ReportHistoryComponent ],
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+			imports: [HttpClientTestingModule, MatSnackBarModule]
 		})
 			.compileComponents();
 	});

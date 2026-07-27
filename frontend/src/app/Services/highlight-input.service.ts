@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
 import { ApiService } from './api.service';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class HighlightInputService {
-	constructor(public toastr: ToastrService, public apiService: ApiService) {}
+	constructor(public apiService: ApiService) {}
 	targetOffset: number = 0;
 
 	/**

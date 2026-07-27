@@ -2,21 +2,22 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ApiService } from './api.service';
 import { HttpClient } from '@angular/common/http';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 
 
 describe('ApiService', () => {
 	let _service: ApiService;
 	let _httpMock: HttpTestingController;
-	let _toast: ToastrService;
+	let _toast: NotificationService;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+			imports: [HttpClientTestingModule, MatSnackBarModule]
 		});
 		_service = TestBed.inject(ApiService);
 		_httpMock = TestBed.inject(HttpTestingController);
-		_toast = TestBed.inject(ToastrService);
+		_toast = TestBed.inject(NotificationService);
 		sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
 	});
 

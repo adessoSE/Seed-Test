@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { Scenario } from '@shared/models/Scenario';
 import { Background } from '@shared/models/Background';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from './notification.service';
 /**
  * Service for communication between background of the story and the backend
  */
@@ -17,7 +17,7 @@ export class BackgroundService {
 	/**
   * @ignore
   */
-	constructor(public apiService: ApiService, private http: HttpClient, public toastr: ToastrService) { }
+	constructor(public apiService: ApiService, private http: HttpClient, public notify: NotificationService) { }
 	/**
   * Event emitter to remane backgrounf of a story
   */
@@ -88,7 +88,7 @@ export class BackgroundService {
 			button.disabled = false;
 		else {
 			button.disabled = true;
-			this.toastr.error('This Background Title is already in use. Please choose another Title');
+			this.notify.error('This Background Title is already in use. Please choose another Title');
 		}
 	}
 	/**

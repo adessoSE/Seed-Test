@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ToastrModule, ToastrService} from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from './notification.service';
 import { ApiService } from './api.service';
 import { ExampleService } from './example.service';
 
@@ -10,7 +11,7 @@ describe('ExampleService', () => {
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, ToastrModule.forRoot()]
+			imports: [HttpClientTestingModule, MatSnackBarModule]
 		});
 		_service = TestBed.inject(ExampleService);
 		_httpMock = TestBed.inject(HttpTestingController);
@@ -23,7 +24,7 @@ describe('ExampleService', () => {
 	describe('create', () => {
 		it('should be created', () => {
 			const apiService = TestBed.inject(ApiService);
-			const toast = TestBed.inject(ToastrService);
+			const toast = TestBed.inject(NotificationService);
 			const service: ExampleService = new ExampleService(apiService,toast);
 			expect(service).toBeTruthy();
 		});

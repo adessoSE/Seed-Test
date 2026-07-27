@@ -2,7 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { waitForAsync, ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { ToastrModule } from 'ngx-toastr';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { StoryEditorComponent } from './story-editor.component';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -76,7 +76,7 @@ describe('StoryEditorComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-			imports: [HttpClientTestingModule, ToastrModule.forRoot(), FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule],
+			imports: [HttpClientTestingModule, MatSnackBarModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule],
 			providers: [ApiService],
 			declarations: [ EditableComponent, ScenarioEditorComponent, ExampleTableComponent, ParentComponent, StoryEditorComponent, StoriesBarComponent, RenameStoryComponent],
 			schemas: [NO_ERRORS_SCHEMA]
