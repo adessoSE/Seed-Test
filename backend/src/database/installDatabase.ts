@@ -72,7 +72,10 @@ async function ensureIndexes(dbo: Db): Promise<void> {
 	await dbo.collection('CustomBlocks').createIndex({ repositoryId: 1 });
 
 	// User — email lookups on every login, register, password reset
-	await dbo.collection('User').createIndex({ email: 1 }, { unique: true });
+	// Non-unique: legacy data has duplicates; app validates uniqueness at registration time
+	// Drop stale unique index from previous runs if options changed
+	try { await dbo.collection('User').dropIndex('email_1'); } catch { /* doesn't exist — fine */ }
+	await dbo.collection('User').createIndex({ email: 1 });
 
 	// PwResetRequests — looked up by uuid (reset link) and email (cleanup)
 	await dbo.collection('PwResetRequests').createIndex({ uuid: 1 });
