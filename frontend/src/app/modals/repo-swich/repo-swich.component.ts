@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
@@ -27,7 +27,7 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
 
 	updateRepositoryObservable!: Subscription;
 
-	@ViewChild('repoSwitch') repoSwitch!: RepoSwichComponent;
+	readonly repoSwitch = viewChild.required<RepoSwichComponent>('repoSwitch');
 
 	constructor() {
 		this.currentRepo = localStorage.getItem('repository');
@@ -50,7 +50,7 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
 	}
 
 	openModal() {
-		this.modalService.open(this.repoSwitch, {ariaLabelledBy: 'modal-basic-titles'});
+		this.modalService.open(this.repoSwitch(), {ariaLabelledBy: 'modal-basic-titles'});
 	}
 
 	/**

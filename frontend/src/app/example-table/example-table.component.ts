@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, ViewChild, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
 import {
 	UntypedFormGroup,
 	UntypedFormArray,
@@ -134,7 +134,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	themeObservable!: Subscription;
 
 	indexOfExampleToDelete!: number;
-	@ViewChild('table') table!: MatTable<StepDefinition>;
+	readonly table = viewChild.required<MatTable<StepDefinition>>('table');
 
 	/**
    * Event emitter to check if ththe example table should be removed or added to
@@ -153,7 +153,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 
 	@Input() isDark!: boolean;
 
-	@ViewChild('newExampleModal') newExampleModal!: NewExampleComponent;
+	readonly newExampleModal = viewChild.required<NewExampleComponent>('newExampleModal');
 
 	/**
    * Event emitter to delete the example
@@ -359,7 +359,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	}
 
 	renameExample(columnIndex: number) {
-		this.newExampleModal.openNewExampleModal(this.selectedScenario, 'rename', columnIndex - 1);
+		this.newExampleModal().openNewExampleModal(this.selectedScenario, 'rename', columnIndex - 1);
 		// this.newExampleModal.renameExample(this.selectedScenario, columnIndex - 1);
 		this.updateTable();
 	}
@@ -444,7 +444,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 		this.dragDisabled = true;
 		const previousIndex = this.data.findIndex((d) => d === event.item.data);
 		moveItemInArray(this.data, previousIndex, event.currentIndex);
-		this.table.renderRows();
+		this.table().renderRows();
 		this.replaceDragedValue();
 		this.selectedScenario.saved = false;
 	}

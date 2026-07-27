@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ScenarioService } from 'src/app/Services/scenario.service';
@@ -19,14 +19,14 @@ export class RenameScenarioComponent {
 
 	scenarioName!: string;
 
-	@ViewChild('renameScenarioModal') renameScenarioModal!: RenameScenarioComponent;
+	readonly renameScenarioModal = viewChild.required<RenameScenarioComponent>('renameScenarioModal');
 
 	/**
  * Opens the rename scenario Modal
  * @param oldTitle old scenario title
  */
 	openRenameScenarioModal(oldTitle: string) {
-		this.modalReference = this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.renameScenarioModal(), {ariaLabelledBy: 'modal-basic-title'});
 		this.scenarioName = oldTitle;
 	}
 

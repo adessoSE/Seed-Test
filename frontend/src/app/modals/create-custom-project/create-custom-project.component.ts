@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -18,7 +18,7 @@ export class CreateCustomProjectComponent {
 	private notify = inject(NotificationService);
 
 
-	@ViewChild('createCustomProjectModal') createCustomProjectModal!: CreateCustomProjectComponent;
+	readonly createCustomProjectModal = viewChild.required<CreateCustomProjectComponent>('createCustomProjectModal');
 
 	modalReference!: NgbModalRef;
 	/**
@@ -37,7 +37,7 @@ export class CreateCustomProjectComponent {
      */
 	openCreateCustomProjectModal(repositories: RepositoryContainer[]) {
 		this.repositories = repositories;
-		this.modalReference = this.modalService.open(this.createCustomProjectModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.createCustomProjectModal(), {ariaLabelledBy: 'modal-basic-title'});
 	}
 
 	/**

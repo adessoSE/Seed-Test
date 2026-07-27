@@ -1,7 +1,7 @@
 import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { ExampleService } from 'src/app/Services/example.service';
 
@@ -33,7 +33,7 @@ export class NewExampleComponent {
 		newName: new UntypedFormControl('')
 	});
 
-	@ViewChild('newExampleModal') newExampleModal!: NewExampleComponent;
+	readonly newExampleModal = viewChild.required<NewExampleComponent>('newExampleModal');
 
 	/**
     * Opens the new example Modal
@@ -54,7 +54,7 @@ export class NewExampleComponent {
 				break;
 		}
 		this.exampleNames = (this.selectedScenario.multipleScenarios && this.selectedScenario.multipleScenarios.length > 0) ? this.selectedScenario.multipleScenarios[0].values : [];
-		this.modalReference = this.modalService.open(this.newExampleModal, { ariaLabelledBy: 'modal-basic-title' });
+		this.modalReference = this.modalService.open(this.newExampleModal(), { ariaLabelledBy: 'modal-basic-title' });
 	}
 
 	renameExample(scenario: Scenario, columnIndex: number) {

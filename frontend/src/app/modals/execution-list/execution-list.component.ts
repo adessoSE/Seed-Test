@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Scenario } from '@shared/models/Scenario';
 import { Story } from '@shared/models/Story';
@@ -20,7 +20,7 @@ export class ExecutionListComponent implements OnInit {
 	private storyService = inject(StoryService);
 
 
-	@ViewChild('executionListModal') executionListModal: any;
+	readonly executionListModal = viewChild<any>('executionListModal');
 
 	readonly selectedExecutions = output<{
     scenarioId: number | null;
@@ -50,7 +50,7 @@ export class ExecutionListComponent implements OnInit {
 		this.selectedTestRunIds = [];
 		this.executionContext = context;
 		this.getTestExecutions(this.executionContext);
-		this.modalReference = this.modalService.open(this.executionListModal, { size: 'mysize' });
+		this.modalReference = this.modalService.open(this.executionListModal(), { size: 'mysize' });
 	}
 
 	toggleSelection(testRunId: number, isChecked: boolean) {

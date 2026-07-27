@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
@@ -25,7 +25,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 	apiService = inject(ApiService);
 
 
-	@ViewChild('addBlockFormModal') addBlockFormModal: any;
+	readonly addBlockFormModal = viewChild<any>('addBlockFormModal');
  
 	currentStepType = new FormControl('When');
 	/**
@@ -128,7 +128,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 		this.blockSaved = true;
 		this.getAllBlocks(repoId);
 		this.correspondingComponent = correspondingComponent;
-		this.modalReference = this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title',  modalDialogClass: 'addBlock'});
+		this.modalReference = this.modalService.open(this.addBlockFormModal(), {ariaLabelledBy: 'modal-basic-title',  modalDialogClass: 'addBlock'});
 		if (this.correspondingComponent == 'background') 
 			this.clipboardBlock = JSON.parse(sessionStorage.getItem('backgroundBlock')!);
 		else if (this.correspondingComponent == 'scenario')

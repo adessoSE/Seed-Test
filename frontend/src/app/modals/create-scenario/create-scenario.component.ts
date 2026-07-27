@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
@@ -21,7 +21,7 @@ export class CreateScenarioComponent {
 
 	modalReference!: NgbModalRef;
 
-	@ViewChild('createScenarioModal') createScenarioModal!: CreateScenarioComponent;
+	readonly createScenarioModal = viewChild.required<CreateScenarioComponent>('createScenarioModal');
 
 	/**
      * Event emitter to add a new scenario
@@ -34,7 +34,7 @@ export class CreateScenarioComponent {
  */
 	openCreateScenarioModal(selectedStory: Story) {
 		this.selectedStory = selectedStory;
-		this.modalReference = this.modalService.open(this.createScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.createScenarioModal(), {ariaLabelledBy: 'modal-basic-title'});
 	}
   
 	/**

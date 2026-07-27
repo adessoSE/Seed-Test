@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -396,12 +396,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * View child of the modals component
    */
-	@ViewChild('renameStoryModal') renameStoryModal!: RenameStoryComponent;
-	@ViewChild('createNewScenario') createScenarioModal!: CreateScenarioComponent;
-	@ViewChild('renameBackgroundModal')
-	renameBackgroundModal!: RenameBackgroundComponent;
-	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
-	@ViewChild('executionListModal') executionListModal!: ExecutionListComponent;
+	readonly renameStoryModal = viewChild.required<RenameStoryComponent>('renameStoryModal');
+	readonly createScenarioModal = viewChild.required<CreateScenarioComponent>('createNewScenario');
+	readonly renameBackgroundModal = viewChild.required<RenameBackgroundComponent>('renameBackgroundModal');
+	readonly workgroupEditModal = viewChild.required<WorkgroupEditComponent>('workgroupEditModal');
+	readonly executionListModal = viewChild.required<ExecutionListComponent>('executionListModal');
 
 	readonly deleteStoryEvent = output<any>();
 
@@ -1103,7 +1102,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.updateBackground();
 	}
 
-	@ViewChild('saveBlockModal') saveBlockModal!: SaveBlockFormComponent;
+	readonly saveBlockModal = viewChild.required<SaveBlockFormComponent>('saveBlockModal');
 	checkAllSteps(_checkValue?: boolean) {
 		//needed by saveBlockModal
 	}
@@ -1120,7 +1119,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 				name: unsavedBackground.name,
 				stepDefinitions: stepDefs
 			};
-			this.saveBlockModal.openSaveBlockFormModal(
+			this.saveBlockModal().openSaveBlockFormModal(
 				block,
 				this,
 				true,
@@ -1419,7 +1418,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
       this.selectedScenario.testRunSteps!.length > 0
 		) 
 		// Open the modal if there are test execution steps
-			this.executionListModal.openExecutionListModal(this.selectedScenario);
+			this.executionListModal().openExecutionListModal(this.selectedScenario);
 		else 
 		// Run tests directly if there are no test execution steps
 			this.runTests(scenario_id);
@@ -1438,7 +1437,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
         scenario.testRunSteps.length > 0
 		);
 		if (executableTests) 
-			this.executionListModal.openExecutionListModal(this.selectedStory);
+			this.executionListModal().openExecutionListModal(this.selectedStory);
 		else 
 			this.runTests(null);
     
@@ -1527,7 +1526,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param project
    */
 	workGroupEdit(project: RepositoryContainer) {
-		this.workgroupEditModal.openWorkgroupEditModal(
+		this.workgroupEditModal().openWorkgroupEditModal(
 			project,
 			this.email,
 			this.id
@@ -1678,7 +1677,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param newStoryTitle
    */
 	changeStoryTitle() {
-		this.renameStoryModal.openRenameStoryModal(
+		this.renameStoryModal().openRenameStoryModal(
 			this.stories,
 			this.selectedStory
 		);
@@ -1796,7 +1795,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 				(s) => s !== null && s.background.name == blockToRename.name
 			);
     
-		this.renameBackgroundModal.openRenameBackgroundModal(
+		this.renameBackgroundModal().openRenameBackgroundModal(
 			this.backgrounds,
 			background,
 			this.selectedStory,
@@ -1832,7 +1831,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	}
 
 	openCreateScenario() {
-		this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
+		this.createScenarioModal().openCreateScenarioModal(this.selectedStory);
 	}
 
 	initialyAddIsExample() {

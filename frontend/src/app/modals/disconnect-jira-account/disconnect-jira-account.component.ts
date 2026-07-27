@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
 
@@ -19,7 +19,7 @@ export class DisconnectJiraAccountComponent {
      */
 	readonly jiraAccountResponse = output<any>();
 
-	@ViewChild ('disconnectJiraModal') disconnectJiraModal!: DisconnectJiraAccountComponent;
+	readonly disconnectJiraModal = viewChild.required<DisconnectJiraAccountComponent>('disconnectJiraModal');
 
 	modalReference!: NgbModalRef;
 
@@ -28,7 +28,7 @@ export class DisconnectJiraAccountComponent {
    *
   */
 	openDisconnectJiraAccountModal() {
-		this.modalReference = this.modalService.open(this.disconnectJiraModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.disconnectJiraModal(), {ariaLabelledBy: 'modal-basic-title'});
 	}
 
 	/**

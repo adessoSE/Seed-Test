@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -46,31 +46,30 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	highlightInputService = inject(HighlightInputService);
 	private stepValidationService = inject(StepValidationService);
 
-	@ViewChildren('step_type_input') step_type_input!: QueryList<ElementRef>;
+	readonly step_type_input = viewChildren<ElementRef>('step_type_input');
 
-	@ViewChildren('step_type_pre') step_type_pre!: QueryList<ElementRef>;
+	readonly step_type_pre = viewChildren<ElementRef>('step_type_pre');
 
 	@ViewChildren('step_type_input1') step_type_input1!: QueryList<ElementRef>;
 
-	@ViewChildren('step_type_input2') step_type_input2!: QueryList<ElementRef>;
+	readonly step_type_input2 = viewChildren<ElementRef>('step_type_input2');
 
-	@ViewChildren('step_type_input3') step_type_input3!: QueryList<ElementRef>;
+	readonly step_type_input3 = viewChildren<ElementRef>('step_type_input3');
 
 	/**
    * View child of the example table
    */
-	@ViewChildren('exampleChildView')
-	exampleChildren!: QueryList<ExampleTableComponent>;
+	readonly exampleChildren = viewChildren<ExampleTableComponent>('exampleChildView');
 
 	/**
     * View child of the modals component
     */
-	@ViewChild('saveBlockModal') saveBlockModal!: SaveBlockFormComponent;
-	@ViewChild('addBlockModal') addBlockModal!: AddBlockFormComponent;
-	@ViewChild('newStepRequest') newStepRequest!: NewStepRequestComponent;
-	@ViewChild('newExampleModal') newExampleModal!: NewExampleComponent;
-	@ViewChild('editBlockModal') editBlockModal!: EditBlockComponent;
-	@ViewChild('fileExplorerModal') fileExplorerModal!: FileExplorerModalComponent;
+	readonly saveBlockModal = viewChild.required<SaveBlockFormComponent>('saveBlockModal');
+	readonly addBlockModal = viewChild.required<AddBlockFormComponent>('addBlockModal');
+	readonly newStepRequest = viewChild.required<NewStepRequestComponent>('newStepRequest');
+	readonly newExampleModal = viewChild.required<NewExampleComponent>('newExampleModal');
+	readonly editBlockModal = viewChild.required<EditBlockComponent>('editBlockModal');
+	readonly fileExplorerModal = viewChild.required<FileExplorerModalComponent>('fileExplorerModal');
 
 
 	selectedStory!: Story;
@@ -394,8 +393,9 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 			this.highlightInputOnInit();
     
 
-		if (this.exampleChildren.last != undefined) 
-			this.exampleChild = this.exampleChildren.last;
+		const exampleChildren = this.exampleChildren();
+  if (exampleChildren.at(-1)! != undefined) 
+			this.exampleChild = exampleChildren.at(-1)!;
     
 	}
 
@@ -523,7 +523,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 		const stepLocation = templateName !== 'background' ? selectedScenario.stepDefinitions : selectedScenario.background.stepDefinitions;
 		if (step.type == 'Upload File')
 			try {
-				const result = await this.fileExplorerModal.openFileExplorerModal();
+				const result = await this.fileExplorerModal().openFileExplorerModal();
 				if (!result) return;
 				console.log('Upload modal return: ', result);
 				const preSelectValues = [result.filename];
@@ -543,7 +543,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 		if (!newStep) return;
 
 		if (newStep['type'] === this.newStepName)
-			this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
+			this.newStepRequest().openNewStepRequestModal(newStep['stepType']);
 		else {
 			switch (newStep.stepType) {
 				case 'given':
@@ -630,7 +630,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
    * @param useCaseString
    */
 	openExampleModal(useCaseString: string) {
-		this.newExampleModal.openNewExampleModal(this.selectedScenario, useCaseString);
+		this.newExampleModal().openNewExampleModal(this.selectedScenario, useCaseString);
 	}
 
 	/**
@@ -1467,7 +1467,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 		}
 
 		const block: Block = { name: 'TEST', stepDefinitions: saveBlock as unknown as StepDefinition };
-		this.saveBlockModal.openSaveBlockFormModal(block, this);
+		this.saveBlockModal().openSaveBlockFormModal(block, this);
 	}
 
 	/**
@@ -2081,7 +2081,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 
 	addBlock() {
 		const id = localStorage.getItem('id') ?? '';
-		this.addBlockModal.openAddBlockFormModal(this.templateName, id);
+		this.addBlockModal().openAddBlockFormModal(this.templateName, id);
 	}
 
 	/**
@@ -2091,7 +2091,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	editBlock(event: Event, blockStep: StepType) {
 		event.stopPropagation();
 		const block = this.getBlockInSteps(blockStep._blockReferenceId!);
-		this.editBlockModal.openEditBlockModal(block);
+		this.editBlockModal().openEditBlockModal(block);
 		const x = document.getElementsByClassName('stepBlockContainer')[0];
 		x.setAttribute('aria-expanded', 'false');
 	}
@@ -2425,7 +2425,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 
 		if (this.step_type_input1 && this.step_type_input1.length > 0) {
 			//scenario first input value
-			const stepTypePre = this.step_type_pre.toArray();
+			const stepTypePre = this.step_type_pre();
 			const stepTypeInput_1 = this.step_type_input1.filter((in_field) => in_field !== undefined);
 			stepTypeInput_1.forEach((in_field, index) => {
 				if (in_field && stepTypePre[index]) 

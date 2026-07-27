@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from '@shared/models/Group';
@@ -19,7 +19,7 @@ export class CreateNewStoryComponent {
 	storyService = inject(StoryService);
 
 
-	@ViewChild('createNewStoryModal') createNewStoryModal!: TemplateRef<CreateNewStoryComponent>;
+	readonly createNewStoryModal = viewChild.required<TemplateRef<CreateNewStoryComponent>>('createNewStoryModal');
 
 	/**
      * selectable Stories when create Group
@@ -52,7 +52,7 @@ export class CreateNewStoryComponent {
      */
 	openCreateNewStoryModal(stories: Story[]) {
 		this.stories = stories;
-		this.modalReference = this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.createNewStoryModal(), {ariaLabelledBy: 'modal-basic-title'});
 	}
 
 	/**

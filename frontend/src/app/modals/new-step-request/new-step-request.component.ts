@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from '../../../app/Services/api.service';
@@ -17,7 +17,7 @@ export class NewStepRequestComponent {
 
 	modalReference!: NgbModalRef;
 
-	@ViewChild('newStepRequestModal') newStepRequestModal!: NewStepRequestComponent;
+	readonly newStepRequestModal = viewChild.required<NewStepRequestComponent>('newStepRequestModal');
 
 	newStepReqForm = new UntypedFormGroup ({
 		title: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
@@ -34,7 +34,7 @@ export class NewStepRequestComponent {
     * @param stepType
   */
 	openNewStepRequestModal(stepType: string) {
-		this.modalReference = this.modalService.open(this.newStepRequestModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.newStepRequestModal(), {ariaLabelledBy: 'modal-basic-title'});
 		const id = 'type_form_' + stepType;
 		(document.getElementById(id) as HTMLOptionElement).selected = true;
 		//Updates the type 

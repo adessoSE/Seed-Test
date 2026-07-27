@@ -27,7 +27,7 @@ describe('CreateNewStoryComponent', () => {
 
 		// Render the ng-template content — the component wraps its form in <ng-template #createNewStoryModal>
 		const vcRef = fixture.debugElement.injector.get(ViewContainerRef);
-		vcRef.createEmbeddedView(component.createNewStoryModal);
+		vcRef.createEmbeddedView(component.createNewStoryModal());
 		fixture.detectChanges();
 	});
 

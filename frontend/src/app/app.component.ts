@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild, OnDestroy, AfterViewInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -54,8 +54,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
    */
 	error!: string;
 
-	@ViewChild('dropdownMenu') dropdownMenu!: ElementRef;
-	@ViewChild('helpMenu') helpMenu!: ElementRef;
+	readonly dropdownMenu = viewChild.required<ElementRef>('dropdownMenu');
+	readonly helpMenu = viewChild.required<ElementRef>('helpMenu');
 
 	closed: boolean = false;
 	helpPosition: any;
@@ -135,8 +135,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	}
 
 	ngAfterViewInit(){
-		this.helpPosition = this.dropdownMenu.nativeElement.offsetTop;
-		this.menuPosition = this.helpMenu.nativeElement.offsetTop;
+		this.helpPosition = this.dropdownMenu().nativeElement.offsetTop;
+		this.menuPosition = this.helpMenu().nativeElement.offsetTop;
 
 	}
 

@@ -1,4 +1,4 @@
-import { Input, Component, ViewChild, SimpleChanges, OnInit, OnChanges, ChangeDetectionStrategy, output } from '@angular/core';
+import { Input, Component, SimpleChanges, OnInit, OnChanges, ChangeDetectionStrategy, output, viewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
@@ -10,7 +10,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
 })
 export class WindowSizeComponent implements OnInit, OnChanges {
 
-	@ViewChild('appMenu') menuTrigger!: MatMenuTrigger;
+	readonly menuTrigger = viewChild.required<MatMenuTrigger>('appMenu');
 	@Input() width!: number;
 	@Input() height!: number;
 	@Input() emulator!: boolean;

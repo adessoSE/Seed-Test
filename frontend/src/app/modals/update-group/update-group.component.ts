@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -21,7 +21,7 @@ export class UpdateGroupComponent {
 	groupService = inject(GroupService);
 
 
-	@ViewChild('updateGroupModal') updateGroupModal!: UpdateGroupComponent;
+	readonly updateGroupModal = viewChild.required<UpdateGroupComponent>('updateGroupModal');
 	/**
      * selectable Stories when create Group
   */
@@ -76,7 +76,7 @@ export class UpdateGroupComponent {
 		this.groupTitle = group.name;
 		this.isSeq = group.isSequential;
 		this.selectedStories = [...group.member_stories];
-		this.modalReference = this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.updateGroupModal(), {ariaLabelledBy: 'modal-basic-title'});
 	}
 
 	groupUnique(form :NgForm) {

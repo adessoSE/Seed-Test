@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, EventEmitter, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -21,7 +21,7 @@ export class CreateNewGroupComponent {
 	storyService = inject(StoryService);
 
 
-	@ViewChild('createNewGroupModal') createNewGroupModal!: CreateNewGroupComponent;
+	readonly createNewGroupModal = viewChild.required<CreateNewGroupComponent>('createNewGroupModal');
 
 	/**
      * selectable Stories when create Group
@@ -68,7 +68,7 @@ export class CreateNewGroupComponent {
 			this.stories = res;
 			this.filteredStories = new MatTableDataSource(res);
 		});
-		this.modalReference = this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.createNewGroupModal(), {ariaLabelledBy: 'modal-basic-title'});
 	}
 
 	/**

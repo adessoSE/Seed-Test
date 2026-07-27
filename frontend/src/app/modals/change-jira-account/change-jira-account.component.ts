@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
@@ -21,7 +21,7 @@ export class ChangeJiraAccountComponent {
      */
 	readonly jiraAccountResponse = output<any>();
 
-	@ViewChild('changeJiraAccountModal') changeJiraAccountModal!: ChangeJiraAccountComponent;
+	readonly changeJiraAccountModal = viewChild.required<ChangeJiraAccountComponent>('changeJiraAccountModal');
 
 	/**
      * Type of the changed account
@@ -55,7 +55,7 @@ export class ChangeJiraAccountComponent {
      * @param type type of the changed account
      */
 	openChangeJiraAccountModal(type: string) {
-		this.modalReference = this.modalService.open(this.changeJiraAccountModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.changeJiraAccountModal(), {ariaLabelledBy: 'modal-basic-title'});
 		this.type = type;
 		this.activeForm = 'bearer';
 	}

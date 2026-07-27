@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -22,7 +22,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	backgroundService = inject(BackgroundService);
 
 
-	@ViewChild('saveBlockFormModal') saveBlockFormModal!: SaveBlockFormComponent;
+	readonly saveBlockFormModal = viewChild.required<SaveBlockFormComponent>('saveBlockFormModal');
 	selectedTemplate!: string;
 	/**
     * Sets a new selected story
@@ -128,7 +128,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 			this.exampleBlock = true;
     
 		this.createStepList();
-		this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.saveBlockFormModal(), {ariaLabelledBy: 'modal-basic-title'});
 		if (isBackground && isBackground !== undefined){
 			document.getElementById('modalHeader')!.innerHTML = 'Save Background';
 			document.getElementById('infoSpan')!.innerHTML = 'You have replaced the current story background. To save this background in your project, click Submit. If you don`t want to use it anymore and want to delete the current background, click Discard Background.';

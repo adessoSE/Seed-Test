@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ElementRef, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren } from '@angular/core';
 import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
@@ -178,12 +178,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	/**
      * View Child Modals
      */
-	@ViewChild('createNewGroup') createNewGroup!: CreateNewGroupComponent;
-	@ViewChild('createNewStory') createNewStory!: CreateNewStoryComponent;
-	@ViewChild('updateGroup') updateGroup!: UpdateGroupComponent;
-	@ViewChild('createNewScenario') createNewScenario!: CreateScenarioComponent;
-	@ViewChild('executionListModal') executionListModal!: ExecutionListComponent;
-	@ViewChildren('storyElement') storyElements!: QueryList<ElementRef>;
+	readonly createNewGroup = viewChild.required<CreateNewGroupComponent>('createNewGroup');
+	readonly createNewStory = viewChild.required<CreateNewStoryComponent>('createNewStory');
+	readonly updateGroup = viewChild.required<UpdateGroupComponent>('updateGroup');
+	readonly createNewScenario = viewChild.required<CreateScenarioComponent>('createNewScenario');
+	readonly executionListModal = viewChild.required<ExecutionListComponent>('executionListModal');
+	readonly storyElements = viewChildren<ElementRef>('storyElement');
 
 	/**
      * Constructor
@@ -384,7 +384,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	evaluateAndRunGroup(group: any) {
 		if (group.xrayTestSet) {
 			this.selectedGroup = group;
-			this.executionListModal.openExecutionListModal(group);
+			this.executionListModal().openExecutionListModal(group);
 		} else 
 		// Run group directly if group is no xray test set
 			this.runGroup(group);
@@ -480,9 +480,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	}
 
 	scrollToSelectedStory() {
-		if (this.storyElements && this.selectedStory) 
+		if (this.storyElements() && this.selectedStory) 
 			setTimeout(() => {
-				const selectedElementRef = this.storyElements.find(element => element.nativeElement.id === `story${this.selectedStory.issue_number}`);
+				const selectedElementRef = this.storyElements().find(element => element.nativeElement.id === `story${this.selectedStory.issue_number}`);
 				if (selectedElementRef) {
 					console.log('Found selected element', selectedElementRef.nativeElement);
 					selectedElementRef.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -508,7 +508,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
      * Opens a create New story Modal
      */
 	openCreateNewStoryModal() {
-		this.createNewStory.openCreateNewStoryModal(this.stories);
+		this.createNewStory().openCreateNewStoryModal(this.stories);
 	}
 
 	addScenario(scenarioName: string) {
@@ -524,18 +524,18 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
      * Opens a create New group Modal
      */
 	openCreateNewGroupModal() {
-		this.createNewGroup.openCreateNewGroupModal(this.groups);
+		this.createNewGroup().openCreateNewGroupModal(this.groups);
 	}
 
 	/**
      * Opens a update group Modal
      */
 	openUpdateGroupModal(group: Group) {
-		this.updateGroup.openUpdateGroupModal(group, this.groups);
+		this.updateGroup().openUpdateGroupModal(group, this.groups);
 	}
 
 	openCreateScenario() {
-		this.createNewScenario.openCreateScenarioModal(this.selectedStory);
+		this.createNewScenario().openCreateScenarioModal(this.selectedStory);
 	}
 
 	dropStory(event: CdkDragDrop<string[]>) {

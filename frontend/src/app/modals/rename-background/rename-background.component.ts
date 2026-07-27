@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BackgroundService } from 'src/app/Services/background.service';
@@ -26,7 +26,7 @@ export class RenameBackgroundComponent{
 
 	modalReference!: NgbModalRef;
 
-	@ViewChild('renameBackground') renameBackground!: RenameBackgroundComponent;
+	readonly renameBackground = viewChild.required<RenameBackgroundComponent>('renameBackground');
 	background!: Background;
 	backgrounds!: Background[];
 	story!: Story;
@@ -46,7 +46,7 @@ export class RenameBackgroundComponent{
 		this.blockToRename = blockToRename;
 		this.storiesWithBlock = storiesWithBlock;
 		this.saveBackgroundAndRun = saveBackgroundAndRun;
-		this.modalReference = this.modalService.open(this.renameBackground, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.renameBackground(), {ariaLabelledBy: 'modal-basic-title'});
 		this.backgroundTitle.setValue(background.name);
 	}
 

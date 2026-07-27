@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
@@ -52,7 +52,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 
 	isDark!: boolean;
 
-	@ViewChild('iframe') iframe!: ElementRef;
+	readonly iframe = viewChild.required<ElementRef>('iframe');
 
 	/**
      * Subject to get a report object and emits its current value whenever it is subscribed to
@@ -199,7 +199,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	}
 
 	public exportHtmlToPDF(){
-		const iframe = this.iframe.nativeElement;
+		const iframe = this.iframe().nativeElement;
 		const body = iframe.contentWindow.document.getElementsByTagName('body')[0];
 		const divEl =  iframe.contentWindow.document.querySelectorAll('[id^="collapseFeature"]');
 		for (const element of divEl) 

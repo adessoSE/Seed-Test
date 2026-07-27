@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -19,7 +19,7 @@ export class DeleteAccountComponent {
 	private notify = inject(NotificationService);
 
 
-	@ViewChild ('deleteAccountModal') deleteAccountModal!: DeleteAccountComponent;
+	readonly deleteAccountModal = viewChild.required<DeleteAccountComponent>('deleteAccountModal');
 
 	/**
      * Email of the user
@@ -35,7 +35,7 @@ export class DeleteAccountComponent {
      */
 	openDeleteAccountModal(email: string) {
 		this.email = email;
-		this.modalReference = this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+		this.modalReference = this.modalService.open(this.deleteAccountModal(), {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
 	}
 
 	/**
@@ -51,7 +51,7 @@ export class DeleteAccountComponent {
 			this.modalReference.close();
 		} else {
 			this.unallowableNameToast();
-			this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+			this.modalService.open(this.deleteAccountModal(), {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
 		}
 	}
 

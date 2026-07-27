@@ -27,7 +27,7 @@ describe('RenameStoryComponent', () => {
 
 		// Render the ng-template content — the component wraps its form in <ng-template #renameStoryModal>
 		const vcRef = fixture.debugElement.injector.get(ViewContainerRef);
-		vcRef.createEmbeddedView(component.renameStoryModal);
+		vcRef.createEmbeddedView(component.renameStoryModal());
 		fixture.detectChanges();
 	});
 

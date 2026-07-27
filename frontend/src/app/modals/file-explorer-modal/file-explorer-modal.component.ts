@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
@@ -28,7 +28,7 @@ export class FileExplorerModalComponent implements OnInit {
 	isDark!: boolean;
 	themeObservable!: Subscription;
 
-	@ViewChild ('fileExplorerModal') fileExplorerModal!: FileExplorerModalComponent;
+	readonly fileExplorerModal = viewChild.required<FileExplorerModalComponent>('fileExplorerModal');
 
 	ngOnInit() {
 		this.repoId = localStorage.getItem('id')!; // set before updateFileElementQuery
@@ -44,7 +44,7 @@ export class FileExplorerModalComponent implements OnInit {
 	}
 
 	openFileExplorerModal() {
-		this.modalReference = this.modalService.open(this.fileExplorerModal);
+		this.modalReference = this.modalService.open(this.fileExplorerModal());
 		this.fileExlorerEmpty = this.allFiles.length > 0 ? false : true;
 		return this.modalReference.result.catch((reason)=> console.log('UploadFileModal dismissed: ', reason));
 	}

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -45,17 +45,17 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	/**
      * Viewchild to create the modals
      */
-	@ViewChild('changeJiraModal') changeJiraModal!: ChangeJiraAccountComponent;
-	@ViewChild('disconnectJiraModal') disconnectJiraModal!: DisconnectJiraAccountComponent;
-	@ViewChild('createCustomProject') createCustomProject!: CreateCustomProjectComponent;
-	@ViewChild('deleteAccountModal') deleteAccountModal!: DeleteAccountComponent;
-	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
-	@ViewChild('repoSwitchModal') repoSwitchModal!: RepoSwichComponent;
+	readonly changeJiraModal = viewChild.required<ChangeJiraAccountComponent>('changeJiraModal');
+	readonly disconnectJiraModal = viewChild.required<DisconnectJiraAccountComponent>('disconnectJiraModal');
+	readonly createCustomProject = viewChild.required<CreateCustomProjectComponent>('createCustomProject');
+	readonly deleteAccountModal = viewChild.required<DeleteAccountComponent>('deleteAccountModal');
+	readonly workgroupEditModal = viewChild.required<WorkgroupEditComponent>('workgroupEditModal');
+	readonly repoSwitchModal = viewChild.required<RepoSwichComponent>('repoSwitchModal');
 
 	/**
      * Viewchild to auto open mat-select
      */
-	@ViewChild('ngSelect') ngSelect: any;
+	readonly ngSelect = viewChild<any>('ngSelect');
 
 
 	/**
@@ -199,28 +199,28 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Opens Modal to create a new custom project
      */
 	newRepository() {
-		this.createCustomProject.openCreateCustomProjectModal(this.repositories);
+		this.createCustomProject().openCreateCustomProjectModal(this.repositories);
 	}
 
 	/**
      * Loggs in the user to Jira
      */
 	jiraLogin() {
-		this.changeJiraModal.openChangeJiraAccountModal('Jira');
+		this.changeJiraModal().openChangeJiraAccountModal('Jira');
 	}
 
 	/**
      * Disconnects the user from Jira
      */
 	jiraDisconnect() {
-		this.disconnectJiraModal.openDisconnectJiraAccountModal();
+		this.disconnectJiraModal().openDisconnectJiraAccountModal();
 	}
 
 	/**
      * Opens Modal to delete the Seed-Test account
      */
 	deleteAccount() {
-		this.deleteAccountModal.openDeleteAccountModal(this.email);
+		this.deleteAccountModal().openDeleteAccountModal(this.email);
 	}
 
 	/**
@@ -228,7 +228,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param project
      */
 	workGroupEdit(project: RepositoryContainer) {
-		this.workgroupEditModal.openWorkgroupEditModal(project, this.email, this.id);
+		this.workgroupEditModal().openWorkgroupEditModal(project, this.email, this.id);
 	}
 
 	/**
@@ -351,8 +351,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 			return false; // Explicitly return false if repo or repo.repoName is missing
 		});
 
-		if (this.searchInput != '' && this.ngSelect) 
-			this.ngSelect.open();
+		const ngSelect = this.ngSelect();
+  if (this.searchInput != '' && ngSelect) 
+			ngSelect.open();
     
 	}
 

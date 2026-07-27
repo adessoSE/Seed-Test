@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -110,8 +110,8 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    */
 	readonly globalSettingsChanged = output<boolean>();
 
-	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
-	@ViewChild('repoSwitchModal') repoSwitchModal!: RepoSwichComponent;
+	readonly workgroupEditModal = viewChild.required<WorkgroupEditComponent>('workgroupEditModal');
+	readonly repoSwitchModal = viewChild.required<RepoSwichComponent>('repoSwitchModal');
 	transferOwnershipObservable!: Subscription;
 	constructor() {
 		this.projectService.deleteRepositoryEvent.subscribe(() => {
@@ -231,7 +231,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 			};
     
 		this.loadGlobalSettings();
-		this.modalReference = this.modalService.open(this.workgroupEditModal, {
+		this.modalReference = this.modalService.open(this.workgroupEditModal(), {
 			ariaLabelledBy: 'modal-basic-titles'
 		});
 		this.projectName = project.repoName;
@@ -431,7 +431,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    * Opens repo switch modal
    */
 	openRepoSwitchModal() {
-		this.repoSwitchModal.openModal();
+		this.repoSwitchModal().openModal();
 	}
 
 	enterSubmit(event: any, form: NgForm) {

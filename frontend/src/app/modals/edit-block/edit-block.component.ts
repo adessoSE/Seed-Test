@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, OnInit, ChangeDetectionStrategy, inject, input } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy, inject, input, viewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
@@ -19,7 +19,7 @@ export class EditBlockComponent implements OnInit {
 	themeService = inject(ThemingService);
 
 
-	@ViewChild('editBlockModal') editBlockModal: any;
+	readonly editBlockModal = viewChild<any>('editBlockModal');
 
 	/**
    * Original step types not sorted or changed
@@ -53,7 +53,7 @@ export class EditBlockComponent implements OnInit {
    * Opens the edit block form modal
    */
 	openEditBlockModal(block: Block) {
-		this.modalReference = this.modalService.open(this.editBlockModal, { ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block' });
+		this.modalReference = this.modalService.open(this.editBlockModal(), { ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block' });
 		this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock')!);
 		this.selectedBlock = block;
 		Object.keys(this.selectedBlock.stepDefinitions).forEach((key, _) => {

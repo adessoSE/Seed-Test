@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -96,9 +96,9 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	/**
      * View child of the modals component
      */
-	@ViewChild('renameScenarioModal') renameScenarioModal!: RenameScenarioComponent;
-	@ViewChild('createScenarioModal') createScenarioModal!: CreateScenarioComponent;
-	@ViewChild('baseEditor') baseEditor!: BaseEditorComponent;
+	readonly renameScenarioModal = viewChild.required<RenameScenarioComponent>('renameScenarioModal');
+	readonly createScenarioModal = viewChild.required<CreateScenarioComponent>('createScenarioModal');
+	readonly baseEditor = viewChild.required<BaseEditorComponent>('baseEditor');
 
 	/**
      * Original step types not sorted or changed
@@ -450,11 +450,11 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * Open Modal to rename the scenario
      */
 	changeScenarioTitle() {
-		this.renameScenarioModal.openRenameScenarioModal(this.selectedScenario.name);
+		this.renameScenarioModal().openRenameScenarioModal(this.selectedScenario.name);
 	}
 
 	openCreateScenario() {
-		this.createScenarioModal.openCreateScenarioModal(this.selectedStory());
+		this.createScenarioModal().openCreateScenarioModal(this.selectedStory());
 	}
 
 	blockSelectTrigger(block: any) {

@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
@@ -18,7 +18,7 @@ export class RenameStoryComponent {
 
 	modalReference!: NgbModalRef;
 
-	@ViewChild('renameStoryModal') renameStoryModal!: TemplateRef<RenameStoryComponent>;
+	readonly renameStoryModal = viewChild.required<TemplateRef<RenameStoryComponent>>('renameStoryModal');
 
 	story!: Story;
 	stories!: Story[];
@@ -37,7 +37,7 @@ export class RenameStoryComponent {
 	openRenameStoryModal(stories: Story [], story: Story) {
 		this.stories = stories;
 		this.story = story;
-		this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.renameStoryModal(), {ariaLabelledBy: 'modal-basic-title'});
 		const title = document.getElementById('newStoryTitle') as HTMLInputElement;
 		title.placeholder = story.title;
 		this.storyForm.setValue({
