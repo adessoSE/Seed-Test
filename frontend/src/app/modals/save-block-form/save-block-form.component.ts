@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -16,6 +16,11 @@ import { BackgroundService } from '../../Services/background.service';
 	standalone: false
 })
 export class SaveBlockFormComponent implements OnInit, OnDestroy {
+	private modalService = inject(NgbModal);
+	private notify = inject(NotificationService);
+	blockService = inject(BlockService);
+	backgroundService = inject(BackgroundService);
+
 
 	@ViewChild('saveBlockFormModal') saveBlockFormModal!: SaveBlockFormComponent;
 	selectedTemplate!: string;
@@ -82,9 +87,6 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
 	isBackground!: boolean;
 	backgroundName!: string;
-
-
-	constructor(private modalService: NgbModal, private notify: NotificationService, public blockService: BlockService, public backgroundService: BackgroundService) {}
 
 	ngOnInit() {
 		const id = localStorage.getItem('id')!;

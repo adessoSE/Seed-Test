@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
 
@@ -10,6 +10,9 @@ import { ManagementService } from 'src/app/Services/management.service';
 	standalone: false
 })
 export class DisconnectJiraAccountComponent {
+	private modalService = inject(NgbModal);
+	managmentService = inject(ManagementService);
+
 
 	/**
      * Emits a response after the jira account has been disconnected
@@ -20,8 +23,6 @@ export class DisconnectJiraAccountComponent {
 	@ViewChild ('disconnectJiraModal') disconnectJiraModal!: DisconnectJiraAccountComponent;
 
 	modalReference!: NgbModalRef;
-
-	constructor(private modalService: NgbModal, public managmentService: ManagementService) { }
 
 	/**
    * Opens the disconnect Jira Account Modal

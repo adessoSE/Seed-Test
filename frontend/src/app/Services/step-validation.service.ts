@@ -1,14 +1,14 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { NotificationService } from './notification.service';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class StepValidationService implements OnDestroy {
+	private notify = inject(NotificationService);
+
 
 	private warningTimeout: any;
-
-	constructor(private notify: NotificationService) {}
 
 	ngOnDestroy(): void {
 		clearTimeout(this.warningTimeout);

@@ -26,7 +26,7 @@ describe('GroupService', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
 			const toast = TestBed.inject(NotificationService);
-			const service: GroupService = new GroupService(apiService,http,toast);
+			const service = TestBed.inject(GroupService);
 			expect(service).toBeTruthy();
 		});
 	});

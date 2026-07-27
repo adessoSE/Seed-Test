@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import {Router} from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { NotificationService } from '../Services/notification.service';
@@ -17,6 +17,11 @@ import { LoginService } from '../Services/login.service';
 })
 
 export class RegistrationComponent implements OnInit {
+	loginService = inject(LoginService);
+	private router = inject(Router);
+	private notify = inject(NotificationService);
+	private themeService = inject(ThemingService);
+
 
 	/**
      * Error during user creation
@@ -24,12 +29,6 @@ export class RegistrationComponent implements OnInit {
 	error!: string;
 
 	isDark!:boolean;
-
-	/**
-     * @ignore
-     */
-	constructor(public loginService: LoginService, private router: Router, private notify: NotificationService,
-		private themeService:ThemingService) {}
 
 	/**
      * @ignore

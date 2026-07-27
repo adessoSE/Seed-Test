@@ -1,7 +1,7 @@
 import { Scenario } from '@shared/models/Scenario';
 import { StepType } from '@shared/models/StepType';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { ExampleService } from 'src/app/Services/example.service';
 
@@ -13,6 +13,9 @@ import { ExampleService } from 'src/app/Services/example.service';
 	standalone: false
 })
 export class NewExampleComponent {
+	private modalService = inject(NgbModal);
+	exampleService = inject(ExampleService);
+
 
 	/**
      * Currently selected story
@@ -31,14 +34,6 @@ export class NewExampleComponent {
 	});
 
 	@ViewChild('newExampleModal') newExampleModal!: NewExampleComponent;
-
-	/**
-    * Event emitter to add a new example
-    */
-	//@Output() newExampleEvent: EventEmitter<any> = new EventEmitter();
-
-
-	constructor(private modalService: NgbModal, public exampleService: ExampleService) { }
 
 	/**
     * Opens the new example Modal

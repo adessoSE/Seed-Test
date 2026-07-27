@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, TemplateRef, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from '@shared/models/Group';
@@ -15,6 +15,9 @@ import { StoryService } from 'src/app/Services/story.service';
 	standalone: false
 })
 export class CreateNewStoryComponent {
+	private modalService = inject(NgbModal);
+	storyService = inject(StoryService);
+
 
 	@ViewChild('createNewStoryModal') createNewStoryModal!: TemplateRef<CreateNewStoryComponent>;
 
@@ -43,9 +46,6 @@ export class CreateNewStoryComponent {
 		storyTitle: new UntypedFormControl('',[Validators.required, Validators.pattern(/[\S]/)]),
 		storyDescription: new UntypedFormControl('')
 	});
-
-
-	constructor(private modalService: NgbModal, public storyService: StoryService) { }
 
 	/**
      * Opens the create new story modal

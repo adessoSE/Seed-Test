@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { UntypedFormControl, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BackgroundService } from 'src/app/Services/background.service';
@@ -17,6 +17,12 @@ import { BlockService } from '../../Services/block.service';
 	standalone: false
 })
 export class RenameBackgroundComponent{
+	private modalService = inject(NgbModal);
+	backgroundService = inject(BackgroundService);
+	notify = inject(NotificationService);
+	apiService = inject(ApiService);
+	blockService = inject(BlockService);
+
 
 	modalReference!: NgbModalRef;
 
@@ -28,8 +34,6 @@ export class RenameBackgroundComponent{
 	blockToRename!: Block;
 	storiesWithBlock!: Story[];
 	backgroundTitle = new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
-
-	constructor(private modalService: NgbModal, public backgroundService: BackgroundService,  public notify: NotificationService, public apiService: ApiService, public blockService: BlockService) { }
 	/**
    * Opens the rename story Modal
    * @param backgrounds

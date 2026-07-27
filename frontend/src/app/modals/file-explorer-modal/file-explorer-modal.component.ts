@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
@@ -13,6 +13,10 @@ import { ThemingService } from '../../Services/theming.service';
 	standalone: false
 })
 export class FileExplorerModalComponent implements OnInit {
+	private modalService = inject(NgbModal);
+	fileService = inject(ProjectService);
+	themeService = inject(ThemingService);
+
 	public fileElements!: Observable<FileElement[]>;
 	modalReference!: NgbModalRef;
 	repoId!: string;
@@ -25,8 +29,6 @@ export class FileExplorerModalComponent implements OnInit {
 	themeObservable!: Subscription;
 
 	@ViewChild ('fileExplorerModal') fileExplorerModal!: FileExplorerModalComponent;
-
-	constructor(private modalService: NgbModal, public fileService: ProjectService, public themeService: ThemingService) {}
 
 	ngOnInit() {
 		this.repoId = localStorage.getItem('id')!; // set before updateFileElementQuery

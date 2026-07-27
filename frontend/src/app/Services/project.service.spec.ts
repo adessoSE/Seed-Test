@@ -25,7 +25,7 @@ describe('ProjectService', () => {
 		it('should be created', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
-			const service: ProjectService = new ProjectService(apiService,http);
+			const service = TestBed.inject(ProjectService);
 			expect(service).toBeTruthy();
 		});
 	});

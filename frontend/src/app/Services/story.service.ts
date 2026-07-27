@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -15,8 +15,10 @@ import { StepType } from '@shared/models/StepType';
 	providedIn: 'root'
 })
 export class StoryService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+	notify = inject(NotificationService);
 
-	constructor(public apiService: ApiService, private http: HttpClient, public notify: NotificationService) { }
 	/**
   * Event Emitter to distribute the stories to all components
   */

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
@@ -13,6 +13,9 @@ import { ProjectService } from 'src/app/Services/project.service';
 	standalone: false
 })
 export class RepoSwichComponent implements OnInit, OnDestroy {
+	private modalService = inject(NgbModal);
+	projectService = inject(ProjectService);
+
 
 	repos: RepositoryContainer[];
 
@@ -26,7 +29,7 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
 
 	@ViewChild('repoSwitch') repoSwitch!: RepoSwichComponent;
 
-	constructor(private modalService: NgbModal, public projectService: ProjectService) {
+	constructor() {
 		this.currentRepo = localStorage.getItem('repository');
 		const value = sessionStorage.getItem('repositories')!;
 		const repositories: RepositoryContainer[] = JSON.parse(value);

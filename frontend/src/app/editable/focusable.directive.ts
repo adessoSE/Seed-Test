@@ -1,4 +1,4 @@
-import { Directive, ElementRef, AfterViewInit } from '@angular/core';
+import { Directive, ElementRef, AfterViewInit, inject } from '@angular/core';
 
 /**
  * Directive for an table cell to be focusable
@@ -8,11 +8,8 @@ import { Directive, ElementRef, AfterViewInit } from '@angular/core';
 	standalone: false
 })
 export class FocusableDirective implements AfterViewInit {
+	private host = inject(ElementRef);
 
-	/**
-   * @ignore
-   */
-	constructor(private host: ElementRef) { }
 
 	/**
    * focues the native element

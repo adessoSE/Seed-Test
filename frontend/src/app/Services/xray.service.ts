@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { tap } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -9,8 +9,10 @@ import { Scenario } from '@shared/models/Scenario';
 	providedIn: 'root'
 })
 export class XrayService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+	storyService = inject(StoryService);
 
-	constructor(public apiService: ApiService, private http: HttpClient, public storyService: StoryService) { }
 
 	/**
    * Updates the Xray status for a single scenario given the selected test executions.

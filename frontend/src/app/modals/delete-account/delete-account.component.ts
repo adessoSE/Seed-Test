@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -13,6 +13,11 @@ import { ManagementService } from 'src/app/Services/management.service';
 	standalone: false
 })
 export class DeleteAccountComponent {
+	private modalService = inject(NgbModal);
+	loginService = inject(LoginService);
+	managmentService = inject(ManagementService);
+	private notify = inject(NotificationService);
+
 
 	@ViewChild ('deleteAccountModal') deleteAccountModal!: DeleteAccountComponent;
 
@@ -23,8 +28,6 @@ export class DeleteAccountComponent {
 	email!: string;
 
 	modalReference!: NgbModalRef;
-
-	constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private notify: NotificationService) { }
 
 	/**
      * Opens delete account modal

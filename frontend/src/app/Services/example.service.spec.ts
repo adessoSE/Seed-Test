@@ -25,7 +25,7 @@ describe('ExampleService', () => {
 		it('should be created', () => {
 			const apiService = TestBed.inject(ApiService);
 			const toast = TestBed.inject(NotificationService);
-			const service: ExampleService = new ExampleService(apiService,toast);
+			const service = TestBed.inject(ExampleService);
 			expect(service).toBeTruthy();
 		});
 	});

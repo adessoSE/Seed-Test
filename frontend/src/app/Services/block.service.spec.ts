@@ -27,7 +27,7 @@ describe('BlockService', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
 			const storyService = TestBed.inject(StoryService);
-			const service: BlockService = new BlockService(apiService, http, storyService);
+			const service = TestBed.inject(BlockService);
 			expect(service).toBeTruthy();
 		});
 	});

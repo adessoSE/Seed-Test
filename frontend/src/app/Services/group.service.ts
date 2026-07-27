@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -13,11 +13,10 @@ import { Group } from '@shared/models/Group';
 	providedIn: 'root'
 })
 export class GroupService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+	notify = inject(NotificationService);
 
-	/**
-  * @ignore
-  */
-	constructor(public apiService: ApiService, private http: HttpClient, public notify: NotificationService) { }
 	/**
     * Event emitter to create a custom group
   */

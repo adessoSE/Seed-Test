@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy} from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
@@ -20,6 +20,11 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 	standalone: false
 })
 export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
+	apiService = inject(ApiService);
+	route = inject(ActivatedRoute);
+	reportService = inject(ReportService);
+	private themeService = inject(ThemingService);
+
 
 	/**
      * if the test is done
@@ -65,8 +70,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      * @param apiService
      * @param route
      */
-	constructor(public apiService: ApiService, public route: ActivatedRoute, public reportService: ReportService,
-		private themeService: ThemingService) {
+	constructor() {
 		this.route.params.subscribe(params => {
 			if (params.reportName) 
 				if (!localStorage.getItem('url_backend')) 

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService } from '../Services/login.service';
 
@@ -11,14 +11,9 @@ import { LoginService } from '../Services/login.service';
  */
 @Injectable()
 export class AuthGuard  {
+	private loginService = inject(LoginService);
+	private router = inject(Router);
 
-	/**
-     * Constructor
-     * @param loginService 
-     * @param router 
-     */
-	constructor(private loginService: LoginService,
-		private router: Router) {}
 
 	/**
      * Checks if the user is logged in

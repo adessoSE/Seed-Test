@@ -28,7 +28,7 @@ describe('BackgroundService', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
 			const toastr = TestBed.inject(NotificationService);
-			const service: BackgroundService = new BackgroundService(apiService, http, toastr);
+			const service = TestBed.inject(BackgroundService);
 			expect(service).toBeTruthy();
 		});
 	});

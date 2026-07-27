@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -13,13 +13,12 @@ import { ProjectService } from 'src/app/Services/project.service';
 	standalone: false
 })
 export class CreateCustomProjectComponent {
+	private modalService = inject(NgbModal);
+	projectService = inject(ProjectService);
+	private notify = inject(NotificationService);
+
 
 	@ViewChild('createCustomProjectModal') createCustomProjectModal!: CreateCustomProjectComponent;
-
-	/**
-  * Model Reference for closing
-  */
-	constructor(private modalService: NgbModal, public projectService: ProjectService, private notify: NotificationService) { }
 
 	modalReference!: NgbModalRef;
 	/**

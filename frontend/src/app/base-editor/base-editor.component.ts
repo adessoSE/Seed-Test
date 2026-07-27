@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -35,6 +35,17 @@ import { StepValidationService } from '../Services/step-validation.service';
 	standalone: false
 })
 export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit {
+	notify = inject(NotificationService);
+	dialog = inject(MatDialog);
+	blockService = inject(BlockService);
+	exampleService = inject(ExampleService);
+	scenarioService = inject(ScenarioService);
+	backgroundService = inject(BackgroundService);
+	apiService = inject(ApiService);
+	themeService = inject(ThemingService);
+	highlightInputService = inject(HighlightInputService);
+	private stepValidationService = inject(StepValidationService);
+
 	@ViewChildren('step_type_input') step_type_input!: QueryList<ElementRef>;
 
 	@ViewChildren('step_type_pre') step_type_pre!: QueryList<ElementRef>;
@@ -209,19 +220,6 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	copyExampleOptionObservable!: Subscription;
 	themeObservable!: Subscription;
 	updateBlockObservable!: Subscription;
-
-	constructor(
-		public notify: NotificationService,
-		public dialog: MatDialog,
-		public blockService: BlockService,
-		public exampleService: ExampleService,
-		public scenarioService: ScenarioService,
-		public backgroundService: BackgroundService,
-		public apiService: ApiService,
-		public themeService: ThemingService,
-		public highlightInputService: HighlightInputService,
-		private stepValidationService: StepValidationService
-	) { }
 
 	ngOnInit(): void {
 		const id = localStorage.getItem('id') ?? '';

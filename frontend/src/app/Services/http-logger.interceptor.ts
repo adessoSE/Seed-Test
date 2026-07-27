@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { tap, catchError } from 'rxjs/operators';
 import { NGXLogger } from 'ngx-logger';
@@ -6,7 +6,9 @@ import { Observable, throwError } from 'rxjs';
 
 @Injectable()
 export class HttpLoggerInterceptor implements HttpInterceptor {
-	constructor(private logger: NGXLogger) {
+	private logger = inject(NGXLogger);
+
+	constructor() {
 		console.log('constructor http interceptor');
 	}
 	intercept(

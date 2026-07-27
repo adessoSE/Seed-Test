@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
@@ -20,6 +20,14 @@ import { ProjectService } from '../Services/project.service';
 	standalone: false
 })
 export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
+	loginService = inject(LoginService);
+	apiService = inject(ApiService);
+	router = inject(Router);
+	private route = inject(ActivatedRoute);
+	private cdr = inject(ChangeDetectorRef);
+	themeService = inject(ThemingService);
+	projectServise = inject(ProjectService);
+
 
 	/**
      * Repositories / projects of the user
@@ -91,14 +99,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param themeService
      * @param projectServise
      */
-	constructor(public loginService: LoginService, 
-		public apiService: ApiService,
-		public router: Router, 
-		private route: ActivatedRoute, 
-		private cdr: ChangeDetectorRef,
-		public themeService: ThemingService,
-		public projectServise: ProjectService
-	) {
+	constructor() {
 		this.error = undefined as any;
 		this.clientId = localStorage.getItem('clientId')!;
 		this.routeObservable = this.route.queryParams.subscribe((params) => {

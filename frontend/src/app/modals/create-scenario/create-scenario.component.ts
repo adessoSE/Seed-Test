@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
@@ -11,6 +11,8 @@ import { Story } from '@shared/models/Story';
 	standalone: false
 })
 export class CreateScenarioComponent {
+	private modalService = inject(NgbModal);
+
 
 	/**
      * Currently selected story
@@ -25,8 +27,6 @@ export class CreateScenarioComponent {
      * Event emitter to add a new scenario
      */
 	@Output() createScenarioEvent: EventEmitter<any> = new EventEmitter();
-
-	constructor(private modalService: NgbModal) { }
 
 	/**
  * Opens the rename scenario Modal

@@ -1,11 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class HighlightInputService {
-	constructor(public apiService: ApiService) {}
+	apiService = inject(ApiService);
+
 	targetOffset: number = 0;
 
 	/**

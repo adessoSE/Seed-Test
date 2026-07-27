@@ -1,11 +1,13 @@
 
-import { Injectable, EventEmitter, Output, Renderer2, Inject, RendererFactory2, DOCUMENT } from '@angular/core';
+import { Injectable, EventEmitter, Output, Renderer2, RendererFactory2, DOCUMENT, inject } from '@angular/core';
 import { of } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class ThemingService {
+	private document = inject<Document>(DOCUMENT);
+
 
 	currentTheme!: string;
 
@@ -13,8 +15,9 @@ export class ThemingService {
 
 	private renderer: Renderer2;
 
-	constructor(@Inject(DOCUMENT) private document: Document,
-		rendererFactory: RendererFactory2) { 
+	constructor() {
+		const rendererFactory = inject(RendererFactory2);
+ 
 		this.renderer = rendererFactory.createRenderer(null, null);
 	}
 

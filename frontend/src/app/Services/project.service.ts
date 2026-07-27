@@ -1,5 +1,5 @@
 import { AiConfig, RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -14,11 +14,9 @@ import { FileElement } from '@shared/models/FileElement';
 	providedIn: 'root'
 })
 export class ProjectService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
 
-	/**
-   * @ignore
-   */
-	constructor(public apiService: ApiService, private http: HttpClient) { }
 	/**
     * Event emitter to rename the project
   */

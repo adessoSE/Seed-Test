@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -12,10 +12,9 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 	providedIn: 'root'
 })
 export class LoginService {
-	/**
-   * @ignore
-   */
-	constructor(public apiService: ApiService, private http: HttpClient) {}
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+
 	/**
    * Event emitter to logout the user
    */

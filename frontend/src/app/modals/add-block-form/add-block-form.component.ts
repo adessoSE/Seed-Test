@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
@@ -18,6 +18,12 @@ import { FormControl } from '@angular/forms';
 	standalone: false
 })
 export class AddBlockFormComponent implements OnInit,OnDestroy {
+	private modalService = inject(NgbModal);
+	blockService = inject(BlockService);
+	notify = inject(NotificationService);
+	dialog = inject(MatDialog);
+	apiService = inject(ApiService);
+
 
 	@ViewChild('addBlockFormModal') addBlockFormModal: any;
  
@@ -93,12 +99,6 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 
 	modalReference!: NgbModalRef;
 	deleteBlockObservable!: Subscription;
-   
-	constructor(private modalService: NgbModal, 
-		public blockService: BlockService, 
-		public notify: NotificationService,
-		public dialog: MatDialog,
-		public apiService: ApiService) {}
      
 	ngOnInit() {
 		const id = localStorage.getItem('id')!;

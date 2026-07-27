@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { NotificationService } from './notification.service';
 
@@ -9,10 +9,9 @@ import { NotificationService } from './notification.service';
 	providedIn: 'root'
 })
 export class ExampleService {
-	/**
-    * @ignore
-  */
-	constructor(public apiService: ApiService, public notify: NotificationService) { }
+	apiService = inject(ApiService);
+	notify = inject(NotificationService);
+
 	/**
   * Event emitter to delete the example
   */

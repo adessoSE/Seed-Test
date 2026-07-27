@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ThemingService } from '../Services/theming.service';
 import { StoryService } from '../Services/story.service';
 import { Subscription } from 'rxjs/internal/Subscription';
@@ -15,6 +15,10 @@ import { Observable } from 'rxjs';
 })
 
 export class FileManagerComponent implements OnInit {
+	private themeService = inject(ThemingService);
+	storyService = inject(StoryService);
+	fileService = inject(ProjectService);
+
 
 
 	isDark!: boolean;
@@ -27,10 +31,6 @@ export class FileManagerComponent implements OnInit {
 	isAllSelected: boolean = false;
 
 	themeObservable!: Subscription;
-	/**
-    * @ignore
-    */
-	constructor(private themeService: ThemingService, public storyService: StoryService, public fileService: ProjectService) { }
 
 
 	/**

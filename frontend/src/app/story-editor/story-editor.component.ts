@@ -1,14 +1,5 @@
 import { Router } from '@angular/router';
-import {
-  Component,
-  OnInit,
-  Input,
-  ViewChild,
-  EventEmitter,
-  Output,
-  OnDestroy, AfterViewChecked,
-  ChangeDetectionStrategy
-} from '@angular/core';
+import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -63,6 +54,23 @@ const emptyBackground: Background = {
 	standalone: false
 })
 export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked {
+	apiService = inject(ApiService);
+	notify = inject(NotificationService);
+	themeService = inject(ThemingService);
+	backgroundService = inject(BackgroundService);
+	storyService = inject(StoryService);
+	scenarioService = inject(ScenarioService);
+	xrayService = inject(XrayService);
+	reportService = inject(ReportService);
+	router = inject(Router);
+	projectService = inject(ProjectService);
+	loginService = inject(LoginService);
+	blockService = inject(BlockService);
+	managmentService = inject(ManagementService);
+	dialog = inject(MatDialog);
+	private snackBar = inject(MatSnackBar);
+	groupService = inject(GroupService);
+
 	/**
    * set new currently selected scenario
    */
@@ -414,24 +422,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Stories bar component
    */
-	constructor(
-		public apiService: ApiService,
-		public notify: NotificationService,
-		public themeService: ThemingService,
-		public backgroundService: BackgroundService,
-		public storyService: StoryService,
-		public scenarioService: ScenarioService,
-		public xrayService: XrayService,
-		public reportService: ReportService,
-		public router: Router,
-		public projectService: ProjectService,
-		public loginService: LoginService,
-		public blockService: BlockService,
-		public managmentService: ManagementService,
-		public dialog: MatDialog,
-		private snackBar: MatSnackBar,
-		public groupService: GroupService
-	) {
+	constructor() {
 		if (this.apiService.urlReceived) 
 			this.loadStepTypes();
 		else 

@@ -25,7 +25,7 @@ describe('LoginService', () => {
 		it('should be created', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
-			const service: LoginService = new LoginService(apiService,http);
+			const service = TestBed.inject(LoginService);
 			expect(service).toBeTruthy();
 		});
 	});

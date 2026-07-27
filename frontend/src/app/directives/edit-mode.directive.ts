@@ -1,4 +1,4 @@
-import { Directive, TemplateRef } from '@angular/core';
+import { Directive, TemplateRef, inject } from '@angular/core';
 
 /**
  * Directive to activate Edit Mode for the example table
@@ -9,9 +9,6 @@ import { Directive, TemplateRef } from '@angular/core';
 	standalone: false
 })
 
-export class EditModeDirective {
-	/**
-   * @ignore
-   */
-	constructor(public tpl: TemplateRef<any>) { }
+export class EditModeDirective {	tpl = inject<TemplateRef<any>>(TemplateRef);
+
 }

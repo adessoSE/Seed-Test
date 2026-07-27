@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
@@ -15,6 +15,11 @@ import { LoginService } from '../Services/login.service';
 	standalone: false
 })
 export class ConfirmResetPasswordComponent implements OnInit {
+	loginService = inject(LoginService);
+	private router = inject(Router);
+	private route = inject(ActivatedRoute);
+	private themeService = inject(ThemingService);
+
 	/**
    * Id of the reset password request
    */
@@ -48,12 +53,7 @@ export class ConfirmResetPasswordComponent implements OnInit {
    * @param router
    * @param route
    */
-	constructor(
-		public loginService: LoginService,
-		private router: Router,
-		private route: ActivatedRoute,
-		private themeService: ThemingService
-	) {
+	constructor() {
 		this.route.queryParams.subscribe((params) => {
 			if (params.uuid) 
 				this.uuid = params.uuid;

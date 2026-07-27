@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ScenarioService } from 'src/app/Services/scenario.service';
@@ -11,14 +11,15 @@ import { ScenarioService } from 'src/app/Services/scenario.service';
 	standalone: false
 })
 export class RenameScenarioComponent {
+	private modalService = inject(NgbModal);
+	scenarioService = inject(ScenarioService);
+
 
 	modalReference!: NgbModalRef;
 
 	scenarioName!: string;
 
 	@ViewChild('renameScenarioModal') renameScenarioModal!: RenameScenarioComponent;
-
-	constructor(private modalService: NgbModal, public scenarioService: ScenarioService) { }
 
 	/**
  * Opens the rename scenario Modal

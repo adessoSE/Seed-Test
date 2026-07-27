@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -33,6 +33,15 @@ import { ImportModalComponent } from '../modals/import-modal/import-modal.compon
 
 
 export class AccountManagementComponent implements OnInit, OnDestroy {
+	apiService = inject(ApiService);
+	projectService = inject(ProjectService);
+	loginService = inject(LoginService);
+	managmentService = inject(ManagementService);
+	router = inject(Router);
+	modalService = inject(MatDialog);
+	themeService = inject(ThemingService);
+	private notify = inject(NotificationService);
+
 	/**
      * Viewchild to create the modals
      */
@@ -110,15 +119,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param themeService
      * @param notify
      */
-	constructor(public apiService: ApiService,
-		public projectService: ProjectService,
-		public loginService: LoginService,
-		public managmentService: ManagementService,
-		public router: Router,
-		public modalService: MatDialog,
-		public themeService: ThemingService,
-		private notify: NotificationService
-	) {
+	constructor() {
+		const themeService = this.themeService;
+
 		this.themeService = themeService;
 		this.navigationSubscription = this.router.events.subscribe((e: any) => {
 			// If it is a NavigationEnd event re-initalise the component

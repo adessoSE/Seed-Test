@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -16,16 +16,14 @@ import { GroupReport } from '@shared/models/GroupReport';
 	providedIn: 'root'
 })
 export class ReportService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+
 
 	/**
    * Event emitter to distribute the reports to all components
    */
 	public getReportsEvent = new EventEmitter();
-
-	/**
-    * @ignore
-  */
-	constructor(public apiService: ApiService, private http: HttpClient) { }
 
 	/**
    * Retrieves the report *data* by its ID.

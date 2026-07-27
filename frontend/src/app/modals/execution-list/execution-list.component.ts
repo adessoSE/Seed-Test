@@ -1,4 +1,4 @@
-import { Component, ViewChild, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, Output, EventEmitter, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Scenario } from '@shared/models/Scenario';
 import { Story } from '@shared/models/Story';
@@ -15,6 +15,10 @@ import { StoryService } from '../../Services/story.service';
 	standalone: false
 })
 export class ExecutionListComponent implements OnInit {
+	private modalService = inject(NgbModal);
+	themeService = inject(ThemingService);
+	private storyService = inject(StoryService);
+
 
 	@ViewChild('executionListModal') executionListModal: any;
 
@@ -30,8 +34,6 @@ export class ExecutionListComponent implements OnInit {
 	themeObservable!: Subscription;
 
 	testExecutions: { testRunId: number, testExecKey: string, selected: boolean }[] = [];
-
-	constructor(private modalService: NgbModal, public themeService: ThemingService, private storyService: StoryService) {}
 
 	ngOnInit() {
 		this.isDark = this.themeService.isDarkMode();

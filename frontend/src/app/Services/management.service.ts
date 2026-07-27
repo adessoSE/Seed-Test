@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -12,10 +12,9 @@ import { User } from '@shared/models/User';
 	providedIn: 'root'
 })
 export class ManagementService {
-	/**
-   * @ignore
-   */
-	constructor(public apiService: ApiService, private http: HttpClient) {}
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+
 
 	/**
    * Creates a jira account

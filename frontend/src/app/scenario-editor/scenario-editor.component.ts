@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy} from '@angular/core';
+import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -26,19 +26,11 @@ import { BlockService } from '../Services/block.service';
 })
 
 export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
+	apiService = inject(ApiService);
+	blockService = inject(BlockService);
+	scenarioService = inject(ScenarioService);
+	notify = inject(NotificationService);
 
-	/**
-     * Constructor
-     * @param apiService
-     * @param scenarioService
-     * @param notify
-     */
-	constructor(
-		public apiService: ApiService,
-		public blockService: BlockService,
-		public scenarioService: ScenarioService,
-		public notify: NotificationService
-	) {}
 
 	/**
      * Lists the scenarios which are to be displayed

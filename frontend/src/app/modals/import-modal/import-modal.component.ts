@@ -1,4 +1,4 @@
-import { Component, Inject, Optional, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { NgForm, UntypedFormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -12,6 +12,11 @@ import { Subscription } from 'rxjs';
 	standalone: false
 })
 export class ImportModalComponent implements OnInit, OnDestroy {
+	dialogRef = inject<MatDialogRef<ImportModalComponent>>(MatDialogRef);
+	data = inject<{
+    repoList: RepositoryContainer[];
+}>(MAT_DIALOG_DATA, { optional: true });
+
 
 	// --- Class properties for the template bindings ---
 	isNewProject: boolean = false; 
@@ -35,12 +40,9 @@ export class ImportModalComponent implements OnInit, OnDestroy {
 	private toggleNewProjectSub!: Subscription;
 	private toggleImportModeSub!: Subscription;
 
-	constructor(
-		// Use MatDialogRef for Angular Material Modals
-		public dialogRef: MatDialogRef<ImportModalComponent>,
-		// Receive data (like the repoList) from the parent component
-		@Optional() @Inject(MAT_DIALOG_DATA) public data: { repoList: RepositoryContainer[] }
-	) {
+	constructor() {
+		const data = this.data;
+
 		if (data && data.repoList) {
 			this.repoList = data.repoList;
 			this.searchList = data.repoList; // Initialize search list with all repos

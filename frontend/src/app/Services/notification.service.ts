@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 /**
@@ -17,8 +17,8 @@ export interface NotificationOptions {
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
+	private snackBar = inject(MatSnackBar);
 
-	constructor(private snackBar: MatSnackBar) {}
 
 	/** Show a success notification (green) */
 	success(message: string, title?: string, opts?: NotificationOptions) {

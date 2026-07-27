@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -23,6 +23,13 @@ import { ProjectService } from '../Services/project.service';
 	standalone: false
 })
 export class ParentComponent implements OnInit, OnDestroy {
+	apiService = inject(ApiService);
+	route = inject(ActivatedRoute);
+	themeService = inject(ThemingService);
+	storyService = inject(StoryService);
+	groupService = inject(GroupService);
+	projectService = inject(ProjectService);
+
 
 	/**
    * Stories in the selected project
@@ -70,24 +77,6 @@ export class ParentComponent implements OnInit, OnDestroy {
 	themeObservable!: Subscription;
 	getRepositoriesObservable!: Subscription;
 	activeViewObservable!: Subscription;
-
-	/**
-   * Constructor
-   * @param apiService
-   * @param route
-   * @param themeService
-   * @param storyService
-   * @param groupService
-   * @param projectService
-   */
-	constructor(public apiService: ApiService,
-		public route: ActivatedRoute,
-		public themeService: ThemingService,
-		public storyService: StoryService,
-		public groupService: GroupService,
-		public projectService: ProjectService
-	) {
-	}
 
 	/**
    * Requests the repositories on init

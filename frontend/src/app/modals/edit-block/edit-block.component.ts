@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ViewChild, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
@@ -14,6 +14,10 @@ import { Subscription } from 'rxjs';
 	standalone: false
 })
 export class EditBlockComponent implements OnInit {
+	private modalService = inject(NgbModal);
+	blockService = inject(BlockService);
+	themeService = inject(ThemingService);
+
 
 	@ViewChild('editBlockModal') editBlockModal: any;
 
@@ -37,13 +41,6 @@ export class EditBlockComponent implements OnInit {
 
 	readonly TEMPLATE_NAME = 'block-editor';
 	themeObservable!: Subscription;
-	/**
-   * Subscriptions for all EventEmitter
-   */
-
-	constructor(private modalService: NgbModal, public blockService: BlockService, public themeService: ThemingService) {
-
-	}
 
 	ngOnInit() {
 		this.isDark = this.themeService.isDarkMode();

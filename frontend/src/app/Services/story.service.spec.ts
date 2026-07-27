@@ -28,7 +28,7 @@ describe('StoryService', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
 			const toast = TestBed.inject(NotificationService);
-			const service: StoryService = new StoryService(apiService,http, toast);
+			const service = TestBed.inject(StoryService);
 			expect(service).toBeTruthy();
 		});
 	});

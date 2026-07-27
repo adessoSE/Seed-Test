@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from '../../../app/Services/api.service';
@@ -11,10 +11,11 @@ import { ApiService } from '../../../app/Services/api.service';
 	standalone: false
 })
 export class NewStepRequestComponent {
+	private modalService = inject(NgbModal);
+	apiService = inject(ApiService);
+
 
 	modalReference!: NgbModalRef;
-
-	constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
 	@ViewChild('newStepRequestModal') newStepRequestModal!: NewStepRequestComponent;
 

@@ -1,17 +1,6 @@
 import { Subscription } from 'rxjs';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import {
-  Component,
-  OnInit,
-  Input,
-  Output,
-  EventEmitter,
-  ViewChild,
-  ElementRef,
-  QueryList,
-  ViewChildren, AfterViewInit, AfterViewChecked,
-  ChangeDetectionStrategy
-} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject } from '@angular/core';
 import {
 	UntypedFormGroup,
 	UntypedFormArray,
@@ -92,6 +81,15 @@ export class ExampleComponent {
 	standalone: false
 })
 export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewChecked {
+	scenarioService = inject(ScenarioService);
+	private notify = inject(NotificationService);
+	private dialog = inject(MatDialog);
+	exampleService = inject(ExampleService);
+	apiService = inject(ApiService);
+	themeService = inject(ThemingService);
+	highlightInputService = inject(HighlightInputService);
+	stepValidationService = inject(StepValidationService);
+
 	/**
    * Columns which are displayed in the table
    */
@@ -169,20 +167,6 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	targetOffset: number = 0;
 
 	@ViewChildren('example_input') example_input!: QueryList<ElementRef>;
-
-	/**
-   * @ignore
-   */
-	constructor(
-		public scenarioService: ScenarioService,
-		private notify: NotificationService,
-		private dialog: MatDialog,
-		public exampleService: ExampleService,
-		public apiService: ApiService,
-		public themeService: ThemingService,
-		public highlightInputService: HighlightInputService,
-		public stepValidationService: StepValidationService
-	) { }
 
 	/**
    * @ignore

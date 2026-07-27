@@ -1,10 +1,12 @@
-import { Directive, ElementRef, HostBinding, HostListener, Input} from '@angular/core';
+import { Directive, ElementRef, HostBinding, HostListener, Input, inject } from '@angular/core';
 
 @Directive({
 	selector: '[appResizeInput]',
 	standalone: false
 })
 export class ResizeInputDirective {
+	private el = inject(ElementRef);
+
 
 	/**
     * Width of input in chars
@@ -28,7 +30,9 @@ export class ResizeInputDirective {
 	}
  
 
-	constructor(private el: ElementRef) {  
+	constructor() {
+		const el = this.el;
+  
 		setTimeout(() => {
       
 			el.nativeElement.classList.forEach((value: any) => {

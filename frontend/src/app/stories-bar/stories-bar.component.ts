@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
@@ -30,6 +30,15 @@ import { ExecutionListComponent } from '../modals/execution-list/execution-list.
 	standalone: false
 })
 export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
+	notify = inject(NotificationService);
+	themeService = inject(ThemingService);
+	storyService = inject(StoryService);
+	xrayService = inject(XrayService);
+	groupService = inject(GroupService);
+	scenarioService = inject(ScenarioService);
+	reportService = inject(ReportService);
+	backgroundService = inject(BackgroundService);
+
 
 	/**
      * Stories in the project
@@ -190,15 +199,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
      * @param scenarioService
      * @param reportService
      */
-	constructor(
-		public notify: NotificationService,
-		public themeService: ThemingService,
-		public storyService: StoryService,
-		public xrayService: XrayService,
-		public groupService: GroupService,
-		public scenarioService: ScenarioService,
-		public reportService: ReportService,
-		public backgroundService: BackgroundService) {
+	constructor() {
 		this.groupService.getGroups(localStorage.getItem('id')!).subscribe(groups => {
 			this.groups = groups;
 			this.liGroupList = new Array(this.groups.length).fill('');

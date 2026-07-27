@@ -1,4 +1,4 @@
-import { Directive, HostListener } from '@angular/core';
+import { Directive, HostListener, inject } from '@angular/core';
 import { EditableComponent } from '../editable/editable.component';
 
 @Directive({
@@ -10,10 +10,8 @@ import { EditableComponent } from '../editable/editable.component';
  * Directive to activate change the editable field for the example table
  */
 export class EditableOnEnterDirective {
-	/**
-   * @ignore
-   */
-	constructor(private editable: EditableComponent) {}
+	private editable = inject(EditableComponent);
+
 
 	/**
    * Enters the view mode

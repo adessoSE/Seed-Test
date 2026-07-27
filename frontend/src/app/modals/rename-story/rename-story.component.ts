@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, TemplateRef, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
@@ -12,6 +12,9 @@ import { StoryService } from 'src/app/Services/story.service';
 	standalone: false
 })
 export class RenameStoryComponent {
+	private modalService = inject(NgbModal);
+	storyService = inject(StoryService);
+
 
 	modalReference!: NgbModalRef;
 
@@ -25,8 +28,6 @@ export class RenameStoryComponent {
 	});
 
 	get storyTitle() { return this.storyForm.get('storyTitle'); }
-
-	constructor(private modalService: NgbModal, public storyService: StoryService) { }
 
 	/**
    * Opens the rename story Modal

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +16,10 @@ import { StoryService } from 'src/app/Services/story.service';
 	standalone: false
 })
 export class CreateNewGroupComponent {
+	private modalService = inject(NgbModal);
+	groupService = inject(GroupService);
+	storyService = inject(StoryService);
+
 
 	@ViewChild('createNewGroupModal') createNewGroupModal!: CreateNewGroupComponent;
 
@@ -47,9 +51,6 @@ export class CreateNewGroupComponent {
 	displayedColumnsStories: string[] = ['story', 'checkStory'];
 
 	closeWindowEventEmitter = new EventEmitter();
-
-
-	constructor(private modalService: NgbModal, public groupService: GroupService, public storyService: StoryService) {}
 
 	/**
      * Opens the create new group modal

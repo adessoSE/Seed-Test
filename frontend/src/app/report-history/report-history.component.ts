@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterContentInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, AfterContentInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { StoryReport } from '@shared/models/StoryReport';
 import { ReportContainer } from '@shared/models/ReportContainer';
 import { Scenario } from '@shared/models/Scenario';
@@ -25,6 +25,10 @@ type Report = ScenarioReport | StoryReport | GroupReport;
 })
 
 export class ReportHistoryComponent implements OnInit, AfterContentInit {
+	private themeService = inject(ThemingService);
+	reportService = inject(ReportService);
+	storyService = inject(StoryService);
+
 	/**
    * Currently selected story
    */
@@ -42,12 +46,6 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 
 	isDark!: boolean;
 	updatedReports: any;
-
-
-	/**
-   * @ignore
-   */
-	constructor(private themeService: ThemingService, public reportService: ReportService, public storyService: StoryService) { }
 
 	/**
    * @ignore

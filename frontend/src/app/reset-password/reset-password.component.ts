@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
@@ -15,6 +15,10 @@ import { LoginService } from '../Services/login.service';
 	standalone: false
 })
 export class ResetPasswordComponent implements OnInit {
+	loginService = inject(LoginService);
+	private router = inject(Router);
+	themeService = inject(ThemingService);
+
 	/**
    * Error during reset password
    */
@@ -28,15 +32,6 @@ export class ResetPasswordComponent implements OnInit {
 	defaultSuccessMessage = 'Email has been sent!';
 
 	isDark!: boolean;
-
-	/**
-   * @ignore
-   */
-	constructor(
-		public loginService: LoginService,
-		private router: Router,
-		public themeService: ThemingService
-	) {}
 
 	ngOnInit(): void {
 		this.isDark = this.themeService.isDarkMode();

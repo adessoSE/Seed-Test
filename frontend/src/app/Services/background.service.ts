@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -13,11 +13,10 @@ import { NotificationService } from './notification.service';
 	providedIn: 'root'
 })
 export class BackgroundService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+	notify = inject(NotificationService);
 
-	/**
-  * @ignore
-  */
-	constructor(public apiService: ApiService, private http: HttpClient, public notify: NotificationService) { }
 	/**
   * Event emitter to remane backgrounf of a story
   */

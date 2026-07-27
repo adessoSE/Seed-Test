@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { catchError, tap } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
@@ -12,10 +12,8 @@ import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 	providedIn: 'root'
 })
 export class ApiService {
-	/**
-   * @ignore
-   */
-	constructor(private http: HttpClient) {}
+	private http = inject(HttpClient);
+
 
 	/**
    * url of the backend

@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { Block } from '@shared/models/Block';
 import { BehaviorSubject, Observable} from 'rxjs';
 import { ApiService } from '../Services/api.service';
@@ -16,11 +16,10 @@ import { Scenario } from '@shared/models/Scenario';
 	providedIn: 'root'
 })
 export class BlockService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+	storyService = inject(StoryService);
 
-	/**
-  * @ignore
-  */
-	constructor(public apiService: ApiService, private http: HttpClient, public storyService: StoryService) { }
 
 	/**
    * Event emitter to add a block to the current scenario

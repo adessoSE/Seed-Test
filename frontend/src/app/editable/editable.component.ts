@@ -1,8 +1,4 @@
-import {
-  Component, ContentChild, ElementRef, EventEmitter,
-  Output, OnInit, OnDestroy,
-  ChangeDetectionStrategy
-} from '@angular/core';
+import { Component, ContentChild, ElementRef, EventEmitter, Output, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ViewModeDirective } from '../directives/view-mode.directive';
 import { EditModeDirective } from '../directives/edit-mode.directive';
 import { fromEvent, Subject } from 'rxjs';
@@ -21,6 +17,8 @@ import { untilDestroyed } from '@ngneat/until-destroy';
 })
 
 export class EditableComponent implements OnInit, OnDestroy {
+	private host = inject(ElementRef);
+
 	@ContentChild(ViewModeDirective) viewModeTpl!: ViewModeDirective;
 	@ContentChild(EditModeDirective) editModeTpl!: EditModeDirective;
 	@Output() update = new EventEmitter();
@@ -29,11 +27,6 @@ export class EditableComponent implements OnInit, OnDestroy {
 	editMode$ = this.editMode.asObservable();
 
 	mode: 'view' | 'edit' = 'view';
-
-	/**
-   * @ignore
-   */
-	constructor(private host: ElementRef) {}
 
 	/**
    * handles the edit and view mode on init

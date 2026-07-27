@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild, OnDestroy, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild, OnDestroy, AfterViewInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -21,6 +21,13 @@ import { StoryService } from './Services/story.service';
 	standalone: false
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
+	apiService = inject(ApiService);
+	router = inject(Router);
+	themeService = inject(ThemingService);
+	loginService = inject(LoginService);
+	projectService = inject(ProjectService);
+	storyService = inject(StoryService);
+
 
 	/**
    * Currently retrieved projects
@@ -78,13 +85,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
    * @param storyService
    */
 
-	constructor(public apiService: ApiService, 
-		public router: Router, 
-		public themeService: ThemingService,
-		public loginService: LoginService,
-		public projectService: ProjectService,
-		public storyService: StoryService
-	) {
+	constructor() {
 		this.version = localStorage.getItem('version')!;
 	}
 

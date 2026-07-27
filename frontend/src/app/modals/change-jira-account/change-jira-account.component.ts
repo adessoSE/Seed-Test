@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
@@ -12,6 +12,9 @@ import { ManagementService } from 'src/app/Services/management.service';
 	standalone: false
 })
 export class ChangeJiraAccountComponent {
+	private modalService = inject(NgbModal);
+	managmentService = inject(ManagementService);
+
 
 	/**
      * Emits a response after the jira account got created
@@ -48,8 +51,6 @@ export class ChangeJiraAccountComponent {
 	});
 
 	get jiraAccountName() { return this.jiraBasic.get('jiraAccountName'); }
-
-	constructor(private modalService: NgbModal, public managmentService: ManagementService) {}
 	/**
      * Opens the change Jira Account Modal
      * @param type type of the changed account

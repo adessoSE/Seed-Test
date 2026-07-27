@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -22,6 +22,12 @@ import { MatDialog } from '@angular/material/dialog';
 	standalone: false
 })
 export class WorkgroupEditComponent implements OnInit, OnDestroy {
+	private modalService = inject(NgbModal);
+	projectService = inject(ProjectService);
+	private notify = inject(NotificationService);
+	dialog = inject(MatDialog);
+	apiService = inject(ApiService);
+
 	/**
    * Columns of the workgroup table
    */
@@ -107,13 +113,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
 	@ViewChild('repoSwitchModal') repoSwitchModal!: RepoSwichComponent;
 	transferOwnershipObservable!: Subscription;
-	constructor(
-		private modalService: NgbModal,
-		public projectService: ProjectService,
-		private notify: NotificationService,
-		public dialog: MatDialog,
-		public apiService: ApiService
-	) {
+	constructor() {
 		this.projectService.deleteRepositoryEvent.subscribe(() => {
 			this.deleteCustomRepo();
 		});

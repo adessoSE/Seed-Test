@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +16,10 @@ import { StoryService } from 'src/app/Services/story.service';
 	standalone: false
 })
 export class UpdateGroupComponent {
+	private modalService = inject(NgbModal);
+	storyService = inject(StoryService);
+	groupService = inject(GroupService);
+
 
 	@ViewChild('updateGroupModal') updateGroupModal!: UpdateGroupComponent;
 	/**
@@ -53,9 +57,6 @@ export class UpdateGroupComponent {
    * Columns of the story table table
    */
 	displayedColumnsStories: string[] = ['story', 'checkStory'];
-  
-
-	constructor(private modalService: NgbModal, public storyService: StoryService, public groupService: GroupService) { }
 
 	/**
      * Opens the create new group modal

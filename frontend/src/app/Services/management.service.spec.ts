@@ -25,7 +25,7 @@ describe('ManagementService', () => {
 		it('should be created', () => {
 			const http: HttpClient = TestBed.inject(HttpClient);
 			const apiService = TestBed.inject(ApiService);
-			const service: ManagementService = new ManagementService(apiService,http);
+			const service = TestBed.inject(ManagementService);
 			expect(service).toBeTruthy();
 		});
 	});
