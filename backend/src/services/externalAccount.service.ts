@@ -3,6 +3,7 @@ import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:
 import * as userService from './user.service.js'; // To fetch/update the user document
 import { User } from '@shared/models/User.js';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 const cryptoAlgorithm = 'aes-256-ccm';
 // It's recommended to move secrets to environment variables or a config service
@@ -102,7 +103,7 @@ export async function updateJiraCredential(
 
 	const user = await userService.getUserById(userId);
 	if (!user) 
-		throw new Error('User not found for updating Jira credentials.');
+		throw AppError.notFound('User not found for updating Jira credentials.');
     
 
 	const updatedUser: User = { ...user, jira: jiraCredentials as any }; // Cast needed due to Buffer/Binary discrepancy
@@ -112,7 +113,7 @@ export async function updateJiraCredential(
 export async function disconnectJira(userId: string | ObjectId): Promise<void> {
 	const user = await userService.getUserById(userId);
 	if (!user) 
-		throw new Error('User not found for disconnecting Jira.');
+		throw AppError.notFound('User not found for disconnecting Jira.');
     
 	// Create a new object without the jira property
 	const { jira: _jira, ...userWithoutJira } = user;
@@ -126,7 +127,7 @@ export async function disconnectJira(userId: string | ObjectId): Promise<void> {
 export async function updateGithubToken(userId: string | ObjectId, token: string, githubProfile: { login: string; id: number }): Promise<void> {
 	const user = await userService.getUserById(userId);
 	if (!user) 
-		throw new Error('User not found for updating GitHub token.');
+		throw AppError.notFound('User not found for updating GitHub token.');
     
 	const updatedUser: User = {
 		...user,
@@ -143,7 +144,7 @@ export async function updateGithubToken(userId: string | ObjectId, token: string
 export async function disconnectGithub(userId: string | ObjectId): Promise<void> {
 	const user = await userService.getUserById(userId);
 	if (!user) 
-		throw new Error('User not found for disconnecting GitHub.');
+		throw AppError.notFound('User not found for disconnecting GitHub.');
     
 	const { github: _github, ...userWithoutGithub } = user;
 	await userService.updateUser(userId, userWithoutGithub as User);

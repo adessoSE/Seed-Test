@@ -4,6 +4,7 @@ import * as reportService from '../services/report.service.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 /**
  * Handles fetching specific report data by its ID.
@@ -11,16 +12,13 @@ import { logger } from '../logging.js';
 export async function getReportData(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const reportId = req.params.reportId;
-		if (!ObjectId.isValid(reportId)) {
-			res.status(400).json({ error: 'Invalid report ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(reportId))
+			throw AppError.badRequest('Invalid report ID format');
+
 		// Use the dedicated service function
 		const result = await reportService.getReportDataById(reportId);
-		if (!result) {
-			res.status(404).json({ error: 'Report not found' });
-			return;
-		}
+		if (!result)
+			throw AppError.notFound('Report not found');
 		res.status(200).json(result);
 	} catch (error) {
 		next(error); // Pass errors to the central handler
@@ -35,9 +33,8 @@ export async function regenerateReport(req: Request, res: Response, next: NextFu
 		const reportName = req.params.reportName;
 		// Regenerate based on name - logic moved from reporting.ts/createReport
 		const fullReport = await reportService.getReportByName(reportName);
-		if (!fullReport || !fullReport.jsonReport) {
-			res.status(404).json({ error: 'Report JSON data not found' }); return;
-		}
+		if (!fullReport || !fullReport.jsonReport)
+			throw AppError.notFound('Report JSON data not found');
         
 		// Temporarily write JSON to disk for html-reporter
 		const tempJsonPath = path.join(process.cwd(), `features/${reportName}.json`);
@@ -66,9 +63,8 @@ export async function regenerateReport(req: Request, res: Response, next: NextFu
 export async function getReportHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.storyId;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
 		const reportContainer = await reportService.getReportHistory(storyId);
 		res.status(200).json(reportContainer);
 	} catch (error) {
@@ -82,9 +78,9 @@ export async function getReportHistory(req: Request, res: Response, next: NextFu
 export async function deleteReport(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const reportId = req.params.reportId;
-		if (!ObjectId.isValid(reportId)) {
-			res.status(400).json({ error: 'Invalid report ID format' }); return;
-		}
+		if (!ObjectId.isValid(reportId))
+			throw AppError.badRequest('Invalid report ID format');
+
 		await reportService.deleteReport(reportId);
 		res.status(200).json({ message: 'Report deleted successfully' });
 	} catch (error) {
@@ -96,9 +92,9 @@ export async function deleteReport(req: Request, res: Response, next: NextFuncti
 export async function saveReport(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { reportId } = req.params;
-		if (!ObjectId.isValid(reportId)) {
-			res.status(400).json({ error: 'Invalid report ID format' }); return;
-		}
+		if (!ObjectId.isValid(reportId))
+			throw AppError.badRequest('Invalid report ID format');
+
 		await reportService.setIsSavedTestReport(reportId, true);
 		res.status(200).json({ message: 'Report marked as saved.' });
 	} catch (error) {
@@ -110,9 +106,9 @@ export async function saveReport(req: Request, res: Response, next: NextFunction
 export async function unsaveReport(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { reportId } = req.params;
-		if (!ObjectId.isValid(reportId)) {
-			res.status(400).json({ error: 'Invalid report ID format' }); return;
-		}
+		if (!ObjectId.isValid(reportId))
+			throw AppError.badRequest('Invalid report ID format');
+
 		await reportService.setIsSavedTestReport(reportId, false);
 		res.status(200).json({ message: 'Report marked as unsaved.' });
 	} catch (error) {

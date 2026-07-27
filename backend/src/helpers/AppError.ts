@@ -35,4 +35,8 @@ export class AppError extends Error {
 	static conflict(message: string): AppError {
 		return new AppError(message, 409, 'CONFLICT');
 	}
+
+	static badGateway(message: string): AppError {
+		return new AppError(message, 502, 'BAD_GATEWAY');
+	}
 }

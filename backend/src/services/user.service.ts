@@ -4,6 +4,7 @@ import { User } from '@shared/models/User.js';
 import * as repositoryService from './repository.service.js';
 import * as workgroupService from './workgroup.service.js';
 import { UserDoc, RepositoryDoc, oid } from '../types/mongo.types.js';
+import { AppError } from '../helpers/AppError.js';
 
 const userCollection = 'User';
 const PwResetReqCollection = 'PwResetRequests';
@@ -48,7 +49,7 @@ export async function registerUser(user: Partial<User>): Promise<any> {
 	const collection = db.collection<UserDoc>(userCollection);
 	const dbUser = await getUserByEmail(user.email!);
 	if (dbUser) 
-		throw new Error('User already exists');
+		throw AppError.conflict('User already exists');
     
 
 	if (user._id) 
@@ -76,7 +77,7 @@ export async function deleteUser(userId: string | ObjectId): Promise<any> {
 	const db = dbConnection.getConnection();
 	const user = await db.collection<UserDoc>(userCollection).findOne({ _id: oid(userId) }) as unknown as User | null;
 	if (!user) 
-		throw new Error(`User with ID ${userId} not found`);
+		throw AppError.notFound(`User with ID ${userId} not found`);
     
 
 	// 1. Handle all repositories owned by the user
@@ -138,7 +139,7 @@ export async function mergeGithub(seedUserId: string, githubLogin: string, githu
 	const seedAccount = await getUserById(seedUserId);
 
 	if (!githubAccount || !seedAccount || !githubAccount._id || !seedAccount._id) 
-		throw new Error('One or both user accounts could not be found for merging.');
+		throw AppError.notFound('One or both user accounts could not be found for merging.');
     
 
 	seedAccount.github = githubAccount.github;

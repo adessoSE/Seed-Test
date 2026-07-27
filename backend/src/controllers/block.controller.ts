@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import * as blockService from '../services/block.service.js';
 import { Block } from '@shared/models/Block.js';
 import { oid } from '../types/mongo.types.js';
+import { AppError } from '../helpers/AppError.js';
 
 /**
  * Handles the creation of a new block.
@@ -13,10 +14,8 @@ export async function saveBlock(req: Request, res: Response, next: NextFunction)
 	try {
 		// User object should be available from global auth middleware
 		const user = req.user as { _id?: ObjectId | string }; // Adjust type as per your passport setup
-		if (!user?._id) {
-			res.sendStatus(401); // Should ideally not be reached if global auth is effective
-			return;
-		}
+		if (!user?._id)
+			throw AppError.unauthorized('User not authenticated');
 		const blockData: Block = req.body;
 		// Block.owner is typed as string but MongoDB stores ObjectId
 		(blockData as any).owner = oid(user._id);
@@ -36,10 +35,8 @@ export async function saveBlock(req: Request, res: Response, next: NextFunction)
 export async function getBlocks(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repoId;
-		if (!ObjectId.isValid(repoId)) {
-			res.status(400).json({ error: 'Invalid repository ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(repoId))
+			throw AppError.badRequest('Invalid repository ID format');
 		const result = await blockService.getBlocks(repoId);
 		res.status(200).json(result);
 	} catch (error) {
@@ -55,23 +52,18 @@ export async function getBlocks(req: Request, res: Response, next: NextFunction)
 export async function updateBlock(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const blockId = req.params.blockId;
-		if (!ObjectId.isValid(blockId)) {
-			res.status(400).json({ error: 'Invalid block ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(blockId))
+			throw AppError.badRequest('Invalid block ID format');
+
 		const user = req.user as { _id?: ObjectId | string };
-		if (!user?._id) { // Still good practice to check user exists
-			res.sendStatus(401);
-			return;
-		}
+		if (!user?._id) // Still good practice to check user exists
+			throw AppError.unauthorized('User not authenticated');
 		const updatedBlockData: Block = req.body;
 		const userId = user._id.toString();
 
 		const result = await blockService.updateBlock(blockId, updatedBlockData, userId);
-		if (!result) {
-			res.status(404).json({ error: 'Block not found or user not authorized to update' });
-			return;
-		}
+		if (!result)
+			throw AppError.notFound('Block not found or user not authorized to update');
 		res.status(200).json(result);
 	} catch (error) {
 		next(error);
@@ -86,22 +78,17 @@ export async function updateBlock(req: Request, res: Response, next: NextFunctio
 export async function deleteBlock(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const blockId = req.params.blockId;
-		if (!ObjectId.isValid(blockId)) {
-			res.status(400).json({ error: 'Invalid block ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(blockId))
+			throw AppError.badRequest('Invalid block ID format');
+
 		const user = req.user as { _id?: ObjectId | string };
-		if (!user?._id) {
-			res.sendStatus(401);
-			return;
-		}
+		if (!user?._id)
+			throw AppError.unauthorized('User not authenticated');
 		const userId = user._id.toString();
 
 		const result = await blockService.deleteBlock(blockId, userId);
-		if (result.deletedCount === 0) {
-			res.status(404).json({ error: 'Block not found or user not authorized to delete' });
-			return;
-		}
+		if (result.deletedCount === 0)
+			throw AppError.notFound('Block not found or user not authorized to delete');
 		res.status(200).json({ message: 'Block deleted successfully' });
 	} catch (error) {
 		next(error);

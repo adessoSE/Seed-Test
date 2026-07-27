@@ -15,6 +15,7 @@ import {
 	GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ExecutionMode, ScenarioStatus
 } from '../models/models.js';
 import { oid } from '../types/mongo.types.js';
+import { AppError } from '../helpers/AppError.js';
 
 const ReportDataCollection = 'ReportData';
 const ReportsCollection = 'Reports';
@@ -57,9 +58,9 @@ export async function getGroupTestReports(storyId: string): Promise<any[]> {
 export async function getReportById(reportId: string): Promise<any> {
 	const db = dbConnection.getConnection();
 	const reportData = await db.collection(ReportDataCollection).findOne({ _id: new ObjectId(reportId) });
-	if (!reportData) 
-		throw new Error('Report data not found');
-    
+	if (!reportData)
+		throw AppError.notFound('Report data not found');
+
 	return await getReportFromDB(reportData);
 }
 
@@ -71,9 +72,9 @@ export async function getReportById(reportId: string): Promise<any> {
 export async function getReportByName(reportName: string): Promise<any> {
 	const db = dbConnection.getConnection();
 	const reportData = await db.collection(ReportDataCollection).findOne({ reportName });
-	if (!reportData) 
-		throw new Error('Report data not found');
-    
+	if (!reportData)
+		throw AppError.notFound('Report data not found');
+
 	return await getReportFromDB(reportData);
 }
 
@@ -130,7 +131,7 @@ export async function deleteReport(reportId: string): Promise<any> {
 	const collection = db.collection(ReportDataCollection);
 	const reportData = await collection.findOne({ _id: new ObjectId(reportId) });
 	if (!reportData) 
-		throw new Error('Report to delete not found');
+		throw AppError.notFound('Report to delete not found');
     
 
 	if (reportData.smallReport) 
@@ -491,7 +492,7 @@ async function analyzeStoryReport(stories: Story[], reportName: string, jsonPath
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
 		const cucumberReport: any[] = JSON.parse(data);
-		if (cucumberReport.length === 0) throw new Error('Cucumber JSON report is empty.');
+		if (cucumberReport.length === 0) throw AppError.badRequest('Cucumber JSON report is empty.');
 
 		const storyReport = cucumberReport[0]; // Assuming one feature per file
 		const story = stories[0];
@@ -520,17 +521,17 @@ async function analyzeScenarioReport(stories: Story[], reportName: string, scena
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
 		const cucumberReport: any[] = JSON.parse(data);
-		if (cucumberReport.length === 0) throw new Error('Cucumber JSON report is empty.');
+		if (cucumberReport.length === 0) throw AppError.badRequest('Cucumber JSON report is empty.');
 
 		const storyReport = cucumberReport[0];
 		const story = stories[0];
 
 		// Find the specific scenario report element (Cucumber might add hooks as elements)
 		const scenarioReportElement = storyReport.elements.find((el: any) => el.type === 'scenario' && el.name === story.scenarios.find(s=> s.scenario_id === scenarioId)?.name);
-		if (!scenarioReportElement) throw new Error(`Scenario element not found in report for scenario ID ${scenarioId}`);
+		if (!scenarioReportElement) throw AppError.notFound(`Scenario element not found in report for scenario ID ${scenarioId}`);
 
 		const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId);
-		if (!scenario) throw new Error(`Scenario data not found for ID ${scenarioId}`);
+		if (!scenario) throw AppError.notFound(`Scenario data not found for ID ${scenarioId}`);
 
 		const result = scenarioResult(scenarioReportElement, scenario);
 

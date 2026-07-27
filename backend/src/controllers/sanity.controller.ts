@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { GroupReport, ExecutionMode, PassedCount } from '../models/models.js';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 /**
  * Handles the execution of a sanity test for a specific group.
@@ -20,25 +21,19 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 	let sanityFolderName: string | undefined;
 	try {
 		const { repoID, groupID } = req.params;
-		if (!ObjectId.isValid(repoID) || !ObjectId.isValid(groupID)) {
-			res.status(400).json({ error: 'Invalid repository or group ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(repoID) || !ObjectId.isValid(groupID))
+			throw AppError.badRequest('Invalid repository or group ID format');
 
 		const group = await repositoryService.getOneStoryGroup(repoID, groupID);
-		if (!group) {
-			res.status(404).json({ error: 'Group not found' });
-			return;
-		}
+		if (!group)
+			throw AppError.notFound('Group not found');
 
 		const stories: (Story | null)[] = await Promise.all(
 			group.member_stories.map(id => storyService.getOneStory(id.toString()))
 		);
 		const validStories = stories.filter(s => s !== null) as Story[];
-		if (validStories.length === 0) {
-			res.status(400).json({ error: 'No valid stories found in the group' });
-			return;
-		}
+		if (validStories.length === 0)
+			throw AppError.badRequest('No valid stories found in the group');
 
 		// --- Test Execution Logic (adapted from original runSanityReport) ---
 		// Prepare request body/params for testRunnerService

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { User } from '@shared/models/User.js';
 import * as externalAccountService from '../services/externalAccount.service.js';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 /**
  * Handles linking/updating Jira credentials for the logged-in user.
@@ -9,19 +10,15 @@ import { logger } from '../logging.js';
 export async function linkJiraCredentials(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User;
-		if (!user?._id) {
-			res.status(401).json({ error: 'User not authenticated' });
-			return;
-		}
+		if (!user?._id)
+			throw AppError.unauthorized('User not authenticated');
+
 		const { jiraAccountName, jiraPassword, jiraHost, jiraAuthMethod } = req.body;
-		if (!jiraAccountName || !jiraPassword || !jiraHost) {
-			res.status(400).json({ error: 'Missing Jira credentials (accountName, password, host)' });
-			return;
-		}
-		if (!/^[.:a-zA-Z0-9-]+$/.test(jiraHost)) {
-			res.status(400).json({ error: 'Invalid Jira Host format.' });
-			return;
-		}
+		if (!jiraAccountName || !jiraPassword || !jiraHost)
+			throw AppError.badRequest('Missing Jira credentials (accountName, password, host)');
+
+		if (!/^[.:a-zA-Z0-9-]+$/.test(jiraHost))
+			throw AppError.badRequest('Invalid Jira Host format.');
 
 		// --- Verification Logic ---
 		const authString = externalAccountService.buildAuthString(jiraAccountName, jiraPassword, jiraAuthMethod);
@@ -60,10 +57,8 @@ export async function linkJiraCredentials(req: Request, res: Response, next: Nex
 export async function disconnectJira(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User;
-		if (!user?._id) {
-			res.status(401).json({ error: 'User not authenticated' });
-			return;
-		}
+		if (!user?._id)
+			throw AppError.unauthorized('User not authenticated');
 
 		await externalAccountService.disconnectJira(user._id.toString());
 
@@ -81,14 +76,11 @@ export async function disconnectJira(req: Request, res: Response, next: NextFunc
 export async function jiraLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { jiraAccountName, jiraPassword, jiraServer, AuthMethod } = req.body;
-		if (!jiraAccountName || !jiraPassword || !jiraServer) {
-			res.status(400).json({ error: 'Missing Jira credentials for login' });
-			return;
-		}
-		if (!/^[.:a-zA-Z0-9]+$/.test(jiraServer)) {
-			res.status(400).json({ error: 'Invalid Jira Host format.' });
-			return;
-		}
+		if (!jiraAccountName || !jiraPassword || !jiraServer)
+			throw AppError.badRequest('Missing Jira credentials for login');
+
+		if (!/^[.:a-zA-Z0-9]+$/.test(jiraServer))
+			throw AppError.badRequest('Invalid Jira Host format.');
 
 		const authString = externalAccountService.buildAuthString(jiraAccountName, jiraPassword, AuthMethod);
 		const options = {
@@ -100,8 +92,7 @@ export async function jiraLogin(req: Request, res: Response, next: NextFunction)
 
 		if (!response.ok) {
 			logger.info('Failed to log in to Jira-Server.');
-			res.status(401).json({ error: 'Failed to log in to Jira-Server.' });
-			return;
+			throw AppError.unauthorized('Failed to log in to Jira-Server.');
 		}
 
 		// Extract session cookie if present (often JSESSIONID)
@@ -125,10 +116,8 @@ export async function jiraLogin(req: Request, res: Response, next: NextFunction)
 export async function updateXrayStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User;
-		if (!user?.jira) {
-			res.status(401).json({ error: 'User not authenticated or Jira not linked.' });
-			return;
-		}
+		if (!user?.jira)
+			throw AppError.unauthorized('User not authenticated or Jira not linked.');
 
 		// Use the IssueTracker class for decryption
 		const clearPass = externalAccountService.jiraDecryptPassword(
@@ -140,10 +129,8 @@ export async function updateXrayStatus(req: Request, res: Response, next: NextFu
 		const authString = externalAccountService.buildAuthString(AccountName, clearPass, AuthMethod);
 
 		const { testRunId, stepId, status } = req.body;
-		if (!testRunId || !stepId || !status) {
-			res.status(400).json({ error: 'Missing testRunId, stepId, or status' });
-			return;
-		}
+		if (!testRunId || !stepId || !status)
+			throw AppError.badRequest('Missing testRunId, stepId, or status');
 
 		// Construct URL safely
 		const url = new URL(`https://${Host}/rest/raven/1.0/api/testrun/${testRunId}/step/${stepId}/status`);

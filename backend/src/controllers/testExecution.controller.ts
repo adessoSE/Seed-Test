@@ -12,6 +12,7 @@ import { ExecutionMode } from '../models/models.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 
 // Helper function to extract common parameters
@@ -65,13 +66,12 @@ export async function handleReportResult(res: Response, reportResult: any, mode:
 export async function runFeature(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.issueID;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid Story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid Story ID format');
+
 		const story = await storyService.getOneStory(storyId);
-		if (!story) {
-			res.status(404).json({ error: 'Story not found' }); return;
-		}
+		if (!story)
+			throw AppError.notFound('Story not found');
 
 		// TODO: Determine repoId if needed for global settings lookup
 		// Assuming req.body might contain repositoryId or we fetch it based on story?
@@ -93,21 +93,19 @@ export async function runScenario(req: Request, res: Response, next: NextFunctio
 	try {
 		const storyId = req.params.issueID;
 		const scenarioId = req.params.scenarioId;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid Story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid Story ID format');
+
 		// Scenario ID is numeric in the model
-		if (!scenarioId || isNaN(parseInt(scenarioId))) {
-			res.status(400).json({ error: 'Invalid Scenario ID format' }); return;
-		}
+		if (!scenarioId || isNaN(parseInt(scenarioId)))
+			throw AppError.badRequest('Invalid Scenario ID format');
 
 		const story = await storyService.getOneStory(storyId);
-		if (!story) {
-			res.status(404).json({ error: 'Story not found' }); return;
-		}
-		if (!story.scenarios.some(s => s.scenario_id === parseInt(scenarioId))) {
-			res.status(404).json({ error: 'Scenario not found in story' }); return;
-		}
+		if (!story)
+			throw AppError.notFound('Story not found');
+
+		if (!story.scenarios.some(s => s.scenario_id === parseInt(scenarioId)))
+			throw AppError.notFound('Scenario not found in story');
 
 		// TODO: Determine repoId if needed
 		const repoId = req.body.repositoryId;
@@ -128,24 +126,21 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 	try {
 		const { repoId } = extractRunParams(req);
 		const groupId = req.params.groupID;
-		if (!ObjectId.isValid(groupId)) {
-			res.status(400).json({ error: 'Invalid Group ID format' }); return;
-		}
+		if (!ObjectId.isValid(groupId))
+			throw AppError.badRequest('Invalid Group ID format');
 
 		req.body.repositoryId = repoId;
 
 		const group = await repositoryService.getOneStoryGroup(repoId, groupId);
-		if (!group) {
-			res.status(404).json({ error: 'Group not found' }); return;
-		}
+		if (!group)
+			throw AppError.notFound('Group not found');
 
 		const stories: (Story | null)[] = await Promise.all(
 			group.member_stories.map(id => storyService.getOneStory(id.toString()))
 		);
 		const validStories = stories.filter(s => s !== null) as Story[];
-		if (validStories.length === 0) {
-			res.status(400).json({ error: 'No valid stories found in the group' }); return;
-		}
+		if (validStories.length === 0)
+			throw AppError.badRequest('No valid stories found in the group');
 
 		// Use group name for report directory, ensuring it's filesystem-safe
 		req.body.name = featureFileService.cleanFileName(`group_${group.name}_${Date.now()}`);
@@ -181,9 +176,8 @@ export async function runTempGroup(req: Request, res: Response, next: NextFuncti
 		const repoInfo = extractRunParams(req); // Contains repoId and potentially repository name
 		const validStories = (tempGroup?.member_stories || []).filter((s: Story | null) => s !== null) as Story[];
 
-		if (validStories.length === 0) {
-			res.status(400).json({ error: 'No valid stories provided in the temporary group' }); return;
-		}
+		if (validStories.length === 0)
+			throw AppError.badRequest('No valid stories provided in the temporary group');
 
 		req.body.name = featureFileService.cleanFileName(`temp_group_${Date.now()}`);
 		fs.mkdirSync(path.join(process.cwd(), 'features', req.body.name), { recursive: true });

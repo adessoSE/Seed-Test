@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import * as storyService from '../services/story.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
 import { Background } from '@shared/models/Background.js';
+import { AppError } from '../helpers/AppError.js';
 
 /**
  * Handles updating the background section of a story.
@@ -11,10 +12,9 @@ import { Background } from '@shared/models/Background.js';
 export async function updateBackground(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.storyID;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
+
 		const backgroundData: Background = req.body;
 
 		await storyService.updateBackground(storyId, backgroundData);
@@ -35,10 +35,8 @@ export async function updateBackground(req: Request, res: Response, next: NextFu
 export async function deleteBackground(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.storyID;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
 
 		await storyService.deleteBackground(storyId);
 		// Trigger feature file update after successful DB update

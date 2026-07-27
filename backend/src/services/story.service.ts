@@ -9,6 +9,7 @@ import { emptyStory } from '../models/emptyStory.js';
 import { emptyScenario } from '../models/emptyScenario.js';
 import { emptyBackground } from '../models/emptyBackground.js';
 import { deleteReport } from './report.service.js';
+import { AppError } from '../helpers/AppError.js';
 
 const storiesCollection = 'Stories';
 const repositoriesCollection = 'Repositories';
@@ -216,8 +217,8 @@ export async function createScenario(storyId: string, scenarioTitle: string): Pr
 	const collection = db.collection<StoryDoc>(storiesCollection);
 	const story = await collection.findOne({ _id: oid(storyId) });
 
-	if (!story) 
-		throw new Error('Story not found');
+	if (!story)
+		throw AppError.notFound('Story not found');
     
 
 	const newScenario = emptyScenario();

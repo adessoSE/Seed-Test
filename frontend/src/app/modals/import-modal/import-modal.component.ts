@@ -49,6 +49,9 @@ export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy
 	ngOnInit() {
 		this.toggleNewProjectSub = this.toggleNewProject.valueChanges.subscribe(value => {
 			this.isNewProject = value;
+			// Clear project name when switching to "New Project" mode
+			if (value)
+				this.projectName = '';
 		});
     
 		this.toggleImportModeSub = this.toggleImportMode.valueChanges.subscribe(value => {
@@ -61,9 +64,7 @@ export class ImportModalComponent implements AfterViewChecked, OnInit, OnDestroy
 	}
 
 	ngAfterViewChecked() {
-		if (this.isNewProject) 
-			this.projectName = '';
-    
+		// intentionally empty — lifecycle hook preserved for potential future use
 	}
 
 	ngOnDestroy() {

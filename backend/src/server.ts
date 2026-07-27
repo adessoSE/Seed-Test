@@ -1,10 +1,11 @@
-import dotenv from 'dotenv';
-dotenv.config(); // Load environment variables first
+// Side-effect import: must be first so .env is loaded before any other module reads process.env
+import 'dotenv/config';
 
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { AppError } from './helpers/AppError.js';
 import { sanitize, hasDangerousKeys } from './helpers/sanitize.js';
 import passport from 'passport';
 import session from 'express-session';
@@ -139,7 +140,19 @@ const authLimiter = rateLimit({
 	max: 20, // max 20 attempts per window
 	standardHeaders: true,
 	legacyHeaders: false,
-	message: { error: 'Too many requests. Please try again later.' }
+	message: { error: 'Too many requests. Please try again later.' },
+	// Express 5 can yield undefined req.ip on destroyed connections
+	validate: { ip: false }
+});
+
+// Prevents log-flooding from unauthenticated clients
+const logLimiter = rateLimit({
+	windowMs: 60 * 1000, // 1 minute
+	max: 60, // max 60 log messages per minute per IP
+	standardHeaders: true,
+	legacyHeaders: false,
+	message: { error: 'Too many log requests.' },
+	validate: { ip: false }
 });
 
 // --- API Routes ---
@@ -151,7 +164,7 @@ app.get('/api/ai/available', async (_, res) => {
 	res.json({ available });
 });
 app.get('/api', (_, res) => res.sendFile('htmlresponse/apistandartresponse.html', { root: import.meta.dirname }));
-app.use('/api/log', loggingRouter);
+app.use('/api/log', logLimiter, loggingRouter);
 // Rate-limit auth endpoints (login, register, password reset)
 app.use('/api/user', authLimiter, userRouter);
 app.use('/api/playwright', playwrightRouter);
@@ -190,9 +203,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 	}
 
 	// AppError carries an explicit status code; everything else is an unexpected 500
-	const statusCode = 'statusCode' in err && typeof (err as any).statusCode === 'number'
-		? (err as any).statusCode
-		: 500;
+	const statusCode = err instanceof AppError ? err.statusCode : 500;
 
 	// Only log stack traces for unexpected errors, not operational ones
 	if (statusCode === 500)
@@ -205,46 +216,77 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 	});
 });
 
-async function checkAndInstallEdge() {
+type BrowserCheckResult = { name: string; status: 'ok' | 'installed' | 'failed' };
+
+async function checkEdgeBrowser(): Promise<BrowserCheckResult> {
 	try {
 		const edgeBrowser = await chromium.launch({ channel: 'msedge' });
 		await edgeBrowser.close();
-		logger.info('Microsoft Edge is available');
-	} catch (error: any) {
+		return { name: 'Microsoft Edge', status: 'ok' };
+	} catch {
 		try {
-			logger.warn(`${error.message} — Microsoft Edge is not launchable, trying to install...`);
 			execSync('npx playwright install msedge --with-deps', { stdio: 'inherit' });
+			return { name: 'Microsoft Edge', status: 'installed' };
 		} catch (edge_error: any) {
-			logger.error(`Microsoft Edge not launchable nor installable (corporate policies?): ${edge_error.message}`);
+			logger.error(`Microsoft Edge not installable (corporate policies?): ${edge_error.message}`);
+			return { name: 'Microsoft Edge', status: 'failed' };
 		}
 	}
 }
 
-async function checkAndInstallGeneralBrowsers() {
+async function checkGeneralBrowsers(): Promise<BrowserCheckResult[]> {
 	const browsers: { engine: BrowserType; name: string }[] = [
 		{ engine: firefox, name: 'Firefox' },
 		{ engine: chromium, name: 'Chromium' },
 		{ engine: webkit, name: 'WebKit' }
 	];
 
-	try {
-		for (const browser of browsers) {
+	const results: BrowserCheckResult[] = [];
+	let needsInstall = false;
+
+	// Check each browser individually to collect per-browser results
+	for (const browser of browsers)
+		try {
 			const instance = await browser.engine.launch();
 			await instance.close();
-			logger.info(`${browser.name} is available`);
+			results.push({ name: browser.name, status: 'ok' });
+		} catch {
+			needsInstall = true;
+			results.push({ name: browser.name, status: 'failed' });
 		}
-	} catch (error: any) {
-		if (error.message.includes('Executable doesn') || 
-            error.message.includes('Browser version')) {
-			logger.warn('Browser version incompatible or executable missing, reinstalling browsers...');
+
+	// If any browser is missing, install all and update status
+	if (needsInstall)
+		try {
 			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
-		} else if (error.message.includes('browserType.launch')) {
-			logger.warn('Installing missing Playwright browsers...');
-			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
-		} else 
-			logger.error(`Unexpected error during browser check: ${error.message}`);
-        
-	}
+			for (const r of results)
+				if (r.status === 'failed')
+					r.status = 'installed';
+		} catch (error: any) {
+			logger.error(`Failed to install Playwright browsers: ${error.message}`);
+		}
+
+	return results;
+}
+
+/** Prints a grouped, color-coded summary of browser availability to the console. */
+function logBrowserResults(results: BrowserCheckResult[]): void {
+	const g = '\x1b[32m'; const y = '\x1b[33m'; const r = '\x1b[31m';
+	const d = '\x1b[2m';  const b = '\x1b[1m';  const x = '\x1b[0m';
+
+	const icon = (s: string) => s === 'ok' ? `${g}✓${x}` : s === 'installed' ? `${y}↻${x}` : `${r}✗${x}`;
+	const label = (s: string) => s === 'ok' ? `${g}available${x}` : s === 'installed' ? `${y}installed${x}` : `${r}unavailable${x}`;
+
+	const line = `${d}${'─'.repeat(38)}${x}`;
+	console.log(`\n  ${b}Playwright Browser Availability${x}`);
+	console.log(`  ${line}`);
+	for (const result of results)
+		console.log(`  ${icon(result.status)}  ${result.name.padEnd(18)} ${label(result.status)}`);
+	console.log(`  ${line}\n`);
+
+	// Plain-text summary for log files
+	const summary = results.map(br => `${br.name}: ${br.status}`).join(', ');
+	logger.info(`Browser check complete — ${summary}`);
 }
 
 // --- Server Startup ---
@@ -253,12 +295,11 @@ const server = http.createServer(app);
 
 async function startServer() {
 	try {
-		logger.info('Checking general browser availability...');
-		await Promise.all([
-			checkAndInstallGeneralBrowsers(),
-			checkAndInstallEdge()
+		const [generalResults, edgeResult] = await Promise.all([
+			checkGeneralBrowsers(),
+			checkEdgeBrowser()
 		]);
-		logger.info('Browser check complete.');
+		logBrowserResults([...generalResults, edgeResult]);
 		logger.info('Connecting to database...');
         
 		await dbConnector.establishConnection();

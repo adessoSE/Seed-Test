@@ -9,6 +9,7 @@ import { Block } from '@shared/models/Block.js';
 import { Group } from '@shared/models/Group.js';
 import { Repository } from '@shared/models/Repository.js';
 import { oid } from '../types/mongo.types.js';
+import { AppError } from '../helpers/AppError.js';
 
 // --- Main Import/Export Functions ---
 
@@ -22,7 +23,7 @@ import { oid } from '../types/mongo.types.js';
 export async function exportProject(repo_id: string): Promise<Buffer> {
 	const repo = await repositoryService.getOneRepositoryById(repo_id);
 	if (!repo) 
-		throw new Error('Repository not found.');
+		throw AppError.notFound('Repository not found.');
     
 
 	const stories = await storyService.getAllStoriesOfRepo(repo_id);
@@ -75,7 +76,7 @@ export async function importProject(
 			});
 		else {
 			// --- Logic for importing into a NEW project ---
-			if (!projectName) throw new Error('Project name is required for new imports.');
+			if (!projectName) throw AppError.badRequest('Project name is required for new imports.');
             
 			await session.withTransaction(async (currentSession) => {
 				const repoData: Repository = JSON.parse(zip.readAsText('repository.json'));

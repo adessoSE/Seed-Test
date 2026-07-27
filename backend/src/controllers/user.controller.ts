@@ -7,6 +7,7 @@ import * as userService from '../services/user.service.js';
 import * as nodeMail from '../nodemailer.js';
 import { Session, SessionData } from 'express-session';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 const saltRounds = 10;
 
@@ -39,8 +40,8 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
             
 			await nodeMail.sendResetLink(user.email, id);
 			res.status(200).json({ message: 'Reset link sent' });
-		} else 
-			res.status(404).json({ error: 'No user found with that email address' });
+		} else
+			throw AppError.notFound('No user found with that email address');
         
 	} catch (error) {
 		next(error);
@@ -57,10 +58,8 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 
 		if (thisRequest) {
 			const user = await userService.getUserByEmail(thisRequest.email);
-			if (!user) {
-				res.status(404).json({ error: 'User not found' });
-				return;
-			}
+			if (!user)
+				throw AppError.notFound('User not found');
 
 			user.password = await bcrypt.hash(password, saltRounds);
 			user.transitioned = true; // Mark as new hash
@@ -69,8 +68,8 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 			await userService.deleteRequest(user.email);
             
 			res.status(204).send(); // 204 No Content
-		} else 
-			res.status(401).json({ error: 'Invalid or expired reset token' });
+		} else
+			throw AppError.unauthorized('Invalid or expired reset token');
         
 	} catch (error) {
 		next(error);
@@ -118,15 +117,12 @@ export function login(req: Request, res: Response, next: NextFunction): void {
  */
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		if (!req.body.email || !req.body.password) {
-			res.status(400).json({ status: 'error', message: 'Email and password are required.' });
-			return;
-		}
+		if (!req.body.email || !req.body.password)
+			throw AppError.badRequest('Email and password are required.');
+
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(req.body.email)) {
-			res.status(400).json({ status: 'error', message: 'Invalid email format.' });
-			return;
-		}
+		if (!emailRegex.test(req.body.email))
+			throw AppError.badRequest('Invalid email format.');
 		req.body.email = req.body.email.toLowerCase();
 		req.body.password = await bcrypt.hash(req.body.password, saltRounds);
 		req.body.transitioned = true;
@@ -134,11 +130,10 @@ export async function register(req: Request, res: Response, next: NextFunction):
 		const result = await userService.registerUser(req.body);
 		res.status(201).json({ insertedId: result.insertedId });
 	} catch (error: any) {
-		if (error.message === 'User already exists') 
-			res.status(409).json({ status: 'error', message: error.message }); // 409 Conflict
-		else 
-			next(error);
-        
+		if (error.message === 'User already exists')
+			throw AppError.conflict(error.message);
+
+		next(error);
 	}
 }
 
@@ -195,10 +190,8 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 		// Find or register this user in our DB
 		const user = await userService.findOrRegisterGithub(githubProfile);
         
-		if (!user) {
-			res.status(500).json({ error: 'Failed to register or find GitHub user' });
-			return;
-		}
+		if (!user)
+			throw new Error('Failed to register or find GitHub user');
 
 		// Log the user in
 		req.logIn(user, (err) => {
@@ -223,10 +216,8 @@ export async function mergeGithub(req: Request, res: Response, next: NextFunctio
 		const user = req.user as User;
 
 		// Ensure the logged-in user is the one making the request
-		if (!user || user._id!.toString() !== userId) {
-			res.status(403).json({ error: 'Forbidden: You can only merge your own account' });
-			return;
-		}
+		if (!user || user._id!.toString() !== userId)
+			throw AppError.forbidden('Forbidden: You can only merge your own account');
 
 		const mergedUser = await userService.mergeGithub(userId, login, id);
         
@@ -246,10 +237,10 @@ export async function mergeGithub(req: Request, res: Response, next: NextFunctio
  * Gets the currently logged-in user's data.
  */
 export async function getUser(req: Request, res: Response, _next: NextFunction): Promise<void> {
-	if (req.user) 
+	if (req.user)
 		res.status(200).json(req.user);
-	else 
-		res.status(401).json({ error: 'Not authenticated' });
+	else
+		throw AppError.unauthorized('Not authenticated');
     
 }
 
@@ -259,10 +250,8 @@ export async function getUser(req: Request, res: Response, _next: NextFunction):
 export async function deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User;
-		if (!user) {
-			res.status(401).json({ error: 'Not authenticated' });
-			return;
-		}
+		if (!user)
+			throw AppError.unauthorized('Not authenticated');
         
 		await userService.deleteUser(user._id!);
         
@@ -285,10 +274,8 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 		const { userID } = req.params;
 		const user = req.user as User;
          
-		if (!user || user._id!.toString() !== userID) {
-			res.status(403).json({ error: 'Forbidden: You can only update your own account' });
-			return;
-		}
+		if (!user || user._id!.toString() !== userID)
+			throw AppError.forbidden('Forbidden: You can only update your own account');
          
 		const updatedUserData: User = req.body;
          

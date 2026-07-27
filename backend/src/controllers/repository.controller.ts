@@ -6,6 +6,7 @@ import * as repositoryService from '../services/repository.service.js';
 import * as userService from '../services/user.service.js';
 import * as externalSyncService from '../services/externalSync.service.js';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 
 /**
@@ -81,19 +82,16 @@ export async function createRepository(req: Request, res: Response, next: NextFu
 	try {
 		const user = req.user as User;
 		const { name } = req.body;
-		if (!name) {
-			res.status(400).json({ error: 'Repository name is required' });
-			return;
-		}
+		if (!name)
+			throw AppError.badRequest('Repository name is required');
 
 		const insertedId = await repositoryService.createRepo(user._id!.toString(), name);
 		res.status(201).json({ insertedId });
 	} catch (error) {
 		// Duplicate repository name — return 409 Conflict instead of generic 500
-		if (error instanceof Error && error.message.includes('already own a repository')) {
-			res.status(409).json({ error: error.message });
-			return;
-		}
+		if (error instanceof Error && error.message.includes('already own a repository'))
+			throw AppError.conflict(error.message);
+
 		next(error);
 	}
 }
@@ -104,11 +102,9 @@ export async function createRepository(req: Request, res: Response, next: NextFu
 export async function updateRepositorySettings(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id } = req.params;
-		if (!ObjectId.isValid(repo_id)) {
-			res.status(400).json({ error: 'Invalid repository ID' });
-			return;
-		}
-        
+		if (!ObjectId.isValid(repo_id))
+			throw AppError.badRequest('Invalid repository ID');
+
 		const { repoName, settings, aiConfig }: { repoName?: string, settings?: any, aiConfig?: AiConfig } = req.body;
 
 		// Note: The repositoryService.updateRepository already handles API key encryption
@@ -125,10 +121,9 @@ export async function updateRepositorySettings(req: Request, res: Response, next
 export async function getRepositorySettings(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id } = req.params;
-		if (!ObjectId.isValid(repo_id)) {
-			res.status(400).json({ error: 'Invalid repository ID' });
-			return;
-		}
+		if (!ObjectId.isValid(repo_id))
+			throw AppError.badRequest('Invalid repository ID');
+
 		const settings = await repositoryService.getRepoSettingsById(repo_id);
 		res.status(200).json(settings);
 	} catch (error) {
@@ -142,10 +137,9 @@ export async function getRepositorySettings(req: Request, res: Response, next: N
 export async function getRepositoryAiConfig(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id } = req.params;
-		if (!ObjectId.isValid(repo_id)) {
-			res.status(400).json({ error: 'Invalid repository ID' });
-			return;
-		}
+		if (!ObjectId.isValid(repo_id))
+			throw AppError.badRequest('Invalid repository ID');
+
 		const aiConfig = await repositoryService.getRepoAiConfigById(repo_id);
 		res.status(200).json(aiConfig);
 	} catch (error) {
@@ -160,16 +154,12 @@ export async function updateRepositoryOwner(req: Request, res: Response, next: N
 	try {
 		const { repo_id } = req.params;
 		const user = req.user as User;
-		if (!ObjectId.isValid(repo_id)) {
-			res.status(400).json({ error: 'Invalid repository ID' });
-			return;
-		}
+		if (!ObjectId.isValid(repo_id))
+			throw AppError.badRequest('Invalid repository ID');
 
 		const newOwner = await userService.getUserByEmail(req.body.email);
-		if (!newOwner) {
-			res.status(404).json({ error: 'New owner user not found' });
-			return;
-		}
+		if (!newOwner)
+			throw AppError.notFound('New owner user not found');
 
 		await repositoryService.updateOwnerInRepo(repo_id, newOwner._id!.toString(), user._id!.toString());
 		res.status(200).json({ message: 'Owner updated successfully' });
@@ -185,10 +175,8 @@ export async function deleteRepository(req: Request, res: Response, next: NextFu
 	try {
 		const { repo_id } = req.params;
 		const user = req.user as User;
-		if (!ObjectId.isValid(repo_id)) {
-			res.status(400).json({ error: 'Invalid repository ID' });
-			return;
-		}
+		if (!ObjectId.isValid(repo_id))
+			throw AppError.badRequest('Invalid repository ID');
 
 		const result = await repositoryService.deleteRepository(repo_id, user._id!.toString());
 		res.status(200).json(result);

@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 import * as dbConnection from '../database/DbConnector.js';
 import { getUserById } from './user.service.js';
 import { oid, RepositoryDoc } from '../types/mongo.types.js';
+import { AppError } from '../helpers/AppError.js';
 
 const repositoriesCollection = 'Repositories';
 const workgroupsCollection = 'Workgroups';
@@ -32,9 +33,9 @@ export async function getWorkgroup(repoId: string): Promise<Workgroup | null> {
 export async function getMembers(repoId: string): Promise<{ owner: { email: string | undefined, canEdit: true }, member: any[] }> {
 	const db = dbConnection.getConnection();
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) });
-	if (!repo) 
-		throw new Error('Repository not found');
-    
+	if (!repo)
+		throw AppError.notFound('Repository not found');
+
 
 	const owner = await getUserById(repo.owner);
 	const workgroup = await db.collection<Workgroup>(workgroupsCollection).findOne({ Repo: new ObjectId(repoId) });
@@ -55,13 +56,13 @@ export async function addMember(repoId: string, user: { email: string, canEdit: 
 	const db = dbConnection.getConnection();
 	const workgroupCollection = db.collection<Workgroup>(workgroupsCollection);
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) });
-	if (!repo) 
-		throw new Error('Repository not found');
-    
+	if (!repo)
+		throw AppError.notFound('Repository not found');
+
 
 	const owner = await getUserById(repo.owner);
 	if (!owner) 
-		throw new Error('Repository owner not found');
+		throw AppError.notFound('Repository owner not found');
     
 	const workgroup = await workgroupCollection.findOne({ Repo: new ObjectId(repoId) });
 
@@ -75,7 +76,7 @@ export async function addMember(repoId: string, user: { email: string, canEdit: 
 	else {
 		const memberExists = workgroup.Members.some((m: any) => m.email === user.email);
 		if (memberExists) 
-			throw new Error('This user is already in the work group');
+			throw AppError.conflict('This user is already in the work group');
         
 		await workgroupCollection.updateOne(
 			{ Repo: new ObjectId(repoId) },

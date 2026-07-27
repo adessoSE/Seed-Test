@@ -14,6 +14,7 @@ import { AiConfig } from '@shared/models/RepositoryContainer.js';
 import { User } from '@shared/models/User.js';
 import { oid } from '../types/mongo.types.js';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 // --- Story CRUD ---
 
@@ -30,10 +31,8 @@ export async function getStories(req: Request, res: Response, next: NextFunction
 
 		if (source === 'db') {
 			// DB source is a simple fetch, no external sync needed
-			if (!id || !ObjectId.isValid(id)) {
-				res.status(400).json({ error: 'Invalid repository ID format for DB source' });
-				return;
-			}
+			if (!id || !ObjectId.isValid(id))
+				throw AppError.badRequest('Invalid repository ID format for DB source');
 			stories = await storyService.getAllStoriesOfRepo(id);
             
 			// If we need to match order (like the old logic), we might need the repo doc
@@ -46,10 +45,8 @@ export async function getStories(req: Request, res: Response, next: NextFunction
 		} else if (source === 'github' || source === 'jira') 
 		// GitHub and Jira sources require external fetching and syncing
 			stories = await externalSyncService.getStoriesFromSource(user, req.query as { [key: string]: string });
-		else {
-			res.status(400).json({ error: 'Invalid or missing source parameter' });
-			return;
-		}
+		else
+			throw AppError.badRequest('Invalid or missing source parameter');
 
 		res.status(200).json(stories);
 
@@ -61,13 +58,13 @@ export async function getStories(req: Request, res: Response, next: NextFunction
 export async function getStoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params._id;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
+
 		const story = await storyService.getOneStory(storyId);
-		if (!story) {
-			res.status(404).json({ error: 'Story not found' }); return;
-		}
+		if (!story)
+			throw AppError.notFound('Story not found');
+
 		res.status(200).json(story);
 	} catch (error) {
 		next(error);
@@ -78,13 +75,12 @@ export async function getStoryByIssueKey(req: Request, res: Response, next: Next
 	try {
 		const issueKey = req.params.issue_key;
 		// Basic validation, adjust if Jira keys have stricter rules
-		if (!issueKey || typeof issueKey !== 'string') {
-			res.status(400).json({ error: 'Invalid issue key format' }); return;
-		}
+		if (!issueKey || typeof issueKey !== 'string')
+			throw AppError.badRequest('Invalid issue key format');
+
 		const story = await storyService.getOneStoryByIssueKey(issueKey);
-		if (!story) {
-			res.status(404).json({ error: 'Story not found for this issue key' }); return;
-		}
+		if (!story)
+			throw AppError.notFound('Story not found for this issue key');
 		res.status(200).json(story);
 	} catch (error) {
 		next(error);
@@ -95,9 +91,8 @@ export async function getStoryByIssueKey(req: Request, res: Response, next: Next
 export async function createStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { title, description, _id: repoId } = req.body; // repoId comes as _id in the body
-		if (!title || !repoId || !ObjectId.isValid(repoId)) {
-			res.status(400).json({ error: 'Missing title or invalid repository ID' }); return;
-		}
+		if (!title || !repoId || !ObjectId.isValid(repoId))
+			throw AppError.badRequest('Missing title or invalid repository ID');
 		const dbId = await storyService.createStory(title, description || '', repoId);
         
 		await repositoryService.insertStoryIdIntoRepo(dbId.toString(), repoId);
@@ -111,9 +106,9 @@ export async function createStory(req: Request, res: Response, next: NextFunctio
 export async function updateStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params._id;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
+
 		const storyData: Story = req.body;
 		// Ensure the ID in the body matches the URL parameter for consistency
 		// Story._id is typed as string but MongoDB needs ObjectId
@@ -130,13 +125,12 @@ export async function updateStory(req: Request, res: Response, next: NextFunctio
 export async function deleteStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id, _id: storyId } = req.params;
-		if (!ObjectId.isValid(repo_id) || !ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid repository or story ID format' }); return;
-		}
+		if (!ObjectId.isValid(repo_id) || !ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid repository or story ID format');
+
 		const story = await storyService.getOneStory(storyId); // Fetch story to get title for file deletion
-		if (!story) {
-			res.status(404).json({ error: 'Story not found' }); return;
-		}
+		if (!story)
+			throw AppError.notFound('Story not found');
 		await storyService.deleteStory(repo_id, storyId);
 		await featureFileService.deleteFeatureFile(story.title, story._id);
 		res.status(200).json({ message: 'success' });
@@ -152,9 +146,8 @@ export async function updateStoryOrder(req: Request, res: Response, next: NextFu
 	try {
 		const { repo_id } = req.params;
 		const storiesList: string[] = req.body; // Erwartet ein Array von Story-IDs
-		if (!ObjectId.isValid(repo_id)) {
-			res.status(400).json({ error: 'Invalid repository ID format' }); return;
-		}
+		if (!ObjectId.isValid(repo_id))
+			throw AppError.badRequest('Invalid repository ID format');
 		await repositoryService.updateStoriesArrayInRepo(repo_id, storiesList);
 		res.status(200).json({ message: 'Story order updated' });
 	} catch (error) {
@@ -168,13 +161,12 @@ export async function getScenario(req: Request, res: Response, next: NextFunctio
 	try {
 		const { story_id, _id: scenarioNumId } = req.params;
 		const scenarioId = parseInt(scenarioNumId, 10);
-		if (!ObjectId.isValid(story_id) || isNaN(scenarioId)) {
-			res.status(400).json({ error: 'Invalid story ID or scenario ID format' }); return;
-		}
+		if (!ObjectId.isValid(story_id) || isNaN(scenarioId))
+			throw AppError.badRequest('Invalid story ID or scenario ID format');
+
 		const scenario = await storyService.getOneScenario(story_id, scenarioId);
-		if (!scenario) {
-			res.status(404).json({ error: 'Scenario not found' }); return;
-		}
+		if (!scenario)
+			throw AppError.notFound('Scenario not found');
 		res.status(200).json(scenario);
 	} catch (error) {
 		next(error);
@@ -185,9 +177,9 @@ export async function getScenario(req: Request, res: Response, next: NextFunctio
 export async function createScenario(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.story_id;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
+
 		const { name } = req.body; // Assuming name comes in body
 
 		const scenario = await storyService.createScenario(storyId, name || 'New Scenario');
@@ -202,9 +194,9 @@ export async function updateScenario(req: Request, res: Response, next: NextFunc
 	try {
 		const { story_id, _id: scenarioNumId } = req.params;
 		const scenarioId = parseInt(scenarioNumId, 10);
-		if (!ObjectId.isValid(story_id) || isNaN(scenarioId)) {
-			res.status(400).json({ error: 'Invalid story ID or scenario ID format' }); return;
-		}
+		if (!ObjectId.isValid(story_id) || isNaN(scenarioId))
+			throw AppError.badRequest('Invalid story ID or scenario ID format');
+
 		const scenarioData: Scenario = req.body;
 		// Ensure scenario_id matches
 		scenarioData.scenario_id = scenarioId;
@@ -251,10 +243,8 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 	const { story_id, _id: scenarioNumId } = req.params;
 	const scenarioId = parseInt(scenarioNumId, 10);
 
-	if (!ObjectId.isValid(story_id) || isNaN(scenarioId)) {
-		res.status(400).json({ error: 'Invalid story ID or scenario ID format' });
-		return;
-	}
+	if (!ObjectId.isValid(story_id) || isNaN(scenarioId))
+		throw AppError.badRequest('Invalid story ID or scenario ID format');
 
 	try {
 		// Step 1: Delete from Seed-Test DB
@@ -281,22 +271,22 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
     
 
 	// Step 3: Respond based on results
-	if (!dbError && !xrayError) 
+	if (!dbError && !xrayError)
 		res.status(200).json({ message: 'Scenario deleted successfully.' });
 	else {
 		let errorMessage = 'Error during deletion: ';
 		if (dbError) errorMessage += `Database error: ${dbError.message}. `;
 		if (xrayError) errorMessage += `XRay error: ${xrayError.message}.`;
-		res.status(500).json({ error: errorMessage.trim() });
+		throw new Error(errorMessage.trim());
 	}
 }
 
 export async function updateScenarioList(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.story_id;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
+
 		const scenarioList: Scenario[] = req.body;
 		await storyService.updateScenarioList(storyId, scenarioList);
 		await featureFileService.updateFeatureFile(storyId);
@@ -312,9 +302,9 @@ export async function updateScenarioList(req: Request, res: Response, next: Next
 export async function downloadSingleFeature(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params._id;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
+
 		const fileContent = await featureFileService.exportSingleFeatureFile(storyId);
 		// Fetch story to get title for filename
 		const story = await storyService.getOneStory(storyId);
@@ -332,9 +322,9 @@ export async function downloadSingleFeature(req: Request, res: Response, next: N
 export async function downloadProjectFeatures(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repo_id;
-		if (!ObjectId.isValid(repoId)) {
-			res.status(400).json({ error: 'Invalid repository ID format' }); return;
-		}
+		if (!ObjectId.isValid(repoId))
+			throw AppError.badRequest('Invalid repository ID format');
+
 		const version = req.query.version_id as string | undefined;
 		const zipBuffer = await featureFileService.exportProjectFeatureFiles(repoId, version);
 		const repo = await repositoryService.getOneRepositoryById(repoId); // Fetch repo for name
@@ -351,9 +341,9 @@ export async function downloadProjectFeatures(req: Request, res: Response, next:
 export async function exportProjectArchive(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repo_id;
-		if (!ObjectId.isValid(repoId)) {
-			res.status(400).json({ error: 'Invalid repository ID format' }); return;
-		}
+		if (!ObjectId.isValid(repoId))
+			throw AppError.badRequest('Invalid repository ID format');
+
 		const zipBuffer = await importExportService.exportProject(repoId);
 		const repo = await repositoryService.getOneRepositoryById(repoId);
 		const filename = featureFileService.cleanFileName(repo?.repoName || `export_${repoId}`) + '.zip';
@@ -368,20 +358,18 @@ export async function exportProjectArchive(req: Request, res: Response, next: Ne
 
 export async function importProjectArchive(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		if (!req.file) {
-			res.status(400).json({ error: 'No file uploaded.' }); return;
-		}
+		if (!req.file)
+			throw AppError.badRequest('No file uploaded.');
 		const repoId = req.query.repo_id as string | undefined;
 		const projectName = req.query.projectName as string | undefined;
 		const importMode = req.query.importMode === 'true'; // Convert query string to boolean
 
 		// Differentiate between POST (new project) and PUT (existing project)
-		if (req.method === 'POST' && !projectName) {
-			res.status(400).json({ error: 'Project name is required for new imports.' }); return;
-		}
-		if (req.method === 'PUT' && (!repoId || !ObjectId.isValid(repoId))) {
-			res.status(400).json({ error: 'Valid repository ID is required for updating imports.' }); return;
-		}
+		if (req.method === 'POST' && !projectName)
+			throw AppError.badRequest('Project name is required for new imports.');
+
+		if (req.method === 'PUT' && (!repoId || !ObjectId.isValid(repoId)))
+			throw AppError.badRequest('Valid repository ID is required for updating imports.');
 
 		const user = req.user as User;
 		const result = await importExportService.importProject(req.file, repoId, projectName, importMode, user._id!.toString());
@@ -397,9 +385,8 @@ export async function importProjectArchive(req: Request, res: Response, next: Ne
 export async function setOneDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.storyID;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
 		// Assuming the service expects the current value to toggle it
 		const result = await storyService.updateOneDriver(storyId, req.body.oneDriver);
 		res.status(200).json(result); // Return result from service
@@ -408,17 +395,17 @@ export async function setOneDriver(req: Request, res: Response, next: NextFuncti
 	}
 }
 
-export function resolveSpecialCommands(req: Request, res: Response, _next: NextFunction): void {
+export function resolveSpecialCommands(req: Request, res: Response, next: NextFunction): void {
 	try {
 		const command = req.body.command as string;
-		if (typeof command !== 'string') {
-			res.status(400).json({ error: 'Invalid command input' }); return;
-		}
+		if (typeof command !== 'string')
+			throw AppError.badRequest('Invalid command input');
+
 		const result = specialCommandParser.applySpecialCommands(command);
 		res.status(200).json({ resolved: result });
 	} catch (error) {
 		// Specific error handling for parsing errors might be useful here
-		res.status(400).json({ error: (error as Error).message || 'Failed to resolve command' });
+		next(error instanceof AppError ? error : AppError.badRequest((error as Error).message || 'Failed to resolve command'));
 	}
 }
 
@@ -433,20 +420,18 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 		}
 
 		const storyId = req.params.story_id;
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid story ID format');
 
 		// The body now contains the structured AiConfig
 		const aiConfig: AiConfig = req.body.aiConfig;
 		const repoId = req.headers.repoid as string;
 
-		if (!aiConfig) {
-			res.status(400).json({ error: 'AI configuration is missing.' }); return;
-		}
-		if (!repoId || !ObjectId.isValid(repoId)) {
-			res.status(400).json({ error: 'Valid repository ID (repoid) is missing in headers.' }); return;
-		}
+		if (!aiConfig)
+			throw AppError.badRequest('AI configuration is missing.');
+
+		if (!repoId || !ObjectId.isValid(repoId))
+			throw AppError.badRequest('Valid repository ID (repoid) is missing in headers.');
 
 		// Pass the structured aiConfig directly to the queue
 		aiService.queueAiScenarioGeneration(storyId, aiConfig, repoId);
@@ -460,9 +445,8 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 export function getAiGenerationStatus(req: Request, res: Response, _next: NextFunction): void {
 	// This function remains unchanged as it only uses the emitter
 	const storyId = req.params.story_id;
-	if (!ObjectId.isValid(storyId)) {
-		res.status(400).json({ error: 'Invalid story ID format' }); return;
-	}
+	if (!ObjectId.isValid(storyId))
+		throw AppError.badRequest('Invalid story ID format');
 
 	res.setHeader('Content-Type', 'text/event-stream');
 	res.setHeader('Cache-Control', 'no-cache');

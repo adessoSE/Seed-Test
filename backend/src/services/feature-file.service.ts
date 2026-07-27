@@ -8,6 +8,7 @@ import { Scenario } from '@shared/models/Scenario.js';
 import { StepType } from '@shared/models/StepType.js';
 import * as storyService from './story.service.js';
 import * as blockService from './block.service.js';
+import { AppError } from '../helpers/AppError.js';
 
 
 // --- Feature File Generation ---
@@ -183,7 +184,7 @@ export async function replaceRefBlocks(scenarios: Scenario[]): Promise<Scenario[
 export async function exportSingleFeatureFile(storyId: string): Promise<string> {
 	const story = await storyService.getOneStory(storyId);
 	if (!story) 
-		throw new Error('Story not found');
+		throw AppError.notFound('Story not found');
     
 	story.scenarios = await replaceRefBlocks(story.scenarios);
 	// Ensure file is written before trying to read it

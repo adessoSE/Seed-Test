@@ -1,3 +1,6 @@
+// Side-effect import: must be first so .env is loaded before any other module reads process.env
+import 'dotenv/config';
+
 import { exit } from 'process';
 import bcrypt from 'bcrypt';
 import * as userService from '../services/user.service.js';
@@ -5,9 +8,6 @@ import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import { Scenario } from '@shared/models/Scenario.js';
 import { User } from '@shared/models/User.js';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const exampleUserEmail = 'seed@test.de';
 const examplePassword = 'seedtest';

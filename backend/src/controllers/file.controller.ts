@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import * as fileService from '../services/file.service.js';
+import { AppError } from '../helpers/AppError.js';
 
 /**
  * Handles the upload of a single file to a repository.
@@ -8,15 +9,12 @@ import * as fileService from '../services/file.service.js';
  */
 export async function fileUpload(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		if (!req.file) {
-			res.status(400).json({ error: 'No file uploaded.' });
-			return;
-		}
+		if (!req.file)
+			throw AppError.badRequest('No file uploaded.');
+
 		const { repoId } = req.params;
-		if (!ObjectId.isValid(repoId)) {
-			res.status(400).json({ error: 'Invalid repository ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(repoId))
+			throw AppError.badRequest('Invalid repository ID format');
 
 		// The file service handles GridFS upload
 		const fileMetadata = await fileService.fileUpload(
@@ -38,10 +36,8 @@ export async function fileUpload(req: Request, res: Response, next: NextFunction
 export async function getFileList(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repoId } = req.params;
-		if (!ObjectId.isValid(repoId)) {
-			res.status(400).json({ error: 'Invalid repository ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(repoId))
+			throw AppError.badRequest('Invalid repository ID format');
 
 		const files = await fileService.getFileList(repoId);
 		res.status(200).json(files);
@@ -57,10 +53,8 @@ export async function getFileList(req: Request, res: Response, next: NextFunctio
 export async function deleteFile(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repoId, fileId } = req.params;
-		if (!ObjectId.isValid(fileId) || !ObjectId.isValid(repoId)) {
-			res.status(400).json({ error: 'Invalid file or repository ID format' });
-			return;
-		}
+		if (!ObjectId.isValid(fileId) || !ObjectId.isValid(repoId))
+			throw AppError.badRequest('Invalid file or repository ID format');
 
 		await fileService.deleteFile(fileId, repoId);
 		res.status(200).json({ message: 'File deleted successfully' });

@@ -4,6 +4,7 @@ import { Scenario } from '@shared/models/Scenario.js';
 import { StepType } from '@shared/models/StepType.js';
 import * as externalAccountService from './externalAccount.service.js';
 import * as stepTypeService from './step-type.service.js';
+import { AppError } from '../helpers/AppError.js';
 
 
 // --- XRay Write Operations ---
@@ -16,10 +17,10 @@ import * as stepTypeService from './step-type.service.js';
  */
 export async function deleteXrayStep(user: User, testKey: string, stepId: number): Promise<void> {
 	if (!user.jira) 
-		throw new Error('User has no linked Jira account.');
+		throw AppError.unauthorized('User has no linked Jira account.');
     
 	if (!testKey) 
-		throw new Error('XRay Test Key (issue key) is required.');
+		throw AppError.badRequest('XRay Test Key (issue key) is required.');
     
 
 	try {
@@ -50,7 +51,7 @@ export async function deleteXrayStep(user: User, testKey: string, stepId: number
         
 		if (!response.ok) {
 			const errorBody = await response.text();
-			throw new Error(`XRay API error! Status: ${response.status} ${response.statusText}. Body: ${errorBody}`);
+			throw AppError.badGateway(`XRay API error! Status: ${response.status} ${response.statusText}. Body: ${errorBody}`);
 		}
 
 		logger.info(`Successfully deleted XRay step ${stepId} from test ${testKey}`);

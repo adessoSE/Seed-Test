@@ -4,6 +4,7 @@ import * as repositoryService from './repository.service.js';
 import * as storyService from './story.service.js';
 import { decrypt } from '../helpers/cryptoHelper.js';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 let parseTextToStory: ((opts: any) => Promise<any>) | null = null;
 let _parserChecked = false;
@@ -52,21 +53,21 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
         
 
 		const story = await storyService.getOneStory(storyId);
-		if (!story) 
-			throw new Error('Story not found');
+		if (!story)
+			throw AppError.notFound('Story not found');
         
 
 		// Use story body as input
 		const inputText = `${story.body || ''}`.trim();
 		if (inputText.length === 0) 
-			throw new Error('No input from story description found');
+			throw AppError.badRequest('No input from story description found');
         
 
 		// Decrypt API keys if cloud provider is used
 		if (aiConfig.textPreparation?.name === 'cloud' || aiConfig.jsonConversion?.name === 'cloud') {
 			const project = await repositoryService.getOneRepositoryById(repoId);
 			if (!project?.aiConfig) 
-				throw new Error('Cloud provider is configured, but no AI config was found for this project.');
+				throw AppError.badRequest('Cloud provider is configured, but no AI config was found for this project.');
             
             
 			const encryptedTextApiKey = project.aiConfig.textPreparation?.apiKey;
@@ -74,7 +75,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
             
 			// Decrypt text key
 			if (aiConfig.textPreparation?.name === 'cloud') {
-				if (!encryptedTextApiKey) throw new Error('Text preparation provider is cloud, but no API key was found.');
+				if (!encryptedTextApiKey) throw AppError.badRequest('Text preparation provider is cloud, but no API key was found.');
 				const decryptedApiKey = decrypt(encryptedTextApiKey);
 				if (!decryptedApiKey) throw new Error('Text API key decryption failed.');
 				aiConfig.textPreparation.apiKey = decryptedApiKey;
@@ -82,7 +83,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
             
 			// Decrypt json key
 			if (aiConfig.jsonConversion?.name === 'cloud') {
-				if (!encryptedJsonApiKey) throw new Error('JSON conversion provider is cloud, but no API key was found.');
+				if (!encryptedJsonApiKey) throw AppError.badRequest('JSON conversion provider is cloud, but no API key was found.');
 				const decryptedApiKey = decrypt(encryptedJsonApiKey);
 				if (!decryptedApiKey) throw new Error('JSON API key decryption failed.');
 				aiConfig.jsonConversion.apiKey = decryptedApiKey;
@@ -98,7 +99,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
 		});
 
 		if (!parsedStory || !parsedStory.scenarios || parsedStory.scenarios.length === 0) 
-			throw new Error('AI-Parser did not generate any valid scenarios.');
+			throw AppError.badRequest('AI-Parser did not generate any valid scenarios.');
         
 
 		logger.info(`AI results for story ${storyId} are ready. Saving as suggestion.`);

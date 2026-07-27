@@ -8,6 +8,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { FileElement } from '@shared/models/FileElement.js';
 import { oid } from '../types/mongo.types.js';
+import { AppError } from '../helpers/AppError.js';
 
 /**
  * Generates a unique filename if a file with the same name already exists in the target repository.
@@ -76,7 +77,7 @@ export async function deleteFile(fileId: string, repoId: string): Promise<void> 
 	const db = dbConnection.getConnection();
 	const fileDoc = await db.collection('GridFS.files').findOne({ _id: oid(fileId) });
 	if (!fileDoc || fileDoc.metadata?.repoId?.toString() !== repoId) 
-		throw new Error('File not found or not authorized');
+		throw AppError.notFound('File not found or not authorized');
     
 	const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
 	await bucket.delete(oid(fileId));

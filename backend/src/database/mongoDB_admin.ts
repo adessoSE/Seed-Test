@@ -2,15 +2,15 @@
 // ///////////////////////////////////////////    Whole File deprecated?! Potentially delete  ////////////////////////////////////////////
 
 
+// Side-effect import: must be first so .env is loaded before any other module reads process.env
+import 'dotenv/config';
+
 import { MongoClient, Db, ObjectId } from 'mongodb';
 import fs from 'node:fs';
 import pfs from 'node:fs/promises';
 import path from 'node:path';
 import * as dbConnector from './DbConnector.js';
 import { Story } from '@shared/models/Story.js';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const dbName = 'Seed';
 const storiesCollection = 'Stories';

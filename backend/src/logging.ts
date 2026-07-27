@@ -2,29 +2,37 @@ import winston, { Logger, LoggerOptions } from 'winston';
 import { Request, Response, NextFunction } from 'express';
 
 function getLogger(): Logger {
-	// Winston config
-	const myformat = winston.format.combine(
-		winston.format.colorize(),
+	// Shared format: timestamp + level + message (no align — it adds unwanted tabs)
+	const baseFormat = winston.format.combine(
 		winston.format.timestamp(),
-		winston.format.align(),
 		winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
+	);
+
+	// Console gets ANSI colors; file transports get plain text (no colorize)
+	const consoleFormat = winston.format.combine(
+		winston.format.colorize(),
+		baseFormat
 	);
 
 	const logConfiguration: LoggerOptions = {
 		transports: [
 			new winston.transports.Console({
 				level: 'debug',
-				format: myformat
+				format: consoleFormat
 			}),
 			new winston.transports.File({
 				level: 'warn',
 				filename: './logs/backend_warn.log',
-				format: myformat
+				format: baseFormat,
+				maxsize: 10 * 1024 * 1024, // 10 MB per file
+				maxFiles: 5
 			}),
 			new winston.transports.File({
 				level: 'debug',
 				filename: './logs/backend_debug.log',
-				format: myformat
+				format: baseFormat,
+				maxsize: 10 * 1024 * 1024, // 10 MB per file
+				maxFiles: 5
 			})
 		]
 	};

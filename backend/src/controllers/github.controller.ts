@@ -3,6 +3,7 @@ import { Session, SessionData } from 'express-session';
 import * as userService from '../services/user.service.js';
 import { User } from '@shared/models/User.js';
 import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
 
 // Define a type combining Request with Session properties for cleaner casting
 type RequestWithSession = Request & { session: Session & Partial<SessionData> };
@@ -17,8 +18,7 @@ export async function submitIssue(req: Request, res: Response, next: NextFunctio
 		const token = process.env.TESTACCOUNT_TOKEN;
 		if (!token) {
 			logger.error('TESTACCOUNT_TOKEN environment variable is not set.');
-			res.status(500).json({ error: 'Server configuration error: GitHub token missing.' });
-			return;
+			throw new Error('Server configuration error: GitHub token missing.');
 		}
 
 		const response = await fetch('https://api.github.com/repos/adessoAG/Seed-Test/issues', {
@@ -51,10 +51,8 @@ export async function submitIssue(req: Request, res: Response, next: NextFunctio
 export async function disconnectGithub(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User; // Cast req.user to your User type
-		if (!user?._id) {
-			res.sendStatus(401); // Unauthorized
-			return;
-		}
+		if (!user?._id)
+			throw AppError.unauthorized('User not authenticated');
 
 		// Call the user service to handle the actual database update
 		await userService.disconnectGithub(user._id);

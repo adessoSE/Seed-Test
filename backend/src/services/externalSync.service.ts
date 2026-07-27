@@ -15,6 +15,7 @@ import { StepType } from '@shared/models/StepType.js';
 import { StepDefinition } from '@shared/models/StepDefinition.js';
 import { User } from '@shared/models/User.js';
 import { oid } from '../types/mongo.types.js';
+import { AppError } from '../helpers/AppError.js';
 
 
 enum Sources {
@@ -82,7 +83,7 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
 	try {
 		const response = await fetch(url, reqOptions);
 		if (!response.ok) 
-			throw new Error(`Jira API request failed: ${response.status}`);
+			throw AppError.badGateway(`Jira API request failed: ${response.status}`);
         
 		const jiraProjects = await response.json();
 		return jiraProjects.map((project: any) => project.name);
@@ -180,8 +181,8 @@ async function execRepositoryRequests(link: string, user: string, password: stri
 		const reqOptions: RequestInit = {headers: {'Authorization': 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64')}};
 		const response = await fetch(link, reqOptions);
 
-		if (response.status === 401) throw new Error('GitHub fetch failed (Unauthorized)');
-		if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
+		if (response.status === 401) throw AppError.unauthorized('GitHub fetch failed (Unauthorized)');
+		if (!response.ok) throw AppError.badGateway(`GitHub API error: ${response.status}`);
         
 		const githubRepos = await response.json();
 		const projects: any[] = [];
@@ -229,18 +230,18 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 
 	if (source === Sources.GITHUB) {
 		if (!checkValidGithubFormat(githubName, repository))  // Use the helper
-			throw new Error('Invalid GitHub username or repository name');
+			throw AppError.badRequest('Invalid GitHub username or repository name');
         
 		const token = user?.github?.githubToken || process.env.TESTACCOUNT_TOKEN!;
 		const githubRepoUrl = `${githubName}/${repository}`;
         
 		repo = await repositoryService.getOneGitRepository(githubRepoUrl);
-		if (!repo) throw new Error('Repository not found in DB');
+		if (!repo) throw AppError.notFound('Repository not found in DB');
         
 		const headers = { Authorization: `token ${token}` };
 		const response = await fetch(`https://api.github.com/repos/${githubRepoUrl}/issues?labels=story`, { headers });
 
-		if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
+		if (!response.ok) throw AppError.badGateway(`GitHub API error: ${response.status}`);
         
 		const issues = await response.json();
 		logger.info(`Fetched ${issues.length} issues from GitHub`);
@@ -263,7 +264,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 
 	} else if (source === Sources.JIRA && user?.jira && projectKey !== 'null') {
 		if (!/^[A-Za-z][A-Za-z0-9_-]+$/.test(projectKey)) 
-			throw new Error('Invalid Jira project key format');
+			throw AppError.badRequest('Invalid Jira project key format');
         
 		const { AccountName, AuthMethod, Host, Password, Password_Nonce, Password_Tag } = user.jira;
 		const clearPass = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
@@ -272,7 +273,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		const options: RequestInit = { method: 'GET', headers: { 'cache-control': 'no-cache', Authorization: authString } };
 
 		repo = await repositoryService.getOneJiraRepository(projectKey);
-		if (!repo) throw new Error('Jira repository not found in DB');
+		if (!repo) throw AppError.notFound('Jira repository not found in DB');
 
 		const testSets: any[] = [];
 		const preConditionMap: any[] = [];
@@ -280,7 +281,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		const jql = `project="${projectKey}" AND (labels=Seed-Test OR issuetype=Test OR issuetype="Test Set" OR issuetype="Pre-Condition")`;
 		const searchUrl = `https://${Host}/rest/api/2/search?jql=${encodeURIComponent(jql)}&startAt=0&maxResults=200`;
 		const response = await fetch(searchUrl, options);
-		if (!response.ok) throw new Error(`Jira API error: ${response.status}`);
+		if (!response.ok) throw AppError.badGateway(`Jira API error: ${response.status}`);
         
 		const json = await response.json();
         
@@ -345,7 +346,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		}
 
 	} else 
-		throw new Error('Invalid source or missing credentials for story fetching.');
+		throw AppError.badRequest('Invalid source or missing credentials for story fetching.');
     
 
 	// Match order and send response
@@ -421,7 +422,7 @@ async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
 	// Use story_id (numeric) for lookup if available and valid
 	const lookupId = typeof story.story_id === 'number' ? story.story_id : story._id;
 	if (lookupId === undefined || lookupId === null) 
-		throw new Error('Cannot fuse story without a valid story_id or _id.');
+		throw AppError.badRequest('Cannot fuse story without a valid story_id or _id.');
     
     
 	let result: Story | null = null;

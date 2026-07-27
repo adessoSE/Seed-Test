@@ -10,6 +10,7 @@ import path from 'node:path';
 import * as featureFileService from '../services/feature-file.service.js'; // For cleanFileName
 import { handleReportResult } from './testExecution.controller.js'; // Re-use the helper
 import { ExecutionMode } from '../models/models.js';
+import { AppError } from '../helpers/AppError.js';
 
 /**
  * Authenticates the user and then runs tests for a specific group.
@@ -18,25 +19,19 @@ import { ExecutionMode } from '../models/models.js';
 export async function runGroupViaScript(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repoID, groupID } = req.body; // Assuming these are passed in the body for script router
-		if (!repoID || !groupID || !ObjectId.isValid(repoID) || !ObjectId.isValid(groupID)) {
-			res.status(400).json({ error: 'Invalid repository or group ID in request body' });
-			return;
-		}
+		if (!repoID || !groupID || !ObjectId.isValid(repoID) || !ObjectId.isValid(groupID))
+			throw AppError.badRequest('Invalid repository or group ID in request body');
 
 		const group = await repositoryService.getOneStoryGroup(repoID, groupID);
-		if (!group) {
-			res.status(404).json({ error: 'Group not found' });
-			return;
-		}
+		if (!group)
+			throw AppError.notFound('Group not found');
 
 		const stories: (Story | null)[] = await Promise.all(
 			group.member_stories.map(id => storyService.getOneStory(id.toString()))
 		);
 		const validStories = stories.filter(s => s !== null) as Story[];
-		if (validStories.length === 0) {
-			res.status(400).json({ error: 'No valid stories found in the group' });
-			return;
-		}
+		if (validStories.length === 0)
+			throw AppError.badRequest('No valid stories found in the group');
 
 		// --- Test Execution ---
 		// Prepare request/parameters needed by executeTest
@@ -76,13 +71,12 @@ export async function runGroupViaScript(req: Request, res: Response, next: NextF
 export async function runFeatureViaScript(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.issueID; // Get ID from URL parameter
-		if (!ObjectId.isValid(storyId)) {
-			res.status(400).json({ error: 'Invalid Story ID format' }); return;
-		}
+		if (!ObjectId.isValid(storyId))
+			throw AppError.badRequest('Invalid Story ID format');
+
 		const story = await storyService.getOneStory(storyId);
-		if (!story) {
-			res.status(404).json({ error: 'Story not found' }); return;
-		}
+		if (!story)
+			throw AppError.notFound('Story not found');
 
 		// --- Test Execution ---
 		const repoId = req.body.repositoryId; // Assuming repoId comes in body

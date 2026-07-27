@@ -8,6 +8,7 @@ import { deleteStory } from './story.service.js';
 import { getUserById } from './user.service.js';
 import * as workgroupService from './workgroup.service.js';
 import { encrypt } from '../helpers/cryptoHelper.js';
+import { AppError } from '../helpers/AppError.js';
 
 // Note: ObjectId casts needed — shared models use string, MongoDB uses ObjectId
 const ENCRYPTED_FORMAT = /^[0-9a-f]{24}:[0-9a-f]+:[0-9a-f]{32}$/;
@@ -132,7 +133,7 @@ export async function createRepo(ownerId: string, name: string, session?: Client
 	const db = session ? client!.db('Seed') : dbConnection.getConnection();
 	const existingRepo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ owner: oid(ownerId), repoName: name }, { session });
 	if (existingRepo) 
-		throw new Error('You already own a repository with this name!');
+		throw AppError.conflict('You already own a repository with this name!');
     
 
 	const emptyRepo: Omit<RepositoryDoc, '_id'> = {
@@ -183,7 +184,7 @@ export async function updateOwnerInRepo(repoId: string, newOwnerId: string, oldO
 	const newOwner = await getUserById(newOwnerId);
 
 	if (!oldOwner || !newOwner) 
-		throw new Error('Could not find one or both users');
+		throw AppError.notFound('Could not find one or both users');
     
 
 	// Update repository owner
@@ -210,7 +211,7 @@ export async function deleteRepository(repoId: string, ownerId: string): Promise
 
 	const repo = await repoCollection.findOne({ _id: oid(repoId), owner: oid(ownerId) });
 	if (!repo) 
-		throw new Error('Repository not found or user is not the owner.');
+		throw AppError.notFound('Repository not found or user is not the owner.');
     
 
 	// Check for members to transfer ownership
@@ -222,7 +223,7 @@ export async function deleteRepository(repoId: string, ownerId: string): Promise
 		const newOwnerMember = members.member.find(m => m.canEdit) || members.member[0];
 		const newOwnerUser = await db.collection<UserDoc>('User').findOne({ email: newOwnerMember.email });
 
-		if (!newOwnerUser) throw new Error('Could not find user to promote to new owner.');
+		if (!newOwnerUser) throw AppError.notFound('Could not find user to promote to new owner.');
 
 		// 1. Update repository owner
 		await repoCollection.updateOne({ _id: oid(repoId) }, { $set: { owner: oid(newOwnerUser._id) } as any });
@@ -306,7 +307,7 @@ export async function createStoryGroup(repoId: string, name: string, members: st
 	);
 
 	if (!result?.groups?.length) 
-		throw new Error(`Repository ${repoId} not found or group creation failed`);
+		throw AppError.notFound(`Repository ${repoId} not found or group creation failed`);
     
 	const newGroupId = result.groups.slice(-1)[0]._id!;
 	return newGroupId;
@@ -318,14 +319,14 @@ export async function updateStoryGroup(repoId: string, groupId: string, updatedG
 	const collection = db.collection<RepositoryDoc>(repositoriesCollection);
 	const repo = await collection.findOne({ _id: oid(repoId) }, { session });
 
-	if (!repo) 
-		throw new Error('Repository not found');
-    
+	if (!repo)
+		throw AppError.notFound('Repository not found');
+
 
 	// leave with double equal
 	const index = repo.groups.findIndex((g) => g._id?.toString() == groupId);
 	if (index === -1) 
-		throw new Error('Group not found in repository');
+		throw AppError.notFound('Group not found in repository');
     
 
 	repo.groups[index] = updatedGroup as unknown as GroupDoc;
