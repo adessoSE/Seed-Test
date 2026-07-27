@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -118,32 +118,28 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	/**
      * Event emitter to delete the scenario
      */
-	@Output()
-	deleteScenarioEvent: EventEmitter<Scenario> = new EventEmitter();
+	readonly deleteScenarioEvent = output<Scenario>();
 
 	/**
      * Event emitter to select a new scenario
      */
-	@Output()
-	selectNewScenarioEvent: EventEmitter<Scenario> = new EventEmitter();
+	readonly selectNewScenarioEvent = output<Scenario>();
 
 	/**
      * Event emitter to add a new scenario
      */
-	@Output()
-	addScenarioEvent: EventEmitter<any> = new EventEmitter();
+	readonly addScenarioEvent = output<any>();
 
 	/**
      * Event emitter to run a test
      */
-	@Output()
-	runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
+	readonly runTestScenarioEvent = output<any>();
 
 	/**
      * Scenario navigation events
      */
-	@Output() navigateLeft = new EventEmitter<void>();
-	@Output() navigateRight = new EventEmitter<void>();
+	readonly navigateLeft = output<void>();
+	readonly navigateRight = output<void>();
 
 
 	/**

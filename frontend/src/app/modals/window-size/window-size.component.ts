@@ -1,4 +1,4 @@
-import { Input, Component, ViewChild, Output, EventEmitter, SimpleChanges, OnInit, OnChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Input, Component, ViewChild, SimpleChanges, OnInit, OnChanges, ChangeDetectionStrategy, output } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
@@ -14,7 +14,10 @@ export class WindowSizeComponent implements OnInit, OnChanges {
 	@Input() width!: number;
 	@Input() height!: number;
 	@Input() emulator!: boolean;
-	@Output() sizeChange = new EventEmitter<{ width: number, height: number }>();
+	readonly sizeChange = output<{
+    width: number;
+    height: number;
+}>();
 
 	selectedResolution!: string;
 	predefinedResolutions = ['3840x2160', '2560x1440', '1920x1080', '1600x900', '1536x864', '1440x900', '1366x768',  '1280x720'];

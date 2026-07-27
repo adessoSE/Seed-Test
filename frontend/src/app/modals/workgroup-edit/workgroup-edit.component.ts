@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, EventEmitter, Output, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -108,7 +108,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	/**
    * Used to notify story editor component about globalSettings
    */
-	@Output() globalSettingsChanged = new EventEmitter<boolean>();
+	readonly globalSettingsChanged = output<boolean>();
 
 	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
 	@ViewChild('repoSwitchModal') repoSwitchModal!: RepoSwichComponent;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
@@ -19,8 +19,7 @@ export class ChangeJiraAccountComponent {
 	/**
      * Emits a response after the jira account got created
      */
-	@Output()
-	jiraAccountResponse: EventEmitter<any> = new EventEmitter();
+	readonly jiraAccountResponse = output<any>();
 
 	@ViewChild('changeJiraAccountModal') changeJiraAccountModal!: ChangeJiraAccountComponent;
 

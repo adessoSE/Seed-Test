@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from '@shared/models/Story';
@@ -26,7 +26,7 @@ export class CreateScenarioComponent {
 	/**
      * Event emitter to add a new scenario
      */
-	@Output() createScenarioEvent: EventEmitter<any> = new EventEmitter();
+	readonly createScenarioEvent = output<any>();
 
 	/**
  * Opens the rename scenario Modal

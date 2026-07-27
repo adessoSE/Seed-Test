@@ -1,4 +1,4 @@
-import { Component, ViewChild, Output, EventEmitter, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Scenario } from '@shared/models/Scenario';
 import { Story } from '@shared/models/Story';
@@ -22,7 +22,10 @@ export class ExecutionListComponent implements OnInit {
 
 	@ViewChild('executionListModal') executionListModal: any;
 
-	@Output() selectedExecutions = new EventEmitter<{ scenarioId: number | null, selectedExecutions: number[] }>();
+	readonly selectedExecutions = output<{
+    scenarioId: number | null;
+    selectedExecutions: number[];
+}>();
 
 	selectedTestRunIds: number[] = [];
 

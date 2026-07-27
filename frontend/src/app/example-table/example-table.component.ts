@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import {
 	UntypedFormGroup,
 	UntypedFormArray,
@@ -139,8 +139,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	/**
    * Event emitter to check if ththe example table should be removed or added to
    */
-	@Output()
-	checkRowIndex: EventEmitter<number> = new EventEmitter();
+	readonly checkRowIndex = output<number>();
 
 	/**
    * Sets the new scenario
@@ -159,8 +158,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	/**
    * Event emitter to delete the example
    */
-	@Output()
-	deleteExampleEvent: EventEmitter<Scenario> = new EventEmitter();
+	readonly deleteExampleEvent = output<void>();
 
 	regexInStory: boolean = false;
 	initialRegex: boolean = true;

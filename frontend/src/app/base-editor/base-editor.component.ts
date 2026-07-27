@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -137,7 +137,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
    */
 	@Input() isReviewing: boolean = false;
 
-	@Output() blockSelectTriggerEvent: EventEmitter<string> = new EventEmitter();
+	readonly blockSelectTriggerEvent = output<string>();
 
 	/**
    * currently selected scenario

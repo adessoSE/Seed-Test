@@ -1,5 +1,5 @@
 
-import { Injectable, EventEmitter, Output, Renderer2, RendererFactory2, DOCUMENT, inject } from '@angular/core';
+import { Injectable, Renderer2, RendererFactory2, DOCUMENT, inject, EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
 
 @Injectable({
@@ -11,7 +11,8 @@ export class ThemingService {
 
 	currentTheme!: string;
 
-	@Output () public themeChanged = new EventEmitter();
+	// EventEmitter used as observable in services — not a component output
+	public readonly themeChanged = new EventEmitter<string>();
 
 	private renderer: Renderer2;
 

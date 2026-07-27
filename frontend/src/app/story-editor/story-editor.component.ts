@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -404,20 +404,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	@ViewChild('workgroupEditModal') workgroupEditModal!: WorkgroupEditComponent;
 	@ViewChild('executionListModal') executionListModal!: ExecutionListComponent;
 
-	@Output()
-	deleteStoryEvent: EventEmitter<any> = new EventEmitter();
+	readonly deleteStoryEvent = output<any>();
 
-	@Output()
-	storyChosen: EventEmitter<any> = new EventEmitter();
+	readonly storyChosen = output<any>();
 
 	// Event emitter to lock stories bar during review mode
-	@Output()
-	reviewModeChanged = new EventEmitter<boolean>();
+	readonly reviewModeChanged = output<boolean>();
 
 	/**
    * Event emitter to show or hide global TestResult
    */
-	@Output() report: EventEmitter<any> = new EventEmitter();
+	readonly report = output<any>();
 
 	/**
    * Stories bar component

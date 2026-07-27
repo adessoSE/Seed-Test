@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
 
@@ -17,8 +17,7 @@ export class DisconnectJiraAccountComponent {
 	/**
      * Emits a response after the jira account has been disconnected
      */
-	@Output()
-	jiraAccountResponse: EventEmitter<any> = new EventEmitter();
+	readonly jiraAccountResponse = output<any>();
 
 	@ViewChild ('disconnectJiraModal') disconnectJiraModal!: DisconnectJiraAccountComponent;
 

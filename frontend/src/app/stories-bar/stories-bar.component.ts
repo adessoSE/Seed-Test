@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject, output } from '@angular/core';
 import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
@@ -68,23 +68,19 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	/**
      * Emits a new chosen story
      */
-	@Output()
-	storyChosen: EventEmitter<any> = new EventEmitter();
+	readonly storyChosen = output<any>();
 
 	/**
      * Emits a new chosen scenario
      */
-	@Output()
-	scenarioChosen: EventEmitter<any> = new EventEmitter();
+	readonly scenarioChosen = output<any>();
 
 	/**
      * Emits a new chosen scenario
      */
-	@Output()
-	scenarioDeselected: EventEmitter<any> = new EventEmitter();
+	readonly scenarioDeselected = output<void>();
     
-	@Output()
-	testRunningGroup: EventEmitter<any> = new EventEmitter();
+	readonly testRunningGroup = output<any>();
 
 	/**
      * groups in the project
@@ -174,10 +170,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 	/**
      * Emits a new chosen Group
      */
-	@Output()
-	GroupChosen: EventEmitter<any> = new EventEmitter();
+	readonly GroupChosen = output<any>();
 
-	@Output() report: EventEmitter<any> = new EventEmitter();
+	readonly report = output<any>();
 
 
 	/**
