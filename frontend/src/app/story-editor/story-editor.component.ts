@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -85,6 +85,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	managmentService = inject(ManagementService);
 	dialog = inject(MatDialog);
 	private snackBar = inject(MatSnackBar);
+	private cdr = inject(ChangeDetectorRef);
 	groupService = inject(GroupService);
 
 	/**
@@ -1979,6 +1980,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 										'Close',
 										{ duration: 7000 }
 									);
+									// EventSource callback — notify CD in zoneless mode
+									this.cdr.markForCheck();
 									return;
 								}
 								this.aiLoadingStories.delete(storyId);
@@ -1994,6 +1997,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 											storyId,
 											updatedStoryWithSuggestion.aiSuggestion
 										);
+										// EventSource callback — notify CD in zoneless mode
+										this.cdr.markForCheck();
 
 										// Notify the user that the suggestions are ready
 										this.snackBar

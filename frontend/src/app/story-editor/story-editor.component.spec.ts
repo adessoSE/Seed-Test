@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { waitForAsync, ComponentFixture, TestBed, inject } from '@angular/core/testing';
+import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -74,14 +74,14 @@ describe('StoryEditorComponent', () => {
 	let component: StoryEditorComponent;
 	let fixture: ComponentFixture<StoryEditorComponent>;
 
-	beforeEach(waitForAsync(() => {
+	beforeEach(async () => {
 		TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, MatSnackBarModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule, EditableComponent, ScenarioEditorComponent, ExampleTableComponent, ParentComponent, StoryEditorComponent, StoriesBarComponent, RenameStoryComponent],
 			providers: [ApiService],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();
-	}));
+	});
 
 	beforeEach(inject([ApiService], (s: ApiService) => {
 		_apiService = s;
@@ -183,7 +183,7 @@ describe('StoryEditorComponent', () => {
 	});
 
 	describe('deleteScenario', () => {
-		it('should send delete request', waitForAsync((_done: any) => {
+		it('should send delete request', async () => {
 			component.stories = stories;
 			component.selectedStory = stories[0];
 			vi.spyOn(component.scenarioService, 'deleteScenario');
@@ -192,7 +192,7 @@ describe('StoryEditorComponent', () => {
 			component.deleteScenario(component.selectedStory.scenarios[0], false);
 			fixture.detectChanges();
 			expect(component.scenarioService.deleteScenario).toHaveBeenCalled();
-		}));
+		});
 	});
 
 
@@ -256,7 +256,7 @@ describe('StoryEditorComponent', () => {
 			});
 		});
 
-		it('should call selectScenario', waitForAsync(() => {
+		it('should call selectScenario', async () => {
 			const scenarioName = 'my new name';
 			component.selectedStory = story;
 			const scenariosAmount = component.selectedStory.scenarios.length;
@@ -266,7 +266,7 @@ describe('StoryEditorComponent', () => {
 				expect(component.selectScenario).toHaveBeenCalled();
 				expect(component.selectedStory.scenarios.length).toEqual(scenariosAmount + 1);
 			});
-		}));
+		});
 
 
 	});

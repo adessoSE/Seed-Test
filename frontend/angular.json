@@ -27,7 +27,6 @@
             "index": "src/index.html",
             "polyfills": [
               "@angular/localize/init",
-              "zone.js",
               "src/polyfills.ts"
             ],
             "tsConfig": "./tsconfig.app.json",
@@ -106,8 +105,7 @@
           "options": {
             "tsConfig": "tsconfig.spec.json",
             "runner": "vitest",
-            "buildTarget": "cucumber-frontend:build:development",
-            "setupFiles": ["src/test-setup.ts"]
+            "buildTarget": "cucumber-frontend:build:development"
           }
         },
         "lint": {

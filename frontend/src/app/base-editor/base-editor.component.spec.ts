@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Scenario } from '@shared/models/Scenario';
@@ -79,15 +79,15 @@ describe('BaseEditorComponent', () => {
 			component.selectedScenario = stories[0].scenarios[0];
 		});
 
-		it('should add a when step to the background', fakeAsync(() => {
+		it('should add a when step to the background', async () => {
 			const step: StepType = {'_id':'5dce728851e70f2894a170b0','id': 0,'stepType':'when','type':'Button','pre':'I click the button:','mid':'', 'post': '','values':[''], 'isExample':[]};
 			vi.spyOn(component, 'addStep');
 			const newStep = component.createNewStep(step, component.selectedStory.background.stepDefinitions);
 			component.addStep(step, component.selectedStory, 'background');
-			tick();
+			await fixture.whenStable();
 			expect(component.selectedStory.background.stepDefinitions.when).toContainEqual(newStep);
 			expect(component.addStep).toHaveBeenCalled();
-		}));
+		});
 	});
 
 	describe('removeStep', () => {
@@ -124,14 +124,14 @@ describe('BaseEditorComponent', () => {
 			component.selectedScenario = scenarios[0];
 		});
    
-		it('should add a when step', fakeAsync(() => {
+		it('should add a when step', async () => {
 			const step: StepType = {'_id':'5dce728851e70f2894a170b0','id': 0,'stepType':'when','type':'Button','pre':'I click the button:','mid':'', 'post': '','values':[''], 'isExample':[]};
 			vi.spyOn(component, 'createNewStep');
 			const newStep = component.createNewStep( step, component.selectedScenario.stepDefinitions);
 			component.addStep(step, component.selectedScenario, 'scenario');
 			expect(component.createNewStep).toHaveBeenCalled();
 			expect(component.selectedScenario.stepDefinitions.when).toContainEqual(newStep);
-		}));
+		});
 
 	});
 	describe('getLastIDinStep', () => {

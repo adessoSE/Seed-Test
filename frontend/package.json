@@ -41,8 +41,7 @@
     "ngx-logger": "~5.0.12",
     "ngx-owl-carousel-o": "22.0.0",
     "rxjs": "^6.5.3 || ^7.4.0",
-    "uikit": "^3.25.20",
-    "zone.js": "^0.15.1"
+    "uikit": "^3.25.20"
   },
   "devDependencies": {
     "@angular/build": "^22.0.8",

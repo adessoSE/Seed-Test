@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -11,7 +11,7 @@ describe('RegistrationComponent', () => {
 	let component: RegistrationComponent;
 	let fixture: ComponentFixture<RegistrationComponent>;
 
-	beforeEach(waitForAsync(() => {
+	beforeEach(async () => {
 		TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, MatSnackBarModule, RegistrationComponent],
 			providers: [provideRouter(ROUTES), {
@@ -23,7 +23,7 @@ describe('RegistrationComponent', () => {
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();
-	}));
+	});
       
 	beforeEach(() => {
 		fixture = TestBed.createComponent(RegistrationComponent);

@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { findComponent } from '../../../test_helper';
@@ -36,7 +36,7 @@ describe('RenameStoryComponent', () => {
 
 	describe('reactive form', () => {
 
-		it('should update story title & description', fakeAsync(() => {
+		it('should update story title & description', async () => {
 			const inputElemnt = findComponent(fixture, '#newStoryTitle');
 			const newName = 'updated story name';
 			const newDescription = 'an updated brief story desctiption';
@@ -48,9 +48,9 @@ describe('RenameStoryComponent', () => {
 			fixture.detectChanges();
 			expect(inputElemnt.nativeElement.value).toEqual(newName);
 			expect(textElement.nativeElement.value).toEqual(newDescription);
-		}));
+		});
 
-		it('should leave disabled the submit button', fakeAsync(() => {
+		it('should leave disabled the submit button', async () => {
 			const inputElemnt = findComponent(fixture, '#newStoryTitle');
 			inputElemnt.nativeElement.value = '';
 			inputElemnt.nativeElement.dispatchEvent(new Event('input'));
@@ -60,7 +60,7 @@ describe('RenameStoryComponent', () => {
 			fixture.detectChanges();
 			const submitbutton = findComponent(fixture, '.normalButton');
 			expect(submitbutton.nativeElement.disabled).toBeTruthy();
-		}));
+		});
 
 	});
 });

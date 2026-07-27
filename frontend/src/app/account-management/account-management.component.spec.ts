@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { findComponent } from '../../test_helper';
 import { AccountManagementComponent } from './account-management.component';
@@ -23,14 +23,14 @@ describe('AccountManagementComponent', () => {
 	let router: Router;
 	let _loader: HarnessLoader;
 
-	beforeEach(waitForAsync(() => {
-		TestBed.configureTestingModule({
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, MatSnackBarModule, AccountManagementComponent],
 			providers: [provideRouter(ROUTES)],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();
-	}));
+	});
 
 	beforeEach(() => {
 		router = TestBed.inject(Router);
@@ -51,13 +51,13 @@ describe('AccountManagementComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should call login() on click', fakeAsync(()=> {
+	it('should call login() on click', async ()=> {
 		vi.spyOn(component, 'login');
 		const gitHubLink = findComponent(fixture, '.githubLoginContainer');
 		gitHubLink.nativeElement.click();
-		tick();
+		await fixture.whenStable();
 		expect(component.login).toHaveBeenCalled();
-	}));
+	});
 
 	/* it('should return null as no index in the list', waitForAsync(async ()=> {
     const inputValue =  'myFirstRepo';
