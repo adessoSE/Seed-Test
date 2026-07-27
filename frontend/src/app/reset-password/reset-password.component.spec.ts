@@ -30,7 +30,7 @@ describe('ResetPasswordComponent', () => {
 		fixture = TestBed.createComponent(ResetPasswordComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
-		router.getCurrentNavigation();
+		router.currentNavigation();
 	});
 
 	describe('PasswortComponent', () => {

@@ -31,27 +31,39 @@ import { ProjectService } from './Services/project.service';
 	template: `
     <div class="row" [style.display]="state().value === 'inactive' ? 'none' : ''">
       <div class="col-9">
-        <div *ngIf="title" [class]="options.titleClass" [attr.aria-label]="title">
-          {{ title }}
-        </div>
-        <div *ngIf="message && options.enableHtml" role="alert" aria-live="polite"
-          [class]="options.messageClass" [innerHTML]="message">
-        </div>
-        <div *ngIf="message && !options.enableHtml" role="alert" aria-live="polite"
-          [class]="options.messageClass" [attr.aria-label]="message">
-          {{ message }}
-        </div>
+        @if (title) {
+          <div [class]="options.titleClass" [attr.aria-label]="title">
+            {{ title }}
+          </div>
+        }
+        @if (message && options.enableHtml) {
+          <div role="alert" aria-live="polite"
+            [class]="options.messageClass" [innerHTML]="message">
+          </div>
+        }
+        @if (message && !options.enableHtml) {
+          <div role="alert" aria-live="polite"
+            [class]="options.messageClass" [attr.aria-label]="message">
+            {{ message }}
+          </div>
+        }
       </div>
       <div class="col-9">
-        <a *ngIf="!options.closeButton" class="confirmButton btn btn-pink btn-sm" (click)="confirmToast($event)">
+        @if (!options.closeButton) {
+          <a class="confirmButton btn btn-pink btn-sm" (click)="confirmToast($event)">
             {{ confirmString }}
-        </a>
-        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="remove()">
-        {{ cancelString }}
-        </a>
-        <a *ngIf="options.closeButton" (click)="remove()" class="btn btn-pink btn-sm">
-          close
-        </a>
+          </a>
+        }
+        @if (!options.closeButton) {
+          <a class="btn btn-pink btn-sm" (click)="remove()">
+            {{ cancelString }}
+          </a>
+        }
+        @if (options.closeButton) {
+          <a (click)="remove()" class="btn btn-pink btn-sm">
+            close
+          </a>
+        }
       </div>
     </div>
     <div >

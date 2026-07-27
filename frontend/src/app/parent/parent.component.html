@@ -1,48 +1,52 @@
 <div [class.darkTheme] ="isDark" class="grid">
-    <div class="storiesBar">
-        <app-stories-bar
-            [isDark] ="isDark" 
-            [stories]="stories"
-            [newSelectedStory]="selectedStory"
-            [isReviewing]="isReviewing"
-            #storiesBar
-            (storyChosen)="setSelectedStory($event);" 
-            (scenarioChosen)="setSelectedScenario($event);" 
-            (scenarioDeselected)="deselectScenario();"
-            (report)="viewReport($event);" 
-            (testRunningGroup)="testRunningGroup($event)">
-        </app-stories-bar>
-    </div>
-    <div class="storyEditor">
-        <!-- TODO: storiesBar property binding seems not beeing used-->
-        <app-story-editor
-            [isDark] ="isDark"
-            *ngIf="this.activeView === 'storyView'" 
-            (report)="viewReport($event);"
-            (storyChosen)="setSelectedStory($event);"
-            (reviewModeChanged)="isReviewing = $event"
-            [storiesBar]="storiesBar"
-            [newSelectedStory]="selectedStory" 
-            [newSelectedScenario]="selectedScenario"
-            [newStories]="stories"
-            [selectedRepository]="selectedRepository" 
-            [testRunningForGroup]="testRunningForGroup">
-        </app-story-editor>
-        <app-report-history
-            [isDark] ="isDark"
-            *ngIf="this.activeView === 'reportHistoryView'" 
-            [newSelectedStory]="selectedStory" >
-        </app-report-history>
-        <app-file-manager
-            [isDark] ="isDark"
-            *ngIf="this.activeView  === 'fileManagerView'"
-            [files]="files"
-            [newSelectedStory]="selectedStory" >
-        </app-file-manager>
-        <app-report
-            [isDark] ="isDark"
-            *ngIf="report"
-            [report]="report">
-        </app-report>
-    </div>
+  <div class="storiesBar">
+    <app-stories-bar
+      [isDark] ="isDark"
+      [stories]="stories"
+      [newSelectedStory]="selectedStory"
+      [isReviewing]="isReviewing"
+      #storiesBar
+      (storyChosen)="setSelectedStory($event);"
+      (scenarioChosen)="setSelectedScenario($event);"
+      (scenarioDeselected)="deselectScenario();"
+      (report)="viewReport($event);"
+      (testRunningGroup)="testRunningGroup($event)">
+    </app-stories-bar>
+  </div>
+  <div class="storyEditor">
+    <!-- TODO: storiesBar property binding seems not beeing used-->
+    @if (this.activeView === 'storyView') {
+      <app-story-editor
+        [isDark] ="isDark"
+        (report)="viewReport($event);"
+        (storyChosen)="setSelectedStory($event);"
+        (reviewModeChanged)="isReviewing = $event"
+        [storiesBar]="storiesBar"
+        [newSelectedStory]="selectedStory"
+        [newSelectedScenario]="selectedScenario"
+        [newStories]="stories"
+        [selectedRepository]="selectedRepository"
+        [testRunningForGroup]="testRunningForGroup">
+      </app-story-editor>
+    }
+    @if (this.activeView === 'reportHistoryView') {
+      <app-report-history
+        [isDark] ="isDark"
+        [newSelectedStory]="selectedStory" >
+      </app-report-history>
+    }
+    @if (this.activeView  === 'fileManagerView') {
+      <app-file-manager
+        [isDark] ="isDark"
+        [files]="files"
+        [newSelectedStory]="selectedStory" >
+      </app-file-manager>
+    }
+    @if (report) {
+      <app-report
+        [isDark] ="isDark"
+        [report]="report">
+      </app-report>
+    }
+  </div>
 </div>

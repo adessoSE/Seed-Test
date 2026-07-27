@@ -45,7 +45,7 @@ describe('LoginComponent', () => {
 		fixture = TestBed.createComponent(LoginComponent);
 		fixture.detectChanges();
 		component = fixture.componentInstance;
-		router.getCurrentNavigation();
+		router.currentNavigation();
 	});
 
 	describe('LoginComponent', ()=> {

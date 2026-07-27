@@ -45,7 +45,7 @@ describe('AccountManagementComponent', () => {
 		component.github = '';
 		fixture.detectChanges();
 		_loader = TestbedHarnessEnvironment.loader(fixture);
-		router.getCurrentNavigation();
+		router.currentNavigation();
 	});
 
 	it('should create', () => {

@@ -1,84 +1,112 @@
 <ng-template #reportButtons let-rep>
-    <div class="reportButtons">
-        <button *ngIf="rep.isSaved"
-                class="actionButton" uk-tooltip title="Do not Save Report"
-                (click)="unsaveReport(rep);">
-            <em class="material-icons-outlined">cancel</em>
-        </button>
-        <button *ngIf="!rep.isSaved"
-                class="actionButton" uk-tooltip title="Save Report"
-                (click)="saveReport(rep);">
-            <em class="material-icons">save</em>
-        </button>
-        <button class="actionButton" uk-tooltip title="Delete Report" (click)="deleteReport(rep);">
-            <em class="material-icons">delete</em>
-        </button>
-    </div>
+  <div class="reportButtons">
+    @if (rep.isSaved) {
+      <button
+        class="actionButton" uk-tooltip title="Do not Save Report"
+        (click)="unsaveReport(rep);">
+        <em class="material-icons-outlined">cancel</em>
+      </button>
+    }
+    @if (!rep.isSaved) {
+      <button
+        class="actionButton" uk-tooltip title="Save Report"
+        (click)="saveReport(rep);">
+        <em class="material-icons">save</em>
+      </button>
+    }
+    <button class="actionButton" uk-tooltip title="Delete Report" (click)="deleteReport(rep);">
+      <em class="material-icons">delete</em>
+    </button>
+  </div>
 </ng-template>
 
 <div [class.darkTheme]="isDarkModeOn()"
-class="changedStoryViewContainer">
-    <div class="changedStoryViewTitle">
+  class="changedStoryViewContainer">
+  <div class="changedStoryViewTitle">
+    <div>
+      <a class="title">
+        <button class="backButton" title="Back to Projects" (click)="goBackToStoryEditor()">
+          <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'" alt="back">
+        </button>
+      </a>
+    </div>
+    <div>
+      @if (this.selectedStory) {
+        <p class="LargeHeadline3 headline">Reports for Story: {{this.selectedStory.title}}</p>
+      }
+    </div>
+  </div>
+  <div class="disclaimerContainer">
+    <p class="SmallHeadline5" >Disclaimer: Currently only the latest 3 reports per scenario / story are temporarily saved. To save your report persistently, either save the report or download it.</p>
+  </div>
+  <div class="storyReportsContainer">
+    <div class="sectionHeader">
+      <p class="Largeaccordeon2 reportsHeader">Story Reports:</p>
+    </div>
+    @if (reports) {
+      <div class="reportContainer">
+        @for (rep of reports.storyReports; track rep; let i = $index) {
+          <div class="report">
+            <a [class.notPassed]="rep.scenariosTested.failed>0" [class.passed]="!rep.scenariosTested.failed" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
+            <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: rep}"></ng-template>
+          </div>
+        }
+      </div>
+    }
+  </div>
+  @if (reports) {
+    <div class="scenarioReportContainer">
+      @for (scen of this.selectedStory.scenarios; track scen; let i = $index) {
         <div>
-            <a class="title">
-                <button class="backButton" title="Back to Projects" (click)="goBackToStoryEditor()">
-                    <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'" alt="back">
-                </button>
-            </a>
-        </div>
-        <div>
-            <p class="LargeHeadline3 headline" *ngIf="this.selectedStory">Reports for Story: {{this.selectedStory.title}}</p>
-        </div>
-    </div>
-    <div class="disclaimerContainer">
-        <p class="SmallHeadline5" >Disclaimer: Currently only the latest 3 reports per scenario / story are temporarily saved. To save your report persistently, either save the report or download it.</p>
-    </div>
-    <div class="storyReportsContainer">
-        <div class="sectionHeader">
-            <p class="Largeaccordeon2 reportsHeader">Story Reports:</p>
-        </div>
-        <div *ngIf="reports" class="reportContainer">
-            <div *ngFor="let rep of reports.storyReports; let i = index" class="report">
-                <a [class.notPassed]="rep.scenariosTested.failed>0" [class.passed]="!rep.scenariosTested.failed" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
-                <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: rep}"></ng-template>
-            </div>
-        </div>
-    </div>
-    <div *ngIf="reports" class="scenarioReportContainer">
-        <div *ngFor="let scen of this.selectedStory.scenarios; let i = index">
-            <div class="sectionHeader">
-                <p class="Mediumaccordeon2 reportsHeader">Scenario {{i + 1}} Reports: {{scen.name}}</p>
-            </div>
-            <div *ngIf="reports" class="reportContainer">
-                <div *ngFor="let scenrep of filterScenarioReports(scen); let j = index" class="report">
-                    <a [class.notPassed]="scenrep.scenariosTested.failed>0" [class.passed]="!scenrep.scenariosTested.failed" [routerLink]="'/report/' + scenrep.reportName" target="_blank">{{stringifyReportTime(scenrep.reportTime)}}</a>
-                    <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: scenrep}"></ng-template>
+          <div class="sectionHeader">
+            <p class="Mediumaccordeon2 reportsHeader">Scenario {{i + 1}} Reports: {{scen.name}}</p>
+          </div>
+          @if (reports) {
+            <div class="reportContainer">
+              @for (scenrep of filterScenarioReports(scen); track scenrep; let j = $index) {
+                <div class="report">
+                  <a [class.notPassed]="scenrep.scenariosTested.failed>0" [class.passed]="!scenrep.scenariosTested.failed" [routerLink]="'/report/' + scenrep.reportName" target="_blank">{{stringifyReportTime(scenrep.reportTime)}}</a>
+                  <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: scenrep}"></ng-template>
                 </div>
+              }
             </div>
+          }
         </div>
+      }
     </div>
-    <div *ngIf="reports" class="groupReportContainer">
-        <div class="sectionHeader">
-            <p class="Largeaccordeon2 reportsHeader">Group Reports:</p>
-        </div>
-        <div *ngIf="reports" class="reportContainer">
-            <div *ngFor="let grprep of reports.groupReports; let i = index" class="report">
-                <div>
-                    <a [routerLink]="'/report/' + grprep.reportName" target="_blank" style="color:#3498DB">
-                        <!--[class.notPassed]="!grprep.overallTestStatus" [class.passed]="grprep.overallTestStatus" -->
-                        {{stringifyReportTime(grprep.reportTime)}}
-                    </a> | Story
-                    <div *ngIf="getStoryStatus(grprep, this.selectedStory._id)" class="passed"  style="display: inline">
-                        "{{this.selectedStory.title}}" has passed
-                    </div>
-                    <div *ngIf="getStoryStatus(grprep, this.selectedStory._id) === false" class="notPassed"  style="display: inline">
-                        "{{this.selectedStory.title}}" has not passed
-                    </div>
-                    in this Report.
-                </div>
-                <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: grprep}"></ng-template>
+  }
+  @if (reports) {
+    <div class="groupReportContainer">
+      <div class="sectionHeader">
+        <p class="Largeaccordeon2 reportsHeader">Group Reports:</p>
+      </div>
+      @if (reports) {
+        <div class="reportContainer">
+          @for (grprep of reports.groupReports; track grprep; let i = $index) {
+            <div class="report">
+              <div>
+                <a [routerLink]="'/report/' + grprep.reportName" target="_blank" style="color:#3498DB">
+                  <!--[class.notPassed]="!grprep.overallTestStatus" [class.passed]="grprep.overallTestStatus" -->
+                  {{stringifyReportTime(grprep.reportTime)}}
+                </a> | Story
+                @if (getStoryStatus(grprep, this.selectedStory._id)) {
+                  <div class="passed"  style="display: inline">
+                    "{{this.selectedStory.title}}" has passed
+                  </div>
+                }
+                @if (getStoryStatus(grprep, this.selectedStory._id) === false) {
+                  <div class="notPassed"  style="display: inline">
+                    "{{this.selectedStory.title}}" has not passed
+                  </div>
+                }
+                in this Report.
+              </div>
+              <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: grprep}"></ng-template>
             </div>
+          }
         </div>
+      }
     </div>
+  }
 </div>
 

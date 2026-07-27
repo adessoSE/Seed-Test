@@ -73,7 +73,8 @@ backend/features/reporting_html*.html
 **/web.config
 /website
 
-#logs
+# logs
+logs/
 backend/logs/
 
 # local testing for step-definition development

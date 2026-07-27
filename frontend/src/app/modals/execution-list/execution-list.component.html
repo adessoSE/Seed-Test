@@ -15,10 +15,12 @@
           <input class="select-all-checkbox" type="checkbox" (change)="toggleAll($event.target.checked)" title="Select All">
         </div>
       </li>
-      <li *ngFor="let testExecution of this.testExecutions" class="list-group-item d-flex justify-content-between align-items-center">
-        {{ testExecution.testExecKey }}
-        <input type="checkbox" [(ngModel)]="testExecution.selected" (change)="toggleSelection(testExecution.testRunId, testExecution.selected)">
-      </li>
+      @for (testExecution of this.testExecutions; track testExecution) {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ testExecution.testExecKey }}
+          <input type="checkbox" [(ngModel)]="testExecution.selected" (change)="toggleSelection(testExecution.testRunId, testExecution.selected)">
+        </li>
+      }
     </ul>
   </div>
   <div class="modal-footer">
