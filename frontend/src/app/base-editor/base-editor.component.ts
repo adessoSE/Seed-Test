@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -75,14 +75,14 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 
 	selectedStory!: Story;
 
-	@Input() originalStepTypes!: StepType[];
+	readonly originalStepTypes = input<StepType[]>([]);
 
 	@Input() templateName!: string;
 
 	/**
    * If the test is running
    */
-	@Input() testRunning!: boolean;
+	readonly testRunning = input(false);
 
 	@Input() selectedBlock!: Block;
 
@@ -135,7 +135,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	/**
    * Checks if user investigates AI output
    */
-	@Input() isReviewing: boolean = false;
+	readonly isReviewing = input<boolean>(false);
 
 	readonly blockSelectTriggerEvent = output<string>();
 
@@ -710,7 +710,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 		const when = [];
 		const then = [];
 
-		for (const step of this.originalStepTypes) 
+		for (const step of this.originalStepTypes()) 
 			if (step.stepType === 'given') 
 				given.push(step);
 			else if (step.stepType === 'when') 

@@ -10,11 +10,11 @@
       <div class="actionBarButtonGroup">
         <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()"
           [checked]="this.allChecked" uk-tooltip title="Check All Steps" />
-          <div [class.disabled]="!this.activeActionBar || isReviewing" class="actionBarButtons">
+          <div [class.disabled]="!this.activeActionBar || isReviewing()" class="actionBarButtons">
             @if (name !== 'example' && name !== 'block-editor') {
               <button id="{{name+'_addBlock_step_'}}"
                 class="actionButton" uk-tooltip title="Save Steps as Block" (click)="saveBlock();"
-                [disabled]="!this.activeActionBar || isReviewing || this.isReferenceBlock"
+                [disabled]="!this.activeActionBar || isReviewing() || this.isReferenceBlock"
                 [class.disabled]="this.isReferenceBlock">
                 @if (name === 'background') {
                   <em class="material-icons">queue</em>
@@ -74,7 +74,7 @@
           </button>
           @if (name !== 'example' && name !== 'block-editor') {
             <button id="add_block" class="scenarioButton"
-              [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button"
+              [class.disabled]="testRunning()" [disabled]="testRunning()" uk-tooltip="Add Saved Block" type="button"
               (click)="addBlock()">
               <em class="material-icons-outlined">queue</em>
             </button>
@@ -93,7 +93,7 @@
                     <span (click)="toggleHeader(header)">{{header}}</span>
                     @if (isHeaderActive(header)) {
                       <ul class="stepsList uk-nav uk-dropdown-nav">
-                        @for (step of originalStepTypes; track step) {
+                        @for (step of originalStepTypes(); track step) {
                           <li
                             [hidden]="step.stepType !== header.toLowerCase() || step.type === this.newStepName || step.type === 'Role' || step.type === 'Add Variable'"
                             class="dropdownStep">
@@ -488,11 +488,11 @@
                             <div class="actionBarButtonGroup">
                               <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()"
                                 [checked]="this.allChecked" uk-tooltip title="Check All Steps" />
-                                <div [class.disabled]="!this.activeActionBar || isReviewing" class="actionBarButtons">
+                                <div [class.disabled]="!this.activeActionBar || isReviewing()" class="actionBarButtons">
                                   @if (name !== 'example' && name !== 'block-editor') {
                                     <button id="{{name+'_addBlock_step_'}}"
                                       class="actionButton" uk-tooltip title="Save Steps as Block" (click)="saveBlock();"
-                                      [disabled]="!this.activeActionBar || isReviewing || this.isReferenceBlock"
+                                      [disabled]="!this.activeActionBar || isReviewing() || this.isReferenceBlock"
                                       [class.disabled]="this.isReferenceBlock">
                                       @if (name === 'background') {
                                         <em class="material-icons">queue</em>
@@ -552,7 +552,7 @@
                                 </button>
                                 @if (name !== 'example' && name !== 'block-editor') {
                                   <button id="add_block" class="scenarioButton"
-                                    [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button"
+                                    [class.disabled]="testRunning()" [disabled]="testRunning()" uk-tooltip="Add Saved Block" type="button"
                                     (click)="addBlock()">
                                     <em class="material-icons-outlined">queue</em>
                                   </button>
@@ -571,7 +571,7 @@
                                           <span (click)="toggleHeader(header)">{{header}}</span>
                                           @if (isHeaderActive(header)) {
                                             <ul class="stepsList uk-nav uk-dropdown-nav">
-                                              @for (step of originalStepTypes; track step) {
+                                              @for (step of originalStepTypes(); track step) {
                                                 <li
                                                   [hidden]="step.stepType !== header.toLowerCase() || step.type === this.newStepName || step.type === 'Role' || step.type === 'Add Variable'"
                                                   class="dropdownStep">
@@ -699,8 +699,8 @@
                                   }
                                 </div>
                                 <br>
-                                  <button id="{{name+'_add_step_'+ i}}" class="addStepButton" [class.disabled]="testRunning"
-                                    [disabled]="testRunning" title="Add New Step" uk-tooltip>
+                                  <button id="{{name+'_add_step_'+ i}}" class="addStepButton" [class.disabled]="testRunning()"
+                                    [disabled]="testRunning()" title="Add New Step" uk-tooltip>
                                     <em class="material-icons addStep">add_circle_outline</em>
                                   </button>
                                   <div uk-dropdown="mode:hover">
@@ -792,7 +792,7 @@
                       </div>
                     </ng-template>
 
-                    <app-edit-block #editBlockModal [originalStepTypes]="originalStepTypes"
+                    <app-edit-block #editBlockModal [originalStepTypes]="originalStepTypes()"
                     [selectedBlock]="selectedBlock" />
                     <app-new-example #newExampleModal />
                     <app-new-step-request #newStepRequest />

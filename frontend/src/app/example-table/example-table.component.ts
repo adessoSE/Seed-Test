@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, ViewChild, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
 import {
 	UntypedFormGroup,
 	UntypedFormArray,
@@ -26,10 +26,10 @@ import { StepValidationService } from '../Services/step-validation.service';
 @Component({
 	selector: 'app-example',
 	template: `<app-base-editor [templateName]="TEMPLATE_NAME"
-    [testRunning]="testRunning"
+    [testRunning]="testRunning()"
     [newlySelectedScenario]="selectedScenario"
     [newlySelectedStory]="selectedStory"
-    [originalStepTypes]="originalStepTypes"
+    [originalStepTypes]="originalStepTypes()"
    /> `,
 	styleUrls: ['./example-table.component.css'],
 	changeDetection: ChangeDetectionStrategy.Eager,
@@ -42,14 +42,14 @@ export class ExampleComponent {
 
 	selectedStory!: Story;
 
-	@Input() originalStepTypes!: StepType[];
+	readonly originalStepTypes = input<StepType[]>([]);
 
-	@Input() templateName!: string;
+	readonly templateName = input<string>('');
 
 	/**
    * If the test is running
    */
-	@Input() testRunning!: boolean;
+	readonly testRunning = input(false);
 
 	/**
    * Sets a new selected story

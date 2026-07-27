@@ -1,5 +1,5 @@
 <!--Scenario Header-->
-<div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="scenario">
+<div [class.darkTheme]="isDark()" class="uk-card uk-card-default padding" id="scenario">
   <div class="title">
     <div class="scenarioHeaderContainer">
       <div style="margin: auto 0">
@@ -24,7 +24,7 @@
       @if (this.selectedScenario) {
         <span id="scenarioTitle" class="MediumHeadline5 scenarioTitle"># {{selectedScenario.name | titlecase}}</span>
       }
-      <button class="scenarioTitle pencil_icon" (click)="changeScenarioTitle();" [disabled]="isReviewing" data-uk-tooltip
+      <button class="scenarioTitle pencil_icon" (click)="changeScenarioTitle();" [disabled]="isReviewing()" data-uk-tooltip
         title="Change Scenario Title">
         <em class="material-icons">edit</em>
       </button>
@@ -37,23 +37,23 @@
       }
     </div>
     <div style="justify-self: end;">
-      <button id="new_scenario" class="scenarioTitle" [class.disabled]="isReviewing || testRunning" [disabled]="isReviewing || testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
+      <button id="new_scenario" class="scenarioTitle" [class.disabled]="isReviewing() || testRunning" [disabled]="isReviewing() || testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
         <em class="material-icons">add</em>
       </button>
       @if (this.scenarioUnSaved()) {
-        <button name="saveScenario" id="saveButton" [class.disabled]="isReviewing || this.scenarioSaved()" [disabled]="isReviewing || this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
+        <button name="saveScenario" id="saveButton" [class.disabled]="isReviewing() || this.scenarioSaved()" [disabled]="isReviewing() || this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
           title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.scenarioUnSaved()}"
           (click)="updateScenario();">
           <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
         </button>
       }
       @if (this.selectedScenario.saved!=false) {
-        <button name="saveScenario" id="saveButton" [class.disabled]="isReviewing || this.scenarioSaved()" [disabled]="isReviewing || this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
+        <button name="saveScenario" id="saveButton" [class.disabled]="isReviewing() || this.scenarioSaved()" [disabled]="isReviewing() || this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
           title="Without changes">
           <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
         </button>
       }
-      <button [class.disabled]="isReviewing || testRunning" [disabled]="isReviewing || testRunning"
+      <button [class.disabled]="isReviewing() || testRunning" [disabled]="isReviewing() || testRunning"
         class="scenarioTitle" data-uk-tooltip title="Delete Scenario"
         (click)="deleteScenario();">
         <em class="material-icons">delete</em>
@@ -62,11 +62,11 @@
   </div>
 </div>
 <!-- Shared template: Scenario's action bar & steps -->
-<app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [isReviewing]="isReviewing" [newlySelectedScenario]="selectedScenario"
-[newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"[selectedBlock]="selectedBlock" (blockSelectTriggerEvent)="blockSelectTrigger($event)" />
+<app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [isReviewing]="isReviewing()" [newlySelectedScenario]="selectedScenario"
+[newlySelectedStory]="selectedStory()" [originalStepTypes]="originalStepTypes()"[selectedBlock]="selectedBlock" (blockSelectTriggerEvent)="blockSelectTrigger($event)" />
 
 <app-example [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
-[newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes" />
+[newlySelectedStory]="selectedStory()" [originalStepTypes]="originalStepTypes()" />
 <br>
   <div class="comment MediumButton1">
     <label>Comment</label><br>

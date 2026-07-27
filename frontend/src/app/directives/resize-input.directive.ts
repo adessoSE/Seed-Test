@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostBinding, HostListener, Input, inject } from '@angular/core';
+import { Directive, ElementRef, HostBinding, HostListener, inject, input } from '@angular/core';
 
 @Directive({
 	selector: '[appResizeInput]',
@@ -13,9 +13,9 @@ export class ResizeInputDirective {
     */
 	minWidth = 10;
 
-	@Input() containerEl!: HTMLElement;
+	readonly containerEl = input.required<HTMLElement>();
 
-	@Input() parentEl!: HTMLElement;
+	readonly parentEl = input.required<HTMLElement>();
 
 	@HostBinding() maxWidth!: number;
 
@@ -42,7 +42,7 @@ export class ResizeInputDirective {
 			});
 
 			if (this.class === 'scenario' || this.class === 'background' || this.class === 'block-editor') 
-				this.maxWidth = this.containerEl.offsetWidth;
+				this.maxWidth = this.containerEl().offsetWidth;
         
 			this.resize('load'); 
 		}, 1); 
@@ -84,7 +84,7 @@ export class ResizeInputDirective {
    */
 	private setParentWidth() {
 		if (this.class === 'scenario' || this.class === 'background' || this.class === 'block-editor') 
-			return this.parentEl.offsetWidth;
+			return this.parentEl().offsetWidth;
     
 	}
 

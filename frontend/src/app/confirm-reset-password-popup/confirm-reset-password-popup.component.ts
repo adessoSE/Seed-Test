@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,8 +11,8 @@ import { Router } from '@angular/router';
 export class ConfirmResetPasswordPopupComponent {
 	private router = inject(Router);
 
-	@Input() type!: string; // Default background color is red
-	@Input() message: string = 'Reset your password?';
+	readonly type = input(''); // Default background color is red
+	readonly message = input<string>('Reset your password?');
 
 	navigateToLogin() {
 		this.router.navigateByUrl('/login');

@@ -39,7 +39,7 @@
 <div class="uk-card uk-card-default modal-container">
   <app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning"
     [newlySelectedScenario]="selectedScenario" [newlySelectedStory]="selectedStory"
-  [originalStepTypes]="originalStepTypes" [selectedBlock]="selectedBlock" />
+  [originalStepTypes]="originalStepTypes()" [selectedBlock]="selectedBlock" />
 
   <!-- Save Block Button-->
   <div id="addBlockFooter" class="modal-footer">

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -35,12 +35,12 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	/**
      * Lists the scenarios which are to be displayed
      */
-	@Input() scenarios: Scenario[] = [];
+	readonly scenarios = input<Scenario[]>([]);
 
 	/**
      * Sets a new selected story
      */
-	@Input() selectedStory!: Story;
+	readonly selectedStory = input.required<Story>();
 
 
 	/**
@@ -55,7 +55,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      */
 	@Input() selectedScenario!: Scenario;
 
-	@Input() isReviewing: boolean = false;
+	readonly isReviewing = input<boolean>(false);
 
 	testRunning!: boolean;
 
@@ -91,7 +91,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	updateRefObservable!: Subscription;
 	updateScenariObservable!: Subscription;
 
-	@Input() isDark!: boolean;
+	readonly isDark = input(false);
 
 	/**
      * View child of the modals component
@@ -103,7 +103,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	/**
      * Original step types not sorted or changed
      */
-	@Input() originalStepTypes!: StepType[];
+	readonly originalStepTypes = input<StepType[]>([]);
     
 	/**
      * List of Blocks
@@ -172,9 +172,10 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      */
 	ngOnChanges(changes: SimpleChanges) {
 		// When a new scenarioList is being transferred (used for usual Scenarios and AI)
-		if (changes['scenarios']) 
-			if (this.scenarios && this.scenarios.length > 0) 
-				this.selectScenario(this.scenarios[0]);
+		const scenarios = this.scenarios();
+  if (changes['scenarios']) 
+			if (scenarios && scenarios.length > 0) 
+				this.selectScenario(scenarios[0]);
 			else 
 				this.selectScenario(null);
         
@@ -219,7 +220,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 			updatingWithReferences = true;
 		} else {
 			this.scenarioToUpdate = this.selectedScenario;
-			storyIdUpdate = this.selectedStory._id;
+			storyIdUpdate = this.selectedStory()._id;
 			updatingWithReferences = false;
 		}
 		delete this.scenarioToUpdate.hasRefBlock; 
@@ -381,8 +382,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * @returns
      */
 	checkArrowLeft(): boolean {
-		const scenarioIndex = this.scenarios.indexOf(this.selectedScenario);
-		return this.scenarios[scenarioIndex - 1] === undefined;
+		const scenarioIndex = this.scenarios().indexOf(this.selectedScenario);
+		return this.scenarios()[scenarioIndex - 1] === undefined;
 	}
 
 	/**
@@ -390,8 +391,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
      * @returns
      */
 	checkArrowRight(): boolean {
-		const scenarioIndex = this.scenarios.indexOf(this.selectedScenario);
-		return this.scenarios[scenarioIndex + 1] === undefined;
+		const scenarioIndex = this.scenarios().indexOf(this.selectedScenario);
+		return this.scenarios()[scenarioIndex + 1] === undefined;
 	}
 
 	/**
@@ -453,7 +454,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	}
 
 	openCreateScenario() {
-		this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
+		this.createScenarioModal.openCreateScenarioModal(this.selectedStory());
 	}
 
 	blockSelectTrigger(block: any) {

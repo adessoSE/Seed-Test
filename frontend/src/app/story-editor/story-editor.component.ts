@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -169,8 +169,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Currently selected repository
    */
-	@Input ()
-	selectedRepository!: RepositoryContainer;
+	readonly selectedRepository = input.required<RepositoryContainer>();
 
 	/**
    * Current repo Id
@@ -1910,7 +1909,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		}
 
 		const storyId = this.selectedStory._id!;
-		const repoId = this.selectedRepository._id!;
+		const repoId = this.selectedRepository()._id!;
 		const storyTitle = this.selectedStory.title;
 		this.aiLoadingStories.add(storyId);
 

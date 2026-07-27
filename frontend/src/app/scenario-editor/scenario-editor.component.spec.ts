@@ -7,6 +7,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ResizeInputDirective } from '../directives/resize-input.directive';
 import { ScenarioEditorComponent } from './scenario-editor.component';
 import { Scenario } from '@shared/models/Scenario';
+import { Story } from '@shared/models/Story';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 
@@ -32,6 +33,11 @@ describe('ScenarioEditorComponent', () => {
 		fixture = TestBed.createComponent(ScenarioEditorComponent);
 		component = fixture.componentInstance;
 		component.selectedScenario = scenarios[0];
+		fixture.componentRef.setInput('selectedStory', {
+			story_id: 1, title: 'Test Story', body: '', storySource: 'github',
+			background: { name: '', stepDefinitions: { when: [] } },
+			scenarios, state: 'open', assignee: '', assignee_avatar_url: '', repo_type: 'github'
+		} as Story);
 		fixture.detectChanges();
 	});
 

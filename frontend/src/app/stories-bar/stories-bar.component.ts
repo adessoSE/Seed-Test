@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject, output } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input, ElementRef, ViewChildren, QueryList, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject, output, input } from '@angular/core';
 import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
@@ -129,9 +129,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 
 	@Input() isDark!: boolean;
 
-	@Input() newSelectedStory!: Story;
+	readonly newSelectedStory = input.required<Story>();
 
-	@Input() isReviewing: boolean = false;
+	readonly isReviewing = input<boolean>(false);
 
 	/**
      * SearchTerm for story title search
@@ -271,7 +271,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes.newSelectedStory) {
-			this.selectedStory = this.newSelectedStory;
+			this.selectedStory = this.newSelectedStory();
 			this.scrollToSelectedStory();
 			if (this.selectedStory)
 				this.selectStory(this.selectedStory);

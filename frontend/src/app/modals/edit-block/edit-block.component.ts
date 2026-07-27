@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, Input, ViewChild, OnInit, ChangeDetectionStrategy, inject, input } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
@@ -24,7 +24,7 @@ export class EditBlockComponent implements OnInit {
 	/**
    * Original step types not sorted or changed
    */
-	@Input() originalStepTypes!: StepType[];
+	readonly originalStepTypes = input<StepType[]>([]);
 
 	/**
    * Currently selected block
