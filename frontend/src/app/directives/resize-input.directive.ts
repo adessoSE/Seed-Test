@@ -19,11 +19,11 @@ export class ResizeInputDirective {
 
 	@HostBinding() class?: any;
 
-	@HostListener('change', ['$event']) onChange() {
+	@HostListener('change') onChange() {
 		this.resize();
 	}
 
-	@HostListener('input', ['$event']) onInput() {
+	@HostListener('input') onInput() {
 		this.resize();
 	}
  
