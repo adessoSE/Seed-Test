@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
@@ -23,7 +23,7 @@ describe('RepoSwichComponent', () => {
 	beforeEach( () => {
 	});
 
-	it('should create', async () => {
+	it('should create', fakeAsync(() => {
 		//
-	});
+	}));
 });

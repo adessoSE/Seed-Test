@@ -1,6 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import {ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -21,14 +21,14 @@ describe('ScenarioEditorComponent', () => {
 	let component: ScenarioEditorComponent;
 	let fixture: ComponentFixture<ScenarioEditorComponent>;
 
-	beforeEach(async () => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, DragDropModule, MatTableModule, MatSnackBarModule, ScenarioEditorComponent, ResizeInputDirective],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.overrideComponent(BaseEditorComponent, { set: { template: '', imports: [] } })
 			.compileComponents();
-	});
+	}));
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(ScenarioEditorComponent);

@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { provideRouter, Router } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -11,13 +11,13 @@ describe('ResetPasswordComponent', () => {
 	let fixture: ComponentFixture<ResetPasswordComponent>;
 	let router: Router;
 
-	beforeEach(async () => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MatSnackBarModule, ResetPasswordComponent],
 			providers: [provideRouter([])]
 		})
 			.compileComponents();
-	});
+	}));
 
 	beforeEach(() => {
 		router = TestBed.inject(Router);

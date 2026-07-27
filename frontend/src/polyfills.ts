@@ -1,4 +1,4 @@
 /**
  * Angular polyfills — loaded before the app via angular.json.
- * The app uses zoneless change detection (provideZonelessChangeDetection).
+ * zone.js is loaded via the polyfills config in angular.json.
  */

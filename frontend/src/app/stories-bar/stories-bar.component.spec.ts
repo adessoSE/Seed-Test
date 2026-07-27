@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { StoriesBarComponent } from './stories-bar.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -38,13 +38,13 @@ describe('StoriesBarComponent', () => {
 		background:{name:'New Background',stepDefinitions:{when:[]}}}];
   
 
-	beforeEach(async () => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, MatSnackBarModule, StoriesBarComponent],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();
-	});
+	}));
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(StoriesBarComponent);

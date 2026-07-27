@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Input, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
@@ -23,7 +23,6 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	route = inject(ActivatedRoute);
 	reportService = inject(ReportService);
 	private themeService = inject(ThemingService);
-	private cdr = inject(ChangeDetectorRef);
 
 
 	/**
@@ -122,16 +121,15 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	}
 
 	ngAfterContentInit(){
-		window.addEventListener('storage', (event) => {
+		window.addEventListener('storage', (event) => {           
 			if (event.key === 'reportComponent' ) {
 				const storedReportComponentString = localStorage.getItem('reportComponent');
 				this.updatedReports = JSON.parse(storedReportComponentString!);
 				if (this.updatedReports._id === this.reportComponent._id)
 					this.reportComponent = JSON.parse(storedReportComponentString!);
-				// Native event listener — Angular won't detect the mutation in zoneless mode
-				this.cdr.markForCheck();
+            
 			}
-		});
+		});    
 	}
   
 	/**

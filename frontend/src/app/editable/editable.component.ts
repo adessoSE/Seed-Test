@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ChangeDetectionStrategy, inject, output, contentChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ChangeDetectionStrategy, inject, output, contentChild } from '@angular/core';
 import { ViewModeDirective } from '../directives/view-mode.directive';
 import { EditModeDirective } from '../directives/edit-mode.directive';
 import { fromEvent, Subject } from 'rxjs';
@@ -19,7 +19,6 @@ import { NgTemplateOutlet } from '@angular/common';
 
 export class EditableComponent implements OnInit {
 	private host = inject(ElementRef);
-	private cdr = inject(ChangeDetectorRef);
 
 	readonly viewModeTpl = contentChild.required(ViewModeDirective);
 	readonly editModeTpl = contentChild.required(EditModeDirective);
@@ -62,7 +61,6 @@ export class EditableComponent implements OnInit {
 		).subscribe(() => {
 			this.mode = 'edit';
 			this.editMode.next(true);
-			this.cdr.markForCheck();
 		});
 	}
 
@@ -77,10 +75,7 @@ export class EditableComponent implements OnInit {
 		this.editMode$.pipe(
 			switchMapTo(clickOutside$),
 			untilDestroyed(this)
-		).subscribe(_event => {
-			this.toViewMode();
-			this.cdr.markForCheck();
-		});
+		).subscribe(_event => this.toViewMode());
 	}
 
 	/**

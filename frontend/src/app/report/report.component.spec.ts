@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -10,7 +10,7 @@ describe('ReportComponent', () => {
 	let _fixture: ComponentFixture<ReportComponent>;
 	let _route: ActivatedRoute;
 
-	beforeEach(async () => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, MatSnackBarModule, ReportComponent],
 			providers: [{
@@ -21,7 +21,7 @@ describe('ReportComponent', () => {
 			}]
 		})
 			.compileComponents();
-	});
+	}));
 
 	beforeEach(() => {
 		_route = TestBed.inject(ActivatedRoute);

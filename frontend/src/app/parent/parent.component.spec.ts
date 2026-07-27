@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ParentComponent } from './parent.component';
 import { Story } from '@shared/models/Story';
 import { ActivatedRoute, provideRouter } from '@angular/router';
@@ -23,7 +23,7 @@ describe('ParentComponent', () => {
 	let component: ParentComponent;
 	let fixture: ComponentFixture<ParentComponent>;
 
-	beforeEach(async () => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, MatSnackBarModule, ParentComponent],
 			providers: [provideRouter(ROUTES), {
@@ -36,7 +36,7 @@ describe('ParentComponent', () => {
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();
-	});
+	}));
   
 	beforeEach(() => {
 		fixture = TestBed.createComponent(ParentComponent);

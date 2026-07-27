@@ -1,5 +1,5 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TermsComponent } from './terms.component';
 
@@ -7,13 +7,13 @@ describe('TermsComponent', () => {
 	let component: TermsComponent;
 	let fixture: ComponentFixture<TermsComponent>;
 
-	beforeEach(async () => {
+	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
 			imports: [TermsComponent],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
 			.compileComponents();
-	});
+	}));
 
 	beforeEach(() => {
 		fixture = TestBed.createComponent(TermsComponent);
