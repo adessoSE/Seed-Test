@@ -2,13 +2,12 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ParentComponent } from './parent.component';
 import { Story } from '@shared/models/Story';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { ROUTES } from '../routes/routes';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Scenario } from '@shared/models/Scenario';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
-import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
 const story:Story = {_id: '1', issue_number: 36523, story_id: 37727, storySource: 'github',
@@ -26,8 +25,8 @@ describe('ParentComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, RouterTestingModule.withRoutes(ROUTES), MatSnackBarModule, ParentComponent],
-    providers: [{
+    imports: [HttpClientTestingModule, MatSnackBarModule, ParentComponent],
+    providers: [provideRouter(ROUTES), {
             provide: ActivatedRoute,
             useValue: {
                 snapshot: { params: { story_id: 45, scenario_id: 4 } },

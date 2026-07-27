@@ -2,10 +2,9 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { LoginComponent } from './login.component';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, Router } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthGuard } from '../guards/auth.guard';
-import { Router } from '@angular/router';
 import {  Location } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
@@ -30,8 +29,8 @@ describe('LoginComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-    providers: [AuthGuard, MockedApiService],
-    imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, RouterTestingModule, MatSnackBarModule, LoginComponent],
+    providers: [AuthGuard, MockedApiService, provideRouter([])],
+    imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MatSnackBarModule, LoginComponent],
     schemas: [NO_ERRORS_SCHEMA]
 })
 			.compileComponents();

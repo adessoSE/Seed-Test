@@ -3,7 +3,7 @@ import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ROUTES } from '../routes/routes';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password.component';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -13,7 +13,8 @@ describe('ConfirmResetPasswordComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, FormsModule, RouterTestingModule.withRoutes(ROUTES), ConfirmResetPasswordComponent],
+    imports: [HttpClientTestingModule, MatSnackBarModule, FormsModule, ConfirmResetPasswordComponent],
+    providers: [provideRouter(ROUTES)],
     schemas: [NO_ERRORS_SCHEMA]
 })
 			.compileComponents();

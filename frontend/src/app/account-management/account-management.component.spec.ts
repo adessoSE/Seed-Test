@@ -4,10 +4,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { findComponent } from '../../test_helper';
 import { AccountManagementComponent } from './account-management.component';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter, Router } from '@angular/router';
 import { ROUTES } from '../routes/routes';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { Router } from '@angular/router';
 import {  Location } from '@angular/common';
 import {HarnessLoader} from '@angular/cdk/testing';
 import {TestbedHarnessEnvironment} from '@angular/cdk/testing/testbed';
@@ -26,7 +25,8 @@ describe('AccountManagementComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, MatSnackBarModule, RouterTestingModule.withRoutes(ROUTES), AccountManagementComponent],
+    imports: [HttpClientTestingModule, MatSnackBarModule, AccountManagementComponent],
+    providers: [provideRouter(ROUTES)],
     schemas: [NO_ERRORS_SCHEMA]
 })
 			.compileComponents();

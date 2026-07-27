@@ -2,8 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ROUTES } from '../routes/routes';
 import { RegistrationComponent } from './registration.component';
@@ -14,8 +13,8 @@ describe('RegistrationComponent', () => {
 
 	beforeEach(waitForAsync(() => {
 		TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, RouterTestingModule.withRoutes(ROUTES), MatSnackBarModule, RegistrationComponent],
-    providers: [{
+    imports: [HttpClientTestingModule, FormsModule, ReactiveFormsModule, MatSnackBarModule, RegistrationComponent],
+    providers: [provideRouter(ROUTES), {
             provide: ActivatedRoute,
             useValue: {
                 snapshot: { params: { story_id: 45, scenario_id: 4 } }
