@@ -134,17 +134,6 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
 };
 
 // --- Rate Limiting ---
-// Protects auth endpoints against brute-force attacks
-const authLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 20, // max 20 attempts per window
-	standardHeaders: true,
-	legacyHeaders: false,
-	message: { error: 'Too many requests. Please try again later.' },
-	// Express 5 can yield undefined req.ip on destroyed connections
-	validate: { ip: false }
-});
-
 // Prevents log-flooding from unauthenticated clients
 const logLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
@@ -165,8 +154,8 @@ app.get('/api/ai/available', async (_, res) => {
 });
 app.get('/api', (_, res) => res.sendFile('htmlresponse/apistandartresponse.html', { root: import.meta.dirname }));
 app.use('/api/log', logLimiter, loggingRouter);
-// Rate-limit auth endpoints (login, register, password reset)
-app.use('/api/user', authLimiter, userRouter);
+// Auth rate limiting is applied per-route in user.routes.ts (login, register, reset only)
+app.use('/api/user', userRouter);
 app.use('/api/playwright', playwrightRouter);
 
 

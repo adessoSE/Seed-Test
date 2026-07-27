@@ -1,7 +1,19 @@
 import express, { Request, Response, NextFunction } from 'express';
+import rateLimit from 'express-rate-limit';
 import * as userController from '../controllers/user.controller.js';
 
 const router = express.Router();
+
+// Rate-limit brute-force-sensitive auth endpoints only (not GET /user/ etc.)
+const authLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 20, // max 20 attempts per window
+	standardHeaders: true,
+	legacyHeaders: false,
+	message: { error: 'Too many requests. Please try again later.' },
+	// Express 5 can yield undefined req.ip on destroyed connections
+	validate: { ip: false }
+});
 
 // CORS, body parsing, and authentication are handled globally in server.ts.
 // This local isAuthenticated guard is used for routes that need auth within this public router.
@@ -19,14 +31,14 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
  * @desc    Logs in a user with email/password
  * @access  Public
  */
-router.post('/login', userController.login);
+router.post('/login', authLimiter, userController.login);
 
 /**
  * @route   POST /api/user/register
  * @desc    Registers a new user
  * @access  Public
  */
-router.post('/register', userController.register);
+router.post('/register', authLimiter, userController.register);
 
 /**
  * @route   GET /api/user/logout
@@ -42,14 +54,14 @@ router.get('/logout', userController.logout);
  * @desc    Requests a password reset email
  * @access  Public
  */
-router.post('/resetpassword', userController.forgotPassword);
+router.post('/resetpassword', authLimiter, userController.forgotPassword);
 
 /**
  * @route   PATCH /api/user/reset
  * @desc    Resets the password using a UUID
  * @access  Public
  */
-router.patch('/reset', userController.resetPassword);
+router.patch('/reset', authLimiter, userController.resetPassword);
 
 // --- GitHub OAuth Routes ---
 
