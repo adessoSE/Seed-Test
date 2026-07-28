@@ -1,6 +1,3 @@
-// Side-effect import: must be first so .env is loaded before any other module reads process.env
-import 'dotenv/config';
-
 import express, { type Application, type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';

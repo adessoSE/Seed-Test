@@ -1,6 +1,3 @@
-// Side-effect import: must be first so .env is loaded before any other module reads process.env
-import 'dotenv/config';
-
 import { exit } from 'process';
 import bcrypt from 'bcrypt';
 import * as userService from '../services/user.service.js';

@@ -88,7 +88,8 @@ describe('SpecialCommandParser', () => {
 		//    It seems the regex behavior is complex.
     
 		// We set the time to 10:00:00 (which is 'am')
-		const expectedOutput = 'Invalid: 31.10.2025@@5,31am2025'; 
+		// date-fns uses uppercase AM/PM (moment used lowercase am/pm)
+		const expectedOutput = 'Invalid: 31.10.2025@@5,31AM2025';
 
 		// Let's re-run the logic based on the test output:
 		// 1. `@@Date` is matched -> "Invalid: 31.10.2025@@5,Day"
