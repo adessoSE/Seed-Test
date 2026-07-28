@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { stepDefinitionBackgroundSchema } from './shared.schemas.js';
 
-/** PUT /api/background/:storyID — validates critical fields, passes domain-specific ones through */
+/** PUT /api/background/:storyID — full Background validation */
 export const updateBackgroundSchema = z.object({
-	stepDefinitions: z.object({
-		when: z.array(z.any())
-	}).passthrough()
-}).passthrough();
+	name: z.string().optional(),
+	stepDefinitions: stepDefinitionBackgroundSchema,
+	saved: z.boolean().optional()
+});

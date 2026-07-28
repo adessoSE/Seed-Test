@@ -35,4 +35,4 @@ export const mergeGithubSchema = z.object({
 /** POST /api/user/update/:userID — only validates password field if present */
 export const updateUserSchema = z.object({
 	password: z.string().min(6, 'Password must be at least 6 characters').optional()
-}).passthrough();
+});

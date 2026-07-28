@@ -5,7 +5,7 @@ export const createStorySchema = z.object({
 	title: z.string().min(1, 'Story title is required'),
 	description: z.string().optional(),
 	_id: z.string().min(1, 'Repository ID is required')
-}).passthrough();
+});
 
 /** POST /api/story/:story_id — create a new scenario */
 export const createScenarioSchema = z.object({

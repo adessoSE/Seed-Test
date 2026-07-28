@@ -4,4 +4,4 @@ import { z } from 'zod';
 export const sanityTestSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(1)
-}).passthrough();
+});

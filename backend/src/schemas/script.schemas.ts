@@ -7,7 +7,7 @@ export const scriptGroupSchema = z.object({
 	stayLoggedIn: z.boolean().optional(),
 	repoID: z.string().min(1, 'Repository ID is required'),
 	groupID: z.string().min(1, 'Group ID is required')
-}).passthrough();
+});
 
 /** POST /api/script/Feature/:issueID — auth fields + repositoryId */
 export const scriptFeatureSchema = z.object({
@@ -15,4 +15,4 @@ export const scriptFeatureSchema = z.object({
 	password: z.string().min(1),
 	stayLoggedIn: z.boolean().optional(),
 	repositoryId: z.string().min(1, 'Repository ID is required')
-}).passthrough();
+});

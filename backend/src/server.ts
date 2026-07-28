@@ -118,7 +118,18 @@ app.use(httpLog);
 // Authentication middleware imported from ./middleware/authenticate.ts
 
 // --- Rate Limiting ---
-// Prevents log-flooding from unauthenticated clients
+
+// Global API limiter — prevents abuse across all endpoints
+const globalLimiter = rateLimit({
+	windowMs: 60 * 1000, // 1 minute
+	max: 100, // max 100 requests per minute per IP
+	standardHeaders: true,
+	legacyHeaders: false,
+	message: { error: 'Too many requests, please try again later.' },
+	validate: { ip: false }
+});
+
+// Stricter limiter for log-flooding from unauthenticated clients
 const logLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
 	max: 60, // max 60 log messages per minute per IP
@@ -129,6 +140,9 @@ const logLimiter = rateLimit({
 });
 
 // --- API Routes ---
+
+// Apply global rate limit to all API routes (auth routes have additional stricter limiters)
+app.use('/api', globalLimiter);
 
 // Public routes
 app.get('/api/health', (_, res) => res.status(200).send('OK'));
