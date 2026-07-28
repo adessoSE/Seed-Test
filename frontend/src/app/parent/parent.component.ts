@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -69,7 +69,7 @@ export class ParentComponent implements OnInit, OnDestroy {
 
 	report: any;
 
-	isDark = false;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	activeView: string = 'storyView';
 
@@ -79,7 +79,6 @@ export class ParentComponent implements OnInit, OnDestroy {
      * Subscribtions for all EventEmitter
      */
 	getBackendUrlObservable!: Subscription;
-	themeObservable!: Subscription;
 	getRepositoriesObservable!: Subscription;
 	activeViewObservable!: Subscription;
 
@@ -95,10 +94,6 @@ export class ParentComponent implements OnInit, OnDestroy {
 				console.log('parent get Repos');
 			});
     
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
-			this.isDark = this.themeService.isDarkMode();
-		});
 		this.activeViewObservable = this.storyService.changeStoryViewEmitter.subscribe((viewName) => {
 			this.activeView = viewName;
 			console.log('this.activeView', this.activeView, viewName);
@@ -114,9 +109,6 @@ export class ParentComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		if (this.themeObservable && !this.themeObservable.closed) 
-			this.themeObservable.unsubscribe();
-    
 		if (this.getBackendUrlObservable && !this.getBackendUrlObservable.closed) 
 			this.getBackendUrlObservable.unsubscribe();
     

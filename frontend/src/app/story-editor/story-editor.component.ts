@@ -391,7 +391,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	deleteScenarioObservable!: Subscription;
 	runSaveOptionObservable!: Subscription;
 	renameStoryObservable!: Subscription;
-	themeObservable!: Subscription;
 	getBackendUrlObservable!: Subscription;
 	getStoriesObservable!: Subscription;
 	renameBackgroundObservable!: Subscription;
@@ -563,11 +562,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 					changedValues.newStoryDescription
 				)
 		);
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe(() => {
-			this.isDark = this.themeService.isDarkMode();
-		});
-
 		this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(
 			() => {
 				this.loadStepTypes();
@@ -676,9 +670,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 
 		if (this.renameStoryObservable && !this.renameStoryObservable.closed) 
 			this.renameStoryObservable.unsubscribe();
-    
-		if (this.themeObservable && !this.themeObservable.closed) 
-			this.themeObservable.unsubscribe();
     
 		if (this.getBackendUrlObservable && !this.getBackendUrlObservable.closed) 
 			this.getBackendUrlObservable.unsubscribe();

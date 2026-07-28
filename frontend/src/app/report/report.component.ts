@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject, viewChild, computed } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
@@ -49,7 +49,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      */
 	showResults = false;
 
-	isDark!: boolean;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	readonly iframe = viewChild.required<ElementRef>('iframe');
 
@@ -87,11 +87,6 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      * @ignore
      */
 	ngOnInit() {
-		this.isDark = this.themeService.isDarkMode();
-		this.themeService.themeChanged
-			.subscribe((_) => {
-				this.isDark = this.themeService.isDarkMode();
-			});
 		this.reportObservable = this.reportComponent$.subscribe((report)=>{
 			this.setReportElement(report);
 		});

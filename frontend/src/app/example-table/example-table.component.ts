@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild, computed, effect } from '@angular/core';
 import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Scenario } from '@shared/models/Scenario';
 import { NotificationService } from '../Services/notification.service';
@@ -81,7 +81,11 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	deleteExampleObservable!: Subscription;
 	toggleObservable!: Subscription;
 	updateExampleTableObservable!: Subscription;
-	themeObservable!: Subscription;
+	/** Re-run regex highlighting when theme changes */
+	private themeEffect = effect(() => {
+		this.themeService.isDark();
+		this.regexHighlightOnInit();
+	});
 
 	indexOfExampleToDelete!: number;
 	readonly table = viewChild.required<MatTable<StepDefinition>>('table');
@@ -101,7 +105,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 		this.initialRegex = true;
 	}
 
-	@Input() isDark!: boolean;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	readonly newExampleModal = viewChild.required<NewExampleComponent>('newExampleModal');
 
@@ -135,13 +139,6 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 			this.activateEditableValues();
 		});
 
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe(
-			(_changedTheme) => {
-				this.isDark = this.themeService.isDarkMode();
-				this.regexHighlightOnInit();
-			}
-		);
 	}
 
 	// eslint-disable-next-line @angular-eslint/use-lifecycle-interface
@@ -151,9 +148,6 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
     
 		if (this.updateExampleTableObservable && !this.updateExampleTableObservable.closed) 
 			this.updateExampleTableObservable.unsubscribe();
-    
-		if (this.themeObservable && !this.themeObservable.closed) 
-			this.themeObservable.unsubscribe();
     
 		if (this.toggleObservable && !this.toggleObservable.closed) 
 			this.toggleObservable.unsubscribe();
@@ -443,7 +437,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 		const regexDetected = this.highlightInputService.highlightInput(
 			el,
 			initialCall,
-			this.isDark,
+			this.isDark(),
 			this.regexInStory
 		);
 

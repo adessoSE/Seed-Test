@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -222,7 +222,11 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	scenarioChangedObservable!: Subscription;
 	backgroundChangedObservable!: Subscription;
 	copyExampleOptionObservable!: Subscription;
-	themeObservable!: Subscription;
+	/** Re-run highlight when theme changes */
+	private themeEffect = effect(() => {
+		this.themeService.isDark();
+		this.highlightInputOnInit();
+	});
 	updateBlockObservable!: Subscription;
 
 	ngOnInit(): void {
@@ -312,11 +316,6 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
           
         
 			});
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe((_changedTheme) => {
-			this.isDark = this.themeService.isDarkMode();
-			this.highlightInputOnInit();
-		});
 		this.updateBlockObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
 			this.blockService.getBlocks(id).subscribe((resp) => {
 				this.blocks = resp;
@@ -342,12 +341,9 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 		if (this.backgroundChangedObservable && !this.backgroundChangedObservable.closed) 
 			this.backgroundChangedObservable.unsubscribe();
     
-		if (this.copyExampleOptionObservable && !this.copyExampleOptionObservable.closed) 
+		if (this.copyExampleOptionObservable && !this.copyExampleOptionObservable.closed)
 			this.copyExampleOptionObservable.unsubscribe();
-    
-		if (this.themeObservable && !this.themeObservable.closed) 
-			this.themeObservable.unsubscribe();
-    
+
 	}
 
 	/**

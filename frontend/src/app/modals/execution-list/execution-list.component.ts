@@ -1,10 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, output, viewChild, computed } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Scenario } from '@shared/models/Scenario';
 import { Story } from '@shared/models/Story';
 import { Group } from '@shared/models/Group';
 import { ThemingService } from '../../Services/theming.service';
-import { Subscription, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { StoryService } from '../../Services/story.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [LayoutModalComponent, FormsModule]
 })
-export class ExecutionListComponent implements OnInit {
+export class ExecutionListComponent {
 	private modalService = inject(NgbModal);
 	themeService = inject(ThemingService);
 	private storyService = inject(StoryService);
@@ -35,17 +35,9 @@ export class ExecutionListComponent implements OnInit {
 
 	executionContext!: Scenario | Story | Group;
 
-	isDark!: boolean;
-	themeObservable!: Subscription;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	testExecutions: { testRunId: number, testExecKey: string, selected: boolean }[] = [];
-
-	ngOnInit() {
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
-			this.isDark = this.themeService.isDarkMode();
-		});
-	}
 
 
 	openExecutionListModal(context: Scenario | Story | Group) {

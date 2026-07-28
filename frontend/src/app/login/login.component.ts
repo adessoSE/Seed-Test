@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { NgForm, FormsModule } from '@angular/forms';
@@ -48,14 +48,13 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	currentTheme!: string;
 
-	isDark!: boolean;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	clientId: string;
 
 	/**
      * Subscribtions for all EventEmitter
      */
-	themeObservable!: Subscription;
 	routeObservable: Subscription;
 
 	/**
@@ -146,10 +145,6 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
      * @ignore
      */
 	ngOnInit() {
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
-			this.isDark = this.themeService.isDarkMode();
-		});
 		if ((localStorage.getItem('login')))
 			if (localStorage.getItem('repository'))
 				this.router.navigate(['/']);
@@ -161,9 +156,6 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		if (this.themeObservable && !this.themeObservable.closed) 
-			this.themeObservable.unsubscribe();
-        
 		if (this.routeObservable && !this.routeObservable.closed) 
 			this.routeObservable.unsubscribe();
         

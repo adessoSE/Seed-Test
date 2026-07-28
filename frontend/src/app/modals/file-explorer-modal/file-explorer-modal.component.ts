@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed } from '@angular/core';
+import { Observable } from 'rxjs';
 import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -29,17 +29,12 @@ export class FileExplorerModalComponent implements OnInit {
 	searchedFiles: FileElement[] = [];
 	selectedFile: FileElement | null = null;
 	searchText: string = '';
-	isDark!: boolean;
-	themeObservable!: Subscription;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	readonly fileExplorerModal = viewChild.required<FileExplorerModalComponent>('fileExplorerModal');
 
 	ngOnInit() {
 		this.repoId = localStorage.getItem('id')!; // set before updateFileElementQuery
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe((_changedTheme) => {
-			this.isDark = this.themeService.isDarkMode();
-		});
 		this.updateFileElementQuery();
 		this.fileElements.subscribe((file: FileElement[])=> {
 			this.allFiles = file;

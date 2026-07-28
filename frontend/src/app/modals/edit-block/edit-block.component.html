@@ -1,6 +1,6 @@
 <ng-template #editBlockModal let-modal>
   <app-layout-modal />
-  <div [class.darkTheme] ="isDark" class="modal-header">
+  <div [class.darkTheme] ="isDark()" class="modal-header">
     <span id="modalHeader" class="MediumSubline1H4 modal-title">Edit Block</span>
     <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
     <span rel="def">Edit a saved Block. Scenarios that use this block will be updated.

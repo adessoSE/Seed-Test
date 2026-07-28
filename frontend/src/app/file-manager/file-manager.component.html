@@ -1,9 +1,9 @@
-<div [class.darkTheme]="isDark" class="changedStoryViewContainer">
+<div [class.darkTheme]="isDark()" class="changedStoryViewContainer">
   <div class="changedStoryViewTitle">
     <div>
       <a class="title">
         <button class="backButton" title="Back to Projects" (click)="goBackToStoryEditor()">
-          <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'"
+          <img id="backImage" [attr.src]="isDark() ? '../assets/leftWhite.png' : '../assets/left.svg'"
             alt="back">
           </button>
         </a>

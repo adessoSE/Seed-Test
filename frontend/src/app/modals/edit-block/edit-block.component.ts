@@ -1,10 +1,9 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy, inject, input, viewChild } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject, input, viewChild, computed } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
 import { StepType } from '@shared/models/StepType';
 import { ThemingService } from '../../Services/theming.service';
-import { Subscription } from 'rxjs';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { BaseEditorComponent } from '../../base-editor/base-editor.component';
 
@@ -15,7 +14,7 @@ import { BaseEditorComponent } from '../../base-editor/base-editor.component';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [LayoutModalComponent, BaseEditorComponent]
 })
-export class EditBlockComponent implements OnInit {
+export class EditBlockComponent {
 	private modalService = inject(NgbModal);
 	blockService = inject(BlockService);
 	themeService = inject(ThemingService);
@@ -33,7 +32,7 @@ export class EditBlockComponent implements OnInit {
    */
 	@Input() selectedBlock!: Block;
 
-	isDark!: boolean;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	clipboardBlock: Block | null = null;
 
@@ -42,14 +41,6 @@ export class EditBlockComponent implements OnInit {
 	testRunning = false;
 
 	readonly TEMPLATE_NAME = 'block-editor';
-	themeObservable!: Subscription;
-
-	ngOnInit() {
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe(() => {
-			this.isDark = this.themeService.isDarkMode(); 
-		});
-	}
 
 	/**
    * Opens the edit block form modal

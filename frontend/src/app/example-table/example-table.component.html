@@ -11,9 +11,9 @@
         <th class="headerRow MediumHeadline5" mat-header-cell *matHeaderCellDef scope="col">
           @if (first) {
             <span class="slide-toggle-container">
-              <label class="edit-mode" [class.icon]="editMode" [class.darkTheme]="isDark && editMode">Edit</label>
+              <label class="edit-mode" [class.icon]="editMode" [class.darkTheme]="isDark() && editMode">Edit</label>
               <mat-slide-toggle [formControl]="toggleControl" [color]="color"
-                [class.mat-accent]="isDark"
+                [class.mat-accent]="isDark()"
               title="Switch on/off edit mode" />
             </span>
           }

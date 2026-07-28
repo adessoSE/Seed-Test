@@ -1,7 +1,6 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { ThemingService } from '../Services/theming.service';
 import { StoryService } from '../Services/story.service';
-import { Subscription } from 'rxjs/internal/Subscription';
 import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../Services/project.service';
 import { Observable } from 'rxjs';
@@ -24,7 +23,7 @@ export class FileManagerComponent implements OnInit {
 	fileService = inject(ProjectService);
 
 
-	isDark!: boolean;
+	readonly isDark = computed(() => this.themeService.isDark());
 	repoId!: string;
 	allFiles: FileElement[] = [];
 	searchedFiles: FileElement[] = [];
@@ -33,17 +32,11 @@ export class FileManagerComponent implements OnInit {
 	selection = new Set<any>();
 	isAllSelected: boolean = false;
 
-	themeObservable!: Subscription;
-
 
 	/**
    * @ignore
    */
 	ngOnInit(): void {
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe((_changedTheme) => {
-			this.isDark = this.themeService.isDarkMode();
-		});
 		this.repoId = localStorage.getItem('id')!;
 		this.updateFileElementQuery(this.repoId);
 		this.fileElements.subscribe((files: FileElement[]) => {

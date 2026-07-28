@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, ElementRef, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ElementRef, SimpleChanges, OnChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren } from '@angular/core';
 import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
@@ -118,11 +118,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
      * Subscription element if a Story should be deleted
      */
 	deleteStoryObservable!: Subscription;
-
-	/**
-     * Subscription element if theme should change
-     */
-	themeObservable!: Subscription;
 
 	/**
      * Subscription element to get Stories
@@ -258,11 +253,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 			});
 		});
 
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
-			this.isDark = this.themeService.isDarkMode();
-		});
-
 		this.deleteStoryObservable = this.storyService.deleteStoryEvent.subscribe(() => {
 			this.deleteStory();
 		});
@@ -298,9 +288,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy, OnChanges {
 		this.deleteGroupEmitter.unsubscribe();
 		if (this.deleteStoryObservable && !this.deleteStoryObservable.closed) 
 			this.deleteStoryObservable.unsubscribe();
-        
-		if (this.themeObservable && !this.themeObservable.closed) 
-			this.themeObservable.unsubscribe();
         
 		if (this.getStoriesObservable && !this.getStoriesObservable.closed) 
 			this.getStoriesObservable.unsubscribe();

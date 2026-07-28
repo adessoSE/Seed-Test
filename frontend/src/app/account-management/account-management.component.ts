@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -98,7 +98,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	downloadRepoID!: string;
 
-	isDark!: boolean;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	isActualRepoToDelete!: boolean;
 
@@ -109,7 +109,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      */
 	routeSub: Subscription;
 	updateRepositoryObservable!: Subscription;
-	themeObservable!: Subscription;
 	getRepositoriesObservable!: Subscription;
 	renameProjectObservable!: Subscription;
 
@@ -151,10 +150,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         
 		this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => this.updateRepos());
 
-		this.isDark = this.themeService.isDarkMode();
-		this.themeObservable = this.themeService.themeChanged.subscribe((_changedTheme) => {
-			this.isDark = this.themeService.isDarkMode();
-		});
 		this.renameProjectObservable = this.projectService.renameProjectEvent.subscribe(proj => {
 			this.updateRepository(proj);
 		});
@@ -164,9 +159,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		if (this.themeObservable && !this.themeObservable.closed) 
-			this.themeObservable.unsubscribe();
-        
 		if (this.updateRepositoryObservable && !this.updateRepositoryObservable.closed) 
 			this.updateRepositoryObservable.unsubscribe();
         

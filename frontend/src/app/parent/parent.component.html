@@ -1,6 +1,6 @@
-<div [class.darkTheme] ="isDark" class="grid">
+<div [class.darkTheme] ="isDark()" class="grid">
   <div class="storiesBar">
-    <app-stories-bar [isDark] ="isDark"
+    <app-stories-bar [isDark] ="isDark()"
       [newSelectedStory]="selectedStory"
       [isReviewing]="isReviewing"
       #storiesBar
@@ -13,7 +13,7 @@
   <div class="storyEditor">
     <!-- TODO: storiesBar property binding seems not beeing used-->
     @if (this.activeView === 'storyView') {
-      <app-story-editor [isDark] ="isDark"
+      <app-story-editor [isDark] ="isDark()"
         (report)="viewReport($event);"
         (storyChosen)="setSelectedStory($event);"
         (reviewModeChanged)="isReviewing = $event"
@@ -25,16 +25,16 @@
         [testRunningForGroup]="testRunningForGroup" />
     }
     @if (this.activeView === 'reportHistoryView') {
-      <app-report-history [isDark] ="isDark"
+      <app-report-history
         [newSelectedStory]="selectedStory"  />
     }
     @if (this.activeView  === 'fileManagerView') {
-      <app-file-manager [isDark] ="isDark"
+      <app-file-manager
         [files]="files"
         [newSelectedStory]="selectedStory"  />
     }
     @if (report) {
-      <app-report [isDark] ="isDark"
+      <app-report
         [report]="report" />
     }
   </div>
