@@ -16,9 +16,9 @@ export const jiraLoginSchema = z.object({
 	AuthMethod: z.enum(['bearer', 'basic']).optional()
 });
 
-/** PUT /api/jira/xray-status */
+/** PUT /api/jira/xray-status — frontend sends numeric IDs, coerce to string for URL construction */
 export const updateXrayStatusSchema = z.object({
-	testRunId: z.string().min(1, 'testRunId is required'),
-	stepId: z.string().min(1, 'stepId is required'),
+	testRunId: z.coerce.string().min(1, 'testRunId is required'),
+	stepId: z.coerce.string().min(1, 'stepId is required'),
 	status: z.string().min(1, 'status is required')
 });

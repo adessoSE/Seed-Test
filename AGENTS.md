@@ -9,9 +9,20 @@ GitHub: `adessoSE/Seed-Test` (wiki/docs at `adessoAG/Seed-Test`). Open-source BD
 **Test execution engine**: `docs/test-execution.md` (Cucumber/Playwright/Selenium product feature)
 
 ## Architecture
-Monorepo with 3 packages: `backend` (Express/TS), `frontend` (Angular 20), `shared` (TS models).
+Monorepo with 3 packages: `backend` (Express/TS), `frontend` (Angular 22), `shared` (TS models).
 
 Backend is TypeScript — old `serverRouter/` removed; replaced by clean 3-layer architecture.
+
+### Frontend — Angular Signals + Zoneless
+The frontend runs **zoneless** (`provideZonelessChangeDetection()` in `app.module.ts`, `zone.js` fully removed). All state management uses Angular Signals:
+
+- **Service state**: `signal()` — no EventEmitters or BehaviorSubjects. Action triggers use `signal(0)` with `.update(n => n + 1)`.
+- **Derived state**: `computed()` for read-only derivations, `linkedSignal()` for writable derived signals that reset when source changes.
+- **Side effects**: `effect()` for reacting to signal changes. Use `untracked()` for async work inside effects.
+- **RxJS bridge**: `toSignal()` from `@angular/core/rxjs-interop` for route params and FormControl.valueChanges. HTTP calls remain as Observables with `firstValueFrom()` for one-shot reads.
+- **No subscribe for state**: Components never `.subscribe()` to set state — use `signal.set()` within `effect()` or `firstValueFrom()` async handlers.
+- **No ngOnDestroy for cleanup**: Signals and effects auto-clean on component destroy — no manual `Subscription.unsubscribe()` needed.
+- **Templates**: Signal reads use function call syntax: `isDark()`, `stories()`, `blocks()`.
 
 | Shared models | — | — | imported via `@shared` alias |
 
@@ -23,10 +34,13 @@ Backend is TypeScript — old `serverRouter/` removed; replaced by clean 3-layer
 Old `serverRouter/` replaced by clean 3-layer architecture:
 
 ```
-routes/*.ts        → URL routing + request parsing
+routes/*.ts        → URL routing + request parsing + Zod validation middleware
 controllers/*.ts   → HTTP handlers (call services, return JSON)
 services/*.ts      → business logic (database ops, integrations)
+schemas/*.ts       → Zod v4 input validation schemas (applied via validate() middleware)
 ```
+
+**Input validation**: All mutating routes use Zod schemas in `schemas/*.ts` via `validate()` middleware (`middleware/validate.ts`). The middleware validates `req.body`, replaces it with parsed output (stripping unknown keys unless `.passthrough()` is used), and returns 400 with field-level errors on failure. When adding new endpoints, always create a matching schema.
 
 **New services:**
 - `ai.service.ts` — AI-driven test scenario generation via `@seed-test/ai-parser`, queued via `JobQueue`
@@ -63,8 +77,8 @@ npm run database             # initialize MongoDB collections
 npm run tsc                  # TypeScript build only
 
 # Frontend
-npm test                     # Jest unit tests
-npm run test-coverage        # Jest with coverage
+npm test                     # Vitest unit tests (via ng test)
+npm run test-coverage        # Vitest with coverage
 npm run build                # Angular production build
 ```
 
@@ -91,7 +105,7 @@ Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
 - **Default secrets in compose are not secure**: `SESSION_SECRET=secretSessionKey`, `JIRA_SECRET=secretJiraKey`, `JIRA_SALT=BJ1yJTJ7AFql`
 
 ## Testing & branch conventions
-- **Primary test**: `npm test` (Vitest unit `.spec.ts` + Jest frontend) — daily use
+- **Primary test**: `npm test` (Vitest unit `.spec.ts` in both backend and frontend) — daily use
 - **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report → docs/testing.md
 - **Branching**: Feature branches → `dev`; `master` reserved for official release tags (triggers Docker Hub build)
 
@@ -100,7 +114,7 @@ Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
 Comments are a required part of this codebase. Do NOT remove existing comments when editing code. When writing new code, follow these conventions:
 
 ### When to comment
-- **Always comment:** Business logic branches, async flow control paths (subscribe/promise chains), non-obvious constraints or consequences, workarounds, and integration points with external systems (Jira, Xray, MongoDB)
+- **Always comment:** Business logic branches, async flow control paths (effects/signal chains/firstValueFrom), non-obvious constraints or consequences, workarounds, and integration points with external systems (Jira, Xray, MongoDB)
 - **Always JSDoc:** All exported functions, classes, and interfaces — describe purpose, parameters, return values, and side effects
 - **Skip comments for:** Self-explanatory one-liners where naming makes intent obvious
 
