@@ -2,6 +2,7 @@
 import { logger } from '../logging.js';
 import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from './models.js';
 import { checkValidGithubFormat, jiraDecryptPassword } from '../services/externalAccount.service.js';
+import { requireSafeExternalHost } from '../utils/validation.js';
 
 enum IssueTrackerOption{
 	JIRA = 'jira',
@@ -140,6 +141,8 @@ class Jira extends IssueTracker {
 	postComment(comment: string, issueDetail: any, credentials: any) {
 		const clearPass = this.decryptPassword(credentials);
 		const authString = this.buildAuthText(credentials.AccountName, clearPass, credentials.AuthMethod);
+		// Defense-in-depth: validate host before constructing outbound URL
+		requireSafeExternalHost(credentials.Host);
 		const link = `https://${credentials.Host}/rest/api/2/issue/${issueDetail.issueId}/comment/`;
 		const body = { body: comment };
 		fetch(link, {
