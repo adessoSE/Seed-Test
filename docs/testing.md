@@ -9,47 +9,129 @@ Seed-Test ist eine Low-Code-WebApp zum Generieren von Browser-Automation-Tests. 
 cd backend && npm test              # alle Tests
 npm run test-coverage               # mit Coverage-Report
 
-# Frontend — Jest Unit-Tests
+# Frontend — Vitest Unit-Tests (via Angular CLI)
 cd frontend && npm test             # alle Tests
 npm run test-coverage               # mit Coverage-Report
 
-# Zusammen (wird auch in CI verwendet):
-npm test (in backend/ und frontend/ einzeln)
+# Einzelne Datei:
+npx vitest run src/services/story.service.spec.ts
 ```
 
 ## Backend (Vitest)
 
-- `*.spec.ts` Dateien liegen **neben der zu testenden Logik** in `backend/src/services/`
-- Vitest ist global konfiguriert: `describe`, `it`, `expect` benötigen keine Imports
-- `@shared` alias → `backend/src/shared/src/` (konfiguriert in `vitest.config.ts`)
-- Target ist `node`, nicht DOM
-- Konfig: `backend/vitest.config.ts` mit `@shared` Path-Alias
+- **599 Tests** in **42 Spec-Dateien** (Stand: Juli 2026)
+- `*.spec.ts` Dateien liegen **neben der zu testenden Logik** (`services/`, `controllers/`, `helpers/`, `middleware/`, `utils/`, `testing/`, `schemas/`)
+- Vitest `v4.1` mit `@shared` Path-Alias (`vitest.config.ts`)
+- Target: `node` (kein DOM)
+- Mock-Pattern: `vi.hoisted()` + `vi.mock()` für alle DB- und Service-Mocks (vermeidet TDZ-Fehler bei ESM)
+
+### Testinventar
+
+#### Controllers (16 Dateien, 288 Tests)
+
+| Datei | Tests | Abdeckung |
+|-------|------:|-----------|
+| `story.controller.spec.ts` | 78 | CRUD, Scenarios, OneDriver, Backgrounds, SpecialCommands |
+| `user.controller.spec.ts` | 29 | Login, Register, Forgot/Reset PW, GitHub-Merge, Update |
+| `group.controller.spec.ts` | 20 | CRUD, Add/Remove Stories, Reorder |
+| `testExecution.controller.spec.ts` | 20 | Feature/Scenario/TempGroup Runs, Report Resolution |
+| `jira.controller.spec.ts` | 18 | Login, Credentials, Xray-Status, Disconnect |
+| `workgroup.controller.spec.ts` | 17 | Add/Update/Remove Member |
+| `block.controller.spec.ts` | 15 | CRUD mit IDOR-Schutz |
+| `repository.controller.spec.ts` | 13 | CRUD, Settings, Owner-Transfer |
+| `sanity.controller.spec.ts` | 13 | Run, Report-Mismatch-Fix, Cleanup |
+| `script.controller.spec.ts` | 13 | Group/Feature Script Runs |
+| `github.controller.spec.ts` | 11 | Issues, Repos, Sync |
+| `report.controller.spec.ts` | 11 | CRUD, Upload, HTML-Report |
+| `file.controller.spec.ts` | 11 | Upload, List, Delete mit IDOR |
+| `background.controller.spec.ts` | 8 | GET/PUT |
+| `logging.controller.spec.ts` | 6 | Log-Messages |
+| `playwright.controller.spec.ts` | 5 | Test-Status SSE |
+
+#### Services (14 Dateien, 193 Tests)
+
+| Datei | Tests | Abdeckung |
+|-------|------:|-----------|
+| `repository.service.spec.ts` | 48 | Alle 27 Funktionen: CRUD, Groups, Source-Repos, Owner-Transfer |
+| `report.service.spec.ts` | 31 | CRUD, Status-Updates, HTML-Generierung, Scheduled Deletion |
+| `import-export.service.spec.ts` | 12 | Export ZIP, Import (neu/bestehend), Konfliktmodi |
+| `externalAccount.service.spec.ts` | 14 | Auth-Strings, Verschlüsselung, GitHub-Format, Jira Credentials |
+| `story.service.spec.ts` | 11 | Create Story/Scenario, OneDriver, Delete |
+| `block.service.spec.ts` | 10 | CRUD mit Mongo-Sanitize und IDOR |
+| `workgroup.service.spec.ts` | 10 | Get/Add/Remove Members |
+| `ai.service.spec.ts` | 8 | Parser-Availability, Local/Cloud Provider, Error Handling |
+| `user.service.spec.ts` | 7 | Register, Login, Find, Delete |
+| `xray.service.spec.ts` | 7 | Delete Steps, Handle Test Issues |
+| `file.service.spec.ts` | 5 | Delete/List mit IDOR |
+| `feature-file.service.spec.ts` | 4 | Generate/Update Feature Files |
+| `step-type.service.spec.ts` | 2 | Show StepTypes |
+| `externalSync.service.spec.ts` | 2 | Jira Step-Merge |
+
+#### Test Runners (1 Datei, 22 Tests)
+
+| Datei | Tests | Abdeckung |
+|-------|------:|-----------|
+| `test-runner.service.spec.ts` | 22 | Feature/Scenario/Group Mode, Cucumber Config, Global Settings, Playwright/Selenium |
+
+#### Middleware (3 Dateien, 25 Tests)
+
+| Datei | Tests | Abdeckung |
+|-------|------:|-----------|
+| `authorize.spec.ts` | 16 | canEdit, canCreate, canRun — Owner/Member/Denied |
+| `validate.spec.ts` | 7 | Zod-Validation Middleware, Strip Unknown, Field Errors |
+| `authenticate.spec.ts` | 2 | isAuthenticated Pass/Fail |
+
+#### Helpers (4 Dateien, 39 Tests)
+
+| Datei | Tests | Abdeckung |
+|-------|------:|-----------|
+| `sanitize.spec.ts` | 16 | HTML/XSS Sanitization |
+| `specialCommandParser.spec.ts` | 11 | Resolve Special Commands in Steps |
+| `AppError.spec.ts` | 10 | Constructor, Factory Methods, instanceof |
+| `cryptoHelper.spec.ts` | 8 | AES-256-GCM Encrypt/Decrypt Round-Trip |
+| `jobQueue.spec.ts` | 4 | Sequential Processing, Error Recovery |
+
+#### Utils & Schemas (3 Dateien, 44 Tests)
+
+| Datei | Tests | Abdeckung |
+|-------|------:|-----------|
+| `validation.spec.ts` | 22 | ObjectId/Email/RepoName Validators |
+| `user.schemas.spec.ts` | 16 | Zod-Schema-Validierung (Login, Register, etc.) |
+| `mongo-sanitize.spec.ts` | 6 | NoSQL-Injection-Schutz: $-Key Stripping |
+
+### Mock-Konventionen
 
 ```typescript
-// Beispiel: backend/src/services/*.spec.ts
-import { describe, it, expect } from 'vitest';
-import { someService } from './some.service';
+// Standard-Pattern: vi.hoisted() + vi.mock() für ESM-kompatible Mocks
+const { mockDb, mockedService } = vi.hoisted(() => ({
+  mockDb: { collection: vi.fn() },
+  mockedService: { someMethod: vi.fn() }
+}));
 
-describe('Service', () => {
-  it('sollte X tun', () => {
-    expect(someService()).toBe(expected);
-  });
-});
+vi.mock('../database/DbConnector', () => ({
+  getConnection: vi.fn(() => mockDb)
+}));
+
+import * as myService from './my.service.js';
+
+// Controller-Tests: createReq()/createRes() Helper
+function createReq(overrides = {}) {
+  return { body: {}, params: {}, user: { _id: 'userId' }, ...overrides };
+}
 ```
 
-## Frontend (Jest)
+## Frontend (Vitest)
 
-- Jest mit `jest-preset-angular` für Angular 20
+- Vitest via Angular CLI (`ng test`)
 - läuft in `jsdom` (nicht echte Browser)
-- Benötigt `jest-canvas-mock` Polyfill
-- Konfig: `frontend/jest.config.ts`
+- Konfig: `frontend/vitest.config.ts`
 
 ```bash
-# Einzelen Test:
-npm test -- --testPathPattern=service-name.spec.ts
+# Einzelner Test:
+npx vitest run src/app/Services/api.service.spec.ts
 
 # Watch mode:
-npm test -- --watch
+npx vitest --watch
 ```
 
 ## CI-Tests
