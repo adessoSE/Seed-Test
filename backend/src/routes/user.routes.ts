@@ -2,6 +2,8 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import * as userController from '../controllers/user.controller.js';
 import { isAuthenticated } from '../middleware/authenticate.js';
+import { validate } from '../middleware/validate.js';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema } from '../schemas/user.schemas.js';
 
 const router = express.Router();
 
@@ -25,14 +27,14 @@ const authLimiter = rateLimit({
  * @desc    Logs in a user with email/password
  * @access  Public
  */
-router.post('/login', authLimiter, userController.login);
+router.post('/login', authLimiter, validate(loginSchema), userController.login);
 
 /**
  * @route   POST /api/user/register
  * @desc    Registers a new user
  * @access  Public
  */
-router.post('/register', authLimiter, userController.register);
+router.post('/register', authLimiter, validate(registerSchema), userController.register);
 
 /**
  * @route   GET /api/user/logout
@@ -48,14 +50,14 @@ router.get('/logout', userController.logout);
  * @desc    Requests a password reset email
  * @access  Public
  */
-router.post('/resetpassword', authLimiter, userController.forgotPassword);
+router.post('/resetpassword', authLimiter, validate(forgotPasswordSchema), userController.forgotPassword);
 
 /**
  * @route   PATCH /api/user/reset
  * @desc    Resets the password using a UUID
  * @access  Public
  */
-router.patch('/reset', authLimiter, userController.resetPassword);
+router.patch('/reset', authLimiter, validate(resetPasswordSchema), userController.resetPassword);
 
 // --- GitHub OAuth Routes ---
 
@@ -71,7 +73,7 @@ router.get('/callback', userController.githubCallback);
  * @desc    Merges a GitHub account with the logged-in user
  * @access  Private
  */
-router.post('/mergeGithub', isAuthenticated, userController.mergeGithub);
+router.post('/mergeGithub', isAuthenticated, validate(mergeGithubSchema), userController.mergeGithub);
 
 // --- User Management Routes ---
 
@@ -94,7 +96,7 @@ router.delete('/', isAuthenticated, userController.deleteUser);
  * @desc    Update the logged-in user's data (Note: PUT or PATCH might be better REST verbs)
  * @access  Private
  */
-router.post('/update/:userID', isAuthenticated, userController.updateUser);
+router.post('/update/:userID', isAuthenticated, validate(updateUserSchema), userController.updateUser);
 
 // Note: /githubLogin and /githubRegister from the old router seem redundant 
 // if the main flow is via the OAuth callback. They are omitted here.

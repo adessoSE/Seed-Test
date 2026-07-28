@@ -1,6 +1,8 @@
 import express from 'express';
 import * as groupController from '../controllers/group.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
+import { validate } from '../middleware/validate.js';
+import { createGroupSchema } from '../schemas/group.schemas.js';
 
 const router = express.Router();
 
@@ -24,7 +26,7 @@ router.get('/:repo_id', canRead, groupController.getAllGroups);
  * @desc    Create a new story group
  * @access  Private (repo editor)
  */
-router.post('/:repo_id', canEdit, groupController.createGroup);
+router.post('/:repo_id', canEdit, validate(createGroupSchema), groupController.createGroup);
 
 /**
  * @route   PUT /api/group/:repo_id/:group_id

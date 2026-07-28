@@ -1,6 +1,8 @@
 import express from 'express';
 import * as repositoryController from '../controllers/repository.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
+import { validate } from '../middleware/validate.js';
+import { createRepositorySchema, updateSettingsSchema, transferOwnerSchema } from '../schemas/repository.schemas.js';
 
 const router = express.Router();
 
@@ -25,7 +27,7 @@ router.get('/', repositoryController.getRepositories);
  * @desc    Create a new repository
  * @access  Private
  */
-router.post('/', repositoryController.createRepository);
+router.post('/', validate(createRepositorySchema), repositoryController.createRepository);
 
 /**
  * @route   GET /api/repository/settings/:repo_id
@@ -46,14 +48,14 @@ router.get('/aiconfig/:repo_id', canRead, repositoryController.getRepositoryAiCo
  * @desc    Update repository settings (name, global, ai)
  * @access  Private (repo editor)
  */
-router.put('/settings/:repo_id', canEdit, repositoryController.updateRepositorySettings);
+router.put('/settings/:repo_id', canEdit, validate(updateSettingsSchema), repositoryController.updateRepositorySettings);
 
 /**
  * @route   PUT /api/repository/owner/:repo_id
  * @desc    Transfer ownership of a repository
  * @access  Private (owner only)
  */
-router.put('/owner/:repo_id', ownerOnly, repositoryController.updateRepositoryOwner);
+router.put('/owner/:repo_id', ownerOnly, validate(transferOwnerSchema), repositoryController.updateRepositoryOwner);
 
 /**
  * @route   DELETE /api/repository/:repo_id

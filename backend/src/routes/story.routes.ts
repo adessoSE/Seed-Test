@@ -2,6 +2,8 @@ import express from 'express';
 import multer from 'multer';
 import * as storyController from '../controllers/story.controller.js';
 import { authorizeRepo, authorizeByStory } from '../middleware/authorize.js';
+import { validate } from '../middleware/validate.js';
+import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema } from '../schemas/story.schemas.js';
 
 const router = express.Router();
 
@@ -34,8 +36,8 @@ router.get('/download/project/:repo_id', canReadRepo, storyController.downloadPr
 router.get('/download/export/:repo_id', canReadRepo, storyController.exportProjectArchive);
 
 // --- Other Specific Action Routes ---
-router.post('/specialCommands/resolve', storyController.resolveSpecialCommands);
-router.post('/oneDriver/:storyID', canEditByStoryAlt, storyController.setOneDriver);
+router.post('/specialCommands/resolve', validate(resolveCommandSchema), storyController.resolveSpecialCommands);
+router.post('/oneDriver/:storyID', canEditByStoryAlt, validate(setOneDriverSchema), storyController.setOneDriver);
 router.get('/issueKey/:issue_key', storyController.getStoryByIssueKey);
 
 // --- AI Routes (Specific prefixes) ---
@@ -46,7 +48,7 @@ router.get('/:story_id/generate-scenarios/status', canEditByStory, storyControll
 router.delete('/scenario/:story_id/:_id', canEditByStory, storyController.deleteScenario);
 router.get('/:story_id/:_id', canEditByStory, storyController.getScenario);
 router.put('/:story_id/:_id', canEditByStory, storyController.updateScenario);
-router.post('/:story_id', canEditByStory, storyController.createScenario);
+router.post('/:story_id', canEditByStory, validate(createScenarioSchema), storyController.createScenario);
 router.patch('/:story_id', canEditByStory, storyController.updateScenarioList);
 
 // --- Base Story Routes (Most general routes last) ---
@@ -56,7 +58,7 @@ router.patch('/:story_id', canEditByStory, storyController.updateScenarioList);
  * @access  Private (repo access checked in controller via query param)
  */
 router.get('/', canReadRepoByQuery, storyController.getStories);
-router.post('/', canEditRepoByBody, storyController.createStory);
+router.post('/', canEditRepoByBody, validate(createStorySchema), storyController.createStory);
 router.put('/list/:repo_id', canEditRepo, storyController.updateStoryOrder);
 router.get('/:_id', canReadById, storyController.getStoryById);
 router.put('/:_id', canEditById, storyController.updateStory);

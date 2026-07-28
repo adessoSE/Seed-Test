@@ -1,5 +1,7 @@
 import express from 'express';
 import * as jiraController from '../controllers/jira.controller.js';
+import { validate } from '../middleware/validate.js';
+import { linkJiraSchema, jiraLoginSchema, updateXrayStatusSchema } from '../schemas/jira.schemas.js';
 
 const router = express.Router();
 
@@ -12,7 +14,7 @@ const router = express.Router();
  * @desc    Links or updates Jira credentials for the logged-in user
  * @access  Private
  */
-router.post('/link', jiraController.linkJiraCredentials);
+router.post('/link', validate(linkJiraSchema), jiraController.linkJiraCredentials);
 
 /**
  * @route   DELETE /api/jira/disconnect
@@ -26,13 +28,13 @@ router.delete('/disconnect', jiraController.disconnectJira);
  * @desc    Performs a Jira login test (legacy route)
  * @access  Private
  */
-router.post('/login', jiraController.jiraLogin);
+router.post('/login', validate(jiraLoginSchema), jiraController.jiraLogin);
 
 /**
  * @route   PUT /api/jira/xray-status
  * @desc    Updates the status of an XRay test step
  * @access  Private
  */
-router.put('/xray-status', jiraController.updateXrayStatus);
+router.put('/xray-status', validate(updateXrayStatusSchema), jiraController.updateXrayStatus);
 
 export default router;

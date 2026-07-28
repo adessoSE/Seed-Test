@@ -1,5 +1,7 @@
 import express from 'express';
 import * as githubController from '../controllers/github.controller.js';
+import { validate } from '../middleware/validate.js';
+import { submitIssueSchema } from '../schemas/github.schemas.js';
 
 const router = express.Router();
 
@@ -13,7 +15,7 @@ const router = express.Router();
  * @desc    Submit a new StepType request as a GitHub issue
  * @access  Private (or Public depending on if TESTACCOUNT_TOKEN is used) - Requires careful consideration
  */
-router.post('/submitIssue/', githubController.submitIssue);
+router.post('/submitIssue/', validate(submitIssueSchema), githubController.submitIssue);
 
 /**
  * @route   DELETE /api/github/disconnectGithub

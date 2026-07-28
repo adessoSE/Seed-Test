@@ -1,6 +1,8 @@
 import express from 'express';
 import * as workgroupController from '../controllers/workgroup.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
+import { validate } from '../middleware/validate.js';
+import { addMemberSchema, updateMemberSchema, removeMemberSchema } from '../schemas/workgroup.schemas.js';
 
 const router = express.Router();
 
@@ -24,21 +26,21 @@ router.get('/:id/members', canRead, workgroupController.getMembers);
  * @desc    Add a member to a repository's workgroup
  * @access  Private (owner only)
  */
-router.post('/:id/members', ownerOnly, workgroupController.addMember);
+router.post('/:id/members', ownerOnly, validate(addMemberSchema), workgroupController.addMember);
 
 /**
  * @route   PUT /api/workgroup/:id/members
  * @desc    Update a member's status (e.g., canEdit) in a workgroup
  * @access  Private (owner only)
  */
-router.put('/:id/members', ownerOnly, workgroupController.updateMemberStatus);
+router.put('/:id/members', ownerOnly, validate(updateMemberSchema), workgroupController.updateMemberStatus);
 
 /**
  * @route   DELETE /api/workgroup/:id/members
  * @desc    Remove a member from a workgroup (using DELETE is more RESTful)
  * @access  Private (owner only)
  */
-router.delete('/:id/members', ownerOnly, workgroupController.removeMember);
+router.delete('/:id/members', ownerOnly, validate(removeMemberSchema), workgroupController.removeMember);
 
 
 export default router;
