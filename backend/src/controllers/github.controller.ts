@@ -14,7 +14,21 @@ type RequestWithSession = Request & { session: Session & Partial<SessionData> };
  */
 export async function submitIssue(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { body } = req;
+		const { title, body: issueBody, assignees, labels, milestone } = req.body;
+		if (!title || typeof title !== 'string')
+			throw AppError.badRequest('Missing or invalid issue title');
+
+		// Allowlist fields the frontend sends — prevents injection of unknown GitHub API fields
+		const sanitizedPayload: Record<string, unknown> = { title: title.trim() };
+		if (issueBody && typeof issueBody === 'string')
+			sanitizedPayload.body = issueBody.trim();
+		if (Array.isArray(assignees))
+			sanitizedPayload.assignees = assignees.filter((a: unknown) => typeof a === 'string');
+		if (Array.isArray(labels))
+			sanitizedPayload.labels = labels.filter((l: unknown) => typeof l === 'string');
+		if (typeof milestone === 'number')
+			sanitizedPayload.milestone = milestone;
+
 		const token = process.env.TESTACCOUNT_TOKEN;
 		if (!token) {
 			logger.error('TESTACCOUNT_TOKEN environment variable is not set.');
@@ -23,7 +37,7 @@ export async function submitIssue(req: Request, res: Response, next: NextFunctio
 
 		const response = await fetch('https://api.github.com/repos/adessoAG/Seed-Test/issues', {
 			method: 'post',
-			body: JSON.stringify(body),
+			body: JSON.stringify(sanitizedPayload),
 			headers: {
 				'Authorization': `token ${token}`,
 				'Content-Type': 'application/json',
