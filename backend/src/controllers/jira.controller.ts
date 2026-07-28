@@ -3,6 +3,7 @@ import { User } from '@shared/models/User.js';
 import * as externalAccountService from '../services/externalAccount.service.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
+import { requireSafeExternalHost } from '../utils/validation.js';
 
 /**
  * Handles linking/updating Jira credentials for the logged-in user.
@@ -17,8 +18,7 @@ export async function linkJiraCredentials(req: Request, res: Response, next: Nex
 		if (!jiraAccountName || !jiraPassword || !jiraHost)
 			throw AppError.badRequest('Missing Jira credentials (accountName, password, host)');
 
-		if (!/^[.:a-zA-Z0-9-]+$/.test(jiraHost))
-			throw AppError.badRequest('Invalid Jira Host format.');
+		requireSafeExternalHost(jiraHost);
 
 		// --- Verification Logic ---
 		const authString = externalAccountService.buildAuthString(jiraAccountName, jiraPassword, jiraAuthMethod);
@@ -79,8 +79,7 @@ export async function jiraLogin(req: Request, res: Response, next: NextFunction)
 		if (!jiraAccountName || !jiraPassword || !jiraServer)
 			throw AppError.badRequest('Missing Jira credentials for login');
 
-		if (!/^[.:a-zA-Z0-9]+$/.test(jiraServer))
-			throw AppError.badRequest('Invalid Jira Host format.');
+		requireSafeExternalHost(jiraServer);
 
 		const authString = externalAccountService.buildAuthString(jiraAccountName, jiraPassword, AuthMethod);
 		const options = {
@@ -126,6 +125,8 @@ export async function updateXrayStatus(req: Request, res: Response, next: NextFu
 			user.jira.Password_Tag
 		);
 		const { AccountName, AuthMethod, Host } = user.jira;
+		// Re-validate stored host to guard against DB-level tampering
+		requireSafeExternalHost(Host);
 		const authString = externalAccountService.buildAuthString(AccountName, clearPass, AuthMethod);
 
 		const { testRunId, stepId, status } = req.body;
