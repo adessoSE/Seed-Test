@@ -53,11 +53,14 @@ export default defineConfig([
 
 			// --- Angular rules ---
 			'@angular-eslint/prefer-inject': 'error',
-			'@angular-eslint/prefer-standalone': 'warn',
+			'@angular-eslint/prefer-standalone': 'error',
 			'@angular-eslint/prefer-on-push-component-change-detection': 'warn',
 			'@angular-eslint/no-empty-lifecycle-method': 'error',
 			'@angular-eslint/no-uncalled-signals': 'error',
+			'@angular-eslint/computed-must-return': 'error',
+			'@angular-eslint/inject-at-top': 'error',
 			'@angular-eslint/prefer-signals': 'warn',
+			'@angular-eslint/prefer-signal-model': 'warn',
 			'@angular-eslint/prefer-output-emitter-ref': 'warn',
 			'@angular-eslint/prefer-output-readonly': 'warn',
 
