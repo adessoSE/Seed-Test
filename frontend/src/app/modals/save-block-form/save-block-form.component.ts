@@ -277,7 +277,7 @@ export class SaveBlockFormComponent implements OnInit {
 	}
 
 	updateBlocksEventEmitter() {
-		this.blockService.updateBlocksEvent.emit();
+		this.blockService.updateBlocksEmitter();
 	}
 
 	onSubmit(form: NgForm) {

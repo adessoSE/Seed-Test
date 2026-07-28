@@ -19,8 +19,7 @@ describe('FileManagerComponent', () => {
 					provide: ThemingService,
 					useValue: {
 						isDark: signal(false),
-						isDarkMode: () => false,
-						themeChanged: of(false)
+						isDarkMode: () => false
 					}
 				},
 				{

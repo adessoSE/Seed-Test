@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -19,26 +19,16 @@ export class GroupService {
 
 	/** Signal for create custom group action — carries the group object */
 	readonly createCustomGroupValue = signal<any>(null);
-	/** @deprecated EventEmitter bridge — subscribe to createCustomGroupValue() signal in Phase 2 */
-	public createCustomGroupEmitter = new EventEmitter();
-
 	/** Signal for update group action — carries the group object */
 	readonly updateGroupValue = signal<any>(null);
-	/** @deprecated EventEmitter bridge — subscribe to updateGroupValue() signal in Phase 2 */
-	public updateGroupEmitter = new EventEmitter();
-
 	/** Signal for delete group action — carries the values */
 	readonly deleteGroupValue = signal<any>(null);
-	/** @deprecated EventEmitter bridge — subscribe to deleteGroupValue() signal in Phase 2 */
-	public deleteGroupEmitter = new EventEmitter();
-
 	/**
     * Sets the create group value
     * @param group
   */
 	createGroupEvent(group: any) {
 		this.createCustomGroupValue.set(group);
-		this.createCustomGroupEmitter.emit(group);
 	}
 	/**
    * Sets the update group value
@@ -46,14 +36,12 @@ export class GroupService {
   */
 	updateGroupEvent(group: any) {
 		this.updateGroupValue.set(group);
-		this.updateGroupEmitter.emit(group);
 	}
 	/**
     * Sets the delete group value
   */
 	public deleteGroupEvent(values: any) {
 		this.deleteGroupValue.set(values);
-		this.deleteGroupEmitter.emit(values);
 	}
 	/**
     * Get groups

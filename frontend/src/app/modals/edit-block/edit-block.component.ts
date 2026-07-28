@@ -73,9 +73,7 @@ export class EditBlockComponent {
 	}
 
 	updateBlocksEventEmitter() {
-
-		this.blockService.updateBlocksEvent.emit();
-
+		this.blockService.updateBlocksEmitter();
 	}
 
 	enterSubmit(event: any) {

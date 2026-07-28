@@ -1,5 +1,5 @@
 import { AiConfig, RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -19,33 +19,17 @@ export class ProjectService {
 
 	/** Signal for rename project action — carries the RepositoryContainer */
 	readonly renameProjectValue = signal<RepositoryContainer | null>(null);
-	/** @deprecated EventEmitter bridge — subscribe to renameProjectValue() signal in Phase 2 */
-	public renameProjectEvent = new EventEmitter();
-
 	/** Signal for create repository action — carries the repository object */
 	readonly createRepositoryValue = signal<any>(null);
-	/** @deprecated EventEmitter bridge — subscribe to createRepositoryValue() signal in Phase 2 */
-	public createRepositoryEmitter = new EventEmitter();
-
 	/** Signal for update repository trigger */
 	readonly updateRepositoryTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to updateRepositoryTrigger() signal in Phase 2 */
-	public updateRepositoryEvent = new EventEmitter();
-
 	/** Signal for delete repository trigger */
 	readonly deleteRepositoryTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to deleteRepositoryTrigger() signal in Phase 2 */
-	public deleteRepositoryEvent = new EventEmitter();
-
 	/** Signal for get repositories trigger */
 	readonly getRepositoriesTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to getRepositoriesTrigger() signal in Phase 2 */
-	public getRepositoriesEvent = new EventEmitter();
-
 	/** Triggers the delete repository signal */
 	public deleteRepositoryEmitter() {
 		this.deleteRepositoryTrigger.update(n => n + 1);
-		this.deleteRepositoryEvent.emit();
 	}
 	/**
     * Sets the rename project value
@@ -53,7 +37,6 @@ export class ProjectService {
   */
 	renameProjectEmitter(proj: RepositoryContainer) {
 		this.renameProjectValue.set(proj);
-		this.renameProjectEvent.emit(proj);
 	}
 	/**
   * Sets the create repository value
@@ -61,18 +44,13 @@ export class ProjectService {
   */
 	createRepositoryEvent(repository: any) {
 		this.createRepositoryValue.set(repository);
-		this.createRepositoryEmitter.emit(repository);
 	}
 
 	/** Signal for transfer ownership trigger */
 	readonly transferOwnershipTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to transferOwnershipTrigger() signal in Phase 2 */
-	public transferOwnershipEvent = new EventEmitter();
-
-	/** Triggers the transfer ownership signal and emits event */
+	/** Triggers the transfer ownership signal */
 	transferOwnershipEmitter() {
 		this.transferOwnershipTrigger.update(n => n + 1);
-		this.transferOwnershipEvent.emit();
 	}
 	changeOwner(repoId: string, email: string): Observable<RepositoryContainer> {
 		const url = this.apiService.apiServer + '/repository/owner/' + repoId;
@@ -91,14 +69,12 @@ export class ProjectService {
   */
 	public updateRepositoryEmitter() {
 		this.updateRepositoryTrigger.update(n => n + 1);
-		this.updateRepositoryEvent.emit();
 	}
 	/**
   * Triggers repositories reload signal
   */
 	public getRepositoriesEmitter() {
 		this.getRepositoriesTrigger.update(n => n + 1);
-		this.getRepositoriesEvent.emit();
 	}
 
 

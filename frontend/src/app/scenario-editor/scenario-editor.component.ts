@@ -295,7 +295,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 						block.usedAsReference = true;
 						this.blockService.updateBlock(block)
 							.subscribe(_ => {
-								this.blockService.updateBlocksEvent.emit();
+								this.blockService.updateBlocksEmitter();
 							});
 					}
           

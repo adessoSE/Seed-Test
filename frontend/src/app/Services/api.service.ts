@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { catchError, tap } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
@@ -29,24 +29,12 @@ export class ApiService {
 
 	/** Signal for stories error trigger */
 	readonly storiesErrorTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to storiesErrorTrigger() signal in Phase 2 */
-	public storiesErrorEvent = new EventEmitter();
-
 	/** Signal for backend URL ready trigger */
 	readonly backendUrlReadyTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to backendUrlReadyTrigger() signal in Phase 2 */
-	public getBackendUrlEvent = new EventEmitter();
-
 	/** Signal for run/save option — carries the option string */
 	readonly runSaveOptionValue = signal<string | null>(null);
-	/** @deprecated EventEmitter bridge — subscribe to runSaveOptionValue() signal in Phase 2 */
-	public runSaveOptionEvent = new EventEmitter();
-
 	/** Signal for copy step with example — carries the option string */
 	readonly copyStepWithExampleValue = signal<string | null>(null);
-	/** @deprecated EventEmitter bridge — subscribe to copyStepWithExampleValue() signal in Phase 2 */
-	public copyStepWithExampleEvent = new EventEmitter();
-
 	/**
    * Gets api headers
    * @returns
@@ -71,7 +59,6 @@ export class ApiService {
    */
 	public runSaveOption(option: string) {
 		this.runSaveOptionValue.set(option);
-		this.runSaveOptionEvent.emit(option);
 	}
 
 	/**
@@ -80,7 +67,6 @@ export class ApiService {
    */
 	public copyStepWithExampleOption(option: string) {
 		this.copyStepWithExampleValue.set(option);
-		this.copyStepWithExampleEvent.emit(option);
 	}
 
 	/**
@@ -91,7 +77,6 @@ export class ApiService {
    */
 	handleStoryError = (_error: HttpErrorResponse, _caught: Observable<any>) => {
 		this.storiesErrorTrigger.update(n => n + 1);
-		this.storiesErrorEvent.emit();
 		return of([]);
 	};
 
@@ -139,7 +124,6 @@ export class ApiService {
 		) {
 			this.urlReceived = true;
 			this.backendUrlReadyTrigger.update(n => n + 1);
-			this.getBackendUrlEvent.emit();
 			return Promise.resolve(url);
 		} else 
 			return this.http
@@ -169,7 +153,6 @@ export class ApiService {
           
 					this.urlReceived = true;
 					this.backendUrlReadyTrigger.update(n => n + 1);
-					this.getBackendUrlEvent.emit();
           
 				});
     

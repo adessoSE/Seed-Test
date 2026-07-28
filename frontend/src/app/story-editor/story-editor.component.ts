@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -69,7 +69,7 @@ const emptyBackground: Background = {
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [CdkScrollable, MatFabButton, MatIconButton, MatMenuTrigger, MatIcon, MatProgressSpinner, MatMenu, MatFormField, MatLabel, MatInput, FormsModule, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatTooltip, BaseEditorComponent, NgStyle, WindowSizeComponent, CdkCopyToClipboard, ScenarioEditorComponent, RenameStoryComponent, RenameBackgroundComponent, SaveBlockFormComponent, CreateScenarioComponent, WorkgroupEditComponent, ExecutionListComponent, TitleCasePipe, DatePipe]
 })
-export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	apiService = inject(ApiService);
 	notify = inject(NotificationService);
 	themeService = inject(ThemingService);
@@ -682,11 +682,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.blockService.getBlocks(id).subscribe((resp) => {
 			this.blocks.set(resp);
 		});
-	}
-
-	// Effects are automatically cleaned up by Angular when the component is destroyed.
-	// No manual unsubscribe needed — OnDestroy retained for interface compliance.
-	ngOnDestroy() {
 	}
 
 	/**
@@ -2067,7 +2062,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 				storiesArr[index] = updatedStory;
 			this.stories.set(storiesArr);
 			this.aiSuggestions.delete(this.selectedStory._id!);
-			this.storyService.getStoriesEvent.emit(this.stories());
+			this.storyService.stories.set(this.stories());
 		}
 
 		// Always restore the view to the first original scenario.
@@ -2139,7 +2134,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		if (index > -1) {
 			storiesArr[index] = updatedStory;
 			this.stories.set(storiesArr);
-			this.storyService.getStoriesEvent.emit([...this.stories()]);
+			this.storyService.stories.set([...this.stories()]);
 		}
     
 		// If the updated story is the one currently being viewed, refresh it

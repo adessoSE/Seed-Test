@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ChangeDetectionStrategy, inject, viewChild, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild, signal } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -53,8 +53,6 @@ export class CreateNewGroupComponent {
   * Columns of the story table table
   */
 	displayedColumnsStories: string[] = ['story', 'checkStory'];
-
-	closeWindowEventEmitter = new EventEmitter();
 
 	/**
      * Opens the create new group modal

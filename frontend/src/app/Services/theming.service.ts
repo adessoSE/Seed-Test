@@ -1,5 +1,5 @@
 
-import { EventEmitter, Injectable, Renderer2, RendererFactory2, DOCUMENT, inject, signal } from '@angular/core';
+import { Injectable, Renderer2, RendererFactory2, DOCUMENT, inject, signal } from '@angular/core';
 
 @Injectable({
 	providedIn: 'root'
@@ -9,9 +9,6 @@ export class ThemingService {
 
 	/** Reactive dark-mode state — replaces currentTheme + isDarkMode() */
 	readonly isDark = signal(false);
-
-	/** @deprecated EventEmitter bridge — subscribe to isDark() signal in Phase 2 */
-	public themeChanged = new EventEmitter<boolean>();
 
 	private renderer: Renderer2;
 
@@ -24,10 +21,9 @@ export class ThemingService {
 	/** Loads the persisted theme from localStorage and applies it */
 	loadTheme () {
 		const stored = localStorage.getItem('user-theme');
-		if (stored === 'darkTheme') {
+		if (stored === 'darkTheme')
 			this.isDark.set(true);
-			this.themeChanged.emit(true);
-		}
+
 		this.renderTemplate(stored ?? '');
 	}
 
@@ -37,7 +33,6 @@ export class ThemingService {
 	 */
 	setNewTheme (dark: boolean) {
 		this.isDark.set(dark);
-		this.themeChanged.emit(dark);
 		const theme = dark ? 'darkTheme' : '';
 		this.renderTemplate(theme);
 		localStorage.setItem('user-theme', theme);

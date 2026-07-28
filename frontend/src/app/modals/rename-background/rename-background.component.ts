@@ -84,7 +84,7 @@ export class RenameBackgroundComponent{
 		this.submitRenameBackground();
 	}
 	updateBlocksEventEmitter() {
-		this.blockService.updateBlocksEvent.emit();
+		this.blockService.updateBlocksEmitter();
 	}
 	backgroundUnique() {
 		const button = (document.getElementById('submitRenameBackground')) as HTMLButtonElement;

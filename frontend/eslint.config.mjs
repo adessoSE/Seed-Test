@@ -56,6 +56,10 @@ export default defineConfig([
 			'@angular-eslint/prefer-standalone': 'warn',
 			'@angular-eslint/prefer-on-push-component-change-detection': 'warn',
 			'@angular-eslint/no-empty-lifecycle-method': 'error',
+			'@angular-eslint/no-uncalled-signals': 'error',
+			'@angular-eslint/prefer-signals': 'warn',
+			'@angular-eslint/prefer-output-emitter-ref': 'warn',
+			'@angular-eslint/prefer-output-readonly': 'warn',
 
 			// --- Angular selectors (warn — existing components use non-standard selectors) ---
 			'@angular-eslint/directive-selector': ['warn', {

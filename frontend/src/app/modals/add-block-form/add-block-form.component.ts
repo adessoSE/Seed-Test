@@ -292,7 +292,7 @@ export class AddBlockFormComponent implements OnInit {
 	}
 
 	updateBlocksEventEmitter() {
-		this.blockService.updateBlocksEvent.emit();
+		this.blockService.updateBlocksEmitter();
 	}
 
 	checkaddAsSingleSteps() {

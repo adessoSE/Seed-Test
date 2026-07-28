@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -21,38 +21,19 @@ export class StoryService {
 
 	/** Signal holding the latest stories array */
 	readonly stories = signal<Story[]>([]);
-	/** @deprecated EventEmitter bridge — subscribe to stories() signal in Phase 2 */
-	public getStoriesEvent = new EventEmitter<Story[]>();
-
 	/** Signal for rename story action — carries {newStoryTitle, newStoryDescription} */
 	readonly renameStoryValue = signal<{ newStoryTitle: string; newStoryDescription: string } | null>(null);
-	/** @deprecated EventEmitter bridge — subscribe to renameStoryValue() signal in Phase 2 */
-	public renameStoryEvent = new EventEmitter();
-
 	/** Signal for delete story trigger */
 	readonly deleteStoryTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to deleteStoryTrigger() signal in Phase 2 */
-	public deleteStoryEvent = new EventEmitter();
-
 	/** Signal for create custom story action — carries the story object */
 	readonly createCustomStoryValue = signal<any>(null);
-	/** @deprecated EventEmitter bridge — subscribe to createCustomStoryValue() signal in Phase 2 */
-	public createCustomStoryEmitter = new EventEmitter();
-
 	/** Signal for active story view — carries the view name */
 	readonly activeView = signal<string>('');
-	/** @deprecated EventEmitter bridge — subscribe to activeView() signal in Phase 2 */
-	public changeStoryViewEmitter = new EventEmitter();
-
 	/** Signal for rename description action */
 	readonly renameDescriptionValue = signal<any>(null);
-	/** @deprecated EventEmitter bridge — subscribe to renameDescriptionValue() signal in Phase 2 */
-	public renameDescriptionEvent = new EventEmitter();
-
-	/** Emits the delete story trigger */
+	/** Triggers the delete story signal */
 	public deleteStoryEmitter() {
 		this.deleteStoryTrigger.update(n => n + 1);
-		this.deleteStoryEvent.emit();
 	}
 
 	/**
@@ -61,7 +42,6 @@ export class StoryService {
   */
 	changeStoryViewEvent(viewName: string) {
 		this.activeView.set(viewName);
-		this.changeStoryViewEmitter.emit(viewName);
 	}
 
 	/**
@@ -72,7 +52,6 @@ export class StoryService {
 	renameStoryEmit(newStoryTitle: string, newStoryDescription: string) {
 		const val = { newStoryTitle, newStoryDescription };
 		this.renameStoryValue.set(val);
-		this.renameStoryEvent.emit(val);
 	}
 	/**
   * Sets the create custom story value
@@ -80,7 +59,6 @@ export class StoryService {
   */
 	createCustomStoryEvent(story: any) {
 		this.createCustomStoryValue.set(story);
-		this.createCustomStoryEmitter.emit(story);
 	}
 	/**
     * Get's single Story by ID
@@ -161,7 +139,6 @@ export class StoryService {
 			.get<Story[]>(this.apiService.apiServer + '/story/', { params, withCredentials: true })
 			.pipe(tap(resp => {
 				this.stories.set(resp);
-				this.getStoriesEvent.emit(resp);
 			}), catchError(this.apiService.handleStoryError));
 	}
 	/**

@@ -295,13 +295,14 @@ describe('StoryEditorComponent', () => {
 	});
 
 	describe('renameStoryEmit', () => {
-		it('should emit', () => {
+		it('should set signal value', () => {
 			const newStoryTitle = 'This is my new story title';
 			const newStoryDescription = 'I let here a brief description';
-			vi.spyOn(component.storyService.renameStoryEvent, 'emit');
 			component.storyService.renameStoryEmit(newStoryTitle, newStoryDescription);
-			expect(component.storyService.renameStoryEvent.emit).toHaveBeenCalled();
-			expect(component.storyService.renameStoryEvent.emit).toHaveBeenCalledTimes(1);
+			expect(component.storyService.renameStoryValue()).toEqual({
+				newStoryTitle,
+				newStoryDescription
+			});
 		});
 	});
 

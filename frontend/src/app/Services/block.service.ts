@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, EventEmitter } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Block } from '@shared/models/Block';
 import { Observable} from 'rxjs';
 import { ApiService } from '../Services/api.service';
@@ -22,49 +22,22 @@ export class BlockService {
 
 	/** Signal to add a block to the current scenario — carries [component, block, stepType, asSingleSteps] */
 	readonly addBlockToScenarioValue = signal<any>(null);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public addBlockToScenarioEvent = new EventEmitter();
-
 	/** Signal for block update trigger */
 	readonly updateBlocksTrigger = signal(0);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
-
 	/** Signal to convert steps into reference — carries the block */
 	readonly convertToReferenceValue = signal<Block | null>(null);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public convertToReferenceEvent = new EventEmitter();
-
 	/** Signal to delete reference — carries the block */
 	readonly deleteReferenceValue = signal<Block | null>(null);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public deleteReferenceEvent = new EventEmitter();
-
 	/** Signal to check for reference — carries blockReferenceId */
 	readonly checkRefOnRemoveValue = signal<string | null>(null);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public checkRefOnRemoveEvent = new EventEmitter();
-
 	/** Signal for delete block trigger */
 	readonly deleteBlockTrigger = signal(0);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public deleteBlockEvent: EventEmitter<any> = new EventEmitter();
-
 	/** Signal to unpack block — carries the block */
 	readonly unpackBlockValue = signal<Block | null>(null);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public unpackBlockEvent = new EventEmitter();
-
 	/** Signal to update reference block name — carries the block */
 	readonly updateNameRefValue = signal<Block | null>(null);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public updateNameRefEvent = new EventEmitter();
-
 	/** Signal for scenario reference updates — carries [scenario, storyId] */
 	readonly updateScenariosRefValue = signal<any>(null);
-	/** EventEmitter for legacy subscribers — emits alongside the signal */
-	public updateScenariosRefEvent = new EventEmitter();
-
 	/**
   * Stores an array of references blocks, before the reference is deleted
   */
@@ -92,14 +65,12 @@ export class BlockService {
 	addBlockToScenario(block: Block, correspondingComponent: string, addBlockToStepType: string, addAsSingleSteps: boolean) {
 		const val = [correspondingComponent, block, addBlockToStepType, addAsSingleSteps];
 		this.addBlockToScenarioValue.set(val);
-		this.addBlockToScenarioEvent.emit(val);
 	}
 	/**
   * Triggers the update blocks signal
   */
 	updateBlocksEmitter() {
 		this.updateBlocksTrigger.update(n => n + 1);
-		this.updateBlocksEvent.emit();
 	}
 
 	/**
@@ -107,7 +78,6 @@ export class BlockService {
   */
 	convertToReferenceEmitter(block: Block) {
 		this.convertToReferenceValue.set(block);
-		this.convertToReferenceEvent.emit(block);
 	}
 
 	/**
@@ -115,7 +85,6 @@ export class BlockService {
   */
 	public deleteBlockEmitter() {
 		this.deleteBlockTrigger.update(n => n + 1);
-		this.deleteBlockEvent.emit();
 	}
 	/**
   * Sets the scenario reference update value
@@ -123,7 +92,6 @@ export class BlockService {
 	public updateScenariosRefEmitt(scenario: Scenario, storyId: string) {
 		const val = [scenario, storyId];
 		this.updateScenariosRefValue.set(val);
-		this.updateScenariosRefEvent.emit(val);
 	}
 	/**
   * Sets the unpack block value
@@ -131,7 +99,6 @@ export class BlockService {
   */
 	public unpackBlockEmitter(block: Block) {
 		this.unpackBlockValue.set(block);
-		this.unpackBlockEvent.emit(block);
 	}
 	/**
   * Sets the update reference block name value
@@ -139,7 +106,6 @@ export class BlockService {
   */
 	public updateNameRefEmitter(block: Block) {
 		this.updateNameRefValue.set(block);
-		this.updateNameRefEvent.emit(block);
 	}
 	/**
   * Sets the check reference on remove value
@@ -147,7 +113,6 @@ export class BlockService {
   */
 	public checkRefOnRemoveEmitter(blockReferenceId: string) {
 		this.checkRefOnRemoveValue.set(blockReferenceId);
-		this.checkRefOnRemoveEvent.emit(blockReferenceId);
 	}
 	/**
   * Sets the delete reference value
@@ -155,7 +120,6 @@ export class BlockService {
   */
 	public deleteReferenceEmitter(block: Block) {
 		this.deleteReferenceValue.set(block);
-		this.deleteReferenceEvent.emit(block);
 	}
 
 	/**
@@ -220,7 +184,6 @@ export class BlockService {
 		if (matchingStories.length == 1)
 			this.deleteBlock(block._id!).subscribe(_ => {
 				this.updateBlocksTrigger.update(n => n + 1);
-				this.updateBlocksEvent.emit();
 			});
     
 	}
@@ -263,7 +226,6 @@ export class BlockService {
 					this.updateBlock(block)
 						.subscribe(_ => {
 							this.updateBlocksTrigger.update(n => n + 1);
-							this.updateBlocksEvent.emit();
 						});
 				}
       

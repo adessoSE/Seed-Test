@@ -19,8 +19,7 @@ describe('FileExplorerModalComponent', () => {
 
 	const mockThemingService = {
 		isDark: signal(false),
-		isDarkMode: vi.fn().mockReturnValue(false),
-		themeChanged: of(false)
+		isDarkMode: vi.fn().mockReturnValue(false)
 	};
 
 	const mockModalService = {

@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
@@ -19,14 +19,8 @@ export class BackgroundService {
 
 	/** Signal for rename background action — carries the new name */
 	readonly renameBackgroundValue = signal<string | null>(null);
-	/** @deprecated EventEmitter bridge — subscribe to renameBackgroundValue() signal in Phase 2 */
-	public renameBackgroundEvent = new EventEmitter();
-
 	/** Signal for background changed trigger */
 	readonly backgroundChangedTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to backgroundChangedTrigger() signal in Phase 2 */
-	public backgroundChangedEvent = new EventEmitter();
-
 	/**
     * Track if background was replaced
   */
@@ -34,16 +28,12 @@ export class BackgroundService {
 
 	/** Signal for apply background changes action — carries the option string */
 	readonly applyChangesBackgroundValue = signal<string | null>(null);
-	/** @deprecated EventEmitter bridge — subscribe to applyChangesBackgroundValue() signal in Phase 2 */
-	public applyChangesBackgroundEvent = new EventEmitter();
-
 	/**
     * Sets the apply background changes value
     * @param option
   */
 	public applyBackgroundChanges(option: string) {
 		this.applyChangesBackgroundValue.set(option);
-		this.applyChangesBackgroundEvent.emit(option);
 	}
 
 	/**
@@ -55,14 +45,12 @@ export class BackgroundService {
   */
 	public backgroundChangedEmitter() {
 		this.backgroundChangedTrigger.update(n => n + 1);
-		this.backgroundChangedEvent.emit();
 	}
 	/**
   * Sets the background rename value
   */
 	renameBackgroundEmit(newBackgroundName: string) {
 		this.renameBackgroundValue.set(newBackgroundName);
-		this.renameBackgroundEvent.emit(newBackgroundName);
 	}
 	/**
    * Updates the background

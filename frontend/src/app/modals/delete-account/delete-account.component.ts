@@ -48,7 +48,7 @@ export class DeleteAccountComponent {
 		if (insertedEmail !== undefined && insertedEmail === this.email) {
 			this.managmentService.deleteUser().subscribe(_resp => {
 				this.notify.info('', 'User Deleted');
-				this.loginService.logoutEvent.emit();
+				this.loginService.logoutEmitter();
 			});
 			this.modalReference.close();
 		} else {

@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Scenario } from '@shared/models/Scenario';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
@@ -19,45 +19,30 @@ export class ScenarioService {
 
 	/** Signal for rename scenario action — carries the new title */
 	readonly renameScenarioValue = signal<string | null>(null);
-	/** EventEmitter (legacy bridge) for rename scenario action */
-	public renameScenarioEvent = new EventEmitter();
-
 	/** Signal for delete scenario action — carries xrayEnabled flag */
 	readonly deleteScenarioValue = signal<boolean | null>(null);
-	/** EventEmitter (legacy bridge) for delete scenario action */
-	public deleteScenarioEvent = new EventEmitter();
-
 	/** Signal for scenario status change — carries {storyId, scenarioId, lastTestPassed} */
 	readonly scenarioStatusChange = signal<{ storyId: string; scenarioId: number; lastTestPassed: boolean } | null>(null);
-	/** EventEmitter (legacy bridge) for scenario status change */
-	public scenarioStatusChangeEvent = new EventEmitter();
-
 	/** Signal for scenario changed trigger */
 	readonly scenarioChangedTrigger = signal(0);
-	/** EventEmitter (legacy bridge) for scenario changed trigger */
-	public scenarioChangedEvent = new EventEmitter();
-
-	/** Sets the delete scenario value with xray flag — updates signal and emits event */
+	/** Sets the delete scenario value with xray flag */
 	public deleteScenarioEmitter(xrayEnabled: boolean) {
 		console.log('Xray enabled: ' + xrayEnabled);
 		this.deleteScenarioValue.set(xrayEnabled);
-		this.deleteScenarioEvent.emit(xrayEnabled);
 	}
-	/** Triggers the scenario changed signal and emits event */
+	/** Triggers the scenario changed signal */
 	public scenarioChangedEmitter() {
 		this.scenarioChangedTrigger.update(n => n + 1);
-		this.scenarioChangedEvent.emit();
 	}
 	/**
-    * Sets the rename scenario value — updates signal and emits event
+    * Sets the rename scenario value
     * @param newTitle
   */
 	renameScenarioEmit(newTitle: string) {
 		this.renameScenarioValue.set(newTitle);
-		this.renameScenarioEvent.emit(newTitle);
 	}
 	/**
-    * Sets the scenario status change value — updates signal and emits event
+    * Sets the scenario status change value
     * @param storyId id of the story
     * @param scenarioId id of the scenario thats changed
     * @param lastTestPassed value status changed to
@@ -65,7 +50,6 @@ export class ScenarioService {
 	scenarioStatusChangeEmit(storyId: string, scenarioId: number, lastTestPassed: boolean) {
 		const val = { storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed };
 		this.scenarioStatusChange.set(val);
-		this.scenarioStatusChangeEvent.emit(val);
 	}
 	/* Updating scenario list */
 	public updateScenarioList(story_id: string, scenario_list: Scenario[]): Observable<any> {

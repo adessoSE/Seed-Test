@@ -74,13 +74,13 @@ export class NewExampleComponent {
   */
 	submitExample() {
 		if (this.newExampleName) {
-			this.exampleService.renameExampleEvent.emit({ name: this.newExampleForm.value.newName, column: this.columnIndex });
+			this.exampleService.renameExampleEmit(this.newExampleForm.value.newName, this.columnIndex);
 			this.newExampleForm.get('newName')!.reset();
 			this.modalReference.close();
 		} else {
 			const exampleName = this.newExampleForm.value.newName;
 			//Create Scenario Emitter (argument scenario name) 
-			this.exampleService.newExampleEvent.emit(exampleName);
+			this.exampleService.newExampleEmit(exampleName);
 			this.newExampleForm.get('newName')!.reset();
 			this.modalReference.close();
 		}

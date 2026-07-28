@@ -285,8 +285,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	/** Renames example when example service emits rename */
 	private renameExampleEffect = effect(() => {
-		// Signal is typed string|null but callers emit {name, column} — cast preserves EventEmitter behavior
-		const value = this.exampleService.renameExampleValue() as any;
+		const value = this.exampleService.renameExampleValue();
 		if (value === null) return;
 		this.renameExample(value.name, value.column);
 	});

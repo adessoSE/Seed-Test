@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -21,9 +21,6 @@ export class ReportService {
 
 	/** Signal for get reports trigger (currently unused — never emitted) */
 	readonly getReportsTrigger = signal(0);
-	/** @deprecated EventEmitter bridge — subscribe to getReportsTrigger() signal in Phase 2 */
-	public getReportsEvent = new EventEmitter();
-
 	/**
    * Retrieves the report *data* by its ID.
    * @param reportID
