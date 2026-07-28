@@ -39,9 +39,9 @@ describe('AccountManagementComponent', () => {
 		component = fixture.componentInstance;
 		vi.spyOn(component.loginService, 'isLoggedIn').mockReturnValue(true);
 		component.loginService.isLoggedIn();
-		component.repositories = repositories;
+		component.repositories.set(repositories);
 		component.searchInput = '';
-		component.github = '';
+		component.github.set('');
 		fixture.detectChanges();
 		_loader = TestbedHarnessEnvironment.loader(fixture);
 		router.currentNavigation();

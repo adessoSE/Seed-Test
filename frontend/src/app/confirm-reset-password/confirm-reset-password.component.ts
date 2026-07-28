@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
@@ -34,18 +34,18 @@ export class ConfirmResetPasswordComponent implements OnInit {
 	/**
    * Error during reset password
    */
-	error!: boolean;
+	readonly error = signal(false);
 	defaultErrorMessage = "Couldn't set password!";
 	/**
    * Successfully sent email
    */
-	success!: boolean;
+	readonly success = signal(false);
 	defaultSuccessMessage = 'Your Password Has Been Updated!';
 
 	/**
    * The message to display
    */
-	message!: string;
+	readonly message = signal('');
 
 	isDark!: boolean;
 	/**
@@ -71,19 +71,19 @@ export class ConfirmResetPasswordComponent implements OnInit {
    * @param form form with the new password value
    */
 	confirmReset(form: NgForm) {
-		this.error = false;
-		this.success = false;
+		this.error.set(false);
+		this.success.set(false);
 		this.loginService.confirmReset(this.uuid, form.value.password).subscribe({
 			next: (_value) => {
-				this.message = this.defaultSuccessMessage;
-				this.success = true;
+				this.message.set(this.defaultSuccessMessage);
+				this.success.set(true);
 			},
 			error: (error) => {
-				this.message = this.defaultErrorMessage;
-				if (error.status === 401) 
-					this.message = 'This Link Has Expired!';
-        
-				this.error = true;
+				this.message.set(this.defaultErrorMessage);
+				if (error.status === 401)
+					this.message.set('This Link Has Expired!');
+
+				this.error.set(true);
 			}
 		});
 	}

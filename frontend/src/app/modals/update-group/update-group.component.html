@@ -39,7 +39,7 @@
                 </div>
                 <br>
                 <div style="width: 100%;">
-                    <table id="storiesTable" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
+                    <table id="storiesTable" mat-table [dataSource]="filteredStories()" class="mat-elevation-z8" aria-describedby="mydesc">
                         <ng-container matColumnDef="story">
                           <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
                           <td mat-cell *matCellDef="let element"> 

@@ -15,9 +15,9 @@
     </div>
   </div>
   <div class="formular">
-    @if (error) {
+    @if (error()) {
       <div class="alert alert-danger text-center" style="margin-bottom: 15px; width: 210px;">
-        <b>Login Failed: </b>{{error}}
+        <b>Login Failed: </b>{{error()}}
       </div>
     }
     <!-- Formular -->
@@ -38,7 +38,7 @@
                   <br>
                     <!-- Button Login -->
                     <button id="Login" class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
-                    @if (this.isLoadingRepositories) {
+                    @if (this.isLoadingRepositories()) {
                       <div id="loadingSpinner">
                         <mat-spinner [diameter]="40" id="loadingSpinnerlogin" class="loadingSpinner" />
                       </div>

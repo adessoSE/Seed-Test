@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild, signal, effect } from '@angular/core';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Subscription } from 'rxjs';
+
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
@@ -14,41 +14,35 @@ import { FormsModule } from '@angular/forms';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
-export class RepoSwichComponent implements OnInit, OnDestroy {
+export class RepoSwichComponent {
 	private modalService = inject(NgbModal);
 	projectService = inject(ProjectService);
 
 
-	repos: RepositoryContainer[];
+	readonly repos = signal<RepositoryContainer[]>([]);
 
-	filteredRepos: MatTableDataSource<RepositoryContainer>;
+	readonly filteredRepos = signal(new MatTableDataSource<RepositoryContainer>());
 
 	displayedColumnsRepos: string[] = ['repository'];
 
 	currentRepo;
 
-	updateRepositoryObservable!: Subscription;
-
 	readonly repoSwitch = viewChild.required<RepoSwichComponent>('repoSwitch');
+
+	/** Reacts to repository update trigger — refreshes repos list */
+	private updateReposEffect = effect(() => {
+		const trigger = this.projectService.updateRepositoryTrigger();
+		if (trigger === 0) return; // skip initial value
+		this.updateRepos();
+	});
 
 	constructor() {
 		this.currentRepo = localStorage.getItem('repository');
 		const value = sessionStorage.getItem('repositories');
 		const repositories: RepositoryContainer[] = value ? JSON.parse(value) : [];
-		this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
-		this.filteredRepos = new MatTableDataSource(this.repos);
-	}
-
-	ngOnInit(): void {
-		this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => {
-			this.updateRepos();
-		});
-	}
-
-	ngOnDestroy() {
-		if (this.updateRepositoryObservable && !this.updateRepositoryObservable.closed)
-			this.updateRepositoryObservable.unsubscribe();
-
+		const filtered = repositories.filter(repo => repo.repoName != this.currentRepo);
+		this.repos.set(filtered);
+		this.filteredRepos.set(new MatTableDataSource(filtered));
 	}
 
 	openModal() {
@@ -59,9 +53,9 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
    * Filters reporitories for searchterm
    */
 	searchOnKey(filter: string) {
-		this.filteredRepos.filterPredicate =  (data: RepositoryContainer, repoFilter: string) => data.repoName.trim().toLowerCase().indexOf(repoFilter) != -1;
+		this.filteredRepos().filterPredicate =  (data: RepositoryContainer, repoFilter: string) => data.repoName.trim().toLowerCase().indexOf(repoFilter) != -1;
 		/* Apply filter */
-		this.filteredRepos.filter = filter.trim().toLowerCase();
+		this.filteredRepos().filter = filter.trim().toLowerCase();
 	}
 
 	/**
@@ -83,7 +77,7 @@ export class RepoSwichComponent implements OnInit, OnDestroy {
 	updateRepos() {
 		const value = sessionStorage.getItem('repositories')!;
 		const repositories: RepositoryContainer[] = JSON.parse(value);
-		this.repos = repositories.filter(repo => repo.repoName != this.currentRepo);
-		this.filteredRepos = new MatTableDataSource(this.repos);
+		this.repos.set(repositories.filter(repo => repo.repoName != this.currentRepo));
+		this.filteredRepos.set(new MatTableDataSource(this.repos()));
 	}
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -65,23 +65,22 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	/**
      * Repositories or projects of this user
      */
-
-	repositories!: RepositoryContainer[];
+	readonly repositories = signal<RepositoryContainer[]>(undefined as any);
 
 	/**
      * Email of the user
      */
-	email!: string;
+	readonly email = signal<string>(undefined as any);
 
 	/**
      * Github object of the user
      */
-	github: any;
+	readonly github = signal<any>(undefined);
 
 	/**
      * Jira object of the user
      */
-	jira: any;
+	readonly jira = signal<any>(undefined);
 
 	/**
      * User id
@@ -92,7 +91,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	versionInput!: string;
 
-	searchList!: RepositoryContainer[];
+	readonly searchList = signal<RepositoryContainer[]>(undefined as any);
 
 	navigationSubscription: Subscription;
 
@@ -102,15 +101,26 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	isActualRepoToDelete!: boolean;
 
-	clientId!: string;
+	readonly clientId = signal<string>(undefined as any);
 
 	/**
      * Subscribtions for all EventEmitter
      */
 	routeSub: Subscription;
-	updateRepositoryObservable!: Subscription;
-	getRepositoriesObservable!: Subscription;
-	renameProjectObservable!: Subscription;
+
+	/** Reacts to the updateRepository signal from ProjectService */
+	private updateRepoEffect = effect(() => {
+		const trigger = this.projectService.updateRepositoryTrigger();
+		if (trigger === 0) return;
+		this.updateRepos();
+	});
+
+	/** Reacts to the renameProject signal from ProjectService */
+	private renameProjectEffect = effect(() => {
+		const proj = this.projectService.renameProjectValue();
+		if (!proj) return;
+		this.updateRepository(proj);
+	});
 
 	/**
      * Constructor
@@ -137,50 +147,28 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 				this.updateSite('Successful'); //
                 
 		});
-		if (!this.router.events) 
-			this.getRepositoriesObservable = this.projectService.getRepositoriesEvent.subscribe((repositories) => {
-				this.seperateRepos(repositories);
-			});
-            
 	}
 
 	ngOnInit() {
-		if (!this.loginService.isLoggedIn()) 
+		if (!this.loginService.isLoggedIn())
 			this.router.navigate(['/login']);
-        
-		this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => this.updateRepos());
-
-		this.renameProjectObservable = this.projectService.renameProjectEvent.subscribe(proj => {
-			this.updateRepository(proj);
-		});
 
 		// fill repository list for download
 		this.searchRepos();
 	}
 
 	ngOnDestroy() {
-		if (this.updateRepositoryObservable && !this.updateRepositoryObservable.closed) 
-			this.updateRepositoryObservable.unsubscribe();
-        
-		if (this.routeSub && !this.routeSub.closed) 
+		if (this.routeSub && !this.routeSub.closed)
 			this.routeSub.unsubscribe();
-        
-		if (this.getRepositoriesObservable) 
-			if (this.getRepositoriesObservable && !this.getRepositoriesObservable.closed) 
-				this.getRepositoriesObservable.unsubscribe();
-            
-        
-		if (this.renameProjectObservable.closed) 
-			this.renameProjectObservable.unsubscribe();
-        
-		if (this.navigationSubscription) 
+
+		if (this.navigationSubscription)
 			this.navigationSubscription.unsubscribe();
-        
+
 	}
 
 	seperateRepos(repos: RepositoryContainer[]) {
-		this.repositories = repos;
-		this.searchList = (!this.searchList) ? repos : this.searchList;
+		this.repositories.set(repos);
+		this.searchList.set((!this.searchList()) ? repos : this.searchList());
 	}
 
 	/**
@@ -195,7 +183,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Opens Modal to create a new custom project
      */
 	newRepository() {
-		this.createCustomProject().openCreateCustomProjectModal(this.repositories);
+		this.createCustomProject().openCreateCustomProjectModal(this.repositories());
 	}
 
 	/**
@@ -216,7 +204,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Opens Modal to delete the Seed-Test account
      */
 	deleteAccount() {
-		this.deleteAccountModal().openDeleteAccountModal(this.email);
+		this.deleteAccountModal().openDeleteAccountModal(this.email());
 	}
 
 	/**
@@ -224,7 +212,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param project
      */
 	workGroupEdit(project: RepositoryContainer) {
-		this.workgroupEditModal().openWorkgroupEditModal(project, this.email, this.id);
+		this.workgroupEditModal().openWorkgroupEditModal(project, this.email(), this.id);
 	}
 
 	/**
@@ -239,12 +227,12 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 				.pipe(map(() => sessionStorage.getItem('repositories')))
 				.subscribe(data => {
 					if (data) {
-						this.repositories = JSON.parse(data);
+						this.repositories.set(JSON.parse(data));
 						repositories.unsubscribe();
 					}
 				});
-		} else 
-			this.repositories = JSON.parse(seSto);
+		} else
+			this.repositories.set(JSON.parse(seSto));
         
 	}
 
@@ -257,17 +245,17 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 			this.managmentService.getUserData().subscribe(user => {
 				this.id = user._id!;
 				if (typeof user['email'] !== 'undefined')
-					this.email = user['email'] as string;
-                
-				if (typeof user['github'] !== 'undefined') 
-					this.github = user['github'];
-                
+					this.email.set(user['email'] as string);
+
+				if (typeof user['github'] !== 'undefined')
+					this.github.set(user['github']);
+
 				if (typeof user['jira'] !== 'undefined') {
-					this.jira = user['jira'];
+					this.jira.set(user['jira']);
 					(document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
 					(document.getElementById('disconnect-jira') as HTMLButtonElement).style.removeProperty('display');
 				}
-				this.clientId = localStorage.getItem('clientId') ?? '';
+				this.clientId.set(localStorage.getItem('clientId') ?? '');
 			});
 			this.getSessionStorage();
 		}
@@ -305,7 +293,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	downloadProjectFeatures(repo_id: string) {
 		if (repo_id) {
-			const userRepo = this.searchList.find(repo => repo._id == repo_id);
+			const userRepo = this.searchList().find(repo => repo._id == repo_id);
 			console.log(userRepo);
 			const id = userRepo!._id!;
 			this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
@@ -320,7 +308,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	exportProject(repo_id: string) {
 		if (repo_id) {
-			const userRepo = this.searchList.find(repo => repo._id == repo_id);
+			const userRepo = this.searchList().find(repo => repo._id == repo_id);
 			console.log(userRepo);
 			const id = userRepo!._id!;
 			this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {
@@ -337,15 +325,15 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		this.searchInput = this.searchInput ? this.searchInput : '';
     
 		// Ensure this.repositories is an array before trying to concat and filter
-		const reposToFilter = this.repositories || [];
+		const reposToFilter = this.repositories() || [];
 
-		this.searchList = ([] as RepositoryContainer[]).concat(reposToFilter).filter(repo => {
+		this.searchList.set(([] as RepositoryContainer[]).concat(reposToFilter).filter(repo => {
 			// Check if repo and repo.repoName exist before calling toLowerCase()
-			if (repo && repo.repoName && repo.repoName.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) 
+			if (repo && repo.repoName && repo.repoName.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0)
 				return repo;
-        
+
 			return false; // Explicitly return false if repo or repo.repoName is missing
-		});
+		}));
 
 		const ngSelect = this.ngSelect();
 		if (this.searchInput != '' && ngSelect) 
@@ -379,8 +367,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	openImportProjectModal() {
 		const dialogRef = this.modalService.open(ImportModalComponent, {
 			width: '800px',
-			data: { 
-				repoList: this.repositories
+			data: {
+				repoList: this.repositories()
 			} 
 		});
 

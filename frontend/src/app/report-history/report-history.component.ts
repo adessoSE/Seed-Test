@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterContentInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, Input, OnInit, AfterContentInit, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { StoryReport } from '@shared/models/StoryReport';
 import { ReportContainer } from '@shared/models/ReportContainer';
 import { Scenario } from '@shared/models/Scenario';
@@ -44,16 +44,15 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 	/**
    * Reports of the selected story
    */
-	reports: ReportContainer = null as any;
+	readonly reports = signal<ReportContainer>(null as any);
 
-	isDark!: boolean;
+	readonly isDark = computed(() => this.themeService.isDark());
 	updatedReports: any;
 
 	/**
    * @ignore
    */
 	ngOnInit(): void {
-		this.isDark = this.themeService.isDarkMode();
 	}
 
 	ngAfterContentInit(){
@@ -61,10 +60,11 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 			if (event.key === 'reportComponent') {
 				const storedReportComponentString = localStorage.getItem('reportComponent');
 				this.updatedReports = JSON.parse(storedReportComponentString!);
-				for (const prop in this.reports)
-					for (let i = (this.reports as any)[prop].length - 1; i >= 0; i--)
-						if ((this.reports as any)[prop][i]._id == this.updatedReports._id)
-							(this.reports as any)[prop][i] = this.updatedReports;
+				const currentReports = this.reports();
+				for (const prop in currentReports)
+					for (let i = (currentReports as any)[prop].length - 1; i >= 0; i--)
+						if ((currentReports as any)[prop][i]._id == this.updatedReports._id)
+							(currentReports as any)[prop][i] = this.updatedReports;
             
         
 			}
@@ -86,9 +86,9 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
    * Retrieves the reports of the story
    */
 	getReports() {
-		this.reports = null as any;
+		this.reports.set(null as any);
 		this.reportService.getReportHistory(this.selectedStory._id!).subscribe(resp => {
-			this.reports = resp;
+			this.reports.set(resp);
 		});
 	}
 
@@ -98,7 +98,7 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
    * @returns list of reports of this scenario
    */
 	filterScenarioReports(scenario: Scenario) {
-		return this.reports.scenarioReports.filter((elem) => parseInt(elem.scenarioId, 10) === scenario.scenario_id);
+		return this.reports().scenarioReports.filter((elem) => parseInt(elem.scenarioId, 10) === scenario.scenario_id);
 	}
 
 	/**
@@ -136,11 +136,11 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 		this.reportService
 			.deleteReport(report._id)
 			.subscribe(_resp => {
-				const newReports = JSON.parse(JSON.stringify(this.reports));
+				const newReports = JSON.parse(JSON.stringify(this.reports()));
 				newReports.storyReports = newReports.storyReports.filter((rep: any) => rep._id !== report._id);
 				newReports.scenarioReports = newReports.scenarioReports.filter((rep: any) => rep._id !== report._id);
 				newReports.groupReports = newReports.groupReports.filter((rep: any) => rep._id !== report._id);
-				this.reports = newReports;
+				this.reports.set(newReports);
 			});
 	}
 
@@ -168,11 +168,6 @@ export class ReportHistoryComponent implements OnInit, AfterContentInit {
 			.saveReport(report._id)
 			.subscribe(_resp => {
 			});
-	}
-
-	isDarkModeOn () {
-		this.isDark = this.themeService.isDarkMode();
-		return this.isDark;
 	}
 
 	getStoryStatus(groupReport: GroupReport, story_id: string) {

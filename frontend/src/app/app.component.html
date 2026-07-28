@@ -1,4 +1,4 @@
-<div class="grid mat-app-background" [class.darkTheme]="isDark">
+<div class="grid mat-app-background" [class.darkTheme]="isDark()">
   <div class="topnav">
     <!--left-->
     <div class="uk-inline dropdown">
@@ -9,12 +9,12 @@
         @if (this.loginService.isLoggedIn()) {
           <ul uk-dropdown="mode: hover" class="dropdown-list">
             <li>
-              @if (this.repositories) {
+              @if (this.repositories()) {
                 <div class="dropdown">
                   <button class="menuSelection" title="Select Project">Projects</button>
                   <div uk-dropdown="mode: click" id="static">
                     <ul class="dropdown-list">
-                      @for (repository of repositories; track repository; let i = $index) {
+                      @for (repository of repositories(); track repository; let i = $index) {
                         <li class="list-item">
                           @if (this.apiService.isGithubRepo(repository)) {
                             <img class="repo_img"
@@ -80,8 +80,8 @@
           <div class="topnavRight">
             <div class="slide-toggle-container">
               <mat-icon>brightness_5</mat-icon>
-              <mat-slide-toggle [formControl]="toggleControl" [ngClass]="{'mat-checked mat-slide-toggle-thumb':isDark}"
-              [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark}" title="Switch to dark/light mode" />
+              <mat-slide-toggle [formControl]="toggleControl" [ngClass]="{'mat-checked mat-slide-toggle-thumb':isDark()}"
+              [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark()}" title="Switch to dark/light mode" />
               <mat-icon>bedtime</mat-icon>
             </div>
             <div class="dropdown">

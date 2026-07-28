@@ -52,18 +52,18 @@ describe('ParentComponent', () => {
 		vi.spyOn(component, 'setSelectedScenario');
 		component.setSelectedScenario(scenario);
 		expect(component.setSelectedScenario).toHaveBeenCalled();
-		expect(component.selectedScenario).toEqual(scenario);
+		expect(component.selectedScenario()).toEqual(scenario);
 	});
 
 	it('should set selectedStory property', () => {
 		vi.spyOn(component, 'setSelectedStory');
 		component.setSelectedStory(story);
 		expect(component.setSelectedStory).toHaveBeenCalled();
-		expect(component.selectedStory).toEqual(story);
+		expect(component.selectedStory()).toEqual(story);
 	});
 
 	it ('should render app-report-history when activeView is reportHistoryView', () => {
-		component.activeView = 'reportHistoryView';
+		component.activeView.set('reportHistoryView');
 		fixture.detectChanges();
 		const reportHistoryEl = findComponent(fixture, 'app-report-history');
 		expect(reportHistoryEl).toBeTruthy();

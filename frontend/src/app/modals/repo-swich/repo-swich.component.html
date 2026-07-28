@@ -11,7 +11,7 @@
       <div class="alignWrapper">
         <span>You are about to remove the repository you are currently in.</span>
         <br>
-          @if (this.repos.length>0) {
+          @if (this.repos().length>0) {
             <span>If you want to proceed with repository deletion choose another repository
             or create one first and retry deletion.</span>
             <br>
@@ -28,7 +28,7 @@
                 </div>
               </div>
               <!-- Table -->
-              <table id="reposTable" mat-table [dataSource]="filteredRepos" class="mat-elevation-z8" aria-describedby="mydesc">
+              <table id="reposTable" mat-table [dataSource]="filteredRepos()" class="mat-elevation-z8" aria-describedby="mydesc">
                 <ng-container matColumnDef="repository">
                   <th id="repoCell" mat-header-cell *matHeaderCellDef> Repository </th>
                   <td mat-cell *matCellDef="let element">
@@ -86,7 +86,7 @@
                     </div>
                   </div>
                   <!-- Table -->
-                  <table id="reposTable" mat-table [dataSource]="filteredRepos" class="mat-elevation-z8" aria-describedby="mydesc">
+                  <table id="reposTable" mat-table [dataSource]="filteredRepos()" class="mat-elevation-z8" aria-describedby="mydesc">
                     <ng-container matColumnDef="repository">
                       <th id="repoCell" mat-header-cell *matHeaderCellDef> Repository </th>
                       <td mat-cell *matCellDef="let element">

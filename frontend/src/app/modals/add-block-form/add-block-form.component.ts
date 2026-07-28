@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, Input, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, inject, viewChild, signal, effect } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
-import { Subscription } from 'rxjs';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
@@ -21,13 +20,19 @@ import { MatFormField, MatSelect, MatOption } from '@angular/material/select';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [LayoutModalComponent, MatSelectionList, FormsModule, MatListOption, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatFormField, MatSelect, ReactiveFormsModule, MatOption]
 })
-export class AddBlockFormComponent implements OnInit,OnDestroy {
+export class AddBlockFormComponent implements OnInit {
 	private modalService = inject(NgbModal);
 	blockService = inject(BlockService);
 	notify = inject(NotificationService);
 	dialog = inject(MatDialog);
 	apiService = inject(ApiService);
 
+	/** Watches for block deletion trigger from the service */
+	private deleteBlockEffect = effect(() => {
+		const trigger = this.blockService.deleteBlockTrigger();
+		if (trigger === 0) return; // skip initial
+		this.blockDeleted(this.selectedBlock);
+	});
 
 	readonly addBlockFormModal = viewChild<any>('addBlockFormModal');
  
@@ -35,7 +40,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 	/**
      * Saved blocks
      */
-	blocks!: Block[];
+	blocks = signal<Block[]>([]);
 	/**
      * New block name when renaming
      */
@@ -102,22 +107,12 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 	addAsSingleSteps!: boolean;
 
 	modalReference!: NgbModalRef;
-	deleteBlockObservable!: Subscription;
      
 	ngOnInit() {
 		const id = localStorage.getItem('id')!;
 		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks = resp;
+			this.blocks.set(resp);
 		});
-		this.deleteBlockObservable = this.blockService.deleteBlockEvent.subscribe(_ => {
-			this.blockDeleted(this.selectedBlock);
-		});
-	}
-    
-	ngOnDestroy() {
-		if (this.deleteBlockObservable && !this.deleteBlockObservable.closed) 
-			this.deleteBlockObservable.unsubscribe();
-      
 	}
 
 	/**
@@ -146,12 +141,12 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
 	getAllBlocks(repoId: string) {
 		this.blockService.getBlocks(repoId).subscribe((resp) => {
-			this.blocks = resp;
+			this.blocks.set(resp);
 		});
 	}
 
 	getFilteredListBlocks() {
-		let filtered = this.blocks.filter((b)=> b.isBackground == undefined);
+		let filtered = this.blocks().filter((b)=> b.isBackground == undefined);
 		// In background mode, only show blocks that contain 'when' steps
 		if (this.correspondingComponent === 'background') 
 			filtered = filtered.filter((b) => b.stepDefinitions?.when?.length > 0);
@@ -191,14 +186,14 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * @param block selected block
      */
 	blockDeleted(block:Block){
-		if (this.blocks.find(x => x === this.selectedBlock))
+		if (this.blocks().find(x => x === this.selectedBlock))
 			this.blockService
 				.deleteBlock(block._id!)
 				.subscribe((resp) => {
 					if (block.usedAsReference)
 						this.blockService.deleteReferenceEmitter(block);
-          
-					this.blocks.splice(this.blocks.findIndex(x => x === this.selectedBlock), 1);
+
+					this.blocks.update(b => b.filter(x => x !== this.selectedBlock));
 					this.stepList = [];
 					this.selectedBlock = null as any;
 					console.log(resp);
@@ -219,7 +214,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 	checkName(inputValue: string){
 		this.newBlockName = inputValue;
 		const isNameValid = this.newBlockName.trim().length > 0;
-		const isNameUnique = !this.blocks.some(i => i.name === this.newBlockName) || (this.selectedBlock && this.blocks.some(g => g._id === this.selectedBlock._id && g.name === this.newBlockName));
+		const isNameUnique = !this.blocks().some(i => i.name === this.newBlockName) || (this.selectedBlock && this.blocks().some(g => g._id === this.selectedBlock._id && g.name === this.newBlockName));
       
 		this.saveBlockButtonDisable = !(isNameValid && isNameUnique);
       

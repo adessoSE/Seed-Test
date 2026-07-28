@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { NgForm, FormsModule } from '@angular/forms';
@@ -38,13 +38,13 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	/**
      * Login error
      */
-	error: string;
+	readonly error = signal<string>(undefined as any);
 	defaultErrorMessage = 'Wrong Username Or Password';
 
 	/**
      * Boolean to see if the repository is loading
      */
-	isLoadingRepositories!: boolean;
+	readonly isLoadingRepositories = signal(false);
 
 	currentTheme!: string;
 
@@ -100,16 +100,15 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param projectServise
      */
 	constructor() {
-		this.error = undefined as any;
 		this.clientId = localStorage.getItem('clientId')!;
 		this.routeObservable = this.route.queryParams.subscribe((params) => {
 			if (params.code) 
 				this.loginService.githubCallback(params.code).subscribe((resp) => {
 					if (resp.error) 
 						if (resp.status === 501) 
-							this.error = 'GitHub Integration has not been set up yet.';
+							this.error.set('GitHub Integration has not been set up yet.');
 						else 
-							this.error = this.defaultErrorMessage; // resp.error
+							this.error.set(this.defaultErrorMessage); // resp.error
                         
 					else {
 						localStorage.setItem('login', 'true');
@@ -125,9 +124,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 				}, 
 				(error) => {
 					if (error.status === 501) 
-						this.error = 'GitHub Integration has not been set up yet.';
+						this.error.set('GitHub Integration has not been set up yet.');
 					else 
-						this.error = this.defaultErrorMessage; // resp.error
+						this.error.set(this.defaultErrorMessage); // resp.error
 				}
 				);
             
@@ -169,12 +168,12 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	loginGithubToken(login: string, id: any) {
 		this.loginService.loginGithubToken(login, id).subscribe((resp) => {
 			if (resp.status === 'error') 
-				this.error = this.defaultErrorMessage;
+				this.error.set(this.defaultErrorMessage);
 			else if (resp.message === 'repository') {
 				const repository = resp.repository;
 				localStorage.setItem('repositoryType', 'github');
 				localStorage.setItem('repository', repository);
-				this.isLoadingRepositories = false;
+				this.isLoadingRepositories.set(false);
 				this.router.navigate(['/']);
 			} else 
 				this.getRepositories();
@@ -187,8 +186,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param form
      */
 	async login(form: NgForm) {
-		this.isLoadingRepositories = true;
-		this.error = undefined as any;
+		this.isLoadingRepositories.set(true);
+		this.error.set(undefined as any);
 		const user = {
 			email: form.value.email,
 			password: form.value.password,
@@ -201,7 +200,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.getRepositories();
 		});
 		// if (response.status === 'error') {
-		//     this.isLoadingRepositories = false;
+		//     this.isLoadingRepositories.set(false);
 		//     this.error = response.message;
 		// } else {
 		//     localStorage.setItem('login', 'true');
@@ -217,7 +216,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 		const source = localStorage.getItem('source');
 		const _id = localStorage.getItem('id');
 		const repository: RepositoryContainer = {repoName: repoName!, source: source!, _id: _id!};
-		this.isLoadingRepositories = true;
+		this.isLoadingRepositories.set(true);
 		const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner')!;
 		if (loadingSpinner) 
 			loadingSpinner.scrollIntoView();
@@ -237,11 +236,11 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 				this.router.navigate(['/accountManagement']);
             
 			this.repositories = resp;
-			this.isLoadingRepositories = false;
+			this.isLoadingRepositories.set(false);
 
 		}, (_) => {
-			this.error = this.defaultErrorMessage;
-			this.isLoadingRepositories = false;
+			this.error.set(this.defaultErrorMessage);
+			this.isLoadingRepositories.set(false);
 		});
 	}
 
@@ -249,12 +248,12 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
      * Loggs in the user with Github
      */
 	githubLogin() {
-		this.error = undefined as any;
+		this.error.set(undefined as any);
 		if (localStorage.getItem('clientId') === 'undefined') {
-			this.error = 'GitHub Integration has not been set up yet.';
+			this.error.set('GitHub Integration has not been set up yet.');
 			return;
 		}
-		this.isLoadingRepositories = true;
+		this.isLoadingRepositories.set(true);
 		this.loginService.githubLogin();
 	}
 

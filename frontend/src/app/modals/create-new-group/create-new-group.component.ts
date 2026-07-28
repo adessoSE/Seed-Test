@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, EventEmitter, ChangeDetectionStrategy, inject, viewChild, signal } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -32,7 +32,7 @@ export class CreateNewGroupComponent {
   */
 	stories!: Story[];
 
-	filteredStories!: MatTableDataSource<Story>;
+	readonly filteredStories = signal(new MatTableDataSource<Story>());
 
 	/**
   * Existing Groups
@@ -70,7 +70,7 @@ export class CreateNewGroupComponent {
 		const repositoryContainer: RepositoryContainer = {repoName, source, _id};
 		this.storyService.getStories(repositoryContainer).subscribe(res => {
 			this.stories = res;
-			this.filteredStories = new MatTableDataSource(res);
+			this.filteredStories.set(new MatTableDataSource(res));
 		});
 		this.modalReference = this.modalService.open(this.createNewGroupModal(), {ariaLabelledBy: 'modal-basic-title'});
 	}
@@ -79,10 +79,11 @@ export class CreateNewGroupComponent {
    * Filters stories for searchterm
    */
 	searchOnKey(filter: string) {
-		this.filteredStories = new MatTableDataSource(this.stories);
-		this.filteredStories.filterPredicate =  (data: Story, storyFilter: string) => data.title.trim().toLowerCase().indexOf(storyFilter) != -1;
+		const ds = new MatTableDataSource(this.stories);
+		ds.filterPredicate =  (data: Story, storyFilter: string) => data.title.trim().toLowerCase().indexOf(storyFilter) != -1;
 		/* Apply filter */
-		this.filteredStories.filter = filter.trim().toLowerCase();
+		ds.filter = filter.trim().toLowerCase();
+		this.filteredStories.set(ds);
 	}
 
 	/**

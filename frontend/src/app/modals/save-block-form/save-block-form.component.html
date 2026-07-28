@@ -85,7 +85,7 @@
     </div>
   </div>
   <div id="saveBlockFooter" class="modal-footer">
-    @if (blocks.length !== 0 && !isBackground) {
+    @if (blocks().length !== 0 && !isBackground) {
       <form class="saveAsSingleSteps">
         <label id="saveAsSingleStepsLabel">Keep Steps separated: </label>
         <input type="checkbox" [checked]="this.saveAsSingleSteps" [disabled]="this.selectedTemplate === 'background'" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">

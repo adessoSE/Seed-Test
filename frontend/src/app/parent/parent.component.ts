@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -39,21 +39,21 @@ export class ParentComponent implements OnInit, OnDestroy {
 	/**
    * Stories in the selected project
    */
-	stories!: Story[];
+	readonly stories = signal<Story[]>(undefined as any);
 
 	repositories!: RepositoryContainer[];
 
-	selectedRepository!: RepositoryContainer;
+	readonly selectedRepository = signal<RepositoryContainer>(undefined as any);
 
 	/**
    * Currently selected story
    */
-	selectedStory!: Story;
+	readonly selectedStory = signal<Story>(undefined as any);
 
 	/**
    * Currently selected Scenario
    */
-	selectedScenario!: Scenario;
+	readonly selectedScenario = signal<Scenario>(undefined as any);
 
 	/**
    * If the story Editor is shown or the report history
@@ -71,55 +71,53 @@ export class ParentComponent implements OnInit, OnDestroy {
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
-	activeView: string = 'storyView';
+	readonly activeView = signal('storyView');
 
 	isReviewing: boolean = false;
 
 	/**
      * Subscribtions for all EventEmitter
      */
-	getBackendUrlObservable!: Subscription;
+	/** Loads stories when backend URL becomes available */
+	private backendUrlEffect = effect(() => {
+		const trigger = this.apiService.backendUrlReadyTrigger();
+		if (trigger === 0) return;
+		this.loadStories();
+	});
+
+	/** Updates active view when story service changes it */
+	private activeViewEffect = effect(() => {
+		const viewName = this.storyService.activeView();
+		if (!viewName) return;
+		this.activeView.set(viewName);
+	});
+
 	getRepositoriesObservable!: Subscription;
-	activeViewObservable!: Subscription;
 
 	/**
    * Requests the repositories on init
    */
 	ngOnInit() {
-		this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
-			this.loadStories();
-		});
-		if (!sessionStorage.getItem('repositories')) 
+		if (!sessionStorage.getItem('repositories'))
 			this.getRepositoriesObservable = this.projectService.getRepositories().subscribe(() => {
 				console.log('parent get Repos');
 			});
-    
-		this.activeViewObservable = this.storyService.changeStoryViewEmitter.subscribe((viewName) => {
-			this.activeView = viewName;
-			console.log('this.activeView', this.activeView, viewName);
-		});
 
-		// needs to be after getBackendUrlEvent subscribtion to work properly
-		if (this.apiService.urlReceived) 
+		// needs to be after backendUrl effect setup to work properly
+		if (this.apiService.urlReceived)
 			this.loadStories();
-		else 
+		else
 			this.apiService.getBackendInfo();
-    
+
 
 	}
 
 	ngOnDestroy() {
-		if (this.getBackendUrlObservable && !this.getBackendUrlObservable.closed) 
-			this.getBackendUrlObservable.unsubscribe();
-    
-		if (this.getRepositoriesObservable) 
-			if (this.getRepositoriesObservable && !this.getRepositoriesObservable.closed) 
+		if (this.getRepositoriesObservable)
+			if (this.getRepositoriesObservable && !this.getRepositoriesObservable.closed)
 				this.getRepositoriesObservable.unsubscribe();
-      
-    
-		if (this.activeViewObservable && !this.activeViewObservable.closed) 
-			this.activeViewObservable.unsubscribe();
-    
+
+
 	}
 
 	/**
@@ -133,14 +131,15 @@ export class ParentComponent implements OnInit, OnDestroy {
 			this.repositories = allRepos;
 
 			// 2. Find the full, currently selected repository object from the list
-			this.selectedRepository = this.repositories.find(repo => repo._id === repoId)!;
+			const selectedRepo = this.repositories.find(repo => repo._id === repoId)!;
+			this.selectedRepository.set(selectedRepo);
 
 			// 3. If the full repository object is found, load its stories
-			if (this.selectedRepository) 
+			if (selectedRepo)
 				this.storyService
-					.getStories(this.selectedRepository)
+					.getStories(selectedRepo)
 					.subscribe((resp: Story[]) => {
-						this.stories = resp;
+						this.stories.set(resp);
 						this.routing(); // Handle routing after stories are loaded
 					});
       
@@ -158,12 +157,13 @@ export class ParentComponent implements OnInit, OnDestroy {
 		this.route.paramMap.subscribe(params => {
 			if (params.has('story_id')) {
 				const story_id = params.get('story_id');
-				this.selectedStory = this.stories.find(o => o._id === story_id)!;
+				const story = this.stories().find(o => o._id === story_id)!;
+				this.selectedStory.set(story);
 				if (params.has('scenario_id')) {
 					const scenario_id = params.get('scenario_id');
-					this.setSelectedScenario(this.selectedStory.scenarios.find(o => o.scenario_id.toString() === scenario_id)!);
-				} else 
-					this.setSelectedScenario(this.selectedStory.scenarios[0]);
+					this.setSelectedScenario(story.scenarios.find(o => o.scenario_id.toString() === scenario_id)!);
+				} else
+					this.setSelectedScenario(story.scenarios[0]);
         
 			}
 		});
@@ -174,7 +174,7 @@ export class ParentComponent implements OnInit, OnDestroy {
    * @param story
    */
 	setSelectedStory(story: Story) {
-		this.selectedStory = story;
+		this.selectedStory.set(story);
 	}
 
 	/**
@@ -182,7 +182,7 @@ export class ParentComponent implements OnInit, OnDestroy {
    * @param scenario
    */
 	setSelectedScenario(scenario: Scenario) {
-		this.selectedScenario = scenario;
+		this.selectedScenario.set(scenario);
 	}
 
 	/**
@@ -190,7 +190,7 @@ export class ParentComponent implements OnInit, OnDestroy {
    * @param scenario
    */
 	deselectScenario() {
-		this.selectedScenario = undefined as any;
+		this.selectedScenario.set(undefined as any);
 	}
 
 	/**

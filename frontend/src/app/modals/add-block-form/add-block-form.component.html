@@ -86,7 +86,7 @@
         </div>
       </div>
       <div id="addBlockFooter" class="modal-footer" [class.forBackground]="this.selectedTemplate === 'background'">
-        @if (blocks.length !== 0) {
+        @if (blocks().length !== 0) {
           <form class="addBlockToScenario">
             <div class="addRefCheckbox">
               <label id="addAsSingleStepsLabel">Add Block as single Steps: </label>
@@ -134,7 +134,7 @@
               </div>
             </form>
           }
-          @if (blocks.length !== 0) {
+          @if (blocks().length !== 0) {
             <button type="button" class="normalButton" (click)="onClickSubmit()" [disabled]="this.selectedBlock === undefined" [class.disable]="this.selectedBlock === undefined">Add Block</button>
           }
         </div>

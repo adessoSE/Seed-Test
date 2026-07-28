@@ -12,7 +12,7 @@
         <p class="LargeHeadline3 headline">File Manager</p>
       </div>
     </div>
-    @if (allFiles.length > 0) {
+    @if (allFiles().length > 0) {
       <div class="bodyContainer upload-container storage-not-empty">
         <div class="bodyContainer top">
           <div class="searchFile">
@@ -29,9 +29,9 @@
           </div>
           <div class="fileCollection">
             <div class="fileCollectionContent">
-              @if (searchedFiles.length > 0) {
+              @if (searchedFiles().length > 0) {
                 <div class="fileTableContainer">
-                  <table mat-table class="fileTable mat-table" [dataSource]="searchedFiles.slice(0, 20)">
+                  <table mat-table class="fileTable mat-table" [dataSource]="searchedFiles().slice(0, 20)">
                     <ng-container matColumnDef="select">
                       <th mat-header-cell *matHeaderCellDef>
                         <mat-checkbox color="primary" (change)="toggleAllSelection($event)" [checked]="isAllSelected" />
@@ -58,7 +58,7 @@
                   </table>
                 </div>
               }
-              @if (searchedFiles.length == 0) {
+              @if (searchedFiles().length == 0) {
                 <div class="noResultFound">
                   <p>No result found</p>
                 </div>
@@ -72,7 +72,7 @@
           </div>
         </div>
       }
-      @if (allFiles.length == 0) {
+      @if (allFiles().length == 0) {
         <div class="bodyContainer upload-container storage-empty">
           <div class="empty-storage-message">
             <p style="font-size: large; font-style: italic;">There are no files in this project yet</p>

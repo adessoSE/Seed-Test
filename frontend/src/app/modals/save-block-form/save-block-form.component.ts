@@ -1,8 +1,7 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
-import { Subscription } from 'rxjs';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
@@ -18,7 +17,7 @@ import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow]
 })
-export class SaveBlockFormComponent implements OnInit, OnDestroy {
+export class SaveBlockFormComponent implements OnInit {
 	private modalService = inject(NgbModal);
 	private notify = inject(NotificationService);
 	blockService = inject(BlockService);
@@ -84,9 +83,17 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
 	modalReference!: NgbModalRef;
 
-	blocks!: Block[];
+	readonly blocks = signal<Block[]>([]);
 
-	updateObservable!: Subscription;
+	/** Reloads blocks whenever updateBlocksTrigger fires */
+	private updateBlocksEffect = effect(() => {
+		const trigger = this.blockService.updateBlocksTrigger();
+		if (trigger === 0) return;
+		const id = localStorage.getItem('id')!;
+		this.blockService.getBlocks(id).subscribe((resp) => {
+			this.blocks.set(resp);
+		});
+	});
 
 	isBackground!: boolean;
 	backgroundName!: string;
@@ -94,19 +101,8 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 	ngOnInit() {
 		const id = localStorage.getItem('id')!;
 		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks = resp;
+			this.blocks.set(resp);
 		});
-		this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
-			this.blockService.getBlocks(id).subscribe((resp) => {
-				this.blocks = resp;
-			});
-		});
-	}
-
-	ngOnDestroy() {
-		if (this.updateObservable && !this.updateObservable.closed) 
-			this.updateObservable.unsubscribe();
-    
 	}
 
 	/**
@@ -265,7 +261,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
    */
 	isTitleEqual(value: string): boolean {
 		let bool = false;
-		this.blocks.forEach(block => {
+		this.blocks().forEach(block => {
 			if (value === block.name && block.isBackground == this.block.isBackground)  bool = true; 
 		});
 		return bool;

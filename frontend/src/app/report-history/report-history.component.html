@@ -20,13 +20,13 @@
   </div>
 </ng-template>
 
-<div [class.darkTheme]="isDarkModeOn()"
+<div [class.darkTheme]="isDark()"
   class="changedStoryViewContainer">
   <div class="changedStoryViewTitle">
     <div>
       <a class="title">
         <button class="backButton" title="Back to Projects" (click)="goBackToStoryEditor()">
-          <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'" alt="back">
+          <img id="backImage" [attr.src]="isDark() ? '../assets/leftWhite.png' : '../assets/left.svg'" alt="back">
         </button>
       </a>
     </div>
@@ -43,9 +43,9 @@
     <div class="sectionHeader">
       <p class="Largeaccordeon2 reportsHeader">Story Reports:</p>
     </div>
-    @if (reports) {
+    @if (reports()) {
       <div class="reportContainer">
-        @for (rep of reports.storyReports; track rep; let i = $index) {
+        @for (rep of reports().storyReports; track rep; let i = $index) {
           <div class="report">
             <a [class.notPassed]="rep.scenariosTested.failed>0" [class.passed]="!rep.scenariosTested.failed" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
             <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: rep}" />
@@ -54,14 +54,14 @@
       </div>
     }
   </div>
-  @if (reports) {
+  @if (reports()) {
     <div class="scenarioReportContainer">
       @for (scen of this.selectedStory.scenarios; track scen; let i = $index) {
         <div>
           <div class="sectionHeader">
             <p class="Mediumaccordeon2 reportsHeader">Scenario {{i + 1}} Reports: {{scen.name}}</p>
           </div>
-          @if (reports) {
+          @if (reports()) {
             <div class="reportContainer">
               @for (scenrep of filterScenarioReports(scen); track scenrep; let j = $index) {
                 <div class="report">
@@ -75,14 +75,14 @@
       }
     </div>
   }
-  @if (reports) {
+  @if (reports()) {
     <div class="groupReportContainer">
       <div class="sectionHeader">
         <p class="Largeaccordeon2 reportsHeader">Group Reports:</p>
       </div>
-      @if (reports) {
+      @if (reports()) {
         <div class="reportContainer">
-          @for (grprep of reports.groupReports; track grprep; let i = $index) {
+          @for (grprep of reports().groupReports; track grprep; let i = $index) {
             <div class="report">
               <div>
                 <a [routerLink]="'/report/' + grprep.reportName" target="_blank" style="color:#3498DB">

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
@@ -25,8 +25,8 @@ export class FileExplorerModalComponent implements OnInit {
 	modalReference!: NgbModalRef;
 	repoId!: string;
 	fileExlorerEmpty!: boolean;
-	allFiles: FileElement[] = [];
-	searchedFiles: FileElement[] = [];
+	allFiles = signal<FileElement[]>([]);
+	searchedFiles = signal<FileElement[]>([]);
 	selectedFile: FileElement | null = null;
 	searchText: string = '';
 	readonly isDark = computed(() => this.themeService.isDark());
@@ -37,14 +37,14 @@ export class FileExplorerModalComponent implements OnInit {
 		this.repoId = localStorage.getItem('id')!; // set before updateFileElementQuery
 		this.updateFileElementQuery();
 		this.fileElements.subscribe((file: FileElement[])=> {
-			this.allFiles = file;
-			this.searchFile(); 
+			this.allFiles.set(file);
+			this.searchFile();
 		});
 	}
 
 	openFileExplorerModal() {
 		this.modalReference = this.modalService.open(this.fileExplorerModal());
-		this.fileExlorerEmpty = this.allFiles.length > 0 ? false : true;
+		this.fileExlorerEmpty = this.allFiles().length > 0 ? false : true;
 		return this.modalReference.result.catch((reason)=> console.log('UploadFileModal dismissed: ', reason));
 	}
 
@@ -75,12 +75,12 @@ export class FileExplorerModalComponent implements OnInit {
 	}
 
 	searchFile() {
-		if (this.searchText.trim() === '') 
-			this.searchedFiles = this.allFiles;
-		else 
-			this.searchedFiles = this.allFiles.filter(file => 
+		if (this.searchText.trim() === '')
+			this.searchedFiles.set(this.allFiles());
+		else
+			this.searchedFiles.set(this.allFiles().filter(file =>
 				file.filename!.toLowerCase().includes(this.searchText.toLowerCase())
-			);
+			));
     
 	}
 

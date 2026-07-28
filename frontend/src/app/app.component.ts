@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, inject, viewChild, signal, computed, effect } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -32,7 +32,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	/**
    * Currently retrieved projects
    */
-	repositories!: RepositoryContainer[];
+	readonly repositories = signal<RepositoryContainer[]>(undefined as any);
 
 	/**
    * If the impressum is shown
@@ -61,18 +61,44 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	helpPosition: any;
 	menuPosition: any;
 
-	isDark!: boolean;
+	readonly isDark = computed(() => this.themeService.isDark());
 
 	toggleControl = new UntypedFormControl(false);
 
 	/**
   * Subscribtions for all EventEmitter
   */
-	logoutObservable!: Subscription;
-	getRepositoriesObservable!: Subscription;
-	updateRepositoryObservable!: Subscription;
+	/** Triggers logout when service emits */
+	private logoutEffect = effect(() => {
+		const trigger = this.loginService.logoutTrigger();
+		if (trigger === 0) return;
+		this.logout();
+	});
+
+	/** Refreshes repositories when service triggers */
+	private getReposEffect = effect(() => {
+		const trigger = this.projectService.getRepositoriesTrigger();
+		if (trigger === 0) return;
+		this.getRepositories();
+	});
+
+	/** Updates repositories when service triggers */
+	private updateReposEffect = effect(() => {
+		const trigger = this.projectService.updateRepositoryTrigger();
+		if (trigger === 0) return;
+		this.updateRepositories();
+	});
+
+	/** Creates repository when service emits creation data */
+	private createRepoEffect = effect(() => {
+		const custom = this.projectService.createRepositoryValue();
+		if (!custom) return;
+		this.projectService.createRepository(custom.repository.repoName, custom.repository._id).subscribe(_ => {
+			this.getRepositories();
+		});
+	});
+
 	toggleObservable!: Subscription;
-	createRepositoryEmitter!: Subscription;
 
 
 	/**
@@ -93,45 +119,23 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
    * Retrieves Repositories
    */
 	ngOnInit() {
-		this.logoutObservable = this.loginService.logoutEvent.subscribe(_ => {
-			this.logout();
-		});
-		this.getRepositoriesObservable = this.projectService.getRepositoriesEvent.subscribe(() => this.getRepositories());
-		this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => this.updateRepositories());
-    
-		this.createRepositoryEmitter = this.projectService.createRepositoryEmitter.subscribe(custom => {
-			this.projectService.createRepository(custom.repository.repoName, custom.repository._id).subscribe(_ => {
-				this.getRepositories();
-			});
-		});
-		if (!this.apiService.urlReceived) 
+		if (!this.apiService.urlReceived)
 			this.apiService.getBackendInfo();
-    
+
 		this.themeService.loadTheme();
-		this.isDark = this.themeService.isDarkMode();
-		if (this.isDark) 
-			this.toggleControl.setValue(this.isDark);
-    
+		if (this.isDark())
+			this.toggleControl.setValue(true);
+
 		this.toggleObservable = this.toggleControl.valueChanges.subscribe(val => {
 			this.setModeOnToggle(val);
-			this.isDark = val;
 		});
 
 	}
 
 	ngOnDestroy(){
-		if (this.logoutObservable && !this.logoutObservable.closed)
-			this.logoutObservable.unsubscribe();
-    
-		if (this.getRepositoriesObservable && !this.getRepositoriesObservable.closed)
-			this.getRepositoriesObservable.unsubscribe();
-    
-		if (this.updateRepositoryObservable && !this.updateRepositoryObservable.closed)
-			this.updateRepositoryObservable.unsubscribe();
-    
 		if (this.toggleObservable && !this.toggleObservable.closed)
 			this.toggleObservable.unsubscribe();
-    
+
 	}
 
 	ngAfterViewInit(){
@@ -180,7 +184,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	getRepositories() {
 		if (this.loginService.isLoggedIn()) 
 			this.projectService.getRepositories().subscribe((resp) => {
-				this.repositories = resp;
+				this.repositories.set(resp);
 			}, (err) => {
 				this.error = err.error;
 			});
@@ -194,7 +198,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 		//this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
 		const value = sessionStorage.getItem('repositories');
 		const repository: RepositoryContainer[] = JSON.parse(value!);
-		this.repositories = repository;
+		this.repositories.set(repository);
 	}
 
 	/**
@@ -218,7 +222,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
    * Loggs out the user and redirects it to the login page
    */
 	logout() {
-		this.repositories = undefined as any;
+		this.repositories.set(undefined as any);
 		this.loginService.logoutUser().subscribe(_ => {
 			//
 		});

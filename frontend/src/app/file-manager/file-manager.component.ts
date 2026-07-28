@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
 import { ThemingService } from '../Services/theming.service';
 import { StoryService } from '../Services/story.service';
 import { FileElement } from '@shared/models/FileElement';
@@ -25,8 +25,8 @@ export class FileManagerComponent implements OnInit {
 
 	readonly isDark = computed(() => this.themeService.isDark());
 	repoId!: string;
-	allFiles: FileElement[] = [];
-	searchedFiles: FileElement[] = [];
+	allFiles = signal<FileElement[]>([]);
+	searchedFiles = signal<FileElement[]>([]);
 	searchText: string = '';
 	fileElements!: Observable<FileElement[]>;
 	selection = new Set<any>();
@@ -40,7 +40,7 @@ export class FileManagerComponent implements OnInit {
 		this.repoId = localStorage.getItem('id')!;
 		this.updateFileElementQuery(this.repoId);
 		this.fileElements.subscribe((files: FileElement[]) => {
-			this.allFiles = files;
+			this.allFiles.set(files);
 			this.searchFile();
 		});
 
@@ -61,12 +61,12 @@ export class FileManagerComponent implements OnInit {
    * Filters the files based on the search text.
    */
 	searchFile(): void {
-		if (this.searchText.trim() === '') 
-			this.searchedFiles = this.allFiles;
-		else 
-			this.searchedFiles = this.allFiles.filter(file =>
+		if (this.searchText.trim() === '')
+			this.searchedFiles.set(this.allFiles());
+		else
+			this.searchedFiles.set(this.allFiles().filter(file =>
 				file.filename!.toLowerCase().includes(this.searchText.toLowerCase())
-			);
+			));
     
 	}
 
@@ -74,10 +74,10 @@ export class FileManagerComponent implements OnInit {
    * all checkboxes are selected
    */
 	toggleAllSelection(_event: Event): void {
-		if (this.selection.size === this.searchedFiles.length) 
+		if (this.selection.size === this.searchedFiles().length)
 			this.selection.clear();
-		else 
-			this.searchedFiles.forEach(file => this.selection.add(file));
+		else
+			this.searchedFiles().forEach(file => this.selection.add(file));
 		
 		this.isAllSelected = !this.isAllSelected;
 	}
@@ -86,7 +86,7 @@ export class FileManagerComponent implements OnInit {
    * Deletes the selected files
    */
 	deleteFile(): void {
-		this.allFiles = this.allFiles.filter(file => !this.selection.has(file));
+		this.allFiles.set(this.allFiles().filter(file => !this.selection.has(file)));
 		Array.from(this.selection).map(file => {
 			this.fileService.deleteUploadedFile(this.repoId, file._id).subscribe(() => {
 				this.updateFileElementQuery(this.repoId);
@@ -106,7 +106,7 @@ export class FileManagerComponent implements OnInit {
 		else 
 			this.selection.add(element);
 		
-		this.isAllSelected = this.selection.size === this.searchedFiles.length;
+		this.isAllSelected = this.selection.size === this.searchedFiles().length;
 	}
 
 	/**

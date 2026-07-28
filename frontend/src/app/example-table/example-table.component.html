@@ -1,4 +1,4 @@
-@if (exampleThere) {
+@if (exampleThere()) {
   <table aria-describedby="mydesc" #table mat-table [dataSource]="data" class="mat-elevation-z8 mat-table"
     cdkDropList
     (cdkDropListDropped)="dropExample($event)"

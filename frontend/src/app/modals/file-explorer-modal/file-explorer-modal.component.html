@@ -11,7 +11,7 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
-  @if (allFiles.length > 0) {
+  @if (allFiles().length > 0) {
     <div class="modal-body modal-xl upload-modal storage-not-empty">
       <div class="modal-body top">
         <div class="searchFile">
@@ -29,9 +29,9 @@
         <form #uploadFile="ngForm" novalidate [disabled]="!uploadFile.valid" (ngSubmit)="submitUploadFile()">
           <div class="submitForm">
             <div class="form-group modalsContent">
-              @if (searchedFiles.length>0) {
+              @if (searchedFiles().length>0) {
                 <div class="fileTableContainer">
-                  <table mat-table class="fileTable mat-table" [dataSource]="searchedFiles.slice(0, 20)">
+                  <table mat-table class="fileTable mat-table" [dataSource]="searchedFiles().slice(0, 20)">
                     <ng-container matColumnDef="name">
                       <th mat-header-cell *matHeaderCellDef class="fileCell">Name</th>
                       <td mat-cell *matCellDef="let file" class="fileCell fileNameCell">
@@ -52,7 +52,7 @@
                   </table>
                 </div>
               }
-              @if (searchedFiles.length == 0) {
+              @if (searchedFiles().length == 0) {
                 <div class="noResultFound">
                   <label style="color: gray; font-style: italic;">No result found</label>
                 </div>
@@ -70,7 +70,7 @@
         </form>
       </div>
     }
-    @if (allFiles.length == 0) {
+    @if (allFiles().length == 0) {
       <div class="modal-body modal-xl upload-modal storage-empty">
         <div class="empty-storage-message">
           <label style="font-size: large; font-style: italic;">There are no files in this project yet</label>

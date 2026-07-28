@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild, computed, effect } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild, computed, effect, signal } from '@angular/core';
 import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Scenario } from '@shared/models/Scenario';
 import { NotificationService } from '../Services/notification.service';
@@ -76,15 +76,27 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 	/**
    * Boolean if the example table should be shown or not
    */
-	exampleThere: boolean = false;
+	exampleThere = signal(false);
 
-	deleteExampleObservable!: Subscription;
 	toggleObservable!: Subscription;
-	updateExampleTableObservable!: Subscription;
 	/** Re-run regex highlighting when theme changes */
 	private themeEffect = effect(() => {
 		this.themeService.isDark();
 		this.regexHighlightOnInit();
+	});
+
+	/** Watches for delete-example trigger from the service */
+	private deleteExampleEffect = effect(() => {
+		const trigger = this.exampleService.deleteExampleTrigger();
+		if (trigger === 0) return; // skip initial
+		this.deleteExampleFunction();
+	});
+
+	/** Watches for update-example-table trigger from the service */
+	private updateExampleTableEffect = effect(() => {
+		const trigger = this.exampleService.updateExampleTableTrigger();
+		if (trigger === 0) return; // skip initial
+		this.updateTable();
 	});
 
 	indexOfExampleToDelete!: number;
@@ -124,16 +136,7 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    * @ignore
    */
 	ngOnInit() {
-		this.deleteExampleObservable =
-			this.exampleService.deleteExampleEvent.subscribe(() => {
-				this.deleteExampleFunction();
-			});
 		//this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
-		this.updateExampleTableObservable =
-			this.exampleService.updateExampleTableEvent.subscribe(() => {
-				this.updateTable();
-			});
-
 		this.toggleObservable = this.toggleControl.valueChanges.subscribe((val) => {
 			this.editMode = val;
 			this.activateEditableValues();
@@ -143,15 +146,9 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 
 	// eslint-disable-next-line @angular-eslint/use-lifecycle-interface
 	ngOnDestroy() {
-		if (this.deleteExampleObservable && !this.deleteExampleObservable.closed) 
-			this.deleteExampleObservable.unsubscribe();
-    
-		if (this.updateExampleTableObservable && !this.updateExampleTableObservable.closed) 
-			this.updateExampleTableObservable.unsubscribe();
-    
-		if (this.toggleObservable && !this.toggleObservable.closed) 
+		if (this.toggleObservable && !this.toggleObservable.closed)
 			this.toggleObservable.unsubscribe();
-    
+
 	}
 
 	ngAfterViewInit() {
@@ -283,13 +280,13 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    */
 	updateTable() {
 		if (this.selectedScenario.multipleScenarios![1]) {
-			this.exampleThere = true;
+			this.exampleThere.set(true);
 			this.initializeTable();
 			this.initializeTableControls();
 			this.lastRow = this.selectedScenario.multipleScenarios!.slice(-1)[0];
 			this.scenarioService.scenarioChangedEmitter();
-		} else 
-			this.exampleThere = false;
+		} else
+			this.exampleThere.set(false);
     
 	}
 

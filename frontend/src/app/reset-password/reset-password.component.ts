@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
@@ -22,13 +22,13 @@ export class ResetPasswordComponent implements OnInit {
 	/**
    * Error during reset password
    */
-	error!: string;
+	readonly error = signal<string>(undefined as any);
 	defaultErrorMessage = 'Reset password email faild';
 
 	/**
    * Successfully sent email
    */
-	success!: string;
+	readonly success = signal<string>(undefined as any);
 	defaultSuccessMessage = 'Email has been sent!';
 
 	isDark!: boolean;
@@ -42,20 +42,20 @@ export class ResetPasswordComponent implements OnInit {
    * @param form
    */
 	requestReset(form: NgForm) {
-		this.error = undefined as any;
-		this.success = undefined as any;
+		this.error.set(undefined as any);
+		this.success.set(undefined as any);
 		this.loginService.requestReset(form.value.email).subscribe({
 			next: (_value) => {
-				this.error = undefined as any;
-				this.success = this.defaultSuccessMessage;
+				this.error.set(undefined as any);
+				this.success.set(this.defaultSuccessMessage);
 			},
 			error: (error) => {
-				this.success = undefined as any;
+				this.success.set(undefined as any);
 				if (error !== 'No user found with the given email adress!') {
-					this.error = "Email couldn't be send.";
+					this.error.set("Email couldn't be send.");
 					return;
 				}
-				this.error = error.error;
+				this.error.set(error.error);
 			}
 		});
 	}
