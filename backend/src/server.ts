@@ -14,6 +14,7 @@ import http from 'node:http';
 import { execSync } from 'node:child_process';
 import { chromium, firefox, webkit, BrowserType } from '@playwright/test';
 import { logger } from './logging.js';
+import { isAuthenticated } from './middleware/authenticate.js';
 
 import * as dbConnector from './database/DbConnector.js';
 
@@ -120,18 +121,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(httpLog);
 
-// --- Central Authentication Middleware ---
-/**
- * Middleware to check if the user is authenticated.
- * If not authenticated, it sends a 401 Unauthorized response.
- */
-const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-	if (req.isAuthenticated()) 
-		return next();
-    
-	logger.warn(`Authentication check failed for: ${req.method} ${req.originalUrl}`);
-	res.status(401).json({ error: 'Unauthorized: Please log in.' });
-};
+// Authentication middleware imported from ./middleware/authenticate.ts
 
 // --- Rate Limiting ---
 // Prevents log-flooding from unauthenticated clients
@@ -320,7 +310,7 @@ process.on('uncaughtException', (error: Error) => {
 	server.close(() => process.exit(1));
 });
 
-startServer();
+void startServer();
 
 // Export app for potential testing
 export { app };

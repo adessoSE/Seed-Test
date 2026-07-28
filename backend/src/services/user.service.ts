@@ -5,6 +5,7 @@ import * as repositoryService from './repository.service.js';
 import * as workgroupService from './workgroup.service.js';
 import { UserDoc, RepositoryDoc, oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
+import { mongoSanitize } from '../utils/mongo-sanitize.js';
 
 const userCollection = 'User';
 const PwResetReqCollection = 'PwResetRequests';
@@ -158,16 +159,4 @@ export async function disconnectGithub(userId: string | ObjectId): Promise<any> 
 		{ _id: oid(userId) },
 		{ $unset: { github: '' } }
 	);
-}
-
-function mongoSanitize(v: any): any {
-	if (v instanceof Object) 
-		for (const key in v) 
-			if (/^\$/.test(key)) 
-				delete v[key];
-			else 
-				mongoSanitize(v[key]);
-		
-	
-	return v;
 }

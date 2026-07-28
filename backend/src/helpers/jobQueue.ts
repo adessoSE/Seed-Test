@@ -11,7 +11,7 @@ export class JobQueue {
    */
 	add(task: () => Promise<any>) {
 		this.queue.push(task);
-		this.processNext();
+		void this.processNext();
 	}
 
 	private async processNext() {
@@ -29,7 +29,7 @@ export class JobQueue {
 			logger.error(`A job in the queue failed: ${error}`);
 		} finally {
 			this.isProcessing = false;
-			this.processNext(); // Check for the next item in the queue
+			void this.processNext(); // Check for the next item in the queue
 		}
 	}
 }

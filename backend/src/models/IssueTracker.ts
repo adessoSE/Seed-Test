@@ -68,6 +68,8 @@ class Github extends IssueTracker {
 			headers: { Authorization: auth }
 		}).then(async (response) => {
 			logger.info(`GitHub comment posted: ${JSON.stringify(await response.json())}`);
+		}).catch((error) => {
+			logger.error(`Failed to post GitHub comment: ${error}`);
 		});
 	}
 
@@ -79,6 +81,8 @@ class Github extends IssueTracker {
 			method: 'post',
 			body: JSON.stringify(body),
 			headers: { Authorization: auth, 'Content-Type': 'application/json' }
+		}).catch((error) => {
+			logger.error(`Failed to add GitHub label "${label}": ${error}`);
 		});
 	}
     
@@ -88,6 +92,8 @@ class Github extends IssueTracker {
 		fetch(link, {
 			method: 'post',
 			headers: { Authorization: auth, 'Content-Type': 'application/json' }
+		}).catch((error) => {
+			logger.error(`Failed to remove GitHub label "${label}": ${error}`);
 		});
 	}
     
@@ -143,6 +149,8 @@ class Jira extends IssueTracker {
 		}).then(async (response: Response) => {
 			const data = await response.json();
 			logger.info(`Jira comment posted: ${JSON.stringify(data)}`);
+		}).catch((error) => {
+			logger.error(`Failed to post Jira comment: ${error}`);
 		});
 	}
 	decryptPassword(credentials: any){

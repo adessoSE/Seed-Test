@@ -1,6 +1,7 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import rateLimit from 'express-rate-limit';
 import * as userController from '../controllers/user.controller.js';
+import { isAuthenticated } from '../middleware/authenticate.js';
 
 const router = express.Router();
 
@@ -15,14 +16,7 @@ const authLimiter = rateLimit({
 	validate: { ip: false }
 });
 
-// CORS, body parsing, and authentication are handled globally in server.ts.
-// This local isAuthenticated guard is used for routes that need auth within this public router.
-const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-	if (req.isAuthenticated()) 
-		return next();
-	
-	res.status(401).json({ error: 'Unauthorized: Please log in.' });
-};
+// Authentication middleware imported from ../middleware/authenticate.ts
 
 // --- Authentication Routes ---
 

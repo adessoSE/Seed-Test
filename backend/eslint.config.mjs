@@ -42,6 +42,7 @@ export default defineConfig([
 			'no-useless-catch': 'warn',
 
 			// --- TypeScript overrides ---
+			'@typescript-eslint/no-floating-promises': 'error',
 			'@typescript-eslint/no-unused-vars': ['error', {
 				argsIgnorePattern: '^_',
 				varsIgnorePattern: '^_',

@@ -2,6 +2,7 @@ import { ClientSession, MongoClient } from 'mongodb';
 import * as dbConnection from '../database/DbConnector.js';
 import { Block } from '@shared/models/Block.js';
 import { BlockDoc, oid } from '../types/mongo.types.js';
+import { mongoSanitize } from '../utils/mongo-sanitize.js';
 
 const customBlocksCollection = 'CustomBlocks';
 
@@ -83,18 +84,4 @@ export async function deleteBlock(blockId: string, userId: string): Promise<any>
 		_id: oid(blockId),
 		owner: oid(userId)
 	});
-}
-
-
-// Simple sanitizer function to prevent NoSQL injection
-function mongoSanitize(v: any): any {
-	if (v instanceof Object) 
-		for (const key in v) 
-			if (/^\$/.test(key)) 
-				delete v[key];
-			else 
-				mongoSanitize(v[key]);
-		
-	
-	return v;
 }
