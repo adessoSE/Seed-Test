@@ -53,7 +53,8 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 		fs.mkdirSync(path.join(process.cwd(), 'features', testReq.body.name), { recursive: true });
 
 		let lastReportResult: any;
-		const parameters = { ...group, repositoryId: repoID, stories: validStories }; // Info needed for analysis/reporting
+		// Override name with the sanitized folder name so resolveAndSaveReport looks in the correct directory
+		const parameters = { ...group, name: sanityFolderName, repositoryId: repoID, stories: validStories };
 
 		if (group.isSequential) 
 			for (const story of validStories) 
