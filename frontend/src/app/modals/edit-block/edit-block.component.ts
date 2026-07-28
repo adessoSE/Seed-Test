@@ -30,6 +30,7 @@ export class EditBlockComponent {
 	/**
    * Currently selected block
    */
+	// eslint-disable-next-line @angular-eslint/no-input-rename
 	protected readonly selectedBlockInput = input.required<Block>({ alias: 'selectedBlock' });
 	readonly selectedBlock = linkedSignal(() => this.selectedBlockInput()!);
 

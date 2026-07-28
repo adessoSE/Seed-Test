@@ -40,9 +40,8 @@ export class EditableComponent {
 	 * Returns to view mode when clicking outside the component while editing
 	 */
 	onDocumentClick(event: MouseEvent) {
-		if (this.mode() === 'edit' && !this.element.contains(event.target as Node)) {
+		if (this.mode() === 'edit' && !this.element.contains(event.target as Node))
 			this.toViewMode();
-		}
 	}
 
 	/**

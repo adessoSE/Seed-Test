@@ -15,7 +15,9 @@ import { MatButton } from '@angular/material/button';
 export class WindowSizeComponent {
 
 	readonly menuTrigger = viewChild.required<MatMenuTrigger>('appMenu');
+	// eslint-disable-next-line @angular-eslint/no-input-rename
 	protected readonly widthInput = input.required<number>({ alias: 'width' });
+	// eslint-disable-next-line @angular-eslint/no-input-rename
 	protected readonly heightInput = input.required<number>({ alias: 'height' });
 	readonly width = linkedSignal(() => this.widthInput());
 	readonly height = linkedSignal(() => this.heightInput());

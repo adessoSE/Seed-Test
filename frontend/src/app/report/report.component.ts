@@ -33,6 +33,7 @@ export class ReportComponent implements OnChanges {
      */
 	readonly testDone = signal(false);
 
+	// eslint-disable-next-line @angular-eslint/no-input-rename
 	protected readonly reportInput = input<any>(null, { alias: 'report' });
 	readonly report = linkedSignal(() => this.reportInput());
 

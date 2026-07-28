@@ -87,7 +87,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 
 
 @NgModule({
-	declarations: [AppComponent],
+	declarations: [],
 	imports: [
 		NgbModule,
 		BrowserModule,
@@ -167,7 +167,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		WindowSizeComponent,
 		FileExplorerModalComponent,
 		ExecutionListComponent,
-		FileManagerComponent
+		FileManagerComponent,
+		AppComponent
 	],
 	providers: [
 		provideZonelessChangeDetection(),

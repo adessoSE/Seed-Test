@@ -1,14 +1,17 @@
 import { Component, ElementRef, HostListener, OnInit, AfterViewInit, ChangeDetectionStrategy, inject, viewChild, signal, computed, effect, untracked } from '@angular/core';
 import {ApiService} from './Services/api.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
-import { UntypedFormControl } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LoginService } from './Services/login.service';
 import { ProjectService } from './Services/project.service';
 import { StoryService } from './Services/story.service';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 
 /**
@@ -19,7 +22,7 @@ import { StoryService } from './Services/story.service';
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css'],
 	changeDetection: ChangeDetectionStrategy.Eager,
-	standalone: false
+	imports: [RouterLink, RouterOutlet, MatIcon, MatSlideToggle, ReactiveFormsModule, NgClass]
 })
 export class AppComponent implements OnInit, AfterViewInit{
 	apiService = inject(ApiService);

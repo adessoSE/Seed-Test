@@ -55,6 +55,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * }
      * }
      */
+	// eslint-disable-next-line @angular-eslint/no-input-rename
 	protected readonly selectedScenarioInput = input.required<Scenario>({ alias: 'selectedScenario' });
 	readonly selectedScenario = linkedSignal(() => this.selectedScenarioInput()!);
 

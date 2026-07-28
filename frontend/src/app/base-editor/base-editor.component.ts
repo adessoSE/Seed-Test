@@ -288,9 +288,9 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 					}
 
 				this.addStep(blockReference, this.selectedScenario, 'scenario');
-			} else {
+			} else
 				this.insertStepsWithExamples(blockValue[1]);
-			}
+
 			this.markUnsaved();
 		}
 	});
@@ -373,7 +373,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 			this.blocks.set(resp);
 		});
 	}
-
 
 
 	/**
