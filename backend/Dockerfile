@@ -66,6 +66,9 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
+# Create runtime directory for generated .feature files and JSON/HTML reports
+RUN mkdir -p features
+
 # Install dependencies and rebuild native modules
 RUN npm install --ignore-scripts && npm rebuild bcrypt
 
