@@ -323,8 +323,7 @@ export async function updateStoryGroup(repoId: string, groupId: string, updatedG
 		throw AppError.notFound('Repository not found');
 
 
-	// leave with double equal
-	const index = repo.groups.findIndex((g) => g._id?.toString() == groupId);
+	const index = repo.groups.findIndex((g) => g._id?.toString() === groupId);
 	if (index === -1) 
 		throw AppError.notFound('Group not found in repository');
     

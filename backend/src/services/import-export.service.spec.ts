@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 import AdmZip from 'adm-zip';
 import { AppError } from '../helpers/AppError.js';
+import type * as ImportExportServiceModule from './import-export.service.js';
+import type * as RepositoryServiceModule from './repository.service.js';
+import type * as StoryServiceModule from './story.service.js';
+import type * as BlockServiceModule from './block.service.js';
 
 // --- Mocks ---
 
@@ -104,13 +108,13 @@ function buildImportZip(repo: any, stories: any[], blocks: any[], groups: any[])
 
 
 describe('ImportExportService', () => {
-	let importExportService: typeof import('./import-export.service');
-	let repositoryService: typeof import('./repository.service');
-	let storyService: typeof import('./story.service');
-	let blockService: typeof import('./block.service');
+	let importExportService: typeof ImportExportServiceModule;
+	let repositoryService: typeof RepositoryServiceModule;
+	let storyService: typeof StoryServiceModule;
+	let blockService: typeof BlockServiceModule;
 
 	beforeEach(async () => {
-		importExportService = await vi.importActual<typeof import('./import-export.service')>('./import-export.service');
+		importExportService = await vi.importActual<typeof ImportExportServiceModule>('./import-export.service');
 		repositoryService = await import('./repository.service');
 		storyService = await import('./story.service');
 		blockService = await import('./block.service');

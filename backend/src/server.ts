@@ -13,7 +13,7 @@ import MongoStore from 'connect-mongo';
 import http from 'node:http';
 import { execSync } from 'node:child_process';
 import { chromium, firefox, webkit, type BrowserType } from '@playwright/test';
-import { logger } from './logging.js';
+import { logger, httpLog } from './logging.js';
 import { isAuthenticated } from './middleware/authenticate.js';
 
 import * as dbConnector from './database/DbConnector.js';
@@ -44,9 +44,6 @@ import workgroupRouter from './routes/workgroup.routes.js';
 
 import * as stepTypeService from './services/step-type.service.js';
 import * as aiService from './services/ai.service.js';
-
-// Import logging middleware
-import { httpLog } from './logging.js';
 
 // Initialize Passport
 initializePassport(

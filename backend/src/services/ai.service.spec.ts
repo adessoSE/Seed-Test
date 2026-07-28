@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 import type { Story } from '@shared/models/Story.js';
 import type { AiConfig } from '@shared/models/RepositoryContainer.js';
+import type * as AiServiceModule from './ai.service.js';
 
 // --- Mock Dependencies ---
 
@@ -30,7 +31,7 @@ vi.mock('@seed-test/ai-parser', () => mockedAiParser);
 // --- Test Suite ---
 describe('AiService', () => {
 
-	let aiService: typeof import('./ai.service');
+	let aiService: typeof AiServiceModule;
 
 	const storyId = new ObjectId().toHexString();
 	const repoId = new ObjectId().toHexString();
@@ -97,7 +98,7 @@ describe('AiService', () => {
 	};
 
 	beforeEach(async () => {
-		aiService = await vi.importActual<typeof import('./ai.service')>('./ai.service');
+		aiService = await vi.importActual<typeof AiServiceModule>('./ai.service');
 		aiService._resetParserStateForTesting();
 		vi.clearAllMocks();
 

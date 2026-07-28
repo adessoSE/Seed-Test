@@ -188,7 +188,7 @@ class SeleniumWebdriverWorld extends World {
 			if (!this.driver) {
 				console.log('Starting new browser session');
 				// Map Playwright browser names to Selenium equivalents before building options
-				if (this.testParameters.browser == 'chromium' || this.testParameters.browser == 'webkit')
+				if (this.testParameters.browser === 'chromium' || this.testParameters.browser === 'webkit')
 					this.testParameters.browser = 'chrome';
 
 				// Browser-Optionen holen (must happen after browser name mapping)
@@ -237,7 +237,7 @@ class SeleniumWebdriverWorld extends World {
 			}
 		} catch (error: unknown) {
 			console.error('Browser launch failed:', error);
-			throw new Error(`Browser setup failed: ${error instanceof Error ? error.message : String(error)}`);
+			throw new Error(`Browser setup failed: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
 		}
 	}
 

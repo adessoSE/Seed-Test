@@ -204,21 +204,21 @@ export async function updateScenario(req: Request, res: Response, next: NextFunc
 		// 1. Clean up 'multipleScenarios' by removing any null or undefined entries
 		//    (caused by previous frontend bugs)
 		if (scenarioData.multipleScenarios) 
-			scenarioData.multipleScenarios = scenarioData.multipleScenarios.filter(item => item != null);
-        
+			scenarioData.multipleScenarios = scenarioData.multipleScenarios.filter(item => item !== null && item !== undefined);
+
 
 		// 2. Migrate the old 'stepDefinitions.example' (if present)
 		// We cast to 'any' as 'example' is deprecated and no longer in the TS model
 		const oldExamples = (scenarioData.stepDefinitions as any)?.example;
-        
+
 		if (oldExamples && Array.isArray(oldExamples) && oldExamples.length > 0) {
-            
+
 			// Case: Old 'example' field exists, but new 'multipleScenarios' is empty or missing.
 			// Perform the migration.
 			if (!scenarioData.multipleScenarios || scenarioData.multipleScenarios.length === 0) {
 				logger.info(`MIGRATING stepDefinitions.example to multipleScenarios for story ${story_id}, scenario ${scenarioId}`);
 				// Also clean the old data while migrating (filter out nulls)
-				scenarioData.multipleScenarios = oldExamples.filter(item => item != null);
+				scenarioData.multipleScenarios = oldExamples.filter(item => item !== null && item !== undefined);
 			}
             
 			// 3. Delete the old 'example' field to finalize migration

@@ -1,3 +1,8 @@
+/** Options for preserving the original cause when wrapping errors. */
+interface AppErrorOptions {
+	cause?: unknown;
+}
+
 /**
  * Custom error class for operational errors with HTTP status codes.
  * Operational errors (validation failures, not-found, auth failures) are expected
@@ -8,35 +13,35 @@ export class AppError extends Error {
 	readonly isOperational: boolean;
 	readonly code?: string;
 
-	constructor(message: string, statusCode: number, code?: string) {
-		super(message);
+	constructor(message: string, statusCode: number, code?: string, options?: AppErrorOptions) {
+		super(message, { cause: options?.cause });
 		this.statusCode = statusCode;
 		this.isOperational = true;
 		this.code = code;
 		Object.setPrototypeOf(this, AppError.prototype);
 	}
 
-	static badRequest(message: string, code?: string): AppError {
-		return new AppError(message, 400, code);
+	static badRequest(message: string, code?: string, options?: AppErrorOptions): AppError {
+		return new AppError(message, 400, code, options);
 	}
 
-	static unauthorized(message: string): AppError {
-		return new AppError(message, 401, 'UNAUTHORIZED');
+	static unauthorized(message: string, options?: AppErrorOptions): AppError {
+		return new AppError(message, 401, 'UNAUTHORIZED', options);
 	}
 
-	static forbidden(message: string): AppError {
-		return new AppError(message, 403, 'FORBIDDEN');
+	static forbidden(message: string, options?: AppErrorOptions): AppError {
+		return new AppError(message, 403, 'FORBIDDEN', options);
 	}
 
-	static notFound(message: string): AppError {
-		return new AppError(message, 404, 'NOT_FOUND');
+	static notFound(message: string, options?: AppErrorOptions): AppError {
+		return new AppError(message, 404, 'NOT_FOUND', options);
 	}
 
-	static conflict(message: string): AppError {
-		return new AppError(message, 409, 'CONFLICT');
+	static conflict(message: string, options?: AppErrorOptions): AppError {
+		return new AppError(message, 409, 'CONFLICT', options);
 	}
 
-	static badGateway(message: string): AppError {
-		return new AppError(message, 502, 'BAD_GATEWAY');
+	static badGateway(message: string, options?: AppErrorOptions): AppError {
+		return new AppError(message, 502, 'BAD_GATEWAY', options);
 	}
 }

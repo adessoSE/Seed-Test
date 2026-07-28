@@ -40,7 +40,7 @@ export async function regenerateReport(req: Request, res: Response, next: NextFu
 		await fs.promises.writeFile(tempJsonPath, fullReport.jsonReport);
         
 		// Generate HTML
-		await reportService.generateHtmlReport(reportName, tempJsonPath);
+		reportService.generateHtmlReport(reportName, tempJsonPath);
         
 		// Read HTML and send
 		const htmlPath = path.join(process.cwd(), `features/${reportName}.html`);

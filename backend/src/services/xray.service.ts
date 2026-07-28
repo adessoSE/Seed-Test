@@ -60,7 +60,7 @@ export async function deleteXrayStep(user: User, testKey: string, stepId: number
 
 	} catch (error: any) {
 		logger.error(`Error in deleteXrayStep service: ${error}`);
-		throw new Error(`Failed to delete XRay step: ${error.message}`);
+		throw new Error(`Failed to delete XRay step: ${error.message}`, { cause: error });
 	}
 }
 
@@ -210,7 +210,7 @@ async function checkIdenticalSteps(step: any, stepTypes: StepType[]): Promise<an
  * @param context The context (given, when, then) of the step.
  * @returns The matching step definition or null if no match found.
  */
-function analyzeText(text: string, context: string, stepTypes: StepType[]): any | null {
+function analyzeText(text: string, context: string, stepTypes: StepType[]): any {
 	for (const stepType of stepTypes) 
 		if (stepType.stepType === context) {
 			// Create a pattern based on the pre, mid, and post values of the step definition

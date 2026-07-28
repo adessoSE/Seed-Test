@@ -62,7 +62,7 @@ Before(async function (this: PlaywrightWorld) {
   
 	// Szenario-Index an die World-Instanz übergeben
 	console.log('Scenario count is: ', scenarioCount);
-	await this.setScenarioCount(scenarioCount);
+	this.setScenarioCount(scenarioCount);
 	console.log(`Starting Scenario with Index: ${scenarioCount + 1}`);
 	await this.launchBrowser(this.parameters.scenarios[scenarioCount]);
 });
@@ -81,7 +81,7 @@ After(async function (this: PlaywrightWorld, { pickle, result }: ITestCaseHookPa
 		);
 		try {
 			const img = await this.getPage().screenshot({ path: screenshotPath });
-			await this.attach(img, 'image/png');
+			this.attach(img, 'image/png');
 			console.log(`Screenshot saved: ${screenshotPath}`);
 		} catch (e: any) {
 			console.error('Failed to take screenshot on failure:', e);
@@ -205,7 +205,7 @@ async function mapLocatorsToPromises(
 			console.log('NACH TRIMMUNG:' + locatorString);
 			const expandedXPath = expandAttributeWildcard(locatorString);
 			// Erstelle einen neuen Locator mit dem expandierten XPath und dem originalen Kontext
-			console.log('REAL LOCATOR: ' + locator.page().locator(expandedXPath));
+			console.log('REAL LOCATOR: ' + String(locator.page().locator(expandedXPath)));
 
 			return locator.page().locator(expandedXPath);
 		}
@@ -274,7 +274,8 @@ async function mapLocatorsToPromises(
 								return { locator, currentState, index };
 							} catch (error: unknown) {
 								throw new Error(
-									`Locator ${index + 1} failed state check: ${errMsg(error)}`
+									`Locator ${index + 1} failed state check: ${errMsg(error)}`,
+									{ cause: error }
 								);
 							}
 						})();
@@ -362,7 +363,7 @@ async function mapLocatorsToPromises(
 								const errors = error.errors
 									.map((e) => `- ${e.message}`)
 									.join('\n');
-								throw new Error(`Kein sichtbarer Button gefunden:\n${errors}`);
+								throw new Error(`Kein sichtbarer Button gefunden:\n${errors}`, { cause: error });
 							}
 							throw error;
 						}
@@ -377,11 +378,12 @@ async function mapLocatorsToPromises(
 									`No visible locator found for "${action}"`,
 									`Tried ${expandedLocators.length} locators:`,
 									...errorMessages
-								].join('\n')
+								].join('\n'),
+								{ cause: error }
 							);
 						}
 						// Handle other errors (e.g. action execution failed)
-						throw new Error(`Action "${action}" failed: ${errMsg(error)}`);
+						throw new Error(`Action "${action}" failed: ${errMsg(error)}`, { cause: error });
 					}
 				} else if (action === 'fill') {
 					if (expandedLocatorsLock) 
@@ -398,7 +400,7 @@ async function mapLocatorsToPromises(
 								return { locator, index };
 							} catch (error) {
 								console.log(`Locator ${index} nicht sichtbar`);
-								return Promise.reject(error);
+								return Promise.reject(error instanceof Error ? error : new Error(String(error)));
 							}
 						})
 					);
@@ -457,7 +459,8 @@ async function mapLocatorsToPromises(
 					`No locator found for: "${action}".`,
 					`Tried ${expandedLocators.length} locators:`,
 					...errorMessages
-				].join('\n')
+				].join('\n'),
+				{ cause: error }
 			);
 		}
 		throw error; // Andere Fehler weiterwerfen
@@ -493,7 +496,7 @@ Given(
 					{
 						name,
 						value,
-						url: await page.url()
+						url: page.url()
 					}
 				]);
 			} catch (e: any) {
@@ -562,7 +565,7 @@ Given('I take a screenshot', async function (this: PlaywrightWorld) {
 				`manual-${timestamp}.png`
 			);
 			const buffer = await page.screenshot({ path: screenshotPath });
-			await this.attach(buffer, 'image/png');
+			this.attach(buffer, 'image/png');
 		} catch (e: any) {
 			throw e;
 		}
@@ -616,7 +619,8 @@ Given(
 							);
 						} catch (_scrollError) {
 							throw new Error(
-								`Element "${element}" could not be found for screenshot focusing`
+								`Element "${element}" could not be found for screenshot focusing`,
+								{ cause: _scrollError }
 							);
 						}
 					}
@@ -630,7 +634,7 @@ Given(
 							: `manual-${timestamp}.png`
 					);
 					const buffer = await page.screenshot({ path: screenshotPath });
-					await this.attach(buffer, 'image/png');
+					this.attach(buffer, 'image/png');
 				} else {
 					const timestamp = Date.now();
 					const screenshotPath = path.join(
@@ -640,7 +644,7 @@ Given(
 							: `manual-${timestamp}.png`
 					);
 					const buffer = await page.screenshot({ path: screenshotPath });
-					await this.attach(buffer, 'image/png');
+					this.attach(buffer, 'image/png');
 				}
 			} catch (e: any) {
 				throw e;
@@ -716,7 +720,8 @@ When('I click the button: {string}', async function (this: PlaywrightWorld, butt
 					await mapLocatorsToPromises(xpathLocators, 'click');
 				} catch (xpathError: unknown) {
 					throw new Error(
-						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
+						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`,
+						{ cause: xpathError }
 					);
 				}
 			}
@@ -803,7 +808,8 @@ When('I insert {string} into the field {string}', async function (this: Playwrig
 					await mapLocatorsToPromises(xpathLocators, 'fill', value);
 				} catch (xpathError: unknown) {
 					throw new Error(
-						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
+						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`,
+						{ cause: xpathError }
 					);
 				}
 			}
@@ -893,7 +899,8 @@ When(
 						await mapLocatorsToPromises(xpathLocators, 'check');
 					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`,
+							{ cause: xpathError }
 						);
 					}
 				}
@@ -986,7 +993,8 @@ When(
 						);
 					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredDropdownError)}\nXPath: ${errMsg(xpathError)}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredDropdownError)}\nXPath: ${errMsg(xpathError)}`,
+							{ cause: xpathError }
 						);
 					}
 				}
@@ -1069,7 +1077,8 @@ When('I select the option {string}', async function (this: PlaywrightWorld, drop
 					await mapLocatorsToPromises(xpathLocators, 'click');
 				} catch (xpathError: unknown) {
 					throw new Error(
-						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
+						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`,
+						{ cause: xpathError }
 					);
 				}
 			}
@@ -1119,7 +1128,8 @@ When(
 						);
 					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredElementError)}\nXPath: ${errMsg(xpathError)}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredElementError)}\nXPath: ${errMsg(xpathError)}`,
+							{ cause: xpathError }
 						);
 					}
 				}
@@ -1146,7 +1156,8 @@ When(
 						await mapLocatorsToPromises(xpathOptionLocators, 'click');
 					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredOptionError)}\nXPath: ${errMsg(xpathError)}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(preferredOptionError)}\nXPath: ${errMsg(xpathError)}`,
+							{ cause: xpathError }
 						);
 					}
 				}
@@ -1205,7 +1216,8 @@ When('I check the box {string}', async function (this: PlaywrightWorld, name: st
 					await mapLocatorsToPromises(xpathLocators, 'check');
 				} catch (xpathError: unknown) {
 					throw new Error(
-						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
+						`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`,
+						{ cause: xpathError }
 					);
 				}
 			}
@@ -1316,7 +1328,8 @@ When(
 						);
 					} catch (xpathError: unknown) {
 						throw new Error(
-							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`
+							`No element found with either preferred or xpath locators:\nPreferred: ${errMsg(_preferredError)}\nXPath: ${errMsg(xpathError)}`,
+							{ cause: xpathError }
 						);
 					}
 				}
@@ -1399,10 +1412,10 @@ Then(
 					);
 					const content = (await locator) || '';
 
-					if (regexFound) 
-						await expect(content).toMatch(new RegExp(resultString));
-					else 
-						await expect(content.toLowerCase()).toBe(
+					if (regexFound)
+						expect(content).toMatch(new RegExp(resultString));
+					else
+						expect(content.toLowerCase()).toBe(
 							resultString.toLowerCase()
 						);
           
@@ -1415,10 +1428,10 @@ Then(
 					);
 					const content = (await locator) || '';
 
-					if (regexFound) 
-						await expect(content).toMatch(new RegExp(resultString));
-					else 
-						await expect(content.toLowerCase()).toBe(
+					if (regexFound)
+						expect(content).toMatch(new RegExp(resultString));
+					else
+						expect(content.toLowerCase()).toBe(
 							resultString.toLowerCase()
 						);
           
@@ -1505,13 +1518,13 @@ Then("So I can't see text in the textbox: {string}", async function (this: Playw
 					preferredLocators,
 					'inputValue'
 				);
-				await expect(content).toBe('');
+				expect(content).toBe('');
 			} catch (_preferredError: unknown) {
 				const content = await mapLocatorsToPromises(
 					xpathLocators,
 					'inputValue'
 				);
-				await expect(content).toBe('');
+				expect(content).toBe('');
 			}
 		} catch (e: any) {
 			throw e;
@@ -1551,7 +1564,7 @@ Then(
 					throw new Error(`Download file ${fileName} could not be saved`);
         
 			} catch (e: any) {
-				throw new Error(`Download file ${fileName} failed: ${e.message}`);
+				throw new Error(`Download file ${fileName} failed: ${e.message}`, { cause: e });
 			}
 		});
 	}
@@ -1612,7 +1625,8 @@ Then(
 					if (src?.includes(name) || srcset?.includes(name)) return;
 
 					throw new Error(
-						`Image ${name} not found in src or srcset attributes`
+						`Image ${name} not found in src or srcset attributes`,
+						{ cause: _preferredError }
 					);
 				}
 			} catch (e: any) {

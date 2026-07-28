@@ -3,7 +3,6 @@ import { requireValidId } from '../utils/validation.js';
 import * as storyService from '../services/story.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
 import { type Background } from '@shared/models/Background.js';
-import { AppError } from '../helpers/AppError.js';
 
 /**
  * Handles updating the background section of a story.

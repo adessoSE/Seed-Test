@@ -47,19 +47,21 @@ export default function initialize(
 		}
 	};
 
-	passport.use('normal-local', new LocalStrategy({ usernameField: 'email' }, authenticateUser));
-	passport.use('github-local', new LocalStrategy({ usernameField: 'login', passwordField: process.env.PASSPORT_GITHUB_LOCAL_PW_FIELD }, authenticateUserGithub));
+	// Passport verify callbacks use done() for flow control — void the async return to satisfy no-misused-promises
+	passport.use('normal-local', new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
+		void authenticateUser(email, password, done);
+	}));
+	passport.use('github-local', new LocalStrategy({ usernameField: 'login', passwordField: process.env.PASSPORT_GITHUB_LOCAL_PW_FIELD }, (login, id, done) => {
+		void authenticateUserGithub(login, id, done);
+	}));
 
 	passport.serializeUser((user, done) => {
 		done(null, (user as User)._id);
 	});
 
-	passport.deserializeUser(async (id: ObjectId, done) => {
-		try {
-			const user = await getUserById(id);
-			done(null, user);
-		} catch (error) {
-			done(error);
-		}
+	passport.deserializeUser((id: ObjectId, done) => {
+		void getUserById(id)
+			.then((user) => done(null, user))
+			.catch((error) => done(error));
 	});
 }

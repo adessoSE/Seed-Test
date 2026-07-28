@@ -3,8 +3,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import { AppError } from '../helpers/AppError.js';
-
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedWorkgroupService,

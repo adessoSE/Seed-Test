@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
+import type * as BlockServiceModule from './block.service.js';
 
 
 const mockDb = { collection: vi.fn() };
@@ -16,14 +17,14 @@ const mockBlockCollection = {
 };
 
 describe('BlockService', () => {
-	let blockService: typeof import('./block.service');
+	let blockService: typeof BlockServiceModule;
 
 	const userId = new ObjectId().toHexString();
 	const blockId = new ObjectId().toHexString();
 	const repoId = new ObjectId().toHexString();
 
 	beforeEach(async () => {
-		blockService = await vi.importActual<typeof import('./block.service')>('./block.service');
+		blockService = await vi.importActual<typeof BlockServiceModule>('./block.service');
 		vi.clearAllMocks();
 
 		mockDb.collection.mockReturnValue(mockBlockCollection);

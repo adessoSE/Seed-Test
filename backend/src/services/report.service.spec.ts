@@ -84,7 +84,7 @@ vi.mock('../logging', () => ({
 }));
 
 vi.mock('mongodb', async (importOriginal) => {
-	const orig = await importOriginal<typeof import('mongodb')>();
+	const orig: any = await importOriginal();
 	// Must use regular function — arrow functions cannot be called with `new`
 	// eslint-disable-next-line prefer-arrow-callback
 	return { ...orig, GridFSBucket: vi.fn(function () { return mockGridFSBucket; }) };

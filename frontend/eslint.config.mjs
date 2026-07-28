@@ -61,8 +61,8 @@ export default defineConfig([
 			'@angular-eslint/inject-at-top': 'error',
 			'@angular-eslint/prefer-signals': 'warn',
 			'@angular-eslint/prefer-signal-model': 'warn',
-			'@angular-eslint/prefer-output-emitter-ref': 'warn',
-			'@angular-eslint/prefer-output-readonly': 'warn',
+			'@angular-eslint/prefer-output-emitter-ref': 'error',
+			'@angular-eslint/prefer-output-readonly': 'error',
 
 			// --- Angular selectors (warn — existing components use non-standard selectors) ---
 			'@angular-eslint/directive-selector': ['warn', {

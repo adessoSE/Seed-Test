@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
+import type * as FileServiceModule from './file.service.js';
 
 const mockDb = { collection: vi.fn() };
 vi.mock('../database/DbConnector', () => ({
@@ -13,7 +14,7 @@ const mockGridFSCollection = {
 
 const mockBucketDelete = vi.fn();
 vi.mock('mongodb', async (importOriginal) => {
-	const actual = await importOriginal<typeof import('mongodb')>();
+	const actual: any = await importOriginal();
 	return {
 		...actual,
 		GridFSBucket: class {
@@ -23,13 +24,13 @@ vi.mock('mongodb', async (importOriginal) => {
 });
 
 describe('FileService', () => {
-	let fileService: typeof import('./file.service');
+	let fileService: typeof FileServiceModule;
 
 	const repoId = new ObjectId().toHexString();
 	const fileId = new ObjectId().toHexString();
 
 	beforeEach(async () => {
-		fileService = await vi.importActual<typeof import('./file.service')>('./file.service');
+		fileService = await vi.importActual<typeof FileServiceModule>('./file.service');
 		vi.clearAllMocks();
 
 		mockDb.collection.mockReturnValue(mockGridFSCollection);

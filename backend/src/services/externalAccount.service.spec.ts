@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 import type { User } from '@shared/models/User.js';
+import type * as ExtAccountServiceModule from './externalAccount.service.js';
 
 process.env.JIRA_SECRET = 'test-jira-secret';
 process.env.JIRA_SALT = 'test-jira-salt';
@@ -12,7 +13,7 @@ const mockedUserService = {
 vi.mock('./user.service', () => mockedUserService);
 
 describe('ExternalAccountService', () => {
-	let externalAccountService: typeof import('./externalAccount.service');
+	let externalAccountService: typeof ExtAccountServiceModule;
 
 	const userId = new ObjectId().toHexString();
 	const mockUser: User = {
@@ -21,7 +22,7 @@ describe('ExternalAccountService', () => {
 	};
 
 	beforeEach(async () => {
-		externalAccountService = await vi.importActual<typeof import('./externalAccount.service')>('./externalAccount.service');
+		externalAccountService = await vi.importActual<typeof ExtAccountServiceModule>('./externalAccount.service');
 		vi.clearAllMocks();
 		mockedUserService.getUserById.mockResolvedValue({ ...mockUser });
 		mockedUserService.updateUser.mockResolvedValue({ ok: 1 });

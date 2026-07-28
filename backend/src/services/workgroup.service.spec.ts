@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 import type { Repository } from '@shared/models/Repository.js';
-import type { Workgroup } from './workgroup.service.js';
+import type * as WorkgroupServiceModule from './workgroup.service.js';
+type Workgroup = WorkgroupServiceModule.Workgroup;
 
 const mockDb = { collection: vi.fn() };
 vi.mock('../database/DbConnector', () => ({
@@ -24,7 +25,7 @@ const mockRepoCollection = {
 };
 
 describe('WorkgroupService', () => {
-	let workgroupService: typeof import('./workgroup.service');
+	let workgroupService: typeof WorkgroupServiceModule;
 
 	const repoId = new ObjectId().toHexString();
 	const ownerId = new ObjectId();
@@ -41,7 +42,7 @@ describe('WorkgroupService', () => {
 	const mockOwner = { _id: ownerId, email: 'owner@test.com' };
 
 	beforeEach(async () => {
-		workgroupService = await vi.importActual<typeof import('./workgroup.service')>('./workgroup.service');
+		workgroupService = await vi.importActual<typeof WorkgroupServiceModule>('./workgroup.service');
 		vi.clearAllMocks();
 
 		mockDb.collection.mockImplementation((name: string) => {

@@ -165,17 +165,16 @@ await db.collection(storiesCollection).updateOne(...);
 ```
 
 ## Style conventions (backend)
-`backend/eslint.config.mjs` — ESLint 10 flat config with `typescript-eslint` + `@stylistic/eslint-plugin`:
+`backend/eslint.config.mjs` — ESLint 10 flat config with `typescript-eslint/recommendedTypeChecked` + `@stylistic/eslint-plugin`:
 - **Tabs** for indentation (`@stylistic/indent: tab`)
 - Single quotes, semicolons required, no `comma-dangle`
 - Curly braces **always required** (`"curly": ["error", "multi"]`)
 - `prefer-arrow-callback` enforced, `no-console` off
-- `@typescript-eslint/no-floating-promises: error`
-- `@typescript-eslint/no-misused-promises: warn`
-- `@typescript-eslint/consistent-type-imports: warn` (inline `type` keyword)
-- `eqeqeq: error`, `preserve-caught-error: warn` (ESLint 10 core)
-- `no-explicit-any: warn` (off in `*.spec.ts`), `no-unsafe-*: off` (deferred until `any` cleanup)
-- Lint target: all `src/**/*.ts`
+- **Type-aware rules (all error)**: `no-floating-promises`, `no-misused-promises`, `return-await` (in-try-catch), `no-require-imports`, `consistent-type-imports` (inline `type` keyword)
+- **Code quality (all error)**: `eqeqeq`, `preserve-caught-error` (ESLint 10 core), `no-duplicate-imports`
+- **Warnings (deferred)**: `no-explicit-any` (off in `*.spec.ts`), `require-await`, `only-throw-error`, `no-unnecessary-type-assertion`, `restrict-template-expressions`, `no-useless-catch`
+- **Off (until `any` cleanup)**: all `no-unsafe-*` rules
+- Lint target: all `src/**/*.ts`; 0 errors, ~392 warnings remaining (mostly `no-explicit-any`)
 
 ## Files/gitignore
 Always gitignore: `.feature`, `reporting_*`, `dist/`, `node_modules/`, `.env`, `tsconfig.tsbuildinfo`, `coverage/`, `logs/`, `*.bat`, `*.sh`

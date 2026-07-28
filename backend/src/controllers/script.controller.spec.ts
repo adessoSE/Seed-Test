@@ -40,7 +40,7 @@ const {
 	},
 	mockedPath: {
 		default: {
-			join: vi.fn((...args: string[]) => '/stable/path')
+			join: vi.fn((..._args: string[]) => '/stable/path')
 		}
 	},
 	mockedLogger: {

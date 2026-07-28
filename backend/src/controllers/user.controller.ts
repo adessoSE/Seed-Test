@@ -93,21 +93,23 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 			return res.status(401).json({ status: 'error', message: info.message });
         
         
-		req.logIn(user, async (err) => {
+		req.logIn(user, (err) => {
 			if (err) return next(err);
-            
+
 			// Handle password hash transition if needed
-			if (user.transitioned === false) 
-				try {
-					const hashedPass = await bcrypt.hash(req.body.password, saltRounds);
-					user.password = hashedPass;
-					user.transitioned = true;
-					await userService.updateUser(user._id!, user);
-				} catch (hashError) {
-					return next(hashError);
-				}
-            
-			res.json(user);
+			void (async () => {
+				if (user.transitioned === false)
+					try {
+						const hashedPass = await bcrypt.hash(req.body.password, saltRounds);
+						user.password = hashedPass;
+						user.transitioned = true;
+						await userService.updateUser(user._id!, user);
+					} catch (hashError) {
+						return next(hashError);
+					}
+
+				res.json(user);
+			})();
 		});
 	})(req, res, next);
 }

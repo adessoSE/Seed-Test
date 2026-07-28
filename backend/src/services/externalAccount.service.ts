@@ -62,7 +62,7 @@ export function jiraDecryptPassword(
 		return receivedPlaintext;
 	} catch (err) {
 		logger.error(`Jira Decryption Failed: ${err}`);
-		throw new Error('Jira password decryption failed!');
+		throw new Error('Jira password decryption failed!', { cause: err });
 	}
 }
 

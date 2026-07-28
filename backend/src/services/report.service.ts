@@ -530,7 +530,7 @@ async function analyzeScenarioReport(stories: Story[], reportName: string, scena
 		const scenarioReportElement = storyReport.elements.find((el: any) => el.type === 'scenario' && el.name === story.scenarios.find(s=> s.scenario_id === scenarioId)?.name);
 		if (!scenarioReportElement) throw AppError.notFound(`Scenario element not found in report for scenario ID ${scenarioId}`);
 
-		const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId);
+		const scenario = story.scenarios.find(scen => scen.scenario_id === scenarioId);
 		if (!scenario) throw AppError.notFound(`Scenario data not found for ID ${scenarioId}`);
 
 		const result = scenarioResult(scenarioReportElement, scenario);

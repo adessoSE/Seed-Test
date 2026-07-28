@@ -64,8 +64,8 @@ interface ExecuteTestRequest {
 // --- Cached Support Code for Cucumber ---
 // This is crucial to maintain the WebDriver/Playwright session across scenarios in a single run.
 const cachedSupportCode: {
-	seleniumWebdriver: any | null;
-	playwright: any | null;
+	seleniumWebdriver: any;
+	playwright: any;
 } = {
 	seleniumWebdriver: null,
 	playwright: null
@@ -100,7 +100,7 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 		emulator: req.body.emulator || undefined,
 		width: req.body.width ? Number(req.body.width) : undefined,
 		height: req.body.height ? Number(req.body.height) : undefined,
-		stepWaitTime: req.body.stepWaitTime != null ? Number(req.body.stepWaitTime) : undefined
+		stepWaitTime: req.body.stepWaitTime !== null ? Number(req.body.stepWaitTime) : undefined
 	};
 
 	if (mode === 'scenario') {

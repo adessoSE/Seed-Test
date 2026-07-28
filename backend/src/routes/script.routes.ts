@@ -45,16 +45,13 @@ const authenticateAndProceed = (controllerFunction: (req: Request, res: Response
             
 
 			// 3. Manually log the user in (establishes session)
-			req.logIn(user, async (loginErr) => {
-				if (loginErr) 
+			req.logIn(user, (loginErr) => {
+				if (loginErr)
 					return next(loginErr);
-                
-				// 4. Authentication successful, proceed to the actual controller logic
-				try {
-					await controllerFunction(req, res, next);
-				} catch(controllerError) {
-					next(controllerError); // Catch errors from the controller too
-				}
+
+				// Authentication successful — void the async call to satisfy no-misused-promises
+				void controllerFunction(req, res, next)
+					.catch((controllerError) => next(controllerError));
 			});
 		})(req, res, next); // Don't forget to invoke the middleware function returned by passport.authenticate
 	};

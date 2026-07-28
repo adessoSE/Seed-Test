@@ -69,7 +69,6 @@ import * as testRunnerService from '../testing/test-runner.service.js';
 import * as storyService from '../services/story.service.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as reportService from '../services/report.service.js';
-import * as featureFileService from '../services/feature-file.service.js';
 import fs from 'node:fs';
 
 // --- Test Helpers ---

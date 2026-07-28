@@ -38,11 +38,11 @@ export default defineConfig([
 			'no-duplicate-imports': 'error',
 			'eqeqeq': ['error', 'always'],
 			'no-useless-catch': 'warn',
-			'preserve-caught-error': 'warn',
+			'preserve-caught-error': 'error',
 
 			// --- TypeScript type-aware rules ---
 			'@typescript-eslint/no-floating-promises': 'error',
-			'@typescript-eslint/no-misused-promises': 'warn',
+			'@typescript-eslint/no-misused-promises': 'error',
 			'@typescript-eslint/require-await': 'warn',
 			'@typescript-eslint/return-await': ['error', 'in-try-catch'],
 			'@typescript-eslint/only-throw-error': 'warn',
@@ -55,7 +55,7 @@ export default defineConfig([
 			}],
 			'@typescript-eslint/no-explicit-any': 'warn',
 			'@typescript-eslint/no-require-imports': 'error',
-			'@typescript-eslint/consistent-type-imports': ['warn', {
+			'@typescript-eslint/consistent-type-imports': ['error', {
 				prefer: 'type-imports',
 				fixStyle: 'inline-type-imports'
 			}],
