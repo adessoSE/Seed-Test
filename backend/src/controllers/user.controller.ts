@@ -174,15 +174,15 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 		const tokenData = new URLSearchParams(tokenText);
         
 		const accessToken = tokenData.get('access_token');
-		if (!accessToken) 
-			throw new Error(tokenData.get('error') || 'Failed to get access token');
+		if (!accessToken)
+			throw AppError.badGateway(tokenData.get('error') || 'Failed to get access token');
         
 
 		// Now get user data from GitHub
 		const userResponse = await fetch('https://api.github.com/user', {
 			headers: { Authorization: `token ${accessToken}` }
 		});
-		if (!userResponse.ok) throw new Error('Failed to get user data from GitHub');
+		if (!userResponse.ok) throw AppError.badGateway('Failed to get user data from GitHub');
         
 		const githubProfile = await userResponse.json();
 		githubProfile.githubToken = accessToken;
@@ -191,7 +191,7 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 		const user = await userService.findOrRegisterGithub(githubProfile);
         
 		if (!user)
-			throw new Error('Failed to register or find GitHub user');
+			throw new AppError('Failed to register or find GitHub user', 500);
 
 		// Log the user in
 		req.logIn(user, (err) => {

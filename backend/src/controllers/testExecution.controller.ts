@@ -19,8 +19,8 @@ import { AppError } from '../helpers/AppError.js';
 function extractRunParams(req: Request): { repoId: string, repositoryName: string } {
 	const repoId = req.params.repoID || req.body.id || req.body.repoId || req.body.repositoryId;
 	const repositoryName = req.body.repository; // Assuming this comes in the body for groups/temps
-	if (!repoId || !ObjectId.isValid(repoId)) 
-		throw new Error('Invalid or missing Repository ID');
+	if (!repoId || !ObjectId.isValid(repoId))
+		throw AppError.badRequest('Invalid or missing Repository ID');
     
 	return { repoId, repositoryName };
 }

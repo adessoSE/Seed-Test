@@ -18,7 +18,7 @@ export async function submitIssue(req: Request, res: Response, next: NextFunctio
 		const token = process.env.TESTACCOUNT_TOKEN;
 		if (!token) {
 			logger.error('TESTACCOUNT_TOKEN environment variable is not set.');
-			throw new Error('Server configuration error: GitHub token missing.');
+			throw new AppError('Server configuration error: GitHub token missing.', 500);
 		}
 
 		const response = await fetch('https://api.github.com/repos/adessoAG/Seed-Test/issues', {

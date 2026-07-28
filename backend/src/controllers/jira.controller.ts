@@ -25,8 +25,8 @@ export async function linkJiraCredentials(req: Request, res: Response, next: Nex
 		const options = { method: 'GET', headers: { 'Authorization': authString }};
 		const jiraURL = `https://${jiraHost}/rest/auth/1/session`;
 		const response = await fetch(jiraURL, options);
-		if (!response.ok) 
-			throw new Error(`Jira credential verification failed: ${response.statusText}`);
+		if (!response.ok)
+			throw AppError.badGateway(`Jira credential verification failed: ${response.statusText}`);
         
 		// --- End Verification ---
 
@@ -148,7 +148,7 @@ export async function updateXrayStatus(req: Request, res: Response, next: NextFu
 
 		if (!response.ok) {
 			const errorBody = await response.text();
-			throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+			throw AppError.badGateway(`HTTP error! status: ${response.status}, body: ${errorBody}`);
 		}
 
 		// Check content type before parsing JSON

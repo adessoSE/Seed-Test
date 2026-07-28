@@ -277,7 +277,7 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 		let errorMessage = 'Error during deletion: ';
 		if (dbError) errorMessage += `Database error: ${dbError.message}. `;
 		if (xrayError) errorMessage += `XRay error: ${xrayError.message}.`;
-		throw new Error(errorMessage.trim());
+		throw new AppError(errorMessage.trim(), 500);
 	}
 }
 

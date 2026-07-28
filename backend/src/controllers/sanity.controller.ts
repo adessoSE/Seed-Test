@@ -66,8 +66,8 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 			lastReportResult = results.pop();
 		}
 
-		if (!lastReportResult || !lastReportResult.reportName) 
-			throw new Error('Sanity test execution failed to produce a valid report result.');
+		if (!lastReportResult || !lastReportResult.reportName)
+			throw new AppError('Sanity test execution failed to produce a valid report result.', 500);
         
 
 		// --- Report Analysis & Response (adapted from original runSanityReport) ---
