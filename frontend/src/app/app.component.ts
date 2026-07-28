@@ -1,10 +1,11 @@
-import { Component, ElementRef, HostListener, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, inject, viewChild, signal, computed, effect, untracked } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, AfterViewInit, ChangeDetectionStrategy, inject, viewChild, signal, computed, effect, untracked } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { UntypedFormControl } from '@angular/forms';
-import { Subscription, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { LoginService } from './Services/login.service';
 import { ProjectService } from './Services/project.service';
 import { StoryService } from './Services/story.service';
@@ -20,7 +21,7 @@ import { StoryService } from './Services/story.service';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	standalone: false
 })
-export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
+export class AppComponent implements OnInit, AfterViewInit{
 	apiService = inject(ApiService);
 	router = inject(Router);
 	themeService = inject(ThemingService);
@@ -102,7 +103,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 		this.getRepositories();
 	}
 
-	toggleObservable!: Subscription;
+	/** Theme toggle value as a signal — drives dark/light mode switching */
+	private readonly toggleValue = toSignal(this.toggleControl.valueChanges);
 
 
 	/**
@@ -130,17 +132,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 		if (this.isDark())
 			this.toggleControl.setValue(true);
 
-		this.toggleObservable = this.toggleControl.valueChanges.subscribe(val => {
-			this.setModeOnToggle(val);
-		});
-
 	}
 
-	ngOnDestroy(){
-		if (this.toggleObservable && !this.toggleObservable.closed)
-			this.toggleObservable.unsubscribe();
-
-	}
+	/** Switches theme when toggle value changes */
+	private readonly toggleEffect = effect(() => {
+		const val = this.toggleValue();
+		if (val === undefined) return;
+		untracked(() => this.setModeOnToggle(val));
+	});
 
 	ngAfterViewInit(){
 		this.helpPosition = this.dropdownMenu().nativeElement.offsetTop;

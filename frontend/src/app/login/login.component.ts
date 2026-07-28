@@ -1,10 +1,11 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {ApiService} from '../Services/api.service';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { NgForm, FormsModule } from '@angular/forms';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
-import { Subscription } from 'rxjs';
+
 import { OwlOptions, CarouselModule } from 'ngx-owl-carousel-o';
 import { LoginService } from '../Services/login.service';
 import { ProjectService } from '../Services/project.service';
@@ -20,7 +21,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [CarouselModule, FormsModule, MatProgressSpinner, RouterLink]
 })
-export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
+export class LoginComponent implements OnInit, AfterViewInit {
 	loginService = inject(LoginService);
 	apiService = inject(ApiService);
 	router = inject(Router);
@@ -55,7 +56,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 	/**
      * Subscribtions for all EventEmitter
      */
-	routeObservable: Subscription;
+	/** Query params as a signal — watches for GitHub OAuth callback code */
+	private readonly queryParams = toSignal(this.route.queryParams);
 
 	/**
      * Tutorial slides
@@ -99,37 +101,41 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param themeService
      * @param projectServise
      */
+	/** Handles GitHub OAuth callback code from query params */
+	private readonly githubCallbackEffect = effect(() => {
+		const params = this.queryParams();
+		if (!params?.['code']) return;
+		untracked(() => this.handleGithubCallback(params['code']));
+	});
+
 	constructor() {
 		this.clientId = localStorage.getItem('clientId')!;
-		this.routeObservable = this.route.queryParams.subscribe((params) => {
-			if (params.code) 
-				this.loginService.githubCallback(params.code).subscribe((resp) => {
-					if (resp.error) 
-						if (resp.status === 501) 
-							this.error.set('GitHub Integration has not been set up yet.');
-						else 
-							this.error.set(this.defaultErrorMessage); // resp.error
-                        
-					else {
-						localStorage.setItem('login', 'true');
-						this.getRepositories();
-						const userId = localStorage.getItem('userId');
-						localStorage.removeItem('userId');
-						if (userId) 
-							this.loginService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((_) => {
-								this.loginGithubToken(resp.login, resp.id);
-							});
-                        
-					}
-				}, 
-				(error) => {
-					if (error.status === 501) 
-						this.error.set('GitHub Integration has not been set up yet.');
-					else 
-						this.error.set(this.defaultErrorMessage); // resp.error
-				}
-				);
-            
+	}
+
+	/** Processes GitHub OAuth callback — authenticates and optionally merges accounts */
+	private handleGithubCallback(code: string) {
+		this.loginService.githubCallback(code).subscribe((resp) => {
+			if (resp.error)
+				if (resp.status === 501)
+					this.error.set('GitHub Integration has not been set up yet.');
+				else
+					this.error.set(this.defaultErrorMessage);
+			else {
+				localStorage.setItem('login', 'true');
+				this.getRepositories();
+				const userId = localStorage.getItem('userId');
+				localStorage.removeItem('userId');
+				if (userId)
+					this.loginService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((_) => {
+						this.loginGithubToken(resp.login, resp.id);
+					});
+			}
+		},
+		(error) => {
+			if (error.status === 501)
+				this.error.set('GitHub Integration has not been set up yet.');
+			else
+				this.error.set(this.defaultErrorMessage);
 		});
 	}
 
@@ -154,11 +160,6 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         
 	}
 
-	ngOnDestroy() {
-		if (this.routeObservable && !this.routeObservable.closed) 
-			this.routeObservable.unsubscribe();
-        
-	}
 
 	/**
      * Loggs in the user with github after retrieving the github token

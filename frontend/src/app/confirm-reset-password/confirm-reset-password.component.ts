@@ -1,4 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal, effect } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NgForm, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
@@ -48,19 +49,15 @@ export class ConfirmResetPasswordComponent implements OnInit {
 	readonly message = signal('');
 
 	isDark!: boolean;
-	/**
-   * Constructor
-   * @param loginService
-   * @param router
-   * @param route
-   */
-	constructor() {
-		this.route.queryParams.subscribe((params) => {
-			if (params.uuid) 
-				this.uuid = params.uuid;
-      
-		});
-	}
+	/** Query params as a signal — extracts UUID for password reset */
+	private readonly queryParams = toSignal(this.route.queryParams);
+
+	/** Extracts UUID from query params when available */
+	private readonly uuidEffect = effect(() => {
+		const params = this.queryParams();
+		if (params?.['uuid'])
+			this.uuid = params['uuid'];
+	});
 
 	ngOnInit(): void {
 		this.isDark = this.themeService.isDarkMode();

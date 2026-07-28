@@ -1,4 +1,5 @@
-import { Component, Input, ElementRef, OnChanges, ChangeDetectionStrategy, inject, viewChild, computed, signal } from '@angular/core';
+import { Component, Input, ElementRef, OnChanges, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
@@ -56,24 +57,23 @@ export class ReportComponent implements OnChanges {
 
 	readonly iframe = viewChild.required<ElementRef>('iframe');
 
-	/**
-     * Retrieves the report from route params
-     * @param apiService
-     * @param route
-     */
-	constructor() {
-		this.route.params.subscribe(params => {
-			if (params.reportName)
-				if (!localStorage.getItem('url_backend'))
-					this.apiService.getBackendInfo().then(_ => {
-						this.getReport(params.reportName);
-					});
-				else
-					this.getReport(params.reportName);
+	/** Route params as a signal — triggers report loading when reportName changes */
+	private readonly routeParams = toSignal(this.route.params);
 
-
+	/** Loads the report when the route reportName param changes */
+	private readonly reportNameEffect = effect(() => {
+		const params = this.routeParams();
+		if (!params?.['reportName']) return;
+		const reportName = params['reportName'];
+		untracked(() => {
+			if (!localStorage.getItem('url_backend'))
+				this.apiService.getBackendInfo().then(_ => {
+					this.getReport(reportName);
+				});
+			else
+				this.getReport(reportName);
 		});
-	}
+	});
 
 
 	ngOnChanges() {

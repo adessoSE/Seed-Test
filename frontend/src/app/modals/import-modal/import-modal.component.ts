@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, effect, untracked } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { NgForm, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -17,7 +17,7 @@ import { MatButton } from '@angular/material/button';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatButton]
 })
-export class ImportModalComponent implements OnInit, OnDestroy {
+export class ImportModalComponent {
 	dialogRef = inject<MatDialogRef<ImportModalComponent>>(MatDialogRef);
 	data = inject<{
 		repoList: RepositoryContainer[];
@@ -43,8 +43,31 @@ export class ImportModalComponent implements OnInit, OnDestroy {
 
 	repoList: RepositoryContainer[] = [];
 
-	private toggleNewProjectSub!: Subscription;
-	private toggleImportModeSub!: Subscription;
+	/** New-project toggle value as a signal */
+	private readonly newProjectValue = toSignal(this.toggleNewProject.valueChanges);
+	/** Import-mode toggle value as a signal */
+	private readonly importModeValue = toSignal(this.toggleImportMode.valueChanges);
+
+	/** Switches to new-project mode and clears project name when toggled on */
+	private readonly newProjectEffect = effect(() => {
+		const val = this.newProjectValue();
+		if (val === undefined) return;
+		untracked(() => {
+			this.isNewProject = val;
+			// Clear project name when switching to "New Project" mode
+			if (val)
+				this.projectName = '';
+		});
+	});
+
+	/** Updates import mode (rename vs overwrite) when toggle changes */
+	private readonly importModeEffect = effect(() => {
+		const val = this.importModeValue();
+		if (val === undefined) return;
+		untracked(() => {
+			this.importMode = val;
+		});
+	});
 
 	constructor() {
 		const data = this.data;
@@ -53,33 +76,10 @@ export class ImportModalComponent implements OnInit, OnDestroy {
 			this.repoList = data.repoList;
 			this.searchList = data.repoList; // Initialize search list with all repos
 		}
-	}
-
-	ngOnInit() {
-		this.toggleNewProjectSub = this.toggleNewProject.valueChanges.subscribe(value => {
-			this.isNewProject = value;
-			// Clear project name when switching to "New Project" mode
-			if (value)
-				this.projectName = '';
-		});
-    
-		this.toggleImportModeSub = this.toggleImportMode.valueChanges.subscribe(value => {
-			this.importMode = value;
-		});
 
 		// Set initial values
 		this.isNewProject = this.toggleNewProject.value;
 		this.importMode = this.toggleImportMode.value;
-	}
-
-	ngOnDestroy() {
-		// Clean up subscriptions
-		if (this.toggleNewProjectSub) 
-			this.toggleNewProjectSub.unsubscribe();
-    
-		if (this.toggleImportModeSub) 
-			this.toggleImportModeSub.unsubscribe();
-    
 	}
 
 	/**

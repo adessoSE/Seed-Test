@@ -1,6 +1,6 @@
-import { Subscription } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild, computed, effect, signal } from '@angular/core';
+import { Component, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild, computed, effect, signal, untracked } from '@angular/core';
 import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Scenario } from '@shared/models/Scenario';
 import { NotificationService } from '../Services/notification.service';
@@ -30,7 +30,7 @@ import { NewExampleComponent as NewExampleComponent_1 } from '../modals/new-exam
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [MatTable, CdkDropList, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatSlideToggle, FormsModule, ReactiveFormsModule, MatCellDef, MatCell, CdkDragHandle, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, CdkDrag, NewExampleComponent_1]
 })
-export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewChecked {
+export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
 	scenarioService = inject(ScenarioService);
 	private notify = inject(NotificationService);
 	private dialog = inject(MatDialog);
@@ -78,7 +78,8 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
    */
 	exampleThere = signal(false);
 
-	toggleObservable!: Subscription;
+	/** Edit mode toggle value as a signal */
+	private readonly toggleValue = toSignal(this.toggleControl.valueChanges);
 	/** Re-run regex highlighting when theme changes */
 	private themeEffect = effect(() => {
 		this.themeService.isDark();
@@ -132,24 +133,15 @@ export class ExampleTableComponent implements OnInit, AfterViewInit, AfterViewCh
 
 	@ViewChildren('example_input') example_input!: QueryList<ElementRef>;
 
-	/**
-   * @ignore
-   */
-	ngOnInit() {
-		//this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
-		this.toggleObservable = this.toggleControl.valueChanges.subscribe((val) => {
+	/** Switches edit mode and activates editable values when toggle changes */
+	private readonly toggleEffect = effect(() => {
+		const val = this.toggleValue();
+		if (val === undefined) return;
+		untracked(() => {
 			this.editMode = val;
 			this.activateEditableValues();
 		});
-
-	}
-
-	// eslint-disable-next-line @angular-eslint/use-lifecycle-interface
-	ngOnDestroy() {
-		if (this.toggleObservable && !this.toggleObservable.closed)
-			this.toggleObservable.unsubscribe();
-
-	}
+	});
 
 	ngAfterViewInit() {
 		this.regexDOMChangesHelper();

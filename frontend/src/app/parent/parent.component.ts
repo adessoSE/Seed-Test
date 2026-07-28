@@ -150,20 +150,19 @@ export class ParentComponent implements OnInit, OnDestroy {
 			});
 	}
 
+	/** Reads current route params and selects the matching story/scenario */
 	routing() {
-		this.route.paramMap.subscribe(params => {
-			if (params.has('story_id')) {
-				const story_id = params.get('story_id');
-				const story = this.stories().find(o => o._id === story_id)!;
-				this.selectedStory.set(story);
-				if (params.has('scenario_id')) {
-					const scenario_id = params.get('scenario_id');
-					this.setSelectedScenario(story.scenarios.find(o => o.scenario_id.toString() === scenario_id)!);
-				} else
-					this.setSelectedScenario(story.scenarios[0]);
-        
-			}
-		});
+		const params = this.route.snapshot.paramMap;
+		if (params.has('story_id')) {
+			const story_id = params.get('story_id');
+			const story = this.stories().find(o => o._id === story_id)!;
+			this.selectedStory.set(story);
+			if (params.has('scenario_id')) {
+				const scenario_id = params.get('scenario_id');
+				this.setSelectedScenario(story.scenarios.find(o => o.scenario_id.toString() === scenario_id)!);
+			} else
+				this.setSelectedScenario(story.scenarios[0]);
+		}
 	}
 
 	/**
