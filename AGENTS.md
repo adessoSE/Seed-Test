@@ -40,9 +40,9 @@ services/*.ts      → business logic (database ops, integrations)
 schemas/*.ts       → Zod v4 input validation schemas (applied via validate() middleware)
 ```
 
-**Input validation**: All mutating routes use Zod schemas in `schemas/*.ts` via `validate()` middleware (`middleware/validate.ts`). The middleware validates `req.body`, replaces it with parsed output (stripping unknown keys unless `.passthrough()` is used), and returns 400 with field-level errors on failure. When adding new endpoints, always create a matching schema.
+**Input validation**: All mutating routes use Zod schemas in `schemas/*.ts` via `validate()` middleware (`middleware/validate.ts`). The middleware validates `req.body`, replaces it with parsed output (stripping unknown keys), and returns 400 with field-level errors on failure. Shared domain schemas (`StepType`, `StepDefinition`, `MultipleScenario`) are in `schemas/shared.schemas.ts`. When adding new endpoints, always create a matching schema.
 
-**Open flanks**: `updateGroup`, `updateGroupsArray`, `updateStory`, `updateScenarioList` use `.passthrough()` schemas that only validate a few required fields — full domain objects pass through unvalidated. Not a blocker, but a known gap.
+**Rate limiting**: Global limiter (100 req/min/IP) on all `/api` routes. Auth routes (`login`, `register`, `resetpassword`, `reset`) have a stricter limiter (20 req/15min). Log endpoint has its own limiter (60 req/min).
 
 **New services:**
 - `ai.service.ts` — AI-driven test scenario generation via `@seed-test/ai-parser`, queued via `JobQueue`
@@ -107,7 +107,7 @@ Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
 - **Default secrets in compose are not secure**: `SESSION_SECRET=secretSessionKey`, `JIRA_SECRET=secretJiraKey`, `JIRA_SALT=BJ1yJTJ7AFql`
 
 ## Testing & branch conventions
-- **Backend tests**: 599 tests in 42 spec files — controllers, services, helpers, middleware, utils, schemas (see `docs/testing.md` for full inventory)
+- **Backend tests**: 633 tests in 42 spec files — controllers, services, helpers, middleware, utils, schemas (see `docs/testing.md` for full inventory)
 - **Primary test**: `npm test` (Vitest unit `.spec.ts` in both backend and frontend) — daily use
 - **Mock pattern**: `vi.hoisted()` + `vi.mock()` for ESM-safe mocking; `createReq()`/`createRes()` helpers in controller tests
 - **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report
