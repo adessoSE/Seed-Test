@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
-import { User } from '@shared/models/User.js';
+import { type User } from '@shared/models/User.js';
 import * as userService from '../services/user.service.js';
 import * as nodeMail from '../nodemailer.js';
-import { Session, SessionData } from 'express-session';
+import { type Session, type SessionData } from 'express-session';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
 

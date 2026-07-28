@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { Request, Response, NextFunction } from 'express';
+import { type z } from 'zod';
+import { type Request, type Response, type NextFunction } from 'express';
 import { logger } from '../logging.js';
 
 /**

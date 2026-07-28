@@ -1,14 +1,14 @@
 // src/controllers/group.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedRepositoryService,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedRepositoryService: {
 		getAllStoryGroups: vi.fn(),
@@ -17,14 +17,14 @@ const {
 		deleteStoryGroup: vi.fn(),
 		addToStoryGroup: vi.fn(),
 		removeFromStoryGroup: vi.fn(),
-		updateStoryGroupsArray: vi.fn(),
+		updateStoryGroupsArray: vi.fn()
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/repository.service', () => mockedRepositoryService);
@@ -48,7 +48,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		params: {},
 		query: {},
 		user: { _id: new ObjectId(VALID_REPO_ID), email: 'test@seed.de' },
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -68,7 +68,7 @@ describe('GroupController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 	});
 
 	// ---------------------------------------------------------------
@@ -120,7 +120,7 @@ describe('GroupController', () => {
 
 			const req = createReq({
 				params: { repo_id: VALID_REPO_ID },
-				body: { name: 'Regression', member_stories: [VALID_STORY_ID], sequence: true, xrayTestSet: false },
+				body: { name: 'Regression', member_stories: [VALID_STORY_ID], sequence: true, xrayTestSet: false }
 			});
 			await controller.createGroup(req, res, next);
 
@@ -138,7 +138,7 @@ describe('GroupController', () => {
 			// Body only has name — member_stories, sequence, xrayTestSet omitted
 			const req = createReq({
 				params: { repo_id: VALID_REPO_ID },
-				body: { name: 'Empty Group' },
+				body: { name: 'Empty Group' }
 			});
 			await controller.createGroup(req, res, next);
 
@@ -169,7 +169,7 @@ describe('GroupController', () => {
 			const updatedData = { name: 'Updated Group', member_stories: [], sequence: false };
 			const req = createReq({
 				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID },
-				body: updatedData,
+				body: updatedData
 			});
 			await controller.updateGroup(req, res, next);
 
@@ -247,7 +247,7 @@ describe('GroupController', () => {
 			mockedRepositoryService.addToStoryGroup.mockResolvedValue(undefined);
 
 			const req = createReq({
-				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: VALID_STORY_ID },
+				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: VALID_STORY_ID }
 			});
 			await controller.addStoryToGroup(req, res, next);
 
@@ -261,7 +261,7 @@ describe('GroupController', () => {
 
 		it('returns 400 for an invalid story ID', async () => {
 			const req = createReq({
-				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: INVALID_ID },
+				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: INVALID_ID }
 			});
 			await controller.addStoryToGroup(req, res, next);
 
@@ -273,7 +273,7 @@ describe('GroupController', () => {
 
 		it('returns 400 for an invalid group ID (validates all params)', async () => {
 			const req = createReq({
-				params: { repo_id: VALID_REPO_ID, group_id: INVALID_ID, story_id: VALID_STORY_ID },
+				params: { repo_id: VALID_REPO_ID, group_id: INVALID_ID, story_id: VALID_STORY_ID }
 			});
 			await controller.addStoryToGroup(req, res, next);
 
@@ -292,7 +292,7 @@ describe('GroupController', () => {
 			mockedRepositoryService.removeFromStoryGroup.mockResolvedValue(undefined);
 
 			const req = createReq({
-				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: VALID_STORY_ID },
+				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: VALID_STORY_ID }
 			});
 			await controller.removeStoryFromGroup(req, res, next);
 
@@ -306,7 +306,7 @@ describe('GroupController', () => {
 
 		it('returns 400 for an invalid story ID', async () => {
 			const req = createReq({
-				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: INVALID_ID },
+				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: INVALID_ID }
 			});
 			await controller.removeStoryFromGroup(req, res, next);
 
@@ -326,11 +326,11 @@ describe('GroupController', () => {
 
 			const groupsArray = [
 				{ _id: VALID_GROUP_ID, name: 'Group A', member_stories: [] },
-				{ _id: VALID_STORY_ID, name: 'Group B', member_stories: [] },
+				{ _id: VALID_STORY_ID, name: 'Group B', member_stories: [] }
 			];
 			const req = createReq({
 				params: { repo_id: VALID_REPO_ID },
-				body: groupsArray,
+				body: groupsArray
 			});
 			await controller.updateGroupsArray(req, res, next);
 

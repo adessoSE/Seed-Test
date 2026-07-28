@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
 import * as repositoryService from '../services/repository.service.js';
-import { Group } from '@shared/models/Group.js';
+import { type Group } from '@shared/models/Group.js';
 import { AppError } from '../helpers/AppError.js';
 
 /**

@@ -12,43 +12,43 @@ const mockLoadSupport = vi.fn();
 vi.mock('@cucumber/cucumber/api', () => ({
 	loadConfiguration: (...args: any[]) => mockLoadConfiguration(...args),
 	runCucumber: (...args: any[]) => mockRunCucumber(...args),
-	loadSupport: (...args: any[]) => mockLoadSupport(...args),
+	loadSupport: (...args: any[]) => mockLoadSupport(...args)
 }));
 
 vi.mock('../services/repository.service', () => ({
-	getRepoSettingsById: vi.fn(),
+	getRepoSettingsById: vi.fn()
 }));
 
 vi.mock('../services/feature-file.service', () => ({
 	cleanFileName: vi.fn((name: string) => name.replace(/[^a-zA-Z0-9_]/g, '_')),
-	updateFeatureFile: vi.fn(),
+	updateFeatureFile: vi.fn()
 }));
 
 vi.mock('node:fs', () => ({
 	default: {
-		constants: { F_OK: 0 },
+		constants: { F_OK: 0 }
 	},
-	constants: { F_OK: 0 },
+	constants: { F_OK: 0 }
 }));
 
 vi.mock('node:fs/promises', () => ({
 	default: {
-		access: vi.fn(),
+		access: vi.fn()
 	},
-	access: vi.fn(),
+	access: vi.fn()
 }));
 
 vi.mock('node:path', () => ({
 	default: {
 		normalize: vi.fn((p: string) => p),
-		resolve: vi.fn((...args: string[]) => args.join('/')),
+		resolve: vi.fn((...args: string[]) => args.join('/'))
 	},
 	normalize: vi.fn((p: string) => p),
-	resolve: vi.fn((...args: string[]) => args.join('/')),
+	resolve: vi.fn((...args: string[]) => args.join('/'))
 }));
 
 vi.mock('../logging', () => ({
-	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
+	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() }
 }));
 
 // --- Import modules under test and mocked modules ---
@@ -67,12 +67,12 @@ function createReq(overrides: Record<string, any> = {}) {
 		body: {
 			repositoryId: VALID_ID,
 			testRunner: 'seleniumWebdriver',
-			...overrides.body,
+			...overrides.body
 		},
 		params: {
-			...overrides.params,
+			...overrides.params
 		},
-		user: overrides.user ?? { _id: new ObjectId(VALID_ID), email: 'test@seed.de' },
+		user: overrides.user ?? { _id: new ObjectId(VALID_ID), email: 'test@seed.de' }
 	};
 }
 
@@ -85,9 +85,9 @@ function mockStory(overrides: Record<string, any> = {}) {
 			name: 'Scenario 1',
 			browser: 'chromium',
 			stepWaitTime: 0,
-			stepDefinitions: { given: [], when: [], then: [], example: [] },
+			stepDefinitions: { given: [], when: [], then: [], example: [] }
 		}],
-		...overrides,
+		...overrides
 	};
 }
 
@@ -117,7 +117,7 @@ describe('test-runner.service', () => {
 			const req = createReq({ body: { repositoryId: undefined, repoId: VALID_ID } });
 			const story = mockStory();
 
-			const result = await executeTest(req as any, 'feature', story as any);
+			const result = await executeTest(req, 'feature', story as any);
 
 			expect(result.success).toBe(true);
 			expect(repositoryService.getRepoSettingsById).toHaveBeenCalledWith(VALID_ID);
@@ -127,7 +127,7 @@ describe('test-runner.service', () => {
 			const req = createReq();
 			const story = mockStory();
 
-			const result = await executeTest(req as any, 'feature', story as any);
+			const result = await executeTest(req, 'feature', story as any);
 
 			expect(result.success).toBe(true);
 			expect(result.story).toBe(story);
@@ -147,7 +147,7 @@ describe('test-runner.service', () => {
 			const req = createReq({ params: { scenarioId: '1', issueID: 'ISSUE-1' } });
 			const story = mockStory();
 
-			const result = await executeTest(req as any, 'scenario', story as any);
+			const result = await executeTest(req, 'scenario', story as any);
 
 			expect(result.success).toBe(true);
 			expect(result.scenarioId).toBe('1');
@@ -157,7 +157,7 @@ describe('test-runner.service', () => {
 			const req = createReq({ body: { repositoryId: VALID_ID, name: 'my_group' } });
 			const story = mockStory();
 
-			const result = await executeTest(req as any, 'group', story as any);
+			const result = await executeTest(req, 'group', story as any);
 
 			expect(result.success).toBe(true);
 			// Verify cucumber config uses group subdirectory for report output
@@ -170,7 +170,7 @@ describe('test-runner.service', () => {
 			const req = createReq();
 			const story = mockStory();
 
-			await executeTest(req as any, 'feature', story as any);
+			await executeTest(req, 'feature', story as any);
 
 			expect(featureFileService.updateFeatureFile).toHaveBeenCalledWith(VALID_ID);
 		});
@@ -180,7 +180,7 @@ describe('test-runner.service', () => {
 			const req = createReq();
 			const story = mockStory();
 
-			await executeTest(req as any, 'feature', story as any);
+			await executeTest(req, 'feature', story as any);
 
 			expect(featureFileService.updateFeatureFile).not.toHaveBeenCalled();
 		});
@@ -189,7 +189,7 @@ describe('test-runner.service', () => {
 			const req = createReq({ user: { github: { login: 'octocat' } } });
 			const story = mockStory();
 
-			const result = await executeTest(req as any, 'feature', story as any);
+			const result = await executeTest(req, 'feature', story as any);
 
 			expect(result.reportName).toContain('octocat_');
 		});
@@ -198,7 +198,7 @@ describe('test-runner.service', () => {
 			const req = createReq({ user: { email: 'test@seed.de' } });
 			const story = mockStory();
 
-			const result = await executeTest(req as any, 'feature', story as any);
+			const result = await executeTest(req, 'feature', story as any);
 
 			expect(result.reportName).toMatch(/^reporting_/);
 		});
@@ -208,7 +208,7 @@ describe('test-runner.service', () => {
 			const req = createReq();
 			const story = mockStory();
 
-			const result = await executeTest(req as any, 'feature', story as any);
+			const result = await executeTest(req, 'feature', story as any);
 
 			expect(result.success).toBe(false);
 			expect(result.reportName).toBeDefined();
@@ -219,7 +219,7 @@ describe('test-runner.service', () => {
 			const req = createReq();
 			const story = mockStory();
 
-			const result = await executeTest(req as any, 'feature', story as any);
+			const result = await executeTest(req, 'feature', story as any);
 
 			expect(result.success).toBe(false);
 		});
@@ -228,7 +228,7 @@ describe('test-runner.service', () => {
 			const req = createReq({ body: { repositoryId: VALID_ID, testRunner: undefined } });
 			const story = mockStory();
 
-			await executeTest(req as any, 'feature', story as any);
+			await executeTest(req, 'feature', story as any);
 
 			// Verify require path uses selenium-webdriver
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
@@ -239,7 +239,7 @@ describe('test-runner.service', () => {
 			const req = createReq({ body: { repositoryId: VALID_ID, testRunner: 'playwright' } });
 			const story = mockStory();
 
-			await executeTest(req as any, 'feature', story as any);
+			await executeTest(req, 'feature', story as any);
 
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
 			expect(configArg.require[0]).toContain('playwright');
@@ -253,11 +253,11 @@ describe('test-runner.service', () => {
 					name: 'Scenario 1',
 					browser: 'chromium',
 					stepWaitTime: 0,
-					stepDefinitions: { given: [], when: [], then: [], example: [{ values: {} }, { values: {} }, { values: {} }] },
-				}],
+					stepDefinitions: { given: [], when: [], then: [], example: [{ values: {} }, { values: {} }, { values: {} }] }
+				}]
 			});
 
-			await executeTest(req as any, 'scenario', story as any);
+			await executeTest(req, 'scenario', story as any);
 
 			// Verify worldParameters has 3 scenario entries for 3 examples
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
@@ -268,12 +268,12 @@ describe('test-runner.service', () => {
 			vi.mocked(repositoryService.getRepoSettingsById).mockResolvedValue({
 				activated: true,
 				browser: 'firefox',
-				stepWaitTime: 500,
+				stepWaitTime: 500
 			});
 			const req = createReq({ params: { scenarioId: '1', issueID: 'ISSUE-1' } });
 			const story = mockStory();
 
-			await executeTest(req as any, 'scenario', story as any);
+			await executeTest(req, 'scenario', story as any);
 
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
 			expect(configArg.worldParameters.scenarios[0].browser).toBe('firefox');
@@ -284,11 +284,11 @@ describe('test-runner.service', () => {
 			vi.mocked(repositoryService.getRepoSettingsById).mockResolvedValue({});
 			const req = createReq({
 				body: { repositoryId: VALID_ID, browser: 'webkit', stepWaitTime: 200 },
-				params: { scenarioId: '1', issueID: 'ISSUE-1' },
+				params: { scenarioId: '1', issueID: 'ISSUE-1' }
 			});
 			const story = mockStory();
 
-			await executeTest(req as any, 'scenario', story as any);
+			await executeTest(req, 'scenario', story as any);
 
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
 			expect(configArg.worldParameters.scenarios[0].browser).toBe('webkit');
@@ -299,7 +299,7 @@ describe('test-runner.service', () => {
 			const req = createReq({ params: { scenarioId: '1', issueID: 'ISSUE-42' } });
 			const story = mockStory();
 
-			await executeTest(req as any, 'scenario', story as any);
+			await executeTest(req, 'scenario', story as any);
 
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
 			expect(configArg.tags).toBe('@ISSUE-42_1');
@@ -309,7 +309,7 @@ describe('test-runner.service', () => {
 			const req = createReq();
 			const story = mockStory();
 
-			await executeTest(req as any, 'feature', story as any);
+			await executeTest(req, 'feature', story as any);
 
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
 			expect(configArg.tags).toBeUndefined();
@@ -318,12 +318,12 @@ describe('test-runner.service', () => {
 		it('should handle emulator in global settings', async () => {
 			vi.mocked(repositoryService.getRepoSettingsById).mockResolvedValue({
 				activated: true,
-				emulator: 'iPhone 12',
+				emulator: 'iPhone 12'
 			});
 			const req = createReq({ params: { scenarioId: '1', issueID: 'ISSUE-1' } });
 			const story = mockStory();
 
-			await executeTest(req as any, 'scenario', story as any);
+			await executeTest(req, 'scenario', story as any);
 
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
 			expect(configArg.worldParameters.scenarios[0].emulator).toBe('iPhone 12');
@@ -334,12 +334,12 @@ describe('test-runner.service', () => {
 			vi.mocked(repositoryService.getRepoSettingsById).mockResolvedValue({
 				activated: true,
 				width: 1920,
-				height: 1080,
+				height: 1080
 			});
 			const req = createReq({ params: { scenarioId: '1', issueID: 'ISSUE-1' } });
 			const story = mockStory();
 
-			await executeTest(req as any, 'scenario', story as any);
+			await executeTest(req, 'scenario', story as any);
 
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
 			expect(configArg.worldParameters.scenarios[0].windowSize).toEqual({ width: 1920, height: 1080 });
@@ -350,11 +350,11 @@ describe('test-runner.service', () => {
 			const story = mockStory({
 				scenarios: [
 					{ scenario_id: 1, name: 'S1', browser: 'chromium', stepWaitTime: 0, stepDefinitions: { given: [], when: [], then: [] } },
-					{ scenario_id: 2, name: 'S2', browser: 'firefox', stepWaitTime: 100, stepDefinitions: { given: [], when: [], then: [] } },
-				],
+					{ scenario_id: 2, name: 'S2', browser: 'firefox', stepWaitTime: 100, stepDefinitions: { given: [], when: [], then: [] } }
+				]
 			});
 
-			await executeTest(req as any, 'feature', story as any);
+			await executeTest(req, 'feature', story as any);
 
 			const configArg = mockLoadConfiguration.mock.calls[0][0].provided;
 			// Both scenarios should have their own parameters

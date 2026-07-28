@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import passport from 'passport';
 import initializePassport from '../passport-config.js';
 import * as userService from '../services/user.service.js';

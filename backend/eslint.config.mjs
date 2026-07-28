@@ -8,7 +8,7 @@ export default defineConfig([
 		files: ['src/**/*.ts'],
 		extends: [
 			js.configs.recommended,
-			tseslint.configs.recommended
+			tseslint.configs.recommendedTypeChecked
 		],
 		languageOptions: {
 			parserOptions: {
@@ -36,27 +36,53 @@ export default defineConfig([
 			'prefer-arrow-callback': 'error',
 			'curly': ['error', 'multi'],
 			'no-duplicate-imports': 'error',
-
-			// --- Deferred to Paket 4 (Error Handling) ---
-			'preserve-caught-error': 'warn',
+			'eqeqeq': ['error', 'always'],
 			'no-useless-catch': 'warn',
+			'preserve-caught-error': 'warn',
 
-			// --- TypeScript overrides ---
+			// --- TypeScript type-aware rules ---
 			'@typescript-eslint/no-floating-promises': 'error',
+			'@typescript-eslint/no-misused-promises': 'warn',
+			'@typescript-eslint/require-await': 'warn',
+			'@typescript-eslint/return-await': ['error', 'in-try-catch'],
+			'@typescript-eslint/only-throw-error': 'warn',
+			'@typescript-eslint/no-unnecessary-type-assertion': 'warn',
+			'@typescript-eslint/restrict-template-expressions': 'warn',
 			'@typescript-eslint/no-unused-vars': ['error', {
 				argsIgnorePattern: '^_',
 				varsIgnorePattern: '^_',
 				caughtErrorsIgnorePattern: '^_'
 			}],
 			'@typescript-eslint/no-explicit-any': 'warn',
-			'@typescript-eslint/no-require-imports': 'off'
+			'@typescript-eslint/no-require-imports': 'error',
+			'@typescript-eslint/consistent-type-imports': ['warn', {
+				prefer: 'type-imports',
+				fixStyle: 'inline-type-imports'
+			}],
+
+			// Deferred: too noisy while codebase still has pervasive `any` types.
+			// Enable as `any` is incrementally replaced with proper types.
+			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-unsafe-assignment': 'off',
+			'@typescript-eslint/no-unsafe-call': 'off',
+			'@typescript-eslint/no-unsafe-argument': 'off',
+			'@typescript-eslint/no-unsafe-return': 'off',
+			'@typescript-eslint/no-unsafe-enum-comparison': 'off'
 		}
 	},
 	{
-		// Test files get relaxed rules
+		// Test files get relaxed rules — mocks and test utilities need flexibility
 		files: ['src/**/*.spec.ts'],
 		rules: {
-			'@typescript-eslint/no-explicit-any': 'off'
+			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/no-unsafe-assignment': 'off',
+			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-unsafe-call': 'off',
+			'@typescript-eslint/no-unsafe-argument': 'off',
+			'@typescript-eslint/no-unsafe-return': 'off',
+			'@typescript-eslint/unbound-method': 'off',
+			'@typescript-eslint/require-await': 'off',
+			'@typescript-eslint/only-throw-error': 'off'
 		}
 	},
 	{
@@ -65,5 +91,5 @@ export default defineConfig([
 		rules: {
 			'@typescript-eslint/no-this-alias': 'off'
 		}
-	},
+	}
 ]);

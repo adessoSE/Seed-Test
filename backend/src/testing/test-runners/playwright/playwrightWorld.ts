@@ -1,5 +1,5 @@
-import { IWorldOptions, World } from '@cucumber/cucumber';
-import { Browser, BrowserContext, Download, Page, chromium, firefox, webkit, devices } from '@playwright/test';
+import { type IWorldOptions, World } from '@cucumber/cucumber';
+import { type Browser, type BrowserContext, type Download, type Page, chromium, firefox, webkit, devices } from '@playwright/test';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 
@@ -60,7 +60,7 @@ class PlaywrightWorld extends World {
 		this.testParameters = {
 			...this.defaultSettings,
 			...this.parameterCollection.scenarios[this.scenarioCount]
-		} as TestParameters;
+		};
 
 		// Verzeichnisse basierend auf Betriebssystem festlegen
 		switch (os.platform()) {
@@ -271,7 +271,7 @@ class PlaywrightWorld extends World {
 		this.testParameters = {
 			...this.defaultSettings,
 			...this.parameterCollection.scenarios[count]
-		} as TestParameters;
+		};
 	}
 
 	getLastDownload(): Download | null {

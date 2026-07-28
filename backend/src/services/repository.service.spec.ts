@@ -336,7 +336,7 @@ describe('RepositoryService', () => {
 			const repos = [
 				{ _id: id1, name: 'A' },
 				{ _id: id2, name: 'B' },
-				{ _id: id1, name: 'A duplicate' },
+				{ _id: id1, name: 'A duplicate' }
 			];
 
 			const result = repositoryService.uniqueRepositories(repos);
@@ -533,7 +533,7 @@ describe('RepositoryService', () => {
 			const groupId = new ObjectId();
 			const groups = [
 				{ _id: new ObjectId(), name: 'Other' },
-				{ _id: groupId, name: 'Target' },
+				{ _id: groupId, name: 'Target' }
 			];
 			mockRepoCollection.findOne.mockResolvedValue({ groups });
 
@@ -584,7 +584,7 @@ describe('RepositoryService', () => {
 			mockRepoCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
 
 			const updated = { name: 'New Name', member_stories: [], isSequential: true };
-			const result = await repositoryService.updateStoryGroup(REPO_ID, groupId.toHexString(), updated as any);
+			const result = await repositoryService.updateStoryGroup(REPO_ID, groupId.toHexString(), updated);
 
 			expect(result.name).toBe('New Name');
 			expect(mockRepoCollection.updateOne).toHaveBeenCalled();
@@ -711,7 +711,7 @@ describe('RepositoryService', () => {
 					repoName: 'My Jira Project',
 					repoType: 'jira',
 					owner: '',
-					stories: [],
+					stories: []
 				})
 			);
 		});
@@ -729,7 +729,7 @@ describe('RepositoryService', () => {
 					repoName: 'my-repo',
 					repoType: 'github',
 					gitOwner: '12345',
-					owner: new ObjectId(userId),
+					owner: new ObjectId(userId)
 				})
 			);
 		});
@@ -743,7 +743,7 @@ describe('RepositoryService', () => {
 			expect(mockRepoCollection.insertOne).toHaveBeenCalledWith(
 				expect.objectContaining({
 					owner: '',
-					gitOwner: '99999',
+					gitOwner: '99999'
 				})
 			);
 		});

@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
-import { User } from '@shared/models/User.js';
-import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContainer.js';
+import { type User } from '@shared/models/User.js';
+import { type RepositoryContainer, type AiConfig } from '@shared/models/RepositoryContainer.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as userService from '../services/user.service.js';
 import * as externalSyncService from '../services/externalSync.service.js';
@@ -29,8 +29,8 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 
 		} else if (process.env.TESTACCOUNT_NAME && process.env.TESTACCOUNT_TOKEN) {
 			logger.info(`User ${user.email} not linked. Using TESTACCOUNT fallback.`);
-			const githubName = process.env.TESTACCOUNT_NAME!;
-			const token = process.env.TESTACCOUNT_TOKEN!;
+			const githubName = process.env.TESTACCOUNT_NAME;
+			const token = process.env.TESTACCOUNT_TOKEN;
 			const githubId = 0;
 			starredPromise = externalSyncService.starredRepositories(user._id!.toString(), githubId, githubName, token);
 			ownedPromise = externalSyncService.ownRepositories(user._id!.toString(), githubId, githubName, token);
@@ -62,10 +62,10 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 		const db = processResult(results[3], 'DB Repos');
 
 		const merged: Partial<RepositoryContainer>[] = [
-			...(starred as any[]), 
-			...(owned as any[]), 
-			...(jira as any[]), 
-			...(db as any[])
+			...(starred), 
+			...(owned), 
+			...(jira), 
+			...(db)
 		];
 		const unique = repositoryService.uniqueRepositories(merged);
         

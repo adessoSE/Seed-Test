@@ -1,13 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
 import * as storyService from '../services/story.service.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as reportService from '../services/report.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
-import { Story } from '@shared/models/Story.js';
-import { User } from '@shared/models/User.js';
-import { IssueTracker, IssueTrackerOption, Github } from '../models/IssueTracker.js';
+import { type Story } from '@shared/models/Story.js';
+import { type User } from '@shared/models/User.js';
+import { IssueTracker, IssueTrackerOption, type Github } from '../models/IssueTracker.js';
 import { ExecutionMode } from '../models/models.js';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -76,7 +76,7 @@ export async function runFeature(req: Request, res: Response, next: NextFunction
 		const repoId = req.body.repositoryId; // Adjust as needed
 		const parameters = { repositoryId: repoId, stories: [story] };
 
-		const reportResult = await testRunnerService.executeTest(req as any, ExecutionMode.STORY, story!);
+		const reportResult = await testRunnerService.executeTest(req as any, ExecutionMode.STORY, story);
 		await handleReportResult(res, reportResult, ExecutionMode.STORY, parameters, req.user as User);
 
 	} catch (error) {
@@ -108,7 +108,7 @@ export async function runScenario(req: Request, res: Response, next: NextFunctio
 		const repoId = req.body.repositoryId;
 		const parameters = { repositoryId: repoId, stories: [story] };
 
-		const reportResult = await testRunnerService.executeTest(req as any, ExecutionMode.SCENARIO, story!);
+		const reportResult = await testRunnerService.executeTest(req as any, ExecutionMode.SCENARIO, story);
 		await handleReportResult(res, reportResult, ExecutionMode.SCENARIO, parameters, req.user as User);
 
 	} catch (error) {
@@ -134,7 +134,7 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 		const stories: (Story | null)[] = await Promise.all(
 			group.member_stories.map(id => storyService.getOneStory(id.toString()))
 		);
-		const validStories = stories.filter(s => s !== null) as Story[];
+		const validStories = stories.filter(s => s !== null);
 		if (validStories.length === 0)
 			throw AppError.badRequest('No valid stories found in the group');
 
@@ -145,7 +145,7 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 		const parameters = { ...group, repositoryId: repoId, stories: validStories, repository: req.body.repository }; // Pass necessary info
 		let lastReportResult: any;
 
-		if (group!.isSequential) 
+		if (group.isSequential) 
 			for (const story of validStories) 
 				lastReportResult = await testRunnerService.executeTest(req as any, ExecutionMode.GROUP, story);
             

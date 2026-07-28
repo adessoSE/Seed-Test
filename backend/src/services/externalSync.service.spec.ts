@@ -7,11 +7,11 @@ import { ObjectId } from 'mongodb';
 import type * as ExternalSyncService from './externalSync.service.js';
 
 // Import types
-import { User } from '@shared/models/User.js';
-import { Story } from '@shared/models/Story.js';
-import { Repository } from '@shared/models/Repository.js';
-import { StepType } from '@shared/models/StepType.js';
-import { Scenario } from '@shared/models/Scenario.js';
+import { type User } from '@shared/models/User.js';
+import { type Story } from '@shared/models/Story.js';
+import { type Repository } from '@shared/models/Repository.js';
+import { type StepType } from '@shared/models/StepType.js';
+import { type Scenario } from '@shared/models/Scenario.js';
 
 // --- 1. Mock all external dependencies ---
 const mockDb = { collection: vi.fn() };

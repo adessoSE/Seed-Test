@@ -1,5 +1,5 @@
 import {
-	Given, When, Then, Before, After, setWorldConstructor, setDefaultTimeout, ITestCaseHookParameter
+	Given, When, Then, Before, After, setWorldConstructor, setDefaultTimeout, type ITestCaseHookParameter
 } from '@cucumber/cucumber';
 import fs from 'node:fs';
 import assert from 'assert';

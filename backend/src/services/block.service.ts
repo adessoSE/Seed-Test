@@ -1,7 +1,7 @@
-import { ClientSession, MongoClient } from 'mongodb';
+import { type ClientSession, type MongoClient } from 'mongodb';
 import * as dbConnection from '../database/DbConnector.js';
-import { Block } from '@shared/models/Block.js';
-import { BlockDoc, oid } from '../types/mongo.types.js';
+import { type Block } from '@shared/models/Block.js';
+import { type BlockDoc, oid } from '../types/mongo.types.js';
 import { mongoSanitize } from '../utils/mongo-sanitize.js';
 
 const customBlocksCollection = 'CustomBlocks';
@@ -23,7 +23,7 @@ export async function saveBlock(block: Block, session?: ClientSession, client?: 
 		repositoryId: sanitizedBlock.repositoryId ? oid(sanitizedBlock.repositoryId) : undefined,
 		owner: sanitizedBlock.owner ? oid(sanitizedBlock.owner) : undefined
 	};
-	return await db.collection<BlockDoc>(customBlocksCollection).insertOne(doc as BlockDoc, { session });
+	return db.collection<BlockDoc>(customBlocksCollection).insertOne(doc, { session });
 }
 
 /**
@@ -65,7 +65,7 @@ export async function updateBlock(blockId: string, updatedBlock: Block, userId: 
 		owner: oid(userId)
 	};
 
-	return await db.collection<BlockDoc>(customBlocksCollection).findOneAndReplace(
+	return db.collection<BlockDoc>(customBlocksCollection).findOneAndReplace(
 		{ _id: oid(blockId), owner: oid(userId) },
 		doc,
 		{ session }
@@ -80,7 +80,7 @@ export async function updateBlock(blockId: string, updatedBlock: Block, userId: 
  */
 export async function deleteBlock(blockId: string, userId: string): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection<BlockDoc>(customBlocksCollection).deleteOne({
+	return db.collection<BlockDoc>(customBlocksCollection).deleteOne({
 		_id: oid(blockId),
 		owner: oid(userId)
 	});

@@ -8,9 +8,9 @@ import os from 'node:os';
 
 // selenium-webdriver subpath imports lack TypeScript declarations — use createRequire bridge
 const require = createRequire(import.meta.url);
-const chrome = require('selenium-webdriver/chrome') as typeof import('selenium-webdriver/chrome');
-const firefox = require('selenium-webdriver/firefox') as typeof import('selenium-webdriver/firefox');
-const edge = require('selenium-webdriver/edge') as typeof import('selenium-webdriver/edge');
+const chrome = require('selenium-webdriver/chrome');
+const firefox = require('selenium-webdriver/firefox');
+const edge = require('selenium-webdriver/edge');
 
 class SeleniumWebdriverWorld extends World {
 	// Dynamic properties used across Cucumber step definitions

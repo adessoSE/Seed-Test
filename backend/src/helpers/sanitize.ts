@@ -12,16 +12,16 @@ const DANGEROUS_KEY = /^\$|\./;
  * Mutates the input in place and returns it.
  */
 export function sanitize<T>(target: T): T {
-	if (Array.isArray(target)) {
+	if (Array.isArray(target)) 
 		target.forEach(sanitize);
-	} else if (target !== null && typeof target === 'object') {
-		for (const key of Object.keys(target)) {
+	else if (target !== null && typeof target === 'object') 
+		for (const key of Object.keys(target)) 
 			if (DANGEROUS_KEY.test(key))
 				delete (target as Record<string, unknown>)[key];
 			else
 				sanitize((target as Record<string, unknown>)[key]);
-		}
-	}
+		
+	
 	return target;
 }
 

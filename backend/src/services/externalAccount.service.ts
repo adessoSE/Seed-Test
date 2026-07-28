@@ -1,7 +1,7 @@
-import { ObjectId, Binary } from 'mongodb';
+import { type ObjectId, Binary } from 'mongodb';
 import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import * as userService from './user.service.js'; // To fetch/update the user document
-import { User } from '@shared/models/User.js';
+import { type User } from '@shared/models/User.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
 
@@ -117,7 +117,7 @@ export async function disconnectJira(userId: string | ObjectId): Promise<void> {
     
 	// Create a new object without the jira property
 	const { jira: _jira, ...userWithoutJira } = user;
-	await userService.updateUser(userId, userWithoutJira as User);
+	await userService.updateUser(userId, userWithoutJira);
 }
 
 // --- GitHub Account Linking ---
@@ -184,8 +184,8 @@ function toBuffer(input: CipherInput): Buffer {
 
 	// Priority 3: BSON object structure (e.g., from logs or older drivers)
 	// Check if input is a plain object and has the $binary key
-	if (typeof input === 'object' && input !== null && (input as BsonBinary).$binary) 
-		return Buffer.from((input as BsonBinary).$binary.base64, 'base64');
+	if (typeof input === 'object' && input !== null && (input).$binary) 
+		return Buffer.from((input).$binary.base64, 'base64');
     
 
 	// Fallback/Error

@@ -1,9 +1,9 @@
-import { ObjectId, ClientSession, MongoClient } from 'mongodb';
-import { RepositoryDoc, UserDoc, GroupDoc, oid } from '../types/mongo.types.js';
+import { ObjectId, type ClientSession, type MongoClient } from 'mongodb';
+import { type RepositoryDoc, type UserDoc, type GroupDoc, oid } from '../types/mongo.types.js';
 import * as dbConnection from '../database/DbConnector.js';
-import { Group } from '@shared/models/Group.js';
-import { Repository } from '@shared/models/Repository.js';
-import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContainer.js';
+import { type Group } from '@shared/models/Group.js';
+import { type Repository } from '@shared/models/Repository.js';
+import { type RepositoryContainer, type AiConfig } from '@shared/models/RepositoryContainer.js';
 import { deleteStory } from './story.service.js';
 import { getUserById } from './user.service.js';
 import * as workgroupService from './workgroup.service.js';
@@ -40,12 +40,12 @@ export async function getRepository(userId: string): Promise<RepositoryContainer
 
 	const memberRepos = await db.collection<RepositoryDoc>(repositoriesCollection).find({ _id: { $in: repoIds } }).toArray();
 	memberRepos.forEach(repo => {
-		const memberInfo = memberWorkgroups.find(wg => wg.Repo.toString() === repo._id!.toString())?.Members.find((m: any) => m.email === user.email);
+		const memberInfo = memberWorkgroups.find(wg => wg.Repo.toString() === repo._id.toString())?.Members.find((m: any) => m.email === user.email);
 		(repo as any).canEdit = memberInfo ? memberInfo.canEdit : false;
 	});
     
 	const allRepos = [...ownerRepos, ...memberRepos];
-	const uniqueRepos = Array.from(new Map(allRepos.map(repo => [repo._id!.toString(), repo])).values());
+	const uniqueRepos = Array.from(new Map(allRepos.map(repo => [repo._id.toString(), repo])).values());
 
 	return uniqueRepos.map(repo => ({
 		_id: repo._id,
@@ -145,7 +145,7 @@ export async function createRepo(ownerId: string, name: string, session?: Client
 		customBlocks: []
 	};
 
-	const result = await db.collection<RepositoryDoc>(repositoriesCollection).insertOne(emptyRepo as RepositoryDoc, { session });
+	const result = await db.collection<RepositoryDoc>(repositoriesCollection).insertOne(emptyRepo, { session });
 	return result.insertedId;
 }
 
@@ -256,7 +256,7 @@ export async function deleteRepository(repoId: string, ownerId: string): Promise
 export async function insertStoryIdIntoRepo(storyId: string, repoId: string, client?: MongoClient, session?: ClientSession): Promise<any> {
 	const db = session ? client!.db('Seed', session) : dbConnection.getConnection();
     
-	return await db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
+	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },
 		{ $push: { stories: oid(storyId) } as any },
 		{ session }
@@ -391,7 +391,7 @@ export async function createJiraRepo(repoName: string): Promise<any> {
 		stories: [],
 		repoType: 'jira'
 	};
-	return await db.collection<RepositoryDoc>(repositoriesCollection).insertOne(newRepo as RepositoryDoc);
+	return db.collection<RepositoryDoc>(repositoriesCollection).insertOne(newRepo as RepositoryDoc);
 }
 
 export async function createGitRepo(gitOwnerId: string, repoName: string, userGithubId: number, userId: string): Promise<any> {
@@ -406,5 +406,5 @@ export async function createGitRepo(gitOwnerId: string, repoName: string, userGi
 	if (userGithubId.toString() === gitOwnerId) 
 		newRepo.owner = oid(userId);
     
-	return await db.collection<RepositoryDoc>(repositoriesCollection).insertOne(newRepo as RepositoryDoc);
+	return db.collection<RepositoryDoc>(repositoriesCollection).insertOne(newRepo as RepositoryDoc);
 }

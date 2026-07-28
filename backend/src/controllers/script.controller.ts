@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import * as testRunnerService from '../testing/test-runner.service.js'; // Assuming executeTest is here now
-import { Story } from '@shared/models/Story.js';
-import { User } from '@shared/models/User.js';
+import { type Story } from '@shared/models/Story.js';
+import { type User } from '@shared/models/User.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import * as featureFileService from '../services/feature-file.service.js'; // For cleanFileName
@@ -29,7 +29,7 @@ export async function runGroupViaScript(req: Request, res: Response, next: NextF
 		const stories: (Story | null)[] = await Promise.all(
 			group.member_stories.map(id => storyService.getOneStory(id.toString()))
 		);
-		const validStories = stories.filter(s => s !== null) as Story[];
+		const validStories = stories.filter(s => s !== null);
 		if (validStories.length === 0)
 			throw AppError.badRequest('No valid stories found in the group');
 

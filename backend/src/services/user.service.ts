@@ -1,9 +1,9 @@
-import { ObjectId } from 'mongodb';
+import { type ObjectId } from 'mongodb';
 import * as dbConnection from '../database/DbConnector.js';
-import { User } from '@shared/models/User.js';
+import { type User } from '@shared/models/User.js';
 import * as repositoryService from './repository.service.js';
 import * as workgroupService from './workgroup.service.js';
-import { UserDoc, RepositoryDoc, oid } from '../types/mongo.types.js';
+import { type UserDoc, type RepositoryDoc, oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
 import { mongoSanitize } from '../utils/mongo-sanitize.js';
 
@@ -65,7 +65,7 @@ export async function registerUser(user: Partial<User>): Promise<any> {
 export async function updateUser(userId: string | ObjectId, updatedUser: User): Promise<any> {
 	const db = dbConnection.getConnection();
 	const filter = { _id: oid(userId) };
-	return db.collection<UserDoc>(userCollection).findOneAndReplace(filter, updatedUser as unknown as UserDoc);
+	return db.collection<UserDoc>(userCollection).findOneAndReplace(filter, updatedUser);
 }
 
 /**
@@ -86,7 +86,7 @@ export async function deleteUser(userId: string | ObjectId): Promise<any> {
     
 	// Create an array of promises for all repository deletion/transfer operations
 	const deletionPromises = ownedRepositories.map(repo => 
-		repositoryService.deleteRepository(repo._id!.toString(), userId.toString())
+		repositoryService.deleteRepository(repo._id.toString(), userId.toString())
 	);
     
 	// Wait for all promises to resolve
@@ -96,7 +96,7 @@ export async function deleteUser(userId: string | ObjectId): Promise<any> {
 	await workgroupService.removeUserFromAllWorkgroups(user.email);
 
 	// 3. Finally, delete the user document
-	return await db.collection<UserDoc>(userCollection).deleteOne({ _id: oid(userId) });
+	return db.collection<UserDoc>(userCollection).deleteOne({ _id: oid(userId) });
 }
 
 // --- GitHub Account Management ---
@@ -148,7 +148,7 @@ export async function mergeGithub(seedUserId: string, githubLogin: string, githu
 		seedAccount.jira = githubAccount.jira;
     
 
-	await collection.deleteOne({ _id: oid(githubAccount._id!) });
+	await collection.deleteOne({ _id: oid(githubAccount._id) });
 	await updateUser(seedAccount._id, seedAccount);
 	return seedAccount;
 }

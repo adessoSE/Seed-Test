@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
 import * as reportService from '../services/report.service.js';
 import fs from 'node:fs';

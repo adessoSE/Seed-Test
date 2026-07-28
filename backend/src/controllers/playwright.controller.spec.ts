@@ -1,23 +1,23 @@
 // src/controllers/playwright.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedDevices,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedDevices: {
 		'iPhone 13': { userAgent: 'Mozilla/5.0 (iPhone)', viewport: { width: 390, height: 844 } },
-		'Pixel 5': { userAgent: 'Mozilla/5.0 (Linux; Android)', viewport: { width: 393, height: 851 } },
+		'Pixel 5': { userAgent: 'Mozilla/5.0 (Linux; Android)', viewport: { width: 393, height: 851 } }
 	} as Record<string, any>,
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('@playwright/test', () => ({ devices: mockedDevices }));
@@ -34,7 +34,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		body: {},
 		params: {},
 		query: {},
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -55,7 +55,7 @@ describe('PlaywrightController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 	});
 
 	// ---------------------------------------------------------------

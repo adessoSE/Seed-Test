@@ -5,10 +5,10 @@ import { authorizeRepo, authorizeByStory } from './authorize.js';
 // Mock service dependencies
 vi.mock('../services/repository.service', () => ({
 	getOneRepositoryById: vi.fn(),
-	getRepoByStoryId: vi.fn(),
+	getRepoByStoryId: vi.fn()
 }));
 vi.mock('../services/workgroup.service', () => ({
-	getWorkgroup: vi.fn(),
+	getWorkgroup: vi.fn()
 }));
 
 import * as repositoryService from '../services/repository.service.js';
@@ -23,14 +23,14 @@ function mockReqResNext(overrides: {
 } = {}) {
 	const res = {
 		status: vi.fn().mockReturnThis(),
-		json: vi.fn().mockReturnThis(),
+		json: vi.fn().mockReturnThis()
 	};
 	const next = vi.fn();
 	const req = {
 		params: overrides.params || {},
 		body: overrides.body || {},
 		query: overrides.query || {},
-		user: overrides.user !== undefined ? overrides.user : { _id: new ObjectId(), email: 'test@test.de' },
+		user: overrides.user !== undefined ? overrides.user : { _id: new ObjectId(), email: 'test@test.de' }
 	};
 	return { req: req as any, res: res as any, next };
 }
@@ -49,7 +49,7 @@ beforeEach(() => {
 describe('authorizeRepo', () => {
 	it('rejects with 400 on invalid ObjectId (bypass prevention)', async () => {
 		const { req, res, next } = mockReqResNext({
-			params: { repo_id: 'not-an-oid' },
+			params: { repo_id: 'not-an-oid' }
 		});
 		await authorizeRepo('repo_id')(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(400);
@@ -66,7 +66,7 @@ describe('authorizeRepo', () => {
 	it('rejects with 401 when user is not authenticated', async () => {
 		const { req, res, next } = mockReqResNext({
 			params: { repo_id: repoId.toHexString() },
-			user: null,
+			user: null
 		});
 		await authorizeRepo('repo_id')(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(401);
@@ -76,7 +76,7 @@ describe('authorizeRepo', () => {
 		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(mockRepo as any);
 		const { req, res, next } = mockReqResNext({
 			params: { repo_id: repoId.toHexString() },
-			user: { _id: ownerId, email: 'owner@test.de' },
+			user: { _id: ownerId, email: 'owner@test.de' }
 		});
 		await authorizeRepo('repo_id')(req, res, next);
 		expect(next).toHaveBeenCalledWith();
@@ -87,7 +87,7 @@ describe('authorizeRepo', () => {
 		vi.mocked(workgroupService.getWorkgroup).mockResolvedValue({ Members: [] } as any);
 		const { req, res, next } = mockReqResNext({
 			params: { repo_id: repoId.toHexString() },
-			user: { _id: otherUserId, email: 'stranger@test.de' },
+			user: { _id: otherUserId, email: 'stranger@test.de' }
 		});
 		await authorizeRepo('repo_id')(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(403);
@@ -96,11 +96,11 @@ describe('authorizeRepo', () => {
 	it('allows workgroup member with read access', async () => {
 		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(mockRepo as any);
 		vi.mocked(workgroupService.getWorkgroup).mockResolvedValue({
-			Members: [{ email: 'member@test.de', canEdit: false }],
+			Members: [{ email: 'member@test.de', canEdit: false }]
 		} as any);
 		const { req, res, next } = mockReqResNext({
 			params: { repo_id: repoId.toHexString() },
-			user: { _id: otherUserId, email: 'member@test.de' },
+			user: { _id: otherUserId, email: 'member@test.de' }
 		});
 		await authorizeRepo('repo_id')(req, res, next);
 		expect(next).toHaveBeenCalledWith();
@@ -109,11 +109,11 @@ describe('authorizeRepo', () => {
 	it('rejects member without canEdit on requireEdit routes', async () => {
 		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(mockRepo as any);
 		vi.mocked(workgroupService.getWorkgroup).mockResolvedValue({
-			Members: [{ email: 'member@test.de', canEdit: false }],
+			Members: [{ email: 'member@test.de', canEdit: false }]
 		} as any);
 		const { req, res, next } = mockReqResNext({
 			params: { repo_id: repoId.toHexString() },
-			user: { _id: otherUserId, email: 'member@test.de' },
+			user: { _id: otherUserId, email: 'member@test.de' }
 		});
 		await authorizeRepo('repo_id', { requireEdit: true })(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(403);
@@ -122,11 +122,11 @@ describe('authorizeRepo', () => {
 	it('allows member WITH canEdit on requireEdit routes', async () => {
 		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(mockRepo as any);
 		vi.mocked(workgroupService.getWorkgroup).mockResolvedValue({
-			Members: [{ email: 'editor@test.de', canEdit: true }],
+			Members: [{ email: 'editor@test.de', canEdit: true }]
 		} as any);
 		const { req, res, next } = mockReqResNext({
 			params: { repo_id: repoId.toHexString() },
-			user: { _id: otherUserId, email: 'editor@test.de' },
+			user: { _id: otherUserId, email: 'editor@test.de' }
 		});
 		await authorizeRepo('repo_id', { requireEdit: true })(req, res, next);
 		expect(next).toHaveBeenCalledWith();
@@ -136,16 +136,16 @@ describe('authorizeRepo', () => {
 		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(mockRepo as any);
 		const { req, res, next } = mockReqResNext({
 			params: { repo_id: repoId.toHexString() },
-			user: { _id: otherUserId, email: 'member@test.de' },
+			user: { _id: otherUserId, email: 'member@test.de' }
 		});
 		await authorizeRepo('repo_id', { ownerOnly: true })(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(403);
 	});
 
 	it('returns 404 when repo does not exist', async () => {
-		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(null as any);
+		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(null);
 		const { req, res, next } = mockReqResNext({
-			params: { repo_id: repoId.toHexString() },
+			params: { repo_id: repoId.toHexString() }
 		});
 		await authorizeRepo('repo_id')(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(404);
@@ -155,7 +155,7 @@ describe('authorizeRepo', () => {
 		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(mockRepo as any);
 		const { req, res, next } = mockReqResNext({
 			body: { _id: repoId.toHexString() },
-			user: { _id: ownerId, email: 'owner@test.de' },
+			user: { _id: ownerId, email: 'owner@test.de' }
 		});
 		await authorizeRepo('_id', { source: 'body' })(req, res, next);
 		expect(next).toHaveBeenCalledWith();
@@ -166,7 +166,7 @@ describe('authorizeRepo', () => {
 		vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(mockRepo as any);
 		const { req, res, next } = mockReqResNext({
 			query: { id: repoId.toHexString() },
-			user: { _id: ownerId, email: 'owner@test.de' },
+			user: { _id: ownerId, email: 'owner@test.de' }
 		});
 		await authorizeRepo('id', { source: 'query' })(req, res, next);
 		expect(next).toHaveBeenCalledWith();
@@ -176,7 +176,7 @@ describe('authorizeRepo', () => {
 describe('authorizeByStory', () => {
 	it('rejects with 400 on invalid ObjectId (bypass prevention)', async () => {
 		const { req, res, next } = mockReqResNext({
-			params: { story_id: 'not-valid' },
+			params: { story_id: 'not-valid' }
 		});
 		await authorizeByStory('story_id')(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(400);
@@ -187,7 +187,7 @@ describe('authorizeByStory', () => {
 		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
 		const { req, res, next } = mockReqResNext({
 			params: { story_id: storyId.toHexString() },
-			user: { _id: ownerId, email: 'owner@test.de' },
+			user: { _id: ownerId, email: 'owner@test.de' }
 		});
 		await authorizeByStory('story_id')(req, res, next);
 		expect(repositoryService.getRepoByStoryId).toHaveBeenCalledWith(storyId.toHexString());
@@ -195,9 +195,9 @@ describe('authorizeByStory', () => {
 	});
 
 	it('returns 404 when story repo not found', async () => {
-		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(null as any);
+		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(null);
 		const { req, res, next } = mockReqResNext({
-			params: { story_id: storyId.toHexString() },
+			params: { story_id: storyId.toHexString() }
 		});
 		await authorizeByStory('story_id')(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(404);
@@ -207,7 +207,7 @@ describe('authorizeByStory', () => {
 		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
 		const { req, res, next } = mockReqResNext({
 			body: { storyID: storyId.toHexString() },
-			user: { _id: ownerId, email: 'owner@test.de' },
+			user: { _id: ownerId, email: 'owner@test.de' }
 		});
 		await authorizeByStory('storyID', { source: 'body' })(req, res, next);
 		expect(next).toHaveBeenCalledWith();

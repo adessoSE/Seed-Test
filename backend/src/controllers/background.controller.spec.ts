@@ -1,7 +1,7 @@
 // src/controllers/background.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
@@ -9,21 +9,21 @@ import { AppError } from '../helpers/AppError.js';
 const {
 	mockedStoryService,
 	mockedFeatureFileService,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedStoryService: {
 		updateBackground: vi.fn(),
-		deleteBackground: vi.fn(),
+		deleteBackground: vi.fn()
 	},
 	mockedFeatureFileService: {
-		updateFeatureFile: vi.fn(),
+		updateFeatureFile: vi.fn()
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/story.service', () => mockedStoryService);
@@ -46,7 +46,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		params: {},
 		query: {},
 		user: { _id: new ObjectId(VALID_ID), email: 'test@seed.de' },
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -66,7 +66,7 @@ describe('BackgroundController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 	});
 
 	// ---------------------------------------------------------------

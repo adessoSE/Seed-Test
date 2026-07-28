@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
-import { User } from '@shared/models/User.js';
+import { type User } from '@shared/models/User.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as workgroupService from '../services/workgroup.service.js';
 

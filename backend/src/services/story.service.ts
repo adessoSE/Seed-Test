@@ -1,10 +1,10 @@
-import { ObjectId, Filter, ClientSession, MongoClient } from 'mongodb';
+import { type ObjectId, type Filter, type ClientSession, type MongoClient } from 'mongodb';
 import { logger } from '../logging.js';
 import * as dbConnection from '../database/DbConnector.js';
-import { Story } from '@shared/models/Story.js';
-import { StoryDoc, oid } from '../types/mongo.types.js';
-import { Scenario } from '@shared/models/Scenario.js';
-import { Background } from '@shared/models/Background.js';
+import { type Story } from '@shared/models/Story.js';
+import { type StoryDoc, oid } from '../types/mongo.types.js';
+import { type Scenario } from '@shared/models/Scenario.js';
+import { type Background } from '@shared/models/Background.js';
 import { emptyStory } from '../models/emptyStory.js';
 import { emptyScenario } from '../models/emptyScenario.js';
 import { emptyBackground } from '../models/emptyBackground.js';
@@ -80,7 +80,7 @@ export async function createStory(storyTitle: string, storyDescription: string, 
 	storyObject.issue_number = finalIssueNumber;
 
 	// StoryDoc cast — emptyStory returns an object without an _id
-	const result = await db.collection<StoryDoc>(storiesCollection).insertOne(storyObject as StoryDoc, { session });
+	const result = await db.collection<StoryDoc>(storiesCollection).insertOne(storyObject, { session });
 	return result.insertedId;
 }
 
@@ -94,7 +94,7 @@ export async function createStory(storyTitle: string, storyDescription: string, 
 export async function updateStory(updatedStory: Story, client?: MongoClient, session?: ClientSession): Promise<any> {
 	const db = client ? client.db('Seed') : dbConnection.getConnection();
 	const doc: StoryDoc = { ...updatedStory, _id: oid(updatedStory._id!) };
-	return await db.collection<StoryDoc>(storiesCollection).findOneAndReplace(
+	return db.collection<StoryDoc>(storiesCollection).findOneAndReplace(
 		{ _id: doc._id },
 		doc,
 		{ returnDocument: 'after', session }
@@ -135,7 +135,7 @@ export async function deleteStory(repoId: string, storyId: string): Promise<any>
 	await Promise.all(reportDeletionPromises);
 
 	// Finally, delete the story document itself.
-	return await storyCollection.findOneAndDelete({ _id: oid(storyId) });
+	return storyCollection.findOneAndDelete({ _id: oid(storyId) });
 }
 
 /**
@@ -245,7 +245,7 @@ export async function createScenario(storyId: string, scenarioTitle: string): Pr
  */
 export async function updateScenario(storyId: string, updatedScenario: Scenario): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection<StoryDoc>(storiesCollection).updateOne(
+	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId), 'scenarios.scenario_id': updatedScenario.scenario_id },
 		{ $set: { 'scenarios.$': updatedScenario } }
 	);
@@ -259,7 +259,7 @@ export async function updateScenario(storyId: string, updatedScenario: Scenario)
  */
 export async function deleteScenario(storyId: string, scenarioId: number): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection<StoryDoc>(storiesCollection).updateOne(
+	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
 		{ $pull: { scenarios: { scenario_id: scenarioId } } as any } // MongoDB update operator — driver types don't support nested paths
 	);
@@ -267,7 +267,7 @@ export async function deleteScenario(storyId: string, scenarioId: number): Promi
 
 export async function updateScenarioList(storyId: string, scenarioList: Scenario[]): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection<StoryDoc>(storiesCollection).updateOne(
+	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
 		{ $set: { scenarios: scenarioList } }
 	);
@@ -277,21 +277,21 @@ export async function updateScenarioList(storyId: string, scenarioList: Scenario
 
 export async function updateBackground(storyId: string, updatedBackground: Background): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection<StoryDoc>(storiesCollection).updateOne(
+	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
 		{ $set: { background: updatedBackground } }
 	);
 }
 
 export async function deleteBackground(storyId: string): Promise<any> {
-	return await updateBackground(storyId, emptyBackground());
+	return updateBackground(storyId, emptyBackground());
 }
 
 // --- Status Update Functions ---
 
 export async function updateStoryStatus(storyId: string, storyLastTestStatus: boolean): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection<StoryDoc>(storiesCollection).updateOne(
+	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
 		{ $set: { lastTestPassed: storyLastTestStatus } }
 	);
@@ -299,7 +299,7 @@ export async function updateStoryStatus(storyId: string, storyLastTestStatus: bo
 
 export async function updateScenarioStatus(storyId: string, scenarioId: number, scenarioLastTestStatus: boolean): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection<StoryDoc>(storiesCollection).updateOne(
+	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId), 'scenarios.scenario_id': scenarioId },
 		{ $set: { 'scenarios.$.lastTestPassed': scenarioLastTestStatus } }
 	);

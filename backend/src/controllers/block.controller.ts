@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { type Request, type Response, type NextFunction } from 'express';
+import { type ObjectId } from 'mongodb';
 import { requireValidId } from '../utils/validation.js';
 import * as blockService from '../services/block.service.js';
-import { Block } from '@shared/models/Block.js';
+import { type Block } from '@shared/models/Block.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
 

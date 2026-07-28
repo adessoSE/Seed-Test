@@ -1,7 +1,7 @@
 // src/controllers/workgroup.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
@@ -9,23 +9,23 @@ import { AppError } from '../helpers/AppError.js';
 const {
 	mockedWorkgroupService,
 	mockedUserService,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedWorkgroupService: {
 		getMembers: vi.fn(),
 		addMember: vi.fn(),
 		updateMemberStatus: vi.fn(),
-		removeFromWorkgroup: vi.fn(),
+		removeFromWorkgroup: vi.fn()
 	},
 	mockedUserService: {
-		getUserByEmail: vi.fn(),
+		getUserByEmail: vi.fn()
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/workgroup.service', () => mockedWorkgroupService);
@@ -49,9 +49,9 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		query: {},
 		user: {
 			_id: new ObjectId(VALID_ID),
-			email: 'test@seed.de',
+			email: 'test@seed.de'
 		},
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -71,7 +71,7 @@ describe('WorkgroupController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 	});
 
 	// ---------------------------------------------------------------
@@ -81,7 +81,7 @@ describe('WorkgroupController', () => {
 		it('returns members for a valid repository ID', async () => {
 			const members = {
 				owner: { email: 'owner@seed.de', canEdit: true },
-				member: [{ email: 'member@seed.de', canEdit: false }],
+				member: [{ email: 'member@seed.de', canEdit: false }]
 			};
 			mockedWorkgroupService.getMembers.mockResolvedValue(members);
 
@@ -134,7 +134,7 @@ describe('WorkgroupController', () => {
 			const existingUser = { _id: new ObjectId(), email: 'new@seed.de' };
 			const members = {
 				owner: { email: 'owner@seed.de', canEdit: true },
-				member: [],
+				member: []
 			};
 			const addResult = { modifiedCount: 1 };
 
@@ -144,7 +144,7 @@ describe('WorkgroupController', () => {
 
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: 'New@Seed.de', canEdit: true },
+				body: { email: 'New@Seed.de', canEdit: true }
 			});
 			await controller.addMember(req, res, next);
 
@@ -161,7 +161,7 @@ describe('WorkgroupController', () => {
 		it('returns 400 for an invalid repository ID', async () => {
 			const req = createReq({
 				params: { id: INVALID_ID },
-				body: { email: 'new@seed.de', canEdit: false },
+				body: { email: 'new@seed.de', canEdit: false }
 			});
 			await controller.addMember(req, res, next);
 
@@ -176,7 +176,7 @@ describe('WorkgroupController', () => {
 
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: 'nobody@seed.de', canEdit: false },
+				body: { email: 'nobody@seed.de', canEdit: false }
 			});
 			await controller.addMember(req, res, next);
 
@@ -190,7 +190,7 @@ describe('WorkgroupController', () => {
 			const owner = { _id: new ObjectId(), email: 'owner@seed.de' };
 			const members = {
 				owner: { email: 'owner@seed.de', canEdit: true },
-				member: [],
+				member: []
 			};
 
 			mockedUserService.getUserByEmail.mockResolvedValue(owner);
@@ -198,7 +198,7 @@ describe('WorkgroupController', () => {
 
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: 'owner@seed.de', canEdit: true },
+				body: { email: 'owner@seed.de', canEdit: true }
 			});
 			await controller.addMember(req, res, next);
 
@@ -212,7 +212,7 @@ describe('WorkgroupController', () => {
 			const existingUser = { _id: new ObjectId(), email: 'new@seed.de' };
 			const members = {
 				owner: { email: 'owner@seed.de', canEdit: true },
-				member: [],
+				member: []
 			};
 
 			mockedUserService.getUserByEmail.mockResolvedValue(existingUser);
@@ -221,7 +221,7 @@ describe('WorkgroupController', () => {
 
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: 'new@seed.de' },
+				body: { email: 'new@seed.de' }
 			});
 			await controller.addMember(req, res, next);
 
@@ -243,7 +243,7 @@ describe('WorkgroupController', () => {
 
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: 'Member@Seed.de', canEdit: true },
+				body: { email: 'Member@Seed.de', canEdit: true }
 			});
 			await controller.updateMemberStatus(req, res, next);
 
@@ -260,7 +260,7 @@ describe('WorkgroupController', () => {
 		it('returns 400 for an invalid repository ID', async () => {
 			const req = createReq({
 				params: { id: INVALID_ID },
-				body: { email: 'member@seed.de', canEdit: false },
+				body: { email: 'member@seed.de', canEdit: false }
 			});
 			await controller.updateMemberStatus(req, res, next);
 
@@ -276,7 +276,7 @@ describe('WorkgroupController', () => {
 
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: 'member@seed.de', canEdit: true },
+				body: { email: 'member@seed.de', canEdit: true }
 			});
 			await controller.updateMemberStatus(req, res, next);
 
@@ -294,7 +294,7 @@ describe('WorkgroupController', () => {
 
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: 'Member@Seed.de' },
+				body: { email: 'Member@Seed.de' }
 			});
 			await controller.removeMember(req, res, next);
 
@@ -315,7 +315,7 @@ describe('WorkgroupController', () => {
 			// Legacy frontend sends { email: { email: 'addr' } }
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: { email: 'Nested@Seed.de' } },
+				body: { email: { email: 'Nested@Seed.de' } }
 			});
 			await controller.removeMember(req, res, next);
 
@@ -329,7 +329,7 @@ describe('WorkgroupController', () => {
 		it('returns 400 for an invalid repository ID', async () => {
 			const req = createReq({
 				params: { id: INVALID_ID },
-				body: { email: 'member@seed.de' },
+				body: { email: 'member@seed.de' }
 			});
 			await controller.removeMember(req, res, next);
 
@@ -342,7 +342,7 @@ describe('WorkgroupController', () => {
 		it('returns 400 when email is missing entirely', async () => {
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: {},
+				body: {}
 			});
 			await controller.removeMember(req, res, next);
 
@@ -358,7 +358,7 @@ describe('WorkgroupController', () => {
 
 			const req = createReq({
 				params: { id: VALID_ID },
-				body: { email: 'member@seed.de' },
+				body: { email: 'member@seed.de' }
 			});
 			await controller.removeMember(req, res, next);
 

@@ -1,14 +1,14 @@
 // src/controllers/report.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedReportService,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedReportService: {
 		getReportDataById: vi.fn(),
@@ -17,14 +17,14 @@ const {
 		getReportHistory: vi.fn(),
 		deleteReport: vi.fn(),
 		setIsSavedTestReport: vi.fn(),
-		getTestReports: vi.fn(),
+		getTestReports: vi.fn()
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/report.service', () => mockedReportService);
@@ -46,7 +46,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		params: {},
 		query: {},
 		user: {},
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -67,7 +67,7 @@ describe('ReportController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 	});
 
 	// ---------------------------------------------------------------

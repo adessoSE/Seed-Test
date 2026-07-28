@@ -1,26 +1,26 @@
 // src/controllers/file.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedFileService,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedFileService: {
 		fileUpload: vi.fn(),
 		getFileList: vi.fn(),
-		deleteFile: vi.fn(),
+		deleteFile: vi.fn()
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/file.service', () => mockedFileService);
@@ -43,7 +43,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		params: {},
 		query: {},
 		user: { _id: new ObjectId(VALID_ID), email: 'test@seed.de' },
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -64,7 +64,7 @@ describe('FileController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 	});
 
 	// ---------------------------------------------------------------
@@ -77,7 +77,7 @@ describe('FileController', () => {
 
 			const req = createReq({
 				params: { repoId: VALID_ID },
-				file: { buffer: Buffer.from('test'), originalname: 'test.txt' },
+				file: { buffer: Buffer.from('test'), originalname: 'test.txt' }
 			});
 			await controller.fileUpload(req, res, next);
 
@@ -106,7 +106,7 @@ describe('FileController', () => {
 		it('returns 400 for an invalid repository ID', async () => {
 			const req = createReq({
 				params: { repoId: INVALID_ID },
-				file: { buffer: Buffer.from('test'), originalname: 'test.txt' },
+				file: { buffer: Buffer.from('test'), originalname: 'test.txt' }
 			});
 			await controller.fileUpload(req, res, next);
 
@@ -123,7 +123,7 @@ describe('FileController', () => {
 
 			const req = createReq({
 				params: { repoId: VALID_ID },
-				file: { buffer: Buffer.from('test'), originalname: 'test.txt' },
+				file: { buffer: Buffer.from('test'), originalname: 'test.txt' }
 			});
 			await controller.fileUpload(req, res, next);
 
@@ -139,7 +139,7 @@ describe('FileController', () => {
 		it('returns a list of files for a valid repository ID', async () => {
 			const files = [
 				{ title: 'file1.txt', id: VALID_ID },
-				{ title: 'file2.txt', id: VALID_ID_2 },
+				{ title: 'file2.txt', id: VALID_ID_2 }
 			];
 			mockedFileService.getFileList.mockResolvedValue(files);
 

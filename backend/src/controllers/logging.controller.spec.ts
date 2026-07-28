@@ -1,23 +1,23 @@
 // src/controllers/logging.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedFs,
-	mockedPath,
+	mockedPath
 } = vi.hoisted(() => ({
 	mockedFs: {
 		existsSync: vi.fn(),
 		mkdirSync: vi.fn(),
 		createWriteStream: vi.fn(),
-		default: undefined as any,
+		default: undefined as any
 	},
 	mockedPath: {
 		join: vi.fn(),
-		default: undefined as any,
-	},
+		default: undefined as any
+	}
 }));
 
 // Wire up default exports so `import fs from 'node:fs'` resolves correctly
@@ -38,7 +38,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		body: {},
 		params: {},
 		query: {},
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -54,7 +54,7 @@ function createRes(): Response {
 function createMockStream() {
 	return {
 		write: vi.fn(),
-		end: vi.fn(),
+		end: vi.fn()
 	};
 }
 
@@ -68,7 +68,7 @@ describe('LoggingController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 		mockStream = createMockStream();
 
 		// Default behavior: logs directory already exists, stream works

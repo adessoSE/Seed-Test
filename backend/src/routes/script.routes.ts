@@ -1,9 +1,9 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import passport from 'passport';
 import initializePassport from '../passport-config.js';
 import * as userService from '../services/user.service.js';
 import * as scriptController from '../controllers/script.controller.js';
-import { Session, SessionData } from 'express-session';
+import { type Session, type SessionData } from 'express-session';
 import { validate } from '../middleware/validate.js';
 import { scriptGroupSchema, scriptFeatureSchema } from '../schemas/script.schemas.js';
 

@@ -1,6 +1,6 @@
 
 import { logger } from '../logging.js';
-import { ExecutionMode, GenericReport, GroupReport, ScenarioReport, StepStatus } from './models.js';
+import { ExecutionMode, type GenericReport, type GroupReport, type ScenarioReport, type StepStatus } from './models.js';
 import { checkValidGithubFormat, jiraDecryptPassword } from '../services/externalAccount.service.js';
 import { requireSafeExternalHost } from '../utils/validation.js';
 

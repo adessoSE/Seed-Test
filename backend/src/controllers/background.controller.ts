@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
 import * as storyService from '../services/story.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
-import { Background } from '@shared/models/Background.js';
+import { type Background } from '@shared/models/Background.js';
 import { AppError } from '../helpers/AppError.js';
 
 /**

@@ -14,11 +14,11 @@ vi.mock('../services/user.service', () => ({
 	registerUser: vi.fn(),
 	updateUser: vi.fn(),
 	deleteUser: vi.fn(),
-	mergeGithub: vi.fn(),
+	mergeGithub: vi.fn()
 }));
 
 vi.mock('../nodemailer', () => ({
-	sendResetLink: vi.fn().mockResolvedValue(undefined),
+	sendResetLink: vi.fn().mockResolvedValue(undefined)
 }));
 
 // No-op logger to suppress output during tests
@@ -27,24 +27,24 @@ vi.mock('../logging', () => ({
 		info: vi.fn(),
 		warn: vi.fn(),
 		error: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('passport', () => ({
 	default: {
-		authenticate: vi.fn(),
-	},
+		authenticate: vi.fn()
+	}
 }));
 
 vi.mock('bcrypt', () => ({
 	default: {
-		hash: vi.fn().mockResolvedValue('hashed_password_mock'),
-	},
+		hash: vi.fn().mockResolvedValue('hashed_password_mock')
+	}
 }));
 
 vi.mock('node:crypto', () => ({
-	randomUUID: vi.fn().mockReturnValue('test-uuid-1234-5678'),
+	randomUUID: vi.fn().mockReturnValue('test-uuid-1234-5678')
 }));
 
 // --- 2. Import modules after mocks are set up ---
@@ -75,7 +75,7 @@ function mockReqResNext(overrides: {
 		status: vi.fn().mockReturnThis(),
 		json: vi.fn().mockReturnThis(),
 		send: vi.fn().mockReturnThis(),
-		clearCookie: vi.fn().mockReturnThis(),
+		clearCookie: vi.fn().mockReturnThis()
 	};
 	const next = vi.fn();
 	const req = {
@@ -85,7 +85,7 @@ function mockReqResNext(overrides: {
 		user: overrides.user !== undefined ? overrides.user : null,
 		session: { cookie: { maxAge: null } },
 		logIn: vi.fn((_user: any, cb: (err: any) => void) => cb(null)),
-		logout: vi.fn((cb: (err: any) => void) => cb(null)),
+		logout: vi.fn((cb: (err: any) => void) => cb(null))
 	};
 	return { req: req as any, res: res as any, next };
 }
@@ -100,7 +100,7 @@ describe('UserController', () => {
 		password: 'existing_hashed_pw',
 		transitioned: true,
 		github: { githubToken: 'gh-token', login: 'ghuser', id: 42 },
-		jira: undefined,
+		jira: undefined
 	};
 
 	beforeEach(() => {
@@ -112,11 +112,11 @@ describe('UserController', () => {
 	describe('forgotPassword', () => {
 		it('should send a reset link when the user exists', async () => {
 			vi.mocked(userService.getResetRequestByEmail).mockResolvedValue(null);
-			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser } as any);
+			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser });
 			vi.mocked(userService.createResetRequest).mockResolvedValue({ insertedId: new ObjectId() });
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'Test@Example.com' },
+				body: { email: 'Test@Example.com' }
 			});
 
 			await userController.forgotPassword(req, res, next);
@@ -135,10 +135,10 @@ describe('UserController', () => {
 		it('should delete an existing reset request before creating a new one', async () => {
 			vi.mocked(userService.getResetRequestByEmail).mockResolvedValue({
 				uuid: 'old-uuid',
-				email: 'test@example.com',
+				email: 'test@example.com'
 			});
 			vi.mocked(userService.deleteRequest).mockResolvedValue({ deletedCount: 1 });
-			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser } as any);
+			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser });
 			vi.mocked(userService.createResetRequest).mockResolvedValue({ insertedId: new ObjectId() });
 
 			const { req, res, next } = mockReqResNext({ body: { email: 'test@example.com' } });
@@ -155,7 +155,7 @@ describe('UserController', () => {
 			vi.mocked(userService.getUserByEmail).mockResolvedValue(null);
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'nobody@example.com' },
+				body: { email: 'nobody@example.com' }
 			});
 
 			await userController.forgotPassword(req, res, next);
@@ -173,12 +173,12 @@ describe('UserController', () => {
 		it('should reset the password with a valid UUID', async () => {
 			const resetRequest = { uuid: 'valid-uuid', email: fakeUser.email };
 			vi.mocked(userService.getResetRequest).mockResolvedValue(resetRequest);
-			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser } as any);
+			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser });
 			vi.mocked(userService.updateUser).mockResolvedValue({ modifiedCount: 1 });
 			vi.mocked(userService.deleteRequest).mockResolvedValue({ deletedCount: 1 });
 
 			const { req, res, next } = mockReqResNext({
-				body: { uuid: 'valid-uuid', password: 'newSecurePassword' },
+				body: { uuid: 'valid-uuid', password: 'newSecurePassword' }
 			});
 
 			await userController.resetPassword(req, res, next);
@@ -199,7 +199,7 @@ describe('UserController', () => {
 			vi.mocked(userService.getResetRequest).mockResolvedValue(null);
 
 			const { req, res, next } = mockReqResNext({
-				body: { uuid: 'expired-uuid', password: 'newPassword' },
+				body: { uuid: 'expired-uuid', password: 'newPassword' }
 			});
 
 			await userController.resetPassword(req, res, next);
@@ -214,12 +214,12 @@ describe('UserController', () => {
 		it('should call next with 404 AppError when the user behind the reset request is missing', async () => {
 			vi.mocked(userService.getResetRequest).mockResolvedValue({
 				uuid: 'valid-uuid',
-				email: 'deleted@example.com',
+				email: 'deleted@example.com'
 			});
 			vi.mocked(userService.getUserByEmail).mockResolvedValue(null);
 
 			const { req, res, next } = mockReqResNext({
-				body: { uuid: 'valid-uuid', password: 'newPassword' },
+				body: { uuid: 'valid-uuid', password: 'newPassword' }
 			});
 
 			await userController.resetPassword(req, res, next);
@@ -251,7 +251,7 @@ describe('UserController', () => {
 			stubPassport(null, loginUser, null);
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'Test@Example.com', password: 'password123' },
+				body: { email: 'Test@Example.com', password: 'password123' }
 			});
 
 			userController.login(req, res, next);
@@ -266,7 +266,7 @@ describe('UserController', () => {
 			stubPassport(null, false, { message: 'Invalid credentials' });
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'test@example.com', password: 'wrong' },
+				body: { email: 'test@example.com', password: 'wrong' }
 			});
 
 			userController.login(req, res, next);
@@ -274,7 +274,7 @@ describe('UserController', () => {
 			expect(res.status).toHaveBeenCalledWith(401);
 			expect(res.json).toHaveBeenCalledWith({
 				status: 'error',
-				message: 'Invalid credentials',
+				message: 'Invalid credentials'
 			});
 		});
 
@@ -283,7 +283,7 @@ describe('UserController', () => {
 			stubPassport(passportError, null, null);
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'test@example.com', password: 'x' },
+				body: { email: 'test@example.com', password: 'x' }
 			});
 
 			userController.login(req, res, next);
@@ -295,7 +295,7 @@ describe('UserController', () => {
 			stubPassport(null, { ...fakeUser }, null);
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'test@example.com', password: 'p', stayLoggedIn: true },
+				body: { email: 'test@example.com', password: 'p', stayLoggedIn: true }
 			});
 
 			userController.login(req, res, next);
@@ -310,7 +310,7 @@ describe('UserController', () => {
 			vi.mocked(userService.updateUser).mockResolvedValue({ modifiedCount: 1 });
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'test@example.com', password: 'legacyPw' },
+				body: { email: 'test@example.com', password: 'legacyPw' }
 			});
 
 			userController.login(req, res, next);
@@ -329,7 +329,7 @@ describe('UserController', () => {
 			const loginError = new Error('Session save failed');
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'test@example.com', password: 'p' },
+				body: { email: 'test@example.com', password: 'p' }
 			});
 			// Override logIn to simulate a session-save error
 			req.logIn = vi.fn((_user: any, cb: (err: any) => void) => cb(loginError));
@@ -348,7 +348,7 @@ describe('UserController', () => {
 			vi.mocked(userService.registerUser).mockResolvedValue({ insertedId });
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'New@Example.com', password: 'securePassword' },
+				body: { email: 'New@Example.com', password: 'securePassword' }
 			});
 
 			await userController.register(req, res, next);
@@ -368,7 +368,7 @@ describe('UserController', () => {
 			vi.mocked(userService.registerUser).mockRejectedValue(new Error('User already exists'));
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'taken@example.com', password: 'pw' },
+				body: { email: 'taken@example.com', password: 'pw' }
 			});
 
 			// The catch block re-throws without calling next, so the async function rejects
@@ -380,7 +380,7 @@ describe('UserController', () => {
 
 		it('should call next with 400 AppError when email is missing', async () => {
 			const { req, res, next } = mockReqResNext({
-				body: { password: 'pw' },
+				body: { password: 'pw' }
 			});
 
 			await userController.register(req, res, next);
@@ -394,7 +394,7 @@ describe('UserController', () => {
 
 		it('should call next with 400 AppError when password is missing', async () => {
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'test@example.com' },
+				body: { email: 'test@example.com' }
 			});
 
 			await userController.register(req, res, next);
@@ -407,7 +407,7 @@ describe('UserController', () => {
 
 		it('should call next with 400 AppError for invalid email format', async () => {
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'not-an-email', password: 'pw' },
+				body: { email: 'not-an-email', password: 'pw' }
 			});
 
 			await userController.register(req, res, next);
@@ -427,7 +427,7 @@ describe('UserController', () => {
 			vi.mocked(userService.deleteUser).mockResolvedValue({ deletedCount: 1 });
 
 			const { req, res, next } = mockReqResNext({
-				user: { ...fakeUser },
+				user: { ...fakeUser }
 			});
 
 			await userController.deleteUser(req, res, next);
@@ -457,11 +457,11 @@ describe('UserController', () => {
 	describe('mergeGithub', () => {
 		it('should merge accounts and respond 200 when the user owns the account', async () => {
 			const mergedUser = { ...fakeUser, github: { login: 'newgh', id: 99, githubToken: 'tok' } };
-			vi.mocked(userService.mergeGithub).mockResolvedValue(mergedUser as any);
+			vi.mocked(userService.mergeGithub).mockResolvedValue(mergedUser);
 
 			const { req, res, next } = mockReqResNext({
 				body: { userId: fakeUserId, login: 'newgh', id: 99 },
-				user: { ...fakeUser },
+				user: { ...fakeUser }
 			});
 
 			await userController.mergeGithub(req, res, next);
@@ -478,7 +478,7 @@ describe('UserController', () => {
 
 			const { req, res, next } = mockReqResNext({
 				body: { userId: otherUserId, login: 'ghuser', id: 99 },
-				user: { ...fakeUser },
+				user: { ...fakeUser }
 			});
 
 			await userController.mergeGithub(req, res, next);
@@ -492,7 +492,7 @@ describe('UserController', () => {
 		it('should call next with 403 AppError when user is not authenticated', async () => {
 			const { req, res, next } = mockReqResNext({
 				body: { userId: fakeUserId, login: 'ghuser', id: 99 },
-				user: null,
+				user: null
 			});
 
 			await userController.mergeGithub(req, res, next);
@@ -511,7 +511,7 @@ describe('UserController', () => {
 	describe('getUser', () => {
 		it('should return 200 with user data when authenticated', async () => {
 			const { req, res, next } = mockReqResNext({
-				user: { ...fakeUser },
+				user: { ...fakeUser }
 			});
 
 			await userController.getUser(req, res, next);
@@ -540,7 +540,7 @@ describe('UserController', () => {
 			const { req, res, next } = mockReqResNext({
 				params: { userID: fakeUserId },
 				body: { email: 'ignored@new.com', password: 'existing_hashed_pw' },
-				user: { ...fakeUser },
+				user: { ...fakeUser }
 			});
 
 			await userController.updateUser(req, res, next);
@@ -551,7 +551,7 @@ describe('UserController', () => {
 				expect.objectContaining({
 					_id: fakeUser._id,
 					email: fakeUser.email,
-					github: fakeUser.github,
+					github: fakeUser.github
 				})
 			);
 			expect(res.status).toHaveBeenCalledWith(200);
@@ -565,7 +565,7 @@ describe('UserController', () => {
 			const { req, res, next } = mockReqResNext({
 				params: { userID: fakeUserId },
 				body: { email: 'x@x.com', password: 'brand_new_password' },
-				user: { ...fakeUser },
+				user: { ...fakeUser }
 			});
 
 			await userController.updateUser(req, res, next);
@@ -584,7 +584,7 @@ describe('UserController', () => {
 				params: { userID: fakeUserId },
 				// Same password as fakeUser.password — no rehash needed
 				body: { email: 'x@x.com', password: 'existing_hashed_pw' },
-				user: { ...fakeUser },
+				user: { ...fakeUser }
 			});
 
 			await userController.updateUser(req, res, next);
@@ -602,7 +602,7 @@ describe('UserController', () => {
 			const { req, res, next } = mockReqResNext({
 				params: { userID: otherUserId },
 				body: { email: 'x@x.com' },
-				user: { ...fakeUser },
+				user: { ...fakeUser }
 			});
 
 			await userController.updateUser(req, res, next);
@@ -617,7 +617,7 @@ describe('UserController', () => {
 			const { req, res, next } = mockReqResNext({
 				params: { userID: fakeUserId },
 				body: { email: 'x@x.com' },
-				user: null,
+				user: null
 			});
 
 			await userController.updateUser(req, res, next);

@@ -1,27 +1,27 @@
 // src/controllers/jira.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedExternalAccountService,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedExternalAccountService: {
 		buildAuthString: vi.fn(),
 		updateJiraCredential: vi.fn(),
 		disconnectJira: vi.fn(),
-		jiraDecryptPassword: vi.fn(),
+		jiraDecryptPassword: vi.fn()
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/externalAccount.service', () => mockedExternalAccountService);
@@ -44,9 +44,9 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		query: {},
 		user: {
 			_id: new ObjectId(VALID_ID),
-			email: 'test@seed.de',
+			email: 'test@seed.de'
 		},
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -75,17 +75,17 @@ function mockFetchResponse(overrides: {
 		statusText = 'OK',
 		headers = {},
 		jsonBody = {},
-		textBody,
+		textBody
 	} = overrides;
 	return {
 		ok,
 		status,
 		statusText,
 		headers: {
-			get: vi.fn((name: string) => headers[name.toLowerCase()] ?? null),
+			get: vi.fn((name: string) => headers[name.toLowerCase()] ?? null)
 		},
 		json: vi.fn().mockResolvedValue(jsonBody),
-		text: vi.fn().mockResolvedValue(textBody ?? JSON.stringify(jsonBody)),
+		text: vi.fn().mockResolvedValue(textBody ?? JSON.stringify(jsonBody))
 	} as unknown as globalThis.Response;
 }
 
@@ -97,7 +97,7 @@ describe('JiraController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 		// Stub global fetch for controllers that call external Jira APIs
 		vi.stubGlobal('fetch', vi.fn());
 	});
@@ -114,7 +114,7 @@ describe('JiraController', () => {
 			jiraAccountName: 'jiraUser',
 			jiraPassword: 'jiraPass',
 			jiraHost: VALID_HOST,
-			jiraAuthMethod: 'bearer',
+			jiraAuthMethod: 'bearer'
 		};
 
 		it('verifies credentials via Jira API and stores them on success', async () => {
@@ -164,7 +164,7 @@ describe('JiraController', () => {
 		it('calls next when required credentials are missing', async () => {
 			// Missing jiraPassword
 			const req = createReq({
-				body: { jiraAccountName: 'user', jiraHost: VALID_HOST },
+				body: { jiraAccountName: 'user', jiraHost: VALID_HOST }
 			});
 			await controller.linkJiraCredentials(req, res, next);
 
@@ -176,7 +176,7 @@ describe('JiraController', () => {
 
 		it('rejects invalid host via requireSafeExternalHost (SSRF protection)', async () => {
 			const req = createReq({
-				body: { ...validBody, jiraHost: 'localhost' },
+				body: { ...validBody, jiraHost: 'localhost' }
 			});
 			await controller.linkJiraCredentials(req, res, next);
 
@@ -192,7 +192,7 @@ describe('JiraController', () => {
 			vi.mocked(fetch).mockResolvedValue(mockFetchResponse({
 				ok: false,
 				status: 401,
-				statusText: 'Unauthorized',
+				statusText: 'Unauthorized'
 			}));
 
 			const req = createReq({ body: { ...validBody } });
@@ -249,13 +249,13 @@ describe('JiraController', () => {
 			jiraAccountName: 'user',
 			jiraPassword: 'pass',
 			jiraServer: VALID_HOST,
-			AuthMethod: 'basic',
+			AuthMethod: 'basic'
 		};
 
 		it('returns session cookie on successful login', async () => {
 			mockedExternalAccountService.buildAuthString.mockReturnValue('Basic dXNlcjpwYXNz');
 			vi.mocked(fetch).mockResolvedValue(mockFetchResponse({
-				headers: { 'set-cookie': 'JSESSIONID=abc123; Path=/' },
+				headers: { 'set-cookie': 'JSESSIONID=abc123; Path=/' }
 			}));
 
 			const req = createReq({ body: { ...validLoginBody } });
@@ -274,7 +274,7 @@ describe('JiraController', () => {
 		it('returns success message when no cookie is set (API token auth)', async () => {
 			mockedExternalAccountService.buildAuthString.mockReturnValue('Bearer tok');
 			vi.mocked(fetch).mockResolvedValue(mockFetchResponse({
-				headers: { 'set-cookie': null as any },
+				headers: { 'set-cookie': null }
 			}));
 
 			const req = createReq({ body: { ...validLoginBody } });
@@ -282,14 +282,14 @@ describe('JiraController', () => {
 
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith({
-				message: 'Authentication successful, but no session cookie set.',
+				message: 'Authentication successful, but no session cookie set.'
 			});
 		});
 
 		it('calls next with 400 when required fields are missing', async () => {
 			// Missing jiraServer
 			const req = createReq({
-				body: { jiraAccountName: 'user', jiraPassword: 'pass' },
+				body: { jiraAccountName: 'user', jiraPassword: 'pass' }
 			});
 			await controller.jiraLogin(req, res, next);
 
@@ -300,7 +300,7 @@ describe('JiraController', () => {
 
 		it('rejects SSRF-unsafe host via requireSafeExternalHost', async () => {
 			const req = createReq({
-				body: { ...validLoginBody, jiraServer: '192.168.1.1' },
+				body: { ...validLoginBody, jiraServer: '192.168.1.1' }
 			});
 			await controller.jiraLogin(req, res, next);
 
@@ -315,7 +315,7 @@ describe('JiraController', () => {
 			vi.mocked(fetch).mockResolvedValue(mockFetchResponse({
 				ok: false,
 				status: 401,
-				statusText: 'Unauthorized',
+				statusText: 'Unauthorized'
 			}));
 
 			const req = createReq({ body: { ...validLoginBody } });
@@ -340,8 +340,8 @@ describe('JiraController', () => {
 				Password_Nonce: 'nonce123',
 				Password_Tag: 'tag456',
 				AuthMethod: 'bearer',
-				Host: VALID_HOST,
-			},
+				Host: VALID_HOST
+			}
 		};
 
 		it('updates Xray step status and returns response data', async () => {
@@ -350,12 +350,12 @@ describe('JiraController', () => {
 			vi.mocked(fetch).mockResolvedValue(mockFetchResponse({
 				status: 200,
 				headers: { 'content-type': 'application/json' },
-				textBody: JSON.stringify({ result: 'ok' }),
+				textBody: JSON.stringify({ result: 'ok' })
 			}));
 
 			const req = createReq({
 				user: jiraUser,
-				body: { testRunId: '100', stepId: '5', status: 'PASS' },
+				body: { testRunId: '100', stepId: '5', status: 'PASS' }
 			});
 			await controller.updateXrayStatus(req, res, next);
 
@@ -364,7 +364,7 @@ describe('JiraController', () => {
 			);
 			// URL should include status as a query parameter
 			const fetchCall = vi.mocked(fetch).mock.calls[0];
-			expect(fetchCall[0]).toContain(`/rest/raven/1.0/api/testrun/100/step/5/status`);
+			expect(fetchCall[0]).toContain('/rest/raven/1.0/api/testrun/100/step/5/status');
 			expect(fetchCall[0]).toContain('status=PASS');
 			expect(fetchCall[1]).toEqual(expect.objectContaining({ method: 'PUT' }));
 			expect(res.status).toHaveBeenCalledWith(200);
@@ -374,7 +374,7 @@ describe('JiraController', () => {
 		it('calls next with 401 when user has no linked Jira account', async () => {
 			const req = createReq({
 				user: { _id: new ObjectId(VALID_ID), email: 'test@seed.de' },
-				body: { testRunId: '100', stepId: '5', status: 'PASS' },
+				body: { testRunId: '100', stepId: '5', status: 'PASS' }
 			});
 			await controller.updateXrayStatus(req, res, next);
 
@@ -387,7 +387,7 @@ describe('JiraController', () => {
 			// Missing stepId
 			const req = createReq({
 				user: jiraUser,
-				body: { testRunId: '100', status: 'FAIL' },
+				body: { testRunId: '100', status: 'FAIL' }
 			});
 
 			mockedExternalAccountService.jiraDecryptPassword.mockReturnValue('clearPass');
@@ -407,12 +407,12 @@ describe('JiraController', () => {
 			vi.mocked(fetch).mockResolvedValue(mockFetchResponse({
 				ok: false,
 				status: 500,
-				textBody: 'Internal Server Error',
+				textBody: 'Internal Server Error'
 			}));
 
 			const req = createReq({
 				user: jiraUser,
-				body: { testRunId: '100', stepId: '5', status: 'PASS' },
+				body: { testRunId: '100', stepId: '5', status: 'PASS' }
 			});
 			await controller.updateXrayStatus(req, res, next);
 

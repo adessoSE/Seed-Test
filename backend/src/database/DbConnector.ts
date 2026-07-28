@@ -1,4 +1,4 @@
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, type Db } from 'mongodb';
 import { setTimeout } from 'node:timers/promises';
 import { logger } from '../logging.js';
 

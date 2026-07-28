@@ -7,12 +7,12 @@ import fs from 'node:fs';
 import pfs from 'node:fs/promises';
 import path from 'node:path';
 import reporter from 'cucumber-html-reporter'; // Import the reporter
-import { ReportContainer } from '@shared/models/ReportContainer.js';
+import { type ReportContainer } from '@shared/models/ReportContainer.js';
 import * as storyService from './story.service.js';
-import { Story } from '@shared/models/Story.js';
-import { Scenario } from '@shared/models/Scenario.js';
+import { type Story } from '@shared/models/Story.js';
+import { type Scenario } from '@shared/models/Scenario.js';
 import {
-	GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ExecutionMode, ScenarioStatus
+	type GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ExecutionMode, type ScenarioStatus
 } from '../models/models.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
@@ -32,7 +32,7 @@ export async function getTestReports(storyId: string): Promise<any[]> {
 	const db = dbConnection.getConnection();
 	const oid = new ObjectId(storyId);
 	// StoryReports use 'featureId', ScenarioReports use 'storyId' — query both
-	return await db.collection(ReportDataCollection)
+	return db.collection(ReportDataCollection)
 		.find({ $or: [{ storyId: oid }, { featureId: oid }] }, { projection: { jsonReport: 0, reportOptions: 0, json: 0 } })
 		.toArray();
 }
@@ -45,7 +45,7 @@ export async function getTestReports(storyId: string): Promise<any[]> {
 export async function getGroupTestReports(storyId: string): Promise<any[]> {
 	const db = dbConnection.getConnection();
 	const query = { storyStatuses: { $elemMatch: { storyId: new ObjectId(storyId) } } };
-	return await db.collection(ReportDataCollection)
+	return db.collection(ReportDataCollection)
 		.find(query, { projection: { jsonReport: 0, reportOptions: 0, json: 0 } })
 		.toArray();
 }
@@ -61,7 +61,7 @@ export async function getReportById(reportId: string): Promise<any> {
 	if (!reportData)
 		throw AppError.notFound('Report data not found');
 
-	return await getReportFromDB(reportData);
+	return getReportFromDB(reportData);
 }
 
 /**
@@ -75,7 +75,7 @@ export async function getReportByName(reportName: string): Promise<any> {
 	if (!reportData)
 		throw AppError.notFound('Report data not found');
 
-	return await getReportFromDB(reportData);
+	return getReportFromDB(reportData);
 }
 
 
@@ -86,7 +86,7 @@ export async function getReportByName(reportName: string): Promise<any> {
  */
 export async function getReportDataById(reportId: string): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection(ReportDataCollection).findOne({ _id: new ObjectId(reportId.toString()) });
+	return db.collection(ReportDataCollection).findOne({ _id: new ObjectId(reportId.toString()) });
 }
 
 /**
@@ -141,7 +141,7 @@ export async function deleteReport(reportId: string): Promise<any> {
 		await bucket.delete(new ObjectId(reportData.bigReport));
 	}
 
-	return await collection.deleteOne({ _id: new ObjectId(reportId) });
+	return collection.deleteOne({ _id: new ObjectId(reportId) });
 }
 
 /**
@@ -397,10 +397,10 @@ export function generateHtmlReport(reportName: string, jsonPath: string, isGroup
 				logger.error(`No valid JSON report files found for group ${reportName}`);
 				return null;
 			}
-		} else {
+		} else 
 			// Validate single JSON file before generation
 			JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-		}
+		
 		reporter.generate(reportOptions);
 		logger.info(`Generated HTML report at: ${reportOptions.output}`);
 		return reportOptions;
@@ -622,7 +622,7 @@ function featureResult(featureReport: any, feature: Story): any { // Define a pr
 		// Match scenario report element to scenario data
 		// Using tags is more robust if available: @storyId_scenarioId
 		const tagMatch = scenReport.tags?.map((t: any) => t.name).find((n: string) => n.startsWith(`@${storyId}_`));
-		const scenarioId = tagMatch ? parseInt(tagMatch.split('_').pop()!, 10) : null;
+		const scenarioId = tagMatch ? parseInt(tagMatch.split('_').pop(), 10) : null;
 		const scenario = scenarioId ? feature.scenarios.find(s => s.scenario_id === scenarioId) : feature.scenarios.find(s => s.name === scenReport.name); // Fallback to name
 
 		if (!scenario) {

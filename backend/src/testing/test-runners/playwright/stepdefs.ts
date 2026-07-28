@@ -1,4 +1,4 @@
-import { expect, Locator } from '@playwright/test';
+import { expect, type Locator } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
 import {
@@ -11,7 +11,7 @@ import {
 	After,
 	Status,
 	setDefaultTimeout,
-	ITestCaseHookParameter
+	type ITestCaseHookParameter
 } from '@cucumber/cucumber';
 import { applySpecialCommands } from '../../../helpers/specialCommandParser.js';
 import { PlaywrightWorld } from './playwrightWorld.js';
@@ -251,7 +251,7 @@ async function mapLocatorsToPromises(
 									return computed;
 								}, value);
 
-								return await expect(computedColor).toBe(normalizedColor);
+								return expect(computedColor).toBe(normalizedColor);
 							}
 							// Für alle anderen CSS-Properties
 							return await expect(locator).toHaveCSS(args[0], value);

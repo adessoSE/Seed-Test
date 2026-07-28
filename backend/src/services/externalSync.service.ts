@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { type ObjectId } from 'mongodb';
 
 import { jiraDecryptPassword, buildAuthString, checkValidGithubFormat } from './externalAccount.service.js';
 import { logger } from '../logging.js';
@@ -9,11 +9,11 @@ import * as xrayService from './xray.service.js';
 
 import { emptyScenario } from '../models/emptyScenario.js';
 import { emptyBackground } from '../models/emptyBackground.js';
-import { Story } from '@shared/models/Story.js';
-import { Scenario } from '@shared/models/Scenario.js';
-import { StepType } from '@shared/models/StepType.js';
-import { StepDefinition } from '@shared/models/StepDefinition.js';
-import { User } from '@shared/models/User.js';
+import { type Story } from '@shared/models/Story.js';
+import { type Scenario } from '@shared/models/Scenario.js';
+import { type StepType } from '@shared/models/StepType.js';
+import { type StepDefinition } from '@shared/models/StepDefinition.js';
+import { type User } from '@shared/models/User.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
 import { requireSafeExternalHost } from '../utils/validation.js';
@@ -53,7 +53,7 @@ export async function getJiraRepos(jiraUser: any): Promise<{ _id: string; repoNa
 		jiraClearPassword,
 		AuthMethod
 	);
-	return await storeJiraRepos(repoNames);
+	return storeJiraRepos(repoNames);
 }
 
 /**
@@ -353,7 +353,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
     
 
 	// Match order and send response
-	return await matchStoryOrder(storiesArray, tmpStories, repo);
+	return matchStoryOrder(storiesArray, tmpStories, repo);
 }
 
 /**
@@ -471,7 +471,7 @@ async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
 	// Update feature file
 	await featureFileService.writeFile(finalStory);
     
-	return finalStory as Story;
+	return finalStory;
 }
 
 /**

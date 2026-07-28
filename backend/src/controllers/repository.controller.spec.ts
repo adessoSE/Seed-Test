@@ -1,7 +1,7 @@
 // src/controllers/repository.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
@@ -10,7 +10,7 @@ const {
 	mockedRepoService,
 	mockedSyncService,
 	mockedUserService,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedRepoService: {
 		dbProjects: vi.fn(),
@@ -20,22 +20,22 @@ const {
 		updateOwnerInRepo: vi.fn(),
 		deleteRepository: vi.fn(),
 		getRepoSettingsById: vi.fn(),
-		getRepoAiConfigById: vi.fn(),
+		getRepoAiConfigById: vi.fn()
 	},
 	mockedSyncService: {
 		getJiraRepos: vi.fn(),
 		starredRepositories: vi.fn(),
-		ownRepositories: vi.fn(),
+		ownRepositories: vi.fn()
 	},
 	mockedUserService: {
-		getUserByEmail: vi.fn(),
+		getUserByEmail: vi.fn()
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/repository.service', () => mockedRepoService);
@@ -61,9 +61,9 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		query: {},
 		user: {
 			_id: new ObjectId(VALID_ID),
-			email: 'test@seed.de',
+			email: 'test@seed.de'
 		},
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -84,7 +84,7 @@ describe('RepositoryController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 	});
 
 	// ---------------------------------------------------------------
@@ -196,7 +196,7 @@ describe('RepositoryController', () => {
 
 			const req = createReq({
 				params: { repo_id: VALID_ID },
-				body: { repoName: 'Updated', settings: { browser: 'chrome' } },
+				body: { repoName: 'Updated', settings: { browser: 'chrome' } }
 			});
 			await controller.updateRepositorySettings(req, res, next);
 
@@ -230,7 +230,7 @@ describe('RepositoryController', () => {
 
 			const req = createReq({
 				params: { repo_id: VALID_ID },
-				body: { email: 'newowner@seed.de' },
+				body: { email: 'newowner@seed.de' }
 			});
 			await controller.updateRepositoryOwner(req, res, next);
 
@@ -246,7 +246,7 @@ describe('RepositoryController', () => {
 		it('returns 400 for an invalid repository ID', async () => {
 			const req = createReq({
 				params: { repo_id: INVALID_ID },
-				body: { email: 'someone@seed.de' },
+				body: { email: 'someone@seed.de' }
 			});
 			await controller.updateRepositoryOwner(req, res, next);
 
@@ -261,7 +261,7 @@ describe('RepositoryController', () => {
 
 			const req = createReq({
 				params: { repo_id: VALID_ID },
-				body: { email: 'unknown@seed.de' },
+				body: { email: 'unknown@seed.de' }
 			});
 			await controller.updateRepositoryOwner(req, res, next);
 

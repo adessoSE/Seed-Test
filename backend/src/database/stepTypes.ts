@@ -1,4 +1,4 @@
-import { StepType } from '@shared/models/StepType.js';
+import { type StepType } from '@shared/models/StepType.js';
 
 export function stepDefs(): StepType[] {
 	return [{

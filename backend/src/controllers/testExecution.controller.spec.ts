@@ -1,43 +1,43 @@
 // src/controllers/testExecution.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
 // --- Mock all service/helper dependencies ---
 
 vi.mock('../testing/test-runner.service', () => ({
-	executeTest: vi.fn(),
+	executeTest: vi.fn()
 }));
 
 vi.mock('../services/story.service', () => ({
-	getOneStory: vi.fn(),
+	getOneStory: vi.fn()
 }));
 
 vi.mock('../services/repository.service', () => ({
 	getOneStoryGroup: vi.fn(),
-	getRepoSettingsById: vi.fn(),
+	getRepoSettingsById: vi.fn()
 }));
 
 vi.mock('../services/report.service', () => ({
 	resolveAndSaveReport: vi.fn(),
 	scheduleReportDeletion: vi.fn(),
-	updateLatestTestStatus: vi.fn(),
+	updateLatestTestStatus: vi.fn()
 }));
 
 vi.mock('../services/feature-file.service', () => ({
-	cleanFileName: vi.fn((name: string) => name),
+	cleanFileName: vi.fn((name: string) => name)
 }));
 
 vi.mock('../models/IssueTracker', () => ({
 	IssueTracker: { getIssueTracker: vi.fn() },
 	IssueTrackerOption: { JIRA: 'jira', GITHUB: 'github', NONE: 'db' },
-	Github: class {},
+	Github: class {}
 }));
 
 vi.mock('../models/models', () => ({
-	ExecutionMode: { SCENARIO: 'scenario', STORY: 'feature', GROUP: 'group' },
+	ExecutionMode: { SCENARIO: 'scenario', STORY: 'feature', GROUP: 'group' }
 }));
 
 vi.mock('node:fs', () => ({
@@ -45,21 +45,21 @@ vi.mock('node:fs', () => ({
 		mkdirSync: vi.fn(),
 		existsSync: vi.fn(),
 		rmSync: vi.fn(),
-		promises: { readFile: vi.fn() },
+		promises: { readFile: vi.fn() }
 	},
 	mkdirSync: vi.fn(),
 	existsSync: vi.fn(),
 	rmSync: vi.fn(),
-	promises: { readFile: vi.fn() },
+	promises: { readFile: vi.fn() }
 }));
 
 vi.mock('node:path', () => ({
 	default: { join: vi.fn((...args: string[]) => args.join('/')) },
-	join: vi.fn((...args: string[]) => args.join('/')),
+	join: vi.fn((...args: string[]) => args.join('/'))
 }));
 
 vi.mock('../logging', () => ({
-	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
+	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() }
 }));
 
 // --- Import the controller under test and mocked modules ---
@@ -85,7 +85,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		params: {},
 		query: {},
 		user: { _id: new ObjectId(VALID_ID), email: 'test@seed.de' },
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -104,7 +104,7 @@ function mockStory(overrides: Record<string, any> = {}) {
 		title: 'Test Story',
 		storySource: 'db',
 		scenarios: [{ scenario_id: 1, name: 'Scenario 1' }],
-		...overrides,
+		...overrides
 	};
 }
 
@@ -114,7 +114,7 @@ function setupReportMocks(reportName = 'test-report') {
 	vi.mocked(testRunnerService.executeTest).mockResolvedValue({ reportName, story });
 	vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue({
 		_id: 'reportId',
-		reportName,
+		reportName
 	});
 	vi.mocked(fs.promises.readFile).mockResolvedValue('<html>report</html>');
 	vi.mocked(reportService.scheduleReportDeletion).mockImplementation(() => {});
@@ -163,7 +163,7 @@ describe('TestExecutionController', () => {
 			vi.mocked(storyService.getOneStory).mockResolvedValue(story as any);
 			const req = createReq({
 				params: { issueID: VALID_ID },
-				body: { repositoryId: VALID_ID_2 },
+				body: { repositoryId: VALID_ID_2 }
 			});
 
 			await controller.runFeature(req, res, next);
@@ -172,7 +172,7 @@ describe('TestExecutionController', () => {
 			expect(reportService.resolveAndSaveReport).toHaveBeenCalled();
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
 				htmlFile: '<html>report</html>',
-				reportId: 'reportId',
+				reportId: 'reportId'
 			}));
 			expect(next).not.toHaveBeenCalled();
 		});
@@ -231,7 +231,7 @@ describe('TestExecutionController', () => {
 			vi.mocked(storyService.getOneStory).mockResolvedValue(story as any);
 			const req = createReq({
 				params: { issueID: VALID_ID, scenarioId: '1' },
-				body: { repositoryId: VALID_ID_2 },
+				body: { repositoryId: VALID_ID_2 }
 			});
 
 			await controller.runScenario(req, res, next);
@@ -239,7 +239,7 @@ describe('TestExecutionController', () => {
 			expect(testRunnerService.executeTest).toHaveBeenCalled();
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
 				htmlFile: '<html>report</html>',
-				reportId: 'reportId',
+				reportId: 'reportId'
 			}));
 			expect(next).not.toHaveBeenCalled();
 		});
@@ -250,7 +250,7 @@ describe('TestExecutionController', () => {
 	describe('runGroup', () => {
 		it('should forward AppError when group ID is invalid', async () => {
 			const req = createReq({
-				params: { groupID: INVALID_ID, repoID: VALID_ID },
+				params: { groupID: INVALID_ID, repoID: VALID_ID }
 			});
 
 			await controller.runGroup(req, res, next);
@@ -262,7 +262,7 @@ describe('TestExecutionController', () => {
 
 		it('should forward 404 when group is not found', async () => {
 			const req = createReq({
-				params: { groupID: VALID_ID_2, repoID: VALID_ID },
+				params: { groupID: VALID_ID_2, repoID: VALID_ID }
 			});
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue(undefined);
 
@@ -275,12 +275,12 @@ describe('TestExecutionController', () => {
 
 		it('should forward 400 when group has no valid stories', async () => {
 			const req = createReq({
-				params: { groupID: VALID_ID_2, repoID: VALID_ID },
+				params: { groupID: VALID_ID_2, repoID: VALID_ID }
 			});
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue({
 				name: 'Empty Group',
 				member_stories: [new ObjectId()],
-				isSequential: false,
+				isSequential: false
 			} as any);
 			vi.mocked(storyService.getOneStory).mockResolvedValue(null);
 
@@ -296,18 +296,18 @@ describe('TestExecutionController', () => {
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue({
 				name: 'Sequential Group',
 				member_stories: [new ObjectId(VALID_ID)],
-				isSequential: true,
+				isSequential: true
 			} as any);
 			vi.mocked(storyService.getOneStory).mockResolvedValue(story as any);
 			const req = createReq({
-				params: { groupID: VALID_ID_2, repoID: VALID_ID },
+				params: { groupID: VALID_ID_2, repoID: VALID_ID }
 			});
 
 			await controller.runGroup(req, res, next);
 
 			expect(testRunnerService.executeTest).toHaveBeenCalledTimes(1);
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-				htmlFile: '<html>report</html>',
+				htmlFile: '<html>report</html>'
 			}));
 			expect(next).not.toHaveBeenCalled();
 		});
@@ -318,13 +318,13 @@ describe('TestExecutionController', () => {
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue({
 				name: 'Parallel Group',
 				member_stories: [new ObjectId(VALID_ID), new ObjectId(VALID_ID_2)],
-				isSequential: false,
+				isSequential: false
 			} as any);
 			vi.mocked(storyService.getOneStory)
 				.mockResolvedValueOnce(story as any)
 				.mockResolvedValueOnce(story2 as any);
 			const req = createReq({
-				params: { groupID: VALID_ID_2, repoID: VALID_ID },
+				params: { groupID: VALID_ID_2, repoID: VALID_ID }
 			});
 
 			await controller.runGroup(req, res, next);
@@ -342,7 +342,7 @@ describe('TestExecutionController', () => {
 		it('should forward 400 when no stories are provided', async () => {
 			const req = createReq({
 				params: { repoID: VALID_ID },
-				body: { id: VALID_ID, group: { member_stories: [], isSequential: false } },
+				body: { id: VALID_ID, group: { member_stories: [], isSequential: false } }
 			});
 
 			await controller.runTempGroup(req, res, next);
@@ -355,7 +355,7 @@ describe('TestExecutionController', () => {
 		it('should forward 400 when member_stories contains only null entries', async () => {
 			const req = createReq({
 				params: { repoID: VALID_ID },
-				body: { id: VALID_ID, group: { member_stories: [null, null], isSequential: false } },
+				body: { id: VALID_ID, group: { member_stories: [null, null], isSequential: false } }
 			});
 
 			await controller.runTempGroup(req, res, next);
@@ -372,8 +372,8 @@ describe('TestExecutionController', () => {
 				body: {
 					id: VALID_ID,
 					repository: 'owner/repo',
-					group: { member_stories: [story], isSequential: false },
-				},
+					group: { member_stories: [story], isSequential: false }
+				}
 			});
 
 			await controller.runTempGroup(req, res, next);
@@ -381,7 +381,7 @@ describe('TestExecutionController', () => {
 			expect(testRunnerService.executeTest).toHaveBeenCalledTimes(1);
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
 				htmlFile: '<html>report</html>',
-				reportId: 'reportId',
+				reportId: 'reportId'
 			}));
 			expect(next).not.toHaveBeenCalled();
 		});
@@ -397,7 +397,7 @@ describe('TestExecutionController', () => {
 
 			expect(res.status).toHaveBeenCalledWith(500);
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-				error: expect.stringContaining('failed to produce'),
+				error: expect.stringContaining('failed to produce')
 			}));
 		});
 
@@ -408,14 +408,14 @@ describe('TestExecutionController', () => {
 
 			expect(res.status).toHaveBeenCalledWith(500);
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-				error: expect.stringContaining('failed to produce'),
+				error: expect.stringContaining('failed to produce')
 			}));
 		});
 
 		it('should resolve report, read HTML, and return JSON on happy path', async () => {
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue({
 				_id: 'reportId',
-				reportName: 'test-report',
+				reportName: 'test-report'
 			});
 			vi.mocked(fs.promises.readFile).mockResolvedValue('<html>report</html>');
 			vi.mocked(reportService.scheduleReportDeletion).mockImplementation(() => {});
@@ -430,7 +430,7 @@ describe('TestExecutionController', () => {
 			expect(fs.promises.readFile).toHaveBeenCalled();
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
 				htmlFile: '<html>report</html>',
-				reportId: 'reportId',
+				reportId: 'reportId'
 			}));
 			expect(reportService.scheduleReportDeletion).toHaveBeenCalled();
 		});
@@ -438,7 +438,7 @@ describe('TestExecutionController', () => {
 		it('should return 500 if reading the HTML file fails', async () => {
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue({
 				_id: 'reportId',
-				reportName: 'test-report',
+				reportName: 'test-report'
 			});
 			vi.mocked(fs.promises.readFile).mockRejectedValue(new Error('ENOENT'));
 			vi.mocked(reportService.scheduleReportDeletion).mockImplementation(() => {});
@@ -451,7 +451,7 @@ describe('TestExecutionController', () => {
 
 			expect(res.status).toHaveBeenCalledWith(500);
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-				error: expect.stringContaining('Failed to read HTML'),
+				error: expect.stringContaining('Failed to read HTML')
 			}));
 			// scheduleReportDeletion still called in the finally block
 			expect(reportService.scheduleReportDeletion).toHaveBeenCalled();

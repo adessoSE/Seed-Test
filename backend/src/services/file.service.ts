@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { FileElement } from '@shared/models/FileElement.js';
+import { type FileElement } from '@shared/models/FileElement.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
 

@@ -1,7 +1,7 @@
 // Side-effect import: must be first so .env is loaded before any other module reads process.env
 import 'dotenv/config';
 
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { type Application, type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -12,7 +12,7 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import http from 'node:http';
 import { execSync } from 'node:child_process';
-import { chromium, firefox, webkit, BrowserType } from '@playwright/test';
+import { chromium, firefox, webkit, type BrowserType } from '@playwright/test';
 import { logger } from './logging.js';
 import { isAuthenticated } from './middleware/authenticate.js';
 

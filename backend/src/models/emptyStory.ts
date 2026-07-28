@@ -1,4 +1,4 @@
-import { Story } from '@shared/models/Story.js';
+import { type Story } from '@shared/models/Story.js';
 import { emptyBackground } from './emptyBackground.js';
 import { emptyScenario } from './emptyScenario.js';
 

@@ -2,10 +2,10 @@ import pfs from 'node:fs/promises';
 import path from 'node:path';
 import { logger } from '../logging.js';
 import AdmZip from 'adm-zip';
-import { Story } from '@shared/models/Story.js';
-import { Background } from '@shared/models/Background.js';
-import { Scenario } from '@shared/models/Scenario.js';
-import { StepType } from '@shared/models/StepType.js';
+import { type Story } from '@shared/models/Story.js';
+import { type Background } from '@shared/models/Background.js';
+import { type Scenario } from '@shared/models/Scenario.js';
+import { type StepType } from '@shared/models/StepType.js';
 import * as storyService from './story.service.js';
 import * as blockService from './block.service.js';
 import { AppError } from '../helpers/AppError.js';
@@ -190,7 +190,7 @@ export async function exportSingleFeatureFile(storyId: string): Promise<string> 
 	// Ensure file is written before trying to read it
 	await writeFile(story);
 	const filePath = path.join(process.cwd(), 'features', `${cleanFileName(story.title + story._id)}.feature`);
-	return await pfs.readFile(filePath, 'utf8');
+	return pfs.readFile(filePath, 'utf8');
 }
 
 export async function exportProjectFeatureFiles(repoId: string, versionId?: string): Promise<Buffer> {

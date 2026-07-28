@@ -11,7 +11,7 @@ describe('isAuthenticated middleware', () => {
 		return {
 			isAuthenticated: vi.fn().mockReturnValue(authenticated),
 			method: 'GET',
-			originalUrl: '/api/test',
+			originalUrl: '/api/test'
 		};
 	}
 

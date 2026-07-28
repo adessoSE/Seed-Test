@@ -6,8 +6,8 @@ import bcrypt from 'bcrypt';
 import * as userService from '../services/user.service.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
-import { Scenario } from '@shared/models/Scenario.js';
-import { User } from '@shared/models/User.js';
+import { type Scenario } from '@shared/models/Scenario.js';
+import { type User } from '@shared/models/User.js';
 
 const exampleUserEmail = 'seed@test.de';
 const examplePassword = 'seedtest';
@@ -136,7 +136,7 @@ async function insertExampleTest(user: User): Promise<void> {
 				console.log('\x1b[33mExample-Scenario already exists. Updating...\x1b[0m');
 				// Merge existing with example data, ensuring _id is kept if present
 				const scenarioToUpdate = { ...existingScenario, ...exampleScenarioData };
-				await storyService.updateScenario(storyId, scenarioToUpdate as Scenario);
+				await storyService.updateScenario(storyId, scenarioToUpdate);
 			} else {
 				console.log('\x1b[32mAdding Example-Scenario...\x1b[0m');
 				story.scenarios.push(exampleScenarioData as Scenario);

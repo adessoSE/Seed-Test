@@ -1,7 +1,7 @@
 // Side-effect import: must be first so .env is loaded before any other module reads process.env
 import 'dotenv/config';
 
-import { MongoClient, Db } from 'mongodb';
+import { type MongoClient, type Db } from 'mongodb';
 import { exit } from 'process';
 import * as dbConnector from './DbConnector.js';
 import { stepDefs } from './stepTypes.js';

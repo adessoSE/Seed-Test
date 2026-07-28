@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import * as dbConnection from '../database/DbConnector.js';
 import { getUserById } from './user.service.js';
-import { oid, RepositoryDoc } from '../types/mongo.types.js';
+import { oid, type RepositoryDoc } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
 
 const repositoriesCollection = 'Repositories';
@@ -22,7 +22,7 @@ export interface Workgroup {
  */
 export async function getWorkgroup(repoId: string): Promise<Workgroup | null> {
 	const db = dbConnection.getConnection();
-	return await db.collection<Workgroup>(workgroupsCollection).findOne({ Repo: new ObjectId(repoId) });
+	return db.collection<Workgroup>(workgroupsCollection).findOne({ Repo: new ObjectId(repoId) });
 }
 
 /**
@@ -83,7 +83,7 @@ export async function addMember(repoId: string, user: { email: string, canEdit: 
 			{ $push: { Members: user } as any }
 		);
 	}
-	return await getMembers(repoId);
+	return getMembers(repoId);
 }
 
 /**
@@ -98,7 +98,7 @@ export async function updateMemberStatus(repoId: string, user: { email: string, 
 		{ Repo: new ObjectId(repoId), 'Members.email': user.email },
 		{ $set: { 'Members.$.canEdit': user.canEdit } }
 	);
-	return await getMembers(repoId);
+	return getMembers(repoId);
 }
 
 /**
@@ -154,7 +154,7 @@ export async function removeFromWorkgroup(repoId: string, user: { email: string 
 		{ Repo: new ObjectId(repoId) },
 		{ $pull: { Members: { email: user.email } } as any }
 	);
-	return await getMembers(repoId);
+	return getMembers(repoId);
 }
 
 /**
@@ -165,7 +165,7 @@ export async function removeFromWorkgroup(repoId: string, user: { email: string 
  */
 export async function removeUserFromAllWorkgroups(email: string): Promise<any> {
 	const db = dbConnection.getConnection();
-	return await db.collection<Workgroup>(workgroupsCollection).updateMany(
+	return db.collection<Workgroup>(workgroupsCollection).updateMany(
 		{ 'Members.email': email },
 		{ $pull: { Members: { email } } as any }
 	);

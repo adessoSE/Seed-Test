@@ -1,24 +1,24 @@
 // src/controllers/github.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedUserService,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedUserService: {
-		disconnectGithub: vi.fn(),
+		disconnectGithub: vi.fn()
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/user.service', () => mockedUserService);
@@ -41,9 +41,9 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		query: {},
 		user: {
 			_id: new ObjectId(VALID_ID),
-			email: 'test@seed.de',
+			email: 'test@seed.de'
 		},
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -68,7 +68,7 @@ function mockFetchResponse(overrides: {
 		ok,
 		status,
 		json: vi.fn().mockResolvedValue(jsonBody),
-		text: vi.fn().mockResolvedValue(JSON.stringify(jsonBody)),
+		text: vi.fn().mockResolvedValue(JSON.stringify(jsonBody))
 	} as unknown as globalThis.Response;
 }
 
@@ -80,7 +80,7 @@ describe('GithubController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 		// Stub global fetch for controllers that call the GitHub API
 		vi.stubGlobal('fetch', vi.fn());
 		// Provide a valid token for submitIssue tests
@@ -106,8 +106,8 @@ describe('GithubController', () => {
 					body: 'Steps to reproduce',
 					assignees: ['dev1'],
 					labels: ['bug'],
-					milestone: 3,
-				},
+					milestone: 3
+				}
 			});
 			await controller.submitIssue(req, res, next);
 
@@ -139,8 +139,8 @@ describe('GithubController', () => {
 				body: {
 					title: 'Valid title',
 					maliciousField: 'should be stripped',
-					assignees: ['dev1', 42], // non-string element should be filtered
-				},
+					assignees: ['dev1', 42] // non-string element should be filtered
+				}
 			});
 			await controller.submitIssue(req, res, next);
 
@@ -192,7 +192,7 @@ describe('GithubController', () => {
 			vi.mocked(fetch).mockResolvedValue(mockFetchResponse({
 				ok: false,
 				status: 422,
-				jsonBody: errorData,
+				jsonBody: errorData
 			}));
 
 			const req = createReq({ body: { title: 'Bad issue' } });
@@ -215,7 +215,7 @@ describe('GithubController', () => {
 			// User without github property — takes the else branch (no session save)
 			const req = createReq({
 				user: { _id: new ObjectId(VALID_ID), email: 'test@seed.de' },
-				session: { save: vi.fn() },
+				session: { save: vi.fn() }
 			});
 			await controller.disconnectGithub(req, res, next);
 
@@ -234,9 +234,9 @@ describe('GithubController', () => {
 				user: {
 					_id: new ObjectId(VALID_ID),
 					email: 'test@seed.de',
-					github: { login: 'ghuser', id: 42 },
+					github: { login: 'ghuser', id: 42 }
 				},
-				session: { save: saveMock },
+				session: { save: saveMock }
 			});
 			await controller.disconnectGithub(req, res, next);
 
@@ -255,9 +255,9 @@ describe('GithubController', () => {
 				user: {
 					_id: new ObjectId(VALID_ID),
 					email: 'test@seed.de',
-					github: { login: 'ghuser', id: 42 },
+					github: { login: 'ghuser', id: 42 }
 				},
-				session: { save: saveMock },
+				session: { save: saveMock }
 			});
 			await controller.disconnectGithub(req, res, next);
 

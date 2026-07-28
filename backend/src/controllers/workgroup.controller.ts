@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
 import * as workgroupService from '../services/workgroup.service.js';
 import * as userService from '../services/user.service.js';

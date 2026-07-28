@@ -1,7 +1,7 @@
 // src/controllers/script.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 import { AppError } from '../helpers/AppError.js';
 
@@ -14,41 +14,41 @@ const {
 	mockedTestExecutionController,
 	mockedFs,
 	mockedPath,
-	mockedLogger,
+	mockedLogger
 } = vi.hoisted(() => ({
 	mockedRepositoryService: {
-		getOneStoryGroup: vi.fn(),
+		getOneStoryGroup: vi.fn()
 	},
 	mockedStoryService: {
-		getOneStory: vi.fn(),
+		getOneStory: vi.fn()
 	},
 	mockedTestRunnerService: {
-		executeTest: vi.fn(),
+		executeTest: vi.fn()
 	},
 	mockedFeatureFileService: {
-		cleanFileName: vi.fn(),
+		cleanFileName: vi.fn()
 	},
 	mockedTestExecutionController: {
-		handleReportResult: vi.fn(),
+		handleReportResult: vi.fn()
 	},
 	mockedFs: {
 		default: {
 			mkdirSync: vi.fn(),
 			existsSync: vi.fn(),
-			rmSync: vi.fn(),
-		},
+			rmSync: vi.fn()
+		}
 	},
 	mockedPath: {
 		default: {
-			join: vi.fn((...args: string[]) => '/stable/path'),
-		},
+			join: vi.fn((...args: string[]) => '/stable/path')
+		}
 	},
 	mockedLogger: {
 		info: vi.fn(),
 		error: vi.fn(),
 		warn: vi.fn(),
-		debug: vi.fn(),
-	},
+		debug: vi.fn()
+	}
 }));
 
 vi.mock('../services/repository.service', () => mockedRepositoryService);
@@ -57,7 +57,7 @@ vi.mock('../testing/test-runner.service', () => mockedTestRunnerService);
 vi.mock('../services/feature-file.service', () => mockedFeatureFileService);
 vi.mock('./testExecution.controller', () => mockedTestExecutionController);
 vi.mock('../models/models', () => ({
-	ExecutionMode: { STORY: 'story', SCENARIO: 'scenario', GROUP: 'group' },
+	ExecutionMode: { STORY: 'story', SCENARIO: 'scenario', GROUP: 'group' }
 }));
 vi.mock('node:fs', () => mockedFs);
 vi.mock('node:path', () => mockedPath);
@@ -80,7 +80,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		params: {},
 		query: {},
 		user: { _id: new ObjectId(VALID_ID), email: 'test@seed.de' },
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -103,7 +103,7 @@ function mockGroup(overrides: Record<string, any> = {}) {
 		name: 'TestGroup',
 		member_stories: [VALID_ID],
 		isSequential: false,
-		...overrides,
+		...overrides
 	};
 }
 
@@ -115,7 +115,7 @@ describe('ScriptController', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		res = createRes();
-		next = vi.fn() as unknown as NextFunction;
+		next = vi.fn();
 
 		// Sensible defaults for happy-path mocks
 		mockedFeatureFileService.cleanFileName.mockImplementation((s: string) => s);
@@ -274,7 +274,7 @@ describe('ScriptController', () => {
 			mockedStoryService.getOneStory.mockResolvedValue(story);
 			const req = createReq({
 				params: { issueID: VALID_ID },
-				body: { repositoryId: VALID_ID_2 },
+				body: { repositoryId: VALID_ID_2 }
 			});
 
 			await controller.runFeatureViaScript(req, res, next);

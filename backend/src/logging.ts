@@ -1,5 +1,5 @@
-import winston, { Logger, LoggerOptions } from 'winston';
-import { Request, Response, NextFunction } from 'express';
+import winston, { type Logger, type LoggerOptions } from 'winston';
+import { type Request, type Response, type NextFunction } from 'express';
 
 function getLogger(): Logger {
 	// Shared format: timestamp + level + message (no align — it adds unwanted tabs)

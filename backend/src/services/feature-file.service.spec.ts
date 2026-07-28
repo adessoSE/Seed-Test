@@ -7,9 +7,9 @@ import * as featureFileService from './feature-file.service.js';
 import * as blockService from './block.service.js';
 
 // Import types for creating mock data
-import { Story } from '@shared/models/Story.js';
-import { Block } from '@shared/models/Block.js';
-import { Scenario } from '@shared/models/Scenario.js';
+import { type Story } from '@shared/models/Story.js';
+import { type Block } from '@shared/models/Block.js';
+import { type Scenario } from '@shared/models/Scenario.js';
 
 // --- 1. Mock Dependencies ---
 vi.mock('./story.service', () => ({

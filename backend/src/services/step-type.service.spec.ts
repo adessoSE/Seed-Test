@@ -21,7 +21,7 @@ describe('step-type.service', () => {
 	it('should return all step types from the database', async () => {
 		const stepTypes = [
 			{ id: 1, pre: 'I am on the website ', mid: '', type: 'Website', stepType: 'given', values: [] },
-			{ id: 2, pre: 'I click the button ', mid: '', type: 'Button', stepType: 'when', values: [] },
+			{ id: 2, pre: 'I click the button ', mid: '', type: 'Button', stepType: 'when', values: [] }
 		];
 		mockCollection.find.mockReturnValue({ toArray: vi.fn().mockResolvedValue(stepTypes) });
 

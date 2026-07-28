@@ -1,31 +1,31 @@
 // src/controllers/sanity.controller.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
 
 // --- Mock all service/helper dependencies ---
 
 vi.mock('../services/repository.service', () => ({
-	getOneStoryGroup: vi.fn(),
+	getOneStoryGroup: vi.fn()
 }));
 
 vi.mock('../services/story.service', () => ({
-	getOneStory: vi.fn(),
+	getOneStory: vi.fn()
 }));
 
 vi.mock('../testing/test-runner.service', () => ({
-	executeTest: vi.fn(),
+	executeTest: vi.fn()
 }));
 
 vi.mock('../services/report.service', () => ({
 	resolveAndSaveReport: vi.fn(),
 	updateLatestTestStatus: vi.fn(),
-	scheduleReportDeletion: vi.fn(),
+	scheduleReportDeletion: vi.fn()
 }));
 
 vi.mock('../services/feature-file.service', () => ({
-	cleanFileName: vi.fn((name: string) => name.replace(/[^a-zA-Z0-9_]/g, '_')),
+	cleanFileName: vi.fn((name: string) => name.replace(/[^a-zA-Z0-9_]/g, '_'))
 }));
 
 vi.mock('../models/models', () => ({
@@ -34,27 +34,27 @@ vi.mock('../models/models', () => ({
 		scenariosTested = { passed: 0, failed: 0 };
 		groupTestResults = { passedSteps: 0, failedSteps: 0, skippedSteps: 0 };
 	},
-	PassedCount: class { passed = 0; failed = 0; },
+	PassedCount: class { passed = 0; failed = 0; }
 }));
 
 vi.mock('node:fs', () => ({
 	default: {
 		mkdirSync: vi.fn(),
 		existsSync: vi.fn().mockReturnValue(false),
-		rm: vi.fn(),
+		rm: vi.fn()
 	},
 	mkdirSync: vi.fn(),
 	existsSync: vi.fn().mockReturnValue(false),
-	rm: vi.fn(),
+	rm: vi.fn()
 }));
 
 vi.mock('node:path', () => ({
 	default: { join: vi.fn((...args: string[]) => args.join('/')) },
-	join: vi.fn((...args: string[]) => args.join('/')),
+	join: vi.fn((...args: string[]) => args.join('/'))
 }));
 
 vi.mock('../logging', () => ({
-	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
+	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() }
 }));
 
 // --- Import controller under test and mocked modules ---
@@ -78,7 +78,7 @@ function createReq(overrides: Record<string, any> = {}): Request {
 		params: { repoID: VALID_ID, groupID: VALID_ID_2 },
 		query: {},
 		user: { _id: new ObjectId(VALID_ID), email: 'test@seed.de' },
-		...overrides,
+		...overrides
 	} as unknown as Request;
 }
 
@@ -96,7 +96,7 @@ function mockGroup(overrides: Record<string, any> = {}) {
 		name: 'Test Group',
 		member_stories: [new ObjectId(VALID_ID)],
 		isSequential: false,
-		...overrides,
+		...overrides
 	};
 }
 
@@ -105,7 +105,7 @@ function mockStory(overrides: Record<string, any> = {}) {
 		_id: new ObjectId(VALID_ID),
 		title: 'Test Story',
 		scenarios: [{ scenario_id: 1, name: 'Scenario 1' }],
-		...overrides,
+		...overrides
 	};
 }
 
@@ -166,7 +166,7 @@ describe('sanity.controller', () => {
 			const finalReport = {
 				reportName: 'sanity_Test_Group_123',
 				scenariosTested: { passed: 2, failed: 1 },
-				groupTestResults: { passedSteps: 5, failedSteps: 1, skippedSteps: 0 },
+				groupTestResults: { passedSteps: 5, failedSteps: 1, skippedSteps: 0 }
 			};
 
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue(group as any);
@@ -193,7 +193,7 @@ describe('sanity.controller', () => {
 			const finalReport = {
 				reportName: 'sanity_My_Group__123',
 				scenariosTested: { passed: 1, failed: 0 },
-				groupTestResults: { passedSteps: 3, failedSteps: 0, skippedSteps: 0 },
+				groupTestResults: { passedSteps: 3, failedSteps: 0, skippedSteps: 0 }
 			};
 
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue(group as any);
@@ -221,7 +221,7 @@ describe('sanity.controller', () => {
 			const finalReport = {
 				reportName: 'sanity_report',
 				scenariosTested: { passed: 1, failed: 0 },
-				groupTestResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 },
+				groupTestResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 }
 			};
 
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue(group as any);
@@ -251,7 +251,7 @@ describe('sanity.controller', () => {
 			const finalReport = {
 				reportName: 'sanity_report',
 				scenariosTested: { passed: 2, failed: 0 },
-				groupTestResults: { passedSteps: 4, failedSteps: 0, skippedSteps: 0 },
+				groupTestResults: { passedSteps: 4, failedSteps: 0, skippedSteps: 0 }
 			};
 
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue(group as any);
@@ -328,7 +328,7 @@ describe('sanity.controller', () => {
 			const finalReport = {
 				reportName: 'sanity_report',
 				scenariosTested: { passed: 1, failed: 0 },
-				groupTestResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 },
+				groupTestResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 }
 			};
 
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue(group as any);
@@ -356,7 +356,7 @@ describe('sanity.controller', () => {
 			const finalReport = {
 				reportName: 'sanity_report',
 				scenariosTested: { passed: 1, failed: 0 },
-				groupTestResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 },
+				groupTestResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 }
 			};
 
 			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue(group as any);

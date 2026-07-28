@@ -14,19 +14,19 @@ const {
 		findOne: vi.fn(),
 		insertOne: vi.fn(),
 		deleteOne: vi.fn(),
-		updateOne: vi.fn(),
+		updateOne: vi.fn()
 	};
 	const mockReportsCol = {
 		findOne: vi.fn(),
 		insertOne: vi.fn(),
-		deleteOne: vi.fn(),
+		deleteOne: vi.fn()
 	};
 	const mockDb = {
 		collection: vi.fn((name: string) => {
 			if (name === 'ReportData') return mockReportDataCol;
 			if (name === 'Reports') return mockReportsCol;
 			return mockReportDataCol;
-		}),
+		})
 	};
 	return {
 		mockReportDataCol,
@@ -37,9 +37,9 @@ const {
 		mockStoryService: {
 			getOneStory: vi.fn(),
 			updateStoryStatus: vi.fn().mockResolvedValue(undefined),
-			updateScenarioStatus: vi.fn().mockResolvedValue(undefined),
+			updateScenarioStatus: vi.fn().mockResolvedValue(undefined)
 		},
-		mockFsPromises: { readFile: vi.fn() },
+		mockFsPromises: { readFile: vi.fn() }
 	};
 });
 
@@ -56,7 +56,7 @@ vi.mock('node:fs', () => ({
 		writeFileSync: vi.fn(),
 		promises: { readFile: vi.fn().mockResolvedValue('{}') },
 		rm: vi.fn(),
-		unlink: vi.fn(),
+		unlink: vi.fn()
 	},
 	existsSync: vi.fn().mockReturnValue(true),
 	readFileSync: vi.fn().mockReturnValue('[]'),
@@ -64,28 +64,29 @@ vi.mock('node:fs', () => ({
 	writeFileSync: vi.fn(),
 	promises: { readFile: vi.fn().mockResolvedValue('{}') },
 	rm: vi.fn(),
-	unlink: vi.fn(),
+	unlink: vi.fn()
 }));
 
 vi.mock('node:path', () => ({
 	default: {
 		join: vi.fn((...args: string[]) => args.join('/')),
 		dirname: vi.fn((p: string) => p.split('/').slice(0, -1).join('/')),
-		resolve: vi.fn((...args: string[]) => args.join('/')),
+		resolve: vi.fn((...args: string[]) => args.join('/'))
 	},
 	join: vi.fn((...args: string[]) => args.join('/')),
 	dirname: vi.fn((p: string) => p.split('/').slice(0, -1).join('/')),
-	resolve: vi.fn((...args: string[]) => args.join('/')),
+	resolve: vi.fn((...args: string[]) => args.join('/'))
 }));
 
 vi.mock('node:stream/consumers', () => ({ text: vi.fn() }));
 vi.mock('../logging', () => ({
-	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
+	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() }
 }));
 
 vi.mock('mongodb', async (importOriginal) => {
 	const orig = await importOriginal<typeof import('mongodb')>();
 	// Must use regular function — arrow functions cannot be called with `new`
+	// eslint-disable-next-line prefer-arrow-callback
 	return { ...orig, GridFSBucket: vi.fn(function () { return mockGridFSBucket; }) };
 });
 
@@ -104,7 +105,7 @@ function mockStory(overrides: Record<string, any> = {}) {
 		_id: new ObjectId(VALID_ID),
 		title: 'Test Story',
 		scenarios: [{ scenario_id: 1, name: 'Scenario 1', lastTestPassed: false }],
-		...overrides,
+		...overrides
 	};
 }
 
@@ -120,9 +121,9 @@ function cucumberJson(storyId: string, stepStatus = 'passed') {
 			steps: [
 				{ keyword: 'Given ', name: 'step 1', result: { status: stepStatus } },
 				{ keyword: 'When ', name: 'step 2', result: { status: stepStatus } },
-				{ keyword: 'Then ', name: 'step 3', result: { status: stepStatus } },
-			],
-		}],
+				{ keyword: 'Then ', name: 'step 3', result: { status: stepStatus } }
+			]
+		}]
 	}];
 }
 
@@ -143,7 +144,7 @@ describe('report.service', () => {
 	describe('getTestReports', () => {
 		it('should query by both storyId and featureId', async () => {
 			mockReportDataCol.find.mockReturnValue({
-				toArray: vi.fn().mockResolvedValue([]),
+				toArray: vi.fn().mockResolvedValue([])
 			});
 
 			await reportService.getTestReports(VALID_ID);
@@ -251,9 +252,9 @@ describe('report.service', () => {
 				featureTestResults: { passedSteps: 0, failedSteps: 0, skippedSteps: 0 },
 				scenarioStatuses: [
 					{ scenarioId: 1, status: true, stepResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 } },
-					{ scenarioId: 2, status: false, stepResults: { passedSteps: 0, failedSteps: 1, skippedSteps: 0 } },
+					{ scenarioId: 2, status: false, stepResults: { passedSteps: 0, failedSteps: 1, skippedSteps: 0 } }
 				],
-				featureId: VALID_ID,
+				featureId: VALID_ID
 			};
 
 			await reportService.updateLatestTestStatus(report, ExecutionMode.STORY);
@@ -274,17 +275,17 @@ describe('report.service', () => {
 					{
 						storyId: 'story1', status: true, scenariosTested: new PassedCount(),
 						featureTestResults: { passedSteps: 0, failedSteps: 0, skippedSteps: 0 },
-						scenarioStatuses: [{ scenarioId: 1, status: true, stepResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 } }],
+						scenarioStatuses: [{ scenarioId: 1, status: true, stepResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 } }]
 					},
 					{
 						storyId: 'story2', status: false, scenariosTested: new PassedCount(),
 						featureTestResults: { passedSteps: 0, failedSteps: 0, skippedSteps: 0 },
 						scenarioStatuses: [
 							{ scenarioId: 10, status: true, stepResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 } },
-							{ scenarioId: 11, status: false, stepResults: { passedSteps: 0, failedSteps: 1, skippedSteps: 0 } },
-						],
-					},
-				],
+							{ scenarioId: 11, status: false, stepResults: { passedSteps: 0, failedSteps: 1, skippedSteps: 0 } }
+						]
+					}
+				]
 			};
 
 			await reportService.updateLatestTestStatus(report, ExecutionMode.GROUP);
@@ -297,8 +298,8 @@ describe('report.service', () => {
 			const story = mockStory({
 				scenarios: [
 					{ scenario_id: 1, lastTestPassed: false },
-					{ scenario_id: 2, lastTestPassed: true },
-				],
+					{ scenario_id: 2, lastTestPassed: true }
+				]
 			});
 			mockStoryService.getOneStory.mockResolvedValue(story);
 
@@ -327,8 +328,8 @@ describe('report.service', () => {
 			const story = mockStory({
 				scenarios: [
 					{ scenario_id: 1, lastTestPassed: false },
-					{ scenario_id: 2, lastTestPassed: false },
-				],
+					{ scenario_id: 2, lastTestPassed: false }
+				]
 			});
 			mockStoryService.getOneStory.mockResolvedValue(story);
 
@@ -374,11 +375,11 @@ describe('report.service', () => {
 			const id2 = '507f1f77bcf86cd799439012';
 			const stories = [
 				mockStory(),
-				mockStory({ _id: new ObjectId(id2), title: 'Story 2', scenarios: [{ scenario_id: 1, name: 'S2-Scenario' }] }),
+				mockStory({ _id: new ObjectId(id2), title: 'Story 2', scenarios: [{ scenario_id: 1, name: 'S2-Scenario' }] })
 			];
 			const report = [
 				...cucumberJson(VALID_ID, 'passed'),
-				...cucumberJson(id2, 'failed'),
+				...cucumberJson(id2, 'failed')
 			];
 			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(report));
 
@@ -417,9 +418,9 @@ describe('report.service', () => {
 					steps: [
 						{ keyword: 'Given ', name: 's1', result: { status: 'passed' } },
 						{ keyword: 'When ', name: 's2', result: { status: 'skipped' } },
-						{ keyword: 'Then ', name: 's3', result: { status: 'undefined' } },
-					],
-				}],
+						{ keyword: 'Then ', name: 's3', result: { status: 'undefined' } }
+					]
+				}]
 			}];
 			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(report));
 
