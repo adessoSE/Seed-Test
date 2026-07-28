@@ -1,11 +1,11 @@
 # Seed-Test — Agent Instructions
 
 ## Repo context
-GitHub: `adessoSE/Seed-Test` (wiki/docs at `adessoAG/Seed-Test`). Open-source BDD UI-testing platform (25★, 9↙). v1.8.1 on `master`.
+GitHub: `adessoSE/Seed-Test` (wiki/docs at `adessoAG/Seed-Test`). Open-source BDD UI-testing platform (25★, 9↙). Released v1.8.1 on `master`, dev branch targets v2.0.0.
 
 **API reference**: `docs/api-reference.md` (complete endpoint inventory)
 **Shared models**: `docs/shared-models.md` (all schema types + frontend copies)
-**Repo testing**: `docs/testing.md` (Vitest + Jest)
+**Repo testing**: `docs/testing.md` (Vitest — backend + frontend)
 **Test execution engine**: `docs/test-execution.md` (Cucumber/Playwright/Selenium product feature)
 
 ## Architecture
@@ -42,6 +42,8 @@ schemas/*.ts       → Zod v4 input validation schemas (applied via validate() m
 
 **Input validation**: All mutating routes use Zod schemas in `schemas/*.ts` via `validate()` middleware (`middleware/validate.ts`). The middleware validates `req.body`, replaces it with parsed output (stripping unknown keys unless `.passthrough()` is used), and returns 400 with field-level errors on failure. When adding new endpoints, always create a matching schema.
 
+**Open flanks**: `updateGroup`, `updateGroupsArray`, `updateStory`, `updateScenarioList` use `.passthrough()` schemas that only validate a few required fields — full domain objects pass through unvalidated. Not a blocker, but a known gap.
+
 **New services:**
 - `ai.service.ts` — AI-driven test scenario generation via `@seed-test/ai-parser`, queued via `JobQueue`
 - `externalSync.service.ts` — JIRA ↔ Xray ↔ GitHub ↔ DB synchronization
@@ -70,7 +72,7 @@ cd ../backend && npm run database   # creates Collections + stepTypes
 ## Key commands
 ```bash
 # Backend
-npm test                     # Vitest unit tests (*.spec.ts in services/)
+npm test                     # Vitest unit tests (*.spec.ts across src/)
 npm run test-coverage        # Vitest with coverage
 npm run exec-test            # Cucumber E2E (runs .feature files in features/)
 npm run database             # initialize MongoDB collections
@@ -105,8 +107,10 @@ Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
 - **Default secrets in compose are not secure**: `SESSION_SECRET=secretSessionKey`, `JIRA_SECRET=secretJiraKey`, `JIRA_SALT=BJ1yJTJ7AFql`
 
 ## Testing & branch conventions
+- **Backend tests**: 599 tests in 42 spec files — controllers, services, helpers, middleware, utils, schemas (see `docs/testing.md` for full inventory)
 - **Primary test**: `npm test` (Vitest unit `.spec.ts` in both backend and frontend) — daily use
-- **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report → docs/testing.md
+- **Mock pattern**: `vi.hoisted()` + `vi.mock()` for ESM-safe mocking; `createReq()`/`createRes()` helpers in controller tests
+- **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report
 - **Branching**: Feature branches → `dev`; `master` reserved for official release tags (triggers Docker Hub build)
 
 ## Code comments
@@ -161,13 +165,14 @@ await db.collection(storiesCollection).updateOne(...);
 ```
 
 ## Style conventions (backend)
-`backend/.eslintrc.json` extends `airbnb-base` with these overrides:
-- **Tabs** for indentation (`"indent": [2, "tab"]`)
+`backend/eslint.config.mjs` — ESLint 10 flat config with `typescript-eslint` + `@stylistic/eslint-plugin`:
+- **Tabs** for indentation (`@stylistic/indent: tab`)
 - Single quotes, semicolons required, no `comma-dangle`
 - Curly braces **always required** (`"curly": ["error", "multi"]`)
-- `prefer-arrow-callback` enforced
-- `no-underscore-dangle`, `no-console`, `no-plusplus` all **off**
-- Lint target is **only** `src/database/` — not full backend
+- `prefer-arrow-callback` enforced, `no-console` off
+- `@typescript-eslint/no-floating-promises: error`
+- `no-explicit-any: warn` (off in `*.spec.ts`)
+- Lint target: all `src/**/*.ts`
 
 ## Files/gitignore
 Always gitignore: `.feature`, `reporting_*`, `dist/`, `node_modules/`, `.env`, `tsconfig.tsbuildinfo`, `coverage/`, `logs/`, `*.bat`, `*.sh`

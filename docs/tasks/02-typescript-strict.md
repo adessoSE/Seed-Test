@@ -1,6 +1,6 @@
 # Paket 2: TypeScript Strict Mode (Backend + Frontend)
 
-**Status:** Offen
+**Status:** Erledigt (backend tsconfig.json hat `"strict": true`)
 **Abhaengigkeiten:** Paket 1 (ESLint) muss abgeschlossen sein
 **Branch:** `AI-integration-prototype`
 

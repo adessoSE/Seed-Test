@@ -1,6 +1,6 @@
 # Paket 4: Error Handling modernisieren
 
-**Status:** Offen
+**Status:** Weitgehend erledigt — AppError-Klasse, zentraler Error Handler, Winston Logging, unhandledRejection Handler implementiert. Offen: einheitliches Error-Format in allen Controllern, Report-Analyse-Fehler-Unterscheidung
 **Abhaengigkeiten:** Paket 3 (Sicherheit) muss abgeschlossen sein
 **Branch:** `AI-integration-prototype`
 

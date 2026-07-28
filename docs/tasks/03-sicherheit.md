@@ -1,6 +1,6 @@
 # Paket 3: Sicherheit
 
-**Status:** Offen
+**Status:** Teilweise erledigt — Authorization-Middleware (authorize.ts mit canEdit/canCreate/canRun) + Zod-Input-Validation + Helmet sind implementiert. Offen: Rate Limiting, CSRF sameSite-Fix
 **Abhaengigkeiten:** Paket 2 (TypeScript Strict) muss abgeschlossen sein
 **Branch:** `AI-integration-prototype`
 

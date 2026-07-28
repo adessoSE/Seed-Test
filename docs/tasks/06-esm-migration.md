@@ -1,6 +1,6 @@
 # Paket 6: Full ESM Migration
 
-**Status:** Offen
+**Status:** Erledigt (backend package.json hat `"type": "module"`, alle Imports mit .js-Suffix)
 **Abhaengigkeiten:** Pakete 1-5 muessen abgeschlossen sein
 **Branch:** `AI-integration-prototype`
 

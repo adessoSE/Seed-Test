@@ -1,6 +1,6 @@
 # Paket 5: Dependency-Cleanup + Modernisierung
 
-**Status:** Offen
+**Status:** Teilweise erledigt — express-flash und rimraf entfernt. Offen: moment → date-fns, @types/handlebars entfernen, body-parser durch Express built-in
 **Abhaengigkeiten:** Paket 4 (Error Handling) muss abgeschlossen sein
 **Branch:** `AI-integration-prototype`
 

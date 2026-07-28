@@ -1,6 +1,6 @@
 # Paket 1: ESLint-Modernisierung (Frontend + Backend)
 
-**Status:** Offen
+**Status:** Erledigt (backend: ESLint 10 flat config, frontend: ESLint 9 flat config)
 **Abhaengigkeiten:** Keine
 **Branch:** `AI-integration-prototype`
 
