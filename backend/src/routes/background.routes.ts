@@ -1,6 +1,8 @@
 import express from 'express';
 import * as backgroundController from '../controllers/background.controller.js';
 import { authorizeByStory } from '../middleware/authorize.js';
+import { validate } from '../middleware/validate.js';
+import { updateBackgroundSchema } from '../schemas/background.schemas.js';
 
 const router = express.Router();
 
@@ -16,7 +18,7 @@ const canEdit = authorizeByStory('storyID', { requireEdit: true });
  * @desc    Update the background of a story
  * @access  Private (repo editor)
  */
-router.put('/:storyID', canEdit, backgroundController.updateBackground);
+router.put('/:storyID', canEdit, validate(updateBackgroundSchema), backgroundController.updateBackground);
 
 /**
  * @route   DELETE /api/background/:storyID

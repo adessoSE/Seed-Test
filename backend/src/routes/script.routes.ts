@@ -4,6 +4,8 @@ import initializePassport from '../passport-config.js';
 import * as userService from '../services/user.service.js';
 import * as scriptController from '../controllers/script.controller.js';
 import { Session, SessionData } from 'express-session';
+import { validate } from '../middleware/validate.js';
+import { scriptGroupSchema, scriptFeatureSchema } from '../schemas/script.schemas.js';
 
 const router = express.Router();
 
@@ -66,13 +68,13 @@ const authenticateAndProceed = (controllerFunction: (req: Request, res: Response
  * @desc    Authenticates and runs tests for a specific group
  * @access  Private (Requires valid credentials in body)
  */
-router.post('/Group', authenticateAndProceed(scriptController.runGroupViaScript));
+router.post('/Group', validate(scriptGroupSchema), authenticateAndProceed(scriptController.runGroupViaScript));
 
 /**
  * @route   POST /api/script/Feature/:issueID
  * @desc    Authenticates and runs tests for a specific feature
  * @access  Private (Requires valid credentials in body)
  */
-router.post('/Feature/:issueID', authenticateAndProceed(scriptController.runFeatureViaScript));
+router.post('/Feature/:issueID', validate(scriptFeatureSchema), authenticateAndProceed(scriptController.runFeatureViaScript));
 
 export default router;

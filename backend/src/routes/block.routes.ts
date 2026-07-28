@@ -1,6 +1,8 @@
 import express from 'express';
 import * as blockController from '../controllers/block.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
+import { validate } from '../middleware/validate.js';
+import { saveBlockSchema, updateBlockSchema } from '../schemas/block.schemas.js';
 
 const router = express.Router();
 
@@ -17,7 +19,7 @@ const canCreateBlock = authorizeRepo('repositoryId', { requireEdit: true, source
  * @desc    Save a new custom block
  * @access  Private (Authenticated users)
  */
-router.post('/', canCreateBlock, blockController.saveBlock);
+router.post('/', validate(saveBlockSchema), canCreateBlock, blockController.saveBlock);
 
 /**
  * @route   GET /api/block/getBlocks/:repoId
@@ -31,7 +33,7 @@ router.get('/getBlocks/:repoId', canRead, blockController.getBlocks);
  * @desc    Update an existing block by its ID
  * @access  Private (block ownership checked in service layer)
  */
-router.put('/:blockId', blockController.updateBlock);
+router.put('/:blockId', validate(updateBlockSchema), blockController.updateBlock);
 
 /**
  * @route   DELETE /api/block/:blockId

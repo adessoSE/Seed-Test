@@ -1,5 +1,7 @@
 import express from 'express';
 import * as loggingController from '../controllers/logging.controller.js';
+import { validate } from '../middleware/validate.js';
+import { logMessageSchema } from '../schemas/logging.schemas.js';
 
 const router = express.Router();
 
@@ -10,6 +12,6 @@ const router = express.Router();
  * @desc    Logs a message from the frontend to the server's file system
  * @access  Public (or Private if auth middleware is added)
  */
-router.post('/', loggingController.logFrontendMessage);
+router.post('/', validate(logMessageSchema), loggingController.logFrontendMessage);
 
 export default router;

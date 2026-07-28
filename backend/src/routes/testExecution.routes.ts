@@ -1,6 +1,8 @@
 import express from 'express';
 import * as testExecutionController from '../controllers/testExecution.controller.js';
 import { authorizeRepo, authorizeByStory } from '../middleware/authorize.js';
+import { validate } from '../middleware/validate.js';
+import { runTempGroupSchema, runTestSchema } from '../schemas/testExecution.schemas.js';
 
 const router = express.Router();
 
@@ -18,14 +20,14 @@ const canRunTempGroup = authorizeRepo('repositoryId', { requireEdit: true, sourc
  * @desc    Run all scenarios in a single feature/story
  * @access  Private (repo edit access)
  */
-router.post('/Feature/:issueID', canRunByStory, testExecutionController.runFeature);
+router.post('/Feature/:issueID', canRunByStory, validate(runTestSchema), testExecutionController.runFeature);
 
 /**
  * @route   POST /api/execute/Scenario/:issueID/:scenarioId
  * @desc    Run a single scenario within a feature/story
  * @access  Private (repo edit access)
  */
-router.post('/Scenario/:issueID/:scenarioId', canRunByStory, testExecutionController.runScenario);
+router.post('/Scenario/:issueID/:scenarioId', canRunByStory, validate(runTestSchema), testExecutionController.runScenario);
 
 /**
  * @route   POST /api/execute/Group/:repoID/:groupID
@@ -39,6 +41,6 @@ router.post('/Group/:repoID/:groupID', canRunGroup, testExecutionController.runG
  * @desc    Run stories from a dynamically provided temporary group
  * @access  Private (repo edit access)
  */
-router.post('/TempGroup', canRunTempGroup, testExecutionController.runTempGroup);
+router.post('/TempGroup', validate(runTempGroupSchema), canRunTempGroup, testExecutionController.runTempGroup);
 
 export default router;

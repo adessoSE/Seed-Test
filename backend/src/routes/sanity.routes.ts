@@ -3,6 +3,8 @@ import passport from 'passport';
 import initializePassport from '../passport-config.js';
 import * as userService from '../services/user.service.js';
 import * as sanityController from '../controllers/sanity.controller.js';
+import { validate } from '../middleware/validate.js';
+import { sanityTestSchema } from '../schemas/sanity.schemas.js';
 
 const router = express.Router();
 
@@ -25,6 +27,7 @@ initializePassport(
  */
 router.post(
 	'/test/:repoID/:groupID',
+	validate(sanityTestSchema),
 	// Apply the 'normal-local' strategy *without* session support for this route
 	(req: Request, res: Response, next: NextFunction) => {
 		passport.authenticate('normal-local', { session: false }, (err: any, user: any, info: any) => {
