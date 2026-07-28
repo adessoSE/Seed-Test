@@ -1,275 +1,568 @@
 // src/services/report.service.spec.ts
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import { ExecutionMode, GroupReport, PassedCount, type StoryReport } from '../models/models.js';
 
-// --- 1. Import types only ---
-import type * as ReportService from './report.service.js';
+// --- Hoisted mocks (available before vi.mock factories run) ---
 
-// --- 2. Mock all dependencies ---
-const mockDb = { collection: vi.fn() };
-vi.mock('../database/DbConnector', () => ({
-	getConnection: vi.fn(() => mockDb)
-}));
-
-// Mock services
-const mockedStoryService = {
-	updateStoryStatus: vi.fn().mockResolvedValue({}),
-	updateScenarioStatus: vi.fn().mockResolvedValue({})
-};
-vi.mock('./story.service', () => mockedStoryService);
-
-// Mock external libraries
-vi.mock('cucumber-html-reporter', () => ({
-	default: { generate: vi.fn() }
-}));
-
-// Mock 'fs/promises'
-const mockedFsPromises = {
-	readFile: vi.fn(),
-	unlink: vi.fn()
-};
-vi.mock('fs/promises', () => ({
-	default: mockedFsPromises
-}));
-
-// --- 3. Define mock collections ---
-const mockReportDataCollection = {
-	find: vi.fn(),
-	findOne: vi.fn(),
-	deleteOne: vi.fn()
-};
-const mockReportsCollection = {
-	deleteOne: vi.fn()
-};
-const mockGridFSBucket = {
-	delete: vi.fn()
-};
-vi.mock('mongodb', async (importOriginal) => {
-	const originalMongodb = await importOriginal<typeof import('mongodb')>();
+const {
+	mockReportDataCol, mockReportsCol, mockDb, mockGridFSBucket,
+	mockReporter, mockStoryService, mockFsPromises
+} = vi.hoisted(() => {
+	const mockReportDataCol = {
+		find: vi.fn(),
+		findOne: vi.fn(),
+		insertOne: vi.fn(),
+		deleteOne: vi.fn(),
+		updateOne: vi.fn(),
+	};
+	const mockReportsCol = {
+		findOne: vi.fn(),
+		insertOne: vi.fn(),
+		deleteOne: vi.fn(),
+	};
+	const mockDb = {
+		collection: vi.fn((name: string) => {
+			if (name === 'ReportData') return mockReportDataCol;
+			if (name === 'Reports') return mockReportsCol;
+			return mockReportDataCol;
+		}),
+	};
 	return {
-		...originalMongodb,
-		GridFSBucket: vi.fn(() => mockGridFSBucket)
+		mockReportDataCol,
+		mockReportsCol,
+		mockDb,
+		mockGridFSBucket: { delete: vi.fn(), openDownloadStream: vi.fn(), openUploadStreamWithId: vi.fn() },
+		mockReporter: { generate: vi.fn() },
+		mockStoryService: {
+			getOneStory: vi.fn(),
+			updateStoryStatus: vi.fn().mockResolvedValue(undefined),
+			updateScenarioStatus: vi.fn().mockResolvedValue(undefined),
+		},
+		mockFsPromises: { readFile: vi.fn() },
 	};
 });
 
-// --- 4. The Test Suite ---
-describe('ReportService', () => {
+vi.mock('../database/DbConnector', () => ({ getConnection: () => mockDb }));
+vi.mock('./story.service', () => mockStoryService);
+vi.mock('cucumber-html-reporter', () => ({ default: mockReporter }));
+vi.mock('node:fs/promises', () => ({ default: mockFsPromises }));
 
-	let reportService: typeof ReportService;
+vi.mock('node:fs', () => ({
+	default: {
+		existsSync: vi.fn().mockReturnValue(true),
+		readFileSync: vi.fn().mockReturnValue('[]'),
+		readdirSync: vi.fn().mockReturnValue([]),
+		writeFileSync: vi.fn(),
+		promises: { readFile: vi.fn().mockResolvedValue('{}') },
+		rm: vi.fn(),
+		unlink: vi.fn(),
+	},
+	existsSync: vi.fn().mockReturnValue(true),
+	readFileSync: vi.fn().mockReturnValue('[]'),
+	readdirSync: vi.fn().mockReturnValue([]),
+	writeFileSync: vi.fn(),
+	promises: { readFile: vi.fn().mockResolvedValue('{}') },
+	rm: vi.fn(),
+	unlink: vi.fn(),
+}));
 
-	beforeEach(async () => {
-		// Dynamically import to handle circular dependency
-		reportService = await vi.importActual<typeof ReportService>('./report.service');
-    
-		// --- FIX 1 (Error 1) ---
-		// Use clearAllMocks, not restoreAllMocks
-		vi.clearAllMocks(); 
-		// *Manually* clear the call counts on the persistent mocks
-		mockedStoryService.updateStoryStatus.mockClear();
-		mockedStoryService.updateScenarioStatus.mockClear();
-		// -----------------------
+vi.mock('node:path', () => ({
+	default: {
+		join: vi.fn((...args: string[]) => args.join('/')),
+		dirname: vi.fn((p: string) => p.split('/').slice(0, -1).join('/')),
+		resolve: vi.fn((...args: string[]) => args.join('/')),
+	},
+	join: vi.fn((...args: string[]) => args.join('/')),
+	dirname: vi.fn((p: string) => p.split('/').slice(0, -1).join('/')),
+	resolve: vi.fn((...args: string[]) => args.join('/')),
+}));
 
-		// Re-apply mocks that need to exist for every test
-		mockDb.collection.mockImplementation((name: string) => {
-			if (name === 'ReportData') return mockReportDataCollection;
-			if (name === 'Reports') return mockReportsCollection;
-			throw new Error(`Unexpected collection access: ${name}`);
-		});
+vi.mock('node:stream/consumers', () => ({ text: vi.fn() }));
+vi.mock('../logging', () => ({
+	logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
+}));
 
-		// Re-apply the chainable mock for 'find'
-		(mockReportDataCollection.find as any).mockImplementation((query: any) => ({
-			projection: vi.fn().mockReturnThis(),
-			sort: vi.fn().mockReturnThis(),
-			toArray: vi.fn().mockImplementation(() => {
-				// getTestReports uses $or query to match both featureId and storyId fields
-				if (query.$or || query.storyId) {
-					const now = Date.now();
-					const mockReports = [
-						{ _id: '111111111111111111111111', reportTime: now - 100, isSaved: true, mode: 'scenario' },
-						{ _id: '222222222222222222222222', reportTime: now - 50, isSaved: false, mode: 'scenario' },
-						{ _id: '333333333333333333333333', reportTime: now - 200, isSaved: true, mode: 'scenario' },
-						{ _id: '444444444444444444444444', reportTime: now - 86400000, isSaved: false, mode: 'scenario' }
-					];
-					return Promise.resolve(mockReports);
-				}
-				// Default for getGroupTestReports (uses $elemMatch)
-				return Promise.resolve([]);
-			})
-		}));
+vi.mock('mongodb', async (importOriginal) => {
+	const orig = await importOriginal<typeof import('mongodb')>();
+	// Must use regular function — arrow functions cannot be called with `new`
+	return { ...orig, GridFSBucket: vi.fn(function () { return mockGridFSBucket; }) };
+});
 
-		// Re-apply other mocks
-		mockedFsPromises.readFile.mockClear();
-		mockReportDataCollection.findOne.mockReset();
-		mockReportDataCollection.deleteOne.mockReset();
-		mockGridFSBucket.delete.mockReset();
+// --- Top-level import (mocks hoisted, module imports with mocks in place) ---
+
+import * as reportService from './report.service.js';
+import { ExecutionMode, PassedCount, type StoryReport, type GroupReport } from '../models/models.js';
+import fs from 'node:fs';
+
+// --- Helpers ---
+
+const VALID_ID = '507f1f77bcf86cd799439011';
+
+function mockStory(overrides: Record<string, any> = {}) {
+	return {
+		_id: new ObjectId(VALID_ID),
+		title: 'Test Story',
+		scenarios: [{ scenario_id: 1, name: 'Scenario 1', lastTestPassed: false }],
+		...overrides,
+	};
+}
+
+/** Minimal Cucumber JSON report with one scenario */
+function cucumberJson(storyId: string, stepStatus = 'passed') {
+	return [{
+		name: 'Test Story',
+		uri: `TestStory_${storyId}.feature`,
+		elements: [{
+			type: 'scenario',
+			name: 'Scenario 1',
+			tags: [{ name: `@${storyId}_1` }],
+			steps: [
+				{ keyword: 'Given ', name: 'step 1', result: { status: stepStatus } },
+				{ keyword: 'When ', name: 'step 2', result: { status: stepStatus } },
+				{ keyword: 'Then ', name: 'step 3', result: { status: stepStatus } },
+			],
+		}],
+	}];
+}
+
+// --- Tests ---
+
+describe('report.service', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		mockReportDataCol.insertOne.mockResolvedValue({ insertedId: new ObjectId() });
+		mockReportDataCol.deleteOne.mockResolvedValue({ deletedCount: 1 });
+		mockReportDataCol.updateOne.mockResolvedValue({ modifiedCount: 1 });
+		mockReportsCol.insertOne.mockResolvedValue({ insertedId: new ObjectId() });
+		mockReportsCol.deleteOne.mockResolvedValue({ deletedCount: 1 });
 	});
 
-	// --- Test 1: updateLatestTestStatus ---
-	describe('updateLatestTestStatus', () => {
-		it('should correctly update status for ExecutionMode.STORY', async () => {
-			// A. Arrange
-			const storyId = 'story123';
-      
-			// Assuming you fixed the bug in report.service.ts
-			// and it now correctly reads 'featureId'
-			const mockReport: StoryReport = {
-				reportName: 'test',
-				reportTime: 123,
-				reportOptions: {},
-				mode: ExecutionMode.STORY,
-				status: true,
-				scenariosTested: new PassedCount(),
-				featureTestResults: {} as any,
-				scenarioStatuses: [
-					{ scenarioId: 1, status: true, stepResults: {} as any },
-					{ scenarioId: 2, status: true, stepResults: {} as any }
-				],
-				featureId: storyId, // The correct property
-				storiesTested: undefined,
-				smallReport: ''
-			};
+	// --- CRUD ---
 
-			// B. Act
-			await reportService.updateLatestTestStatus(mockReport, ExecutionMode.STORY);
+	describe('getTestReports', () => {
+		it('should query by both storyId and featureId', async () => {
+			mockReportDataCol.find.mockReturnValue({
+				toArray: vi.fn().mockResolvedValue([]),
+			});
 
-			// C. Assert
-			expect(mockedStoryService.updateStoryStatus).toHaveBeenCalledWith(storyId, true);
-			// Call count is now 2 (resets correctly)
-			expect(mockedStoryService.updateScenarioStatus).toHaveBeenCalledTimes(2);
-			expect(mockedStoryService.updateScenarioStatus).toHaveBeenCalledWith(storyId, 1, true);
-			expect(mockedStoryService.updateScenarioStatus).toHaveBeenCalledWith(storyId, 2, true);
+			await reportService.getTestReports(VALID_ID);
+
+			expect(mockReportDataCol.find).toHaveBeenCalledWith(
+				{ $or: [{ storyId: expect.any(ObjectId) }, { featureId: expect.any(ObjectId) }] },
+				expect.objectContaining({ projection: expect.objectContaining({ jsonReport: 0 }) })
+			);
+		});
+	});
+
+	describe('getReportById', () => {
+		it('should throw 404 when report not found', async () => {
+			mockReportDataCol.findOne.mockResolvedValue(null);
+			await expect(reportService.getReportById(VALID_ID)).rejects.toThrow('not found');
 		});
 
-		it('should correctly update status for ExecutionMode.GROUP', async () => {
-			// A. Arrange
-			const storyId1 = 'story111';
-			const storyId2 = 'story222';
-			const mockReport: GroupReport = {
-				reportName: 'group-test',
-				reportTime: 123,
-				reportOptions: {},
-				mode: ExecutionMode.GROUP,
-				status: false,
+		it('should fetch from Reports collection for smallReport', async () => {
+			const smallReportId = new ObjectId();
+			mockReportDataCol.findOne.mockResolvedValue({ _id: new ObjectId(VALID_ID), smallReport: smallReportId });
+			mockReportsCol.findOne.mockResolvedValue({ jsonReport: '{"data": true}' });
+
+			const result = await reportService.getReportById(VALID_ID);
+
+			expect(result.jsonReport).toBe('{"data": true}');
+		});
+	});
+
+	describe('getReportByName', () => {
+		it('should throw 404 when report not found', async () => {
+			mockReportDataCol.findOne.mockResolvedValue(null);
+			await expect(reportService.getReportByName('missing')).rejects.toThrow('not found');
+		});
+	});
+
+	describe('uploadReport', () => {
+		it('should store metadata only when no JSON file exists', async () => {
+			vi.mocked(fs.existsSync).mockReturnValue(false);
+			const report = { reportName: 'test', reportOptions: { jsonFile: '/missing.json' } };
+
+			await reportService.uploadReport(report);
+
+			expect(mockReportDataCol.insertOne).toHaveBeenCalledTimes(1);
+			expect(mockReportsCol.insertOne).not.toHaveBeenCalled();
+		});
+
+		it('should store small reports in Reports collection', async () => {
+			vi.mocked(fs.existsSync).mockReturnValue(true);
+			vi.mocked(fs.promises.readFile).mockResolvedValue('{"small": true}');
+
+			const report = { reportName: 'test', reportOptions: { jsonFile: '/report.json' } };
+			await reportService.uploadReport(report);
+
+			expect(mockReportsCol.insertOne).toHaveBeenCalledTimes(1);
+			expect(mockReportDataCol.insertOne).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe('deleteReport', () => {
+		it('should throw 404 when report not found', async () => {
+			mockReportDataCol.findOne.mockResolvedValue(null);
+			await expect(reportService.deleteReport(VALID_ID)).rejects.toThrow('not found');
+		});
+
+		it('should delete smallReport from Reports collection', async () => {
+			const smallId = new ObjectId();
+			mockReportDataCol.findOne.mockResolvedValue({ _id: new ObjectId(VALID_ID), smallReport: smallId });
+
+			await reportService.deleteReport(VALID_ID);
+
+			expect(mockReportsCol.deleteOne).toHaveBeenCalledWith({ _id: smallId });
+			expect(mockReportDataCol.deleteOne).toHaveBeenCalled();
+		});
+
+		it('should delete bigReport from GridFS', async () => {
+			const bigId = new ObjectId();
+			mockReportDataCol.findOne.mockResolvedValue({ _id: new ObjectId(VALID_ID), bigReport: bigId });
+
+			await reportService.deleteReport(VALID_ID);
+
+			expect(mockGridFSBucket.delete).toHaveBeenCalledWith(expect.any(ObjectId));
+			expect(mockReportDataCol.deleteOne).toHaveBeenCalled();
+		});
+	});
+
+	describe('setIsSavedTestReport', () => {
+		it('should update isSaved flag', async () => {
+			await reportService.setIsSavedTestReport(VALID_ID, true);
+
+			expect(mockReportDataCol.updateOne).toHaveBeenCalledWith(
+				{ _id: new ObjectId(VALID_ID) },
+				{ $set: { isSaved: true } }
+			);
+		});
+	});
+
+	// --- Status Updates ---
+
+	describe('updateLatestTestStatus', () => {
+		it('should update story and all scenario statuses for STORY mode', async () => {
+			const report: StoryReport = {
+				reportName: 'test', reportTime: 123, reportOptions: {},
+				mode: ExecutionMode.STORY, status: true, storiesTested: undefined, smallReport: '',
 				scenariosTested: new PassedCount(),
-				groupTestResults: {} as any,
+				featureTestResults: { passedSteps: 0, failedSteps: 0, skippedSteps: 0 },
+				scenarioStatuses: [
+					{ scenarioId: 1, status: true, stepResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 } },
+					{ scenarioId: 2, status: false, stepResults: { passedSteps: 0, failedSteps: 1, skippedSteps: 0 } },
+				],
+				featureId: VALID_ID,
+			};
+
+			await reportService.updateLatestTestStatus(report, ExecutionMode.STORY);
+
+			expect(mockStoryService.updateStoryStatus).toHaveBeenCalledWith(VALID_ID, true);
+			expect(mockStoryService.updateScenarioStatus).toHaveBeenCalledTimes(2);
+			expect(mockStoryService.updateScenarioStatus).toHaveBeenCalledWith(VALID_ID, 1, true);
+			expect(mockStoryService.updateScenarioStatus).toHaveBeenCalledWith(VALID_ID, 2, false);
+		});
+
+		it('should update all stories and scenarios for GROUP mode', async () => {
+			const report: GroupReport = {
+				reportName: 'group', reportTime: 123, reportOptions: {},
+				mode: ExecutionMode.GROUP, status: false, storiesTested: undefined, smallReport: '',
+				scenariosTested: new PassedCount(),
+				groupTestResults: { passedSteps: 0, failedSteps: 0, skippedSteps: 0 },
 				storyStatuses: [
 					{
-						storyId: storyId1, status: true, scenarioStatuses: [
-							{ scenarioId: 10, status: true, stepResults: {} as any }
-						], featureTestResults: {} as any, scenariosTested: new PassedCount()
+						storyId: 'story1', status: true, scenariosTested: new PassedCount(),
+						featureTestResults: { passedSteps: 0, failedSteps: 0, skippedSteps: 0 },
+						scenarioStatuses: [{ scenarioId: 1, status: true, stepResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 } }],
 					},
 					{
-						storyId: storyId2, status: false, scenarioStatuses: [
-							{ scenarioId: 20, status: true, stepResults: {} as any },
-							{ scenarioId: 21, status: false, stepResults: {} as any }
-						], featureTestResults: {} as any, scenariosTested: new PassedCount()
-					}
+						storyId: 'story2', status: false, scenariosTested: new PassedCount(),
+						featureTestResults: { passedSteps: 0, failedSteps: 0, skippedSteps: 0 },
+						scenarioStatuses: [
+							{ scenarioId: 10, status: true, stepResults: { passedSteps: 1, failedSteps: 0, skippedSteps: 0 } },
+							{ scenarioId: 11, status: false, stepResults: { passedSteps: 0, failedSteps: 1, skippedSteps: 0 } },
+						],
+					},
 				],
-				storiesTested: undefined,
-				smallReport: ''
 			};
-      
-			// B. Act
-			await reportService.updateLatestTestStatus(mockReport, ExecutionMode.GROUP);
 
-			// C. Assert
-			// Call count is now 2 (resets correctly)
-			expect(mockedStoryService.updateStoryStatus).toHaveBeenCalledTimes(2);
-			expect(mockedStoryService.updateScenarioStatus).toHaveBeenCalledTimes(3);
+			await reportService.updateLatestTestStatus(report, ExecutionMode.GROUP);
+
+			expect(mockStoryService.updateStoryStatus).toHaveBeenCalledTimes(2);
+			expect(mockStoryService.updateScenarioStatus).toHaveBeenCalledTimes(3);
+		});
+
+		it('should mark story passed when all scenarios pass in SCENARIO mode', async () => {
+			const story = mockStory({
+				scenarios: [
+					{ scenario_id: 1, lastTestPassed: false },
+					{ scenario_id: 2, lastTestPassed: true },
+				],
+			});
+			mockStoryService.getOneStory.mockResolvedValue(story);
+
+			await reportService.updateLatestTestStatus(
+				{ storyId: VALID_ID, scenarioId: 1, status: true },
+				ExecutionMode.SCENARIO
+			);
+
+			// Scenario 1 just passed + scenario 2 was already passing → story passes
+			expect(mockStoryService.updateStoryStatus).toHaveBeenCalledWith(VALID_ID, true);
+			expect(mockStoryService.updateScenarioStatus).toHaveBeenCalledWith(VALID_ID, 1, true);
+		});
+
+		it('should mark story failed immediately when scenario fails in SCENARIO mode', async () => {
+			await reportService.updateLatestTestStatus(
+				{ storyId: VALID_ID, scenarioId: 1, status: false },
+				ExecutionMode.SCENARIO
+			);
+
+			expect(mockStoryService.updateStoryStatus).toHaveBeenCalledWith(VALID_ID, false);
+			// No need to fetch the full story when scenario failed
+			expect(mockStoryService.getOneStory).not.toHaveBeenCalled();
+		});
+
+		it('should keep story failed if not all scenarios pass in SCENARIO mode', async () => {
+			const story = mockStory({
+				scenarios: [
+					{ scenario_id: 1, lastTestPassed: false },
+					{ scenario_id: 2, lastTestPassed: false },
+				],
+			});
+			mockStoryService.getOneStory.mockResolvedValue(story);
+
+			await reportService.updateLatestTestStatus(
+				{ storyId: VALID_ID, scenarioId: 1, status: true },
+				ExecutionMode.SCENARIO
+			);
+
+			// Scenario 1 passed but scenario 2 still failing → story still fails
+			expect(mockStoryService.updateStoryStatus).toHaveBeenCalledWith(VALID_ID, false);
 		});
 	});
 
-	// --- Test 2: getReportHistory (Pruning Logic) ---
-	describe('getReportHistory (deleteOldReports logic)', () => {
-		it('should prune old, unsaved reports and keep saved or new reports', async () => {
-			// A. Arrange
-			const storyId = new ObjectId().toHexString();
-			const reportIdToDelete = '444444444444444444444444';
+	// --- Analysis ---
 
-			// *** FIX 2 (Error 2) ***
-			// Mock the 'findOne' call that deleteReport makes
-			mockReportDataCollection.findOne.mockImplementation((query: any) => {
-				if (query._id.toString() === reportIdToDelete) 
-					return Promise.resolve({ 
-						_id: new ObjectId(reportIdToDelete), 
-						smallReport: new ObjectId() // Provide metadata for deleteReport to proceed
-					});
-        
-				return Promise.resolve(null);
-			});
-			// Mock the 'deleteOne' calls
-			mockReportDataCollection.deleteOne.mockResolvedValue({ deletedCount: 1 });
-			mockReportsCollection.deleteOne.mockResolvedValue({ deletedCount: 1 });
-			// --------------------
-      
-			// B. Act
-			process.env.MAX_SAVED_REPORTS = '1';
-			const result = await reportService.getReportHistory(storyId);
-      
-			// C. Assert
-			expect(mockReportDataCollection.findOne).toHaveBeenCalledWith({ 
-				_id: new ObjectId(reportIdToDelete) 
-			});
-			expect(mockReportDataCollection.deleteOne).toHaveBeenCalledTimes(1);
-			expect(mockReportDataCollection.deleteOne).toHaveBeenCalledWith({ 
-				_id: new ObjectId(reportIdToDelete) 
-			});
-			expect(mockReportsCollection.deleteOne).toHaveBeenCalledTimes(1);
-      
-			expect(result.groupReports).toHaveLength(0);
-			expect(result.scenarioReports).toHaveLength(3); 
-			expect(result.scenarioReports.map((r: any) => r._id)).toEqual(expect.arrayContaining([
-				'111111111111111111111111', 
-				'222222222222222222222222', 
-				'333333333333333333333333'
-			]));
-		});
-	});
-
-	// --- Test 3: analyzeGroupReport (Analysis Logic) ---
 	describe('analyzeGroupReport', () => {
-		it('should correctly aggregate results from a Cucumber JSON', async () => {
-			// A. Arrange
-			const mockCucumberJson = [
-				{ 
-					uri: 'story_abc1234567890123456789012.feature',
-					name: 'Story 1',
-					elements: [
-						{ type: 'scenario', name: 'Scenario 1.1', tags: [{name: '@abc1234567890123456789012_1'}], steps: [
-							{ result: { status: 'passed' } }, { result: { status: 'passed' } }
-						]}
-					]
-				},
-				{
-					uri: 'story_def4567890123456789012345.feature',
-					name: 'Story 2',
-					elements: [
-						{ type: 'scenario', name: 'Scenario 2.1', tags: [{name: '@def4567890123456789012345_10'}], steps: [
-							{ result: { status: 'passed' } }
-						]},
-						{ type: 'scenario', name: 'Scenario 2.2', tags: [{name: '@def4567890123456789012345_11'}], steps: [
-							{ result: { status: 'passed' } }, { result: { status: 'failed' } }, { result: { status: 'skipped' } }
-						]}
-					]
-				}
-			];
-			const mockStories = [
-				{ _id: 'abc1234567890123456789012', title: 'Story 1', scenarios: [{scenario_id: 1, name: 'Scenario 1.1'}] },
-				{ _id: 'def4567890123456789012345', title: 'Story 2', scenarios: [{scenario_id: 10, name: 'Scenario 2.1'}, {scenario_id: 11, name: 'Scenario 2.2'}] }
-			] as any;
-      
-			mockedFsPromises.readFile.mockResolvedValue(JSON.stringify(mockCucumberJson));
+		it('should aggregate passing results correctly', async () => {
+			const story = mockStory();
+			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(cucumberJson(VALID_ID)));
 
-			// B. Act
-			const result = await reportService.analyzeGroupReport('group-test', mockStories, 'fake/path.json');
+			const result = await reportService.analyzeGroupReport('group', [story as any], '/test.json');
 
-			// C. Assert
-			expect(result.status).toBe(false); 
-			expect(result.scenariosTested.passed).toBe(2);
+			expect(result.status).toBe(true);
+			expect(result.scenariosTested.passed).toBe(1);
+			expect(result.scenariosTested.failed).toBe(0);
+			expect(result.groupTestResults.passedSteps).toBe(3);
+			expect(result.groupTestResults.failedSteps).toBe(0);
+			expect(result.storyStatuses).toHaveLength(1);
+		});
+
+		it('should aggregate failing results correctly', async () => {
+			const story = mockStory();
+			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(cucumberJson(VALID_ID, 'failed')));
+
+			const result = await reportService.analyzeGroupReport('group', [story as any], '/test.json');
+
+			expect(result.status).toBe(false);
 			expect(result.scenariosTested.failed).toBe(1);
+			expect(result.groupTestResults.failedSteps).toBe(3);
+		});
+
+		it('should handle multiple stories with mixed results', async () => {
+			const id2 = '507f1f77bcf86cd799439012';
+			const stories = [
+				mockStory(),
+				mockStory({ _id: new ObjectId(id2), title: 'Story 2', scenarios: [{ scenario_id: 1, name: 'S2-Scenario' }] }),
+			];
+			const report = [
+				...cucumberJson(VALID_ID, 'passed'),
+				...cucumberJson(id2, 'failed'),
+			];
+			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(report));
+
+			const result = await reportService.analyzeGroupReport('group', stories as any, '/test.json');
+
+			expect(result.status).toBe(false);
+			expect(result.scenariosTested.passed).toBe(1);
+			expect(result.scenariosTested.failed).toBe(1);
+			expect(result.storyStatuses).toHaveLength(2);
+		});
+
+		it('should return error state when JSON read fails', async () => {
+			mockFsPromises.readFile.mockRejectedValue(new Error('ENOENT'));
+
+			const result = await reportService.analyzeGroupReport('group', [mockStory() as any], '/missing.json');
+
+			expect(result.status).toBe(false);
+			expect(result.reportName).toBe('group');
+		});
+
+		it('should skip unmatched stories', async () => {
+			const report = [{ name: 'Unknown', uri: 'unknown.feature', elements: [{ type: 'scenario', name: 'X', steps: [{ result: { status: 'passed' } }] }] }];
+			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(report));
+
+			const result = await reportService.analyzeGroupReport('group', [mockStory() as any], '/test.json');
+
+			expect(result.storyStatuses).toHaveLength(0);
+		});
+
+		it('should handle skipped and undefined step statuses', async () => {
+			const story = mockStory();
+			const report = [{
+				name: 'Test Story', uri: `TestStory_${VALID_ID}.feature`,
+				elements: [{
+					type: 'scenario', name: 'Scenario 1', tags: [{ name: `@${VALID_ID}_1` }],
+					steps: [
+						{ keyword: 'Given ', name: 's1', result: { status: 'passed' } },
+						{ keyword: 'When ', name: 's2', result: { status: 'skipped' } },
+						{ keyword: 'Then ', name: 's3', result: { status: 'undefined' } },
+					],
+				}],
+			}];
+			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(report));
+
+			const result = await reportService.analyzeGroupReport('group', [story as any], '/test.json');
+
+			expect(result.groupTestResults.passedSteps).toBe(1);
+			expect(result.groupTestResults.skippedSteps).toBe(1);
+			// 'undefined' is treated as failed
+			expect(result.groupTestResults.failedSteps).toBe(1);
 		});
 	});
 
+	// --- HTML Generation ---
+
+	describe('generateHtmlReport', () => {
+		it('should call reporter.generate for non-group report', () => {
+			vi.mocked(fs.readFileSync).mockReturnValue('[]');
+
+			const result = reportService.generateHtmlReport('test', '/features/test.json', false);
+
+			expect(mockReporter.generate).toHaveBeenCalled();
+			expect(result).not.toBeNull();
+		});
+
+		it('should return null when no valid JSON files for group', () => {
+			vi.mocked(fs.readdirSync).mockReturnValue([]);
+
+			const result = reportService.generateHtmlReport('group', '/features/group/group.html.json', true);
+
+			expect(result).toBeNull();
+		});
+
+		it('should validate and generate for group with files', () => {
+			vi.mocked(fs.readdirSync).mockReturnValue(['r1.json', 'r2.json'] as any);
+			vi.mocked(fs.readFileSync).mockReturnValue('[]');
+
+			const result = reportService.generateHtmlReport('group', '/features/group/group.html.json', true);
+
+			expect(mockReporter.generate).toHaveBeenCalled();
+			expect(result).not.toBeNull();
+		});
+
+		it('should return null when reporter throws', () => {
+			vi.mocked(fs.readFileSync).mockReturnValue('[]');
+			mockReporter.generate.mockImplementationOnce(() => { throw new Error('crash'); });
+
+			const result = reportService.generateHtmlReport('test', '/features/test.json');
+
+			expect(result).toBeNull();
+		});
+
+		it('should repair corrupt JSON files in group directory', () => {
+			vi.mocked(fs.readdirSync).mockReturnValue(['good.json', 'bad.json'] as any);
+			vi.mocked(fs.readFileSync)
+				.mockReturnValueOnce('[]')
+				.mockImplementationOnce(() => { throw new SyntaxError('parse error'); });
+
+			reportService.generateHtmlReport('group', '/features/group/group.html.json', true);
+
+			// Bad file gets repaired with placeholder JSON
+			expect(fs.writeFileSync).toHaveBeenCalled();
+			expect(mockReporter.generate).toHaveBeenCalled();
+		});
+	});
+
+	// --- Scheduled Deletion ---
+
+	describe('scheduleReportDeletion', () => {
+		beforeEach(() => vi.useFakeTimers());
+		afterEach(() => vi.useRealTimers());
+
+		it('should schedule group directory deletion', () => {
+			reportService.scheduleReportDeletion('my_group', true, 5000);
+
+			expect(fs.rm).not.toHaveBeenCalled();
+			vi.advanceTimersByTime(5000);
+			expect(fs.rm).toHaveBeenCalledWith(
+				expect.stringContaining('my_group'),
+				{ recursive: true, force: true },
+				expect.any(Function)
+			);
+		});
+
+		it('should schedule individual file deletion for non-group', () => {
+			reportService.scheduleReportDeletion('test_report', false, 3000);
+
+			expect(fs.unlink).not.toHaveBeenCalled();
+			vi.advanceTimersByTime(3000);
+			expect(fs.unlink).toHaveBeenCalledTimes(2);
+		});
+	});
+
+	// --- resolveAndSaveReport ---
+
+	describe('resolveAndSaveReport', () => {
+		beforeEach(() => {
+			vi.mocked(fs.existsSync).mockReturnValue(true);
+			vi.mocked(fs.promises.readFile).mockResolvedValue('[]');
+			vi.mocked(fs.readFileSync).mockReturnValue('[]');
+			vi.mocked(fs.readdirSync).mockReturnValue(['report.json'] as any);
+		});
+
+		it('should process GROUP mode and use executionParams.name as directory', async () => {
+			const story = mockStory();
+			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(cucumberJson(VALID_ID)));
+
+			const result = await reportService.resolveAndSaveReport(
+				{ reportName: 'reporting_123', reportTime: 100 },
+				ExecutionMode.GROUP,
+				[story as any],
+				{ name: 'sanity_group_123' }
+			);
+
+			expect(result).toBeDefined();
+			expect(mockReportDataCol.insertOne).toHaveBeenCalled();
+		});
+
+		it('should process STORY mode', async () => {
+			const story = mockStory();
+			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(cucumberJson(VALID_ID)));
+
+			const result = await reportService.resolveAndSaveReport(
+				{ reportName: 'reporting_story', reportTime: 100 },
+				ExecutionMode.STORY,
+				[story as any],
+				{}
+			);
+
+			expect(result).toBeDefined();
+		});
+
+		it('should process SCENARIO mode', async () => {
+			const story = mockStory();
+			mockFsPromises.readFile.mockResolvedValue(JSON.stringify(cucumberJson(VALID_ID)));
+
+			const result = await reportService.resolveAndSaveReport(
+				{ reportName: 'reporting_scen', reportTime: 100, scenarioId: '1' },
+				ExecutionMode.SCENARIO,
+				[story as any],
+				{}
+			);
+
+			expect(result).toBeDefined();
+		});
+	});
 });

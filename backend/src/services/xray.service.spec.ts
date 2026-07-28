@@ -1,23 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { StepType } from '@shared/models/StepType.js';
 
-const mockedExternalAccountService = {
-	jiraDecryptPassword: vi.fn().mockReturnValue('decrypted-pass'),
-	buildAuthString: vi.fn().mockReturnValue('Basic FAKEAUTH')
-};
+// Use vi.hoisted so mock objects are available when vi.mock factories run (hoisted above imports)
+const { mockedExternalAccountService, mockedStepTypeService, mockFetch } = vi.hoisted(() => ({
+	mockedExternalAccountService: {
+		jiraDecryptPassword: vi.fn().mockReturnValue('decrypted-pass'),
+		buildAuthString: vi.fn().mockReturnValue('Basic FAKEAUTH')
+	},
+	mockedStepTypeService: {
+		showSteptypes: vi.fn()
+	},
+	mockFetch: vi.fn()
+}));
+
 vi.mock('./externalAccount.service', () => mockedExternalAccountService);
-
-const mockedStepTypeService = {
-	showSteptypes: vi.fn()
-};
 vi.mock('./step-type.service', () => mockedStepTypeService);
-
-const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
-describe('XrayService', () => {
-	let xrayService: typeof import('./xray.service');
+import * as xrayService from './xray.service.js';
 
+describe('XrayService', () => {
 	const stepTypes: StepType[] = [
 		{ id: 1, pre: 'I am on the website ', mid: '', type: 'Website', stepType: 'given', values: [] },
 		{ id: 2, pre: 'I click the button ', mid: '', type: 'Button', stepType: 'when', values: [] },
@@ -37,8 +39,7 @@ describe('XrayService', () => {
 		}
 	};
 
-	beforeEach(async () => {
-		xrayService = await vi.importActual<typeof import('./xray.service')>('./xray.service');
+	beforeEach(() => {
 		vi.clearAllMocks();
 		mockedStepTypeService.showSteptypes.mockResolvedValue([...stepTypes, { id: 99, pre: '', mid: '', type: 'Add Variable', stepType: 'given', values: [] }]);
 	});
