@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy, inject, output, viewChild, signal, effect } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -7,7 +7,7 @@ import { ApiService } from 'src/app/Services/api.service';
 import { ProjectService } from 'src/app/Services/project.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
-import { Subscription } from 'rxjs';
+
 import { MatSelect, MatFormField, MatLabel, MatOption } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
@@ -25,7 +25,7 @@ import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, Ma
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
-export class WorkgroupEditComponent implements OnInit, OnDestroy {
+export class WorkgroupEditComponent {
 	private modalService = inject(NgbModal);
 	projectService = inject(ProjectService);
 	private notify = inject(NotificationService);
@@ -40,12 +40,12 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	/**
    * List of all members in the workgroup
    */
-	workgroupList = [];
+	workgroupList = signal<any[]>([]);
 
 	/**
    * Owner of the workgroup
    */
-	workgroupOwner = '';
+	workgroupOwner = signal<string>('');
 
 	/**
    * Error if the request was not successful
@@ -116,11 +116,21 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 
 	readonly workgroupEditModal = viewChild.required<WorkgroupEditComponent>('workgroupEditModal');
 	readonly repoSwitchModal = viewChild.required<RepoSwichComponent>('repoSwitchModal');
-	transferOwnershipObservable!: Subscription;
+	/** Handles repository deletion when service triggers */
+	private deleteRepoEffect = effect(() => {
+		const trigger = this.projectService.deleteRepositoryTrigger();
+		if (trigger === 0) return;
+		this.deleteCustomRepo();
+	});
+
+	/** Handles ownership transfer when service triggers */
+	private transferOwnershipEffect = effect(() => {
+		const trigger = this.projectService.transferOwnershipTrigger();
+		if (trigger === 0) return;
+		this.transferedOwnership(this.selectedOwner);
+	});
+
 	constructor() {
-		this.projectService.deleteRepositoryEvent.subscribe(() => {
-			this.deleteCustomRepo();
-		});
 		this.projectService.getRepositories().subscribe((repos) => {
 			this.repos = repos;
 		});
@@ -141,17 +151,6 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 
 	}
 
-	ngOnInit() {
-		this.transferOwnershipObservable =
-			this.projectService.transferOwnershipEvent.subscribe((_) => {
-				this.transferedOwnership(this.selectedOwner);
-			});
-	}
-	ngOnDestroy() {
-		if (this.transferOwnershipObservable && !this.transferOwnershipObservable.closed) 
-			this.transferOwnershipObservable.unsubscribe();
-    
-	}
 	onModalClosed() {
 		this.selectedOwner = undefined as any;
 		this.ownerSelect = null as any;
@@ -216,7 +215,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 	openWorkgroupEditModal(project: RepositoryContainer, userEmail: string, userId: string) {
 		this.userEmail = userEmail;
 		this.userId = userId;
-		this.workgroupList = [];
+		this.workgroupList.set([]);
 		this.workgroupProject = project;
 		if (!this.workgroupProject.aiConfig) 
 			this.workgroupProject.aiConfig = {
@@ -243,8 +242,8 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 			this.projectService
 				.getWorkgroup(this.workgroupProject._id!)
 				.subscribe((res) => {
-					this.workgroupList = res.member;
-					this.workgroupOwner = res.owner.email;
+					this.workgroupList.set(res.member);
+					this.workgroupOwner.set(res.owner.email);
 				});
 	}
 
@@ -290,10 +289,9 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 			.addToWorkgroup(this.workgroupProject._id!, user)
 			.subscribe(
 				(_res) => {
-					const originList = JSON.parse(JSON.stringify(this.workgroupList));
+					const originList = JSON.parse(JSON.stringify(this.workgroupList()));
 					originList.push(user);
-					this.workgroupList = [];
-					this.workgroupList = originList;
+					this.workgroupList.set(originList);
 				},
 				(error) => {
 					this.workgroupError = error.error.error;
@@ -310,7 +308,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		this.projectService
 			.removeFromWorkgroup(this.workgroupProject._id!, user)
 			.subscribe((res) => {
-				this.workgroupList = res.member;
+				this.workgroupList.set(res.member);
 			});
 	}
 
@@ -324,7 +322,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		this.projectService
 			.updateWorkgroupUser(this.workgroupProject._id!, user)
 			.subscribe((res) => {
-				this.workgroupList = res.member;
+				this.workgroupList.set(res.member);
 			});
 	}
 
@@ -332,7 +330,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
    * Delete a custom repository
    */
 	deleteCustomRepo() {
-		if (this.userEmail == this.workgroupOwner) {
+		if (this.userEmail == this.workgroupOwner()) {
 			this.projectService
 				.deleteRepository(this.workgroupProject, this.userId)
 				.subscribe(() => {
@@ -347,7 +345,7 @@ export class WorkgroupEditComponent implements OnInit, OnDestroy {
 		const currentRepo = localStorage.getItem('repository');
 		if (this.workgroupProject.repoName === currentRepo) 
 			this.openRepoSwitchModal();
-		else if (this.workgroupList.length > 0)
+		else if (this.workgroupList().length > 0)
 			this.notify.info(
 				'Your project has other members, either remove them beforehand or transfer your projects ownership',
 				'Other members affected'

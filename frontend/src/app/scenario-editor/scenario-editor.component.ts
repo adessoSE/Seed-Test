@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, OnDestroy, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -7,7 +7,6 @@ import { StepDefinition } from '@shared/models/StepDefinition';
 import { NotificationService } from '../Services/notification.service';
 import { Block } from '@shared/models/Block';
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
-import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { ScenarioService } from '../Services/scenario.service';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
@@ -27,7 +26,7 @@ import { ExampleComponent } from '../example-table/example.component';
 	imports: [BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe]
 })
 
-export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
+export class ScenarioEditorComponent implements OnInit, OnChanges{
 	apiService = inject(ApiService);
 	blockService = inject(BlockService);
 	scenarioService = inject(ScenarioService);
@@ -85,14 +84,6 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	scenarioToUpdate!: Scenario;
 	readonly TEMPLATE_NAME = 'scenario';
 
-	/**
-     * Subscriptions for all EventEmitter
-     */
-	runSaveOptionObservable!: Subscription;
-	renameScenarioObservable!: Subscription;
-	updateRefObservable!: Subscription;
-	updateScenariObservable!: Subscription;
-
 	readonly isDark = input(false);
 
 	/**
@@ -110,12 +101,53 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	/**
      * List of Blocks
      */
-	blocks!: Block[];
+	readonly blocks = signal<Block[]>([]);
 
 	/**
       * Currently selected block
       */
 	selectedBlock!: Block;
+
+	/**
+	 * Reacts to run-save-option signal -- saves and runs the scenario
+	 */
+	private runSaveOptionEffect = effect(() => {
+		const option = this.apiService.runSaveOptionValue();
+		if (!option) return;
+		if (option == 'saveScenario')
+			this.saveRunOption();
+
+	});
+
+	/**
+	 * Reacts to rename-scenario signal -- updates scenario name
+	 */
+	private renameScenarioEffect = effect(() => {
+		const newName = this.scenarioService.renameScenarioValue();
+		if (!newName) return;
+		this.renameScenario(newName);
+	});
+
+	/**
+	 * Reacts to block updates -- reloads blocks from backend
+	 */
+	private updateBlocksEffect = effect(() => {
+		const trigger = this.blockService.updateBlocksTrigger();
+		if (trigger === 0) return;
+		const id = localStorage.getItem('id')!;
+		this.blockService.getBlocks(id).subscribe((resp) => {
+			this.blocks.set(resp);
+		});
+	});
+
+	/**
+	 * Reacts to scenario reference updates -- updates the affected scenario
+	 */
+	private updateScenariosRefEffect = effect(() => {
+		const element = this.blockService.updateScenariosRefValue();
+		if (!element) return;
+		this.updateScenario(element[0], element[1]);
+	});
 
 	/**
      * Event emitter to delete the scenario
@@ -145,27 +177,12 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 
 
 	/**
-    * Subscribes to all necessary events
+    * Loads initial blocks on component init
     */
 	ngOnInit() {
 		const id = localStorage.getItem('id')!;
 		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks = resp;
-		});
-		this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
-			if (option == 'saveScenario') 
-				this.saveRunOption();
-            
-		});
-		this.renameScenarioObservable = this.scenarioService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
-		this.updateRefObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
-			this.blockService.getBlocks(id).subscribe((resp) => {
-				this.blocks = resp;
-			});
-		});
-		//currently not used
-		this.updateScenariObservable = this.blockService.updateScenariosRefEvent.subscribe(element =>{
-			this.updateScenario(element[0], element[1]);
+			this.blocks.set(resp);
 		});
 	}
 
@@ -189,15 +206,6 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 				this.selectScenario(newScenario);
             
 		}
-	}
-
-	ngOnDestroy() {
-		if (this.runSaveOptionObservable && !this.runSaveOptionObservable.closed) 
-			this.runSaveOptionObservable.unsubscribe();
-        
-		if (this.renameScenarioObservable && !this.renameScenarioObservable.closed) 
-			this.renameScenarioObservable.unsubscribe();
-        
 	}
 
 	/**
@@ -276,7 +284,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 		const stepDefs = scenario.stepDefinitions as unknown as Record<string, StepType[]>;
 		for (const prop in stepDefs)
 			for (const step of stepDefs[prop])
-				for (const block of this.blocks) 
+				for (const block of this.blocks())
 					if (block._id === step._blockReferenceId && block.usedAsReference == undefined){
 						stepsReferences.push(step);
 						block.usedAsReference = true;
@@ -291,7 +299,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 		if (stepsReferences.length == 0)
 			this.blockService.deleteUpdateReferenceForBlock();
         
-		return this.blocks;
+		return this.blocks();
      
 	}
 
@@ -460,7 +468,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges, OnDestroy{
 	}
 
 	blockSelectTrigger(block: any) {
-		this.selectedBlock = this.blocks.find(i => i._id == block._blockReferenceId)!;
+		this.selectedBlock = this.blocks().find(i => i._id == block._blockReferenceId)!;
 		block.stepDefinitions = this.selectedBlock?.stepDefinitions;
 	}
 }

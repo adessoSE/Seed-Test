@@ -41,7 +41,7 @@
               </span>
             </div>
             <div [hidden]="!showFilter" style="margin-top: 10px;">
-              @if (!isCustomStory) {
+              @if (!isCustomStory()) {
                 <mat-form-field appearance="outline" class="filterFormField">
                   <mat-label>Assignee</mat-label>
                   <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
@@ -81,8 +81,8 @@
               </mat-form-field>
             </div>
             <hr>
-              <div [class.itemListDiv]="this.stories?.length !== 0 && isCustomStory"
-                [class.storyListDivNotCustom]="this.stories?.length !== 0 && !isCustomStory"
+              <div [class.itemListDiv]="stories().length !== 0 && isCustomStory()"
+                [class.storyListDivNotCustom]="stories().length !== 0 && !isCustomStory()"
                 [class.storyListDivWithFilter]="showFilter">
                 <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
                   @for (s of getSortedStories(); track s; let i = $index) {
@@ -90,7 +90,7 @@
                       [id]="'story' + s.issue_number">
                       <div id="storyList" (click)="selectStory(s)" class="Mediumaccordeon2 uk-accordion-title"
                         [class.selected]="s.issue_number === selectedStory?.issue_number">
-                        @if (!isCustomStory) {
+                        @if (!isCustomStory()) {
                           <span class="jiraGithubStoryIcons">
                             <button uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
                               <mat-icon class="toTicket">launch</mat-icon>
@@ -153,7 +153,7 @@
                   }
                 </ul>
               </div>
-              @if (isCustomStory) {
+              @if (isCustomStory()) {
                 <div id="createNewStoryDiv">
                   <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
                 </div>
@@ -176,10 +176,10 @@
                     <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>
                   </div>
                   <hr>
-                    <div [class.itemListDiv]="this.groups?.length !== 0 && $safeNavigationMigration(this.groups?.length) !== null">
+                    <div [class.itemListDiv]="groups().length !== 0 && $safeNavigationMigration(groups().length) !== null">
                       <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
                         @for (g of getSortedGroups(); track g; let i = $index) {
-                          <li class="{{liGroupList[i]}}" cdkDrag>
+                          <li class="{{liGroupList()[i]}}" cdkDrag>
                             <div id="groupList" class=" Mediumaccordeon2 uk-accordion-title" (click)="selectFirstStoryOfGroup(g)">
                               <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}"
                                 uk-tooltip="pos:right; delay: 200" title="{{g.name}}">

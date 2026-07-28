@@ -62,10 +62,10 @@ describe('StoriesBarComponent', () => {
 			const storiesToFilter = storiesForAll;
 			component.storyTermChange(storiesToFilter);
 			const sorted = storiesToFilter;
-			component.stories = storiesForAll;
+			component.stories.set(storiesForAll);
 			component.isFilterActive = true;
 			component.getSortedStories();
-			expect(component.stories).toEqual(sorted);
+			expect(component.stories()).toEqual(sorted);
 		});
 	});
 
@@ -81,15 +81,15 @@ describe('StoriesBarComponent', () => {
 	describe('selectStory', () =>{
 
 		beforeEach(() =>{
-			component.stories = storiesForAll;
+			component.stories.set(storiesForAll);
 		});
 
 		afterEach(() =>{
-			component.stories = undefined as any;
+			component.stories.set(undefined as any);
 		});
 
 		it('should emit the story via storyChosen', () =>{
-			const story = component.stories[0];
+			const story = component.stories()[0];
 			vi.spyOn(component.storyChosen, 'emit');
 			component.selectStory(story);
 			expect(component.storyChosen.emit).toHaveBeenCalledWith(story);

@@ -197,16 +197,16 @@
               <!-- Part: Workgroup Owner -->
               <div class="divWrapper" id="Workgroup_Owner">
                 <!-- Only for WG-Owner -->
-                @if (userEmail===workgroupOwner) {
+                @if (userEmail===workgroupOwner()) {
                   <div>
                     <label style="margin-right: 10px;">Project Owner:</label>
-                    @if (!this.workgroupList.length == 0) {
+                    @if (!this.workgroupList().length == 0) {
                       <mat-form-field
                         style="margin-right: 10px; position: inherit;" appearance="fill"
-                        [style.width]="workgroupOwner.length + 6 +'ch'">
+                        [style.width]="workgroupOwner().length + 6 +'ch'">
                         <mat-label>Project Owner</mat-label>
                         <mat-select #ownerSelect [(ngModel)]="selectedOwner">
-                          @for (element of workgroupList; track element) {
+                          @for (element of workgroupList(); track element) {
                             <mat-option [value]="element.email">
                               {{element.email}}
                             </mat-option>
@@ -215,8 +215,8 @@
                       </mat-form-field>
                     }
                     <button id="changeOwner" type="button" class="normalButton"
-                      [style.opacity]="this.workgroupList.length == 0 || selectedOwner == undefined  ?  '50%' : '100%'"
-                      [disabled]="this.workgroupList.length == 0 || selectedOwner == undefined "
+                      [style.opacity]="this.workgroupList().length == 0 || selectedOwner == undefined  ?  '50%' : '100%'"
+                      [disabled]="this.workgroupList().length == 0 || selectedOwner == undefined "
                       (click)="transferOwnership(selectedOwner);">Transfer Ownership
                     </button>
                     <div>
@@ -228,10 +228,10 @@
                     </div>
                   }
                   <!-- If User is not the WG-Owner -->
-                  @if (userEmail!==workgroupOwner) {
+                  @if (userEmail!==workgroupOwner()) {
                     <div>
                       <label style="margin-right: 10px;">Project Owner:</label>
-                      <label id="projectOwner">{{this.workgroupOwner}}</label>
+                      <label id="projectOwner">{{this.workgroupOwner()}}</label>
                     </div>
                   }
                 </div>
@@ -258,7 +258,7 @@
                     </div>
                     <!-- Part: Member List -->
                     <div class="workgroupTable">
-                      <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8"
+                      <table id="workgroupTable" mat-table [dataSource]="workgroupList()" class="mat-elevation-z8"
                         aria-describedby="mydesc">
                         <ng-container matColumnDef="email">
                           <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
@@ -339,7 +339,7 @@
                               </div>
                             </div>
                             <div class="modal-footer">
-                              @if (userEmail===workgroupOwner) {
+                              @if (userEmail===workgroupOwner()) {
                                 <button type="button" class="normalButton deleteButton"
                                   (click)="isCurrentRepoToDelete()">Delete Project
                                 </button>

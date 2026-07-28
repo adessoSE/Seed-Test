@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject, viewChild, computed } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject, viewChild, computed, signal } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
@@ -28,11 +28,11 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	/**
      * if the test is done
      */
-	testDone = false;
+	readonly testDone = signal(false);
 
 	@Input() report: any;
 
-	reportId: any;
+	readonly reportId = signal<any>(null);
 
 	reportComponent: any;
 	/**
@@ -47,7 +47,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	/**
      * If the results should be shown
      */
-	showResults = false;
+	readonly showResults = signal(false);
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
@@ -94,19 +94,19 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 
     
 	ngOnChanges() {
-		this.reportId = this.report.reportId;
+		this.reportId.set(this.report.reportId);
 		this.htmlReport = this.report.htmlFile;
-		this.testDone = true;
+		this.testDone.set(true);
 		const iframe: HTMLIFrameElement = document.getElementById('testFrameReport') as HTMLIFrameElement;
 		iframe.srcdoc = this.report.htmlFile;
-		this.showResults = true;
+		this.showResults.set(true);
 		setTimeout(() => {
 			iframe.scrollIntoView();
 		}, 10);
-		if (this.reportId)
+		if (this.reportId())
 			return new Promise<void>((resolve, _reject) => {
 				this.reportService
-					.getReportData(this.reportId)
+					.getReportData(this.reportId())
 					.subscribe(resp => {
 						this.reportComponentSubject.next(resp); 
 						resolve();
@@ -137,7 +137,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      * Hide the test results
      */
 	hideResults() {
-		this.showResults = !this.showResults;
+		this.showResults.update(v => !v);
 	}
 
 	/**
@@ -179,7 +179,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      */
 	downloadFile() {
 		const blob = new Blob([this.htmlReport], {type: 'text/html'});
-		saveAs(blob, this.reportId + '.html');
+		saveAs(blob, this.reportId() + '.html');
 	}
 
 	getReport(reportName: string) {
@@ -221,7 +221,7 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 				heightLeft -= pageHeight;
 			}
               
-			doc.save(this.reportId + '.pdf');
+			doc.save(this.reportId() + '.pdf');
 		});
 	}
       

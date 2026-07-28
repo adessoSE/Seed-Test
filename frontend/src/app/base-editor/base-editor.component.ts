@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect, signal } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -14,7 +14,7 @@ import { StepDefinitionBackground } from '@shared/models/StepDefinitionBackgroun
 import { StepType } from '@shared/models/StepType';
 import { Story } from '@shared/models/Story';
 import { BlockService } from '../Services/block.service';
-import { Subscription } from 'rxjs';
+
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { NewExampleComponent } from '../modals/new-example/new-example.component';
 import { ExampleService } from '../Services/example.service';
@@ -39,7 +39,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [NgTemplateOutlet, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe]
 })
-export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewChecked, AfterViewInit {
+export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, AfterViewInit {
 	notify = inject(NotificationService);
 	dialog = inject(MatDialog);
 	blockService = inject(BlockService);
@@ -198,7 +198,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 	/**
      * Blocks in Repository
      */
-	blocks: Block[] = [];
+	readonly blocks = signal<Block[]>([]);
 
 	indexOfExampleToDelete: number | null = null;
 
@@ -213,138 +213,129 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 
 	@Input() isDark!: boolean;
 
-	/**
-   * Subscribtions for all EventEmitter
-   */
-	newExampleObservable!: Subscription;
-	renameExampleObservable!: Subscription;
-	addBlocktoScenarioObservable!: Subscription;
-	scenarioChangedObservable!: Subscription;
-	backgroundChangedObservable!: Subscription;
-	copyExampleOptionObservable!: Subscription;
 	/** Re-run highlight when theme changes */
 	private themeEffect = effect(() => {
 		this.themeService.isDark();
 		this.highlightInputOnInit();
 	});
-	updateBlockObservable!: Subscription;
+
+	/** Adds block steps to scenario when block service emits */
+	private addBlockEffect = effect(() => {
+		const blockValue = this.blockService.addBlockToScenarioValue();
+		if (blockValue === null) return;
+		if (this.templateName == 'background' && blockValue[0] == 'background') {
+			const whenSteps = blockValue[1].stepDefinitions['when'] || [];
+			if (whenSteps.length === 0) {
+				// Background only supports 'when' steps — warn user if block has none
+				this.notify.warning(
+					'The selected block contains no "When" steps. Background only supports "When" steps.',
+					'Block not applicable'
+				);
+				return;
+			}
+			whenSteps.forEach((step: StepType) => {
+				this.uncheckStep(step);
+				this.selectedStory.background.stepDefinitions['when'].push(JSON.parse(JSON.stringify(step)));
+			});
+			this.markUnsaved();
+		}
+		if (this.templateName == 'scenario' && blockValue[0] == 'scenario') {
+			if (!blockValue[3]) {
+				const blockReference: StepType = {
+					_blockReferenceId: blockValue[1]._id, id: 0, type: blockValue[1].name,
+					stepType: blockValue[2].toLowerCase(), pre: '', mid: '', post: '', values: []
+				};
+				const blockExamples = blockValue[1].stepDefinitions['example'];
+
+				if (blockExamples &&
+            blockExamples.length > 0 &&
+            blockExamples[0] &&
+            blockExamples[0].values &&
+            blockExamples[0].values.length > 0)
+					// Initialzes Examples Table when Selected Scenario doesn't have any Examples
+					if (this.selectedScenario?.multipleScenarios?.length === undefined || this.selectedScenario?.multipleScenarios?.length === 0) {
+						this.selectedScenario.multipleScenarios![0] = blockExamples[0];
+						this.selectedScenario.multipleScenarios![1] = {values: [...Array(blockExamples[0].values.length)].fill('value')};
+					} else {
+						// Adds new Example if non-existent
+						const missingValues = blockExamples[0].values
+							.map((x: string) => {return x;})
+							.filter((x: string) => this.selectedScenario.multipleScenarios![0].values.indexOf(x) == -1);
+
+						missingValues.forEach((v: string) => {
+							this.exampleService.newExampleEmit(v);
+						});
+					}
+
+				this.addStep(blockReference, this.selectedScenario, 'scenario');
+			} else {
+				this.insertStepsWithExamples(blockValue[1]);
+			}
+			this.markUnsaved();
+		}
+	});
+
+	/** Adds example value when example service emits new example */
+	private newExampleEffect = effect(() => {
+		const value = this.exampleService.newExampleValue();
+		if (value === null) return;
+		this.addToValues(value, 0, 0, '');
+	});
+
+	/** Renames example when example service emits rename */
+	private renameExampleEffect = effect(() => {
+		// Signal is typed string|null but callers emit {name, column} — cast preserves EventEmitter behavior
+		const value = this.exampleService.renameExampleValue() as any;
+		if (value === null) return;
+		this.renameExample(value.name, value.column);
+	});
+
+	/** Unchecks all steps when scenario changes */
+	private scenarioChangedEffect = effect(() => {
+		const trigger = this.scenarioService.scenarioChangedTrigger();
+		if (trigger === 0) return;
+		this.checkAllSteps(false);
+		this.initialRegex = true;
+	});
+
+	/** Unchecks all steps when background changes */
+	private backgroundChangedEffect = effect(() => {
+		const trigger = this.backgroundService.backgroundChangedTrigger();
+		if (trigger === 0) return;
+		this.checkAllSteps(false);
+	});
+
+	/** Handles copy/don't-copy option for steps with examples */
+	private copyExampleOptionEffect = effect(() => {
+		const option = this.apiService.copyStepWithExampleValue();
+		if (option === null) return;
+		if (this.clipboardBlock)
+			if (option == 'copy')
+				this.insertStepsWithExamples(this.clipboardBlock);
+			else if (option == 'dontCopy')
+				this.insertStepsWithoutExamples();
+
+
+	});
+
+	/** Reloads blocks when block service triggers update */
+	private updateBlocksEffect = effect(() => {
+		const trigger = this.blockService.updateBlocksTrigger();
+		if (trigger === 0) return;
+		const id = localStorage.getItem('id')!;
+		this.blockService.getBlocks(id).subscribe((resp) => {
+			this.blocks.set(resp);
+		});
+	});
 
 	ngOnInit(): void {
 		const id = localStorage.getItem('id') ?? '';
 		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks = resp;
+			this.blocks.set(resp);
 		});
-		this.addBlocktoScenarioObservable = this.blockService.addBlockToScenarioEvent.subscribe(block => {
-			if (this.templateName == 'background' && block[0] == 'background') {
-				const whenSteps = block[1].stepDefinitions['when'] || [];
-				if (whenSteps.length === 0) {
-					// Background only supports 'when' steps — warn user if block has none
-					this.notify.warning(
-						'The selected block contains no "When" steps. Background only supports "When" steps.',
-						'Block not applicable'
-					);
-					return;
-				}
-				whenSteps.forEach((step: StepType) => {
-					this.uncheckStep(step);
-					this.selectedStory.background.stepDefinitions['when'].push(JSON.parse(JSON.stringify(step)));
-				});
-				this.markUnsaved();
-			}
-			if (this.templateName == 'scenario' && block[0] == 'scenario') {
-				if (!block[3]) {
-					const blockReference: StepType = {
-						_blockReferenceId: block[1]._id, id: 0, type: block[1].name,
-						stepType: block[2].toLowerCase(), pre: '', mid: '', post: '', values: []
-					};
-					const blockExamples = block[1].stepDefinitions['example'];
-
-					if (blockExamples &&
-            blockExamples.length > 0 &&
-            blockExamples[0] &&
-            blockExamples[0].values &&
-            blockExamples[0].values.length > 0) 
-						// Initialzes Examples Table when Selected Scenario doesn't have any Examples 
-						if (this.selectedScenario?.multipleScenarios?.length === undefined || this.selectedScenario?.multipleScenarios?.length === 0) {
-							this.selectedScenario.multipleScenarios![0] = blockExamples[0];
-							this.selectedScenario.multipleScenarios![1] = {values: [...Array(blockExamples[0].values.length)].fill('value')};
-						} else {
-							// Adds new Example if non-existent
-							const missingValues = blockExamples[0].values
-								.map((x: string) => {return x;})
-								.filter((x: string) => this.selectedScenario.multipleScenarios![0].values.indexOf(x) == -1);
-
-							missingValues.forEach((v: string) => {
-								this.exampleService.newExampleEmit(v); 
-							});
-						}
-					
-					this.addStep(blockReference, this.selectedScenario, 'scenario');
-				} else {
-					block = block[1];
-					this.insertStepsWithExamples(block);
-				}
-				this.markUnsaved();
-			}
-
-		});
-
-		this.newExampleObservable = this.exampleService.newExampleEvent.subscribe((value) => {
-			this.addToValues(value, 0, 0, '');
-		});
-		this.renameExampleObservable =
-			this.exampleService.renameExampleEvent.subscribe((value) => {
-				this.renameExample(value.name, value.column);
-			});
-		this.scenarioChangedObservable =
-			this.scenarioService.scenarioChangedEvent.subscribe(() => {
-				this.checkAllSteps(false);
-				this.initialRegex = true;
-			});
-		this.backgroundChangedObservable =
-			this.backgroundService.backgroundChangedEvent.subscribe(() => {
-				this.checkAllSteps(false);
-			});
-
-		this.copyExampleOptionObservable =
-			this.apiService.copyStepWithExampleEvent.subscribe((option) => {
-				if (this.clipboardBlock) 
-					if (option == 'copy') 
-						this.insertStepsWithExamples(this.clipboardBlock);
-					else if (option == 'dontCopy') 
-						this.insertStepsWithoutExamples();
-          
-        
-			});
-		this.updateBlockObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
-			this.blockService.getBlocks(id).subscribe((resp) => {
-				this.blocks = resp;
-			});
-		});
-
-    
 	}
 
-	ngOnDestroy(): void {
-		if (this.addBlocktoScenarioObservable && !this.addBlocktoScenarioObservable.closed) 
-			this.addBlocktoScenarioObservable.unsubscribe();
-    
-		if (this.newExampleObservable && !this.newExampleObservable.closed) 
-			this.newExampleObservable.unsubscribe();
-    
-		if (this.renameExampleObservable && !this.renameExampleObservable.closed) 
-			this.renameExampleObservable.unsubscribe();
-    
-		if (this.scenarioChangedObservable && !this.scenarioChangedObservable.closed) 
-			this.scenarioChangedObservable.unsubscribe();
-    
-		if (this.backgroundChangedObservable && !this.backgroundChangedObservable.closed) 
-			this.backgroundChangedObservable.unsubscribe();
-    
-		if (this.copyExampleOptionObservable && !this.copyExampleOptionObservable.closed)
-			this.copyExampleOptionObservable.unsubscribe();
 
-	}
 
 	/**
    * retrieves the saved block from the session storage
@@ -2104,7 +2095,7 @@ export class BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVie
 
 	getBlockInSteps(blockId: string): Block {
 		let foundBlock: Block | undefined;
-		this.blocks.forEach((block: Block) => {
+		this.blocks().forEach((block: Block) => {
 			if (block._id?.toString() === blockId.toString())
 				foundBlock = block;
 
