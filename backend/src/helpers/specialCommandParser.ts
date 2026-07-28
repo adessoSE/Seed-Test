@@ -37,9 +37,10 @@ export function applySpecialCommands(str: string): string {
  * @returns The calculated and formatted date string.
  */
 function calcDate(value: string): string {
-	// Original Regex patterns from serverHelper.js
-	const mid_regex = /(^((\+|-)@@(\d+),(Day|Month|Year))*)|(^\s*$)/;
-	const end_regex = /(^(@@format:\w*€€)*)|(^\s*$)/;
+	// Validation patterns — must match the ENTIRE mid/end section, or be empty
+	// Fixed: original used * quantifier which matched empty string at ^, bypassing validation entirely
+	const mid_regex = /^((\+|-)@@(\d+),(Day|Month|Year))+$|^\s*$/;
+	const end_regex = /^@@format:[^€]*€€$|^\s*$/;
 
 	// Helper to find the start part (before calculations or format)
 	function getStart(str: string): string {

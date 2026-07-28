@@ -61,17 +61,12 @@ describe('SpecialCommandParser', () => {
 		expect(specialCommandParser.applySpecialCommands(input)).toBe('Today is 31.10.2025 and tomorrow is 2025-11-01');
 	});
 
-	it('should partially transform invalid format (no €€)', () => {
-		// The code incorrectly matches @@Date and @@format as separate calls
-		// This test now asserts that this specific (buggy) behavior occurs, rather than expecting no change.
-		const input = 'Invalid: @@Date@@format:YYYY-MM-DD'; 
-    
-		// We mock the date to 10:00 AM
-		// calcDate("@@Date") -> "31.10.2025"
-		// calcDate("@@format") -> "31.10.2025" (buggy, uses default format)
-		const expectedOutput = 'Invalid: 31.10.202531.10.2025:YYYY-MM-DD';
-    
-		expect(specialCommandParser.applySpecialCommands(input)).toBe(expectedOutput);
+	it('should throw on invalid format missing closing €€', () => {
+		// The regex matches "@@format" as a standalone token (missing €€ delimiter)
+		// The fixed end_regex now correctly rejects the bare "@@format" section
+		const input = 'Invalid: @@Date@@format:YYYY-MM-DD';
+		expect(() => specialCommandParser.applySpecialCommands(input))
+			.toThrow('Error parsing the format section');
 	});
   
 	it('should partially transform invalid calculation (no +/-)', () => {
@@ -250,11 +245,10 @@ describe('SpecialCommandParser', () => {
 
 	// ── Validation / error cases ──────────────────────────────────────
 	describe('error cases', () => {
-		it('should silently ignore invalid +@@Date in mid section (lenient validation)', () => {
-			// The mid_regex uses * quantifier, so "+@@Date" passes validation (matches empty at ^)
-			// The +@@Date part is silently dropped — only the start "@@Date" produces output
-			expect(specialCommandParser.applySpecialCommands('@@Date+@@Date'))
-				.toBe('31.10.2025');
+		it('should throw on invalid calculation like +@@Date (not a valid unit)', () => {
+			// mid_regex requires +/-@@digit,(Day|Month|Year) — "+@@Date" has no digit or unit
+			expect(() => specialCommandParser.applySpecialCommands('@@Date+@@Date'))
+				.toThrow('Error parsing the calculation section');
 		});
 
 		it('should treat @@Date and @@Day,5 as separate regex matches (no cross-match validation)', () => {
