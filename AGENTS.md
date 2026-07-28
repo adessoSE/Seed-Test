@@ -171,7 +171,10 @@ await db.collection(storiesCollection).updateOne(...);
 - Curly braces **always required** (`"curly": ["error", "multi"]`)
 - `prefer-arrow-callback` enforced, `no-console` off
 - `@typescript-eslint/no-floating-promises: error`
-- `no-explicit-any: warn` (off in `*.spec.ts`)
+- `@typescript-eslint/no-misused-promises: warn`
+- `@typescript-eslint/consistent-type-imports: warn` (inline `type` keyword)
+- `eqeqeq: error`, `preserve-caught-error: warn` (ESLint 10 core)
+- `no-explicit-any: warn` (off in `*.spec.ts`), `no-unsafe-*: off` (deferred until `any` cleanup)
 - Lint target: all `src/**/*.ts`
 
 ## Files/gitignore
