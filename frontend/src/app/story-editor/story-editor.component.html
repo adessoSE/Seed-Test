@@ -1,9 +1,9 @@
 <!-- Message if no stories avaliable -->
-@if ((!stories || stories.length <= 0) && storiesLoaded && !storiesError && !showEditor) {
+@if ((!stories() || stories().length <= 0) && storiesLoaded() && !storiesError() && !showEditor()) {
   <div [class.darkTheme]="isDark" class="emptyStories"
     >
     <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
-    @if (!db) {
+    @if (!db()) {
       <div>
         <div class="tutorialDiv uk-card uk-card-default">
           <h4>Find out how to create stories:</h4>
@@ -26,7 +26,7 @@
       </div>
     </div>
   }
-  @if (db) {
+  @if (db()) {
     <div>
       <div><img class="arrowLeft" src="assets/no_stories_arrow.svg" alt=""></div>
       <div id="firstStoryText">
@@ -36,19 +36,19 @@
   }
 </div>
 }
-@if (!storiesLoaded && !storiesError) {
+@if (!storiesLoaded() && !storiesError()) {
   <div class="emptyStories">
     <h1 class="LargeHeadline2">Loading Stories ...</h1>
   </div>
 }
 
-@if (storiesError) {
+@if (storiesError()) {
   <div class="emptyStories">
     <h1 class="LargeHeadline2">You are not authorized to use this project</h1>
   </div>
 }
 
-@if (stories && (showEditor === true)) {
+@if (stories() && (showEditor() === true)) {
   <div>
     <!--Story-->
     <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story" cdkScrollable>
@@ -65,7 +65,7 @@
               As a <...>, I want <...> so that <...>
             </span>
           </dfn>
-          @if (isAiAvailable) {
+          @if (isAiAvailable()) {
             <div class="ai-generate-container">
               <button class="button" mat-fab extended color="accent" (click)="generateAiScenarios()"
                 [disabled]="aiLoadingStories.has(selectedStory._id)">
@@ -78,7 +78,7 @@
               </button>
             </div>
           }
-          @if (isAiAvailable && aiLoadingStories.has(selectedStory._id)) {
+          @if (isAiAvailable() && aiLoadingStories.has(selectedStory._id)) {
             <div class="loading-container">
               <mat-spinner diameter="24" />
               <span>Generating...</span>
@@ -104,12 +104,12 @@
           @if (this.selectedStory) {
             <span id="storytitle" class="MediumHeadline5"></span>
           }
-          <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" [disabled]="isReviewingAi" data-uk-tooltip
+          <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" [disabled]="isReviewingAi()" data-uk-tooltip
             title="Change Story Title">
             <em class="material-icons">edit</em>
           </button>
         </div>
-        <button id="story_delete" class="storyTitle" (click)=showDeleteStoryToast($event) [disabled]="isReviewingAi"
+        <button id="story_delete" class="storyTitle" (click)=showDeleteStoryToast($event) [disabled]="isReviewingAi()"
           uk-tooltip="Delete Story">
           <em class="material-icons">delete</em>
         </button>
@@ -224,7 +224,7 @@
                   <br>
                     <mat-accordion>
                       <mat-expansion-panel hideToggle />
-                      <mat-expansion-panel (opened)="showBackground = true" (closed)="showBackground = false"
+                      <mat-expansion-panel (opened)="showBackground.set(true)" (closed)="showBackground.set(false)"
                         id="widened-expansion-panel">
                         <mat-expansion-panel-header class="scenarioHeaderContainer">
                           <mat-panel-title>
@@ -246,7 +246,7 @@
                               title="Switch Background">
                               <em class="material-icons">swap_horiz</em>
                             </button>
-                            @if (showBackground && sortedBackgrounds() && this.openBlockModal == undefined) {
+                            @if (showBackground() && sortedBackgrounds() && this.openBlockModal == undefined) {
                               <div
                                 uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;">
                                 <ul class="uk-nav uk-dropdown-nav">
@@ -264,8 +264,8 @@
                             @if ( this.selectedStory.background.saved === false) {
                               <button id="saveButtonBackground" class="storyTitle"
                                 data-uk-tooltip
-                                [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-                                [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+                                [class.disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+                                [disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
                                 title="Save Background"
                                 [class.iconButton_unsaved]="this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined"
                                 (click)="updateBackground();$event.stopPropagation();">
@@ -275,23 +275,23 @@
                             @if ( this.selectedStory.background.saved!= false) {
                               <button id="saveButtonBackground" class="storyTitle"
                                 data-uk-tooltip
-                                [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-                                [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+                                [class.disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+                                [disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
                                 title="Without changes"
                                 [class.iconButton_unsaved]="this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined">
                                 <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
                               </button>
                             }
-                            <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning" class="storyTitle"
+                            <button id="background_delete" [class.disabled]="testRunning()" [disabled]="testRunning()" class="storyTitle"
                               data-uk-tooltip title="Delete Background" (click)="deleteBackground();$event.stopPropagation();">
                               <em class="material-icons">delete</em>
                             </button>
                           </div>
                         </mat-expansion-panel-header>
-                        @if (showBackground) {
+                        @if (showBackground()) {
                           <app-base-editor [templateName]="TEMPLATE_NAME" [newlySelectedScenario]="selectedScenario"
-                            [newlySelectedStory]="selectedStory" [testRunning]="testRunning" [originalStepTypes]="originalStepTypes"
-                          [uncheckBackgroundCheckboxes]="showBackground" />
+                            [newlySelectedStory]="selectedStory" [testRunning]="testRunning()" [originalStepTypes]="originalStepTypes()"
+                          [uncheckBackgroundCheckboxes]="showBackground()" />
                         }
                       </mat-expansion-panel>
                     </mat-accordion>
@@ -300,7 +300,7 @@
                       @if (this.selectedScenario) {
                         <div id="storyEditorContainer">
                           <!--AI Review Bar-->
-                          @if (!isReviewingAi && aiSuggestions.has(selectedStory._id)) {
+                          @if (!isReviewingAi() && aiSuggestions.has(selectedStory._id)) {
                             <div
                               class="storyEditorHeadContainer ai-review-prompt">
                               <div class="review-prompt-content">
@@ -320,7 +320,7 @@
                               <button class="button-4" (click)="enterAiReviewMode()">Review Suggestions</button>
                             </div>
                           }
-                          @if (isReviewingAi) {
+                          @if (isReviewingAi()) {
                             <div class="storyEditorHeadContainer ai-review-bar">
                               <div class="review-bar-title">
                                 <mat-icon>psychology</mat-icon>
@@ -342,7 +342,7 @@
                               </div>
                             </div>
                           }
-                          @if (isReviewingAi) {
+                          @if (isReviewingAi()) {
                             <div class="ai-scenario-selector-bar">
                               <span class="selector-title">Reviewing Scenarios:</span>
                               <div class="scenario-list">
@@ -380,7 +380,7 @@
                             </div>
                             @if (this.selectedScenario) {
                               <div class="storyInfoCenter">
-                                @if (!this.globalSettingsActivated) {
+                                @if (!this.globalSettingsActivated()) {
                                   <div>
                                     <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
                                     <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
@@ -390,8 +390,8 @@
                                       <select name="testRunner" class="select" id="testRunnerSelect"
                                         (change)="setTestRunner($event.target.value)">
                                         <option id="seleniumWebdriver" value="seleniumWebdriver"
-                                        [selected]="this.testRunner === 'seleniumWebdriver'">Selenium Webdriver</option>
-                                        <option id="playwright" value="playwright" [selected]="this.testRunner === 'playwright'">Playwright
+                                        [selected]="this.testRunner() === 'seleniumWebdriver'">Selenium Webdriver</option>
+                                        <option id="playwright" value="playwright" [selected]="this.testRunner() === 'playwright'">Playwright
                                         (experimental)</option>
                                       </select>
                                       <label class="selectLabel SmallIcontext">Browser:</label>
@@ -408,7 +408,7 @@
                                           <option id="MicrosoftEdge_browser" value="MicrosoftEdge"
                                           [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
                                         }
-                                        @if (this.webkit_enabled && this.testRunner === 'playwright') {
+                                        @if (this.webkit_enabled && this.testRunner() === 'playwright') {
                                           <option id="webkit_browser" value="webkit"
                                           [selected]="this.selectedScenario.browser === 'webkit'">Webkit</option>
                                         }
@@ -461,7 +461,7 @@
                                         (sizeChange)="handleSizeChange($event)" />
                                       </div>
                                     }
-                                    @if (this.globalSettingsActivated) {
+                                    @if (this.globalSettingsActivated()) {
                                       <div>
                                         <div class="globalSettingsDiv">
                                           <!-- <em class="material-icons warningIcon">warning</em> -->
@@ -476,37 +476,37 @@
                                   </div>
                                 }
                                 <div class="storyInfoRight uk-button-group">
-                                  @if (this.showResults) {
-                                    <button id="hide_results_top" [class.disabledButton]="!testDone" class="button"
+                                  @if (this.showResults()) {
+                                    <button id="hide_results_top" [class.disabledButton]="!testDone()" class="button"
                                       uk-tooltip="Hide Test Results" type="button" (click)="hideResults()">
                                       <em class="material-icons-outlined">expand_more</em>
                                     </button>
                                   }
-                                  @if (!this.showResults) {
-                                    <button id="show_results_top" class="button" [class.disabledButton]="!testDone"
+                                  @if (!this.showResults()) {
+                                    <button id="show_results_top" class="button" [class.disabledButton]="!testDone()"
                                       uk-tooltip="Show Test Results" type="button" (click)="hideResults()">
                                       <em class="material-icons-outlined">expand_less</em>
                                     </button>
                                   }
-                                  <button id="download_results_top" class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
+                                  <button id="download_results_top" class="button" [class.disabledButton]="!testDone()" [disabled]="!testDone()"
                                     uk-tooltip="Download Test Results" type="button" (click)="downloadFile()">
                                     <em class="material-icons-outlined">file_download</em>
                                   </button>
-                                  @if (!this.reportIsSaved) {
-                                    <button id="save_report_top" class="button" [class.disabledButton]="!testDone"
-                                      [disabled]="!testDone" uk-tooltip="Save Report" type="button" (click)="saveReport(this.reportId)">
+                                  @if (!this.reportIsSaved()) {
+                                    <button id="save_report_top" class="button" [class.disabledButton]="!testDone()"
+                                      [disabled]="!testDone()" uk-tooltip="Save Report" type="button" (click)="saveReport(this.reportId())">
                                       <em class="material-icons">save</em>
                                     </button>
                                   }
-                                  @if (this.reportIsSaved) {
-                                    <button id="unsave_report_top" class="button" [class.disabledButton]="!testDone"
-                                      [disabled]="!testDone" uk-tooltip="Do not Save Report" type="button" (click)="unsaveReport(this.reportId)">
+                                  @if (this.reportIsSaved()) {
+                                    <button id="unsave_report_top" class="button" [class.disabledButton]="!testDone()"
+                                      [disabled]="!testDone()" uk-tooltip="Do not Save Report" type="button" (click)="unsaveReport(this.reportId())">
                                       <em class="material-icons-outlined">cancel</em>
                                     </button>
                                   }
-                                  <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning"
+                                  <button id="run_story" class="button" [class.disabledButton]="testRunning()" [disabled]="testRunning()"
                                     uk-tooltip="Runs all scenario tests for the story" type="button"
-                                    (click)="evaluateAndRunStory(this.testRunner)">
+                                    (click)="evaluateAndRunStory(this.testRunner())">
                                     Run Story
                                   </button>
                                   <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()"
@@ -516,13 +516,13 @@
                                 </div>
                               </div>
                               <!--Scenario Editor-->
-                              <div [class.read-only-mode]="isReviewingAi">
+                              <div [class.read-only-mode]="isReviewingAi()">
                                 <app-scenario-editor [isDark]="isDark" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);"
                                   (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);"
                                   (navigateLeft)="navigateScenarioLeft()" (navigateRight)="navigateScenarioRight()"
-                                  [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [selectedStory]="selectedStory"
+                                  [originalStepTypes]="originalStepTypes()" [testRunning]="testRunning()" [selectedStory]="selectedStory"
                                   [selectedScenario]="selectedScenario"
-                                  [scenarios]="isReviewingAi ? $safeNavigationMigration(aiSuggestions.get(selectedStory._id)?.scenarios) : selectedStory.scenarios" />
+                                  [scenarios]="isReviewingAi() ? $safeNavigationMigration(aiSuggestions.get(selectedStory._id)?.scenarios) : selectedStory.scenarios" />
                               </div>
                               <app-rename-story #renameStoryModal />
                               <app-rename-background #renameBackgroundModal />
@@ -535,40 +535,40 @@
                                   </button>
                                 </div>
                                 <div class="storyInfoRight uk-button-group">
-                                  @if (this.showResults) {
-                                    <button id="hide_results_bottom" [class.disabledButton]="!testDone" class="button"
+                                  @if (this.showResults()) {
+                                    <button id="hide_results_bottom" [class.disabledButton]="!testDone()" class="button"
                                       uk-tooltip="Hide Test Results" type="button" (click)="hideResults()">
                                       <em class="material-icons-outlined">expand_more</em></button>
                                     }
-                                    @if (!this.showResults) {
-                                      <button id="show_results_bottom" class="button" [class.disabledButton]="!testDone"
+                                    @if (!this.showResults()) {
+                                      <button id="show_results_bottom" class="button" [class.disabledButton]="!testDone()"
                                         uk-tooltip="Show Test Results" type="button" (click)="hideResults()">
                                         <em class="material-icons-outlined">expand_less</em></button>
                                       }
-                                      <button id="download_results_bottom" class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
+                                      <button id="download_results_bottom" class="button" [class.disabledButton]="!testDone()" [disabled]="!testDone()"
                                         uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();">
                                         <em class="material-icons-outlined">file_download</em></button>
-                                        @if (!this.reportIsSaved) {
-                                          <button id="save_report_bottom" class="button" [class.disabledButton]="!testDone"
-                                            [disabled]="!testDone" uk-tooltip="Save Report" type="button" (click)=" saveReport(this.reportId);">
+                                        @if (!this.reportIsSaved()) {
+                                          <button id="save_report_bottom" class="button" [class.disabledButton]="!testDone()"
+                                            [disabled]="!testDone()" uk-tooltip="Save Report" type="button" (click)=" saveReport(this.reportId());">
                                             <em class="material-icons">save</em></button>
                                           }
-                                          @if (this.reportIsSaved) {
-                                            <button id="unsave_report_bottom" class="button" [class.disabledButton]="!testDone"
-                                              [disabled]="!testDone" uk-tooltip="Do not Save Report" type="button"
-                                              (click)=" unsaveReport(this.reportId);">
+                                          @if (this.reportIsSaved()) {
+                                            <button id="unsave_report_bottom" class="button" [class.disabledButton]="!testDone()"
+                                              [disabled]="!testDone()" uk-tooltip="Do not Save Report" type="button"
+                                              (click)=" unsaveReport(this.reportId());">
                                               <em class="material-icons-outlined">cancel</em></button>
                                             }
                                             <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test"
-                                              [class.disabledButton]="testRunning" [disabled]="testRunning" type="button"
-                                              (click)="evaluateAndRunScenario(this.selectedScenario.scenario_id, this.testRunner);">
+                                              [class.disabledButton]="testRunning()" [disabled]="testRunning()" type="button"
+                                              (click)="evaluateAndRunScenario(this.selectedScenario.scenario_id, this.testRunner());">
                                             Run Scenario</button>
                                           </div>
                                         </div>
                                       </div>
                                     }
                                     <!--emptyScenarioPlaceholderContainer - used then there is no selectedScenario -->
-                                    @if (!isReviewingAi && (!selectedStory.scenarios || selectedStory.scenarios.length === 0)) {
+                                    @if (!isReviewingAi() && (!selectedStory.scenarios || selectedStory.scenarios.length === 0)) {
                                       <div id="emptyScenarioPlaceholderContainer"
                                         >
                                         <p>Seems like you have no Scenarios in this Story yet.</p>
@@ -581,13 +581,13 @@
                                     }
                                     <!--Spinner, when Tests are running-->
                                     <div id="loading" [class.darkTheme]="isDark">
-                                      <div class="loading mat-mdc-progress-spinner" [hidden]="!testRunning && !testRunningGroup">
+                                      <div class="loading mat-mdc-progress-spinner" [hidden]="!testRunning() && !testRunningGroup">
                                         <!-- Loading . . . -->
                                         <mat-spinner id="loadingSpinnerRun" />
                                       </div>
                                     </div>
                                     <!-- Shows report after Tests ran-->
-                                    <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
+                                    <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults()>
                                       <div id="report-header" class="uk-card-header">
                                         <h3 class="title">Test Results</h3>
                                       </div>

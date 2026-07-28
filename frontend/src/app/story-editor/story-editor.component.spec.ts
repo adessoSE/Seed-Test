@@ -132,9 +132,9 @@ describe('StoryEditorComponent', () => {
 		it('should update the background', () => {
 			component.selectedStory = story;
 			// stories must be set so checkStoriesForBack() can filter them
-			component.stories = stories;
+			component.stories.set(stories);
 			// blocks must be initialized so changeBackgroundBlock() can iterate them
-			component.blocks = [];
+			component.blocks.set([]);
 			vi.spyOn(component.backgroundService, 'updateBackground');
 			component.updateBackground();
 			expect(component.backgroundService.updateBackground).toHaveBeenCalled();
@@ -145,12 +145,12 @@ describe('StoryEditorComponent', () => {
 		it('should delete the background', () => {
 			const emptyBackground = {stepDefinitions: {when: []}};
 			//let stories : Story[]= [{"story_id": 123,"_id":"dfhu", "storySource":"github","background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","post":"","values":["Guest"]}],"when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"", "post": "","values":["www.cucumber.com"]},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"", "post":"","values":["Create Story"]}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","post":"","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","post":"","values":["Guest"]}],"when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","post":"","values":["www.cucumber.com"]},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","post":"","values":["Create Story"]}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","post":"","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-			component.stories = stories;
+			component.stories.set(stories);
 			component.selectedStory = stories[0];
       
 			component.deleteBackground();
-			expect(component.showBackground).toBeFalsy();
-			expect(component.stories[component.stories.indexOf(component.selectedStory)].background).toEqual(emptyBackground);
+			expect(component.showBackground()).toBeFalsy();
+			expect(component.stories()[component.stories().indexOf(component.selectedStory)].background).toEqual(emptyBackground);
 		});
 	}); 
 
@@ -170,21 +170,21 @@ describe('StoryEditorComponent', () => {
 
 	describe('hideResults', () => {
 		it('should turn show results to true', () => {
-			component.showResults = false;
+			component.showResults.set(false);
 			component.hideResults();
-			expect(component.showResults).toBe(true);
+			expect(component.showResults()).toBe(true);
 		});
 
 		it('should turn show results to false', () => {
-			component.showResults = true;
+			component.showResults.set(true);
 			component.hideResults();
-			expect(component.showResults).toBe(false);
+			expect(component.showResults()).toBe(false);
 		});
 	});
 
 	describe('deleteScenario', () => {
 		it('should send delete request', waitForAsync((_done: any) => {
-			component.stories = stories;
+			component.stories.set(stories);
 			component.selectedStory = stories[0];
 			vi.spyOn(component.scenarioService, 'deleteScenario');
 			vi.spyOn(component, 'scenarioDeleted');
@@ -198,7 +198,7 @@ describe('StoryEditorComponent', () => {
 
 	describe('scenarioDeleted', () => {
 		it('should delete the Scenario', () => {
-			component.stories = stories;
+			component.stories.set(stories);
 			component.selectedStory = stories[0];
 			component.selectedScenario = stories[0].scenarios[0];
 			const indexScenario: number = component.selectedStory.scenarios.indexOf(component.selectedScenario);
@@ -206,9 +206,9 @@ describe('StoryEditorComponent', () => {
       
 			component.scenarioDeleted();
 			// After deleting one of two scenarios, selectScenario is called on the remaining one, setting showEditor = true
-			expect(component.showEditor).toBeTruthy();
+			expect(component.showEditor()).toBeTruthy();
 
-			expect(component.stories[component.stories.indexOf(component.selectedStory)].scenarios).not.toContain(deletedScenario);
+			expect(component.stories()[component.stories().indexOf(component.selectedStory)].scenarios).not.toContain(deletedScenario);
 			expect(indexScenario).not.toBe(-1);
 
 		});
@@ -235,9 +235,9 @@ describe('StoryEditorComponent', () => {
 			vi.spyOn(component.storyService, 'runTests');
 			component.storyService.runTests(component.selectedStory._id, scenarioId, {}).subscribe((_resp)=> {
 				expect(component.htmlReport).toBe(html);
-				expect(component.testDone).toBeTruthy();
-				expect(component.showResults).toBeTruthy();
-				expect(component.testRunning).toBeFalsy();
+				expect(component.testDone()).toBeTruthy();
+				expect(component.showResults()).toBeTruthy();
+				expect(component.testRunning()).toBeFalsy();
 			});
       
       
@@ -276,20 +276,20 @@ describe('StoryEditorComponent', () => {
 		it('should select the Scenario', () => {
 			component.selectScenario(scenario);
 			expect(component.selectedScenario).toBe(scenario);
-			expect(component.showResults).toBeFalsy();
-			expect(component.showEditor).toBeTruthy();
-			expect(component.testDone).toBeFalsy();
+			expect(component.showResults()).toBeFalsy();
+			expect(component.showEditor()).toBeTruthy();
+			expect(component.testDone()).toBeFalsy();
 		});
 	});
 
 	describe('selectStoryScenario', () => {
 		it('should select the Story', () => {
-			component.stories = stories;
+			component.stories.set(stories);
 			vi.spyOn(component, 'selectScenario');
 			component.selectStoryScenario(stories[0]);
 			expect(component.selectedStory).toBe(stories[0]);
-			expect(component.showResults).toBeFalsy();
-			expect(component.showEditor).toBeTruthy();
+			expect(component.showResults()).toBeFalsy();
+			expect(component.showEditor()).toBeTruthy();
 			expect(component.selectScenario).toHaveBeenCalled();
 		});
 	});
@@ -312,7 +312,7 @@ describe('StoryEditorComponent', () => {
 			mockComp = new MockRenameStoryModal();
 		});
 		it('should call openRenameStoryModal',() => {
-			component.stories = stories;
+			component.stories.set(stories);
 			//component.selectedStory = story;
 			vi.spyOn(component, 'changeStoryTitle').mockImplementation(mockComp.openRenameStoryModal);
 			component.changeStoryTitle();

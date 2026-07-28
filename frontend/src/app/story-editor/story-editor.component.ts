@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -9,7 +9,7 @@ import { NotificationService } from '../Services/notification.service';
 import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
-import { firstValueFrom, Subscription } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { RenameBackgroundComponent } from '../modals/rename-background/rename-background.component';
 import { BackgroundService } from '../Services/background.service';
@@ -93,9 +93,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	@Input()
 	set newSelectedScenario(scenario: Scenario) {
 		if (scenario) {
-			if (this.isReviewingAi) 
+			if (this.isReviewingAi())
 				this.exitAiReviewMode();
-      
+
 			this.selectScenario(scenario);
 		}
 	}
@@ -105,9 +105,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	@Input()
 	set newStories(stories: Story[]) {
-		if (stories) 
-			this.stories = stories;
-    
+		if (stories)
+			this.stories.set(stories);
+
 	}
 
 	/**
@@ -118,7 +118,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		console.log('Wir selecten diese Story hier:', story);
 		this.selectedStory = story;
 		this.initializeIsExampleForStory(this.selectedStory);
-		this.isReviewingAi = false;
+		this.isReviewingAi.set(false);
 
 		if (this.selectedStory && this.selectedStory.aiSuggestion)
 			this.aiSuggestions.set(this.selectedStory._id!, this.selectedStory.aiSuggestion);
@@ -150,18 +150,18 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	@Input()
 	set testRunningForGroup(groupRunning: boolean) {
 		this.testRunningGroup = groupRunning;
-		this.showResults = false;
+		this.showResults.set(false);
 	}
 
 	/**
    * Original step types
    */
-	originalStepTypes!: StepType[];
+	readonly originalStepTypes = signal<StepType[]>([]);
 
 	/**
    * List of stories
    */
-	stories!: Story[];
+	readonly stories = signal<Story[]>([]);
 
 	/**
    * List of backgrounds
@@ -195,7 +195,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * If the story editor should be shown
    */
-	showEditor = false;
+	readonly showEditor = signal(false);
 	/**
    * Currently retrieved projects
    */
@@ -204,7 +204,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * If the results should be shown
    */
-	showResults = false;
+	readonly showResults = signal(false);
 
 	/**
    * If the description should be shown
@@ -219,17 +219,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * If the background should be shown
    */
-	showBackground = false;
+	readonly showBackground = signal(false);
 
 	/**
    * if the test is done
    */
-	testDone = false;
+	readonly testDone = signal(false);
 
 	/**
    * If the test is running
    */
-	testRunning = false;
+	readonly testRunning = signal(false);
 	testRunningGroup!: boolean;
 
 	/**
@@ -240,16 +240,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * if the stories are loaded
    */
-	storiesLoaded = false;
+	readonly storiesLoaded = signal(false);
 	/**
    * If there is a error in the stories request
    */
-	storiesError = false;
+	readonly storiesError = signal(false);
 
 	/**
    * If the repository is a custom project
    */
-	db = false;
+	readonly db = signal(false);
 
 	/**
    * If the test should run without saving the story or scenario
@@ -268,7 +268,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Currently retrieved blocks
    */
-	blocks!: Block[];
+	readonly blocks = signal<Block[]>([]);
 	/**
    * Converted blocks as backgrounds
    */
@@ -285,12 +285,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * if the report is saved
    */
-	reportIsSaved = false;
+	readonly reportIsSaved = signal(false);
 	error!: string;
 	/**
    * Object id of the current report
    */
-	reportId: any;
+	readonly reportId = signal<any>(null);
 
 	/*
    * Report of the test
@@ -318,12 +318,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * Global settings indicator
    */
-	testRunner = 'seleniumWebdriver';
+	readonly testRunner = signal<string>('seleniumWebdriver');
 
 	/**
    * Global settings indicator
    */
-	globalSettingsActivated!: boolean;
+	readonly globalSettingsActivated = signal(false);
 
 	/**
    * Project configuartion settings
@@ -368,9 +368,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	/**
    * User is reviewing AI generated content
    */
-	isReviewingAi = false;
+	readonly isReviewingAi = signal(false);
 
-	isAiAvailable = false;
+	readonly isAiAvailable = signal(false);
 
 	/**
    * Mapping for Precondition Stories
@@ -383,24 +383,201 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 
 	readonly TEMPLATE_NAME = 'background';
 
-	/**
-   * Subscribtions for all EventEmitter
-   */
-	deleteStoryObservable!: Subscription;
-	storiesErrorObservable!: Subscription;
-	deleteScenarioObservable!: Subscription;
-	runSaveOptionObservable!: Subscription;
-	renameStoryObservable!: Subscription;
-	getBackendUrlObservable!: Subscription;
-	getStoriesObservable!: Subscription;
-	renameBackgroundObservable!: Subscription;
-	updateObservable!: Subscription;
-	applyBackgroundChangesObservable!: Subscription;
-	checkReferenceObservable!: Subscription;
-	deleteReferenceObservable!: Subscription;
-	unpackBlockObservable!: Subscription;
-	updateNameRefObservable!: Subscription;
-	convertToReferenceObservable!: Subscription;
+	// --- Signal effects replacing EventEmitter subscriptions ---
+
+	/** Effect 1: React to stories being loaded from the service */
+	private readonly storiesEffect = effect(() => {
+		const stories = this.storyService.stories();
+		if (!stories.length) return;
+		untracked(() => {
+			this.storiesLoaded.set(true);
+			this.storiesError.set(false);
+			this.showEditor.set(false);
+			this.setStories(stories);
+			this.db.set(localStorage.getItem('source') === 'db');
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 2: React to a story being deleted */
+	private readonly deleteStoryEffect = effect(() => {
+		const count = this.storyService.deleteStoryTrigger();
+		if (count === 0) return;
+		untracked(() => {
+			this.showEditor.set(false);
+			this.storyDeleted();
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 3: React to a stories request error (unauthorized) */
+	private readonly storiesErrorEffect = effect(() => {
+		const count = this.apiService.storiesErrorTrigger();
+		if (count === 0) return;
+		untracked(() => {
+			this.storiesError.set(true);
+			this.showEditor.set(false);
+			window.localStorage.removeItem('login');
+			this.router.navigate(['/login']);
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 4: React to a scenario deletion request */
+	private readonly deleteScenarioEffect = effect(() => {
+		const xrayEnabled = this.scenarioService.deleteScenarioValue();
+		if (xrayEnabled === null) return;
+		untracked(() => {
+			this.deleteScenario(this.selectedScenario, xrayEnabled);
+		});
+	});
+
+	/** Effect 5: React to run/save option selection */
+	private readonly runSaveOptionEffect = effect(() => {
+		const option = this.apiService.runSaveOptionValue();
+		if (option === null) return;
+		untracked(() => {
+			if (option === 'run') {
+				this.runUnsaved = true;
+				this.runOption();
+			}
+			if (option === 'saveRun') {
+				this.saveBackgroundAndRun = true;
+				this.updateBackground();
+			}
+		});
+	});
+
+	/** Effect 6: React to story rename */
+	private readonly renameStoryEffect = effect(() => {
+		const changedValues = this.storyService.renameStoryValue();
+		if (changedValues === null) return;
+		untracked(() => {
+			this.renameStory(
+				changedValues.newStoryTitle,
+				changedValues.newStoryDescription
+			);
+		});
+	});
+
+	/** Effect 7: React to backend URL becoming available */
+	private readonly backendUrlEffect = effect(() => {
+		const count = this.apiService.backendUrlReadyTrigger();
+		if (count === 0) return;
+		untracked(() => {
+			this.loadStepTypes();
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 8: React to background rename */
+	private readonly renameBackgroundEffect = effect(() => {
+		const newName = this.backgroundService.renameBackgroundValue();
+		if (newName === null) return;
+		untracked(() => {
+			this.renameBackground(newName);
+		});
+	});
+
+	/** Effect 9: React to blocks update event — re-fetch blocks from API */
+	private readonly updateBlocksEffect = effect(() => {
+		const count = this.blockService.updateBlocksTrigger();
+		if (count === 0) return;
+		untracked(() => {
+			const id = localStorage.getItem('id')!;
+			this.blockService.getBlocks(id).subscribe((resp) => {
+				this.blocks.set(resp);
+				console.log('Updated blocks:', this.blocks());
+			});
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 10: React to block reference removal check */
+	private readonly checkRefOnRemoveEffect = effect(() => {
+		const blockReferenceId = this.blockService.checkRefOnRemoveValue();
+		if (blockReferenceId === null) return;
+		untracked(() => {
+			const id = localStorage.getItem('id')!;
+			this.blockService.getBlocks(id).subscribe((resp) => {
+				this.blocks.set(resp);
+				if (this.blocks()) {
+					const referenceBlock = this.blocks().find(
+						(block) => block._id == blockReferenceId
+					);
+					this.blockService.checkBlockOnReference(
+						this.blocks(),
+						this.stories(),
+						referenceBlock!
+					);
+				}
+			});
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 11: React to entire reference block deletion — unpack steps in all relevant stories */
+	private readonly deleteReferenceEffect = effect(() => {
+		const block = this.blockService.deleteReferenceValue();
+		if (block === null) return;
+		untracked(() => {
+			this.blockService.deleteBlockReference(block, this.stories());
+		});
+	});
+
+	/** Effect 12: React to block unpacking */
+	private readonly unpackBlockEffect = effect(() => {
+		// Cast needed: emitter sends { block, stepReference } but signal is typed as Block (legacy mismatch)
+		const obj = this.blockService.unpackBlockValue() as any;
+		if (obj === null) return;
+		untracked(() => {
+			this.blockService.unpackScenarioWithBlock(
+				obj.block,
+				this.selectedScenario,
+				obj.stepReference
+			);
+			const id = localStorage.getItem('id')!;
+			this.blockService.getBlocks(id).subscribe((resp) => {
+				this.blocks.set(resp);
+				this.blockService.checkBlockOnReference(
+					this.blocks(),
+					this.stories(),
+					obj.block
+				);
+			});
+			this.selectedScenario.saved = false;
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 13: React to reference block name update */
+	private readonly updateNameRefEffect = effect(() => {
+		const block = this.blockService.updateNameRefValue();
+		if (block === null) return;
+		untracked(() => {
+			this.blockService.updateNameReference(block, this.stories());
+		});
+	});
+
+	/** Effect 14: React to background changes being applied (centrally or to current) */
+	private readonly applyChangesBackgroundEffect = effect(() => {
+		const option = this.backgroundService.applyChangesBackgroundValue();
+		if (option === null) return;
+		untracked(() => {
+			if (option == 'toCurrentBackground') {
+				this.notify.info(
+					'Please enter a new Background name to save your changes'
+				);
+				this.changeBackgroundTitle();
+			} else if (option == 'centrally')
+				this.applyChangesToBackgrounds(this.selectedStory.background);
+		});
+	});
+
+	/** Effect 15: React to steps being converted to a block reference */
+	private readonly convertToReferenceEffect = effect(() => {
+		const block = this.blockService.convertToReferenceValue();
+		if (block === null) return;
+		untracked(() => {
+			this.blockService.convertSelectedStepsToRef(
+				block,
+				this.selectedScenario
+			);
+		});
+	});
 
 	@Input() isDark!: boolean;
 
@@ -440,8 +617,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
     
 
 		if (this.selectedStory) {
-			this.storiesLoaded = true;
-			this.storiesError = false;
+			this.storiesLoaded.set(true);
+			this.storiesError.set(false);
 		}
 		this.gecko_enabled = localStorage.getItem('gecko_enabled');
 		this.chromium_enabled = localStorage.getItem('chromium_enabled');
@@ -479,14 +656,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			const loadingScreen = document.getElementById('loading');
 			loadingScreen!.scrollIntoView();
 		}
-		if (this.selectedStory !== undefined && this.stories && this.blocks) {
+		if (this.selectedStory !== undefined && this.stories().length && this.blocks().length) {
 			this.storeCurrentBackground(this.selectedStory.background);
-			this.backgrounds = this.stories
+			this.backgrounds = this.stories()
 				.filter((s) => s !== null)
 				.map((s) => s.background);
 			this.blockAsBackground = [];
-			this.blocks = this.blocks.filter((b) => b.isBackground);
-			for (const b of this.blocks) {
+			const backgroundBlocks = this.blocks().filter((b) => b.isBackground);
+			for (const b of backgroundBlocks) {
 				const newBlock = {
 					name: b.name,
 					stepDefinitions: { ...b.stepDefinitions }
@@ -497,210 +674,27 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		}
 	}
 	/**
-   * Subscribes to all necessary events
+   * Initializes HTTP subscribes (EventEmitter subscribes replaced by class-level effects)
    */
 	ngOnInit() {
 		this.projectService.checkAiAvailability().subscribe(available => {
-			this.isAiAvailable = available;
+			this.isAiAvailable.set(available);
 		});
 
 		// in event that stories are already loaded
-		if (this.stories) 
-			this.storiesLoaded = true;
-    
-		this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe(
-			(stories: Story[]) => {
-				this.storiesLoaded = true;
-				this.storiesError = false;
-				this.showEditor = false;
-				this.setStories(stories);
-				this.db = localStorage.getItem('source') === 'db';
-			}
-		);
+		if (this.stories().length > 0)
+			this.storiesLoaded.set(true);
 
-		this.deleteStoryObservable = this.storyService.deleteStoryEvent.subscribe(
-			() => {
-				this.showEditor = false;
-				this.storyDeleted();
-			}
-		);
-
-		this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(
-			(_) => {
-				this.storiesError = true;
-				this.showEditor = false;
-
-				window.localStorage.removeItem('login');
-				this.router.navigate(['/login']);
-			}
-		);
-
-		this.deleteScenarioObservable =
-			this.scenarioService.deleteScenarioEvent.subscribe(
-				(xrayEnabled: boolean) => {
-					this.deleteScenario(this.selectedScenario, xrayEnabled);
-				}
-			);
-
-		this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(
-			(option) => {
-				if (option === 'run') {
-					this.runUnsaved = true;
-					this.runOption();
-				}
-				if (option === 'saveRun') {
-					this.saveBackgroundAndRun = true;
-					this.updateBackground();
-				}
-			}
-		);
-
-		this.renameStoryObservable = this.storyService.renameStoryEvent.subscribe(
-			(changedValues) =>
-				this.renameStory(
-					changedValues.newStoryTitle,
-					changedValues.newStoryDescription
-				)
-		);
-		this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(
-			() => {
-				this.loadStepTypes();
-			}
-		);
-
-		this.renameBackgroundObservable =
-			this.backgroundService.renameBackgroundEvent.subscribe((newName) => {
-				this.renameBackground(newName);
-			});
 		// get blocks
 		const id = localStorage.getItem('id')!;
 		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks = resp;
+			this.blocks.set(resp);
 		});
-		this.updateObservable = this.blockService.updateBlocksEvent.subscribe(
-			(_) => {
-				const id = localStorage.getItem('id')!;
-				this.blockService.getBlocks(id).subscribe((resp) => {
-					this.blocks = resp;
-					console.log('Updated blocks:', this.blocks);
-				});
-			}
-		);
-		//Event when deleting references among steps
-		this.checkReferenceObservable =
-			this.blockService.checkRefOnRemoveEvent.subscribe((blockReferenceId) => {
-				const id = localStorage.getItem('id')!;
-				this.blockService.getBlocks(id).subscribe((resp) => {
-					this.blocks = resp;
-					if (this.blocks) {
-						const referenceBlock = this.blocks.find(
-							(block) => block._id == blockReferenceId
-						);
-						this.blockService.checkBlockOnReference(
-							this.blocks,
-							this.stories,
-							referenceBlock!
-						);
-					}
-				});
-			});
-		//Event when the entire reference block is deleted. Unpacking steps in all relevant stories
-		this.deleteReferenceObservable =
-			this.blockService.deleteReferenceEvent.subscribe((block) => {
-				this.blockService.deleteBlockReference(block, this.stories);
-			});
-		//Event when unpacking block
-		this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe(
-			(obj) => {
-				this.blockService.unpackScenarioWithBlock(
-					obj.block,
-					this.selectedScenario,
-					obj.stepReference
-				);
-				const id = localStorage.getItem('id')!;
-				this.blockService.getBlocks(id).subscribe((resp) => {
-					this.blocks = resp;
-					this.blockService.checkBlockOnReference(
-						this.blocks,
-						this.stories,
-						obj.block
-					);
-				});
-				this.selectedScenario.saved = false;
-			}
-		);
-		//Event to update a reference block name
-		this.updateNameRefObservable =
-			this.blockService.updateNameRefEvent.subscribe((block) =>
-				this.blockService.updateNameReference(block, this.stories)
-			);
-		this.applyBackgroundChangesObservable =
-			this.backgroundService.applyChangesBackgroundEvent.subscribe((option) => {
-				if (option == 'toCurrentBackground') {
-					this.notify.info(
-						'Please enter a new Background name to save your changes'
-					);
-					this.changeBackgroundTitle();
-				} else if (option == 'centrally') 
-					this.applyChangesToBackgrounds(this.selectedStory.background);
-        
-			});
-		this.convertToReferenceObservable =
-			this.blockService.convertToReferenceEvent.subscribe((block) =>
-				this.blockService.convertSelectedStepsToRef(
-					block,
-					this.selectedScenario
-				)
-			);
 	}
 
+	// Effects are automatically cleaned up by Angular when the component is destroyed.
+	// No manual unsubscribe needed — OnDestroy retained for interface compliance.
 	ngOnDestroy() {
-		if (this.deleteStoryObservable && !this.deleteStoryObservable.closed) 
-			this.deleteStoryObservable.unsubscribe();
-    
-		if (this.storiesErrorObservable && !this.storiesErrorObservable.closed) 
-			this.storiesErrorObservable.unsubscribe();
-    
-		if (this.deleteScenarioObservable && !this.deleteScenarioObservable.closed) 
-			this.deleteScenarioObservable.unsubscribe();
-    
-		if (this.runSaveOptionObservable && !this.runSaveOptionObservable.closed) 
-			this.runSaveOptionObservable.unsubscribe();
-    
-
-		if (this.renameStoryObservable && !this.renameStoryObservable.closed) 
-			this.renameStoryObservable.unsubscribe();
-    
-		if (this.getBackendUrlObservable && !this.getBackendUrlObservable.closed) 
-			this.getBackendUrlObservable.unsubscribe();
-    
-		if (this.getStoriesObservable && !this.getStoriesObservable.closed) 
-			this.getStoriesObservable.unsubscribe();
-    
-		if (this.renameBackgroundObservable && !this.renameBackgroundObservable.closed) 
-			this.renameBackgroundObservable.unsubscribe();
-    
-		if (this.applyBackgroundChangesObservable && !this.applyBackgroundChangesObservable.closed) 
-			this.applyBackgroundChangesObservable.unsubscribe();
-    
-		if (this.unpackBlockObservable && !this.unpackBlockObservable.closed) 
-			this.unpackBlockObservable.unsubscribe();
-    
-		if (this.updateObservable && !this.updateObservable.closed) 
-			this.updateObservable.unsubscribe();
-    
-		if (this.checkReferenceObservable && !this.checkReferenceObservable.closed) 
-			this.checkReferenceObservable.unsubscribe();
-    
-		if (this.deleteReferenceObservable && !this.deleteReferenceObservable.closed) 
-			this.deleteReferenceObservable.unsubscribe();
-    
-		if (this.updateNameRefObservable && !this.updateNameRefObservable.closed) 
-			this.updateNameRefObservable.unsubscribe();
-    
-		if (this.convertToReferenceObservable && !this.convertToReferenceObservable.closed) 
-			this.convertToReferenceObservable.unsubscribe();
-    
 	}
 
 	/**
@@ -721,7 +715,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param stories
    */
 	setStories(stories: Story[]) {
-		this.stories = stories;
+		this.stories.set(stories);
 	}
 
 	/**
@@ -736,7 +730,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Navigates to the previous scenario in the currently active list (original or AI).
    */
 	navigateScenarioLeft() {
-		const currentList = this.isReviewingAi
+		const currentList = this.isReviewingAi()
 			? this.aiSuggestions.get(this.selectedStory._id!)?.scenarios
 			: this.selectedStory.scenarios;
 		if (!currentList) return;
@@ -753,7 +747,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Navigates to the next scenario in the currently active list (original or AI).
    */
 	navigateScenarioRight() {
-		const currentList = this.isReviewingAi
+		const currentList = this.isReviewingAi()
 			? this.aiSuggestions.get(this.selectedStory._id!)?.scenarios
 			: this.selectedStory.scenarios;
 		if (!currentList) return;
@@ -778,7 +772,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	loadStepTypes() {
 		this.storyService.getStepTypes().subscribe((resp: StepType[]) => {
-			this.originalStepTypes = resp;
+			this.originalStepTypes.set(resp);
 		});
 	}
 
@@ -854,10 +848,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			this.selectedStory.scenarios.splice(indexScenario, 1);
     
 
-		if (this.selectedStory.scenarios.length > 0) 
+		if (this.selectedStory.scenarios.length > 0)
 			this.selectScenario(this.selectedStory.scenarios.slice(-1)[0]);
-		else 
-			this.showEditor = false;
+		else
+			this.showEditor.set(false);
     
 	}
 
@@ -917,7 +911,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Check: if the same background is used in different stories
    */
 	checkStoriesForBack() {
-		const usingBackground = this.stories.filter(
+		const usingBackground = this.stories().filter(
 			(s) =>
 				s !== null &&
         s.background.name == this.selectedStory.background.name &&
@@ -931,7 +925,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Change Block if background
    */
 	changeBackgroundBlock() {
-		this.blocks.forEach((block) => {
+		this.blocks().forEach((block) => {
 			if (
 				block.isBackground &&
         this.backgroundService.backgroundReplaced == undefined &&
@@ -971,7 +965,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	applyChangesToBackgrounds(background: Background) {
 		delete this.selectedStory.background.saved;
 		const storyId: (string | undefined)[] = [];
-		this.stories.forEach((story) => {
+		this.stories().forEach((story) => {
 			if (story.background.name === background.name) {
 				story.background.stepDefinitions = background.stepDefinitions;
 				storyId.push(story._id);
@@ -999,12 +993,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		this.backgroundService
 			.deleteBackground(this.selectedStory._id!)
 			.subscribe((_) => {
-				this.showBackground = false;
-				const blockBackgrounds = this.blocks.filter((b) => b.isBackground);
-				if (blockBackgrounds) 
-					for (const block of this.blocks) 
+				this.showBackground.set(false);
+				const blockBackgrounds = this.blocks().filter((b) => b.isBackground);
+				if (blockBackgrounds)
+					for (const block of this.blocks())
 						if (block.name == this.selectedStory.background.name) 
-							this.blockService.checkBackgroundsOnDelete(block, this.stories);
+							this.blockService.checkBackgroundsOnDelete(block, this.stories());
           
         
 				this.selectedStory.background = emptyBackground;
@@ -1019,9 +1013,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 
 	selectScenario(scenario: Scenario | null) {
 		this.selectedScenario = scenario as Scenario;
-		this.showResults = false;
+		this.showResults.set(false);
 		if (scenario) {
-			this.showEditor = true;
+			this.showEditor.set(true);
       
 			this.emulator_enabled =
 				scenario.emulator ?? this.repoSettings?.emulator ?? false;
@@ -1042,7 +1036,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
     
 		} else {
 			// This is the path for when scenario is null
-			this.showEditor = false;
+			this.showEditor.set(false);
       
 			// Default to repo settings if no scenario is selected
 			this.emulator_enabled = this.repoSettings?.emulator ?? false;
@@ -1145,9 +1139,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		if (this.storySaved()) {
 			// if story is saved
 			// Reset state for new test run
-			this.reportIsSaved = false;
-			this.testRunning = true;
-			this.showResults = false; // Hide previous report while new test runs
+			this.reportIsSaved.set(false);
+			this.testRunning.set(true);
+			this.showResults.set(false); // Hide previous report while new test runs
 			this.report.emit(false);
 			const loadingScreen: HTMLElement = document.getElementById('loading')!;
 
@@ -1179,7 +1173,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 						},
 						error: (err) => {
 							console.error('Test execution failed:', err);
-							this.testRunning = false;
+							this.testRunning.set(false);
 							this.notify.error('', 'Test execution failed');
 						}
 					});
@@ -1215,13 +1209,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 							},
 							error: (err) => {
 								console.error('Test execution failed:', err);
-								this.testRunning = false;
+								this.testRunning.set(false);
 								this.notify.error('', 'Test execution failed');
 							}
 						});
 					} catch (error) {
 						console.error('Error while creating temp group', error);
-						this.testRunning = false;
+						this.testRunning.set(false);
 					}
 				else 
 				// CASE 3: No pre-conditions — run all scenarios of the story directly
@@ -1256,7 +1250,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 							},
 							error: (err) => {
 								console.error('Test execution failed:', err);
-								this.testRunning = false;
+								this.testRunning.set(false);
 								this.notify.error('', 'Test execution failed');
 							}
 						});
@@ -1367,7 +1361,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		let browserSelectValue = null;
 		let emulatorSelectValue = null;
 
-		if (!this.globalSettingsActivated) {
+		if (!this.globalSettingsActivated()) {
 			const browserSelect = document.getElementById(
 				'browserSelect'
 			) as HTMLSelectElement;
@@ -1379,7 +1373,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		}
 		console.log(
 			'We are giving the following testRunner to the Backend: ',
-			this.testRunner
+			this.testRunner()
 		);
 		return {
 			browser: browserSelectValue,
@@ -1391,7 +1385,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			repositoryId: localStorage.getItem('id'),
 			source: localStorage.getItem('source'),
 			oneDriver: this.selectedStory.oneDriver,
-			testRunner: this.testRunner
+			testRunner: this.testRunner()
 		};
 	}
 
@@ -1403,12 +1397,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			'testFrame'
 		) as HTMLIFrameElement;
 		iframe.srcdoc = resp.htmlFile;
-		this.reportId = resp.reportId;
+		this.reportId.set(resp.reportId);
 		this.htmlReport = resp.htmlFile;
 		this.testReport = resp.report;
-		this.testDone = true;
-		this.showResults = true;
-		this.testRunning = false;
+		this.testDone.set(true);
+		this.showResults.set(true);
+		this.testRunning.set(false);
 		setTimeout(() => iframe.scrollIntoView(), 10);
 		this.notify.info('', 'Test is done');
 		this.runUnsaved = false;
@@ -1501,7 +1495,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	setTestRunner(newTestRunnner: string) {
 		console.log('Setting Test Runner to ' + newTestRunnner);
 		this.setEmulatorEnabled(false);
-		this.testRunner = newTestRunnner;
+		this.testRunner.set(newTestRunnner);
 	}
 
 	/**
@@ -1513,17 +1507,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 			next: (settings) => {
 				this.repoSettings = settings;
 				if (settings && settings?.activated) {
-					this.globalSettingsActivated = true;
-					if (settings.testRunner) 
-						this.testRunner = settings.testRunner;
-          
-				} else 
-					this.globalSettingsActivated = false;
+					this.globalSettingsActivated.set(true);
+					if (settings.testRunner)
+						this.testRunner.set(settings.testRunner);
+
+				} else
+					this.globalSettingsActivated.set(false);
         
 			},
 			error: (err) => {
 				console.error('Fehler beim Abrufen der Repository Settings:', err);
-				this.globalSettingsActivated = false;
+				this.globalSettingsActivated.set(false);
 			}
 		});
 	}
@@ -1556,7 +1550,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Triggered if global settings are changed in workgroup-edit component
    */
 	updateGlobalSettings(newSettings: boolean) {
-		this.globalSettingsActivated = newSettings;
+		this.globalSettingsActivated.set(newSettings);
 	}
 
 	// ------------------------------- EMULATOR --------------------------------
@@ -1609,7 +1603,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Get the avaiable emulators
    */
 	getAvaiableEmulators() {
-		if (this.testRunner === 'playwright') 
+		if (this.testRunner() === 'playwright')
 			return this.playwright_emulators;
     
 
@@ -1631,7 +1625,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Hide the test results
    */
 	hideResults() {
-		this.showResults = !this.showResults;
+		this.showResults.set(!this.showResults());
 	}
 
 	/**
@@ -1656,7 +1650,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 
 	unsaveReport(reportId: any) {
-		this.reportIsSaved = false;
+		this.reportIsSaved.set(false);
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService.unsaveReport(reportId).subscribe((_resp) => {
 				resolve();
@@ -1671,7 +1665,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 
 	saveReport(reportId: any) {
-		this.reportIsSaved = true;
+		this.reportIsSaved.set(true);
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService.saveReport(reportId).subscribe((_resp) => {
 				resolve();
@@ -1685,7 +1679,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    */
 	changeStoryTitle() {
 		this.renameStoryModal().openRenameStoryModal(
-			this.stories,
+			this.stories(),
 			this.selectedStory
 		);
 	}
@@ -1780,12 +1774,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Removes the selected story
    */
 	storyDeleted() {
-		if (this.stories.find((x) => x === this.selectedStory)) 
-			this.stories.splice(
-				this.stories.findIndex((x) => x === this.selectedStory),
-				1
-			);
-    
+		if (this.stories().find((x) => x === this.selectedStory))
+			this.stories.set(this.stories().filter((x) => x !== this.selectedStory));
+
 	}
 
 	/**
@@ -1794,11 +1785,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	changeBackgroundTitle() {
 		const background = this.selectedStory.background;
 		let storiesWithBlock;
-		const blockToRename = this.blocks.find(
+		const blockToRename = this.blocks().find(
 			(b) => b.isBackground && b.name === this.selectedStory.background.name
 		);
-		if (blockToRename) 
-			storiesWithBlock = this.stories.filter(
+		if (blockToRename)
+			storiesWithBlock = this.stories().filter(
 				(s) => s !== null && s.background.name == blockToRename.name
 			);
     
@@ -1883,7 +1874,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * Starts the ai generation process and signals if successful or not
    */
 	generateAiScenarios(): void {
-		if (this.isReviewingAi) 
+		if (this.isReviewingAi())
 			this.exitAiReviewMode();
     
 
@@ -1996,7 +1987,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 											.onAction()
 											.subscribe(() => {
 												if (this.selectedStory._id !== result.storyId) {
-													const storyToReview = this.stories.find(
+													const storyToReview = this.stories().find(
 														(s) => s._id === result.storyId
 													);
 													if (storyToReview) {
@@ -2053,7 +2044,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 				this.initializeIsExampleForStory(suggestion);
 
 				this.aiSuggestions.set(this.selectedStory._id!, suggestion);
-				this.isReviewingAi = true;
+				this.isReviewingAi.set(true);
 				this.reviewModeChanged.emit(true);
 
 				const suggestionScenarios = suggestion?.scenarios;
@@ -2071,19 +2062,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
    * @param updatedStory - The updated story object from the server, if available.
    */
 	exitAiReviewMode(updatedStory?: Story) {
-		this.isReviewingAi = false;
+		this.isReviewingAi.set(false);
 		this.reviewModeChanged.emit(false);
 
 		// If a story was updated (meaning a merge or discard happened),
 		// update the local state and remove the suggestion from the map.
 		if (updatedStory) {
 			this.selectedStory = updatedStory;
-			const index = this.stories.findIndex((s) => s._id === updatedStory._id);
-			if (index > -1) 
-				this.stories[index] = updatedStory;
-      
+			const storiesArr = [...this.stories()];
+			const index = storiesArr.findIndex((s) => s._id === updatedStory._id);
+			if (index > -1)
+				storiesArr[index] = updatedStory;
+			this.stories.set(storiesArr);
 			this.aiSuggestions.delete(this.selectedStory._id!);
-			this.storyService.getStoriesEvent.emit(this.stories);
+			this.storyService.getStoriesEvent.emit(this.stories());
 		}
 
 		// Always restore the view to the first original scenario.
@@ -2150,10 +2142,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
  * @param updatedStory The new story object.
  */
 	private updateLocalStoryState(storyId: string, updatedStory: Story) {
-		const index = this.stories.findIndex(s => s._id === storyId);
+		const storiesArr = [...this.stories()];
+		const index = storiesArr.findIndex(s => s._id === storyId);
 		if (index > -1) {
-			this.stories[index] = updatedStory;
-			this.storyService.getStoriesEvent.emit([...this.stories]); 
+			storiesArr[index] = updatedStory;
+			this.stories.set(storiesArr);
+			this.storyService.getStoriesEvent.emit([...this.stories()]);
 		}
     
 		// If the updated story is the one currently being viewed, refresh it
