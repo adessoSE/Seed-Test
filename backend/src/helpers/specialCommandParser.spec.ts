@@ -114,4 +114,210 @@ describe('SpecialCommandParser', () => {
 		// "Invalid: 31.10.2025@@5,31am2025". We will set this as the expectation.
 		expect(specialCommandParser.applySpecialCommands(input)).toBe(expectedOutput);
 	});
+
+	// ── Boundary values ───────────────────────────────────────────────
+	describe('boundary values', () => {
+		it('should handle day 1 and month 1 (January 1st)', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Day,1@@Month,1@@Year,2025'))
+				.toBe('01.01.2025');
+		});
+
+		it('should handle last day of year (December 31)', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Day,31@@Month,12@@Year,2025'))
+				.toBe('31.12.2025');
+		});
+
+		it('should handle leap year February 29', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Day,29@@Month,2@@Year,2024@@format:YYYY-MM-DD€€'))
+				.toBe('2024-02-29');
+		});
+
+		it('should handle single-digit day and month without padding in default format', () => {
+			// Default format uses dd.MM → always zero-padded
+			expect(specialCommandParser.applySpecialCommands('@@Day,5@@Month,3@@Year,2025'))
+				.toBe('05.03.2025');
+		});
+
+		it('should handle @@Day alone (keeps current month/year)', () => {
+			// Mock date: 2025-10-31 → set day to 15 → 2025-10-15
+			// Default format only includes the mentioned token → "dd"
+			expect(specialCommandParser.applySpecialCommands('@@Day,15'))
+				.toBe('15');
+		});
+
+		it('should handle @@Month alone (keeps current day clamped)', () => {
+			// Mock date: Oct 31 → setMonth to June (30 days) → clamped to June 30
+			// Default format only includes "MM"
+			expect(specialCommandParser.applySpecialCommands('@@Month,6'))
+				.toBe('06');
+		});
+
+		it('should handle @@Year alone', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Year,2030'))
+				.toBe('2030');
+		});
+
+		it('should handle @@Day and @@Month without @@Year', () => {
+			// Sets day=15, month=June on current year 2025
+			expect(specialCommandParser.applySpecialCommands('@@Day,15@@Month,6'))
+				.toBe('15.06');
+		});
+	});
+
+	// ── Multiple chained operations ───────────────────────────────────
+	describe('chained operations', () => {
+		it('should chain add and subtract across year boundary', () => {
+			// Oct 31 + 1 day = Nov 1, + 2 months = Jan 1 2026, - 1 year = Jan 1 2025
+			const input = '@@Date+@@1,Day+@@2,Month-@@1,Year@@format:YYYY-MM-DD€€';
+			expect(specialCommandParser.applySpecialCommands(input)).toBe('2025-01-01');
+		});
+
+		it('should chain multiple additions', () => {
+			// Oct 31 + 10 days = Nov 10, + 3 months = Feb 10 2026
+			const input = '@@Date+@@10,Day+@@3,Month@@format:YYYY-MM-DD€€';
+			expect(specialCommandParser.applySpecialCommands(input)).toBe('2026-02-10');
+		});
+
+		it('should subtract enough days to cross month boundary', () => {
+			// Oct 31 - 31 days = Sep 30
+			expect(specialCommandParser.applySpecialCommands('@@Date-@@31,Day@@format:YYYY-MM-DD€€'))
+				.toBe('2025-09-30');
+		});
+
+		it('should subtract months crossing year boundary', () => {
+			// Oct 31 - 11 months = Nov 30 2024 (Nov has 30 days, day clamped from 31)
+			expect(specialCommandParser.applySpecialCommands('@@Date-@@11,Month@@format:YYYY-MM-DD€€'))
+				.toBe('2024-11-30');
+		});
+
+		it('should add years', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Date+@@5,Year@@format:YYYY-MM-DD€€'))
+				.toBe('2030-10-31');
+		});
+
+		it('should apply operations to specific date parts, not just @@Date', () => {
+			// Start: Day 1, Month 6 (June), Year 2020 → 2020-06-01, then +10 days → 2020-06-11
+			const input = '@@Day,1@@Month,6@@Year,2020+@@10,Day@@format:YYYY-MM-DD€€';
+			expect(specialCommandParser.applySpecialCommands(input)).toBe('2020-06-11');
+		});
+	});
+
+	// ── Format token conversion (moment→date-fns backwards compat) ───
+	describe('format token conversion', () => {
+		it('should convert YYYY-MM-DD (ISO format)', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Date@@format:YYYY-MM-DD€€'))
+				.toBe('2025-10-31');
+		});
+
+		it('should convert DD/MM/YYYY (EU format)', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Date@@format:DD/MM/YYYY€€'))
+				.toBe('31/10/2025');
+		});
+
+		it('should convert short year YY', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Date@@format:DD.MM.YY€€'))
+				.toBe('31.10.25');
+		});
+
+		it('should convert single D (day without padding)', () => {
+			// Oct 31 → d=31 (two digits regardless, but D→d conversion matters)
+			expect(specialCommandParser.applySpecialCommands('@@Date@@format:D.M.YYYY€€'))
+				.toBe('31.10.2025');
+		});
+
+		it('should convert single D for single-digit day', () => {
+			// Use specific date: day 5, month 3 → d=5 (no padding), M=3 (no padding)
+			expect(specialCommandParser.applySpecialCommands('@@Day,5@@Month,3@@Year,2025@@format:D.M.YYYY€€'))
+				.toBe('5.3.2025');
+		});
+
+		it('should handle mixed DD and D tokens in one format', () => {
+			// DD→dd (padded), D alone also →d
+			expect(specialCommandParser.applySpecialCommands('@@Day,5@@Month,3@@Year,2025@@format:DD-D€€'))
+				.toBe('05-5');
+		});
+
+		it('should handle YYYY and YY in separate format positions', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Date@@format:YYYY/YY€€'))
+				.toBe('2025/25');
+		});
+
+		it('should preserve non-token characters in format', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Date@@format:DD---MM---YYYY€€'))
+				.toBe('31---10---2025');
+		});
+	});
+
+	// ── Validation / error cases ──────────────────────────────────────
+	describe('error cases', () => {
+		it('should silently ignore invalid +@@Date in mid section (lenient validation)', () => {
+			// The mid_regex uses * quantifier, so "+@@Date" passes validation (matches empty at ^)
+			// The +@@Date part is silently dropped — only the start "@@Date" produces output
+			expect(specialCommandParser.applySpecialCommands('@@Date+@@Date'))
+				.toBe('31.10.2025');
+		});
+
+		it('should treat @@Date and @@Day,5 as separate regex matches (no cross-match validation)', () => {
+			// The regex matches "@@Date" and "@@Day,5+@@1,Day" as independent tokens
+			// Each is processed in its own calcDate call — no combined validation
+			const result = specialCommandParser.applySpecialCommands('@@Date@@Day,5+@@1,Day');
+			expect(result).toContain('31.10.2025'); // @@Date portion
+			expect(result).toContain('06'); // @@Day,5+@@1,Day → day 5+1=6
+		});
+
+		it('should throw when @@Day is used more than once', () => {
+			expect(() => specialCommandParser.applySpecialCommands('@@Day,5@@Day,10+@@1,Day'))
+				.toThrow('@@Day may only be used 0 or 1 time');
+		});
+
+		it('should throw when @@Month is used more than once', () => {
+			expect(() => specialCommandParser.applySpecialCommands('@@Month,1@@Month,2+@@1,Day'))
+				.toThrow('@@Month may only be used 0 or 1 time');
+		});
+	});
+
+	// ── Empty / no-op inputs ──────────────────────────────────────────
+	describe('empty and no-op inputs', () => {
+		it('should return empty string for empty input', () => {
+			expect(specialCommandParser.applySpecialCommands('')).toBe('');
+		});
+
+		it('should return whitespace-only input unchanged', () => {
+			expect(specialCommandParser.applySpecialCommands('   ')).toBe('   ');
+		});
+
+		it('should not match single @ symbols', () => {
+			expect(specialCommandParser.applySpecialCommands('email@test.de')).toBe('email@test.de');
+		});
+
+		it('should leave @@ without valid token unchanged', () => {
+			// "@@123" doesn't match the pattern (needs alpha after @@)
+			expect(specialCommandParser.applySpecialCommands('prefix @@123 suffix')).toBe('prefix @@123 suffix');
+		});
+
+		it('should leave surrounding text intact', () => {
+			const input = 'Start @@Date End';
+			expect(specialCommandParser.applySpecialCommands(input)).toBe('Start 31.10.2025 End');
+		});
+	});
+
+	// ── Default format construction ───────────────────────────────────
+	describe('default format construction', () => {
+		it('should use dd.MM.yyyy for @@Date without explicit format', () => {
+			expect(specialCommandParser.applySpecialCommands('@@Date')).toBe('31.10.2025');
+		});
+
+		it('should match @@token inside string even with leading non-@@ chars', () => {
+			// The regex matches "@@5,Day" within "+@@5,Day" — the "+" stays as literal prefix
+			// calcDate("@@5,Day") produces a buggy format (no template token matches)
+			const result = specialCommandParser.applySpecialCommands('+@@5,Day');
+			expect(result).toMatch(/^\+@@5,/); // literal prefix preserved
+		});
+
+		it('should build partial format from mentioned tokens only', () => {
+			// @@Day,15@@Year,2030 → format = "dd.yyyy" (no month mentioned)
+			expect(specialCommandParser.applySpecialCommands('@@Day,15@@Year,2030'))
+				.toBe('15.2030');
+		});
+	});
 });
