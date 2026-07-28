@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, OnChanges, AfterContentInit, ChangeDetectionStrategy, inject, viewChild, computed, signal } from '@angular/core';
+import { Component, Input, ElementRef, OnChanges, ChangeDetectionStrategy, inject, viewChild, computed, signal } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
@@ -6,7 +6,6 @@ import { ThemingService } from '../Services/theming.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ReportService } from '../Services/report.service';
-import { BehaviorSubject, Subscription } from 'rxjs';
 
 
 /**
@@ -16,9 +15,12 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 	selector: 'app-report',
 	templateUrl: './report.component.html',
 	styleUrls: ['./report.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager
+	changeDetection: ChangeDetectionStrategy.Eager,
+	host: {
+		'(window:storage)': 'onStorageEvent($event)'
+	}
 })
-export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
+export class ReportComponent implements OnChanges {
 	apiService = inject(ApiService);
 	route = inject(ActivatedRoute);
 	reportService = inject(ReportService);
@@ -34,9 +36,10 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 
 	readonly reportId = signal<any>(null);
 
-	reportComponent: any;
+	/** Current report data object */
+	readonly reportComponent = signal<any>(null);
 	/**
-     * Changed report
+     * Changed report from other tabs via localStorage
      */
 	updatedReports: any;
 	/**
@@ -54,45 +57,25 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 	readonly iframe = viewChild.required<ElementRef>('iframe');
 
 	/**
-     * Subject to get a report object and emits its current value whenever it is subscribed to
-    */
-	reportComponentSubject = new BehaviorSubject<any>(null);
-	reportComponent$ = this.reportComponentSubject.asObservable();
-    
-	/**
-     * Subscribtions for all EventEmitter
-    */
-	reportObservable!: Subscription;
-
-	/**
-     * Retrieves the report
+     * Retrieves the report from route params
      * @param apiService
      * @param route
      */
 	constructor() {
 		this.route.params.subscribe(params => {
-			if (params.reportName) 
-				if (!localStorage.getItem('url_backend')) 
+			if (params.reportName)
+				if (!localStorage.getItem('url_backend'))
 					this.apiService.getBackendInfo().then(_ => {
 						this.getReport(params.reportName);
 					});
-				else 
+				else
 					this.getReport(params.reportName);
-                
-            
+
+
 		});
 	}
 
-	/**
-     * @ignore
-     */
-	ngOnInit() {
-		this.reportObservable = this.reportComponent$.subscribe((report)=>{
-			this.setReportElement(report);
-		});
-	}
 
-    
 	ngOnChanges() {
 		this.reportId.set(this.report.reportId);
 		this.htmlReport = this.report.htmlFile;
@@ -108,31 +91,25 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 				this.reportService
 					.getReportData(this.reportId())
 					.subscribe(resp => {
-						this.reportComponentSubject.next(resp); 
+						this.reportComponent.set(resp);
 						resolve();
-					}); 
+					});
 			});
-                  
+
 	}
 
-	ngAfterContentInit(){
-		window.addEventListener('storage', (event) => {           
-			if (event.key === 'reportComponent' ) {
-				const storedReportComponentString = localStorage.getItem('reportComponent');
-				this.updatedReports = JSON.parse(storedReportComponentString!);
-				if (this.updatedReports._id === this.reportComponent._id)
-					this.reportComponent = JSON.parse(storedReportComponentString!);
-            
-			}
-		});    
-	}
-  
 	/**
-     * Set a report value
-     */
-	setReportElement(report: any){
-		this.reportComponent = report;
+	 * Handles cross-tab report updates via localStorage storage events
+	 */
+	onStorageEvent(event: StorageEvent) {
+		if (event.key === 'reportComponent') {
+			const storedReportComponentString = localStorage.getItem('reportComponent');
+			this.updatedReports = JSON.parse(storedReportComponentString!);
+			if (this.updatedReports._id === this.reportComponent()?._id)
+				this.reportComponent.set(JSON.parse(storedReportComponentString!));
+		}
 	}
+
 	/**
      * Hide the test results
      */
@@ -146,14 +123,14 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      * @returns
      */
 	unsaveReport(reportId: string) {
-		this.reportComponent.isSaved = false;
-		localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent));
+		this.reportComponent.update(r => ({ ...r, isSaved: false }));
+		localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent()));
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService
 				.unsaveReport(reportId)
 				.subscribe(_resp => {
 					resolve();
-				}); 
+				});
 		});
 	}
 
@@ -163,14 +140,14 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
      * @returns
      */
 	saveReport(reportId: string) {
-		this.reportComponent.isSaved = true;
-		localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent));
+		this.reportComponent.update(r => ({ ...r, isSaved: true }));
+		localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent()));
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService
 				.saveReport(reportId)
 				.subscribe(_resp => {
 					resolve();
-				}); 
+				});
 		});
 	}
 
@@ -196,33 +173,33 @@ export class ReportComponent implements OnInit, OnChanges, AfterContentInit {
 		const iframe = this.iframe().nativeElement;
 		const body = iframe.contentWindow.document.getElementsByTagName('body')[0];
 		const divEl =  iframe.contentWindow.document.querySelectorAll('[id^="collapseFeature"]');
-		for (const element of divEl) 
+		for (const element of divEl)
 			element.classList.add('in');
-        
+
 
 		html2canvas(body).then(canvas => {
-              
+
 			const imgData = canvas.toDataURL('image/jpeg', 1.0);
-			const imgWidth = 206; 
-			const pageHeight = 295;  
+			const imgWidth = 206;
+			const pageHeight = 295;
 			const imgHeight = canvas.height * imgWidth / canvas.width - 10;
 			let heightLeft = imgHeight;
-              
+
 			const doc = new jsPDF('p', 'mm', 'a4');
 			let position;
 			doc.addImage(imgData, 'PNG', 0, 12, imgWidth, imgHeight);
-          
+
 			heightLeft -= pageHeight;
-          
+
 			while (heightLeft >= 0) {
 				position = heightLeft - imgHeight;
 				doc.addPage();
 				doc.addImage(imgData, 'PNG', 0, position + 12, imgWidth, imgHeight);
 				heightLeft -= pageHeight;
 			}
-              
+
 			doc.save(this.reportId() + '.pdf');
 		});
 	}
-      
+
 }
