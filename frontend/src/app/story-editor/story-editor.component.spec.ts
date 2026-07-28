@@ -12,25 +12,14 @@ import { MatTableModule } from '@angular/material/table';
 import { EditableComponent } from '../editable/editable.component';
 import { ParentComponent } from '../parent/parent.component';
 import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
-import { Component, NO_ERRORS_SCHEMA, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { findComponent } from '../../test_helper';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 
-@Component({
-	changeDetection: ChangeDetectionStrategy.Eager,
-	template: `
-    <ng-template #renameStoryModal>The modal window is open!</ng-template>
-  `
-})
-
 class MockRenameStoryModal {
-	// eslint-disable-next-line @angular-eslint/prefer-signals -- mock instantiated outside injection context
-	@ViewChild('renameStoryModal') renameStoryCompRef!: MockRenameStoryModal;
-
 	openRenameStoryModal = vi.fn();
-
 }
 
 const scenario : Scenario = {'scenario_id':1,'comment':'','name':'successful Story creation','stepDefinitions':{'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'], 'post': '','isExample':[]}],'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post': '', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'], 'post': '', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['New Story created','Success'], 'post': '', 'isExample':[]}],'example':[]}};
