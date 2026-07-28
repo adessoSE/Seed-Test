@@ -1,10 +1,10 @@
-import { Component, ElementRef, HostListener, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, inject, viewChild, signal, computed, effect } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, inject, viewChild, signal, computed, effect, untracked } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { UntypedFormControl } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { LoginService } from './Services/login.service';
 import { ProjectService } from './Services/project.service';
 import { StoryService } from './Services/story.service';
@@ -93,10 +93,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit{
 	private createRepoEffect = effect(() => {
 		const custom = this.projectService.createRepositoryValue();
 		if (!custom) return;
-		this.projectService.createRepository(custom.repository.repoName, custom.repository._id).subscribe(_ => {
-			this.getRepositories();
-		});
+		untracked(() => this.handleCreateRepo(custom));
 	});
+
+	/** Creates a repository via API and reloads the repository list */
+	private async handleCreateRepo(custom: any) {
+		await firstValueFrom(this.projectService.createRepository(custom.repository.repoName, custom.repository._id));
+		this.getRepositories();
+	}
 
 	toggleObservable!: Subscription;
 

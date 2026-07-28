@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect, signal } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect, signal, untracked } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -23,6 +23,7 @@ import { BackgroundService } from '../Services/background.service';
 import type { EditBlockComponent } from '../modals/edit-block/edit-block.component';
 import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
+import { firstValueFrom } from 'rxjs';
 import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
 import { MultipleScenario } from '@shared/models/MuiltipleScenario';
 import { StepValidationService } from '../Services/step-validation.service';
@@ -322,11 +323,15 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	private updateBlocksEffect = effect(() => {
 		const trigger = this.blockService.updateBlocksTrigger();
 		if (trigger === 0) return;
-		const id = localStorage.getItem('id')!;
-		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks.set(resp);
-		});
+		untracked(() => this.reloadBlocks());
 	});
+
+	/** Fetches blocks from the backend and updates the local signal */
+	private async reloadBlocks() {
+		const id = localStorage.getItem('id')!;
+		const resp = await firstValueFrom(this.blockService.getBlocks(id));
+		this.blocks.set(resp);
+	}
 
 	ngOnInit(): void {
 		const id = localStorage.getItem('id') ?? '';

@@ -479,36 +479,32 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 	private readonly updateBlocksEffect = effect(() => {
 		const count = this.blockService.updateBlocksTrigger();
 		if (count === 0) return;
-		untracked(() => {
-			const id = localStorage.getItem('id')!;
-			this.blockService.getBlocks(id).subscribe((resp) => {
-				this.blocks.set(resp);
-				console.log('Updated blocks:', this.blocks());
-			});
-		});
-	}, { allowSignalWrites: true });
+		untracked(() => this.reloadBlocks());
+	});
+
+	/** Fetches blocks from the backend and updates the local signal */
+	private async reloadBlocks(): Promise<Block[]> {
+		const id = localStorage.getItem('id')!;
+		const resp = await firstValueFrom(this.blockService.getBlocks(id));
+		this.blocks.set(resp);
+		return resp;
+	}
 
 	/** Effect 10: React to block reference removal check */
 	private readonly checkRefOnRemoveEffect = effect(() => {
 		const blockReferenceId = this.blockService.checkRefOnRemoveValue();
 		if (blockReferenceId === null) return;
-		untracked(() => {
-			const id = localStorage.getItem('id')!;
-			this.blockService.getBlocks(id).subscribe((resp) => {
-				this.blocks.set(resp);
-				if (this.blocks()) {
-					const referenceBlock = this.blocks().find(
-						(block) => block._id == blockReferenceId
-					);
-					this.blockService.checkBlockOnReference(
-						this.blocks(),
-						this.stories(),
-						referenceBlock!
-					);
-				}
-			});
-		});
-	}, { allowSignalWrites: true });
+		untracked(() => this.handleCheckRefOnRemove(blockReferenceId));
+	});
+
+	/** Reloads blocks and checks references for the removed block */
+	private async handleCheckRefOnRemove(blockReferenceId: string) {
+		const blocks = await this.reloadBlocks();
+		if (blocks) {
+			const referenceBlock = blocks.find(block => block._id == blockReferenceId);
+			this.blockService.checkBlockOnReference(blocks, this.stories(), referenceBlock!);
+		}
+	}
 
 	/** Effect 11: React to entire reference block deletion — unpack steps in all relevant stories */
 	private readonly deleteReferenceEffect = effect(() => {
@@ -524,24 +520,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy, AfterViewChecked
 		// Cast needed: emitter sends { block, stepReference } but signal is typed as Block (legacy mismatch)
 		const obj = this.blockService.unpackBlockValue() as any;
 		if (obj === null) return;
-		untracked(() => {
-			this.blockService.unpackScenarioWithBlock(
-				obj.block,
-				this.selectedScenario,
-				obj.stepReference
-			);
-			const id = localStorage.getItem('id')!;
-			this.blockService.getBlocks(id).subscribe((resp) => {
-				this.blocks.set(resp);
-				this.blockService.checkBlockOnReference(
-					this.blocks(),
-					this.stories(),
-					obj.block
-				);
-			});
-			this.selectedScenario.saved = false;
-		});
-	}, { allowSignalWrites: true });
+		untracked(() => this.handleUnpackBlock(obj));
+	});
+
+	/** Unpacks block from scenario and checks remaining references */
+	private async handleUnpackBlock(obj: any) {
+		this.blockService.unpackScenarioWithBlock(
+			obj.block,
+			this.selectedScenario,
+			obj.stepReference
+		);
+		const blocks = await this.reloadBlocks();
+		this.blockService.checkBlockOnReference(blocks, this.stories(), obj.block);
+		this.selectedScenario.saved = false;
+	}
 
 	/** Effect 13: React to reference block name update */
 	private readonly updateNameRefEffect = effect(() => {

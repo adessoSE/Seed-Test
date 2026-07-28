@@ -1,10 +1,11 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
+import { firstValueFrom } from 'rxjs';
 import { BackgroundService } from '../../Services/background.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '@angular/material/table';
@@ -89,11 +90,15 @@ export class SaveBlockFormComponent implements OnInit {
 	private updateBlocksEffect = effect(() => {
 		const trigger = this.blockService.updateBlocksTrigger();
 		if (trigger === 0) return;
-		const id = localStorage.getItem('id')!;
-		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks.set(resp);
-		});
+		untracked(() => this.reloadBlocks());
 	});
+
+	/** Fetches blocks from the backend and updates the local signal */
+	private async reloadBlocks() {
+		const id = localStorage.getItem('id')!;
+		const resp = await firstValueFrom(this.blockService.getBlocks(id));
+		this.blocks.set(resp);
+	}
 
 	isBackground!: boolean;
 	backgroundName!: string;

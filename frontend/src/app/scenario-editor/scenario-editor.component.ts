@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -11,6 +11,7 @@ import { CreateScenarioComponent } from '../modals/create-scenario/create-scenar
 import { ScenarioService } from '../Services/scenario.service';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { BlockService } from '../Services/block.service';
+import { firstValueFrom } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
 import { ExampleComponent } from '../example-table/example.component';
 
@@ -134,11 +135,15 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	private updateBlocksEffect = effect(() => {
 		const trigger = this.blockService.updateBlocksTrigger();
 		if (trigger === 0) return;
-		const id = localStorage.getItem('id')!;
-		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks.set(resp);
-		});
+		untracked(() => this.reloadBlocks());
 	});
+
+	/** Fetches blocks from the backend and updates the local signal */
+	private async reloadBlocks() {
+		const id = localStorage.getItem('id')!;
+		const resp = await firstValueFrom(this.blockService.getBlocks(id));
+		this.blocks.set(resp);
+	}
 
 	/**
 	 * Reacts to scenario reference updates -- updates the affected scenario

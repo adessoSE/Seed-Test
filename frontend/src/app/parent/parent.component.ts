@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, linkedSignal } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -71,7 +71,11 @@ export class ParentComponent implements OnInit, OnDestroy {
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
-	readonly activeView = signal('storyView');
+	/** Writable derived signal — resets to service value when source changes, keeps local overrides otherwise */
+	readonly activeView = linkedSignal({
+		source: this.storyService.activeView,
+		computation: (viewName, previous) => viewName || previous?.value || 'storyView'
+	});
 
 	isReviewing: boolean = false;
 
@@ -83,13 +87,6 @@ export class ParentComponent implements OnInit, OnDestroy {
 		const trigger = this.apiService.backendUrlReadyTrigger();
 		if (trigger === 0) return;
 		this.loadStories();
-	});
-
-	/** Updates active view when story service changes it */
-	private activeViewEffect = effect(() => {
-		const viewName = this.storyService.activeView();
-		if (!viewName) return;
-		this.activeView.set(viewName);
 	});
 
 	getRepositoriesObservable!: Subscription;

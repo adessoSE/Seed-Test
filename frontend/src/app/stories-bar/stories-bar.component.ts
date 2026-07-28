@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, ElementRef, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren, signal, effect } from '@angular/core';
+import { Component, Input, OnChanges, ElementRef, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren, signal, effect, untracked, linkedSignal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
@@ -47,9 +48,12 @@ export class StoriesBarComponent implements OnChanges {
 
 
 	/**
-     * Stories in the project
+     * Stories in the project — derived from service, writable for local mutations
      */
-	readonly stories = signal<Story[]>([]);
+	readonly stories = linkedSignal<Story[]>(() => {
+		const raw = this.storyService.stories();
+		return raw.filter(s => s != null);
+	});
 
 	/**
      * Currently selected story
@@ -62,9 +66,13 @@ export class StoriesBarComponent implements OnChanges {
 	selectedScenario!: Scenario;
 
 	/**
-     * If it is a custom story
+     * If it is a custom story — derived from whether current source is 'db'
      */
-	readonly isCustomStory = signal(false);
+	readonly isCustomStory = linkedSignal(() => {
+		const stories = this.storyService.stories();
+		if (!stories.length) return false;
+		return localStorage.getItem('source') === 'db';
+	});
 
 	/**
      * Emits a new chosen story
@@ -109,9 +117,12 @@ export class StoriesBarComponent implements OnChanges {
      */
 	groupString!: string;
 	/**
-     * Stories filtered for searchterm
+     * Stories filtered for searchterm — derived from service, writable for local search filtering
      */
-	readonly filteredStories = signal<Story[]>([]);
+	readonly filteredStories = linkedSignal<Story[]>(() => {
+		const raw = this.storyService.stories();
+		return raw.filter(s => s != null);
+	});
 
 	/**
      * Groups filtered for searchterm
@@ -153,73 +164,73 @@ export class StoriesBarComponent implements OnChanges {
 
 	// --- Effects: replace EventEmitter subscribes with signal watches ---
 
-	/** Effect: watch for stories being loaded from the service */
-	private getStoriesEffect = effect(() => {
-		const stories = this.storyService.stories();
-		if (!stories.length) return;
-		const filtered = stories.filter((s: Story) => s != null);
-		this.stories.set(filtered);
-		this.filteredStories.set(filtered);
-		this.isCustomStory.set(localStorage.getItem('source') === 'db');
-	});
-
 	/** Effect: watch for custom story creation requests */
 	private createStoryEffect = effect(() => {
 		const custom = this.storyService.createCustomStoryValue();
 		if (!custom) return;
-		this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id).subscribe(_ => {
-			this.storyService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
-				const filtered = resp.filter(s => s != null);
-				this.stories.set(filtered);
-				this.filteredStories.set(filtered);
-				this.storyTermChange();
-				this.selectStory(resp[resp.length - 1]);
-			});
-		});
+		untracked(() => this.handleCreateStory(custom));
 	});
+
+	/** Creates a story via API, reloads story list, and selects the new story */
+	private async handleCreateStory(custom: any) {
+		await firstValueFrom(this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id));
+		const resp = await firstValueFrom(this.storyService.getStories(custom.repositoryContainer));
+		const filtered = (resp as Story[]).filter(s => s != null);
+		this.stories.set(filtered);
+		this.filteredStories.set(filtered);
+		this.storyTermChange();
+		this.selectStory((resp as Story[])[(resp as Story[]).length - 1]);
+	}
 
 	/** Effect: watch for custom group creation requests */
 	private createGroupEffect = effect(() => {
 		const custom = this.groupService.createCustomGroupValue();
 		if (!custom) return;
-		this.groupService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.isSequential).subscribe(_ => {
-			this.groupService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
-				this.groups.set(resp);
-				this.filteredGroups.set(resp);
-				this.groupTermChange();
-
-				const allGroups = this.getSortedGroups()!;
-				const newLiGroupList = new Array(allGroups.length).fill('');
-				const index = allGroups.findIndex((group: any) => group.name === custom.group.title);
-				newLiGroupList[index] = 'uk-open';
-				this.liGroupList.set(newLiGroupList);
-				this.selectFirstStoryOfGroup(allGroups[index]);
-
-			});
-		});
+		untracked(() => this.handleCreateGroup(custom));
 	});
+
+	/** Creates a group via API, reloads group list, and opens the new group */
+	private async handleCreateGroup(custom: any) {
+		await firstValueFrom(this.groupService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.isSequential));
+		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id));
+		this.groups.set(resp as Group[]);
+		this.filteredGroups.set(resp as Group[]);
+		this.groupTermChange();
+		const allGroups = this.getSortedGroups()!;
+		const newLiGroupList = new Array(allGroups.length).fill('');
+		const index = allGroups.findIndex((group: any) => group.name === custom.group.title);
+		newLiGroupList[index] = 'uk-open';
+		this.liGroupList.set(newLiGroupList);
+		this.selectFirstStoryOfGroup(allGroups[index]);
+	}
 
 	/** Effect: watch for group update requests */
 	private updateGroupEffect = effect(() => {
 		const custom = this.groupService.updateGroupValue();
 		if (!custom) return;
-		this.groupService.updateGroup(custom.repositoryContainer._id, custom.group._id, custom.group).subscribe(_ => {
-			this.groupService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
-				this.groups.set(resp);
-			});
-		});
+		untracked(() => this.handleUpdateGroup(custom));
 	});
+
+	/** Updates a group via API and reloads the group list */
+	private async handleUpdateGroup(custom: any) {
+		await firstValueFrom(this.groupService.updateGroup(custom.repositoryContainer._id, custom.group._id, custom.group));
+		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id));
+		this.groups.set(resp as Group[]);
+	}
 
 	/** Effect: watch for group deletion requests */
 	private deleteGroupEffect = effect(() => {
 		const custom = this.groupService.deleteGroupValue();
 		if (!custom) return;
-		this.groupService.deleteGroup(custom.repo_id, custom.group_id).subscribe(_ => {
-			this.groupService.getGroups(custom.repo_id).subscribe((resp: Group[]) => {
-				this.groups.set(resp);
-			});
-		});
+		untracked(() => this.handleDeleteGroup(custom));
 	});
+
+	/** Deletes a group via API and reloads the group list */
+	private async handleDeleteGroup(custom: any) {
+		await firstValueFrom(this.groupService.deleteGroup(custom.repo_id, custom.group_id));
+		const resp = await firstValueFrom(this.groupService.getGroups(custom.repo_id));
+		this.groups.set(resp as Group[]);
+	}
 
 	/** Effect: watch for story deletion trigger */
 	private deleteStoryEffect = effect(() => {
