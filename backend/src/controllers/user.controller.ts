@@ -126,6 +126,11 @@ export async function register(req: Request, res: Response, next: NextFunction):
 		req.body.email = req.body.email.toLowerCase();
 		req.body.password = await bcrypt.hash(req.body.password, saltRounds);
 		req.body.transitioned = true;
+		// Remap userId (frontend field name) → _id (service field name) for GitHub account merge
+		if (req.body.userId) {
+			req.body._id = req.body.userId;
+			delete req.body.userId;
+		}
 
 		const result = await userService.registerUser(req.body);
 		res.status(201).json({ insertedId: result.insertedId });

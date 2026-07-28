@@ -7,10 +7,11 @@ export const loginSchema = z.object({
 	stayLoggedIn: z.boolean().optional()
 });
 
-/** POST /api/user/register */
+/** POST /api/user/register — userId is sent by frontend for GitHub account merge flow */
 export const registerSchema = z.object({
 	email: z.string().email(),
-	password: z.string().min(6, 'Password must be at least 6 characters')
+	password: z.string().min(6, 'Password must be at least 6 characters'),
+	userId: z.string().optional()
 });
 
 /** POST /api/user/resetpassword */
@@ -28,7 +29,7 @@ export const resetPasswordSchema = z.object({
 export const mergeGithubSchema = z.object({
 	userId: z.string().min(1),
 	login: z.string().min(1),
-	id: z.number().int()
+	id: z.coerce.number().int()
 });
 
 /** POST /api/user/update/:userID — only validates password field if present */

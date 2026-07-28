@@ -9,7 +9,7 @@ const aiProviderConfigSchema = z.object({
 	provider: z.literal('custom'),
 	name: z.enum(['local', 'cloud']),
 	modelName: z.string().min(1),
-	baseURL: z.string().url(),
+	baseURL: z.string().min(1, 'Base URL is required'),
 	apiKey: z.string().optional()
 });
 
