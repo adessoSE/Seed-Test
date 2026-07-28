@@ -5,6 +5,7 @@ import { StepType } from '@shared/models/StepType.js';
 import * as externalAccountService from './externalAccount.service.js';
 import * as stepTypeService from './step-type.service.js';
 import { AppError } from '../helpers/AppError.js';
+import { requireSafeExternalHost } from '../utils/validation.js';
 
 
 // --- XRay Write Operations ---
@@ -33,7 +34,8 @@ export async function deleteXrayStep(user: User, testKey: string, stepId: number
 		);
 		const authString = externalAccountService.buildAuthString(AccountName, clearPass, AuthMethod);
         
-		// 2. Construct XRay API URL
+		// 2. Construct XRay API URL — validate host to guard against DB-level tampering
+		requireSafeExternalHost(Host);
 		const url = `https://${Host}/rest/raven/1.0/api/test/${testKey}/step/${stepId}/`;
 
 		const options = {

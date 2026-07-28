@@ -16,6 +16,7 @@ import { StepDefinition } from '@shared/models/StepDefinition.js';
 import { User } from '@shared/models/User.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
+import { requireSafeExternalHost } from '../utils/validation.js';
 
 
 enum Sources {
@@ -278,6 +279,8 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		const testSets: any[] = [];
 		const preConditionMap: any[] = [];
 
+		// Defense-in-depth: validate host before constructing outbound URL
+		requireSafeExternalHost(Host);
 		const jql = `project="${projectKey}" AND (labels=Seed-Test OR issuetype=Test OR issuetype="Test Set" OR issuetype="Pre-Condition")`;
 		const searchUrl = `https://${Host}/rest/api/2/search?jql=${encodeURIComponent(jql)}&startAt=0&maxResults=200`;
 		const response = await fetch(searchUrl, options);
