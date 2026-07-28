@@ -1,6 +1,6 @@
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, Input, ElementRef, QueryList, ViewChildren, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild, computed, effect, signal, untracked } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, viewChild, viewChildren, computed, effect, signal, untracked, input } from '@angular/core';
 import { UntypedFormGroup, UntypedFormArray, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Scenario } from '@shared/models/Scenario';
 import { NotificationService } from '../Services/notification.service';
@@ -76,7 +76,7 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
 	/**
    * Boolean if the example table should be shown or not
    */
-	exampleThere = signal(false);
+	readonly exampleThere = signal(false);
 
 	/** Edit mode toggle value as a signal */
 	private readonly toggleValue = toSignal(this.toggleControl.valueChanges);
@@ -111,12 +111,18 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
 	/**
    * Sets the new scenario
    */
-	@Input()
-	set newSelectedScenario(scenario: Scenario) {
-		this.selectedScenario = scenario;
-		this.updateTable();
-		this.initialRegex = true;
-	}
+	readonly newSelectedScenario = input<Scenario>();
+
+	/** Effect: React to new selected scenario input */
+	private readonly newSelectedScenarioEffect = effect(() => {
+		const scenario = this.newSelectedScenario();
+		if (!scenario) return;
+		untracked(() => {
+			this.selectedScenario = scenario;
+			this.updateTable();
+			this.initialRegex = true;
+		});
+	}, { allowSignalWrites: true });
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
@@ -131,7 +137,7 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
 	initialRegex: boolean = true;
 	targetOffset: number = 0;
 
-	@ViewChildren('example_input') example_input!: QueryList<ElementRef>;
+	readonly example_input = viewChildren<ElementRef>('example_input');
 
 	/** Switches edit mode and activates editable values when toggle changes */
 	private readonly toggleEffect = effect(() => {
@@ -446,18 +452,16 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
 	regexHighlightOnInit() {
 		this.regexInStory = false;
 		this.initialRegex = false;
-		if (this.example_input) 
-			this.example_input.forEach((in_field) => {
-				this.highlightRegex(in_field.nativeElement, undefined, undefined, true);
-			});
-    
+		this.example_input().forEach((in_field) => {
+			this.highlightRegex(in_field.nativeElement, undefined, undefined, true);
+		});
 	}
 
 	/**
    * Helper for DOM change subscription
    */
 	regexDOMChangesHelper() {
-		this.example_input.changes.subscribe((_) => { });
+		// viewChildren signal auto-tracks DOM changes; no manual subscription needed
 	}
 
 	/**

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked, input } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -30,10 +30,14 @@ export class SaveBlockFormComponent implements OnInit {
 	/**
     * Sets a new selected story
     */
-	@Input()
-	set templateName(name: string) {
-		this.selectedTemplate = name;
-	}
+	readonly templateName = input<string>();
+
+	/** Syncs selectedTemplate when templateName input changes */
+	private templateNameEffect = effect(() => {
+		const name = this.templateName();
+		if (name === undefined) return;
+		untracked(() => { this.selectedTemplate = name; });
+	});
 	/**
      * Block to be saved
      */

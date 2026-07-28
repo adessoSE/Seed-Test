@@ -25,8 +25,8 @@ export class FileManagerComponent implements OnInit {
 
 	readonly isDark = computed(() => this.themeService.isDark());
 	repoId!: string;
-	allFiles = signal<FileElement[]>([]);
-	searchedFiles = signal<FileElement[]>([]);
+	readonly allFiles = signal<FileElement[]>([]);
+	readonly searchedFiles = signal<FileElement[]>([]);
 	searchText: string = '';
 	fileElements!: Observable<FileElement[]>;
 	selection = new Set<any>();

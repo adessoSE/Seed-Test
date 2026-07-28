@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, effect, untracked } from '@angular/core';
 import { Scenario } from '@shared/models/Scenario';
 import { Story } from '@shared/models/Story';
 import { StepType } from '@shared/models/StepType';
@@ -35,18 +35,30 @@ export class ExampleComponent {
 	/**
    * Sets a new selected story
    */
-	@Input()
-	set newlySelectedStory(story: Story) {
-		this.selectedStory = story;
-	}
+	readonly newlySelectedStory = input<Story>();
+
+	/** Effect: React to new selected story input */
+	private readonly newlySelectedStoryEffect = effect(() => {
+		const story = this.newlySelectedStory();
+		if (!story) return;
+		untracked(() => {
+			this.selectedStory = story;
+		});
+	});
 
 	/**
    * Sets a new selected scenaio
    */
-	@Input()
-	set newlySelectedScenario(scenario: Scenario) {
-		this.selectedScenario = scenario;
-	}
+	readonly newlySelectedScenario = input<Scenario>();
+
+	/** Effect: React to new selected scenario input */
+	private readonly newlySelectedScenarioEffect = effect(() => {
+		const scenario = this.newlySelectedScenario();
+		if (!scenario) return;
+		untracked(() => {
+			this.selectedScenario = scenario;
+		});
+	});
 
 	readonly TEMPLATE_NAME = 'example';
 }

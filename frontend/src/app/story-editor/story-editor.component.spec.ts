@@ -12,10 +12,11 @@ import { MatTableModule } from '@angular/material/table';
 import { EditableComponent } from '../editable/editable.component';
 import { ParentComponent } from '../parent/parent.component';
 import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
-import { Component, NO_ERRORS_SCHEMA, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { findComponent } from '../../test_helper';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
+import { BaseEditorComponent } from '../base-editor/base-editor.component';
 
 @Component({
 	changeDetection: ChangeDetectionStrategy.Eager,
@@ -25,6 +26,7 @@ import { RenameStoryComponent } from '../modals/rename-story/rename-story.compon
 })
 
 class MockRenameStoryModal {
+	// eslint-disable-next-line @angular-eslint/prefer-signals -- mock instantiated outside injection context
 	@ViewChild('renameStoryModal') renameStoryCompRef!: MockRenameStoryModal;
 
 	openRenameStoryModal = vi.fn();
@@ -80,6 +82,7 @@ describe('StoryEditorComponent', () => {
 			providers: [ApiService],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
+			.overrideComponent(BaseEditorComponent, { set: { template: '', imports: [] } })
 			.compileComponents();
 	});
 
@@ -88,6 +91,8 @@ describe('StoryEditorComponent', () => {
 		fixture = TestBed.createComponent(StoryEditorComponent);
 		component = fixture.componentInstance;
 		component.selectedStory = story;
+		// Provide required signal input before first change detection
+		fixture.componentRef.setInput('isDark', false);
 		fixture.detectChanges();
 	}));
 
@@ -97,7 +102,7 @@ describe('StoryEditorComponent', () => {
 
 	describe('set newSelectedStory', () => {
 		it('should set newSelectedStory', () => {
-			fixture.componentInstance.newSelectedStory = story;
+			fixture.componentRef.setInput('newSelectedStory', story);
 			expect(component.selectedStory).toBe(story);
 		});
 	});
@@ -105,15 +110,19 @@ describe('StoryEditorComponent', () => {
 	describe('set newSelectedScenario', () => {
 		it('should set newSelectedScenario without selectScenario', () => {
 			vi.spyOn(component, 'selectScenario');
-			fixture.componentInstance.newSelectedScenario = story.scenarios[1];
+			fixture.componentRef.setInput('newSelectedScenario', story.scenarios[1]);
+			// Flush effects without full change detection to avoid NG0100
+			TestBed.flushEffects();
 			expect(component.selectedScenario).toBe(story.scenarios[1]);
 			expect(component.selectScenario).toHaveBeenCalledWith(story.scenarios[1]);
 		});
-  
+
 		it('should set newSelectedScenario with selectScenario', () => {
 			component.selectedStory = story;
 			vi.spyOn(component, 'selectScenario');
-			fixture.componentInstance.newSelectedScenario = scenario;
+			fixture.componentRef.setInput('newSelectedScenario', scenario);
+			// Flush effects without full change detection to avoid NG0100
+			TestBed.flushEffects();
 			expect(component.selectedScenario).toBe(scenario);
 			expect(component.selectScenario).toHaveBeenCalled();
 		});
@@ -230,7 +239,8 @@ describe('StoryEditorComponent', () => {
 		it('should start runTest', () => {
 			const scenarioId = 1;
 			component.selectedStory = story;
-			component.scenarioChild = findComponent(fixture, '#scenarioChild');
+			// scenarioChild is now a viewChild signal — mock it via Object.defineProperty
+			Object.defineProperty(component, 'scenarioChild', { value: () => findComponent(fixture, '#scenarioChild') });
 			const html = '<h1 #testFrame>Hi</h1>';
 			vi.spyOn(component.storyService, 'runTests');
 			component.storyService.runTests(component.selectedStory._id, scenarioId, {}).subscribe((_resp)=> {

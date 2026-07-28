@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy, inject, viewChild, signal, effect } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, input, untracked } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
@@ -40,7 +40,7 @@ export class AddBlockFormComponent implements OnInit {
 	/**
      * Saved blocks
      */
-	blocks = signal<Block[]>([]);
+	readonly blocks = signal<Block[]>([]);
 	/**
      * New block name when renaming
      */
@@ -54,10 +54,14 @@ export class AddBlockFormComponent implements OnInit {
 	/**
       * Sets a new selected story
       */
-	@Input()
-	set templateName(name: string) {
-		this.selectedTemplate = name;
-	}
+	readonly templateName = input<string>();
+
+	/** Syncs selectedTemplate when templateName input changes */
+	private templateNameEffect = effect(() => {
+		const name = this.templateName();
+		if (name === undefined) return;
+		untracked(() => { this.selectedTemplate = name; });
+	});
 	/**
       * If blocks are saved 
       */

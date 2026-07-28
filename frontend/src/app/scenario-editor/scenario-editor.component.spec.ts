@@ -33,7 +33,7 @@ describe('ScenarioEditorComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(ScenarioEditorComponent);
 		component = fixture.componentInstance;
-		component.selectedScenario = scenarios[0];
+		fixture.componentRef.setInput('selectedScenario', scenarios[0]);
 		fixture.componentRef.setInput('selectedStory', {
 			story_id: 1, title: 'Test Story', body: '', storySource: 'github',
 			background: { name: '', stepDefinitions: { when: [] } },

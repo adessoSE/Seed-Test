@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { Scenario } from '@shared/models/Scenario';
 import { Background } from '@shared/models/Background';
 import { NotificationService } from './notification.service';
 /**

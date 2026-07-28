@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChildren, OnInit, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect, signal, untracked } from '@angular/core';
+import { Component, ElementRef, OnInit, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect, signal, untracked } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -56,7 +56,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	readonly step_type_pre = viewChildren<ElementRef>('step_type_pre');
 
-	@ViewChildren('step_type_input1') step_type_input1!: QueryList<ElementRef>;
+	readonly step_type_input1 = viewChildren<ElementRef>('step_type_input1');
 
 	readonly step_type_input2 = viewChildren<ElementRef>('step_type_input2');
 
@@ -82,58 +82,77 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	readonly originalStepTypes = input<StepType[]>([]);
 
-	@Input() templateName!: string;
+	readonly templateName = input.required<string>();
 
 	/**
    * If the test is running
    */
 	readonly testRunning = input(false);
 
-	@Input() selectedBlock!: Block;
+	readonly selectedBlock = input<Block>();
 
 	/**
    * Sets a new selected scenaio
    */
-	@Input()
-	set newlySelectedScenario(scenario: Scenario) {
-		if (this.selectedScenario) 
-			this.checkAllSteps(false);
-    
-		this.selectedScenario = scenario;
-		this.initialRegex = true;
-	}
+	readonly newlySelectedScenario = input<Scenario>();
+	private newlySelectedScenarioEffect = effect(() => {
+		const scenario = this.newlySelectedScenario();
+		if (!scenario) return;
+		untracked(() => {
+			if (this.selectedScenario)
+				this.checkAllSteps(false);
 
-	@Input()
-	set uncheckBackgroundCheckboxes(showBackground: boolean) {
-		if (showBackground) 
+			this.selectedScenario = scenario;
+			this.initialRegex = true;
+		});
+	});
+
+	readonly uncheckBackgroundCheckboxes = input<boolean>();
+	private uncheckBackgroundCheckboxesEffect = effect(() => {
+		const showBackground = this.uncheckBackgroundCheckboxes();
+		if (!showBackground) return;
+		untracked(() => {
 			this.checkAllSteps(false);
-    
-	}
+		});
+	});
 
 	/**
    * Sets a new selected story
    */
-	@Input()
-	set newlySelectedStory(story: Story) {
-		this.selectedStory = story;
-		this.initialRegex = true;
-		if (this.templateName === 'background' && this.selectedStory && this.selectedStory.background) {
-			if (!this.selectedStory.background.stepDefinitions.when) 
-				this.selectedStory.background.stepDefinitions.when = [];
-            
-			const cleanStepDefs = {
-				when: this.selectedStory.background.stepDefinitions.when
-			};
-			this.selectedStory.background.stepDefinitions = cleanStepDefs;
-		}
-	}
+	readonly newlySelectedStory = input<Story>();
+	private newlySelectedStoryEffect = effect(() => {
+		const story = this.newlySelectedStory();
+		if (!story) return;
+		untracked(() => {
+			this.selectedStory = story;
+			this.initialRegex = true;
+			if (this.templateName() === 'background' && this.selectedStory && this.selectedStory.background) {
+				if (!this.selectedStory.background.stepDefinitions.when)
+					this.selectedStory.background.stepDefinitions.when = [];
+
+				const cleanStepDefs = {
+					when: this.selectedStory.background.stepDefinitions.when
+				};
+				this.selectedStory.background.stepDefinitions = cleanStepDefs;
+			}
+		});
+	});
 
 	/**
    * Checks for an example step
    * @param index
    */
-	@Input()
-	checkRowIndex(index: number) {
+	readonly checkRowIndex = input<number>();
+	private checkRowIndexEffect = effect(() => {
+		const index = this.checkRowIndex();
+		if (index === undefined) return;
+		untracked(() => {
+			this.checkStep(this.selectedScenario.multipleScenarios![index]);
+		});
+	});
+
+	/** Handles checkRowIndex event from example table */
+	handleCheckRowIndex(index: number) {
 		this.checkStep(this.selectedScenario.multipleScenarios![index]);
 	}
 
@@ -212,7 +231,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	activeHeader: string | null = null;
 
-	@Input() isDark!: boolean;
+	readonly isDark = input(false);
 
 	/** Re-run highlight when theme changes */
 	private themeEffect = effect(() => {
@@ -224,7 +243,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	private addBlockEffect = effect(() => {
 		const blockValue = this.blockService.addBlockToScenarioValue();
 		if (blockValue === null) return;
-		if (this.templateName == 'background' && blockValue[0] == 'background') {
+		if (this.templateName() == 'background' && blockValue[0] == 'background') {
 			const whenSteps = blockValue[1].stepDefinitions['when'] || [];
 			if (whenSteps.length === 0) {
 				// Background only supports 'when' steps — warn user if block has none
@@ -240,7 +259,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 			});
 			this.markUnsaved();
 		}
-		if (this.templateName == 'scenario' && blockValue[0] == 'scenario') {
+		if (this.templateName() == 'scenario' && blockValue[0] == 'scenario') {
 			if (!blockValue[3]) {
 				const blockReference: StepType = {
 					_blockReferenceId: blockValue[1]._id, id: 0, type: blockValue[1].name,
@@ -298,6 +317,22 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		this.initialRegex = true;
 	});
 
+	/** Handles focus and highlighting when step_type_input1 view children change */
+	private stepTypeInput1Effect = effect(() => {
+		//scenario first input value
+		const fields = this.step_type_input1();
+		if (fields.length === 0) return;
+		untracked(() => {
+			fields.forEach(in_field => {
+				if (in_field && in_field.nativeElement.id === this.lastToFocus)
+					in_field.nativeElement.focus();
+
+			});
+			this.lastToFocus = '';
+			this.highlightInputOnInit();
+		});
+	});
+
 	/** Unchecks all steps when background changes */
 	private backgroundChangedEffect = effect(() => {
 		const trigger = this.backgroundService.backgroundChangedTrigger();
@@ -345,7 +380,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * retrieves the saved block from the session storage
    */
 	ngDoCheck(): void {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				this.clipboardBlock = JSON.parse(
 					sessionStorage.getItem('scenarioBlock') ?? 'null'
@@ -431,7 +466,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		stepType: string,
 		_step?: StepType
 	) {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
 				this.markUnsaved();
@@ -448,13 +483,13 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 			case 'block-editor':
 				switch (stepType) {
 					case 'given':
-						this.selectedBlock.stepDefinitions.given[stepIndex].values[valueIndex] = input;
+						this.selectedBlock()!.stepDefinitions.given[stepIndex].values[valueIndex] = input;
 						break;
 					case 'when':
-						this.selectedBlock.stepDefinitions.when[stepIndex].values[valueIndex] = input;
+						this.selectedBlock()!.stepDefinitions.when[stepIndex].values[valueIndex] = input;
 						break;
 					case 'then':
-						this.selectedBlock.stepDefinitions.then[stepIndex].values[valueIndex] = input;
+						this.selectedBlock()!.stepDefinitions.then[stepIndex].values[valueIndex] = input;
 						break;
 					default:
 						console.error('Unknown stepType:', stepType);
@@ -590,35 +625,35 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	addStepToBlock(step: StepType, position?: number) {
 		const newStep = this.createNewStep(
 			step,
-			this.selectedBlock.stepDefinitions
+			this.selectedBlock()!.stepDefinitions
 		);
 		console.log('New created step');
 		console.log(newStep);
 		switch (newStep.stepType) {
 			case 'given':
 				if (position) 
-					this.selectedBlock.stepDefinitions.given.splice(position, 0, newStep);
+					this.selectedBlock()!.stepDefinitions.given.splice(position, 0, newStep);
 				else 
-					this.selectedBlock.stepDefinitions.given.push(newStep);
+					this.selectedBlock()!.stepDefinitions.given.push(newStep);
         
 				break;
 			case 'when':
 				if (position) 
-					this.selectedBlock.stepDefinitions.when.splice(position, 0, newStep);
+					this.selectedBlock()!.stepDefinitions.when.splice(position, 0, newStep);
 				else 
-					this.selectedBlock.stepDefinitions.when.push(newStep);
+					this.selectedBlock()!.stepDefinitions.when.push(newStep);
         
 				break;
 			case 'then':
 				if (position) 
-					this.selectedBlock.stepDefinitions.then.splice(position, 0, newStep);
+					this.selectedBlock()!.stepDefinitions.then.splice(position, 0, newStep);
 				else 
-					this.selectedBlock.stepDefinitions.then.push(newStep);
+					this.selectedBlock()!.stepDefinitions.then.push(newStep);
         
 				break;
 		}
 		console.log('Current block');
-		console.log(this.selectedBlock);
+		console.log(this.selectedBlock());
 	}
 
 	/**
@@ -911,7 +946,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * Marks story or scenario unsaved depending on template
    */
 	markUnsaved() {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				this.selectedStory.background.saved = false;
 				this.backgroundService.backgroundReplaced = false;
@@ -937,7 +972,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    *  */
 
 	updateList(stepIndex: number, newList: StepType[]) {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				this.selectedStory.background.stepDefinitions.when = newList;
 				break;
@@ -963,7 +998,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	dragStarted(event: CdkDragStart, stepDefs: StepDefinition, i: number): void {
 		this.dragging = event.source._dragRef;
 		let indices = null;
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				/* indices = stepDefs.when
           .map(function(element, index) {return {index: index, value: element}})
@@ -1046,7 +1081,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    */
 
 	isSelected(stepDefs: StepDefinition, i: number, j: number): any {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				//return stepDefs.when[j].checked;
 				return this.returnCheckedValue(stepDefs, i, j);
@@ -1091,7 +1126,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	selectedCount(stepDefs: StepDefinition, i: number) {
 		let result: number = 0;
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				//this.selectedStory.background.stepDefinitions.when.forEach(element => { if(element.checked){counter++;} });
 				result = this.countChecked(stepDefs, i);
@@ -1145,7 +1180,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 			this.allChecked = !this.allChecked;
     
 		this.isReferenceBlock = false;
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				this.checkOnIteration(
 					this.selectedStory.background.stepDefinitions,
@@ -1170,7 +1205,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 			case 'block-editor':
 				this.checkOnIteration(
-					this.selectedBlock.stepDefinitions,
+					this.selectedBlock()!.stepDefinitions,
 					this.allChecked
 				);
 				break;
@@ -1180,7 +1215,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	checkOnIteration(stepsList: any, checkValue: boolean) {
 		//background & scenario
 		for (const prop in stepsList) 
-			if (this.templateName !== 'example' && prop !== 'example') 
+			if (this.templateName() !== 'example' && prop !== 'example') 
 				for (let i = stepsList[prop].length - 1; i >= 0; i--) 
 					this.checkStep(stepsList[prop][i], checkValue);
         
@@ -1202,14 +1237,14 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	handleClick(event: MouseEvent, step: StepType | MultipleScenario, checkbox_id: number, _checkValue?: boolean) {
 		// if key pressed is shift
 		this.isReferenceBlock = false;
-		if (event.shiftKey && this.lastVisitedTemplate == this.templateName) 
+		if (event.shiftKey && this.lastVisitedTemplate == this.templateName()) 
 			this.checkMany(step as StepType, checkbox_id);
 		else 
 			this.checkStep(step);
     
 		// Set current step to last checked
 		this.lastCheckedCheckboxIDx = checkbox_id;
-		this.lastVisitedTemplate = this.templateName;
+		this.lastVisitedTemplate = this.templateName();
 	}
 
 	/**
@@ -1227,7 +1262,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		const end = Math.max(newTmp, lastTmp);
 
 		// Check all steps in the list between start and end
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'scenario': {
 				const scenarioSteps = (this.selectedScenario.stepDefinitions as unknown as Record<string, StepType[]>)[currentStep.stepType];
 				const scenario_val = scenarioSteps[lastTmp].checked;
@@ -1259,7 +1294,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    */
 
 	checkStep(step: StepType | MultipleScenario, checkValue?: boolean) {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'block-editor': {
 				if (checkValue != null)
 					step.checked = checkValue;
@@ -1269,8 +1304,8 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				let checkCount = 0;
 				let stepCount = 0;
 
-				for (const prop in this.selectedBlock.stepDefinitions) {
-					const blockSteps = (this.selectedBlock.stepDefinitions as unknown as Record<string, StepType[]>)[prop];
+				for (const prop in this.selectedBlock()!.stepDefinitions) {
+					const blockSteps = (this.selectedBlock()!.stepDefinitions as unknown as Record<string, StepType[]>)[prop];
 					for (let i = blockSteps.length - 1; i >= 0; i--) {
 						stepCount++;
 						if (blockSteps[i].checked)
@@ -1308,7 +1343,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * Enables/disables "Save steps as Block" if only reference-block-steps selected
    */
 	disableSaveBlock() {
-		if (this.templateName !== 'scenario') 
+		if (this.templateName() !== 'scenario') 
 			return;
     
 
@@ -1346,7 +1381,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		let checkCount = 0;
 		let stepCount = 0;
 
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'scenario': {
 				const scenarioStepDefs = this.selectedScenario.stepDefinitions as unknown as Record<string, StepType[]>;
 				for (const prop in scenarioStepDefs)
@@ -1430,7 +1465,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		//const saveBlock = {given: [], when: [], then: [], example: []};
 		let saveBlock;
 
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				saveBlock = this.addStepsToBlockOnIteration(
 					JSON.parse(
@@ -1508,7 +1543,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    */
 
 	deactivateStep(): void {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				this.deactivateOnIteration(
 					this.selectedStory.background.stepDefinitions
@@ -1563,7 +1598,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				break;
 
 			case 'block-editor':
-				this.deactivateOnIteration(this.selectedBlock.stepDefinitions);
+				this.deactivateOnIteration(this.selectedBlock()!.stepDefinitions);
 				break;
 
 			default:
@@ -1612,7 +1647,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    */
 
 	removeStep() {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				this.removeStepOnIteration(this.selectedStory.background.stepDefinitions);
 				/* for (const prop in this.selectedStory.background.stepDefinitions) {
@@ -1656,7 +1691,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				break;
 
 			case 'block-editor':
-				this.removeStepOnIteration(this.selectedBlock.stepDefinitions);
+				this.removeStepOnIteration(this.selectedBlock()!.stepDefinitions);
 				break;
 
 			default:
@@ -1673,7 +1708,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		//background & scenario
 		const stepsRecord = stepsList as unknown as Record<string, StepType[]>;
 		for (const prop in stepsRecord)
-			if (this.templateName !== 'example' && prop !== 'example')
+			if (this.templateName() !== 'example' && prop !== 'example')
 				for (let i = stepsRecord[prop].length - 1; i >= 0; i--)
 					if (stepsRecord[prop][i].checked) {
 						this.uncheckStep(stepsRecord[prop][i]);
@@ -1700,7 +1735,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		//const copyBlock = {given: [], when: [], then: [], example: []};
 		let block;
 		let backgroundBlock: Block;
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				block = this.addStepsToBlockOnIteration(this.selectedStory.background.stepDefinitions);
 				/* for (const prop in this.selectedStory.background.stepDefinitions) {
@@ -1752,7 +1787,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 			case 'block-editor': {
 				block = this.addStepsToBlockOnIteration(
-					this.selectedBlock.stepDefinitions
+					this.selectedBlock()!.stepDefinitions
 				);
 				const editBlock: Block = { stepDefinitions: block as unknown as StepDefinition };
 				sessionStorage.setItem('copiedEditBlock', JSON.stringify(editBlock));
@@ -1812,7 +1847,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    *
    */
 	insertCopiedBlock(): void {
-		switch (this.templateName) {
+		switch (this.templateName()) {
 			case 'background':
 				this.insertBackgroundBlock();
 				break;
@@ -1905,7 +1940,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
 			this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
 				step.checked = false;
-				(this.selectedBlock.stepDefinitions as unknown as Record<string, StepType[]>)[key].push(JSON.parse(JSON.stringify(step)));
+				(this.selectedBlock()!.stepDefinitions as unknown as Record<string, StepType[]>)[key].push(JSON.parse(JSON.stringify(step)));
 			});
 
 		});
@@ -2077,7 +2112,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	addBlock() {
 		const id = localStorage.getItem('id') ?? '';
-		this.addBlockModal().openAddBlockFormModal(this.templateName, id);
+		this.addBlockModal().openAddBlockFormModal(this.templateName(), id);
 	}
 
 	/**
@@ -2155,7 +2190,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @returns returns all examples in list
    */
 	getExampleList() {
-		if (this.templateName != 'block-editor') {
+		if (this.templateName() != 'block-editor') {
 			if (this.selectedScenario.multipleScenarios &&
           this.selectedScenario.multipleScenarios.length > 0 &&
           this.selectedScenario.multipleScenarios[0] &&
@@ -2195,7 +2230,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @param index index of example in values array
    */
 	renameExample(newName: string, index: number) {
-		if (this.templateName == 'example') {
+		if (this.templateName() == 'example') {
 			const oldName =
 				this.selectedScenario.multipleScenarios![0].values[index];
 			this.selectedScenario.multipleScenarios![0].values[index] = newName;
@@ -2257,7 +2292,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    */
 	fillExamples(cutInput: string) {
 		console.log('fillExamples', cutInput);
-		if (this.templateName == 'example') {
+		if (this.templateName() == 'example') {
 			this.selectedScenario.multipleScenarios![0].values.push(cutInput);
 			// if the table has no rows add a row
 
@@ -2287,7 +2322,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @param step
    */
 	createFirstExample(cutInput: string) {
-		console.log('HAllo', this.templateName);
+		console.log('HAllo', this.templateName());
 		const multipleScenarios1: MultipleScenario = {
 			values: [cutInput]
 		};
@@ -2306,7 +2341,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		if (table)
 			table.classList.add('mat-mdc-elevation-z8');
 
-		// if (this.templateName === 'scenario'){
+		// if (this.templateName() === 'scenario'){
 		this.selectedScenario.stepDefinitions.given.forEach((_value: StepType, index: number) => {
 			_value.values.forEach((_val: string, i: number) => this.selectedScenario.stepDefinitions.given[index].isExample![i] = false);
 		});
@@ -2395,7 +2430,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		regexDetected = this.highlightInputService.highlightInput(
 			element,
 			initialCall,
-			this.isDark,
+			this.isDark(),
 			this.regexInStory,
 			valueIndex,
 			stepPre,
@@ -2419,10 +2454,10 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
         });
       }*/
 
-		if (this.step_type_input1 && this.step_type_input1.length > 0) {
+		if (this.step_type_input1() && this.step_type_input1().length > 0) {
 			//scenario first input value
 			const stepTypePre = this.step_type_pre();
-			const stepTypeInput_1 = this.step_type_input1.filter((in_field) => in_field !== undefined);
+			const stepTypeInput_1 = this.step_type_input1().filter((in_field) => in_field !== undefined);
 			stepTypeInput_1.forEach((in_field, index) => {
 				if (in_field && stepTypePre[index]) 
 					this.highlightInput(
@@ -2473,15 +2508,8 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		//   this.highlightInputOnInit()
 		// });
 
-		this.step_type_input1.changes.subscribe(_ => { //scenario first input value
-			this.step_type_input1.forEach(in_field => {
-				if (in_field && in_field.nativeElement.id === this.lastToFocus) 
-					in_field.nativeElement.focus();
-        
-			});
-			this.lastToFocus = '';
-			this.highlightInputOnInit();
-		});
+		// Converted from QueryList .changes.subscribe to signal effect (stepTypeInput1Effect)
+		// The effect tracks this.step_type_input1() and runs on view children changes
 
 		//Logic currently not needed
 		/*this.step_type_input2.changes.subscribe(_ => { //scenario second input value
@@ -2507,7 +2535,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		const textContent = element.textContent;
 		const examplesRegex = /<[^>]*>/;
 		const match = textContent.match(examplesRegex);
-		if (match && this.templateName === 'block-editor') 
+		if (match && this.templateName() === 'block-editor') 
 			element.contentEditable = 'false';
      
 	}

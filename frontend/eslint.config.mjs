@@ -59,7 +59,7 @@ export default defineConfig([
 			'@angular-eslint/no-uncalled-signals': 'error',
 			'@angular-eslint/computed-must-return': 'error',
 			'@angular-eslint/inject-at-top': 'error',
-			'@angular-eslint/prefer-signals': 'warn',
+			'@angular-eslint/prefer-signals': 'error',
 			'@angular-eslint/prefer-signal-model': 'warn',
 			'@angular-eslint/prefer-output-emitter-ref': 'error',
 			'@angular-eslint/prefer-output-readonly': 'error',

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, ElementRef, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren, signal, effect, untracked, linkedSignal } from '@angular/core';
+import { Component, OnChanges, ElementRef, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren, signal, effect, untracked, linkedSignal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
@@ -101,7 +101,7 @@ export class StoriesBarComponent implements OnChanges {
      */
 	selectedGroup!: Group;
 
-	@Input() isDark!: boolean;
+	readonly isDark = input.required<boolean>();
 
 	readonly newSelectedStory = input.required<Story>();
 

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, inject, output, viewChild, signal, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, output, viewChild, signal, effect } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -40,12 +40,12 @@ export class WorkgroupEditComponent {
 	/**
    * List of all members in the workgroup
    */
-	workgroupList = signal<any[]>([]);
+	readonly workgroupList = signal<any[]>([]);
 
 	/**
    * Owner of the workgroup
    */
-	workgroupOwner = signal<string>('');
+	readonly workgroupOwner = signal<string>('');
 
 	/**
    * Error if the request was not successful
@@ -103,7 +103,7 @@ export class WorkgroupEditComponent {
 	modalReference!: NgbModalRef;
 
 	projectName!: string;
-	@ViewChild('ownerSelect') ownerSelect!: MatSelect;
+	readonly ownerSelect = viewChild<MatSelect>('ownerSelect');
 	/**
    * Selected member to transfer Ownership
    */
@@ -153,7 +153,7 @@ export class WorkgroupEditComponent {
 
 	onModalClosed() {
 		this.selectedOwner = undefined as any;
-		this.ownerSelect = null as any;
+		// ownerSelect is a signal viewChild — Angular manages its lifecycle automatically
 	}
 
 	loadGlobalSettings(): void {

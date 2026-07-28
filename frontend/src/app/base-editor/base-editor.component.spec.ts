@@ -58,6 +58,8 @@ describe('BaseEditorComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(BaseEditorComponent);
 		component = fixture.componentInstance;
+		// Provide required signal input before first change detection
+		fixture.componentRef.setInput('templateName', 'scenario');
 		fixture.detectChanges();
 	});
 
@@ -95,7 +97,7 @@ describe('BaseEditorComponent', () => {
 			const _story : Story = {'story_id': 123, '_id':'1', 'storySource': 'github','repo_type':'github','background':{'stepDefinitions':{'when':[{'_id':'5dce728851e70f2894a170b0','id':1,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':[''],'post': '', 'isExample':[]}]}},'scenarios':[{'scenario_id':1,'comment':'','name':'successful Story creation','stepDefinitions':{'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'],'post': '', 'isExample':[]}],'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post':'', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'],'post':'', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['New Story created','Success'],'post':'', 'isExample':[]}],'example':[]}},{'scenario_id':3,'comment':'','name':'failed Story creation','stepDefinitions':{'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'],'post':'', 'isExample':[]}],'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post':'', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'],'post':'', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['Could not create Story','Error'],'post':'', 'isExample':[]}],'example':[]}}],'assignee':'cniebergall','assignee_avatar_url':'https://avatars1.githubusercontent.com/u/45001224?v=4','body':'As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n','issue_number': 7,'state':'open','title':'Story creation'};
 			component.selectedStory = stories[0];
 			// templateName must be 'background' so removeStep enters the background switch case
-			component.templateName = 'background';
+			fixture.componentRef.setInput('templateName', 'background');
 			expect(component.selectedStory.background.stepDefinitions.when.length).toBe(1);
 			component.selectedStory.background.stepDefinitions['when'][0].checked = true;
 			component.removeStep();
@@ -107,14 +109,14 @@ describe('BaseEditorComponent', () => {
 		it('should add hello to background values', () => {
 			const stories : Story[] = [{'story_id': 123, '_id':'1', 'storySource': 'github','repo_type':'github','background':{'stepDefinitions':{'when':[{'_id':'5dce728851e70f2894a170b0','id':1,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':[''],'post': '', 'isExample':[]}]}},'scenarios':[{'scenario_id':1,'comment':'','name':'successful Story creation','stepDefinitions':{'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'],'post': '', 'isExample':[]}],'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post':'', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'],'post':'', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['New Story created','Success'],'post':'', 'isExample':[]}],'example':[]}},{'scenario_id':3,'comment':'','name':'failed Story creation','stepDefinitions':{'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'],'post':'', 'isExample':[]}],'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post':'', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'],'post':'', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['Could not create Story','Error'],'post':'', 'isExample':[]}],'example':[]}}],'assignee':'cniebergall','assignee_avatar_url':'https://avatars1.githubusercontent.com/u/45001224?v=4','body':'As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n','issue_number': 7,'state':'open','title':'Story creation'}];
 			component.selectedStory = stories[0];
-			component.templateName = 'background';
+			fixture.componentRef.setInput('templateName', 'background');
 			const stepIndex = 0;
 			const valueIndex = 0;
 			const input = 'hello';
 			const stepType = 'when';
 
 			component.addToValues(input, stepIndex, valueIndex, stepType);
-			expect(component.templateName).toBe('background');
+			expect(component.templateName()).toBe('background');
 			expect(component.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex]).toBe(input);
 		});
 	});

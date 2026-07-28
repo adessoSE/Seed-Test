@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { Component, OnInit, Input, ViewChild, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -90,68 +90,23 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	/**
    * set new currently selected scenario
    */
-	@Input()
-	set newSelectedScenario(scenario: Scenario) {
-		if (scenario) {
-			if (this.isReviewingAi())
-				this.exitAiReviewMode();
-
-			this.selectScenario(scenario);
-		}
-	}
+	readonly newSelectedScenario = input<Scenario>();
 
 	/**
    * set new stories
    */
-	@Input()
-	set newStories(stories: Story[]) {
-		if (stories)
-			this.stories.set(stories);
-
-	}
+	readonly newStories = input<Story[]>();
 
 	/**
    * set new currently selected story
    */
-	@Input()
-	set newSelectedStory(story: Story) {
-		console.log('Wir selecten diese Story hier:', story);
-		this.selectedStory = story;
-		this.initializeIsExampleForStory(this.selectedStory);
-		this.isReviewingAi.set(false);
-
-		if (this.selectedStory && this.selectedStory.aiSuggestion)
-			this.aiSuggestions.set(this.selectedStory._id!, this.selectedStory.aiSuggestion);
-		else if (this.selectedStory)
-			this.aiSuggestions.delete(this.selectedStory._id!);
-    
-
-		if (this.selectedStory !== undefined && this.selectedStory.preConditions) 
-			this.preConditionResults = this.xrayService.getPreconditionStories(
-				this.selectedStory.preConditions
-			);
-    
-    
-		if (this.selectedStory &&
-      this.selectedStory.scenarios &&
-      this.selectedStory.scenarios.length > 0
-		) 
-			this.selectScenario(this.selectedStory.scenarios[0]);
-		else if (this.selectedStory) 
-		// Editor hiding is happening in selectScenario
-			this.selectScenario(null);
-    
-	}
+	readonly newSelectedStory = input<Story>();
 
 	/**
    * show loading when tests of groups run
    * hide result of story
    */
-	@Input()
-	set testRunningForGroup(groupRunning: boolean) {
-		this.testRunningGroup = groupRunning;
-		this.showResults.set(false);
-	}
+	readonly testRunningForGroup = input<boolean>();
 
 	/**
    * Original step types
@@ -571,12 +526,74 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		});
 	});
 
-	@Input() isDark!: boolean;
+	/** Effect 16: React to new selected scenario input */
+	private readonly newSelectedScenarioEffect = effect(() => {
+		const scenario = this.newSelectedScenario();
+		if (!scenario) return;
+		untracked(() => {
+			if (this.isReviewingAi())
+				this.exitAiReviewMode();
+
+			this.selectScenario(scenario);
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 17: React to new stories input */
+	private readonly newStoriesEffect = effect(() => {
+		const stories = this.newStories();
+		if (!stories) return;
+		untracked(() => {
+			this.stories.set(stories);
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 18: React to new selected story input */
+	private readonly newSelectedStoryEffect = effect(() => {
+		const story = this.newSelectedStory();
+		if (!story) return;
+		untracked(() => {
+			console.log('Wir selecten diese Story hier:', story);
+			this.selectedStory = story;
+			this.initializeIsExampleForStory(this.selectedStory);
+			this.isReviewingAi.set(false);
+
+			if (this.selectedStory && this.selectedStory.aiSuggestion)
+				this.aiSuggestions.set(this.selectedStory._id!, this.selectedStory.aiSuggestion);
+			else if (this.selectedStory)
+				this.aiSuggestions.delete(this.selectedStory._id!);
+
+			if (this.selectedStory !== undefined && this.selectedStory.preConditions)
+				this.preConditionResults = this.xrayService.getPreconditionStories(
+					this.selectedStory.preConditions
+				);
+
+			if (this.selectedStory &&
+				this.selectedStory.scenarios &&
+				this.selectedStory.scenarios.length > 0
+			)
+				this.selectScenario(this.selectedStory.scenarios[0]);
+			else if (this.selectedStory)
+				// Editor hiding is happening in selectScenario
+				this.selectScenario(null);
+		});
+	}, { allowSignalWrites: true });
+
+	/** Effect 19: React to test running for group input */
+	private readonly testRunningForGroupEffect = effect(() => {
+		const groupRunning = this.testRunningForGroup();
+		if (groupRunning === undefined) return;
+		untracked(() => {
+			this.testRunningGroup = groupRunning;
+			this.showResults.set(false);
+		});
+	}, { allowSignalWrites: true });
+
+	readonly isDark = input.required<boolean>();
 
 	/**
    * View child of the scenario editor
    */
-	@ViewChild('scenarioChild') scenarioChild: any;
+	readonly scenarioChild = viewChild<any>('scenarioChild');
 	/**
    * View child of the modals component
    */
@@ -688,12 +705,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Runs the test without saving it
    */
 	runOption() {
-		const tmpScenarioSaved = this.scenarioChild.scenarioSaved;
+		const child = this.scenarioChild();
+		const tmpScenarioSaved = child?.scenarioSaved;
 		const tmpBackgroundSaved = this.selectedStory.background.saved;
-		this.scenarioChild.scenarioSaved = true;
+		if (child) child.scenarioSaved = true;
 		this.selectedStory.background.saved = true;
 		this.runTests(this.currentTestScenarioId);
-		this.scenarioChild.scenarioSaved = tmpScenarioSaved;
+		if (child) child.scenarioSaved = tmpScenarioSaved;
 		this.selectedStory.background.saved = tmpBackgroundSaved;
 	}
 
@@ -1623,8 +1641,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	storySaved() {
 		return (
 			this.runUnsaved ||
-      ((this.scenarioChild.selectedScenario.saved === undefined ||
-        this.scenarioChild.selectedScenario.saved) &&
+      ((this.scenarioChild()?.selectedScenario.saved === undefined ||
+        this.scenarioChild()?.selectedScenario.saved) &&
         (this.selectedStory.background.saved === undefined ||
           this.selectedStory.background.saved))
 		);

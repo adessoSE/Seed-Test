@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked, linkedSignal } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -55,7 +55,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * }
      * }
      */
-	@Input() selectedScenario!: Scenario;
+	protected readonly selectedScenarioInput = input.required<Scenario>({ alias: 'selectedScenario' });
+	readonly selectedScenario = linkedSignal(() => this.selectedScenarioInput()!);
 
 	readonly isReviewing = input<boolean>(false);
 
@@ -127,6 +128,13 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 		const newName = this.scenarioService.renameScenarioValue();
 		if (!newName) return;
 		this.renameScenario(newName);
+	});
+
+	/** Selects the scenario when the selectedScenario input changes (replaces ngOnChanges block) */
+	private selectedScenarioInputEffect = effect(() => {
+		const newScenario = this.selectedScenarioInput();
+		if (!newScenario) return;
+		untracked(() => this.selectScenario(newScenario));
 	});
 
 	/**
@@ -204,13 +212,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 				this.selectScenario(null);
         
 
-		// When a specific scenario is selected
-		if (changes['selectedScenario']) {
-			const newScenario = changes['selectedScenario'].currentValue;
-			if (newScenario) 
-				this.selectScenario(newScenario);
-            
-		}
+		// selectedScenario is now a signal input — handled by selectedScenarioInputEffect
 	}
 
 	/**
@@ -234,7 +236,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 			storyIdUpdate = storyId;
 			updatingWithReferences = true;
 		} else {
-			this.scenarioToUpdate = this.selectedScenario;
+			this.scenarioToUpdate = this.selectedScenario();
 			storyIdUpdate = this.selectedStory()._id;
 			updatingWithReferences = false;
 		}
@@ -331,7 +333,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * @param event
      */
 	deleteScenario() {
-		this.deleteScenarioEvent.emit(this.selectedScenario);
+		this.deleteScenarioEvent.emit(this.selectedScenario());
 	}
 
 	/**
@@ -340,7 +342,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      */
 	saveExampleBlock() {
 		const saveBlock: Record<string, StepType[]> = {given: [], when: [], then: [], example: []};
-		const stepDefs = this.selectedScenario.stepDefinitions as unknown as Record<string, StepType[]>;
+		const stepDefs = this.selectedScenario().stepDefinitions as unknown as Record<string, StepType[]>;
 		for (const prop in stepDefs)
 			for (let s = 0; s < stepDefs[prop].length; s++)
 				if ((prop == 'example' && stepDefs[prop][s].checked) || this.includesExampleStep(stepDefs[prop][s]))
@@ -371,10 +373,10 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * @param newTitle
      */
 	renameScenario(newTitle: string) {
-		if (newTitle && newTitle.replace(/\s/g, '').length > 0) 
-			this.selectedScenario.name = newTitle;
-        
-		this.selectedScenario.saved = false;
+		if (newTitle && newTitle.replace(/\s/g, '').length > 0)
+			this.selectedScenario().name = newTitle;
+
+		this.selectedScenario().saved = false;
 	}
 
 	/**
@@ -387,7 +389,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 				scenario.multipleScenarios = [];
             
         
-		this.selectedScenario = scenario as Scenario;
+		this.selectedScenario.set(scenario as Scenario);
 		this.arrowLeft = this.checkArrowLeft();
 		this.arrowRight = this.checkArrowRight();
 	}
@@ -397,7 +399,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * @returns
      */
 	checkArrowLeft(): boolean {
-		const scenarioIndex = this.scenarios().indexOf(this.selectedScenario);
+		const scenarioIndex = this.scenarios().indexOf(this.selectedScenario());
 		return this.scenarios()[scenarioIndex - 1] === undefined;
 	}
 
@@ -406,7 +408,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * @returns
      */
 	checkArrowRight(): boolean {
-		const scenarioIndex = this.scenarios().indexOf(this.selectedScenario);
+		const scenarioIndex = this.scenarios().indexOf(this.selectedScenario());
 		return this.scenarios()[scenarioIndex + 1] === undefined;
 	}
 
@@ -437,7 +439,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * @returns
      */
 	scenarioSaved() {
-		return this.testRunning || this.selectedScenario.saved === undefined  || this.selectedScenario.saved;
+		return this.testRunning || this.selectedScenario().saved === undefined  || this.selectedScenario().saved;
 	}
 
 	/**
@@ -445,10 +447,10 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * @returns
      */
 	scenarioUnSaved() {
-		if (this.selectedScenario == null)
+		if (this.selectedScenario() == null)
 			return false;
-		else 
-			return !(this.testRunning || this.selectedScenario.saved === undefined  || this.selectedScenario.saved);
+		else
+			return !(this.testRunning || this.selectedScenario().saved === undefined  || this.selectedScenario().saved);
         
 	}
 
@@ -457,15 +459,15 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * @param newComment
      */
 	commentChange(newComment: string) {
-		this.selectedScenario.comment = newComment;
-		this.selectedScenario.saved = false;
+		this.selectedScenario().comment = newComment;
+		this.selectedScenario().saved = false;
 	}
 
 	/**
      * Open Modal to rename the scenario
      */
 	changeScenarioTitle() {
-		this.renameScenarioModal().openRenameScenarioModal(this.selectedScenario.name);
+		this.renameScenarioModal().openRenameScenarioModal(this.selectedScenario().name);
 	}
 
 	openCreateScenario() {

@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, OnChanges, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
+import { Component, ElementRef, OnChanges, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked, input, linkedSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
@@ -33,7 +33,8 @@ export class ReportComponent implements OnChanges {
      */
 	readonly testDone = signal(false);
 
-	@Input() report: any;
+	protected readonly reportInput = input<any>(null, { alias: 'report' });
+	readonly report = linkedSignal(() => this.reportInput());
 
 	readonly reportId = signal<any>(null);
 
@@ -60,6 +61,13 @@ export class ReportComponent implements OnChanges {
 	/** Route params as a signal — triggers report loading when reportName changes */
 	private readonly routeParams = toSignal(this.route.params);
 
+	/** Processes the report when the report input changes (replaces automatic ngOnChanges for signal input) */
+	private readonly reportInputEffect = effect(() => {
+		const report = this.reportInput();
+		if (!report) return;
+		untracked(() => this.ngOnChanges());
+	});
+
 	/** Loads the report when the route reportName param changes */
 	private readonly reportNameEffect = effect(() => {
 		const params = this.routeParams();
@@ -77,11 +85,11 @@ export class ReportComponent implements OnChanges {
 
 
 	ngOnChanges() {
-		this.reportId.set(this.report.reportId);
-		this.htmlReport = this.report.htmlFile;
+		this.reportId.set(this.report().reportId);
+		this.htmlReport = this.report().htmlFile;
 		this.testDone.set(true);
 		const iframe: HTMLIFrameElement = document.getElementById('testFrameReport') as HTMLIFrameElement;
-		iframe.srcdoc = this.report.htmlFile;
+		iframe.srcdoc = this.report().htmlFile;
 		this.showResults.set(true);
 		setTimeout(() => {
 			iframe?.scrollIntoView?.();
@@ -162,7 +170,7 @@ export class ReportComponent implements OnChanges {
 	getReport(reportName: string) {
 		this.reportService.getReport(reportName).subscribe(resp => {
 			console.log('report', resp);
-			this.report = resp;
+			this.report.set(resp);
 			this.ngOnChanges();
 			// const iframe: HTMLIFrameElement = document.getElementById('reportFrame') as HTMLIFrameElement;
 			// iframe.srcdoc = resp

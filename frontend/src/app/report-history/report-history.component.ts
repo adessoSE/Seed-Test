@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, input, effect, untracked } from '@angular/core';
 import { StoryReport } from '@shared/models/StoryReport';
 import { ReportContainer } from '@shared/models/ReportContainer';
 import { Scenario } from '@shared/models/Scenario';
@@ -76,13 +76,18 @@ export class ReportHistoryComponent {
 	/**
 	 * Sets a new currently used story
 	 */
-	@Input()
-	set newSelectedStory(story: Story) {
-		this.selectedStory = story;
-		if (this.selectedStory)
-			this.getReports();
+	readonly newSelectedStory = input<Story>();
 
-	}
+	/** Loads reports when a new story is selected */
+	private newSelectedStoryEffect = effect(() => {
+		const story = this.newSelectedStory();
+		if (story === undefined) return;
+		untracked(() => {
+			this.selectedStory = story;
+			if (this.selectedStory)
+				this.getReports();
+		});
+	});
 
 	/**
 	 * Retrieves the reports of the story

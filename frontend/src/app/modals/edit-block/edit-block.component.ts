@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, inject, input, viewChild, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, input, viewChild, computed, linkedSignal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
@@ -30,7 +30,8 @@ export class EditBlockComponent {
 	/**
    * Currently selected block
    */
-	@Input() selectedBlock!: Block;
+	protected readonly selectedBlockInput = input.required<Block>({ alias: 'selectedBlock' });
+	readonly selectedBlock = linkedSignal(() => this.selectedBlockInput()!);
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
@@ -48,9 +49,9 @@ export class EditBlockComponent {
 	openEditBlockModal(block: Block) {
 		this.modalReference = this.modalService.open(this.editBlockModal(), { ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block' });
 		this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock')!);
-		this.selectedBlock = block;
-		Object.keys(this.selectedBlock.stepDefinitions).forEach((key, _) => {
-			(this.selectedBlock.stepDefinitions as any)[key].forEach((step: StepType) => {
+		this.selectedBlock.set(block);
+		Object.keys(this.selectedBlock().stepDefinitions).forEach((key, _) => {
+			(this.selectedBlock().stepDefinitions as any)[key].forEach((step: StepType) => {
 				//to prevent blocks to be checked after pasting
 				step.checked = false;
 			});
@@ -58,8 +59,8 @@ export class EditBlockComponent {
 	}
 
 	editBlockSubmit() {
-		console.log(this.selectedBlock);
-		this.blockService.editBlock(this.selectedBlock).subscribe((resp) => {
+		console.log(this.selectedBlock());
+		this.blockService.editBlock(this.selectedBlock()).subscribe((resp) => {
 
 			console.log(resp);
 

@@ -1,4 +1,4 @@
-import { Input, Component, SimpleChanges, OnInit, OnChanges, ChangeDetectionStrategy, output, viewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, output, viewChild, input, linkedSignal, effect, untracked } from '@angular/core';
 import { MatMenuTrigger, MatMenu } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
@@ -12,12 +12,14 @@ import { MatButton } from '@angular/material/button';
 	changeDetection: ChangeDetectionStrategy.Eager,
 	imports: [MatMenu, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatButton, MatMenuTrigger]
 })
-export class WindowSizeComponent implements OnInit, OnChanges {
+export class WindowSizeComponent {
 
 	readonly menuTrigger = viewChild.required<MatMenuTrigger>('appMenu');
-	@Input() width!: number;
-	@Input() height!: number;
-	@Input() emulator!: boolean;
+	protected readonly widthInput = input.required<number>({ alias: 'width' });
+	protected readonly heightInput = input.required<number>({ alias: 'height' });
+	readonly width = linkedSignal(() => this.widthInput());
+	readonly height = linkedSignal(() => this.heightInput());
+	readonly emulator = input.required<boolean>();
 	readonly sizeChange = output<{
 		width: number;
 		height: number;
@@ -26,28 +28,23 @@ export class WindowSizeComponent implements OnInit, OnChanges {
 	selectedResolution!: string;
 	predefinedResolutions = ['3840x2160', '2560x1440', '1920x1080', '1600x900', '1536x864', '1440x900', '1366x768',  '1280x720'];
 
-	ngOnInit() {
-		// Initialize the selected resolution based on the current width and height
-		this.updateSelectedResolution();
-	}
-
-	ngOnChanges(changes: SimpleChanges) {
-		if (changes.width || changes.height) 
-			if (this.width !== undefined && this.height !== undefined) 
-				this.updateSelectedResolution();
-      
-    
-	}
+	/** Updates selected resolution when width or height changes (replaces ngOnInit + ngOnChanges) */
+	private resolutionEffect = effect(() => {
+		const w = this.width();
+		const h = this.height();
+		if (w !== undefined && h !== undefined)
+			untracked(() => this.updateSelectedResolution());
+	});
 
 	// Updates the selected resolution; sets to 'custom' if the current resolution is not in the predefined list
 	updateSelectedResolution() {
-		const currentResolution = `${this.width}x${this.height}`;
+		const currentResolution = `${this.width()}x${this.height()}`;
 		console.log(currentResolution);
-		if (this.predefinedResolutions.includes(currentResolution)) 
+		if (this.predefinedResolutions.includes(currentResolution))
 			this.selectedResolution = currentResolution;
-		else 
+		else
 			this.selectedResolution = 'custom';
-    
+
 	}
 
 	// Sets the default window size and updates the selected resolution accordingly
@@ -59,10 +56,10 @@ export class WindowSizeComponent implements OnInit, OnChanges {
 	saveWindowSize(_event: Event): void {
 		if (this.selectedResolution !== 'custom') {
 			const [resWidth, resHeight] = this.selectedResolution.split('x').map(Number);
-			this.width = resWidth;
-			this.height = resHeight;
+			this.width.set(resWidth);
+			this.height.set(resHeight);
 		}
-		this.sizeChange.emit({ width: this.width, height: this.height });
+		this.sizeChange.emit({ width: this.width(), height: this.height() });
 	}
 
 }

@@ -25,8 +25,8 @@ export class FileExplorerModalComponent implements OnInit {
 	modalReference!: NgbModalRef;
 	repoId!: string;
 	fileExlorerEmpty!: boolean;
-	allFiles = signal<FileElement[]>([]);
-	searchedFiles = signal<FileElement[]>([]);
+	readonly allFiles = signal<FileElement[]>([]);
+	readonly searchedFiles = signal<FileElement[]>([]);
 	selectedFile: FileElement | null = null;
 	searchText: string = '';
 	readonly isDark = computed(() => this.themeService.isDark());

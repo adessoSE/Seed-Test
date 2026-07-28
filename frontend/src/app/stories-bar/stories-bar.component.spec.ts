@@ -49,6 +49,8 @@ describe('StoriesBarComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(StoriesBarComponent);
 		component = fixture.componentInstance;
+		// Provide required signal input before first change detection
+		fixture.componentRef.setInput('isDark', false);
 		fixture.detectChanges();
 	});
 

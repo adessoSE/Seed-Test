@@ -110,7 +110,7 @@ describe('ParentComponent', () => {
   
 		it('should succeed as isDark expected to be false at beginning', (() => {
 			const stories_bar = findComponent(fixture, 'app-stories-bar');
-			expect(stories_bar.componentInstance.isDark).toBe(false);
+			expect(stories_bar.componentInstance.isDark()).toBe(false);
 		}));
 
 	}));

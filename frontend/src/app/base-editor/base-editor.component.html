@@ -1,4 +1,4 @@
-<ng-container *ngTemplateOutlet="actionBarAndStepsTemplate; context: {templateName : templateName }" />
+<ng-container *ngTemplateOutlet="actionBarAndStepsTemplate; context: {templateName : templateName() }" />
 
 <!-- Action Bar and Steps Template for Background, Scenarios & Examples -->
 <ng-template #actionBarAndStepsTemplate let-name="templateName">
@@ -61,7 +61,7 @@
           }
         </div>
         <div class="scenarioButtonGroup SmallHeadline5">
-          @if (name === 'scenario' && this.selectedScenario.testKey) {
+          @if (name === 'scenario' && this.selectedScenario?.testKey) {
             <button class="xray-button">
               <span>Synced with</span>
               <img src="../../assets/xray-logo.png" alt="XRay Logo">
@@ -118,11 +118,11 @@
       <div class="uk-card-title padding">
         @if (name === 'scenario' || 'block-editor') {
           <!-- Block Editor Template -->
-          @if (this.selectedBlock && name === 'block-editor') {
-            @for (sd of getKeysList(this.selectedBlock.stepDefinitions); track sd; let i = $index) {
+          @if (this.selectedBlock() && name === 'block-editor') {
+            @for (sd of getKeysList(this.selectedBlock().stepDefinitions); track sd; let i = $index) {
               <div>
                 <ng-template *ngTemplateOutlet="steps;
-              context: {$implicit: sd , index:i, stepDefs:this.selectedBlock.stepDefinitions, templateName : templateName}" />
+              context: {$implicit: sd , index:i, stepDefs:this.selectedBlock().stepDefinitions, templateName : templateName()}" />
               </div>
             }
           }
@@ -131,7 +131,7 @@
             @for (sd of getKeysList(this.selectedScenario.stepDefinitions); track sd; let i = $index) {
               <div>
                 <ng-template *ngTemplateOutlet="steps;
-            context: {$implicit: sd , index:i, stepDefs:this.selectedScenario.stepDefinitions, templateName : templateName}" />
+            context: {$implicit: sd , index:i, stepDefs:this.selectedScenario.stepDefinitions, templateName : templateName()}" />
               </div>
             }
           }
@@ -351,7 +351,7 @@
                                             </div>
                                           }
                                           <!-- congrunt / Irigoin Button -->
-                                          @if (this.selectedScenario.testKey) {
+                                          @if (this.selectedScenario?.testKey) {
                                             <div>
                                               @if (currentStep.origin === 'congruent') {
                                                 <div class="origin-container" style="border: 3px solid #2ab34b; ">
@@ -537,7 +537,7 @@
                                 }
                               </div>
                               <div class="scenarioButtonGroup SmallHeadline5">
-                                @if (name === 'scenario' && this.selectedScenario.testKey) {
+                                @if (name === 'scenario' && this.selectedScenario?.testKey) {
                                   <button class="xray-button">
                                     <span>Synced with</span>
                                     <img src="../../assets/xray-logo.png" alt="XRay Logo">
@@ -590,7 +590,7 @@
                           }
                           @if (getExampleList()!=undefined) {
                             <app-example-table #exampleChildView
-                            [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)" />
+                            [newSelectedScenario]="selectedScenario" (checkRowIndex)="handleCheckRowIndex($event)" />
                           }
                         }
 
@@ -747,14 +747,14 @@
                               <em class="material-icons">edit</em>
                             </button>
                             <button id="block_RemoveReference" uk-tooltip title="Remove Reference and Unpack Block" class="blockButton"
-                              (click)="showUnpackBlockToast(this.selectedBlock, blockStep, $event);">
+                              (click)="showUnpackBlockToast(this.selectedBlock(), blockStep, $event);">
                               <em class="material-icons">link_off</em>
                             </button>
                           </div>
                         </mat-expansion-panel-header>
                         <!--Block Content-->
                         <hr style="border-color: #d9d7d7;">
-                        @if (this.selectedBlock) {
+                        @if (this.selectedBlock()) {
                           <div id="blockContent"
                             [class.scrollable]="getStepsListBlockPreview(blockStep.stepDefinitions, j).length > 7">
                             @for (currentStep of getStepsListBlockPreview(blockStep.stepDefinitions); track currentStep; let j = $index) {
@@ -792,7 +792,7 @@
 
                     @defer {
                       <app-edit-block #editBlockModal [originalStepTypes]="originalStepTypes()"
-                      [selectedBlock]="selectedBlock" />
+                      [selectedBlock]="selectedBlock()" />
                     }
                     <app-new-example #newExampleModal />
                     <app-new-step-request #newStepRequest />

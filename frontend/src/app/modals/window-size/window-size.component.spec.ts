@@ -31,9 +31,9 @@ describe('WindowSizeComponent', () => {
 		fixture = TestBed.createComponent(WindowSizeComponent);
 		component = fixture.componentInstance;
 		// Provide required inputs before triggering change detection
-		component.width = 1920;
-		component.height = 1080;
-		component.emulator = false;
+		fixture.componentRef.setInput('width', 1920);
+		fixture.componentRef.setInput('height', 1080);
+		fixture.componentRef.setInput('emulator', false);
 		fixture.detectChanges();
 	});
 

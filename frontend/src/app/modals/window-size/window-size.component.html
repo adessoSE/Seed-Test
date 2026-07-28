@@ -27,13 +27,13 @@
       @if (selectedResolution === 'custom') {
         <mat-form-field appearance="fill">
           <mat-label>Width</mat-label>
-          <input [(ngModel)]="this.width" name="Width" matInput tabindex="1">
+          <input [ngModel]="width()" (ngModelChange)="width.set($event)" name="Width" matInput tabindex="1">
         </mat-form-field>
       }
       @if (selectedResolution === 'custom') {
         <mat-form-field appearance="fill">
           <mat-label>Height</mat-label>
-          <input [(ngModel)]="this.height" name="Height" matInput tabindex="2">
+          <input [ngModel]="height()" (ngModelChange)="height.set($event)" name="Height" matInput tabindex="2">
         </mat-form-field>
       }
     </div>
@@ -45,4 +45,4 @@
       </div>
     </form>
   </mat-menu>
-  <button class="button-4" [matMenuTriggerFor]="appMenu" [disabled]="emulator">Window-Size</button>
+  <button class="button-4" [matMenuTriggerFor]="appMenu" [disabled]="emulator()">Window-Size</button>

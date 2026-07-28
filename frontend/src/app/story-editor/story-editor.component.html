@@ -1,6 +1,6 @@
 <!-- Message if no stories avaliable -->
 @if ((!stories() || stories().length <= 0) && storiesLoaded() && !storiesError() && !showEditor()) {
-  <div [class.darkTheme]="isDark" class="emptyStories"
+  <div [class.darkTheme]="isDark()" class="emptyStories"
     >
     <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
     @if (!db()) {
@@ -51,7 +51,7 @@
 @if (stories() && (showEditor() === true)) {
   <div>
     <!--Story-->
-    <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story" cdkScrollable>
+    <div [class.darkTheme]="isDark()" class="uk-card uk-card-default padding" id="story" cdkScrollable>
       <div class="storyHeaderContainer">
         <div>
           <span id="storyHeader" class="SmallCategory1">Story&nbsp;</span>
@@ -517,7 +517,7 @@
                               </div>
                               <!--Scenario Editor-->
                               <div [class.read-only-mode]="isReviewingAi()">
-                                <app-scenario-editor [isDark]="isDark" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);"
+                                <app-scenario-editor [isDark]="isDark()" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);"
                                   (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);"
                                   (navigateLeft)="navigateScenarioLeft()" (navigateRight)="navigateScenarioRight()"
                                   [originalStepTypes]="originalStepTypes()" [testRunning]="testRunning()" [selectedStory]="selectedStory"
@@ -580,7 +580,7 @@
                                       </div>
                                     }
                                     <!--Spinner, when Tests are running-->
-                                    <div id="loading" [class.darkTheme]="isDark">
+                                    <div id="loading" [class.darkTheme]="isDark()">
                                       <div class="loading mat-mdc-progress-spinner" [hidden]="!testRunning() && !testRunningGroup">
                                         <!-- Loading . . . -->
                                         <mat-spinner id="loadingSpinnerRun" />
