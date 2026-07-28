@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -51,37 +51,37 @@ describe('LoginComponent', () => {
 			expect(component).toBeTruthy();
 		});
 
-		it('should call githubLogin() on click', fakeAsync(()=> {
+		it('should call githubLogin() on click', (()=> {
 			vi.spyOn(component, 'githubLogin');
 			// Target the button directly — clicking the container div does not propagate down to the button
 			const gitHubLink = findComponent(fixture, '.githubLogin');
 			gitHubLink.nativeElement.click();
-			tick();
+
 			fixture.detectChanges();
 			expect(component.githubLogin).toHaveBeenCalled();
 		}));
 
-		it('should trigger getRepositories() when logged in without repository', fakeAsync(() => {
+		it('should trigger getRepositories() when logged in without repository', (() => {
 			// The .repoLink element was removed from the template; test the ngOnInit path instead
 			vi.spyOn(component, 'getRepositories').mockImplementation(() => {});
 			localStorage.setItem('login', 'true');
 			localStorage.removeItem('repository');
 			component.ngOnInit();
-			tick();
+
 			expect(component.getRepositories).toHaveBeenCalled();
 			localStorage.removeItem('login');
 		}));
 
-		it(' onDark() should return true when user-theme set to dark in localStorage', fakeAsync(() => {
+		it(' onDark() should return true when user-theme set to dark in localStorage', (() => {
 			vi.spyOn(component, 'onDark');
 			localStorage.setItem('user-theme', 'dark');
-			tick();
+
 			component.onDark();
 			expect(component.onDark).toBeTruthy();
 
 		}));
 
-		it('should login on input', fakeAsync(()=> {
+		it('should login on input', (()=> {
       
 		}));
 
@@ -89,20 +89,20 @@ describe('LoginComponent', () => {
 
 	describe('login button', (()=> {
 
-		it('should be disabled without form filled', fakeAsync(() => {
+		it('should be disabled without form filled', (() => {
 			const loginButton = findComponent(fixture, '.normalButton');
 			fixture.detectChanges();
-			tick();
+
 			expect(loginButton.properties.disabled).toBeTruthy();
 		}));
 
-		it('should be enabled with form filled', fakeAsync(()=> {
+		it('should be enabled with form filled', (()=> {
 			const emailInput = findComponent(fixture, '#email');
 			const passwordInput = findComponent(fixture, '#password');
 			const loginButton = findComponent(fixture, '.normalButton');
 
 			fixture.detectChanges();
-			tick();
+
 
 			emailInput.nativeElement.value = 'alice789876@mybox.de';
 			passwordInput.nativeElement.value = '7723vjhakd6732';
@@ -111,7 +111,7 @@ describe('LoginComponent', () => {
 			passwordInput.nativeElement.dispatchEvent(event);
 
 			fixture.detectChanges();
-			tick();
+
 
 			expect(emailInput.nativeElement.value).toBe('alice789876@mybox.de');
 			expect(passwordInput.nativeElement.value).toBe('7723vjhakd6732');

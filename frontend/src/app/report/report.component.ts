@@ -84,7 +84,7 @@ export class ReportComponent implements OnChanges {
 		iframe.srcdoc = this.report.htmlFile;
 		this.showResults.set(true);
 		setTimeout(() => {
-			iframe.scrollIntoView();
+			iframe?.scrollIntoView?.();
 		}, 10);
 		if (this.reportId())
 			return new Promise<void>((resolve, _reject) => {

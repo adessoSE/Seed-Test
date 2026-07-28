@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { findComponent } from '../../../test_helper';
@@ -30,28 +30,28 @@ describe('CreateNewStoryComponent', () => {
 		fixture.detectChanges();
 	});
 
-	it('create the app', fakeAsync(() => {
+	it('create the app', (() => {
 		expect(component).toBeDefined();
 	}));
 
-	it('story form to be truthy & invalid', fakeAsync(() => {
+	it('story form to be truthy & invalid', (() => {
 		expect(component.storyForm).toBeTruthy();
 		expect(component.storyForm.valid).toBeFalsy();
 	}));
 
-	it('test group form elemnt count', fakeAsync(() => {
+	it('test group form elemnt count', (() => {
 		const inputElemnt = fixture.debugElement.queryAll(By.css('#storytitle'));
 		const textElement = fixture.debugElement.queryAll(By.css('#storydescription'));
 		expect(inputElemnt.length).toEqual(1);
 		expect(textElement.length).toEqual(1);
 	}));
 
-	it('should leave disabled the submit button', fakeAsync(() => {
+	it('should leave disabled the submit button', (() => {
 		const submitbutton = findComponent(fixture, '.normalButton');
 		expect(submitbutton.nativeElement.disabled).toBeTruthy();
 	}));
 
-	it('should define title & description', fakeAsync(() => {
+	it('should define title & description', (() => {
 		const inputElemnt = findComponent(fixture, '#storytitle');
 		inputElemnt.nativeElement.value = 'new story name';
 		inputElemnt.nativeElement.dispatchEvent(new Event('input'));

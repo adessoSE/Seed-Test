@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, provideZonelessChangeDetection } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ROUTES } from './routes/routes';
 import { AppComponent } from './app.component';
@@ -170,6 +170,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		FileManagerComponent
 	],
 	providers: [
+		provideZonelessChangeDetection(),
 		ApiService,
 		AuthGuard,
 		CookieService,

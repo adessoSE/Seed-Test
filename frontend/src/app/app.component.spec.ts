@@ -1,4 +1,4 @@
-import { TestBed, waitForAsync, ComponentFixture} from '@angular/core/testing';
+import { TestBed, ComponentFixture} from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
@@ -12,8 +12,8 @@ describe('AppComponent', () => {
 	let component: AppComponent;
 	let fixture: ComponentFixture<AppComponent>;
   
-	beforeEach(waitForAsync(() => {
-		TestBed.configureTestingModule({
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, MatSnackBarModule],
 			providers: [provideRouter([]), DatePipe,
 				importProvidersFrom(LoggerModule.forRoot({
@@ -24,7 +24,7 @@ describe('AppComponent', () => {
 			declarations: [AppComponent],
 			schemas: [NO_ERRORS_SCHEMA]
 		}).compileComponents();
-	}));
+	});
 
 	beforeEach(()=> {
 		fixture = TestBed.createComponent(AppComponent);
