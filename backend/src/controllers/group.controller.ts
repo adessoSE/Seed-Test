@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as repositoryService from '../services/repository.service.js';
 import { Group } from '@shared/models/Group.js';
 import { AppError } from '../helpers/AppError.js';
@@ -10,8 +10,7 @@ import { AppError } from '../helpers/AppError.js';
 export async function getAllGroups(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repo_id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		// The service now returns only the groups array
 		const groups = await repositoryService.getAllStoryGroups(repoId);
@@ -27,8 +26,7 @@ export async function getAllGroups(req: Request, res: Response, next: NextFuncti
 export async function createGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repo_id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		const { name, member_stories, sequence, xrayTestSet } = req.body;
 
@@ -51,8 +49,8 @@ export async function createGroup(req: Request, res: Response, next: NextFunctio
 export async function updateGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id, group_id } = req.params;
-		if (!ObjectId.isValid(repo_id) || !ObjectId.isValid(group_id))
-			throw AppError.badRequest('Invalid repository or group ID format');
+		requireValidId(repo_id, 'repository ID');
+		requireValidId(group_id, 'group ID');
 
 		const updatedGroupData: Group = req.body;
 
@@ -71,8 +69,8 @@ export async function updateGroup(req: Request, res: Response, next: NextFunctio
 export async function deleteGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id, group_id } = req.params;
-		if (!ObjectId.isValid(repo_id) || !ObjectId.isValid(group_id))
-			throw AppError.badRequest('Invalid repository or group ID format');
+		requireValidId(repo_id, 'repository ID');
+		requireValidId(group_id, 'group ID');
 
 		await repositoryService.deleteStoryGroup(repo_id, group_id);
 		res.status(200).json({ message: 'success' });
@@ -87,8 +85,9 @@ export async function deleteGroup(req: Request, res: Response, next: NextFunctio
 export async function addStoryToGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id, group_id, story_id } = req.params;
-		if (!ObjectId.isValid(repo_id) || !ObjectId.isValid(group_id) || !ObjectId.isValid(story_id))
-			throw AppError.badRequest('Invalid repository, group, or story ID format');
+		requireValidId(repo_id, 'repository ID');
+		requireValidId(group_id, 'group ID');
+		requireValidId(story_id, 'story ID');
 
 		await repositoryService.addToStoryGroup(repo_id, group_id, story_id);
 		res.status(200).json({ message: 'success' });
@@ -103,8 +102,9 @@ export async function addStoryToGroup(req: Request, res: Response, next: NextFun
 export async function removeStoryFromGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id, group_id, story_id } = req.params;
-		if (!ObjectId.isValid(repo_id) || !ObjectId.isValid(group_id) || !ObjectId.isValid(story_id))
-			throw AppError.badRequest('Invalid repository, group, or story ID format');
+		requireValidId(repo_id, 'repository ID');
+		requireValidId(group_id, 'group ID');
+		requireValidId(story_id, 'story ID');
 
 		await repositoryService.removeFromStoryGroup(repo_id, group_id, story_id);
 		res.status(200).json({ message: 'success' });
@@ -119,8 +119,7 @@ export async function removeStoryFromGroup(req: Request, res: Response, next: Ne
 export async function updateGroupsArray(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repo_id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		const groupsArray: Group[] = req.body;
 		await repositoryService.updateStoryGroupsArray(repoId, groupsArray);

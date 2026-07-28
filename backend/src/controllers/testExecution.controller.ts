@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
 import * as storyService from '../services/story.service.js';
 import * as repositoryService from '../services/repository.service.js';
@@ -19,8 +19,7 @@ import { AppError } from '../helpers/AppError.js';
 function extractRunParams(req: Request): { repoId: string, repositoryName: string } {
 	const repoId = req.params.repoID || req.body.id || req.body.repoId || req.body.repositoryId;
 	const repositoryName = req.body.repository; // Assuming this comes in the body for groups/temps
-	if (!repoId || !ObjectId.isValid(repoId))
-		throw AppError.badRequest('Invalid or missing Repository ID');
+	requireValidId(repoId, 'repository ID');
     
 	return { repoId, repositoryName };
 }
@@ -66,8 +65,7 @@ export async function handleReportResult(res: Response, reportResult: any, mode:
 export async function runFeature(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.issueID;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid Story ID format');
+		requireValidId(storyId, 'story ID');
 
 		const story = await storyService.getOneStory(storyId);
 		if (!story)
@@ -93,8 +91,7 @@ export async function runScenario(req: Request, res: Response, next: NextFunctio
 	try {
 		const storyId = req.params.issueID;
 		const scenarioId = req.params.scenarioId;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid Story ID format');
+		requireValidId(storyId, 'story ID');
 
 		// Scenario ID is numeric in the model
 		if (!scenarioId || isNaN(parseInt(scenarioId)))
@@ -126,8 +123,7 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 	try {
 		const { repoId } = extractRunParams(req);
 		const groupId = req.params.groupID;
-		if (!ObjectId.isValid(groupId))
-			throw AppError.badRequest('Invalid Group ID format');
+		requireValidId(groupId, 'group ID');
 
 		req.body.repositoryId = repoId;
 

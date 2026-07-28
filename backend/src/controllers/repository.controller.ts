@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import { User } from '@shared/models/User.js';
 import { RepositoryContainer, AiConfig } from '@shared/models/RepositoryContainer.js';
 import * as repositoryService from '../services/repository.service.js';
@@ -102,8 +102,7 @@ export async function createRepository(req: Request, res: Response, next: NextFu
 export async function updateRepositorySettings(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id } = req.params;
-		if (!ObjectId.isValid(repo_id))
-			throw AppError.badRequest('Invalid repository ID');
+		requireValidId(repo_id, 'repository ID');
 
 		const { repoName, settings, aiConfig }: { repoName?: string, settings?: any, aiConfig?: AiConfig } = req.body;
 
@@ -121,8 +120,7 @@ export async function updateRepositorySettings(req: Request, res: Response, next
 export async function getRepositorySettings(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id } = req.params;
-		if (!ObjectId.isValid(repo_id))
-			throw AppError.badRequest('Invalid repository ID');
+		requireValidId(repo_id, 'repository ID');
 
 		const settings = await repositoryService.getRepoSettingsById(repo_id);
 		res.status(200).json(settings);
@@ -137,8 +135,7 @@ export async function getRepositorySettings(req: Request, res: Response, next: N
 export async function getRepositoryAiConfig(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id } = req.params;
-		if (!ObjectId.isValid(repo_id))
-			throw AppError.badRequest('Invalid repository ID');
+		requireValidId(repo_id, 'repository ID');
 
 		const aiConfig = await repositoryService.getRepoAiConfigById(repo_id);
 		res.status(200).json(aiConfig);
@@ -154,8 +151,7 @@ export async function updateRepositoryOwner(req: Request, res: Response, next: N
 	try {
 		const { repo_id } = req.params;
 		const user = req.user as User;
-		if (!ObjectId.isValid(repo_id))
-			throw AppError.badRequest('Invalid repository ID');
+		requireValidId(repo_id, 'repository ID');
 
 		const newOwner = await userService.getUserByEmail(req.body.email);
 		if (!newOwner)
@@ -175,8 +171,7 @@ export async function deleteRepository(req: Request, res: Response, next: NextFu
 	try {
 		const { repo_id } = req.params;
 		const user = req.user as User;
-		if (!ObjectId.isValid(repo_id))
-			throw AppError.badRequest('Invalid repository ID');
+		requireValidId(repo_id, 'repository ID');
 
 		const result = await repositoryService.deleteRepository(repo_id, user._id!.toString());
 		res.status(200).json(result);

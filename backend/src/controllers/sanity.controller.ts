@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
@@ -21,8 +21,8 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 	let sanityFolderName: string | undefined;
 	try {
 		const { repoID, groupID } = req.params;
-		if (!ObjectId.isValid(repoID) || !ObjectId.isValid(groupID))
-			throw AppError.badRequest('Invalid repository or group ID format');
+		requireValidId(repoID, 'repository ID');
+		requireValidId(groupID, 'group ID');
 
 		const group = await repositoryService.getOneStoryGroup(repoID, groupID);
 		if (!group)

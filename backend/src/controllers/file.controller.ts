@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as fileService from '../services/file.service.js';
 import { AppError } from '../helpers/AppError.js';
 
@@ -13,8 +13,7 @@ export async function fileUpload(req: Request, res: Response, next: NextFunction
 			throw AppError.badRequest('No file uploaded.');
 
 		const { repoId } = req.params;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		// The file service handles GridFS upload
 		const fileMetadata = await fileService.fileUpload(
@@ -36,8 +35,7 @@ export async function fileUpload(req: Request, res: Response, next: NextFunction
 export async function getFileList(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repoId } = req.params;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		const files = await fileService.getFileList(repoId);
 		res.status(200).json(files);
@@ -53,8 +51,8 @@ export async function getFileList(req: Request, res: Response, next: NextFunctio
 export async function deleteFile(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repoId, fileId } = req.params;
-		if (!ObjectId.isValid(fileId) || !ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid file or repository ID format');
+		requireValidId(fileId, 'file ID');
+		requireValidId(repoId, 'repository ID');
 
 		await fileService.deleteFile(fileId, repoId);
 		res.status(200).json({ message: 'File deleted successfully' });

@@ -92,7 +92,7 @@ describe('ReportController', () => {
 			await controller.getReportData(req, res, next);
 
 			expect(next).toHaveBeenCalledWith(
-				expect.objectContaining({ statusCode: 400, message: 'Invalid report ID format' })
+				expect.objectContaining({ statusCode: 400, message: 'Invalid or missing report ID' })
 			);
 			expect(res.status).not.toHaveBeenCalled();
 		});
@@ -135,7 +135,7 @@ describe('ReportController', () => {
 			await controller.getReportHistory(req, res, next);
 
 			expect(next).toHaveBeenCalledWith(
-				expect.objectContaining({ statusCode: 400, message: 'Invalid story ID format' })
+				expect.objectContaining({ statusCode: 400, message: 'Invalid or missing story ID' })
 			);
 			expect(res.status).not.toHaveBeenCalled();
 		});
@@ -162,7 +162,7 @@ describe('ReportController', () => {
 			await controller.deleteReport(req, res, next);
 
 			expect(next).toHaveBeenCalledWith(
-				expect.objectContaining({ statusCode: 400, message: 'Invalid report ID format' })
+				expect.objectContaining({ statusCode: 400, message: 'Invalid or missing report ID' })
 			);
 			expect(res.status).not.toHaveBeenCalled();
 		});
@@ -190,7 +190,7 @@ describe('ReportController', () => {
 			await controller.saveReport(req, res, next);
 
 			expect(next).toHaveBeenCalledWith(
-				expect.objectContaining({ statusCode: 400, message: 'Invalid report ID format' })
+				expect.objectContaining({ statusCode: 400, message: 'Invalid or missing report ID' })
 			);
 			expect(res.status).not.toHaveBeenCalled();
 		});
@@ -218,7 +218,7 @@ describe('ReportController', () => {
 			await controller.unsaveReport(req, res, next);
 
 			expect(next).toHaveBeenCalledWith(
-				expect.objectContaining({ statusCode: 400, message: 'Invalid report ID format' })
+				expect.objectContaining({ statusCode: 400, message: 'Invalid or missing report ID' })
 			);
 			expect(res.status).not.toHaveBeenCalled();
 		});

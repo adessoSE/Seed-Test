@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
@@ -31,8 +31,7 @@ export async function getStories(req: Request, res: Response, next: NextFunction
 
 		if (source === 'db') {
 			// DB source is a simple fetch, no external sync needed
-			if (!id || !ObjectId.isValid(id))
-				throw AppError.badRequest('Invalid repository ID format for DB source');
+			requireValidId(id, 'repository ID');
 			stories = await storyService.getAllStoriesOfRepo(id);
             
 			// If we need to match order (like the old logic), we might need the repo doc
@@ -58,8 +57,7 @@ export async function getStories(req: Request, res: Response, next: NextFunction
 export async function getStoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params._id;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 
 		const story = await storyService.getOneStory(storyId);
 		if (!story)
@@ -91,8 +89,9 @@ export async function getStoryByIssueKey(req: Request, res: Response, next: Next
 export async function createStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { title, description, _id: repoId } = req.body; // repoId comes as _id in the body
-		if (!title || !repoId || !ObjectId.isValid(repoId))
-			throw AppError.badRequest('Missing title or invalid repository ID');
+		if (!title)
+			throw AppError.badRequest('Missing story title');
+		requireValidId(repoId, 'repository ID');
 		const dbId = await storyService.createStory(title, description || '', repoId);
         
 		await repositoryService.insertStoryIdIntoRepo(dbId.toString(), repoId);
@@ -106,8 +105,7 @@ export async function createStory(req: Request, res: Response, next: NextFunctio
 export async function updateStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params._id;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 
 		const storyData: Story = req.body;
 		// Ensure the ID in the body matches the URL parameter for consistency
@@ -125,8 +123,8 @@ export async function updateStory(req: Request, res: Response, next: NextFunctio
 export async function deleteStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id, _id: storyId } = req.params;
-		if (!ObjectId.isValid(repo_id) || !ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid repository or story ID format');
+		requireValidId(repo_id, 'repository ID');
+		requireValidId(storyId, 'story ID');
 
 		const story = await storyService.getOneStory(storyId); // Fetch story to get title for file deletion
 		if (!story)
@@ -146,8 +144,7 @@ export async function updateStoryOrder(req: Request, res: Response, next: NextFu
 	try {
 		const { repo_id } = req.params;
 		const storiesList: string[] = req.body; // Erwartet ein Array von Story-IDs
-		if (!ObjectId.isValid(repo_id))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repo_id, 'repository ID');
 		await repositoryService.updateStoriesArrayInRepo(repo_id, storiesList);
 		res.status(200).json({ message: 'Story order updated' });
 	} catch (error) {
@@ -161,8 +158,9 @@ export async function getScenario(req: Request, res: Response, next: NextFunctio
 	try {
 		const { story_id, _id: scenarioNumId } = req.params;
 		const scenarioId = parseInt(scenarioNumId, 10);
-		if (!ObjectId.isValid(story_id) || isNaN(scenarioId))
-			throw AppError.badRequest('Invalid story ID or scenario ID format');
+		requireValidId(story_id, 'story ID');
+		if (isNaN(scenarioId))
+			throw AppError.badRequest('Invalid scenario ID format');
 
 		const scenario = await storyService.getOneScenario(story_id, scenarioId);
 		if (!scenario)
@@ -177,8 +175,7 @@ export async function getScenario(req: Request, res: Response, next: NextFunctio
 export async function createScenario(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.story_id;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 
 		const { name } = req.body; // Assuming name comes in body
 
@@ -194,8 +191,9 @@ export async function updateScenario(req: Request, res: Response, next: NextFunc
 	try {
 		const { story_id, _id: scenarioNumId } = req.params;
 		const scenarioId = parseInt(scenarioNumId, 10);
-		if (!ObjectId.isValid(story_id) || isNaN(scenarioId))
-			throw AppError.badRequest('Invalid story ID or scenario ID format');
+		requireValidId(story_id, 'story ID');
+		if (isNaN(scenarioId))
+			throw AppError.badRequest('Invalid scenario ID format');
 
 		const scenarioData: Scenario = req.body;
 		// Ensure scenario_id matches
@@ -243,8 +241,9 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 	const { story_id, _id: scenarioNumId } = req.params;
 	const scenarioId = parseInt(scenarioNumId, 10);
 
-	if (!ObjectId.isValid(story_id) || isNaN(scenarioId))
-		throw AppError.badRequest('Invalid story ID or scenario ID format');
+	requireValidId(story_id, 'story ID');
+	if (isNaN(scenarioId))
+		throw AppError.badRequest('Invalid scenario ID format');
 
 	try {
 		// Step 1: Delete from Seed-Test DB
@@ -284,8 +283,7 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 export async function updateScenarioList(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.story_id;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 
 		const scenarioList: Scenario[] = req.body;
 		await storyService.updateScenarioList(storyId, scenarioList);
@@ -302,8 +300,7 @@ export async function updateScenarioList(req: Request, res: Response, next: Next
 export async function downloadSingleFeature(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params._id;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 
 		const fileContent = await featureFileService.exportSingleFeatureFile(storyId);
 		// Fetch story to get title for filename
@@ -322,8 +319,7 @@ export async function downloadSingleFeature(req: Request, res: Response, next: N
 export async function downloadProjectFeatures(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repo_id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		const version = req.query.version_id as string | undefined;
 		const zipBuffer = await featureFileService.exportProjectFeatureFiles(repoId, version);
@@ -341,8 +337,7 @@ export async function downloadProjectFeatures(req: Request, res: Response, next:
 export async function exportProjectArchive(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repo_id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		const zipBuffer = await importExportService.exportProject(repoId);
 		const repo = await repositoryService.getOneRepositoryById(repoId);
@@ -368,8 +363,8 @@ export async function importProjectArchive(req: Request, res: Response, next: Ne
 		if (req.method === 'POST' && !projectName)
 			throw AppError.badRequest('Project name is required for new imports.');
 
-		if (req.method === 'PUT' && (!repoId || !ObjectId.isValid(repoId)))
-			throw AppError.badRequest('Valid repository ID is required for updating imports.');
+		if (req.method === 'PUT')
+			requireValidId(repoId, 'repository ID');
 
 		const user = req.user as User;
 		const result = await importExportService.importProject(req.file, repoId, projectName, importMode, user._id!.toString());
@@ -385,8 +380,7 @@ export async function importProjectArchive(req: Request, res: Response, next: Ne
 export async function setOneDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.storyID;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 		// Assuming the service expects the current value to toggle it
 		const result = await storyService.updateOneDriver(storyId, req.body.oneDriver);
 		res.status(200).json(result); // Return result from service
@@ -420,8 +414,7 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 		}
 
 		const storyId = req.params.story_id;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 
 		// The body now contains the structured AiConfig
 		const aiConfig: AiConfig = req.body.aiConfig;
@@ -430,8 +423,7 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 		if (!aiConfig)
 			throw AppError.badRequest('AI configuration is missing.');
 
-		if (!repoId || !ObjectId.isValid(repoId))
-			throw AppError.badRequest('Valid repository ID (repoid) is missing in headers.');
+		requireValidId(repoId, 'repository ID');
 
 		// Pass the structured aiConfig directly to the queue
 		aiService.queueAiScenarioGeneration(storyId, aiConfig, repoId);
@@ -445,8 +437,7 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 export function getAiGenerationStatus(req: Request, res: Response, _next: NextFunction): void {
 	// This function remains unchanged as it only uses the emitter
 	const storyId = req.params.story_id;
-	if (!ObjectId.isValid(storyId))
-		throw AppError.badRequest('Invalid story ID format');
+	requireValidId(storyId, 'story ID');
 
 	res.setHeader('Content-Type', 'text/event-stream');
 	res.setHeader('Cache-Control', 'no-cache');

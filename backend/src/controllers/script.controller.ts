@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import * as testRunnerService from '../testing/test-runner.service.js'; // Assuming executeTest is here now
@@ -19,8 +19,8 @@ import { AppError } from '../helpers/AppError.js';
 export async function runGroupViaScript(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repoID, groupID } = req.body; // Assuming these are passed in the body for script router
-		if (!repoID || !groupID || !ObjectId.isValid(repoID) || !ObjectId.isValid(groupID))
-			throw AppError.badRequest('Invalid repository or group ID in request body');
+		requireValidId(repoID, 'repository ID');
+		requireValidId(groupID, 'group ID');
 
 		const group = await repositoryService.getOneStoryGroup(repoID, groupID);
 		if (!group)
@@ -71,8 +71,7 @@ export async function runGroupViaScript(req: Request, res: Response, next: NextF
 export async function runFeatureViaScript(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.issueID; // Get ID from URL parameter
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid Story ID format');
+		requireValidId(storyId, 'story ID');
 
 		const story = await storyService.getOneStory(storyId);
 		if (!story)

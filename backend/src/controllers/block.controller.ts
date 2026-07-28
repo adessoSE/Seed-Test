@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as blockService from '../services/block.service.js';
 import { Block } from '@shared/models/Block.js';
 import { oid } from '../types/mongo.types.js';
@@ -35,8 +36,7 @@ export async function saveBlock(req: Request, res: Response, next: NextFunction)
 export async function getBlocks(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.repoId;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 		const result = await blockService.getBlocks(repoId);
 		res.status(200).json(result);
 	} catch (error) {
@@ -52,8 +52,7 @@ export async function getBlocks(req: Request, res: Response, next: NextFunction)
 export async function updateBlock(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const blockId = req.params.blockId;
-		if (!ObjectId.isValid(blockId))
-			throw AppError.badRequest('Invalid block ID format');
+		requireValidId(blockId, 'block ID');
 
 		const user = req.user as { _id?: ObjectId | string };
 		if (!user?._id) // Still good practice to check user exists
@@ -78,8 +77,7 @@ export async function updateBlock(req: Request, res: Response, next: NextFunctio
 export async function deleteBlock(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const blockId = req.params.blockId;
-		if (!ObjectId.isValid(blockId))
-			throw AppError.badRequest('Invalid block ID format');
+		requireValidId(blockId, 'block ID');
 
 		const user = req.user as { _id?: ObjectId | string };
 		if (!user?._id)

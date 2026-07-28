@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as workgroupService from '../services/workgroup.service.js';
 import * as userService from '../services/user.service.js';
 import { AppError } from '../helpers/AppError.js';
@@ -10,8 +10,7 @@ import { AppError } from '../helpers/AppError.js';
 export async function getMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		const members = await workgroupService.getMembers(repoId);
 		res.status(200).json(members);
@@ -26,8 +25,7 @@ export async function getMembers(req: Request, res: Response, next: NextFunction
 export async function addMember(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		// Ensure email is lowercase and validate user exists
 		const userToAdd = {
@@ -63,8 +61,7 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
 export async function updateMemberStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		const userToUpdate = {
 			email: req.body.email.toLowerCase(),
@@ -86,8 +83,7 @@ export async function updateMemberStatus(req: Request, res: Response, next: Next
 export async function removeMember(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repoId = req.params.id;
-		if (!ObjectId.isValid(repoId))
-			throw AppError.badRequest('Invalid repository ID format');
+		requireValidId(repoId, 'repository ID');
 
 		// The user object might be nested differently in the original JS request body
 		const userToRemove = {

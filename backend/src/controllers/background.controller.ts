@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ObjectId } from 'mongodb';
+import { requireValidId } from '../utils/validation.js';
 import * as storyService from '../services/story.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
 import { Background } from '@shared/models/Background.js';
@@ -12,8 +12,7 @@ import { AppError } from '../helpers/AppError.js';
 export async function updateBackground(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.storyID;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 
 		const backgroundData: Background = req.body;
 
@@ -35,8 +34,7 @@ export async function updateBackground(req: Request, res: Response, next: NextFu
 export async function deleteBackground(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const storyId = req.params.storyID;
-		if (!ObjectId.isValid(storyId))
-			throw AppError.badRequest('Invalid story ID format');
+		requireValidId(storyId, 'story ID');
 
 		await storyService.deleteBackground(storyId);
 		// Trigger feature file update after successful DB update
