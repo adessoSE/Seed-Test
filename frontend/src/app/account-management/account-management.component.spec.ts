@@ -7,9 +7,6 @@ import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { provideRouter, Router } from '@angular/router';
 import { ROUTES } from '../routes/routes';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import {  Location } from '@angular/common';
-import {HarnessLoader} from '@angular/cdk/testing';
-import {TestbedHarnessEnvironment} from '@angular/cdk/testing/testbed';
 
 const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
 	{_id: '2', repoName: 'next repo', source: 'db', canEdit: true},
@@ -19,9 +16,7 @@ const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo',
 describe('AccountManagementComponent', () => {
 	let component: AccountManagementComponent;
 	let fixture: ComponentFixture<AccountManagementComponent>;
-	let _location: Location;
 	let router: Router;
-	let _loader: HarnessLoader;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
@@ -34,7 +29,6 @@ describe('AccountManagementComponent', () => {
 
 	beforeEach(() => {
 		router = TestBed.inject(Router);
-		_location = TestBed.inject(Location);
 		fixture = TestBed.createComponent(AccountManagementComponent);
 		component = fixture.componentInstance;
 		vi.spyOn(component.loginService, 'isLoggedIn').mockReturnValue(true);
@@ -43,7 +37,6 @@ describe('AccountManagementComponent', () => {
 		component.searchInput = '';
 		component.github.set('');
 		fixture.detectChanges();
-		_loader = TestbedHarnessEnvironment.loader(fixture);
 		router.currentNavigation();
 	});
 
@@ -59,16 +52,4 @@ describe('AccountManagementComponent', () => {
 		expect(component.login).toHaveBeenCalled();
 	}));
 
-	/* it('should return null as no index in the list', waitForAsync(async ()=> {
-    const inputValue =  'myFirstRepo';
-    const select = await loader.getHarness(MatSelectHarness);
-    vi.spyOn(component,'searchRepos');
-    vi.spyOn(component.ngSelect, 'open').mockImplementation(select.open);
-    component.searchRepos();
-    fixture.whenStable().then(() => {
-      expect(component.searchRepos).toHaveBeenCalledTimes(1);
-      expect(component.searchRepos).toHaveReturnedWith(inputValue);
-    });  
-  })); */
 });
-

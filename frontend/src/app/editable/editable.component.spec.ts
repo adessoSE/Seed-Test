@@ -1,10 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { EditableComponent } from './editable.component';
 import { NO_ERRORS_SCHEMA, TemplateRef } from '@angular/core';
 
 describe('EditableComponent', () => {
-	let _component: EditableComponent;
-	let _fixture: ComponentFixture<EditableComponent>;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
@@ -15,13 +13,6 @@ describe('EditableComponent', () => {
 			.compileComponents();
 	});
 
-	beforeEach(() => {
-		//fixture = TestBed.createComponent(EditableComponent);
-		//component = fixture.componentInstance;
-		//fixture.detectChanges();
-	});
-
 	it('should create', () => {
-		//expect(component).toBeTruthy();
 	});
-}); 
+});

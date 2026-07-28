@@ -5,12 +5,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { provideRouter, Router } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthGuard } from '../guards/auth.guard';
-import {  Location } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
-
-const _repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true}];
 
 class MockedApiService {
 	authenticated = false;
@@ -23,9 +19,7 @@ class MockedApiService {
 describe('LoginComponent', () => {
 	let component: LoginComponent;
 	let fixture: ComponentFixture<LoginComponent>;
-	let _location: Location;
 	let router: Router;
-	let _service: MockedApiService;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
@@ -38,8 +32,6 @@ describe('LoginComponent', () => {
 
 	beforeEach(() => {
 		router = TestBed.inject(Router);
-		_location = TestBed.inject(Location);
-		_service = TestBed.inject(MockedApiService);
 		fixture = TestBed.createComponent(LoginComponent);
 		fixture.detectChanges();
 		component = fixture.componentInstance;
@@ -81,10 +73,6 @@ describe('LoginComponent', () => {
 
 		}));
 
-		it('should login on input', (()=> {
-      
-		}));
-
 	});
 
 	describe('login button', (()=> {
@@ -116,7 +104,7 @@ describe('LoginComponent', () => {
 			expect(emailInput.nativeElement.value).toBe('alice789876@mybox.de');
 			expect(passwordInput.nativeElement.value).toBe('7723vjhakd6732');
 			expect(loginButton.properties.disabled).toBeFalsy();
-      
+
 		}));
 
 	}));

@@ -1,20 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { NotificationService } from './notification.service';
-import { ApiService } from './api.service';
 import { ExampleService } from './example.service';
 
 describe('ExampleService', () => {
-	let _service: ExampleService;
-	let _httpMock: HttpTestingController;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [HttpClientTestingModule, MatSnackBarModule]
 		});
-		_service = TestBed.inject(ExampleService);
-		_httpMock = TestBed.inject(HttpTestingController);
 		sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
 	});
 	afterEach(() => {
@@ -23,8 +17,6 @@ describe('ExampleService', () => {
 
 	describe('create', () => {
 		it('should be created', () => {
-			const _apiService = TestBed.inject(ApiService);
-			const _toast = TestBed.inject(NotificationService);
 			const service = TestBed.inject(ExampleService);
 			expect(service).toBeTruthy();
 		});

@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, inject } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -30,7 +30,7 @@ const story: Story = {'_id': 'a','story_id': 123, 'storySource': 'db','repo_type
   	'example':[]}},{'scenario_id':3,'name':'failed Story creation','comment':'','stepDefinitions':{'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'], 'post': '', 'isExample':[]}],
 	'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post': '', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'], 'post': '', 'isExample':[]}],
 	'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['Could not create Story','Error'], 'post':'', 'isExample':[]}],'example':[]}}],'assignee':'cniebergall','assignee_avatar_url':'https://avatars1.githubusercontent.com/u/45001224?v=4','body':'As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n','issue_number': 7,'state':'open','title':'Story creation', 'host':'example'};
-  
+
 const stories : Story[] = [{'story_id': 123,'_id':'2','storySource':'github', 'repo_type':'github', 'background':
   {'stepDefinitions':{'when':[]}},'scenarios':
   [{'scenario_id':1,'comment':'','name':'successful Story creation','stepDefinitions':
@@ -46,7 +46,7 @@ const stories : Story[] = [{'story_id': 123,'_id':'2','storySource':'github', 'r
   		'pre':'I am on the website:','mid':'','values':['www.cucumber.com'],'post':'', 'isExample':[]},
   	{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'',
   		'values':['Create Story'],'post':'', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text',
-  		'pre':'So I can see the text','mid':'in the textbox:','values':['Could not create Story','Error'], 
+  		'pre':'So I can see the text','mid':'in the textbox:','values':['Could not create Story','Error'],
   		'post':'', 'isExample':[]}],'example':[{'_id':'5dce728851e70f2894a170ae','id':1,'stepType':'example',
   		'type':'Add Variable','pre':'','mid':'','values':['BLUBB'], 'post': '', 'isExample':[]}]}}],
 'assignee':'cniebergall','assignee_avatar_url':'https://avatars1.githubusercontent.com/u/45001224?v=4',
@@ -57,11 +57,10 @@ const stories : Story[] = [{'story_id': 123,'_id':'2','storySource':'github', 'r
   	'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post': '', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'], 'post': '', 'isExample':[]}],'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['New Story created','Success'], 'post': '', 'isExample':[]}],
   	'example':[]}},{'scenario_id':3,'name':'failed Story creation','comment':'','stepDefinitions':{'given':[{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['Guest'], 'post': '', 'isExample':[]}],
 	'when':[{'id':1,'stepType':'when','type':'Website','pre':'I am on the website:','mid':'','values':['www.cucumber.com'], 'post': '', 'isExample':[]},{'id':2,'stepType':'when','type':'Button','pre':'I click the button:','mid':'','values':['Create Story'], 'post': '', 'isExample':[]}],
-	'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['Could not create Story','Error'], 'post':'','isExample':[]}],'example':[]}}],'assignee':'cniebergall','assignee_avatar_url':'https://avatars1.githubusercontent.com/u/45001224?v=4','body':'As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n','issue_number': 7,'state':'open','title':'Story creation'}];
+	'then':[{'id':2,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:','values':['Could not create Story','Error'], 'post':'', 'isExample':[]}],'example':[]}}],'assignee':'cniebergall','assignee_avatar_url':'https://avatars1.githubusercontent.com/u/45001224?v=4','body':'As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n','issue_number': 7,'state':'open','title':'Story creation'}];
 
-  
+
 describe('StoryEditorComponent', () => {
-	let _apiService: ApiService;
 	let component: StoryEditorComponent;
 	let fixture: ComponentFixture<StoryEditorComponent>;
 
@@ -75,15 +74,14 @@ describe('StoryEditorComponent', () => {
 			.compileComponents();
 	});
 
-	beforeEach(inject([ApiService], (s: ApiService) => {
-		_apiService = s;
+	beforeEach(() => {
 		fixture = TestBed.createComponent(StoryEditorComponent);
 		component = fixture.componentInstance;
 		component.selectedStory = story;
 		// Provide required signal input before first change detection
 		fixture.componentRef.setInput('isDark', false);
 		fixture.detectChanges();
-	}));
+	});
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
@@ -117,15 +115,6 @@ describe('StoryEditorComponent', () => {
 		});
 	});
 
-	/* describe('backgroundNameChange', () => {
-    it('should set selectedStory background name', () => {
-      let name = 'TestBackground';
-      component.selectedStory = story;
-      component.backgroundNameChange(name);
-      expect(component.selectedStory.background.name).toBe(name);
-    });
-  }) */
-
 	describe('updateBackground', () => {
 		it('should update the background', () => {
 			component.selectedStory = story;
@@ -142,29 +131,14 @@ describe('StoryEditorComponent', () => {
 	describe('deleteBackgroundd', () => {
 		it('should delete the background', () => {
 			const emptyBackground = {stepDefinitions: {when: []}};
-			//let stories : Story[]= [{"story_id": 123,"_id":"dfhu", "storySource":"github","background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","post":"","values":["Guest"]}],"when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"", "post": "","values":["www.cucumber.com"]},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"", "post":"","values":["Create Story"]}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","post":"","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","post":"","values":["Guest"]}],"when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","post":"","values":["www.cucumber.com"]},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","post":"","values":["Create Story"]}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","post":"","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
 			component.stories.set(stories);
 			component.selectedStory = stories[0];
-      
+
 			component.deleteBackground();
 			expect(component.showBackground()).toBeFalsy();
 			expect(component.stories()[component.stories().indexOf(component.selectedStory)].background).toEqual(emptyBackground);
 		});
-	}); 
-
-	/*   describe('openBackground', () => {
-    it('should set true showBackground to !showBackground', () => {
-      component.showBackground = true;
-      component.openBackground();
-      expect(component.showBackground).toBeFalsy();
-    });
-
-    it('should set false showBackground to !showBackground', () => {
-      component.showBackground = false;
-      component.openBackground();
-      expect(component.showBackground).toBeTruthy();
-    });
-  }) */
+	});
 
 	describe('hideResults', () => {
 		it('should turn show results to true', () => {
@@ -186,7 +160,6 @@ describe('StoryEditorComponent', () => {
 			component.selectedStory = stories[0];
 			vi.spyOn(component.scenarioService, 'deleteScenario');
 			vi.spyOn(component, 'scenarioDeleted');
-			//expect(component.stories).toContain(scenario);
 			component.deleteScenario(component.selectedStory.scenarios[0], false);
 			fixture.detectChanges();
 			expect(component.scenarioService.deleteScenario).toHaveBeenCalled();
@@ -201,7 +174,7 @@ describe('StoryEditorComponent', () => {
 			component.selectedScenario = stories[0].scenarios[0];
 			const indexScenario: number = component.selectedStory.scenarios.indexOf(component.selectedScenario);
 			const deletedScenario = component.selectedStory.scenarios[indexScenario];
-      
+
 			component.scenarioDeleted();
 			// After deleting one of two scenarios, selectScenario is called on the remaining one, setting showEditor = true
 			expect(component.showEditor()).toBeTruthy();
@@ -213,17 +186,6 @@ describe('StoryEditorComponent', () => {
 	});
 
 	describe('runTests', () => {
-
-		/* it('should call api.runTests', fakeAsync(() => {
-      let scenarioId = 1;
-      component.scenarioChild = findComponent(fixture, '#scenarioChild');
-      //component.selectedScenario = scenario;
-      component.selectedStory = story;
-      vi.spyOn(component, 'runTests');
-      component.runTests(scenarioId);
-      expect(component.runTests).toHaveBeenCalled();
-      expect(component.apiService.runTests).toHaveBeenCalled();
-    })); */ 
 
 		it('should start runTest', () => {
 			const scenarioId = 1;
@@ -238,8 +200,8 @@ describe('StoryEditorComponent', () => {
 				expect(component.showResults()).toBeTruthy();
 				expect(component.testRunning()).toBeFalsy();
 			});
-      
-      
+
+
 		});
 	});
 
@@ -307,8 +269,8 @@ describe('StoryEditorComponent', () => {
 
 	describe('renameStoryTitle', () => {
 		let mockComp: MockRenameStoryModal;
-  
-		beforeEach(() => {  
+
+		beforeEach(() => {
 			mockComp = new MockRenameStoryModal();
 		});
 		it('should call openRenameStoryModal',() => {
@@ -321,6 +283,6 @@ describe('StoryEditorComponent', () => {
 		});
 	});
 
-}); 
+});
 
 
