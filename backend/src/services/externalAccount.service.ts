@@ -4,16 +4,16 @@ import * as userService from './user.service.js'; // To fetch/update the user do
 import { type User } from '@shared/models/User.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
+import { validatedConfig } from '../config.js';
 
 const cryptoAlgorithm = 'aes-256-ccm';
-// It's recommended to move secrets to environment variables or a config service
-const jiraSecret = process.env.JIRA_SECRET;
-const jiraSalt = process.env.JIRA_SALT;
-if (!jiraSecret || !jiraSalt) {
-	logger.error('FATAL: JIRA_SECRET and JIRA_SALT environment variables must be set.');
-	process.exit(1);
+
+// JIRA_SECRET and JIRA_SALT validated at startup by config.validateConfig();
+// lazy accessor ensures the scrypt key is only derived after validateConfig() runs
+
+function getJiraKey(): Buffer {
+	return scryptSync(validatedConfig.value!.JIRA_SECRET, validatedConfig.value!.JIRA_SALT, 32);
 }
-const key = scryptSync(jiraSecret, jiraSalt, 32);
 
 /**
  * Represents the BSON format for binary data
@@ -38,7 +38,7 @@ type CipherInput = Buffer | BsonBinary | Binary;
 
 function jiraEncryptPassword(pass: string): { ciphertext: Buffer, nonce: Buffer, tag: Buffer } {
 	const nonce = randomBytes(13);
-	const cipher = createCipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+	const cipher = createCipheriv(cryptoAlgorithm, getJiraKey(), nonce, { authTagLength: 16 });
 	const ciphertext = Buffer.concat([cipher.update(pass, 'utf8'), cipher.final()]);
 	const tag = cipher.getAuthTag();
 	return { ciphertext, nonce, tag };
@@ -56,14 +56,15 @@ export function jiraDecryptPassword(
 	const tagBuffer = toBuffer(tag);
 
 	try {
-		const decipher = createDecipheriv(cryptoAlgorithm, key, nonceBuffer, { authTagLength: 16 });
+		const decipher = createDecipheriv(cryptoAlgorithm, getJiraKey(), nonceBuffer, { authTagLength: 16 });
 		decipher.setAuthTag(tagBuffer);
 		const receivedPlaintext = Buffer.concat([decipher.update(cipherBuffer), decipher.final()]).toString('utf8');
 		return receivedPlaintext;
 	} catch (err) {
-		logger.error(`Jira Decryption Failed: ${err}`);
+		logger.error(`Jira Decryption Failed: ${String(err)}`);
 		throw new Error('Jira password decryption failed!', { cause: err });
 	}
+
 }
 
 /**
@@ -106,7 +107,7 @@ export async function updateJiraCredential(
 		throw AppError.notFound('User not found for updating Jira credentials.');
     
 
-	const updatedUser: User = { ...user, jira: jiraCredentials as any }; // Cast needed due to Buffer/Binary discrepancy
+	const updatedUser: User = { ...user, jira: jiraCredentials as unknown as User['jira'] }; // Cast needed due to Buffer/Binary discrepancy
 	await userService.updateUser(userId, updatedUser);
 }
 
@@ -147,6 +148,7 @@ export async function disconnectGithub(userId: string | ObjectId): Promise<void>
 		throw AppError.notFound('User not found for disconnecting GitHub.');
     
 	const { github: _github, ...userWithoutGithub } = user;
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- narrowed type lacks github which is optional per interface but required per broader context
 	await userService.updateUser(userId, userWithoutGithub as User);
 }
 
@@ -184,8 +186,7 @@ function toBuffer(input: CipherInput): Buffer {
 
 	// Priority 3: BSON object structure (e.g., from logs or older drivers)
 	// Check if input is a plain object and has the $binary key
-	if (typeof input === 'object' && input !== null && (input).$binary) 
-		return Buffer.from((input).$binary.base64, 'base64');
+	return Buffer.from(input.$binary.base64, 'base64');
     
 
 	// Fallback/Error

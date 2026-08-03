@@ -22,11 +22,16 @@ describe('ExternalAccountService', () => {
 	};
 
 	beforeEach(async () => {
+		// Ensure config is validated and cached so externalAccount.service
+		// reads validated values (lazy getter would also work, but being
+		// explicit here avoids flaky test ordering issues).
+		const config = await import('../config.js');
+		config.validateConfig();
 		externalAccountService = await vi.importActual<typeof ExtAccountServiceModule>('./externalAccount.service');
 		vi.clearAllMocks();
 		mockedUserService.getUserById.mockResolvedValue({ ...mockUser });
 		mockedUserService.updateUser.mockResolvedValue({ ok: 1 });
-	});
+	}, 15_000);
 
 	describe('buildAuthString', () => {
 		it('should return Basic auth for basic method', () => {

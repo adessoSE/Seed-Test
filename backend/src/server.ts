@@ -14,6 +14,7 @@ import { logger, httpLog } from './logging.js';
 import { isAuthenticated } from './middleware/authenticate.js';
 
 import * as dbConnector from './database/DbConnector.js';
+import { validateConfig, validatedConfig } from './config.js';
 
 // Import Passport configuration
 import initializePassport from './passport-config.js'; 
@@ -57,21 +58,16 @@ const app: Application = express();
 app.use(helmet());
 
 // --- Session Configuration ---
-const databaseUri = process.env.DATABASE_URI;
-if (!databaseUri)
-	logger.warn('DATABASE_URI not set. Using Docker default. Set DATABASE_URI in .env for production!');
-
-const sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret && process.env.NODE_ENV === 'production')
-	throw new Error('SESSION_SECRET must be set in production. Aborting.');
+// Env vars validated at startup via validateConfig() in startServer().
+// Module-level sessionConfig uses validated values (set during startup init).
 
 const sessionConfig: session.SessionOptions = {
 	store: MongoStore.create({
-		mongoUrl: databaseUri || 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
+		mongoUrl: validatedConfig.value?.DATABASE_URI ?? 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
 		dbName: 'Seed',
 		collectionName: 'Sessions'
 	}),
-	secret: sessionSecret || 'dev-only-secret-not-for-production',
+	secret: validatedConfig.value?.SESSION_SECRET ?? 'dev-only-secret-not-for-production',
 	resave: false,
 	saveUninitialized: false,
 	proxy: true,
@@ -90,9 +86,9 @@ if (process.env.NODE_ENV === 'production')
 
 
 // --- Core Middleware ---
-app.use(cors({
+app.use((cors as unknown as (options: Record<string, unknown>) => express.RequestHandler)({
 	origin: [
-		process.env.FRONTEND_URL || 'http://localhost:4200'
+		process.env.FRONTEND_URL ?? 'http://localhost:4200'
 	],
 	credentials: true
 }));
@@ -102,8 +98,8 @@ app.use(express.urlencoded({ limit: '500kb', extended: true }));
 // Express 5 makes req.query a read-only getter, so we sanitize body/params in place
 // and reject requests with dangerous operators in query strings.
 app.use((req: Request, res: Response, next: NextFunction) => {
-	if (req.body) sanitize(req.body);
-	if (req.params) sanitize(req.params);
+	sanitize(req.body);
+	sanitize(req.params);
 	if (hasDangerousKeys(req.query)) {
 		res.status(400).json({ error: 'Invalid query parameters' });
 		return;
@@ -218,8 +214,8 @@ async function checkEdgeBrowser(): Promise<BrowserCheckResult> {
 		try {
 			execSync('npx playwright install msedge --with-deps', { stdio: 'inherit' });
 			return { name: 'Microsoft Edge', status: 'installed' };
-		} catch (edge_error: any) {
-			logger.error(`Microsoft Edge not installable (corporate policies?): ${edge_error.message}`);
+		} catch (edge_error: unknown) {
+			logger.error(`Microsoft Edge not installable (corporate policies?): ${edge_error instanceof Error ? edge_error.message : String(edge_error)}`);
 			return { name: 'Microsoft Edge', status: 'failed' };
 		}
 	}
@@ -253,8 +249,8 @@ async function checkGeneralBrowsers(): Promise<BrowserCheckResult[]> {
 			for (const r of results)
 				if (r.status === 'failed')
 					r.status = 'installed';
-		} catch (error: any) {
-			logger.error(`Failed to install Playwright browsers: ${error.message}`);
+		} catch (error: unknown) {
+			logger.error(`Failed to install Playwright browsers: ${error instanceof Error ? error.message : String(error)}`);
 		}
 
 	return results;
@@ -281,11 +277,14 @@ function logBrowserResults(results: BrowserCheckResult[]): void {
 }
 
 // --- Server Startup ---
-const port = process.env.PORT || 8080;
+const port = process.env.PORT ?? '8080';
 const server = http.createServer(app);
 
 async function startServer() {
 	try {
+		// Validate env vars: aggregated exit on failure, cached for all dependent modules
+		validateConfig();
+
 		const [generalResults, edgeResult] = await Promise.all([
 			checkGeneralBrowsers(),
 			checkEdgeBrowser()

@@ -9,6 +9,7 @@ import { type Session, type SessionData } from 'express-session';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
 import { sanitizeUser } from '../helpers/userSanitize.js';
+import { validatedConfig, requireGithub } from '../config.js';
 
 const saltRounds = 10;
 
@@ -22,7 +23,7 @@ type RequestWithSession = Request & { session: Session & Partial<SessionData> };
  */
 export async function forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const email = req.body.email.toLowerCase();
+		const email = (req.body as Record<string, string>).email.toLowerCase();
         
 		// Delete any existing request
 		const checkRequest = await userService.getResetRequestByEmail(email);
@@ -54,7 +55,9 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
  */
 export async function resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { uuid, password } = req.body;
+		const body = req.body as Record<string, unknown>;
+		const uuid = body.uuid as string;
+		const password = body.password as string;
 		const thisRequest = await userService.getResetRequest(uuid);
 
 		if (thisRequest) {
@@ -65,7 +68,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 			user.password = await bcrypt.hash(password, saltRounds);
 			user.transitioned = true; // Mark as new hash
             
-			await userService.updateUser(user._id!, user);
+			await userService.updateUser(user._id, user);
 			await userService.deleteRequest(user.email);
             
 			res.status(204).send(); // 204 No Content
@@ -83,19 +86,21 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
  * Handles local user login.
  */
 export function login(req: Request, res: Response, next: NextFunction): void {
-	req.body.email = req.body.email.toLowerCase();
+	const reqBody = req.body as Record<string, unknown>;
+	reqBody.email = (reqBody.email as string).toLowerCase();
 
-	passport.authenticate('normal-local', {}, (error: any, user: User, info: any) => {
+	// Cast return of passport.authenticate to avoid unsafe call error
+	const authenticateMiddleware = passport.authenticate('normal-local', {}, (error: unknown, user: User | false, info: { message?: string } | undefined) => {
 		if (error) return next(error);
 		if (!user)
-			return next(AppError.unauthorized(info.message || 'Authentication failed'));
+			return next(AppError.unauthorized(info?.message ?? 'Authentication failed'));
 
 		// Session fixation prevention — regenerate before establishing new identity
 		(req as RequestWithSession).session.regenerate((regenerateErr) => {
 			if (regenerateErr) return next(regenerateErr);
 
 			// Set extended session lifetime after regeneration so the new session inherits it
-			if (req.body.stayLoggedIn)
+			if (reqBody.stayLoggedIn)
 				(req as RequestWithSession).session.cookie.maxAge = 864000000; // 10 days
 
 			req.logIn(user, (loginErr) => {
@@ -105,19 +110,22 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 				void (async () => {
 					if (user.transitioned === false)
 						try {
-							const hashedPass = await bcrypt.hash(req.body.password, saltRounds);
+							const hashedPass = await bcrypt.hash(reqBody.password as string, saltRounds);
 							user.password = hashedPass;
 							user.transitioned = true;
-							await userService.updateUser(user._id!, user);
+							await userService.updateUser(user._id, user);
 						} catch (hashError) {
 							return next(hashError);
 						}
-
+ 
 					res.json(sanitizeUser(user));
 				})();
+
+
 			});
 		});
-	})(req, res, next);
+	}) as (req: Request, res: Response, next: NextFunction) => void;
+	authenticateMiddleware(req, res, next);
 }
 
 /**
@@ -125,25 +133,26 @@ export function login(req: Request, res: Response, next: NextFunction): void {
  */
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		if (!req.body.email || !req.body.password)
+		const body = req.body as Record<string, unknown>;
+		if (!body.email || !body.password)
 			throw AppError.badRequest('Email and password are required.');
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(req.body.email))
+		if (!emailRegex.test(body.email as string))
 			throw AppError.badRequest('Invalid email format.');
-		req.body.email = req.body.email.toLowerCase();
-		req.body.password = await bcrypt.hash(req.body.password, saltRounds);
-		req.body.transitioned = true;
+		body.email = (body.email as string).toLowerCase();
+		body.password = await bcrypt.hash(body.password as string, saltRounds);
+		body.transitioned = true;
 		// Remap userId (frontend field name) → _id (service field name) for GitHub account merge
-		if (req.body.userId) {
-			req.body._id = req.body.userId;
-			delete req.body.userId;
+		if (body.userId) {
+			body._id = body.userId;
+			delete body.userId;
 		}
 
-		const result = await userService.registerUser(req.body);
+		const result = await userService.registerUser(req.body as Partial<User>);
 		res.status(201).json({ insertedId: result.insertedId });
-	} catch (error: any) {
-		if (error.message === 'User already exists')
+	} catch (error: unknown) {
+		if (error instanceof Error && error.message === 'User already exists')
 			throw AppError.conflict(error.message);
 
 		next(error);
@@ -171,13 +180,12 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
 	const params = new URLSearchParams();
 
-	if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
-		logger.error('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET not set.');
-		throw new AppError('GitHub OAuth is not configured. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.', 501);
-	}
+	// Require GitHub OAuth vars — throws 501 if not configured
+	requireGithub(validatedConfig.value);
 
-	params.append('client_id', process.env.GITHUB_CLIENT_ID);
-	params.append('client_secret', process.env.GITHUB_CLIENT_SECRET);
+	params.append('client_id', validatedConfig.value!.GITHUB_CLIENT_ID!);
+	params.append('client_secret', validatedConfig.value!.GITHUB_CLIENT_SECRET!);
+
 	params.append('code', req.query.code as string);
 
 	try {
@@ -187,7 +195,7 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
         
 		const accessToken = tokenData.get('access_token');
 		if (!accessToken)
-			throw AppError.badGateway(tokenData.get('error') || 'Failed to get access token');
+			throw AppError.badGateway(tokenData.get('error') ?? 'Failed to get access token');
         
 
 		// Now get user data from GitHub
@@ -196,11 +204,11 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 		});
 		if (!userResponse.ok) throw AppError.badGateway('Failed to get user data from GitHub');
         
-		const githubProfile = await userResponse.json();
+		const githubProfile = await userResponse.json() as { login: string; id: number; githubToken?: string; [key: string]: unknown };
 		githubProfile.githubToken = accessToken;
 
 		// Find or register this user in our DB
-		const user = await userService.findOrRegisterGithub(githubProfile);
+		const user = await userService.findOrRegisterGithub(githubProfile as { login: string; id: number; githubToken: string });
         
 		if (!user)
 			throw new AppError('Failed to register or find GitHub user', 500);
@@ -210,7 +218,7 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 			if (regenerateErr) return next(regenerateErr);
 			req.logIn(user, (loginErr) => {
 				if (loginErr) return next(loginErr);
-				res.status(200).json(sanitizeUser(user as User));
+				res.status(200).json(sanitizeUser(user));
 			});
 		});
 
@@ -224,11 +232,14 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
  */
 export async function mergeGithub(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { userId, login, id } = req.body;
-		const user = req.user as User;
+		const body = req.body as Record<string, unknown>;
+		const userId = body.userId as string;
+		const login = body.login as string;
+		const id = body.id as number;
+		const user = req.user as User | undefined;
 
 		// Ensure the logged-in user is the one making the request
-		if (!user || user._id!.toString() !== userId)
+		if (user?._id!.toString() !== userId)
 			throw AppError.forbidden('Forbidden: You can only merge your own account');
 
 		const mergedUser = await userService.mergeGithub(userId, login, id);
@@ -251,7 +262,7 @@ export async function mergeGithub(req: Request, res: Response, next: NextFunctio
 /**
  * Gets the currently logged-in user's data.
  */
-export async function getUser(req: Request, res: Response, _next: NextFunction): Promise<void> {
+export function getUser(req: Request, res: Response, _next: NextFunction): void {
 	if (req.user)
 		res.status(200).json(sanitizeUser(req.user as User));
 	else
@@ -264,7 +275,7 @@ export async function getUser(req: Request, res: Response, _next: NextFunction):
  */
 export async function deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const user = req.user as User;
+		const user = req.user as User | undefined;
 		if (!user)
 			throw AppError.unauthorized('Not authenticated');
         
@@ -287,12 +298,12 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
 export async function updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { userID } = req.params;
-		const user = req.user as User;
+		const user = req.user as User | undefined;
          
-		if (!user || user._id!.toString() !== userID)
+		if (user?._id!.toString() !== userID)
 			throw AppError.forbidden('Forbidden: You can only update your own account');
          
-		const updatedUserData: User = req.body;
+		const updatedUserData = req.body as User;
          
 		// Ensure sensitive data isn't overwritten incorrectly
 		// e.g., if password is being changed, it must be re-hashed

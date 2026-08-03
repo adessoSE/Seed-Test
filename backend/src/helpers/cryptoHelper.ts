@@ -1,14 +1,13 @@
 import * as crypto from 'node:crypto';
 import { logger } from '../logging.js';
+import { validatedConfig } from '../config.js';
 
 const ALGORITHM = 'aes-256-gcm';
 const NONCE_LENGTH = 12; // GCM standard nonce length
 
-const envSecret = process.env.ENCRYPTION_SECRET; // Must be 32 bytes (64 hex characters)
-if (!envSecret || envSecret.length !== 64)
-	throw new Error('Invalid ENCRYPTION_SECRET. It must be a 64-character hex string.');
-
-const ENCRYPTION_KEY: string = envSecret;
+// ENCRYPTION_SECRET validated at startup by config.validateConfig();
+// lazy accessor ensures the value is only read after validateConfig() runs
+const getEncryptionKey = (): string => validatedConfig.value!.ENCRYPTION_SECRET;
 
 
 /**
@@ -20,7 +19,7 @@ export function encrypt(text: string): string | null {
 	if (!text) return null;
 
 	const nonce = crypto.randomBytes(NONCE_LENGTH);
-	const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), nonce);
+	const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(getEncryptionKey(), 'hex'), nonce);
 
 	let encrypted = cipher.update(text, 'utf8', 'hex');
 	encrypted += cipher.final('hex');
@@ -46,7 +45,7 @@ export function decrypt(encryptedText: string): string | null {
 		const encrypted = textParts[1];
 		const authTag = Buffer.from(textParts[2], 'hex');
 
-		const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), nonce);
+		const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(getEncryptionKey(), 'hex'), nonce);
 		decipher.setAuthTag(authTag);
 
 		let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -54,7 +53,8 @@ export function decrypt(encryptedText: string): string | null {
 
 		return decrypted;
 	} catch (error) {
-		logger.error(`Decryption failed. Data might be tampered with or key is wrong. ${error}`);
+		logger.error(`Decryption failed. Data might be tampered with or key is wrong. ${String(error)}`);
 		return null;
 	}
+
 }

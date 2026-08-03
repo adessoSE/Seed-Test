@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => {
         
         // Explicitly map the required secrets to ensure they are loaded.
         // This makes 'process.env.ENCRYPTION_SECRET' available to your scripts.
-        ENCRYPTION_SECRET: env.ENCRYPTION_SECRET, 
+        ENCRYPTION_SECRET: env.ENCRYPTION_SECRET,
         DATABASE_URI: env.DATABASE_URI,
         JIRA_SECRET: env.JIRA_SECRET,
         JIRA_SALT: env.JIRA_SALT,
