@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb';
+import { ObjectId, type UpdateResult } from 'mongodb';
 import * as dbConnection from '../database/DbConnector.js';
 import { getUserById } from './user.service.js';
 import { oid, type RepositoryDoc } from '../types/mongo.types.js';
@@ -30,7 +30,7 @@ export async function getWorkgroup(repoId: string): Promise<Workgroup | null> {
  * @param repoId The ID of the repository.
  * @returns An object containing the owner and a list of members.
  */
-export async function getMembers(repoId: string): Promise<{ owner: { email: string | undefined, canEdit: true }, member: any[] }> {
+export async function getMembers(repoId: string): Promise<{ owner: { email: string | undefined, canEdit: true }, member: Workgroup['Members'] }> {
 	const db = dbConnection.getConnection();
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) });
 	if (!repo)
@@ -42,7 +42,7 @@ export async function getMembers(repoId: string): Promise<{ owner: { email: stri
 
 	return {
 		owner: { email: owner?.email, canEdit: true },
-		member: workgroup?.Members || []
+		member: workgroup?.Members ?? []
 	};
 }
 
@@ -52,7 +52,7 @@ export async function getMembers(repoId: string): Promise<{ owner: { email: stri
  * @param user The user to add, containing email and canEdit status.
  * @returns The updated list of members for the repository.
  */
-export async function addMember(repoId: string, user: { email: string, canEdit: boolean }): Promise<any> {
+export async function addMember(repoId: string, user: { email: string, canEdit: boolean }): Promise<{ owner: { email: string | undefined, canEdit: true }, member: Workgroup['Members'] }> {
 	const db = dbConnection.getConnection();
 	const workgroupCollection = db.collection<Workgroup>(workgroupsCollection);
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) });
@@ -74,13 +74,13 @@ export async function addMember(repoId: string, user: { email: string, canEdit: 
 			Members: [user]
 		});
 	else {
-		const memberExists = workgroup.Members.some((m: any) => m.email === user.email);
+		const memberExists = workgroup.Members.some((m) => m.email === user.email);
 		if (memberExists) 
 			throw AppError.conflict('This user is already in the work group');
         
 		await workgroupCollection.updateOne(
 			{ Repo: new ObjectId(repoId) },
-			{ $push: { Members: user } as any }
+			{ $push: { Members: user } }
 		);
 	}
 	return getMembers(repoId);
@@ -92,7 +92,7 @@ export async function addMember(repoId: string, user: { email: string, canEdit: 
  * @param user An object with the member's email and their new canEdit status.
  * @returns The updated list of members.
  */
-export async function updateMemberStatus(repoId: string, user: { email: string, canEdit: boolean }): Promise<any> {
+export async function updateMemberStatus(repoId: string, user: { email: string, canEdit: boolean }): Promise<{ owner: { email: string | undefined, canEdit: true }, member: Workgroup['Members'] }> {
 	const db = dbConnection.getConnection();
 	await db.collection<Workgroup>(workgroupsCollection).updateOne(
 		{ Repo: new ObjectId(repoId), 'Members.email': user.email },
@@ -116,7 +116,7 @@ export async function transferOwnership(repoId: string, newOwnerEmail: string, o
 		{ Repo: new ObjectId(repoId) },
 		{
 			$set: { owner: newOwnerEmail },
-			$pull: { Members: { email: newOwnerEmail } } as any
+			$pull: { Members: { email: newOwnerEmail } } as unknown as Record<string, unknown>
 		}
 	);
 
@@ -137,7 +137,7 @@ export async function promoteNewOwner(repoId: string, newOwnerEmail: string): Pr
 		{ Repo: new ObjectId(repoId) },
 		{
 			$set: { owner: newOwnerEmail },
-			$pull: { Members: { email: newOwnerEmail } } as any
+			$pull: { Members: { email: newOwnerEmail } } as unknown as Record<string, unknown>
 		}
 	);
 }
@@ -148,11 +148,11 @@ export async function promoteNewOwner(repoId: string, newOwnerEmail: string): Pr
  * @param user An object with the email of the member to remove.
  * @returns The updated list of members.
  */
-export async function removeFromWorkgroup(repoId: string, user: { email: string }): Promise<any> {
+export async function removeFromWorkgroup(repoId: string, user: { email: string }): Promise<{ owner: { email: string | undefined, canEdit: true }, member: Workgroup['Members'] }> {
 	const db = dbConnection.getConnection();
 	await db.collection<Workgroup>(workgroupsCollection).updateOne(
 		{ Repo: new ObjectId(repoId) },
-		{ $pull: { Members: { email: user.email } } as any }
+		{ $pull: { Members: { email: user.email } } as unknown as Record<string, unknown> }
 	);
 	return getMembers(repoId);
 }
@@ -163,10 +163,10 @@ export async function removeFromWorkgroup(repoId: string, user: { email: string 
  * @param email The email of the user to remove from all workgroups.
  * @returns The result of the updateMany operation.
  */
-export async function removeUserFromAllWorkgroups(email: string): Promise<any> {
+export async function removeUserFromAllWorkgroups(email: string): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<Workgroup>(workgroupsCollection).updateMany(
 		{ 'Members.email': email },
-		{ $pull: { Members: { email } } as any }
+		{ $pull: { Members: { email } } as unknown as Record<string, unknown> }
 	);
 }

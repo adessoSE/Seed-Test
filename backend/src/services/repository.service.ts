@@ -1,4 +1,4 @@
-import { ObjectId, type ClientSession, type MongoClient } from 'mongodb';
+import { ObjectId, type ClientSession, type MongoClient, type WithId, type InsertOneResult, type UpdateResult, type UpdateFilter } from 'mongodb';
 import { type RepositoryDoc, type UserDoc, type GroupDoc, oid } from '../types/mongo.types.js';
 import * as dbConnection from '../database/DbConnector.js';
 import { type Group } from '@shared/models/Group.js';
@@ -32,26 +32,26 @@ export async function getRepository(userId: string): Promise<RepositoryContainer
 	const user = await db.collection<UserDoc>(userCollection).findOne({ _id: oid(userId) });
 	if (!user) return [];
 
-	const ownerRepos = await db.collection<RepositoryDoc>(repositoriesCollection).find({ owner: oid(userId) }).toArray();
-	ownerRepos.forEach(repo => (repo as any).canEdit = true);
+	const ownerRepos: (RepositoryDoc & { canEdit: boolean })[] = (await db.collection<RepositoryDoc>(repositoriesCollection).find({ owner: oid(userId) }).toArray()).map(repo => ({ ...repo, canEdit: true }));
 
-	const memberWorkgroups = await db.collection('Workgroups').find({ 'Members.email': user.email }).toArray();
+	// Workgroup docs shape — not in mongo.types.ts, only accessed via Repo field
+	const memberWorkgroups = await db.collection('Workgroups').find({ 'Members.email': user.email }).toArray() as unknown as { Repo: ObjectId, Members: { email: string, canEdit: boolean }[] }[];
 	const repoIds = memberWorkgroups.map(wg => oid(wg.Repo));
 
-	const memberRepos = await db.collection<RepositoryDoc>(repositoriesCollection).find({ _id: { $in: repoIds } }).toArray();
-	memberRepos.forEach(repo => {
-		const memberInfo = memberWorkgroups.find(wg => wg.Repo.toString() === repo._id.toString())?.Members.find((m: any) => m.email === user.email);
-		(repo as any).canEdit = memberInfo ? memberInfo.canEdit : false;
+	const memberRepos: (RepositoryDoc & { canEdit: boolean })[] = (await db.collection<RepositoryDoc>(repositoriesCollection).find({ _id: { $in: repoIds } }).toArray()).map(repo => {
+		const memberInfo = memberWorkgroups.find(wg => wg.Repo.toString() === repo._id.toString())?.Members.find(m => m.email === user.email);
+		return { ...repo, canEdit: memberInfo ? memberInfo.canEdit : false };
 	});
     
 	const allRepos = [...ownerRepos, ...memberRepos];
-	const uniqueRepos = Array.from(new Map(allRepos.map(repo => [repo._id.toString(), repo])).values());
+	// _id is always present on docs returned from find()
+	const uniqueRepos = Array.from(new Map(allRepos.map(repo => [repo._id!.toString(), repo])).values());
 
 	return uniqueRepos.map(repo => ({
 		_id: repo._id,
 		repoName: repo.repoName,
 		source: repo.repoType,
-		canEdit: (repo as any).canEdit,
+		canEdit: repo.canEdit,
 		settings: repo.settings,
 		aiConfig: repo.aiConfig
 	})) as unknown as RepositoryContainer[];
@@ -85,10 +85,10 @@ export async function dbProjects(userId: string): Promise<RepositoryContainer[]>
  * @param repositories Array of repository objects.
  * @returns Array of unique repository objects.
  */
-export function uniqueRepositories(repositories: any[]): any[] {
-	const uniqueMap = new Map<string, any>();
+export function uniqueRepositories(repositories: Partial<RepositoryContainer>[]): Partial<RepositoryContainer>[] {
+	const uniqueMap = new Map<string, Partial<RepositoryContainer>>();
 	for (const repo of repositories) 
-		if (repo?._id && !uniqueMap.has(repo._id.toString())) 
+		if (repo._id && !uniqueMap.has(repo._id.toString())) 
 			uniqueMap.set(repo._id.toString(), repo);
     
   
@@ -117,16 +117,16 @@ export async function getOneRepository(ownerId: string, name: string): Promise<R
 	return await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ owner: oid(ownerId), repoName: name }) as unknown as Repository | null;
 }
 
-export async function getRepoSettingsById(repoId: string): Promise<any> {
+export async function getRepoSettingsById(repoId: string): Promise<Repository['settings'] | null> {
 	const db = dbConnection.getConnection();
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) });
-	return repo?.settings || null;
+	return repo?.settings ?? null;
 }
 
 export async function getRepoAiConfigById(repoId: string): Promise<AiConfig | null> {
 	const db = dbConnection.getConnection();
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) });
-	return repo?.aiConfig || null;
+	return repo?.aiConfig ?? null;
 }
 
 export async function createRepo(ownerId: string, name: string, session?: ClientSession, client?: MongoClient): Promise<ObjectId> {
@@ -149,7 +149,7 @@ export async function createRepo(ownerId: string, name: string, session?: Client
 	return result.insertedId;
 }
 
-export async function updateRepository(repoId: string, newName?: string, globalSettings?: any, aiConfig?: AiConfig): Promise<any> {
+export async function updateRepository(repoId: string, newName?: string, globalSettings?: Repository['settings'], aiConfig?: AiConfig): Promise<WithId<RepositoryDoc> | null> {
 	const db = dbConnection.getConnection();
 	const updateFields: Partial<Repository> = {};
 	if (newName !== undefined) updateFields.repoName = newName;
@@ -158,14 +158,14 @@ export async function updateRepository(repoId: string, newName?: string, globalS
 	// Encrypt API keys before saving
 	if (aiConfig !== undefined) {
 		// Create a deep copy to avoid modifying the input object
-		const configToSave: AiConfig = JSON.parse(JSON.stringify(aiConfig));
+		const configToSave = JSON.parse(JSON.stringify(aiConfig)) as AiConfig;
 
-		if (configToSave.textPreparation?.apiKey && !isAlreadyEncrypted(configToSave.textPreparation.apiKey)) 
-			configToSave.textPreparation.apiKey = encrypt(configToSave.textPreparation.apiKey) || undefined;
+		if (configToSave.textPreparation.apiKey && !isAlreadyEncrypted(configToSave.textPreparation.apiKey)) 
+			configToSave.textPreparation.apiKey = encrypt(configToSave.textPreparation.apiKey) ?? undefined;
         
 
-		if (configToSave.jsonConversion?.apiKey && !isAlreadyEncrypted(configToSave.jsonConversion.apiKey)) 
-			configToSave.jsonConversion.apiKey = encrypt(configToSave.jsonConversion.apiKey) || undefined;
+		if (configToSave.jsonConversion.apiKey && !isAlreadyEncrypted(configToSave.jsonConversion.apiKey)) 
+			configToSave.jsonConversion.apiKey = encrypt(configToSave.jsonConversion.apiKey) ?? undefined;
         
 
 		updateFields.aiConfig = configToSave;
@@ -173,7 +173,7 @@ export async function updateRepository(repoId: string, newName?: string, globalS
 
 	const result = await db.collection<RepositoryDoc>(repositoriesCollection).findOneAndUpdate(
 		{ _id: oid(repoId) },
-		{ $set: updateFields } as any,
+		{ $set: updateFields } as unknown as UpdateFilter<RepositoryDoc>,
 		{ returnDocument: 'after' }
 	);
 	return result;
@@ -190,7 +190,7 @@ export async function updateOwnerInRepo(repoId: string, newOwnerId: string, oldO
 	// Update repository owner
 	await dbConnection.getConnection().collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },
-		{ $set: { owner: oid(newOwnerId) } as any }
+		{ $set: { owner: oid(newOwnerId) } }
 	);
 
 	// Use the dedicated service to handle the workgroup logic
@@ -220,13 +220,13 @@ export async function deleteRepository(repoId: string, ownerId: string): Promise
 	// Case 1: Transfer ownership if members exist
 	if (workgroup && Array.isArray(workgroup.Members) && workgroup.Members.length > 0) {
 		const members = await workgroupService.getMembers(repoId);
-		const newOwnerMember = members.member.find(m => m.canEdit) || members.member[0];
+		const newOwnerMember = members.member.find(m => m.canEdit) ?? members.member[0];
 		const newOwnerUser = await db.collection<UserDoc>('User').findOne({ email: newOwnerMember.email });
 
 		if (!newOwnerUser) throw AppError.notFound('Could not find user to promote to new owner.');
 
 		// 1. Update repository owner
-		await repoCollection.updateOne({ _id: oid(repoId) }, { $set: { owner: oid(newOwnerUser._id) } as any });
+		await repoCollection.updateOne({ _id: oid(repoId) }, { $set: { owner: oid(newOwnerUser._id) } });
 
 		// 2. Use the dedicated service to promote the new owner in the workgroup
 		await workgroupService.promoteNewOwner(repoId, newOwnerUser.email);
@@ -253,12 +253,12 @@ export async function deleteRepository(repoId: string, ownerId: string): Promise
 	return { status: 'deleted', message: 'Repository and all associated data have been deleted.' };
 }
 
-export async function insertStoryIdIntoRepo(storyId: string, repoId: string, client?: MongoClient, session?: ClientSession): Promise<any> {
+export async function insertStoryIdIntoRepo(storyId: string, repoId: string, client?: MongoClient, session?: ClientSession): Promise<UpdateResult> {
 	const db = session ? client!.db('Seed', session) : dbConnection.getConnection();
     
 	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },
-		{ $push: { stories: oid(storyId) } as any },
+		{ $push: { stories: oid(storyId) } },
 		{ session }
 	);
 }
@@ -269,7 +269,7 @@ export async function updateStoriesArrayInRepo(repoId: string, storiesArray: str
 
 	const result = await db.collection<RepositoryDoc>(repositoriesCollection).findOneAndUpdate(
 		{ _id: oid(repoId) },
-		{ $set: { stories: sortedStoriesArray } as any },
+		{ $set: { stories: sortedStoriesArray } },
 		{ returnDocument: 'after' }
 	);
 
@@ -282,7 +282,7 @@ export async function updateStoriesArrayInRepo(repoId: string, storiesArray: str
 export async function getAllStoryGroups(repoId: string): Promise<Group[]> {
 	const db = dbConnection.getConnection();
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }, { projection: { groups: 1 } });
-	return (repo?.groups || []) as unknown as Group[];
+	return (repo?.groups ?? []) as unknown as Group[];
 }
 
 export async function getOneStoryGroup(repoId: string, groupId: string): Promise<Group | undefined> {
@@ -302,20 +302,21 @@ export async function createStoryGroup(repoId: string, name: string, members: st
 
 	const result = await db.collection<RepositoryDoc>(repositoriesCollection).findOneAndUpdate(
 		{ _id: oid(repoId) },
-		{ $push: { groups: newGroup } as any },
+		{ $push: { groups: newGroup } },
 		{ upsert: false, projection: { groups: 1 }, session, returnDocument: 'after' }
 	);
 
-	if (!result?.groups?.length) 
+	if (!result?.groups.length) 
 		throw AppError.notFound(`Repository ${repoId} not found or group creation failed`);
     
 	const newGroupId = result.groups.slice(-1)[0]._id!;
 	return newGroupId;
 }
 
-export async function updateStoryGroup(repoId: string, groupId: string, updatedGroup: Group, client?: MongoClient, session?: ClientSession): Promise<any> {
+export async function updateStoryGroup(repoId: string, groupId: string, updatedGroup: Group, client?: MongoClient, session?: ClientSession): Promise<Group> {
 	const db = session && client ? client.db('Seed', session) : dbConnection.getConnection();
-	updatedGroup._id = oid(groupId) as any;
+	// Group model uses string for _id, but MongoDB stores ObjectId — cast preserves runtime behaviour
+	updatedGroup._id = oid(groupId) as unknown as string;
 	const collection = db.collection<RepositoryDoc>(repositoriesCollection);
 	const repo = await collection.findOne({ _id: oid(repoId) }, { session });
 
@@ -330,39 +331,40 @@ export async function updateStoryGroup(repoId: string, groupId: string, updatedG
 
 	repo.groups[index] = updatedGroup as unknown as GroupDoc;
 
-	await collection.updateOne({ _id: oid(repoId) }, { $set: { groups: repo.groups } as any }, { session });
+	await collection.updateOne({ _id: oid(repoId) }, { $set: { groups: repo.groups } }, { session });
 	return updatedGroup;
 }
 
-export async function deleteStoryGroup(repoId: string, groupId: string): Promise<any> {
+export async function deleteStoryGroup(repoId: string, groupId: string): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },
-		{ $pull: { groups: { _id: oid(groupId) } } as any }
+		{ $pull: { groups: { _id: oid(groupId) } } }
 	);
 }
 
-export async function addToStoryGroup(repoId: string, groupId: string, storyId: string): Promise<any> {
+export async function addToStoryGroup(repoId: string, groupId: string, storyId: string): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
-	return db.collection(repositoriesCollection).updateOne(
+	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId), 'groups._id': oid(groupId) },
-		{ $push: { 'groups.$.member_stories': oid(storyId) } as any }
+		{ $push: { 'groups.$.member_stories': oid(storyId) } }
 	);
 }
 
-export async function removeFromStoryGroup(repoId: string, groupId: string, storyId: string): Promise<any> {
+export async function removeFromStoryGroup(repoId: string, groupId: string, storyId: string): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
-	return db.collection(repositoriesCollection).updateOne(
+	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId), 'groups._id': oid(groupId) },
-		{ $pull: { 'groups.$.member_stories': oid(storyId) } as any }
+		{ $pull: { 'groups.$.member_stories': oid(storyId) } }
 	);
 }
 
-export async function updateStoryGroupsArray(repoId: string, groupsArray: Group[]): Promise<any> {
+export async function updateStoryGroupsArray(repoId: string, groupsArray: Group[]): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },
-		{ $set: { groups: groupsArray } as any }
+		// Group._id (string) vs GroupDoc._id (ObjectId) — cast for MongoDB
+		{ $set: { groups: groupsArray as unknown as GroupDoc[] } }
 	);
 }
 
@@ -382,10 +384,11 @@ export async function getAllSourceReposFromDb(source: 'db' | 'github' | 'jira'):
 	return await db.collection<RepositoryDoc>(repositoriesCollection).find({ repoType: source }).toArray() as unknown as Repository[];
 }
 
-export async function createJiraRepo(repoName: string): Promise<any> {
+export async function createJiraRepo(repoName: string): Promise<InsertOneResult<RepositoryDoc> & { _id?: ObjectId }> {
 	const db = dbConnection.getConnection();
 	const newRepo: Partial<RepositoryDoc> = {
-		owner: '' as any,  // Jira repos have no owner
+		// RepositoryDoc.owner is ObjectId but Jira repos have no owner — preserve existing runtime behaviour
+		owner: '' as unknown as ObjectId,
 		repoName,
 		stories: [],
 		repoType: 'jira'
@@ -393,10 +396,11 @@ export async function createJiraRepo(repoName: string): Promise<any> {
 	return db.collection<RepositoryDoc>(repositoriesCollection).insertOne(newRepo as RepositoryDoc);
 }
 
-export async function createGitRepo(gitOwnerId: string, repoName: string, userGithubId: number, userId: string): Promise<any> {
+export async function createGitRepo(gitOwnerId: string, repoName: string, userGithubId: number, userId: string): Promise<InsertOneResult<RepositoryDoc> & { _id?: ObjectId }> {
 	const db = dbConnection.getConnection();
 	const newRepo: Partial<RepositoryDoc> = {
-		owner: '' as any,  // Set below if user is the GitHub owner
+		// RepositoryDoc.owner is ObjectId but GitHub repos initially have no owner — set below if user is the GitHub owner
+		owner: '' as unknown as ObjectId,
 		gitOwner: gitOwnerId,
 		repoName,
 		stories: [],

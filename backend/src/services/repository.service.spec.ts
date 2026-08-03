@@ -150,14 +150,14 @@ describe('RepositoryService', () => {
 				name: 'cloud',
 				modelName: 'gpt-4',
 				baseURL: 'http://api.com',
-				apiKey: textKey || 'default-text-key'
+				apiKey: textKey ?? 'default-text-key'
 			},
 			jsonConversion: {
 				provider: 'custom',
 				name: 'cloud',
 				modelName: 'gpt-3',
 				baseURL: 'http://api.com',
-				apiKey: jsonKey || 'default-json-key'
+				apiKey: jsonKey ?? 'default-json-key'
 			}
 		});
 

@@ -1,8 +1,8 @@
-import { type ObjectId, type Filter, type ClientSession, type MongoClient } from 'mongodb';
+import { type ObjectId, type Filter, type ClientSession, type MongoClient, type WithId, type UpdateResult, type UpdateFilter } from 'mongodb';
 import { logger } from '../logging.js';
 import * as dbConnection from '../database/DbConnector.js';
 import { type Story } from '@shared/models/Story.js';
-import { type StoryDoc, oid } from '../types/mongo.types.js';
+import { type StoryDoc, type RepositoryDoc, oid } from '../types/mongo.types.js';
 import { type Scenario } from '@shared/models/Scenario.js';
 import { type Background } from '@shared/models/Background.js';
 import { emptyStory } from '../models/emptyStory.js';
@@ -21,7 +21,7 @@ const repositoriesCollection = 'Repositories';
  * @param storyId - The MongoDB ObjectId (as a string) or the numeric story_id.
  * @returns A Promise that resolves to the story object or null if not found.
  */
-export async function getOneStory(storyId: string | number): Promise<Story | null> {
+export async function getOneStory(storyId: string | number | ObjectId): Promise<Story | null> {
 	const db = dbConnection.getConnection();
 	const collection = db.collection<StoryDoc>(storiesCollection);
 	let query: Filter<StoryDoc>;
@@ -42,8 +42,8 @@ export async function getOneStory(storyId: string | number): Promise<Story | nul
  */
 export async function getAllStoriesOfRepo(repoId: string): Promise<Story[]> {
 	const db = dbConnection.getConnection();
-	const repo = await db.collection(repositoriesCollection).findOne({ _id: oid(repoId) });
-	if (!repo || !repo.stories) 
+	const repo = await db.collection(repositoriesCollection).findOne({ _id: oid(repoId) }) as RepositoryDoc | null;
+	if (!repo?.stories) 
 		return [];
     
 	const storyIds = repo.stories.map((id: string | ObjectId) => oid(id));
@@ -61,13 +61,13 @@ export async function getAllStoriesOfRepo(repoId: string): Promise<Story[]> {
  */
 export async function createStory(storyTitle: string, storyDescription: string, repoId: string, client?: MongoClient, session?: ClientSession): Promise<ObjectId> {
 	const db = client ? client.db('Seed') : dbConnection.getConnection();
-	const repo = await db.collection(repositoriesCollection).findOne({ _id: oid(repoId) }, { session });
+	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }, { session });
 
 	let finalIssueNumber: number | undefined = 1;
-	if (repo && repo.stories && repo.stories.length > 0) {
+	if (repo?.stories && repo.stories.length > 0) {
 		// Fetch all issue numbers from stories in the current repository to find the next free number.
-		const stories = await db.collection<StoryDoc>(storiesCollection).find({ _id: { $in: repo.stories.map((id: any) => oid(id)) } }, { projection: { issue_number: 1 }, session }).toArray();
-		const iNumberArray = stories.map(s => s.issue_number as number).filter(n => n !== undefined && n !== null);
+		const stories = await db.collection<StoryDoc>(storiesCollection).find({ _id: { $in: repo.stories.map((id) => oid(id)) } }, { projection: { issue_number: 1 }, session }).toArray();
+		const iNumberArray = stories.map(s => s.issue_number).filter((n): n is number => n !== undefined);
 
 		let i = 1;
 		while (iNumberArray.includes(i)) 
@@ -91,7 +91,7 @@ export async function createStory(storyTitle: string, storyDescription: string, 
  * @param session - Optional ClientSession for transaction support.
  * @returns A Promise that resolves to the result of the replacement operation.
  */
-export async function updateStory(updatedStory: Story, client?: MongoClient, session?: ClientSession): Promise<any> {
+export async function updateStory(updatedStory: Story, client?: MongoClient, session?: ClientSession): Promise<WithId<StoryDoc> | null> {
 	const db = client ? client.db('Seed') : dbConnection.getConnection();
 	const doc: StoryDoc = { ...updatedStory, _id: oid(updatedStory._id!) };
 	return db.collection<StoryDoc>(storiesCollection).findOneAndReplace(
@@ -107,22 +107,22 @@ export async function updateStory(updatedStory: Story, client?: MongoClient, ses
  * @param storyId - The ObjectId of the story to delete.
  * @returns A Promise that resolves to the result of the deletion operation.
  */
-export async function deleteStory(repoId: string, storyId: string): Promise<any> {
+export async function deleteStory(repoId: string, storyId: string): Promise<WithId<StoryDoc> | null> {
 	const db = dbConnection.getConnection();
 	const repoCollection = db.collection(repositoriesCollection);
 	const storyCollection = db.collection<StoryDoc>(storiesCollection);
 
 	// Remove the story's ObjectId from any groups it might be a member of.
-	// The 'as any' cast is used to bypass strict type checking for the complex $pull operator.
-	await repoCollection.updateMany(
+	// MongoDB driver types (v7 PullOperator/NotAcceptedFields) reject computed paths on Document collections
+	await (repoCollection.updateMany as (filter: Filter<Document>, update: UpdateFilter<Document>) => Promise<UpdateResult>)(
 		{ _id: oid(repoId) },
-		{ $pull: { 'groups.$[].member_stories': oid(storyId) } as any }
+		{ $pull: { 'groups.$[].member_stories': oid(storyId) } }
 	);
 
 	// Remove the story's ObjectId from the main stories array of the repository.
-	await repoCollection.updateOne(
+	await (repoCollection.updateOne as (filter: Filter<Document>, update: UpdateFilter<Document>) => Promise<UpdateResult>)(
 		{ _id: oid(repoId) },
-		{ $pull: { stories: oid(storyId) } as any }
+		{ $pull: { stories: oid(storyId) } }
 	);
 
 	// Find and delete all associated test reports for this story.
@@ -148,7 +148,14 @@ export async function deleteStory(repoId: string, storyId: string): Promise<any>
  * @param client Optional MongoClient for transaction support.
  * @returns A promise resolving to the result of the findOneAndUpdate operation (original document by default).
  */
-export async function upsertStoryByExternalId(storyId: number, updatedContent: Partial<Story>, session?: ClientSession, client?: MongoClient): Promise<any> {
+// Callers access .value and .lastErrorObject which the MongoDB v7 driver does not include
+// by default — those always yield undefined at runtime, matching the old `any`-era behaviour
+interface UpsertStoryResult {
+	value?: WithId<StoryDoc> | null;
+	lastErrorObject?: { upserted?: ObjectId };
+	_id?: ObjectId | string;
+}
+export async function upsertStoryByExternalId(storyId: number, updatedContent: Partial<Story>, session?: ClientSession, client?: MongoClient): Promise<UpsertStoryResult | null> {
 	try {
 		const db = session && client ? client.db('Seed', session) : dbConnection.getConnection();
 		const collection = db.collection<StoryDoc>(storiesCollection);
@@ -186,9 +193,9 @@ export async function upsertStoryByExternalId(storyId: number, updatedContent: P
         
 		return result;
 
-	} catch (e) {
-		logger.error(`ERROR in upsertStoryByExternalId: ${e}`);
-		throw e;
+	} catch (error: unknown) {
+		logger.error(`ERROR in upsertStoryByExternalId: ${error instanceof Error ? error.message : String(error)}`);
+		throw error;
 	}
 }
 
@@ -232,7 +239,7 @@ export async function createScenario(storyId: string, scenarioTitle: string): Pr
 
 	await collection.updateOne(
 		{ _id: oid(storyId) },
-		{ $push: { scenarios: newScenario } as any } // MongoDB update operator — driver types don't support nested paths
+		{ $push: { scenarios: newScenario } } // ESLint: no-unnecessary-type-assertion resolved by typing
 	);
 	return newScenario;
 }
@@ -243,7 +250,7 @@ export async function createScenario(storyId: string, scenarioTitle: string): Pr
  * @param updatedScenario - The full scenario object to update.
  * @returns A Promise resolving to the result of the update operation.
  */
-export async function updateScenario(storyId: string, updatedScenario: Scenario): Promise<any> {
+export async function updateScenario(storyId: string, updatedScenario: Scenario): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId), 'scenarios.scenario_id': updatedScenario.scenario_id },
@@ -257,15 +264,15 @@ export async function updateScenario(storyId: string, updatedScenario: Scenario)
  * @param scenarioId - The numeric ID of the scenario to delete.
  * @returns A Promise resolving to the result of the update operation.
  */
-export async function deleteScenario(storyId: string, scenarioId: number): Promise<any> {
+export async function deleteScenario(storyId: string, scenarioId: number): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
-		{ $pull: { scenarios: { scenario_id: scenarioId } } as any } // MongoDB update operator — driver types don't support nested paths
+		{ $pull: { scenarios: { scenario_id: scenarioId } } } // ESLint: no-unnecessary-type-assertion resolved by typing
 	);
 }
 
-export async function updateScenarioList(storyId: string, scenarioList: Scenario[]): Promise<any> {
+export async function updateScenarioList(storyId: string, scenarioList: Scenario[]): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
@@ -275,7 +282,7 @@ export async function updateScenarioList(storyId: string, scenarioList: Scenario
 
 // --- Background Functions ---
 
-export async function updateBackground(storyId: string, updatedBackground: Background): Promise<any> {
+export async function updateBackground(storyId: string, updatedBackground: Background): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
@@ -283,13 +290,13 @@ export async function updateBackground(storyId: string, updatedBackground: Backg
 	);
 }
 
-export async function deleteBackground(storyId: string): Promise<any> {
+export async function deleteBackground(storyId: string): Promise<UpdateResult> {
 	return updateBackground(storyId, emptyBackground());
 }
 
 // --- Status Update Functions ---
 
-export async function updateStoryStatus(storyId: string, storyLastTestStatus: boolean): Promise<any> {
+export async function updateStoryStatus(storyId: string, storyLastTestStatus: boolean): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
@@ -297,7 +304,7 @@ export async function updateStoryStatus(storyId: string, storyLastTestStatus: bo
 	);
 }
 
-export async function updateScenarioStatus(storyId: string, scenarioId: number, scenarioLastTestStatus: boolean): Promise<any> {
+export async function updateScenarioStatus(storyId: string, scenarioId: number, scenarioLastTestStatus: boolean): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
 	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId), 'scenarios.scenario_id': scenarioId },
@@ -324,7 +331,7 @@ export async function getStoriesByIssueKeys(issueKeys: string[]): Promise<string
 	})
 		.project({ _id: 1 })
 		.toArray();
-	return stories.map((story) => story._id!.toString());
+	return stories.map((story) => (story as { _id: { toString: () => string } })._id.toString());
 }
 
 export async function getOneStoryByIssueKey(issueKey: string): Promise<Story | null> {
