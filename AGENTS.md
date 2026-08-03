@@ -107,7 +107,7 @@ Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
 - **Default secrets in compose are not secure**: `SESSION_SECRET=secretSessionKey`, `JIRA_SECRET=secretJiraKey`, `JIRA_SALT=BJ1yJTJ7AFql`
 
 ## Testing & branch conventions
-- **Backend tests**: 668 tests in 44 spec files — controllers, services, helpers, middleware, utils, schemas (see `docs/testing.md` for full inventory)
+- **Backend tests**: 689 tests in 45 spec files — controllers, services, helpers, middleware, utils, schemas (see `docs/testing.md` for full inventory)
 - **Primary test**: `npm test` (Vitest unit `.spec.ts` in both backend and frontend) — daily use
 - **Mock pattern**: `vi.hoisted()` + `vi.mock()` for ESM-safe mocking; `createReq()`/`createRes()` helpers in controller tests
 - **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report
@@ -170,11 +170,11 @@ await db.collection(storiesCollection).updateOne(...);
 - Single quotes, semicolons required, no `comma-dangle`
 - Curly braces **required for multi-statement blocks** (`"curly": ["error", "multi"]`)
 - `prefer-arrow-callback` enforced, `no-console` off
-- **Type-aware rules (all error)**: `no-floating-promises`, `no-misused-promises`, `return-await` (in-try-catch), `no-require-imports`, `consistent-type-imports` (inline `type` keyword)
-- **Code quality (all error)**: `eqeqeq`, `preserve-caught-error` (ESLint 10 core), `no-duplicate-imports`
-- **Warnings (deferred)**: `no-explicit-any` (off in `*.spec.ts`), `require-await`, `only-throw-error`, `no-unnecessary-type-assertion`, `restrict-template-expressions`, `no-useless-catch`
-- **Off (until `any` cleanup)**: all `no-unsafe-*` rules
-- Lint target: all `src/**/*.ts`; 0 errors, ~243 warnings remaining (mostly `no-explicit-any`)
+- **Type-aware rules (all error)**: `no-floating-promises`, `no-misused-promises`, `return-await` (in-try-catch), `no-require-imports`, `consistent-type-imports` (inline `type` keyword), `require-await`, `only-throw-error`, `no-unnecessary-type-assertion`, `restrict-template-expressions`, `no-explicit-any`
+- **Code quality (all error)**: `eqeqeq`, `preserve-caught-error` (ESLint 10 core), `no-duplicate-imports`, `no-useless-catch`
+- **Unsafe operations (all error)**: `no-unsafe-assignment`, `no-unsafe-call`, `no-unsafe-argument`, `no-unsafe-return`, `no-unsafe-enum-comparison`. `no-unsafe-member-access` is `warn` (~122 warnings in selenium-webdriver and Cucumber test runner files with no type declarations).
+- **Modern strict rules (all error)**: `prefer-nullish-coalescing`, `prefer-optional-chain`, `switch-exhaustiveness-check`, `no-unnecessary-condition`
+- Lint target: all `src/**/*.ts`; 0 errors, ~306 warnings (all in `src/testing/` — no-unsafe-*, modern strict rules, and switch-exhaustiveness-check in untyped selenium-webdriver and Cucumber files)
 - Typed domains (`any` cleaned up): Xray, report/Cucumber JSON, Jira/GitHub sync, and both stepdefs — see `src/types/{xray,report,external,test-runner}.types.ts`
 
 ## Files/gitignore

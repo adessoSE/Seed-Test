@@ -37,37 +37,42 @@ export default defineConfig([
 			'curly': ['error', 'multi'],
 			'no-duplicate-imports': 'error',
 			'eqeqeq': ['error', 'always'],
-			'no-useless-catch': 'warn',
+			'no-useless-catch': 'error',
 			'preserve-caught-error': 'error',
 
 			// --- TypeScript type-aware rules ---
 			'@typescript-eslint/no-floating-promises': 'error',
 			'@typescript-eslint/no-misused-promises': 'error',
-			'@typescript-eslint/require-await': 'warn',
+			'@typescript-eslint/require-await': 'error',
 			'@typescript-eslint/return-await': ['error', 'in-try-catch'],
-			'@typescript-eslint/only-throw-error': 'warn',
-			'@typescript-eslint/no-unnecessary-type-assertion': 'warn',
-			'@typescript-eslint/restrict-template-expressions': 'warn',
+			'@typescript-eslint/only-throw-error': 'error',
+			'@typescript-eslint/no-unnecessary-type-assertion': 'error',
+			'@typescript-eslint/restrict-template-expressions': 'error',
 			'@typescript-eslint/no-unused-vars': ['error', {
 				argsIgnorePattern: '^_',
 				varsIgnorePattern: '^_',
 				caughtErrorsIgnorePattern: '^_'
 			}],
-			'@typescript-eslint/no-explicit-any': 'warn',
+			'@typescript-eslint/no-explicit-any': 'error',
 			'@typescript-eslint/no-require-imports': 'error',
 			'@typescript-eslint/consistent-type-imports': ['error', {
 				prefer: 'type-imports',
 				fixStyle: 'inline-type-imports'
 			}],
 
-			// Deferred: too noisy while codebase still has pervasive `any` types.
-			// Enable as `any` is incrementally replaced with proper types.
-			'@typescript-eslint/no-unsafe-member-access': 'off',
-			'@typescript-eslint/no-unsafe-assignment': 'off',
-			'@typescript-eslint/no-unsafe-call': 'off',
-			'@typescript-eslint/no-unsafe-argument': 'off',
-			'@typescript-eslint/no-unsafe-return': 'off',
-			'@typescript-eslint/no-unsafe-enum-comparison': 'off'
+			// Unsafe operations: prevents accidental use of untyped values
+			'@typescript-eslint/no-unsafe-member-access': 'warn',
+			'@typescript-eslint/no-unsafe-assignment': 'error',
+			'@typescript-eslint/no-unsafe-call': 'error',
+			'@typescript-eslint/no-unsafe-argument': 'error',
+			'@typescript-eslint/no-unsafe-return': 'error',
+			'@typescript-eslint/no-unsafe-enum-comparison': 'error',
+
+			// --- Modern strict rules (2026 best practices) ---
+			'@typescript-eslint/prefer-nullish-coalescing': 'error',
+			'@typescript-eslint/prefer-optional-chain': 'error',
+			'@typescript-eslint/switch-exhaustiveness-check': 'error',
+			'@typescript-eslint/no-unnecessary-condition': 'error'
 		}
 	},
 	{
@@ -87,9 +92,18 @@ export default defineConfig([
 	},
 	{
 		// Cucumber step definitions use 'const self = this' for World context
+		// Selenium-webdriver is untyped — no-unsafe-* rules kept at warn to avoid noise
 		files: ['src/testing/**/*.ts'],
 		rules: {
-			'@typescript-eslint/no-this-alias': 'off'
+			'@typescript-eslint/no-this-alias': 'off',
+			'@typescript-eslint/no-unsafe-call': 'warn',
+			'@typescript-eslint/no-unsafe-return': 'warn',
+			'@typescript-eslint/no-unsafe-argument': 'warn',
+			'@typescript-eslint/no-unsafe-enum-comparison': 'warn',
+			'@typescript-eslint/no-unnecessary-condition': 'warn',
+			'@typescript-eslint/prefer-nullish-coalescing': 'warn',
+			'@typescript-eslint/prefer-optional-chain': 'warn',
+			'@typescript-eslint/switch-exhaustiveness-check': 'warn'
 		}
 	}
 ]);
