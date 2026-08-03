@@ -1,4 +1,4 @@
-import { type MongoClient, type Db } from 'mongodb';
+import { type MongoClient, type Db, type Document } from 'mongodb';
 import { exit } from 'process';
 import * as dbConnector from './DbConnector.js';
 import { stepDefs } from './stepTypes.js';
@@ -27,16 +27,16 @@ async function makeCollection(dbo: Db, name: string): Promise<void> {
 			console.log('Inserting stepType documents:');
 			// Assuming stepDefs returns the correct type array
 			const stepTypesData = stepDefs(); 
-			if (stepTypesData && stepTypesData.length > 0) {
-				const insertionResult = await collection.insertMany(stepTypesData as any[], { ordered: false });
+			if (stepTypesData.length > 0) {
+				const insertionResult = await collection.insertMany(stepTypesData as Document[], { ordered: false });
 				console.log(`Number of documents inserted: ${insertionResult.insertedCount}`);
 			} else 
 				console.warn('No step types data found to insert.');
             
 		}
 		console.log(''); // New line
-	} catch (error: any) {
-		console.error(`\x1b[31m Error creating collection: ${name}\n\x1b[0m`, error.message);
+	} catch (error: unknown) {
+		console.error(`\x1b[31m Error creating collection: ${name}\n\x1b[0m`, error instanceof Error ? error.message : String(error));
 		// Decide if script should exit on error
 		// throw error; 
 	}
@@ -120,8 +120,8 @@ async function installDatabase(): Promise<void> {
 
 		// Create indexes for common query patterns
 		await ensureIndexes(dbo);
-	} catch (err: any) {
-		console.error('\x1b[31m Database setup failed:\x1b[0m', err.message);
+	} catch (err: unknown) {
+		console.error('\x1b[31m Database setup failed:\x1b[0m', err instanceof Error ? err.message : String(err));
 		exit(1); // Exit with error code
 	} finally {
 		// Close the client connection if it was established

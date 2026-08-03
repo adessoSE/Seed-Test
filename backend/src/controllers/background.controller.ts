@@ -13,7 +13,7 @@ export async function updateBackground(req: Request, res: Response, next: NextFu
 		const storyId = req.params.storyID;
 		requireValidId(storyId, 'story ID');
 
-		const backgroundData: Background = req.body;
+		const backgroundData = req.body as Background;
 
 		await storyService.updateBackground(storyId, backgroundData);
 		// Trigger feature file update after successful DB update

@@ -91,7 +91,7 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
 		if (!response.ok) 
 			throw AppError.badGateway(`Jira API request failed: ${response.status}`);
         
-		const jiraProjects: JiraProjectSummary[] = await response.json();
+		const jiraProjects = await response.json() as JiraProjectSummary[];
 		return jiraProjects.map((project) => project.name);
 	} catch (error: unknown) {
 		const message = error instanceof Error ? (error.stack ?? error.message) : String(error);
@@ -120,7 +120,7 @@ async function storeJiraRepos(projectNames: string[]): Promise<{ _id: string; re
 
 		if (!jiraRepo) {
 			const insertResult = await repositoryService.createJiraRepo(projectName);
-			jiraRepo = { _id: insertResult.insertedId || insertResult._id, repoName: projectName };
+			jiraRepo = { _id: insertResult.insertedId, repoName: projectName };
 		}
 		repos.push({ name: projectName, _id: jiraRepo._id });
 	}
@@ -191,7 +191,7 @@ async function execRepositoryRequests(link: string, user: string, password: stri
 		if (response.status === 401) throw AppError.unauthorized('GitHub fetch failed (Unauthorized)');
 		if (!response.ok) throw AppError.badGateway(`GitHub API error: ${response.status}`);
 
-		const githubRepos: GithubRepoSummary[] = await response.json();
+		const githubRepos = await response.json() as GithubRepoSummary[];
 		const projects: RepoSyncEntry[] = [];
 		const gitReposFromDb = await repositoryService.getAllSourceReposFromDb(Sources.GITHUB);
 
@@ -200,7 +200,7 @@ async function execRepositoryRequests(link: string, user: string, password: stri
 
 			if (!mongoRepo) {
 				const insertResult = await repositoryService.createGitRepo(repo.owner.id.toString(), repo.full_name, githubId, ownerId);
-				mongoRepo = { _id: insertResult.insertedId || insertResult._id, repoName: repo.full_name, gitOwner: repo.owner.id.toString() };
+				mongoRepo = { _id: insertResult.insertedId, repoName: repo.full_name, gitOwner: repo.owner.id.toString() };
 			} else if (mongoRepo.gitOwner === githubId.toString())
 				// owner may be absent on legacy repo records. Passing undefined is deliberate:
 				// updateOwnerInRepo resolves it to a random ObjectId, finds no user, and raises a
@@ -233,18 +233,18 @@ async function execRepositoryRequests(link: string, user: string, password: stri
  * @returns A promise resolving to an array of synchronized stories.
  */
 export async function getStoriesFromSource(user: User, query: { [key: string]: string }): Promise<Story[]> {
-	logger.info(`getStoriesFromSource called for source: ${query.source} userId: ${user?._id}`);
+	logger.info(`getStoriesFromSource called for source: ${query.source} userId: ${user._id}`);
 	const { source, githubName, repository, projectKey, id: _id } = query;
     
 	const tmpStories = new Map<string, Story>();
 	const storiesArray: ObjectId[] = [];
 	let repo: Repository | null;
 
-	if (source === Sources.GITHUB) {
+	if (source === 'github') {
 		if (!checkValidGithubFormat(githubName, repository))  // Use the helper
 			throw AppError.badRequest('Invalid GitHub username or repository name');
         
-		const token = user?.github?.githubToken || process.env.TESTACCOUNT_TOKEN!;
+		const token = user.github.githubToken;
 		const githubRepoUrl = `${githubName}/${repository}`;
         
 		repo = await repositoryService.getOneGitRepository(githubRepoUrl);
@@ -255,7 +255,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 
 		if (!response.ok) throw AppError.badGateway(`GitHub API error: ${response.status}`);
         
-		const issues: GithubIssue[] = await response.json();
+		const issues = await response.json() as GithubIssue[];
 		logger.info(`Fetched ${issues.length} issues from GitHub`);
 		for (const issue of issues) {
 			const story: Partial<Story> = {
@@ -265,10 +265,10 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 				state: issue.state,
 				issue_number: issue.number,
 				storySource: 'github',
-				assignee: issue.assignee?.login || 'unassigned',
+				assignee: issue.assignee?.login ?? 'unassigned',
 				// Shared Story model declares this as `string`, but the frontend relies on an
 				// explicit `null` (vs. missing) to decide whether to render an avatar image
-				assignee_avatar_url: (issue.assignee?.avatar_url || null) as string
+				assignee_avatar_url: (issue.assignee?.avatar_url ?? null) as string
 			};
 
 			const entry = await fuseStoryWithDb(story);
@@ -276,7 +276,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 			storiesArray.push(oid(entry._id!));
 		}
 
-	} else if (source === Sources.JIRA && user?.jira && projectKey !== 'null') {
+	} else if (source === 'jira' && user.jira && projectKey !== 'null') {
 		if (!/^[A-Za-z][A-Za-z0-9_-]+$/.test(projectKey)) 
 			throw AppError.badRequest('Invalid Jira project key format');
         
@@ -299,14 +299,14 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		const response = await fetch(searchUrl, options);
 		if (!response.ok) throw AppError.badGateway(`Jira API error: ${response.status}`);
         
-		const json = await response.json();
+		const json = await response.json() as { issues: XrayIssue[] };
         
 		const storyPromises = json.issues.map(async (issue: XrayIssue): Promise<Story | null> => {
 			if (issue.fields.issuetype.name === 'Test Set') {
 				testSets.push({
 					testSetKey: issue.key,
 					testSetId: issue.id,
-					tests: issue.fields.customfield_14233 || [],
+					tests: issue.fields.customfield_14233 ?? [],
 					xrayTestSet: true
 				});
 				return null;
@@ -316,7 +316,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 				const preCondition = {
 					preConditionKey: issue.key,
 					preConditionName: issue.fields.summary,
-					testSet: (issue.fields.issuelinks || [])
+					testSet: (issue.fields.issuelinks ?? [])
 						.filter((link) => link.inwardIssue && link.type.inward === 'tested by')
 						.map((link) => link.inwardIssue!.key)
 				};
@@ -327,14 +327,14 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 			if (issue.fields.issuetype.name === 'Test') {
 				const { scenarioList, testStepDescription } = await xrayService.handleTestIssue(issue, options, Host);
                 
-				const finalPreConditions = (issue.fields.customfield_14229 || [])
+				const finalPreConditions = (issue.fields.customfield_14229 ?? [])
 					.map((preConKey: string) => preConditionMap.find(p => p.preConditionKey === preConKey))
 					.filter(Boolean) as JiraPreCondition[];
 
 				const story: Partial<Story> = {
 					story_id: parseInt(issue.id, 10),
 					title: issue.fields.summary,
-					body: (issue.fields.description || ''),
+					body: (issue.fields.description ?? ''),
 					scenarios: scenarioList as Scenario[],
 					state: issue.fields.status.name,
 					issue_number: issue.key,
@@ -342,10 +342,10 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 					sourceSteps: testStepDescription,
 					host: Host,
 					preConditions: finalPreConditions,
-					assignee: issue.fields.assignee?.name || 'unassigned',
+					assignee: issue.fields.assignee?.name ?? 'unassigned',
 					// Shared Story model declares this as `string`, but the frontend relies on an
 					// explicit `null` (vs. missing) to decide whether to render an avatar image
-					assignee_avatar_url: (issue.fields.assignee?.avatarUrls?.['32x32'] || null) as string
+					assignee_avatar_url: (issue.fields.assignee?.avatarUrls?.['32x32'] ?? null) as string
 				};
 				return story as Story;
 			}
@@ -380,7 +380,7 @@ export async function matchStoryOrder(
 	storiesMap: Map<string, Story>,
 	repoDoc: Repository
 ): Promise<Story[]> {
-	const dbStoryIds = (repoDoc.stories || []).map((s) => s.toString());
+	const dbStoryIds = repoDoc.stories.map((s) => s.toString());
 	const fetchedStoryIds = storiesIdList.map(s => s.toString());
     
 	// 1. Find story IDs that are in the repo, but were NOT fetched in this sync
@@ -415,7 +415,7 @@ export async function matchStoryOrder(
 	const finalStoryIdList = [...dbStoryIds, ...newStoryIds];
 
 	// 4. Update the repo's story array if new stories were added
-	if (newStoryIds.length > 0 && repoDoc?._id) {
+	if (newStoryIds.length > 0 && repoDoc._id) {
 		// Filter final list to only include stories that actually exist
 		const validFinalIdList = finalStoryIdList.filter(id => storiesMap.has(id));
          
@@ -439,7 +439,7 @@ export async function matchStoryOrder(
 async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
 	// Use story_id (numeric) for lookup if available and valid
 	const lookupId = typeof story.story_id === 'number' ? story.story_id : story._id;
-	if (lookupId === undefined || lookupId === null) 
+	if (lookupId === undefined) 
 		throw AppError.badRequest('Cannot fuse story without a valid story_id or _id.');
     
     
@@ -461,7 +461,7 @@ async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
 		finalStoryData = {
 			...story,
 			scenarios: story.scenarios && story.scenarios.length > 0 ? story.scenarios : [emptyScenario()],
-			background: story.background || emptyBackground()
+			background: story.background ?? emptyBackground()
 		};
 		// Remove potential invalid _id from external source if creating new
 		delete finalStoryData._id; 
@@ -474,7 +474,7 @@ async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
 
 	const upsertResult = await storyService.upsertStoryByExternalId(finalStoryData.story_id!, finalStoryData);
     
-	const finalId = upsertResult?.value?._id || upsertResult?.lastErrorObject?.upserted || finalStoryData._id;
+	const finalId = upsertResult?.value?._id ?? upsertResult?.lastErrorObject?.upserted ?? finalStoryData._id;
 	if (!finalId) 
 		throw new Error('Failed to get story ID after upsert.');
     
@@ -509,8 +509,8 @@ function mergeStories(dbStory: Story, jiraStory: Story): Story {
 	mergedStory.assignee_avatar_url = jiraStory.assignee_avatar_url;
 
 	// Now, perform the existing scenario merge logic
-	const dbScenarios = dbStory.scenarios || [];
-	const jiraScenarios = jiraStory.scenarios || [];
+	const dbScenarios = dbStory.scenarios;
+	const jiraScenarios = jiraStory.scenarios;
 	const dbScenarioMap = new Map(dbScenarios.map(scenario => [scenario.scenario_id, scenario]));
 	const mergedScenarios: Scenario[] = [];
 
@@ -556,8 +556,8 @@ function mergeStepDefinitions(dbStepDefinitions?: Partial<StepDefinition>, jiraS
 	const stepTypes: (keyof StepDefinition)[] = ['given', 'when', 'then', 'example'];
 
 	stepTypes.forEach(stepType => {
-		const dbSteps: StepType[] = dbStepDefinitions?.[stepType] || [];
-		const jiraSteps: StepType[] = jiraStepDefinitions?.[stepType] || [];
+		const dbSteps: StepType[] = dbStepDefinitions?.[stepType] ?? [];
+		const jiraSteps: StepType[] = jiraStepDefinitions?.[stepType] ?? [];
 
 		// Simple case: If either is empty, return the other
 		if (jiraSteps.length === 0) {
@@ -570,7 +570,7 @@ function mergeStepDefinitions(dbStepDefinitions?: Partial<StepDefinition>, jiraS
 		}
 
 		// Create a unique key for each step (assuming combination is unique)
-		const stepKey = (step: StepType): string => `${step.pre || ''}-${step.mid || ''}-${step.post || ''}`;
+		const stepKey = (step: StepType): string => `${step.pre}-${step.mid}-${step.post ?? ''}`;
         
 		// Explicitly type the Maps
 		const dbStepMap = new Map<string, StepType>(dbSteps.map(step => [stepKey(step), step]));

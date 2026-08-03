@@ -1,3 +1,5 @@
+import type { Options as HtmlReporterOptions } from 'cucumber-html-reporter';
+
 enum ExecutionMode {
 	SCENARIO = 'scenario',
 	STORY = 'feature',
@@ -14,10 +16,10 @@ class PassedCount {
 
 class GenericReport {
 	reportName!: string;
-	reportOptions: any;
+	reportOptions!: HtmlReporterOptions & Record<string, unknown>;
 	status: boolean;
 	scenariosTested: PassedCount;
-	storiesTested: any;
+	storiesTested: unknown;
 
 	reportTime!: number;
 	mode!: ExecutionMode;

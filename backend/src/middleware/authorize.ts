@@ -5,14 +5,16 @@ import * as repositoryService from '../services/repository.service.js';
 import * as workgroupService from '../services/workgroup.service.js';
 import * as reportService from '../services/report.service.js';
 import * as storyService from '../services/story.service.js';
+import type { ReportDoc } from '../types/report.types.js';
+import { AppError } from '../helpers/AppError.js';
 
 /** Where to read the ID from: URL params (default), request body, or query string. */
 type IdSource = 'params' | 'body' | 'query';
 
 /** Reads a named value from the specified request source. */
 function getIdFromRequest(req: Request, name: string, source: IdSource): string | undefined {
-	if (source === 'body') return req.body?.[name];
-	if (source === 'query') return req.query?.[name] as string | undefined;
+	if (source === 'body') return (req.body as Record<string, unknown>)[name] as string | undefined;
+	if (source === 'query') return req.query[name] as string | undefined;
 	return req.params[name];
 }
 
@@ -29,12 +31,13 @@ export function authorizeRepo(repoParamName: string, options: { requireEdit?: bo
 	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
 			const user = req.user as User;
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			if (!user?._id) {
 				res.status(401).json({ error: 'Unauthorized' });
 				return;
 			}
 
-			const repoId = getIdFromRequest(req, repoParamName, options.source || 'params');
+			const repoId = getIdFromRequest(req, repoParamName, options.source ?? 'params');
 			if (!repoId || !ObjectId.isValid(repoId)) {
 				res.status(400).json({ error: `Invalid or missing repository ID parameter: ${repoParamName}` });
 				return;
@@ -47,7 +50,7 @@ export function authorizeRepo(repoParamName: string, options: { requireEdit?: bo
 			}
 
 			const userId = user._id.toString();
-			const repoOwnerId = repo.owner?.toString();
+			const repoOwnerId = repo.owner.toString();
 
 			// Owner always has full access
 			if (repoOwnerId === userId)
@@ -93,12 +96,13 @@ export function authorizeByStory(storyParamName: string, options: { requireEdit?
 	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
 			const user = req.user as User;
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			if (!user?._id) {
 				res.status(401).json({ error: 'Unauthorized' });
 				return;
 			}
 
-			const storyId = getIdFromRequest(req, storyParamName, options.source || 'params');
+			const storyId = getIdFromRequest(req, storyParamName, options.source ?? 'params');
 			if (!storyId || !ObjectId.isValid(storyId)) {
 				res.status(400).json({ error: `Invalid or missing story ID parameter: ${storyParamName}` });
 				return;
@@ -112,7 +116,7 @@ export function authorizeByStory(storyParamName: string, options: { requireEdit?
 			}
 
 			const userId = user._id.toString();
-			const repoOwnerId = repo.owner?.toString();
+			const repoOwnerId = repo.owner.toString();
 			const repoId = repo._id!.toString();
 
 			if (repoOwnerId === userId)
@@ -146,16 +150,19 @@ export function authorizeByStory(storyParamName: string, options: { requireEdit?
  *
  * @returns The first available storyId/featureId as a string, or null if none found.
  */
-export function extractStoryIdFromReport(report: any): string | null {
+export function extractStoryIdFromReport(report: Record<string, unknown>): string | null {
 	// StoryReport — featureId is the story ObjectId
 	if (report.featureId)
-		return report.featureId.toString();
+		// eslint-disable-next-line @typescript-eslint/no-base-to-string
+		return String(report.featureId);
 	// ScenarioReport — storyId references the parent story
 	if (report.storyId)
-		return report.storyId.toString();
+		// eslint-disable-next-line @typescript-eslint/no-base-to-string
+		return String(report.storyId);
 	// GroupReport — storyStatuses array contains per-story results
-	if (Array.isArray(report.storyStatuses) && report.storyStatuses.length > 0 && report.storyStatuses[0].storyId)
-		return report.storyStatuses[0].storyId.toString();
+	const statuses = report.storyStatuses;
+	if (Array.isArray(statuses) && statuses.length > 0 && typeof statuses[0] === 'object' && statuses[0] !== null && 'storyId' in statuses[0])
+		return String((statuses[0] as Record<string, unknown>).storyId);
 	return null;
 }
 
@@ -172,15 +179,16 @@ export function authorizeByReport(paramName: string, options: { requireEdit?: bo
 	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
 			const user = req.user as User;
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			if (!user?._id) {
 				res.status(401).json({ error: 'Unauthorized' });
 				return;
 			}
 
 			const paramValue = req.params[paramName];
-			const lookupBy = options.lookupBy || 'id';
+			const lookupBy = options.lookupBy ?? 'id';
 
-			let report: any;
+			let report: ReportDoc | null;
 			if (lookupBy === 'id') {
 				// Validate ObjectId format to prevent injection
 				if (!paramValue || !ObjectId.isValid(paramValue)) {
@@ -199,9 +207,9 @@ export function authorizeByReport(paramName: string, options: { requireEdit?: bo
 					const fullReport = await reportService.getReportByName(paramValue);
 					// getReportByName returns { _id, jsonReport } — fetch metadata for storyId extraction
 					report = await reportService.getReportDataById(fullReport._id.toString());
-				} catch (lookupError: any) {
+				} catch (lookupError: unknown) {
 					// Convert not-found throws to null so the check below handles it uniformly
-					if (lookupError?.statusCode === 404)
+					if (lookupError instanceof AppError && lookupError.statusCode === 404)
 						report = null;
 					else
 						throw lookupError;
@@ -214,7 +222,7 @@ export function authorizeByReport(paramName: string, options: { requireEdit?: bo
 			}
 
 			// Resolve report → storyId → repository
-			const storyId = extractStoryIdFromReport(report);
+			const storyId = extractStoryIdFromReport(report as unknown as Record<string, unknown>);
 			if (!storyId) {
 				res.status(404).json({ error: 'Could not determine story from report' });
 				return;
@@ -227,7 +235,7 @@ export function authorizeByReport(paramName: string, options: { requireEdit?: bo
 			}
 
 			const userId = user._id.toString();
-			const repoOwnerId = repo.owner?.toString();
+			const repoOwnerId = repo.owner.toString();
 			const repoId = repo._id!.toString();
 
 			if (repoOwnerId === userId)
@@ -264,6 +272,7 @@ export function authorizeByIssueKey(paramName: string) {
 	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
 			const user = req.user as User;
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			if (!user?._id) {
 				res.status(401).json({ error: 'Unauthorized' });
 				return;
@@ -290,7 +299,7 @@ export function authorizeByIssueKey(paramName: string) {
 			}
 
 			const userId = user._id.toString();
-			const repoOwnerId = repo.owner?.toString();
+			const repoOwnerId = repo.owner.toString();
 			const repoId = repo._id!.toString();
 
 			if (repoOwnerId === userId)

@@ -3,13 +3,14 @@
  * Prevents NoSQL injection by removing any keys that could be interpreted
  * as MongoDB operators (e.g. $gt, $ne, $where).
  */
-export function mongoSanitize(v: any): any {
-	if (v instanceof Object)
-		for (const key in v)
+export function mongoSanitize<T>(v: T): T {
+	if (v instanceof Object) {
+		const obj = v as Record<string, unknown>;
+		for (const key in obj)
 			if (/^\$/.test(key))
-				delete v[key];
+				delete obj[key];
 			else
-				mongoSanitize(v[key]);
-
+				mongoSanitize(obj[key]);
+	}
 	return v;
 }

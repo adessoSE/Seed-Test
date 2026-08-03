@@ -14,7 +14,7 @@ type RequestWithSession = Request & { session: Session & Partial<SessionData> };
  */
 export async function submitIssue(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { title, body: issueBody, assignees, labels, milestone } = req.body;
+		const { title, body: issueBody, assignees, labels, milestone } = req.body as Record<string, unknown>;
 		if (!title || typeof title !== 'string')
 			throw AppError.badRequest('Missing or invalid issue title');
 
@@ -47,10 +47,10 @@ export async function submitIssue(req: Request, res: Response, next: NextFunctio
 
 		if (!response.ok) {
 			// Forward GitHub's error status and potentially message
-			const errorData = await response.json().catch(() => ({ message: 'Failed to submit issue to GitHub' }));
+			const errorData = await (response.json() as Promise<Record<string, unknown>>).catch(() => ({ message: 'Failed to submit issue to GitHub' }));
 			res.status(response.status).json(errorData);
 		} else {
-			const responseData = await response.json();
+			const responseData = await response.json() as Record<string, unknown>;
 			res.status(200).json(responseData);
 		}
 	} catch (error) {
@@ -65,15 +65,18 @@ export async function submitIssue(req: Request, res: Response, next: NextFunctio
 export async function disconnectGithub(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User; // Cast req.user to your User type
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (!user?._id)
 			throw AppError.unauthorized('User not authenticated');
 
 		// Call the user service to handle the actual database update
 		await userService.disconnectGithub(user._id);
 
-		// Optionally clear the github part from the session user object if needed
+		// Clear the github property from the session user object if present
 		const reqWithSession = req as RequestWithSession; // Cast to access session
-		if (reqWithSession.session && (req.user as User).github) {
+		// Session github property exists — remove it, save session, then respond
+		// Runtime guard — req.user.github may be absent from session
+		if ((req.user as User).github) {
 			Reflect.deleteProperty(req.user as User, 'github');
 			// Use callback for session saving as it might be async
 			reqWithSession.session.save(err => {
@@ -85,8 +88,8 @@ export async function disconnectGithub(req: Request, res: Response, next: NextFu
 				}
 				res.status(200).json({ message: 'GitHub account disconnected successfully.' });
 			});
-		} else 
-		// If no session or no github property, just send success
+		} else
+			// No session github property — no session save needed, respond immediately
 			res.status(200).json({ message: 'GitHub account disconnected successfully.' });
         
 

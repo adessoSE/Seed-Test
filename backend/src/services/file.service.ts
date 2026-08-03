@@ -36,7 +36,7 @@ function generateUniqueFilename(existingFilenames: string[], baseFilename: strin
  * @param buffer - The file content as a Buffer.
  * @returns A promise that resolves with the metadata of the uploaded file.
  */
-export async function fileUpload(originalname: string, repoId: string, buffer: Buffer): Promise<any> {
+export async function fileUpload(originalname: string, repoId: string, buffer: Buffer): Promise<unknown> {
 	const db = dbConnection.getConnection();
 	const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
 	const repoObjId = oid(repoId);
@@ -50,7 +50,7 @@ export async function fileUpload(originalname: string, repoId: string, buffer: B
 		'metadata.repoId': repoObjId
 	}, { projection: { filename: 1 } }).toArray();
 
-	const existingFilenames = existingFiles.map(file => file.filename);
+	const existingFilenames = existingFiles.map(file => file.filename as string);
 	const newFilename = generateUniqueFilename(existingFilenames, baseFilename, originalname);
 
 	const id = new ObjectId();
@@ -76,7 +76,9 @@ export async function fileUpload(originalname: string, repoId: string, buffer: B
 export async function deleteFile(fileId: string, repoId: string): Promise<void> {
 	const db = dbConnection.getConnection();
 	const fileDoc = await db.collection('GridFS.files').findOne({ _id: oid(fileId) });
-	if (!fileDoc || fileDoc.metadata?.repoId?.toString() !== repoId) 
+	if (!fileDoc) throw AppError.notFound('File not found or not authorized');
+	const metadata = fileDoc['metadata'] as Record<string, unknown> | undefined;
+	if (metadata?.repoId?.toString() !== repoId) 
 		throw AppError.notFound('File not found or not authorized');
     
 	const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });

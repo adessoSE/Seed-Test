@@ -68,7 +68,7 @@ describe('sanitizeUser', () => {
 	it('should handle undefined github gracefully', () => {
 		const userNoGithub: User = {
 			...fullUser,
-			github: undefined as any
+			github: undefined
 		};
 		const result = sanitizeUser(userNoGithub);
 		expect(result.github).toBeUndefined();

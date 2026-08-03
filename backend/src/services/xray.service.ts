@@ -80,7 +80,7 @@ export async function handleTestIssue(issue: XrayIssue, options: RequestInit, ho
 
 	// Fetch all test runs for the given issue
 	const testrunResponse = await fetch(`https://${host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
-	const testRuns: XrayTestRunSummary[] = await testrunResponse.json();
+	const testRuns = await testrunResponse.json() as XrayTestRunSummary[];
 
 	// Fetch details for all test runs
 	const testRunDetailsPromises = testRuns.map((testRun) =>
@@ -90,7 +90,7 @@ export async function handleTestIssue(issue: XrayIssue, options: RequestInit, ho
 
 	// Fetch all test steps defined for the given issue
 	const testStepsResponse = await fetch(`https://${host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
-	const testSteps: { steps: XrayTestStep[] } = await testStepsResponse.json();
+	const testSteps = await testStepsResponse.json() as { steps: XrayTestStep[] };
 
 	const { scenarioList, testStepDescription } = await processTestSteps(testSteps.steps, resolvedTestRuns, issue.key, stepTypes);
 
@@ -108,9 +108,10 @@ async function processTestSteps(steps: XrayTestStep[], resolvedTestRuns: XrayTes
 	const scenarioList: Partial<Scenario>[] = [];
 	let testStepDescription = '\n\nTest-Steps:\n';
 
-	if (!steps) 
+	// Runtime guard — testSteps.steps may be undefined in test mocks or edge-case responses
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (!steps)
 		return { scenarioList, testStepDescription: 'No steps found.' };
-    
 
 	for (const step of steps) {
 		if (!step.fields) {
@@ -124,8 +125,8 @@ async function processTestSteps(steps: XrayTestStep[], resolvedTestRuns: XrayTes
 
 		const stepInfo = [`\n----- Scenario ${step.index} -----\n`];
 		stepInfo.push(fields.Given ? `(GIVEN): ${fields.Given.value}\n` : '(GIVEN): Not used\n');
-		stepInfo.push(fields.Action && fields.Action.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not step used\n');
-		stepInfo.push(fields['Expected Result'] && fields['Expected Result'].value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
+		stepInfo.push(fields.Action?.value.raw ? `(WHEN): ${fields.Action.value.raw}\n` : '(WHEN): Not step used\n');
+		stepInfo.push(fields['Expected Result']?.value.raw ? `(THEN): ${fields['Expected Result'].value.raw}\n` : '(THEN): No steps used\n');
 		testStepDescription += stepInfo.join('');
 
 		const matchingSteps: { testRunId: number; testRunStepId: number, testExecKey: string }[] = [];
@@ -155,9 +156,9 @@ async function processTestSteps(steps: XrayTestStep[], resolvedTestRuns: XrayTes
 			scenario_id: step.id,
 			name: `${step.id}`, // Converted to string
 			stepDefinitions: {
-				given: givenSteps || [],
-				when: whenSteps || [],
-				then: thenSteps || [],
+				given: givenSteps,
+				when: whenSteps,
+				then: thenSteps,
 				example: []
 			},
 			testRunSteps: matchingSteps,
@@ -175,20 +176,21 @@ async function processTestSteps(steps: XrayTestStep[], resolvedTestRuns: XrayTes
  * @param step The xray step containing sections of given, actiona and expected result.
  * @returns An array of matching step definitions.
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 async function checkIdenticalSteps(step: XrayStepFields, stepTypes: StepType[]): Promise<XrayStepMatch[]> {
 	const matches: XrayStepMatch[] = [];
-	let context: string = '';
+	let context: string;
 
 	for (const section of ['Given', 'Action', 'Expected Result'] as const)
-		if (step[section] && step[section].value) {
-			let texts: string[] = [];
+		if (step[section]?.value) {
+			let texts: string[];
 			if (section === 'Given') {
 				texts = step[section].value.split('\n');
 				context = 'given';
 			} else if (section === 'Action') {
 				texts = step[section].value.raw.split('\n');
 				context = 'when';
-			} else if (section === 'Expected Result') {
+			} else {
 				texts = step[section].value.raw.split('\n');
 				context = 'then';
 			}
@@ -217,9 +219,10 @@ function analyzeText(text: string, context: string, stepTypes: StepType[]): Xray
 		if (stepType.stepType === context) {
 			// Create a pattern based on the pre, mid, and post values of the step definition
 			// Store the strings after the pre, mid, and post values by (.*) in the pattern
-			let pattern = `${escapeRegExp(stepType.pre)}(.*)${stepType.mid ? escapeRegExp(stepType.mid) + '(.*)' : ''}`;
+			let pattern = `${String(escapeRegExp(stepType.pre))}(.*)${stepType.mid ? String(escapeRegExp(stepType.mid)) + '(.*)' : ''}`;
 			if (stepType.post) 
-				pattern += `${escapeRegExp(stepType.post)}(.*)`;
+				pattern += `${String(escapeRegExp(stepType.post))}(.*)`;
+
             
 			const regex = new RegExp(pattern, 'i');
 			const match = text.match(regex);
@@ -233,7 +236,7 @@ function analyzeText(text: string, context: string, stepTypes: StepType[]): Xray
 					values: values,
 					pre: stepType.pre,
 					mid: stepType.mid ? stepType.mid : '',
-					post: stepType.post ? stepType.post : undefined,
+					post: stepType.post ?? undefined,
 					context: context,
 					origin: 'congruent'
 				};
@@ -294,7 +297,7 @@ function createScenarioSteps(matchingSteps: XrayStepMatch[]): { givenSteps: Step
 			pre: scenarioStep.pre, // Can be undefined, which is fine for StepType
 			mid: scenarioStep.mid, // Can be undefined
 			post: scenarioStep.post, // Can be undefined
-			values: scenarioStep.values || []
+			values: scenarioStep.values
 		};
 
 		if (scenarioStep.context === 'given') 
@@ -316,16 +319,17 @@ function createScenarioSteps(matchingSteps: XrayStepMatch[]): { givenSteps: Step
 function extractRaw(givenField: string): string {
 	try {
 		// First, check if it's a JSON string
-		const givenData = JSON.parse(givenField);
-		if (givenData && givenData.raw) 
-			return givenData.raw;
+		const givenData = JSON.parse(givenField) as Record<string, unknown>;
+		if (givenData.raw) 
+			return givenData.raw as string;
         
 	} catch (e) {
 		// If parsing fails, it's likely plain text.
 		if (typeof givenField === 'string') 
 			return givenField;
-        
-		logger.error(`Error while parsing Given field of xRay execution step: ${e}`);
+         
+		logger.error(`Error while parsing Given field of xRay execution step: ${String(e)}`);
 	}
 	return ''; // Fallback
+
 }

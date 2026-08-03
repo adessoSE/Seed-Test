@@ -76,8 +76,8 @@ async function insertExampleUser(): Promise<User | null> {
 		console.log('\x1b[32mExample-User inserted!\x1b[0m');
 		// Fetch the newly created user to get the full object with _id
 		return await userService.getUserById(result.insertedId);
-	} catch (error: any) {
-		console.error(`\x1b[31mError inserting/finding example user: ${error.message}\x1b[0m`);
+	} catch (error: unknown) {
+		console.error(`\x1b[31mError inserting/finding example user: ${error instanceof Error ? error.message : String(error)}\x1b[0m`);
 		return null; // Return null on error
 	}
 }
@@ -87,7 +87,7 @@ async function insertExampleUser(): Promise<User | null> {
  * @param user The user object to associate the data with.
  */
 async function insertExampleTest(user: User): Promise<void> {
-	if (!user?._id) {
+	if (!user._id) {
 		console.error('\x1b[31mCannot insert example test without a valid user.\x1b[0m');
 		return;
 	}
@@ -144,8 +144,8 @@ async function insertExampleTest(user: User): Promise<void> {
 			console.error(`\x1b[31mFailed to fetch story ${storyId} to add scenario.\x1b[0m`);
         
 
-	} catch (error: any) {
-		console.error(`\x1b[31mError during example test insertion: ${error.message}\x1b[0m`);
+	} catch (error: unknown) {
+		console.error(`\x1b[31mError during example test insertion: ${error instanceof Error ? error.message : String(error)}\x1b[0m`);
 	}
 }
 

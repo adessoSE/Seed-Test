@@ -83,7 +83,7 @@ describe('LoggingController', () => {
 	describe('logFrontendMessage', () => {
 		it('logs a message from the frontend and returns 200', async () => {
 			const req = createReq({ body: { message: 'Button clicked' } });
-			await controller.logFrontendMessage(req, res, next);
+			controller.logFrontendMessage(req, res, next);
 
 			// Verify the log entry was written
 			expect(mockStream.write).toHaveBeenCalledWith(
@@ -97,7 +97,7 @@ describe('LoggingController', () => {
 
 		it('uses default message when body.message is missing', async () => {
 			const req = createReq({ body: {} });
-			await controller.logFrontendMessage(req, res, next);
+			controller.logFrontendMessage(req, res, next);
 
 			// Controller falls back to 'No message provided'
 			expect(mockStream.write).toHaveBeenCalledWith(
@@ -110,7 +110,7 @@ describe('LoggingController', () => {
 		it('includes additional info when provided in body', async () => {
 			const additional = { component: 'LoginPage', userId: 42 };
 			const req = createReq({ body: { message: 'Login failed', additional } });
-			await controller.logFrontendMessage(req, res, next);
+			controller.logFrontendMessage(req, res, next);
 
 			// Verify additional info is JSON-stringified in the log line
 			expect(mockStream.write).toHaveBeenCalledWith(
@@ -124,7 +124,7 @@ describe('LoggingController', () => {
 			mockedFs.existsSync.mockReturnValue(false);
 
 			const req = createReq({ body: { message: 'First log entry' } });
-			await controller.logFrontendMessage(req, res, next);
+			controller.logFrontendMessage(req, res, next);
 
 			// Verify mkdirSync was called to create the missing directory
 			expect(mockedFs.mkdirSync).toHaveBeenCalledWith(
@@ -139,7 +139,7 @@ describe('LoggingController', () => {
 			mockedFs.existsSync.mockReturnValue(true);
 
 			const req = createReq({ body: { message: 'Repeat log' } });
-			await controller.logFrontendMessage(req, res, next);
+			controller.logFrontendMessage(req, res, next);
 
 			expect(mockedFs.mkdirSync).not.toHaveBeenCalled();
 			expect(res.status).toHaveBeenCalledWith(200);
@@ -152,7 +152,7 @@ describe('LoggingController', () => {
 			});
 
 			const req = createReq({ body: { message: 'This will fail' } });
-			await controller.logFrontendMessage(req, res, next);
+			controller.logFrontendMessage(req, res, next);
 
 			expect(next).toHaveBeenCalledWith(fsError);
 			expect(res.status).not.toHaveBeenCalled();

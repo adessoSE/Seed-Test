@@ -2,14 +2,14 @@ import { logger } from '../logging.js';
 
 // A very simple, in-memory promise-based queue.
 export class JobQueue {
-	private queue: (() => Promise<any>)[] = [];
+	private queue: (() => Promise<unknown>)[] = [];
 	private isProcessing = false;
 
 	/**
    * Adds a task to the queue.
    * @param task A function that returns a Promise.
    */
-	add(task: () => Promise<any>) {
+	add(task: () => Promise<unknown>) {
 		this.queue.push(task);
 		void this.processNext();
 	}
@@ -26,7 +26,7 @@ export class JobQueue {
 			await task();
 			logger.info('Job finished successfully.');
 		} catch (error) {
-			logger.error(`A job in the queue failed: ${error}`);
+			logger.error(`A job in the queue failed: ${String(error)}`);
 		} finally {
 			this.isProcessing = false;
 			void this.processNext(); // Check for the next item in the queue

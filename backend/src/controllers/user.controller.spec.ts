@@ -557,7 +557,7 @@ describe('UserController', () => {
 				user: { ...fakeUser }
 			});
 
-			await userController.getUser(req, res, next);
+			userController.getUser(req, res, next);
 
 			expect(res.status).toHaveBeenCalledWith(200);
 			// Response should be sanitized — no password or githubToken
@@ -566,13 +566,11 @@ describe('UserController', () => {
 			);
 		});
 
-		it('should throw 401 AppError when not authenticated', async () => {
+		it('should throw 401 AppError when not authenticated', () => {
 			const { req, res, next } = mockReqResNext({ user: null });
 
-			// getUser throws outside try/catch — the async function rejects
-			const error = await userController.getUser(req, res, next).catch((e: any) => e);
-			expect(error).toBeInstanceOf(AppError);
-			expect(error.statusCode).toBe(401);
+			// getUser is sync now — throws directly
+			expect(() => userController.getUser(req, res, next)).toThrow(AppError);
 		});
 	});
 

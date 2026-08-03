@@ -5,7 +5,7 @@ function getLogger(): Logger {
 	// Shared format: timestamp + level + message (no align — it adds unwanted tabs)
 	const baseFormat = winston.format.combine(
 		winston.format.timestamp(),
-		winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
+		winston.format.printf((info) => `${String(info.timestamp)} ${String(info.level)}: ${String(info.message)}`)
 	);
 
 	// Console gets ANSI colors; file transports get plain text (no colorize)

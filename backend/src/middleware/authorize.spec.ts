@@ -36,9 +36,9 @@ function mockReqResNext(overrides: {
 	};
 	const next = vi.fn();
 	const req = {
-		params: overrides.params || {},
-		body: overrides.body || {},
-		query: overrides.query || {},
+		params: overrides.params ?? {},
+		body: overrides.body ?? {},
+		query: overrides.query ?? {},
 		user: overrides.user !== undefined ? overrides.user : { _id: new ObjectId(), email: 'test@test.de' }
 	};
 	return { req: req as any, res: res as any, next };
@@ -267,7 +267,7 @@ describe('authorizeByReport', () => {
 	});
 
 	it('returns 404 when report does not exist', async () => {
-		vi.mocked(reportService.getReportDataById).mockResolvedValue(null as any);
+		vi.mocked(reportService.getReportDataById).mockResolvedValue(null);
 		const { req, res, next } = mockReqResNext({
 			params: { reportId: reportId.toHexString() }
 		});
@@ -275,9 +275,10 @@ describe('authorizeByReport', () => {
 		expect(res.status).toHaveBeenCalledWith(404);
 	});
 
+
 	it('allows repo owner through after resolving report → story → repo', async () => {
-		vi.mocked(reportService.getReportDataById).mockResolvedValue({ featureId: storyId } as any);
-		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
+		vi.mocked(reportService.getReportDataById).mockResolvedValue({ featureId: storyId });
+		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo);
 		const { req, res, next } = mockReqResNext({
 			params: { reportId: reportId.toHexString() },
 			user: { _id: ownerId, email: 'owner@test.de' }
@@ -285,6 +286,7 @@ describe('authorizeByReport', () => {
 		await authorizeByReport('reportId')(req, res, next);
 		expect(next).toHaveBeenCalledWith();
 	});
+
 
 	it('rejects non-member with 403', async () => {
 		vi.mocked(reportService.getReportDataById).mockResolvedValue({ featureId: storyId } as any);
@@ -299,7 +301,7 @@ describe('authorizeByReport', () => {
 	});
 
 	it('supports name-based lookup with lookupBy: "name"', async () => {
-		vi.mocked(reportService.getReportByName).mockResolvedValue({ _id: reportId } as any);
+		vi.mocked(reportService.getReportByName).mockResolvedValue({ _id: reportId });
 		vi.mocked(reportService.getReportDataById).mockResolvedValue({ featureId: storyId } as any);
 		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
 		const { req, res, next } = mockReqResNext({
@@ -343,13 +345,14 @@ describe('authorizeByIssueKey', () => {
 	});
 
 	it('returns 404 when no story matches the issue key', async () => {
-		vi.mocked(storyService.getOneStoryByIssueKey).mockResolvedValue(null as any);
+		vi.mocked(storyService.getOneStoryByIssueKey).mockResolvedValue(null);
 		const { req, res, next } = mockReqResNext({
 			params: { issue_key: 'PROJ-999' }
 		});
 		await authorizeByIssueKey('issue_key')(req, res, next);
 		expect(res.status).toHaveBeenCalledWith(404);
 	});
+
 
 	it('allows repo owner through after resolving issueKey → story → repo', async () => {
 		vi.mocked(storyService.getOneStoryByIssueKey).mockResolvedValue({ _id: storyId } as any);

@@ -15,7 +15,7 @@ export default function initialize(
 	getUserById: GetUserById,
 	getUserByGithub: GetUserByGithub
 ): void {
-	const authenticateUser = async (email: string, password: string, done: (error: any, user?: Express.User | false, options?: { message: string }) => void) => {
+	const authenticateUser = async (email: string, password: string, done: (error: unknown, user?: Express.User | false, options?: { message: string }) => void) => {
 		try {
 			// not working yet , needs callback, or database change to Promises
 			const user = await getUserByEmail(email);
@@ -34,7 +34,7 @@ export default function initialize(
 		}
 	};
 
-	const authenticateUserGithub = async (login: string, id: string, done: (error: any, user?: Express.User | false, options?: { message: string }) => void) => {
+	const authenticateUserGithub = async (login: string, id: string, done: (error: unknown, user?: Express.User | false, options?: { message: string }) => void) => {
 		try {
 			const githubId = parseInt(id, 10);
 			const user = await getUserByGithub(login, githubId);

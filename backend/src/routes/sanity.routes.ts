@@ -30,11 +30,11 @@ router.post(
 	validate(sanityTestSchema),
 	// Apply the 'normal-local' strategy *without* session support for this route
 	(req: Request, res: Response, next: NextFunction) => {
-		passport.authenticate('normal-local', { session: false }, (err: any, user: any, info: any) => {
+		(passport.authenticate as (strategy: string, options: Record<string, unknown>, callback: (err: unknown, user: Express.User | false, info: { message?: string } | undefined) => void) => (req: Request, res: Response, next: NextFunction) => void)('normal-local', { session: false }, (err: unknown, user: Express.User | false, info: { message?: string } | undefined) => {
 			if (err)  return next(err); 
 			if (!user) 
 			// Authentication failed
-				return res.status(401).json({ error: info?.message || 'Authentication failed' });
+				return res.status(401).json({ error: info?.message ?? 'Authentication failed' });
             
 			// Manually attach user to request if needed by the controller
 			req.user = user;

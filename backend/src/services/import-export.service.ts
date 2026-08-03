@@ -79,7 +79,7 @@ export async function importProject(
 			if (!projectName) throw AppError.badRequest('Project name is required for new imports.');
             
 			await session.withTransaction(async (currentSession) => {
-				const repoData: Repository = JSON.parse(zip.readAsText('repository.json'));
+				const repoData = JSON.parse(zip.readAsText('repository.json')) as Repository;
                 
 				// 1. Create the new repository with the new name and original owner
 				const newRepoId = (await repositoryService.createRepo(repoData.owner, projectName, currentSession, client)).toHexString();
@@ -122,7 +122,7 @@ async function processImport(zip: AdmZip, isRenameMode: boolean, repoId: string,
 
 	// 1. Process Stories
 	for (const entry of storyEntries) {
-		const storyObject: Story = JSON.parse(zip.readAsText(entry));
+		const storyObject = JSON.parse(zip.readAsText(entry)) as Story;
 		const oldId = storyObject._id?.toString();
 		let newStoryId: ObjectId;
 
@@ -145,7 +145,7 @@ async function processImport(zip: AdmZip, isRenameMode: boolean, repoId: string,
     
 	// 2. Process Blocks
 	for (const entry of blockEntries) {
-		const blockObject: Block = JSON.parse(zip.readAsText(entry));
+		const blockObject = JSON.parse(zip.readAsText(entry)) as Block;
 		delete blockObject._id;
 		blockObject.repositoryId = repoId;
 		blockObject.repository = repoName;
@@ -164,7 +164,7 @@ async function processImport(zip: AdmZip, isRenameMode: boolean, repoId: string,
     
 	// 3. Process Groups
 	for (const entry of groupEntries) {
-		const groupObject: Group = JSON.parse(zip.readAsText(entry));
+		const groupObject = JSON.parse(zip.readAsText(entry)) as Group;
 		// Map old story IDs to their new ObjectIds from the import mapping
 		groupObject.member_stories = groupObject.member_stories
 			.map(oldId => oldToNewStoryIdMap.get(oldId.toString())!)

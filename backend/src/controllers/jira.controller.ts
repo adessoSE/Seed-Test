@@ -11,10 +11,15 @@ import { requireSafeExternalHost } from '../utils/validation.js';
 export async function linkJiraCredentials(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User;
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (!user?._id)
 			throw AppError.unauthorized('User not authenticated');
 
-		const { jiraAccountName, jiraPassword, jiraHost, jiraAuthMethod } = req.body;
+		const body = req.body as Record<string, unknown>;
+		const jiraAccountName = body.jiraAccountName as string;
+		const jiraPassword = body.jiraPassword as string;
+		const jiraHost = body.jiraHost as string;
+		const jiraAuthMethod = body.jiraAuthMethod as string | undefined;
 		if (!jiraAccountName || !jiraPassword || !jiraHost)
 			throw AppError.badRequest('Missing Jira credentials (accountName, password, host)');
 
@@ -35,14 +40,15 @@ export async function linkJiraCredentials(req: Request, res: Response, next: Nex
 			jiraAccountName,
 			jiraPassword,
 			jiraHost,
-			jiraAuthMethod || 'bearer'
+			jiraAuthMethod ?? 'bearer'
 		);
 
 		res.status(200).json({ message: 'Jira credentials updated successfully.' });
 
 	} catch (error) {
-		logger.error(`Error linking Jira credentials: ${error}`);
+		logger.error(`Error linking Jira credentials: ${String(error)}`);
 		// Provide more specific feedback if possible
+
 		if (error instanceof Error && error.message.includes('verification failed')) 
 			next(new Error('Invalid Jira username, password, or host.')); // Pass specific error
 		else 
@@ -57,6 +63,7 @@ export async function linkJiraCredentials(req: Request, res: Response, next: Nex
 export async function disconnectJira(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User;
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (!user?._id)
 			throw AppError.unauthorized('User not authenticated');
 
@@ -75,7 +82,11 @@ export async function disconnectJira(req: Request, res: Response, next: NextFunc
  */
 export async function jiraLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { jiraAccountName, jiraPassword, jiraServer, AuthMethod } = req.body;
+		const body = req.body as Record<string, unknown>;
+		const jiraAccountName = body.jiraAccountName as string;
+		const jiraPassword = body.jiraPassword as string;
+		const jiraServer = body.jiraServer as string;
+		const AuthMethod = body.AuthMethod as string | undefined;
 		if (!jiraAccountName || !jiraPassword || !jiraServer)
 			throw AppError.badRequest('Missing Jira credentials for login');
 
@@ -115,7 +126,7 @@ export async function jiraLogin(req: Request, res: Response, next: NextFunction)
 export async function updateXrayStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User;
-		if (!user?.jira)
+		if (!user.jira)
 			throw AppError.unauthorized('User not authenticated or Jira not linked.');
 
 		// Use the IssueTracker class for decryption
@@ -129,7 +140,10 @@ export async function updateXrayStatus(req: Request, res: Response, next: NextFu
 		requireSafeExternalHost(Host);
 		const authString = externalAccountService.buildAuthString(AccountName, clearPass, AuthMethod);
 
-		const { testRunId, stepId, status } = req.body;
+		const body = req.body as Record<string, unknown>;
+		const testRunId = body.testRunId as string;
+		const stepId = body.stepId as string;
+		const status = body.status as string;
 		if (!testRunId || !stepId || !status)
 			throw AppError.badRequest('Missing testRunId, stepId, or status');
 
@@ -153,18 +167,18 @@ export async function updateXrayStatus(req: Request, res: Response, next: NextFu
 		}
 
 		// Check content type before parsing JSON
-		let data: any = { message: 'Success', status: response.status };
+		let data: Record<string, unknown> = { message: 'Success', status: response.status };
 		const contentType = response.headers.get('content-type');
-		if (contentType && contentType.includes('application/json')) {
+		if (contentType?.includes('application/json')) {
 			const text = await response.text();
 			if (text)  // Avoid parsing empty responses
-				data = JSON.parse(text);
+				data = JSON.parse(text) as Record<string, unknown>;
             
 		}
 		res.status(response.status).json(data);
 
 	} catch (error) {
-		logger.error(`Error while updating Xray status: ${error}`);
+		logger.error(`Error while updating Xray status: ${String(error)}`);
 		next(error);
 	}
 }

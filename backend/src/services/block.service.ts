@@ -12,14 +12,15 @@ const customBlocksCollection = 'CustomBlocks';
  * @param session Optional ClientSession for transaction support.
  * @returns The result of the insertion operation.
  */
-export async function saveBlock(block: Block, session?: ClientSession, client?: MongoClient): Promise<any> {
+export async function saveBlock(block: Block, session?: ClientSession, client?: MongoClient): Promise<unknown> {
 	const db = session
 		? client!.db('Seed', session)
 		: dbConnection.getConnection();
 	const sanitizedBlock = mongoSanitize(block);
 	// Convert string IDs to ObjectId for MongoDB storage
 	const doc: BlockDoc = {
-		...sanitizedBlock,
+		...(sanitizedBlock as unknown as BlockDoc),
+		_id: undefined,
 		repositoryId: sanitizedBlock.repositoryId ? oid(sanitizedBlock.repositoryId) : undefined,
 		owner: sanitizedBlock.owner ? oid(sanitizedBlock.owner) : undefined
 	};
@@ -53,13 +54,13 @@ export async function getBlocks(repoId: string): Promise<Block[]> {
  * @param session Optional ClientSession for transaction support.
  * @returns The result of the replacement operation.
  */
-export async function updateBlock(blockId: string, updatedBlock: Block, userId: string, session?: ClientSession, client?: MongoClient): Promise<any> {
+export async function updateBlock(blockId: string, updatedBlock: Block, userId: string, session?: ClientSession, client?: MongoClient): Promise<unknown> {
 	const db = session
 		? client!.db('Seed', session)
 		: dbConnection.getConnection();
 	// Convert string IDs to ObjectId for MongoDB storage
 	const doc: BlockDoc = {
-		...updatedBlock,
+		...(updatedBlock as unknown as BlockDoc),
 		_id: oid(blockId),
 		repositoryId: updatedBlock.repositoryId ? oid(updatedBlock.repositoryId) : undefined,
 		owner: oid(userId)
@@ -78,7 +79,7 @@ export async function updateBlock(blockId: string, updatedBlock: Block, userId: 
  * @param userId The ID of the user performing the deletion (for ownership verification).
  * @returns The result of the deletion operation.
  */
-export async function deleteBlock(blockId: string, userId: string): Promise<any> {
+export async function deleteBlock(blockId: string, userId: string): Promise<unknown> {
 	const db = dbConnection.getConnection();
 	return db.collection<BlockDoc>(customBlocksCollection).deleteOne({
 		_id: oid(blockId),

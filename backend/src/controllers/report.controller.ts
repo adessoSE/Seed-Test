@@ -32,7 +32,7 @@ export async function regenerateReport(req: Request, res: Response, next: NextFu
 		const reportName = req.params.reportName;
 		// Regenerate based on name - logic moved from reporting.ts/createReport
 		const fullReport = await reportService.getReportByName(reportName);
-		if (!fullReport || !fullReport.jsonReport)
+		if (!fullReport.jsonReport)
 			throw AppError.notFound('Report JSON data not found');
         
 		// Temporarily write JSON to disk for html-reporter

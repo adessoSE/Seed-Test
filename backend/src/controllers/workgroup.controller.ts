@@ -28,9 +28,10 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
 		requireValidId(repoId, 'repository ID');
 
 		// Ensure email is lowercase and validate user exists
+		const body = req.body as Record<string, unknown>;
 		const userToAdd = {
-			email: req.body.email.toLowerCase(),
-			canEdit: req.body.canEdit || false // Default to false if not provided
+			email: (body.email as string).toLowerCase(),
+			canEdit: body.canEdit as boolean || false // Default to false if not provided
 		};
         
 		const existingUser = await userService.getUserByEmail(userToAdd.email);
@@ -46,9 +47,9 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
 		const result = await workgroupService.addMember(repoId, userToAdd);
 		res.status(201).json(result);
 
-	} catch (error: any) {
+	} catch (error: unknown) {
 		// Handle specific error from the service (e.g., user already exists)
-		if (error.message === 'This user is already in the work group')
+		if (error instanceof Error && error.message === 'This user is already in the work group')
 			throw AppError.conflict(error.message);
 
 		next(error);
@@ -63,9 +64,10 @@ export async function updateMemberStatus(req: Request, res: Response, next: Next
 		const repoId = req.params.id;
 		requireValidId(repoId, 'repository ID');
 
+		const body = req.body as Record<string, unknown>;
 		const userToUpdate = {
-			email: req.body.email.toLowerCase(),
-			canEdit: req.body.canEdit // Should be provided
+			email: (body.email as string).toLowerCase(),
+			canEdit: body.canEdit as boolean // Should be provided
 		};
 
 		// Optional: Check if user exists before updating? Service might handle this implicitly.
@@ -86,14 +88,15 @@ export async function removeMember(req: Request, res: Response, next: NextFuncti
 		requireValidId(repoId, 'repository ID');
 
 		// The user object might be nested differently in the original JS request body
+		const body = req.body as Record<string, unknown>;
 		const userToRemove = {
-			email: req.body.email?.email?.toLowerCase() || req.body.email?.toLowerCase() // Handle potential nesting
+			email: ((body.email as Record<string, unknown> | undefined)?.email as string | undefined)?.toLowerCase() ?? (body.email as string | undefined)?.toLowerCase() // Handle potential nesting
 		};
         
 		if (!userToRemove.email)
 			throw AppError.badRequest('Email of the member to remove is required.');
 
-		const result = await workgroupService.removeFromWorkgroup(repoId, userToRemove);
+		const result = await workgroupService.removeFromWorkgroup(repoId, userToRemove as { email: string });
 		res.status(200).json(result);
 	} catch (error) {
 		next(error);

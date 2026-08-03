@@ -27,23 +27,24 @@ type RequestWithSession = Request & { session: Session & Partial<SessionData> };
 // This middleware handles the specific passport login flow for these routes.
 const authenticateAndProceed = (controllerFunction: (req: Request, res: Response, next: NextFunction) => Promise<void>) => {
 	return (req: Request, res: Response, next: NextFunction) => {
-		if (req.body.email)
-			req.body.email = req.body.email.toLowerCase();
+		const reqBody = req.body as Record<string, unknown>;
+		if (reqBody.email)
+			reqBody.email = (reqBody.email as string).toLowerCase();
 
 		// Authenticate using passport.authenticate with a custom callback
-		passport.authenticate('normal-local', (error: any, user: any, info: any) => {
+		(passport.authenticate as (strategy: string, callback: (error: unknown, user: Express.User | false, info: { message?: string } | undefined) => void) => (req: Request, res: Response, next: NextFunction) => void)('normal-local', (error: unknown, user: Express.User | false, info: { message?: string } | undefined) => {
 			if (error)
 				return next(error); // Pass errors to central handler
 
 			if (!user)
-				return next(AppError.unauthorized(info?.message || 'Authentication failed'));
+				return next(AppError.unauthorized(info?.message ?? 'Authentication failed'));
 
 			// Session fixation prevention — regenerate before establishing new identity
 			(req as RequestWithSession).session.regenerate((regenerateErr) => {
 				if (regenerateErr) return next(regenerateErr);
 
 				// Set extended session lifetime after regeneration so the new session inherits it
-				if (req.body.stayLoggedIn)
+				if ((req.body as Record<string, unknown>).stayLoggedIn)
 					(req as RequestWithSession).session.cookie.maxAge = 86400000; // 10 days
 
 				req.logIn(user, (loginErr) => {

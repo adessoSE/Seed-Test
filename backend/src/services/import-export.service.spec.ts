@@ -147,11 +147,12 @@ describe('ImportExportService', () => {
 			const zip = new AdmZip(buffer);
 			const entries = zip.getEntries().map(e => e.entryName);
 
+			expect(entries).toContain(`stories/${storyId1.toString()}.json`);
+			expect(entries).toContain(`stories/${storyId2.toString()}.json`);
+			expect(entries).toContain(`blocks/${blockId1.toString()}.json`);
+			expect(entries).toContain(`groups/${groupId1.toString()}.json`);
 			expect(entries).toContain('repository.json');
-			expect(entries).toContain(`stories/${storyId1}.json`);
-			expect(entries).toContain(`stories/${storyId2}.json`);
-			expect(entries).toContain(`blocks/${blockId1}.json`);
-			expect(entries).toContain(`groups/${groupId1}.json`);
+
 
 			// Verify the repository data is intact
 			const parsedRepo = JSON.parse(zip.readAsText('repository.json'));
@@ -312,8 +313,9 @@ describe('ImportExportService', () => {
 
 			// Should update the existing story instead of creating a new one
 			expect(storyService.updateStory).toHaveBeenCalledTimes(1);
-			const updatedStory = vi.mocked(storyService.updateStory).mock.calls[0][0] as any;
+			const updatedStory = vi.mocked(storyService.updateStory).mock.calls[0][0];
 			expect(updatedStory._id).toEqual(existingStoryId);
+
 
 			// Should NOT create a new story for the conflicting title
 			expect(storyService.createStory).not.toHaveBeenCalled();
@@ -378,12 +380,12 @@ describe('ImportExportService', () => {
 
 		it('should overwrite conflicting groups in overwrite mode', async () => {
 			const existingGroupId = new ObjectId().toHexString();
-
 			vi.mocked(repositoryService.getAllStoryGroups).mockResolvedValue([
-				{ _id: existingGroupId, name: 'GroupA', member_stories: [], isSequential: false, xrayTestSet: false } as any
+				{ _id: existingGroupId, name: 'GroupA', member_stories: [], isSequential: false, xrayTestSet: false }
 			]);
-
+	
 			const repo = makeRepo();
+
 			const groups = [{ _id: groupId1, name: 'GroupA', member_stories: [storyId1.toHexString()], isSequential: true, xrayTestSet: false }];
 			const zipBuffer = buildImportZip(repo, [], [], groups);
 

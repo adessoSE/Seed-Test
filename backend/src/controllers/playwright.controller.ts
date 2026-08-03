@@ -10,7 +10,7 @@ export function getDevices(req: Request, res: Response, next: NextFunction): voi
 		// The 'devices' object from playwright/test contains device descriptors
 		res.status(200).json(devices);
 	} catch (error) {
-		logger.error(`Error fetching Playwright devices: ${error}`);
+		logger.error(`Error fetching Playwright devices: ${String(error)}`);
 		// Pass a generic error to the central handler, but log the specific one
 		next(new Error('Failed to fetch Playwright devices'));
 	}
@@ -24,7 +24,7 @@ export function getDeviceNames(req: Request, res: Response, next: NextFunction):
 		// Get the keys (names) from the 'devices' object
 		res.status(200).json(Object.keys(devices));
 	} catch (error) {
-		logger.error(`Error fetching Playwright device names: ${error}`);
+		logger.error(`Error fetching Playwright device names: ${String(error)}`);
 		next(new Error('Failed to fetch Playwright device names'));
 	}
 }

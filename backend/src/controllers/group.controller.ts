@@ -27,14 +27,18 @@ export async function createGroup(req: Request, res: Response, next: NextFunctio
 		const repoId = req.params.repo_id;
 		requireValidId(repoId, 'repository ID');
 
-		const { name, member_stories, sequence, xrayTestSet } = req.body;
+		const body = req.body as Record<string, unknown>;
+		const name = body.name as string;
+		const member_stories = body.member_stories as string[] | undefined;
+		const sequence = body.sequence as boolean | undefined;
+		const xrayTestSet = body.xrayTestSet as boolean | undefined;
 
 		const groupID = await repositoryService.createStoryGroup(
 			repoId,
 			name,
-			member_stories || [], // Ensure default empty array if missing
-			sequence || false,    // Ensure default false if missing
-			xrayTestSet || false
+			member_stories ?? [], // Ensure default empty array if missing
+			sequence ?? false,    // Ensure default false if missing
+			xrayTestSet ?? false
 		);
 		res.status(201).json({ group_id: groupID });
 	} catch (error) {
@@ -51,7 +55,7 @@ export async function updateGroup(req: Request, res: Response, next: NextFunctio
 		requireValidId(repo_id, 'repository ID');
 		requireValidId(group_id, 'group ID');
 
-		const updatedGroupData: Group = req.body;
+		const updatedGroupData = req.body as Group;
 
 		await repositoryService.updateStoryGroup(repo_id, group_id, updatedGroupData);
 		// updateStoryGroup in service doesn't return the updated doc directly in this structure (updateone)
@@ -120,7 +124,7 @@ export async function updateGroupsArray(req: Request, res: Response, next: NextF
 		const repoId = req.params.repo_id;
 		requireValidId(repoId, 'repository ID');
 
-		const groupsArray: Group[] = req.body;
+		const groupsArray = req.body as Group[];
 		await repositoryService.updateStoryGroupsArray(repoId, groupsArray);
 		res.status(200).json({ message: 'Groups array updated' });
 	} catch (error) {

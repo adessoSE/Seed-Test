@@ -6,8 +6,8 @@ export function emptyStory(storyTitle?: string, storyDescription?: string): Omit
 	return {
 		story_id: 0,
 		assignee: 'unassigned',
-		title: storyTitle || '',
-		body: storyDescription || '',
+		title: storyTitle ?? '',
+		body: storyDescription ?? '',
 		issue_number: undefined,
 		background: emptyBackground(),
 		scenarios: [emptyScenario()],
