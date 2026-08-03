@@ -14,9 +14,14 @@ import { type Scenario } from '@shared/models/Scenario.js';
 import { type StepType } from '@shared/models/StepType.js';
 import { type StepDefinition } from '@shared/models/StepDefinition.js';
 import { type User } from '@shared/models/User.js';
+import { type Repository } from '@shared/models/Repository.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
 import { requireSafeExternalHost } from '../utils/validation.js';
+import { type XrayIssue } from '../types/xray.types.js';
+import {
+	type GithubIssue, type GithubRepoSummary, type JiraPreCondition, type JiraProjectSummary, type JiraTestSet, type RepoRef, type RepoSyncEntry
+} from '../types/external.types.js';
 
 
 enum Sources {
@@ -32,7 +37,7 @@ enum Sources {
  * @param jiraUser User's Jira credentials object.
  * @returns Array of repository objects { _id, repoName, source }.
  */
-export async function getJiraRepos(jiraUser: any): Promise<{ _id: string; repoName: string; source: string }[]> {
+export async function getJiraRepos(jiraUser: User['jira']): Promise<{ _id: string; repoName: string; source: string }[]> {
 	if (!jiraUser) return [];
 	const {
 		Host,
@@ -86,10 +91,11 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
 		if (!response.ok) 
 			throw AppError.badGateway(`Jira API request failed: ${response.status}`);
         
-		const jiraProjects = await response.json();
-		return jiraProjects.map((project: any) => project.name);
-	} catch (error: any) {
-		logger.error(`Error fetching Jira projects: ${error.stack || error}`);
+		const jiraProjects: JiraProjectSummary[] = await response.json();
+		return jiraProjects.map((project) => project.name);
+	} catch (error: unknown) {
+		const message = error instanceof Error ? (error.stack ?? error.message) : String(error);
+		logger.error(`Error fetching Jira projects: ${message}`);
 		return [];
 	}
 }
@@ -105,22 +111,22 @@ async function storeJiraRepos(projectNames: string[]): Promise<{ _id: string; re
   
 	if (projectNames.length === 0) return [];
 
-	const jiraReposFromDb = await repositoryService.getAllSourceReposFromDb(source); 
-  
+	const jiraReposFromDb = await repositoryService.getAllSourceReposFromDb(source);
+
 	for (const projectName of projectNames) {
-		let jiraRepo: any = jiraReposFromDb.find(
-			(element: any) => element.repoName === projectName
+		let jiraRepo: RepoRef | undefined = jiraReposFromDb.find(
+			(element) => element.repoName === projectName
 		);
 
 		if (!jiraRepo) {
-			const insertResult = await repositoryService.createJiraRepo(projectName); 
-			jiraRepo = { _id: insertResult.insertedId || insertResult._id, repoName: projectName }; 
+			const insertResult = await repositoryService.createJiraRepo(projectName);
+			jiraRepo = { _id: insertResult.insertedId || insertResult._id, repoName: projectName };
 		}
 		repos.push({ name: projectName, _id: jiraRepo._id });
 	}
   
 	return repos.map((value) => ({
-		_id: value._id.toString(),
+		_id: value._id!.toString(),
 		repoName: value.name,
 		source
 	})
@@ -137,7 +143,7 @@ async function storeJiraRepos(projectNames: string[]): Promise<{ _id: string; re
  * @param token GitHub token.
  * @returns Array of repository objects { _id, value, source }.
  */
-export function ownRepositories(ownerId: string, githubId: number, githubName: string, token: string): Promise<any[]> {
+export function ownRepositories(ownerId: string, githubId: number, githubName: string, token: string): Promise<RepoSyncEntry[]> {
 	if (!githubName || !token) return Promise.resolve([]);
 	return execRepositoryRequests(
 		'https://api.github.com/user/repos?per_page=100',
@@ -156,7 +162,7 @@ export function ownRepositories(ownerId: string, githubId: number, githubName: s
  * @param token GitHub token.
  * @returns Array of repository objects { _id, value, source }.
  */
-export function starredRepositories(ownerId: string, githubId: number, githubName: string, token: string): Promise<any[]> {
+export function starredRepositories(ownerId: string, githubId: number, githubName: string, token: string): Promise<RepoSyncEntry[]> {
 	if (!githubName || !token) return Promise.resolve([]);
 	return execRepositoryRequests(
 		`https://api.github.com/users/${githubName}/starred`,
@@ -177,37 +183,42 @@ export function starredRepositories(ownerId: string, githubId: number, githubNam
  * @param githubId GitHub User ID.
  * @returns Array of repository objects { _id, value, source }.
  */
-async function execRepositoryRequests(link: string, user: string, password: string, ownerId: string, githubId: number): Promise<any[]> {
+async function execRepositoryRequests(link: string, user: string, password: string, ownerId: string, githubId: number): Promise<RepoSyncEntry[]> {
 	try {
 		const reqOptions: RequestInit = {headers: {'Authorization': 'Basic ' + Buffer.from(`${user}:${password}`).toString('base64')}};
 		const response = await fetch(link, reqOptions);
 
 		if (response.status === 401) throw AppError.unauthorized('GitHub fetch failed (Unauthorized)');
 		if (!response.ok) throw AppError.badGateway(`GitHub API error: ${response.status}`);
-        
-		const githubRepos = await response.json();
-		const projects: any[] = [];
+
+		const githubRepos: GithubRepoSummary[] = await response.json();
+		const projects: RepoSyncEntry[] = [];
 		const gitReposFromDb = await repositoryService.getAllSourceReposFromDb(Sources.GITHUB);
-		
+
 		for (const repo of githubRepos) {
-			let mongoRepo: any = gitReposFromDb.find((element: any) => element.repoName === repo.full_name);
+			let mongoRepo: RepoRef | undefined = gitReposFromDb.find((element) => element.repoName === repo.full_name);
 
 			if (!mongoRepo) {
 				const insertResult = await repositoryService.createGitRepo(repo.owner.id.toString(), repo.full_name, githubId, ownerId);
 				mongoRepo = { _id: insertResult.insertedId || insertResult._id, repoName: repo.full_name, gitOwner: repo.owner.id.toString() };
-			} else if (mongoRepo.gitOwner === githubId.toString())  
-				await repositoryService.updateOwnerInRepo(mongoRepo._id.toString(), ownerId, mongoRepo.owner?.toString());
-			
-            
+			} else if (mongoRepo.gitOwner === githubId.toString())
+				// owner may be absent on legacy repo records. Passing undefined is deliberate:
+				// updateOwnerInRepo resolves it to a random ObjectId, finds no user, and raises a
+				// handled AppError.notFound. A non-null assertion here would instead throw a raw
+				// TypeError and surface as a 500.
+				await repositoryService.updateOwnerInRepo(mongoRepo._id!.toString(), ownerId, mongoRepo.owner?.toString() as string);
+
+
 			projects.push({
-				_id: mongoRepo._id,
+				_id: mongoRepo._id!,
 				repoName: repo.full_name,
 				source: Sources.GITHUB
 			});
 		}
 		return projects;
-	} catch (reason) {
-		logger.warn(`Problem getting GitHub projects: ${reason}`);
+	} catch (reason: unknown) {
+		const message = reason instanceof Error ? reason.message : String(reason);
+		logger.warn(`Problem getting GitHub projects: ${message}`);
 		return [];
 	}
 }
@@ -227,7 +238,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
     
 	const tmpStories = new Map<string, Story>();
 	const storiesArray: ObjectId[] = [];
-	let repo: any;
+	let repo: Repository | null;
 
 	if (source === Sources.GITHUB) {
 		if (!checkValidGithubFormat(githubName, repository))  // Use the helper
@@ -244,7 +255,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 
 		if (!response.ok) throw AppError.badGateway(`GitHub API error: ${response.status}`);
         
-		const issues = await response.json();
+		const issues: GithubIssue[] = await response.json();
 		logger.info(`Fetched ${issues.length} issues from GitHub`);
 		for (const issue of issues) {
 			const story: Partial<Story> = {
@@ -255,7 +266,9 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 				issue_number: issue.number,
 				storySource: 'github',
 				assignee: issue.assignee?.login || 'unassigned',
-				assignee_avatar_url: issue.assignee?.avatar_url || null
+				// Shared Story model declares this as `string`, but the frontend relies on an
+				// explicit `null` (vs. missing) to decide whether to render an avatar image
+				assignee_avatar_url: (issue.assignee?.avatar_url || null) as string
 			};
 
 			const entry = await fuseStoryWithDb(story);
@@ -276,8 +289,8 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		repo = await repositoryService.getOneJiraRepository(projectKey);
 		if (!repo) throw AppError.notFound('Jira repository not found in DB');
 
-		const testSets: any[] = [];
-		const preConditionMap: any[] = [];
+		const testSets: JiraTestSet[] = [];
+		const preConditionMap: JiraPreCondition[] = [];
 
 		// Defense-in-depth: validate host before constructing outbound URL
 		requireSafeExternalHost(Host);
@@ -288,7 +301,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
         
 		const json = await response.json();
         
-		const storyPromises = json.issues.map(async (issue: any): Promise<Story | null> => {
+		const storyPromises = json.issues.map(async (issue: XrayIssue): Promise<Story | null> => {
 			if (issue.fields.issuetype.name === 'Test Set') {
 				testSets.push({
 					testSetKey: issue.key,
@@ -304,8 +317,8 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 					preConditionKey: issue.key,
 					preConditionName: issue.fields.summary,
 					testSet: (issue.fields.issuelinks || [])
-						.filter((link: any) => link.inwardIssue && link.type.inward === 'tested by')
-						.map((link: any) => link.inwardIssue.key)
+						.filter((link) => link.inwardIssue && link.type.inward === 'tested by')
+						.map((link) => link.inwardIssue!.key)
 				};
 				preConditionMap.push(preCondition);
 				return null;
@@ -316,7 +329,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
                 
 				const finalPreConditions = (issue.fields.customfield_14229 || [])
 					.map((preConKey: string) => preConditionMap.find(p => p.preConditionKey === preConKey))
-					.filter(Boolean);
+					.filter(Boolean) as JiraPreCondition[];
 
 				const story: Partial<Story> = {
 					story_id: parseInt(issue.id, 10),
@@ -330,7 +343,9 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 					host: Host,
 					preConditions: finalPreConditions,
 					assignee: issue.fields.assignee?.name || 'unassigned',
-					assignee_avatar_url: issue.fields.assignee?.avatarUrls['32x32'] || null
+					// Shared Story model declares this as `string`, but the frontend relies on an
+					// explicit `null` (vs. missing) to decide whether to render an avatar image
+					assignee_avatar_url: (issue.fields.assignee?.avatarUrls?.['32x32'] || null) as string
 				};
 				return story as Story;
 			}
@@ -340,7 +355,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		const processedStories = (await Promise.all(storyPromises)).filter(Boolean) as Story[];
         
 		// Update Test Sets in the background
-		await updateTestSets(testSets, repo._id.toString());
+		await updateTestSets(testSets, repo._id!.toString());
         
 		for (const story of processedStories) {
 			const entry = await fuseStoryWithDb(story);
@@ -361,11 +376,11 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
  * New stories are appended, and the order is updated in the DB.
  */
 export async function matchStoryOrder(
-	storiesIdList: ObjectId[], 
-	storiesMap: Map<string, Story>, 
-	repoDoc: any
+	storiesIdList: ObjectId[],
+	storiesMap: Map<string, Story>,
+	repoDoc: Repository
 ): Promise<Story[]> {
-	const dbStoryIds = (repoDoc.stories || []).map((s: ObjectId) => s.toString());
+	const dbStoryIds = (repoDoc.stories || []).map((s) => s.toString());
 	const fetchedStoryIds = storiesIdList.map(s => s.toString());
     
 	// 1. Find story IDs that are in the repo, but were NOT fetched in this sync
@@ -479,9 +494,9 @@ async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
  * This ensures external data (title, body, state) is updated,
  * while scenarios are merged intelligently.
  */
-function mergeStories(dbStory: Story, jiraStory: Story): any {
+function mergeStories(dbStory: Story, jiraStory: Story): Story {
 	// Start with the DB story (to keep _id, background, lastTestPassed etc.)
-	const mergedStory: any = { ...dbStory };
+	const mergedStory: Story = { ...dbStory };
 
 	mergedStory.title = jiraStory.title;
 	mergedStory.body = jiraStory.body;
@@ -497,7 +512,7 @@ function mergeStories(dbStory: Story, jiraStory: Story): any {
 	const dbScenarios = dbStory.scenarios || [];
 	const jiraScenarios = jiraStory.scenarios || [];
 	const dbScenarioMap = new Map(dbScenarios.map(scenario => [scenario.scenario_id, scenario]));
-	const mergedScenarios: any[] = [];
+	const mergedScenarios: Scenario[] = [];
 
 	// Iterate through Jira scenarios, update existing or add new
 	jiraScenarios.forEach(jiraScenario => {
@@ -507,7 +522,8 @@ function mergeStories(dbStory: Story, jiraStory: Story): any {
 			mergedScenarios.push({
 				...dbScenario, 
 				name: jiraScenario.name, // Ensure scenario name is also updated
-				stepDefinitions: mergeStepDefinitions(dbScenario.stepDefinitions, jiraScenario.stepDefinitions),
+				// mergeStepDefinitions always populates given/when/then/example, so the result is a full StepDefinition
+				stepDefinitions: mergeStepDefinitions(dbScenario.stepDefinitions, jiraScenario.stepDefinitions) as StepDefinition,
 				testRunSteps: mergeTestRunSteps(dbScenario.testRunSteps, jiraScenario.testRunSteps),
 				testKey: jiraScenario.testKey 
 			});
@@ -596,7 +612,7 @@ function mergeStepDefinitions(dbStepDefinitions?: Partial<StepDefinition>, jiraS
 /**
  * Merges Jira test run steps (simple replacement).
  */
-function mergeTestRunSteps(dbTestRunSteps: any, jiraTestRunSteps: any): any {
+function mergeTestRunSteps(dbTestRunSteps: Scenario['testRunSteps'], jiraTestRunSteps: Scenario['testRunSteps']): Scenario['testRunSteps'] {
 	return jiraTestRunSteps ?? dbTestRunSteps; // If jiraTestRunSteps is null/undefined, keep dbTestRunSteps
 }
 
@@ -608,7 +624,7 @@ function mergeTestRunSteps(dbTestRunSteps: any, jiraTestRunSteps: any): any {
  * @param testSets Array of test set objects from Jira.
  * @param repo_id Repository ID to update.
  */
-export async function updateTestSets(testSets: any[], repo_id: string): Promise<void> {
+export async function updateTestSets(testSets: JiraTestSet[], repo_id: string): Promise<void> {
 	const repository = await repositoryService.getOneRepositoryById(repo_id);
 	if (!repository) {
 		logger.warn(`Repository ${repo_id} not found. Skipping all Test Set updates.`);
@@ -642,7 +658,7 @@ export async function updateTestSets(testSets: any[], repo_id: string): Promise<
 			if (existingGroup) {
 				// Group exists, update it with the fresh list of IDs
 				// updateStoryGroup expects Group (string[]) but MongoDB stores ObjectId[]
-				const updatedGroup = { ...existingGroup, member_stories: storyIds.map(id => oid(id)) as any[] };
+				const updatedGroup = { ...existingGroup, member_stories: storyIds.map(id => oid(id)) as unknown as string[] };
 				await repositoryService.updateStoryGroup(repo_id, existingGroup._id!.toString(), updatedGroup); 
 				logger.info(`Updated group for Test Set: ${testSet.testSetKey}`);
 			} else {
@@ -656,8 +672,9 @@ export async function updateTestSets(testSets: any[], repo_id: string): Promise<
 				);
 				logger.info(`Group created for Test Set: ${testSet.testSetKey}`);
 			}
-		} catch (e: any) {
-			logger.error(`Error processing group for Test Set ${testSet.testSetKey}: ${e.message || e}`);
+		} catch (e: unknown) {
+			const message = e instanceof Error ? e.message : String(e);
+			logger.error(`Error processing group for Test Set ${testSet.testSetKey}: ${message}`);
 		}
     
 }

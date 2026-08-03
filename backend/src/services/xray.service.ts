@@ -6,6 +6,7 @@ import * as externalAccountService from './externalAccount.service.js';
 import * as stepTypeService from './step-type.service.js';
 import { AppError } from '../helpers/AppError.js';
 import { requireSafeExternalHost } from '../utils/validation.js';
+import { type XrayIssue, type XrayStepFields, type XrayStepMatch, type XrayTestRun, type XrayTestRunSummary, type XrayTestStep } from '../types/xray.types.js';
 
 
 // --- XRay Write Operations ---
@@ -58,9 +59,10 @@ export async function deleteXrayStep(user: User, testKey: string, stepId: number
 
 		logger.info(`Successfully deleted XRay step ${stepId} from test ${testKey}`);
 
-	} catch (error: any) {
-		logger.error(`Error in deleteXrayStep service: ${error}`);
-		throw new Error(`Failed to delete XRay step: ${error.message}`, { cause: error });
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		logger.error(`Error in deleteXrayStep service: ${message}`);
+		throw new Error(`Failed to delete XRay step: ${message}`, { cause: error });
 	}
 }
 
@@ -73,22 +75,22 @@ export async function deleteXrayStep(user: User, testKey: string, stepId: number
  * @param host The hostname or base URL for the API requests.
  * @returns An object containing scenarioList and testStepDescription.
  */
-export async function handleTestIssue(issue: any, options: RequestInit, host: string): Promise<{ scenarioList: Partial<Scenario>[], testStepDescription: string }> {
+export async function handleTestIssue(issue: XrayIssue, options: RequestInit, host: string): Promise<{ scenarioList: Partial<Scenario>[], testStepDescription: string }> {
 	const stepTypes = (await stepTypeService.showSteptypes()).filter(def => def.type !== 'Add Variable');
 
 	// Fetch all test runs for the given issue
 	const testrunResponse = await fetch(`https://${host}/rest/raven/2.0/api/test/${issue.key}/testruns`, options);
-	const testRuns = await testrunResponse.json();
+	const testRuns: XrayTestRunSummary[] = await testrunResponse.json();
 
 	// Fetch details for all test runs
-	const testRunDetailsPromises = testRuns.map((testRun: any) =>
-		fetch(`https://${host}/rest/raven/2.0/api/testrun/${testRun.id}`, options).then(response => response.json())
+	const testRunDetailsPromises = testRuns.map((testRun) =>
+		fetch(`https://${host}/rest/raven/2.0/api/testrun/${testRun.id}`, options).then(response => response.json() as Promise<XrayTestRun>)
 	);
 	const resolvedTestRuns = await Promise.all(testRunDetailsPromises);
 
 	// Fetch all test steps defined for the given issue
 	const testStepsResponse = await fetch(`https://${host}/rest/raven/2.0/api/test/${issue.key}/steps`, options);
-	const testSteps = await testStepsResponse.json();
+	const testSteps: { steps: XrayTestStep[] } = await testStepsResponse.json();
 
 	const { scenarioList, testStepDescription } = await processTestSteps(testSteps.steps, resolvedTestRuns, issue.key, stepTypes);
 
@@ -102,7 +104,7 @@ export async function handleTestIssue(issue: any, options: RequestInit, host: st
  * @param issueKey The key of the issue being processed.
  * @returns An object containing the scenarioList and testStepDescription.
  */
-async function processTestSteps(steps: any[], resolvedTestRuns: any[], issueKey: string, stepTypes: StepType[]): Promise<{ scenarioList: Partial<Scenario>[], testStepDescription: string }> {
+async function processTestSteps(steps: XrayTestStep[], resolvedTestRuns: XrayTestRun[], issueKey: string, stepTypes: StepType[]): Promise<{ scenarioList: Partial<Scenario>[], testStepDescription: string }> {
 	const scenarioList: Partial<Scenario>[] = [];
 	let testStepDescription = '\n\nTest-Steps:\n';
 
@@ -131,7 +133,7 @@ async function processTestSteps(steps: any[], resolvedTestRuns: any[], issueKey:
 		resolvedTestRuns.forEach((testRunDetails) => {
 			if (!testRunDetails.steps) return;
             
-			testRunDetails.steps.forEach((testRunStep: any) => {
+			testRunDetails.steps.forEach((testRunStep) => {
 				const stepGiven = fields.Given ? fields.Given.value : '';
 				const stepAction = fields.Action ? fields.Action.value.raw : '';
 				const stepExpected = fields['Expected Result'] ? fields['Expected Result'].value.raw : '';
@@ -173,11 +175,11 @@ async function processTestSteps(steps: any[], resolvedTestRuns: any[], issueKey:
  * @param step The xray step containing sections of given, actiona and expected result.
  * @returns An array of matching step definitions.
  */
-async function checkIdenticalSteps(step: any, stepTypes: StepType[]): Promise<any[]> {
-	const matches: any[] = [];
+async function checkIdenticalSteps(step: XrayStepFields, stepTypes: StepType[]): Promise<XrayStepMatch[]> {
+	const matches: XrayStepMatch[] = [];
 	let context: string = '';
-    
-	for (const section of ['Given', 'Action', 'Expected Result']) 
+
+	for (const section of ['Given', 'Action', 'Expected Result'] as const)
 		if (step[section] && step[section].value) {
 			let texts: string[] = [];
 			if (section === 'Given') {
@@ -210,7 +212,7 @@ async function checkIdenticalSteps(step: any, stepTypes: StepType[]): Promise<an
  * @param context The context (given, when, then) of the step.
  * @returns The matching step definition or null if no match found.
  */
-function analyzeText(text: string, context: string, stepTypes: StepType[]): any {
+function analyzeText(text: string, context: string, stepTypes: StepType[]): XrayStepMatch | null {
 	for (const stepType of stepTypes) 
 		if (stepType.stepType === context) {
 			// Create a pattern based on the pre, mid, and post values of the step definition
@@ -276,7 +278,7 @@ function cleanValue(value: string): string {
  * @param matchingSteps An array of matching steps.
  * @returns An object containing scenario steps for given, when, and then.
  */
-function createScenarioSteps(matchingSteps: any[]): { givenSteps: StepType[], whenSteps: StepType[], thenSteps: StepType[] } {
+function createScenarioSteps(matchingSteps: XrayStepMatch[]): { givenSteps: StepType[], whenSteps: StepType[], thenSteps: StepType[] } {
 	const givenSteps: StepType[] = [];
 	const whenSteps: StepType[] = [];
 	const thenSteps: StepType[] = [];

@@ -27,7 +27,7 @@ let totalScenarios = 0;
 
 // Error Handling and other helpers
 
-async function handleError(f: () => Promise<any>) {
+async function handleError(f: () => Promise<unknown>) {
 	try {
 		await f();
 	} catch (error) {
@@ -83,7 +83,7 @@ After(async function (this: PlaywrightWorld, { pickle, result }: ITestCaseHookPa
 			const img = await this.getPage().screenshot({ path: screenshotPath });
 			this.attach(img, 'image/png');
 			console.log(`Screenshot saved: ${screenshotPath}`);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			console.error('Failed to take screenshot on failure:', e);
 		}
 	}
@@ -193,8 +193,8 @@ function expandAttributeWildcard(locatorString: string) {
 async function mapLocatorsToPromises(
 	locators: Locator[],
 	action: string,
-	value: any = undefined,
-	...args: any[]
+	value: unknown = undefined,
+	...args: unknown[]
 ) {
 	const expandedLocators = locators.map((locator) => {
 		let locatorString = locator.toString();
@@ -228,34 +228,36 @@ async function mapLocatorsToPromises(
 				if (action.startsWith('to')) 
 					switch (action) {
 						case 'toBeChecked':
-							return await expect(locator).toBeChecked({ checked: value });
+							return await expect(locator).toBeChecked({ checked: value as boolean });
 						case 'toHaveAttribute':
 							return await Promise.any(
-								args.map((attr) => expect(locator).toHaveAttribute(attr, value))
+								args.map((attr) => expect(locator).toHaveAttribute(attr as string, value as string))
 							);
 						case 'toHaveCSS':
 							// Spezialfall für Farben
-							if (args[0].toLowerCase() === 'color') {
+							if ((args[0] as string).toLowerCase() === 'color') {
 								// Hole den computed style
 								const computedColor = await locator.evaluate(
 									(el) => window.getComputedStyle(el).color
 								);
 
 								// Erstelle ein temporäres Element zur Farbkonvertierung
-								const normalizedColor = await locator.evaluate((el, color) => {
+								const normalizedColor = await locator.evaluate((el, color: string) => {
 									const span = document.createElement('span');
 									span.style.color = color;
 									document.body.appendChild(span);
 									const computed = window.getComputedStyle(span).color;
 									span.remove();
 									return computed;
-								}, value);
+								}, value as string);
 
 								return expect(computedColor).toBe(normalizedColor);
 							}
 							// Für alle anderen CSS-Properties
-							return await expect(locator).toHaveCSS(args[0], value);
+							return await expect(locator).toHaveCSS(args[0] as string, value as string);
 						default:
+							// Dynamic dispatch on a runtime action name — no realistic way to model
+							// every Playwright assertion method here, so `any` is intentional
 							return await (expect(locator) as any)[action](value);
 					}
 				else if (action === 'check') {
@@ -419,7 +421,7 @@ async function mapLocatorsToPromises(
 					for (const locator of visibleLocators) 
 						try {
 							console.log(`Versuche ${action} mit Locator:`, locator);
-							return await locator.fill(value, actionOptions);
+							return await locator.fill(value as string, actionOptions);
 						} catch (error: unknown) {
 							lastError = error;
 							console.log(`Fehler bei ${action} mit Locator:`, errMsg(error));
@@ -433,6 +435,8 @@ async function mapLocatorsToPromises(
       `\nLetzter Fehler: ${errMsg(lastError)}`
 					);
 				} else
+					// Dynamic dispatch on a runtime action name — no realistic way to model
+					// every Playwright Locator method here, so `any` is intentional
 					result = await (locator as any)[action](
 						...(value !== undefined ? [value, ...args] : args),
 						actionOptions
@@ -480,7 +484,7 @@ Given('I am on the website: {string}', async function (this: PlaywrightWorld, ur
 			await page.goto(url);
 			await page.waitForLoadState();
 			//await page.waitForTimeout(searchTimeout + this.parameters.waitTime);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -499,7 +503,7 @@ Given(
 						url: page.url()
 					}
 				]);
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -514,7 +518,7 @@ Given('I remove a cookie with the name {string}', async function (this: Playwrig
 			const filteredCookies = cookies.filter((cookie) => cookie.name !== name);
 			await context.clearCookies();
 			await context.addCookies(filteredCookies);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -532,7 +536,7 @@ Given(
 					},
 					[name, value]
 				);
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -548,7 +552,7 @@ Given(
 				await page.evaluate((key) => {
 					window.sessionStorage.removeItem(key);
 				}, name);
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -566,7 +570,7 @@ Given('I take a screenshot', async function (this: PlaywrightWorld) {
 			);
 			const buffer = await page.screenshot({ path: screenshotPath });
 			this.attach(buffer, 'image/png');
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -646,7 +650,7 @@ Given(
 					const buffer = await page.screenshot({ path: screenshotPath });
 					this.attach(buffer, 'image/png');
 				}
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -661,7 +665,7 @@ When('I go to the website: {string}', async function getUrl(this: PlaywrightWorl
 			const page = this.getPage();
 			await page.goto(url);
 			await page.waitForLoadState();
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -731,7 +735,7 @@ When('I click the button: {string}', async function (this: PlaywrightWorld, butt
 
 			//Verzögerung für stabilere Seiten
 			if (downloadHandled) await page.waitForTimeout(500);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -749,7 +753,7 @@ When(
 			try {
 				const page = this.getPage();
 				await page.waitForTimeout(waitTime);
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -813,7 +817,7 @@ When('I insert {string} into the field {string}', async function (this: Playwrig
 					);
 				}
 			}
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -904,7 +908,7 @@ When(
 						);
 					}
 				}
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -1011,7 +1015,7 @@ When(
             "click"
           );
         } */
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -1082,7 +1086,7 @@ When('I select the option {string}', async function (this: PlaywrightWorld, drop
 					);
 				}
 			}
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -1161,7 +1165,7 @@ When(
 						);
 					}
 				}
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -1221,7 +1225,7 @@ When('I check the box {string}', async function (this: PlaywrightWorld, name: st
 					);
 				}
 			}
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -1245,7 +1249,7 @@ When('Switch to the newly opened tab', async function (this: PlaywrightWorld) {
 			// Switch to the last opened page
 			await pages[pages.length - 1].bringToFront();
 			this.page = pages[pages.length - 1];
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -1283,7 +1287,7 @@ When('Switch to the tab number {string}', async function (this: PlaywrightWorld,
 			}
 
 			await this.getPage().waitForLoadState('networkidle');
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -1336,7 +1340,7 @@ When(
 
 				// Wait for upload to complete
 				await page.waitForLoadState('networkidle');
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -1350,7 +1354,7 @@ Then('So I will be navigated to the website: {string}', async function (this: Pl
 		try {
 			const page = this.getPage();
 			await expect(page).toHaveURL(url.replace(/[\s]|\/\s*$/g, ''));
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 
@@ -1408,7 +1412,7 @@ Then(
 					locator = await mapLocatorsToPromises(
 						preferredLocators,
 						'evaluate',
-						(el: any) => el.options[el.selectedIndex].text
+						(el: HTMLSelectElement) => el.options[el.selectedIndex].text
 					);
 					const content = (await locator) || '';
 
@@ -1424,7 +1428,7 @@ Then(
 					locator = await mapLocatorsToPromises(
 						xpathLocators,
 						'evaluate',
-						(el: any) => el.options[el.selectedIndex].text
+						(el: HTMLSelectElement) => el.options[el.selectedIndex].text
 					);
 					const content = (await locator) || '';
 
@@ -1437,7 +1441,7 @@ Then(
           
 					return;
 				}
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -1476,7 +1480,7 @@ Then('So I can see the text: {string}', async function (this: PlaywrightWorld, t
 			// Regulärer Ausdruck, um WHitespaces vorne und hinten zu ignorieren
 				expect(pageHTML).toContain(normalizedExpectedText);
       
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -1526,7 +1530,7 @@ Then("So I can't see text in the textbox: {string}", async function (this: Playw
 				);
 				expect(content).toBe('');
 			}
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -1563,8 +1567,8 @@ Then(
 				if (!fileExists) 
 					throw new Error(`Download file ${fileName} could not be saved`);
         
-			} catch (e: any) {
-				throw new Error(`Download file ${fileName} failed: ${e.message}`, { cause: e });
+			} catch (e: unknown) {
+				throw new Error(`Download file ${fileName} failed: ${errMsg(e)}`, { cause: e });
 			}
 		});
 	}
@@ -1629,7 +1633,7 @@ Then(
 						{ cause: _preferredError }
 					);
 				}
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -1666,7 +1670,7 @@ Then("So I can't see the text: {string}", async function (this: PlaywrightWorld,
 			else 
 				expect(pageHTML).not.toContain(resultString);
       
-		} catch (e: any) {
+		} catch (e: unknown) {
 			throw e;
 		}
 	});
@@ -1721,7 +1725,7 @@ Then(
 						checked
 					);
 				}
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -1816,7 +1820,7 @@ Then(
 
           await expect(actual).toBe(value); */
 				}
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});
@@ -1881,7 +1885,7 @@ Then(
 						'data-tooltip'
 					);
 				}
-			} catch (e: any) {
+			} catch (e: unknown) {
 				throw e;
 			}
 		});

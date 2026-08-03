@@ -6,6 +6,7 @@ import assert from 'assert';
 import { By, until, Key } from 'selenium-webdriver';
 import { SeleniumWebdriverWorld } from './seleniumWebdriverWorld.js';
 import { applySpecialCommands } from '../../../helpers/specialCommandParser.js';
+import type { TestExecutionParameters, SeleniumDriver, SeleniumElement } from '../../../types/test-runner.types.js';
 
 // Welt-Konstruktor setzen
 setWorldConstructor(SeleniumWebdriverWorld);
@@ -17,11 +18,12 @@ let totalScenarios = 0;
 
 // Global variables - CAUTION: This is problematic for parallel execution!
 // These should ideally be part of the World instance 'this'
-let driver: any;
+// Definite assignment (!): always populated by the Before hook before any step runs
+let driver!: SeleniumDriver;
 let searchTimeout: number;
 let downloadDirectory: string;
 let tmpUploadDir: string;
-let currentParameters: any;
+let currentParameters!: TestExecutionParameters;
 
 // --- Error Handling ---
 
@@ -42,11 +44,11 @@ function betterError(error: Error): CustomError {
 	return myError;
 }
 
-async function handleError(f: () => Promise<any>): Promise<void> {
+async function handleError(f: () => Promise<unknown>): Promise<void> {
 	try {
 		await f();
-	} catch (error: any) {
-		throw betterError(error);
+	} catch (error: unknown) {
+		throw betterError(error instanceof Error ? error : new Error(String(error)));
 	}
 }
 
@@ -84,7 +86,7 @@ After(async function (this: SeleniumWebdriverWorld, scenario: ITestCaseHookParam
 	// Screenshot bei Fehlern
 	if (scenario.result?.status === 'FAILED') try {
 		await this.attachScreenshot();
-	} catch (e: any) {
+	} catch (e: unknown) {
 		console.error('Failed to take screenshot:', e);
 	}
 	console.log(`Finished Scenario ${scenarioCount + 1}/${totalScenarios}`);
@@ -95,7 +97,7 @@ After(async function (this: SeleniumWebdriverWorld, scenario: ITestCaseHookParam
 		|| scenarioCount === totalScenarios - 1
 	) try { 
 		await this.closeBrowser();
-	} catch (e: any) {
+	} catch (e: unknown) {
 		console.error('Failed to close browser:', e);
 		// Notfall-Schließung
 		if (driver) try {
@@ -131,9 +133,9 @@ Given('I am on the website: {string}', async function getUrl(this: SeleniumWebdr
 		try {
 			await driver.get(url);
 			await driver.getCurrentUrl();
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -144,9 +146,9 @@ Given('I add a cookie with the name {string} and value {string}', async function
 		const world = this;
 		try {
 			await driver.manage().addCookie({ name, value });
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -157,9 +159,9 @@ Given('I remove a cookie with the name {string}', async function removeCookie(th
 		const world = this;
 		try {
 			await driver.manage().deleteCookie(name);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -170,9 +172,9 @@ Given('I add a session-storage with the name {string} and value {string}', async
 		const world = this;
 		try {
 			await driver.executeScript(`window.sessionStorage.setItem('${name}', '${value}');`);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -183,9 +185,9 @@ Given('I remove a session-storage with the name {string}', async function addSes
 		const world = this;
 		try {
 			await driver.executeScript(`window.sessionStorage.removeItem('${name}');`);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -195,13 +197,13 @@ Given('I remove a session-storage with the name {string}', async function addSes
 Given('I take a screenshot', async function (this: SeleniumWebdriverWorld) {
 	await handleError(async () => {
 		const world = this;
-		await driver.wait(async () => driver.executeScript('return document.readyState')
+		await driver.wait(async () => driver.executeScript<string>('return document.readyState')
 			.then(async (readyState: string) => readyState === 'complete'));
 		try {
 			await world.attachScreenshot();
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -211,7 +213,7 @@ Given('I take a screenshot', async function (this: SeleniumWebdriverWorld) {
 Given('I take a screenshot. Optionally: Focus the page on the element {string}', async function takeScreenshot(this: SeleniumWebdriverWorld, element: string) {
 	await handleError(async () => {
 		const world = this;
-		await driver.wait(async () => driver.executeScript('return document.readyState')
+		await driver.wait(async () => driver.executeScript<string>('return document.readyState')
 			.then(async (readyState: string) => readyState === 'complete'));
 		const identifiers = [`//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
 		const promises = [];
@@ -221,10 +223,10 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 			.then(async () => {
 				await world.attachScreenshot();
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`Element ${element} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`Element ${element} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -238,9 +240,9 @@ When('I go to the website: {string}', async function getUrl(this: SeleniumWebdri
 		try {
 			await driver.get(url);
 			await driver.getCurrentUrl();
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -257,10 +259,10 @@ When('I click the button: {string}', async function clickButton(this: SeleniumWe
 
 		await Promise.any(promises)
 			.then((elem) => elem.click())
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`Button ${button} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`Button ${button} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -272,9 +274,9 @@ When('The site should wait for {string} milliseconds', async function (this: Sel
 		const world = this;
 		try {
 			await driver.sleep(parseInt(ms, 10));
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 	});
 });
@@ -299,16 +301,16 @@ When('I insert {string} into the field {string}', async function fillTextField(t
 				await elem.clear();
 				await typing(elem, value);
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`Input/Textarea ${label} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`Input/Textarea ${label} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
 });
 
-const typing = async (elem: any, inputString: string) => {
+const typing = async (elem: SeleniumElement, inputString: string) => {
 	for (const char of inputString.split('')) await elem.sendKeys(char);
 };
 
@@ -323,10 +325,10 @@ When('I select {string} from the selection {string}', async function clickRadioB
 
 		await Promise.any(promises)
 			.then((elem) => elem.click())
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`Radio ${label} with option ${radioname} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`Radio ${label} with option ${radioname} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -355,18 +357,18 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 
 				const ariaOptProm = [driver.findElement(By.xpath(`(//*[contains(text(),'${value}') or contains(@id, '${value}') or contains(@*, '${value}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
 			`)), driver.findElement(By.xpath(`${value}`))];
-				const dropdownOption = await Promise.any(ariaOptProm).catch((e: any) => { throw e; });
+				const dropdownOption = await Promise.any(ariaOptProm).catch((e: unknown) => { throw e; });
 
 				// Wait for the dropdown options to be visible
-				await driver.wait(until.elementIsVisible(dropdownOption)).catch((e: any) => { throw e; });
+				await driver.wait(until.elementIsVisible(dropdownOption)).catch((e: unknown) => { throw e; });
 
 				// Select the option from the dropdown
 				await dropdownOption.click();
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`Dropdown ${dropd} with option ${value} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`Dropdown ${dropd} with option ${value} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(currentParameters.waitTime);
 	});
@@ -378,10 +380,10 @@ When('I select the option {string}', async function selectviaXPath(this: Seleniu
 		const world = this;
 		try {
 			await driver.wait(until.elementLocated(By.xpath(`${dropd}`)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100).click();
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			if (Object.keys(e).length === 0) throw NotFoundError(`Dropdown-option ${dropd} could not be found!`);
-			throw Error(e, { cause: e });
+			if (Object.keys(e as object).length === 0) throw NotFoundError(`Dropdown-option ${dropd} could not be found!`);
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -404,7 +406,7 @@ When('I hover over the element {string} and select the option {string}', async f
 			const selection = await driver.wait(until.elementLocated(By.xpath(`${option}`)), maxWait, waitText, waitRetryTime);
 			await action2.move({ origin: selection }).click()
 				.perform();
-		} catch (e: any) {
+		} catch (e: unknown) {
 			const action = driver.actions({ bridge: true });
 			const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), maxWait, waitText, waitRetryTime);
 			await action.move({ x: 0, y: 0, origin: link }).perform();
@@ -421,8 +423,8 @@ When('I hover over the element {string} and select the option {string}', async f
 						.perform();
 				} catch (_e3) {
 					await world.attachScreenshot();
-					if (Object.keys(e).length === 0) throw NotFoundError(`Selector ${element} could not be found!`);
-					throw Error(e, { cause: _e3 });
+					if (Object.keys(e as object).length === 0) throw NotFoundError(`Selector ${element} could not be found!`);
+					throw Error(String(e), { cause: _e3 });
 				}
 			}
 		}
@@ -458,10 +460,10 @@ When('I check the box {string}', async function checkBox(this: SeleniumWebdriver
 			driver.wait(until.elementLocated(By.xpath(`${name}`)), maxWait, waitText, waitRetryTime).click()
 		];
 		await Promise.any(promises)
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`The Checkbox ${name} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`The Checkbox ${name} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -473,9 +475,9 @@ When('Switch to the newly opened tab', async function switchToNewTab(this: Selen
 		try {
 			const tabs = await driver.getAllWindowHandles();
 			await driver.switchTo().window(tabs[1]);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -494,9 +496,9 @@ When('Switch to the tab number {string}', async function switchToSpecificTab(thi
 				const tab = len - (parseInt(numberOfTabs, 10) - 1);
 				await driver.switchTo().window(chromeTabs[tab]);
 			}
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -509,9 +511,9 @@ When('I switch to the next tab', async function switchToNewTab(this: SeleniumWeb
 		try {
 			const tabs = await driver.getAllWindowHandles();
 			await driver.switchTo().window(tabs[1]);
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -527,10 +529,10 @@ When(
 		const path = tmpUploadDir + file;
 		await Promise.any(promises)
 			.then((elem) => elem.sendKeys(`${path}`))
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	}
@@ -545,9 +547,9 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 			await driver.getCurrentUrl().then(async (currentUrl: string) => {
 				assert.strictEqual(currentUrl.replace(/\/$/g, ''), url.replace(/[\s]|\/\s*$/g, ''), 'ERROR expected: ...');
 			});
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -581,10 +583,10 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 				if (regexFound) assert.match(resp, RegExp(resultString), `The Textfield ${label} does not contain the string/regex: '${resultString}' , actual: '${resp}'!`);
 				else assert.strictEqual(resp, resultString, `The Textfield ${label} does not contain the string: '${resultString}' , actual: '${resp}'!`);
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`Textarea ${label} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`Textarea ${label} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -597,19 +599,19 @@ Then('So I can see the text: {string}', async function textPresent(this: Seleniu
 		const { resultString, regexFound } = resolveRegex(expectedText);
 		const world = this;
 		try {
-			await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState: string) => readyState === 'complete'));
+			await driver.wait(async () => driver.executeScript<string>('return document.readyState').then(async (readyState: string) => readyState === 'complete'));
 			await driver.wait(until.elementLocated(By.css('Body')), searchTimeout)
-				.then(async (body: any) => {
+				.then(async (body: SeleniumElement) => {
 					const cssBody = await body.getText().then((bodytext: string) => bodytext);
-					const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
-					const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
+					const innerHtmlBody = await driver.executeScript<string>('return document.documentElement.innerHTML');
+					const outerHtmlBody = await driver.executeScript<string>('return document.documentElement.outerHTML');
 					const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
 					if (regexFound) assert.match(bodyAll, RegExp(resultString), `The Page HTML does not contain the string/regex: '${resultString}'`);
 					else assert(bodyAll.includes(resultString), `The Page HTML does not contain the string: '${resultString}'`);
 				});
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -628,10 +630,10 @@ Then('So I can\'t see text in the textbox: {string}', async function textAbsent(
 				const resp = await elem.getText().then((text: string) => text);
 				assert.strictEqual(resp, '', 'Textfield does contain some Text');
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`The Textarea ${label} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`The Textarea ${label} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await world.attachScreenshot();
 		await driver.sleep(100 + currentParameters.waitTime);
@@ -649,9 +651,9 @@ Then(
 				const timestamp = Date.now();
 				// Rename the downloaded file, so a new Run of the Test will not check the old file
 				await fs.promises.rename(path, `${downloadDirectory}Seed_Download-${timestamp.toString()}_${fileName}`);
-			} catch (e: any) {
+			} catch (e: unknown) {
 				await world.attachScreenshot();
-				throw Error(e, { cause: e });
+				throw Error(String(e), { cause: e });
 			}
 			await driver.sleep(100 + currentParameters.waitTime);
 		});
@@ -666,12 +668,12 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 		const domain = (await driver.getCurrentUrl()).split('/').slice(0, 3)
 			.join('/');
-		let finSrc: any = '';
+		let finSrc: string | string[] = '';
 		await Promise.any(promises)
 			.then(async (elem) => {
 				if (await elem.getTagName() === 'picture') {
 					const childSourceElems = await elem.findElements(By.xpath('.//source'));
-					const elementWithSrcset = await childSourceElems.find(async (element: any) => {
+					const elementWithSrcset = await childSourceElems.find(async (element: SeleniumElement) => {
 						const srcsetValue = await element.getAttribute('srcset');
 						return srcsetValue && srcsetValue.includes(name);
 					});
@@ -683,27 +685,27 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 				const secSrc = await elem.getAttribute('srcset');
 				if (!finSrc && primSrc && primSrc.includes(name)) finSrc = primSrc;
 				if (!finSrc && secSrc && secSrc.includes(name)) finSrc = secSrc;
-				finSrc = finSrc.split(' ').filter((substring: string) => substring.includes(name));
+				finSrc = (finSrc as string).split(' ').filter((substring: string) => substring.includes(name));
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`The Picture ${picture} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`The Picture ${picture} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
-			
+
 		// Ensure finSrc is not an empty array before fetch
 		const srcToFetch = Array.isArray(finSrc) ? finSrc[0] : finSrc; 
 		if (!srcToFetch) 
 			throw new Error(`Image source for "${name}" could not be determined.`);
         
-		await fetch(domain + finSrc, { method: 'HEAD' })
+		await fetch(domain + String(finSrc), { method: 'HEAD' })
 			.then((response) => {
-				if (!response.ok) throw Error(`Image ${finSrc} not Found`);
+				if (!response.ok) throw Error(`Image ${String(finSrc)} not Found`);
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`The Picture ${picture} could not be found!`);
-				throw Error(`Image availability check: could not reach image source ${domain + finSrc} `, e);
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`The Picture ${picture} could not be found!`);
+				throw new Error(`Image availability check: could not reach image source ${domain + String(finSrc)} `, { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -716,18 +718,18 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 		const { resultString, regexFound } = resolveRegex(expectedText);
 		const world = this;
 		try {
-			await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState: string) => readyState === 'complete'));
-			await driver.wait(until.elementLocated(By.css('Body')), searchTimeout).then(async (body: any) => {
+			await driver.wait(async () => driver.executeScript<string>('return document.readyState').then(async (readyState: string) => readyState === 'complete'));
+			await driver.wait(until.elementLocated(By.css('Body')), searchTimeout).then(async (body: SeleniumElement) => {
 				const cssBody = await body.getText().then((bodytext: string) => bodytext);
-				const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
-				const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
+				const innerHtmlBody = await driver.executeScript<string>('return document.documentElement.innerHTML');
+				const outerHtmlBody = await driver.executeScript<string>('return document.documentElement.outerHTML');
 				const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
 				if (regexFound) assert.doesNotMatch(bodyAll, RegExp(resultString), `The Page HTML does contain the regex/string: '${resultString}'.\n`);
 				else assert(!bodyAll.includes(resultString), `The Page HTML does contain the string: '${resultString}'.\n`);
 			});
-		} catch (e: any) {
+		} catch (e: unknown) {
 			await world.attachScreenshot();
-			throw Error(e, { cause: e });
+			throw Error(String(e), { cause: e });
 		}
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -748,10 +750,10 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 			.then(async (elem) => {
 				assert.strictEqual(await elem.isSelected(), checked);
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`The checkbox ${checkboxName} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`The checkbox ${checkboxName} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -775,10 +777,10 @@ Then('So on element {string} the css property {string} is {string}', async funct
 					assert.strictEqual(value.toString(), hex.toString(), `The css property ${property} of element ${element} does not match '${value}', actual '${hex}'`);
 				} else assert.strictEqual(value.toString(), actual.toString(), `The css property ${property} of element ${element} does not match '${value}', actual '${actual}'`);
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found!`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`The Element ${element} could not be found!`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});
@@ -795,10 +797,10 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 				const actual = await elem.getAttribute('title');
 				assert.strictEqual(actual, value);
 			})
-			.catch(async (e: any) => {
+			.catch(async (e: unknown) => {
 				await world.attachScreenshot();
-				if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found (check tool-tip).`);
-				throw Error(e, { cause: e });
+				if (Object.keys(e as object).length === 0) throw NotFoundError(`The Element ${element} could not be found (check tool-tip).`);
+				throw Error(String(e), { cause: e });
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
 	});

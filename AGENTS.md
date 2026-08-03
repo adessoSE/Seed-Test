@@ -174,7 +174,8 @@ await db.collection(storiesCollection).updateOne(...);
 - **Code quality (all error)**: `eqeqeq`, `preserve-caught-error` (ESLint 10 core), `no-duplicate-imports`
 - **Warnings (deferred)**: `no-explicit-any` (off in `*.spec.ts`), `require-await`, `only-throw-error`, `no-unnecessary-type-assertion`, `restrict-template-expressions`, `no-useless-catch`
 - **Off (until `any` cleanup)**: all `no-unsafe-*` rules
-- Lint target: all `src/**/*.ts`; 0 errors, ~392 warnings remaining (mostly `no-explicit-any`)
+- Lint target: all `src/**/*.ts`; 0 errors, ~243 warnings remaining (mostly `no-explicit-any`)
+- Typed domains (`any` cleaned up): Xray, report/Cucumber JSON, Jira/GitHub sync, and both stepdefs — see `src/types/{xray,report,external,test-runner}.types.ts`
 
 ## Files/gitignore
 Always gitignore: `.feature`, `reporting_*`, `dist/`, `node_modules/`, `.env`, `tsconfig.tsbuildinfo`, `coverage/`, `logs/`, `*.bat`, `*.sh`

@@ -1,4 +1,4 @@
-import { ObjectId, GridFSBucket } from 'mongodb';
+import { ObjectId, GridFSBucket, type DeleteResult, type UpdateResult } from 'mongodb';
 import { logger } from '../logging.js';
 import * as dbConnection from '../database/DbConnector.js';
 import { Readable } from 'node:stream';
@@ -16,6 +16,9 @@ import {
 } from '../models/models.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
+import {
+	type BigReportPayload, type CucumberElement, type CucumberFeatureReport, type FullReport, type GroupExecutionParams, type ReportDoc, type ReportExecutionResult
+} from '../types/report.types.js';
 
 const ReportDataCollection = 'ReportData';
 const ReportsCollection = 'Reports';
@@ -28,12 +31,12 @@ const reportPathBase = path.join(process.cwd(), 'features'); // Base path for re
  * @param storyId The ObjectId of the story.
  * @returns A promise that resolves to an array of report metadata objects.
  */
-export async function getTestReports(storyId: string): Promise<any[]> {
+export async function getTestReports(storyId: string): Promise<ReportDoc[]> {
 	const db = dbConnection.getConnection();
 	const oid = new ObjectId(storyId);
 	// StoryReports use 'featureId', ScenarioReports use 'storyId' — query both
-	return db.collection(ReportDataCollection)
-		.find({ $or: [{ storyId: oid }, { featureId: oid }] }, { projection: { jsonReport: 0, reportOptions: 0, json: 0 } })
+	return db.collection<ReportDoc>(ReportDataCollection)
+		.find({ $or: [{ storyId: oid }, { featureId: oid as unknown as string }] }, { projection: { jsonReport: 0, reportOptions: 0, json: 0 } })
 		.toArray();
 }
 
@@ -42,10 +45,10 @@ export async function getTestReports(storyId: string): Promise<any[]> {
  * @param storyId The ObjectId of the story.
  * @returns A promise that resolves to an array of group report metadata objects.
  */
-export async function getGroupTestReports(storyId: string): Promise<any[]> {
+export async function getGroupTestReports(storyId: string): Promise<ReportDoc[]> {
 	const db = dbConnection.getConnection();
-	const query = { storyStatuses: { $elemMatch: { storyId: new ObjectId(storyId) } } };
-	return db.collection(ReportDataCollection)
+	const query = { storyStatuses: { $elemMatch: { storyId: new ObjectId(storyId) as unknown as string } } };
+	return db.collection<ReportDoc>(ReportDataCollection)
 		.find(query, { projection: { jsonReport: 0, reportOptions: 0, json: 0 } })
 		.toArray();
 }
@@ -55,9 +58,9 @@ export async function getGroupTestReports(storyId: string): Promise<any[]> {
  * @param reportId The ObjectId of the report metadata document.
  * @returns The full report object with jsonReport data.
  */
-export async function getReportById(reportId: string): Promise<any> {
+export async function getReportById(reportId: string): Promise<FullReport> {
 	const db = dbConnection.getConnection();
-	const reportData = await db.collection(ReportDataCollection).findOne({ _id: new ObjectId(reportId) });
+	const reportData = await db.collection<ReportDoc>(ReportDataCollection).findOne({ _id: new ObjectId(reportId) });
 	if (!reportData)
 		throw AppError.notFound('Report data not found');
 
@@ -69,9 +72,9 @@ export async function getReportById(reportId: string): Promise<any> {
  * @param reportName The name of the report.
  * @returns The full report object with jsonReport data.
  */
-export async function getReportByName(reportName: string): Promise<any> {
+export async function getReportByName(reportName: string): Promise<FullReport> {
 	const db = dbConnection.getConnection();
-	const reportData = await db.collection(ReportDataCollection).findOne({ reportName });
+	const reportData = await db.collection<ReportDoc>(ReportDataCollection).findOne({ reportName });
 	if (!reportData)
 		throw AppError.notFound('Report data not found');
 
@@ -84,9 +87,9 @@ export async function getReportByName(reportName: string): Promise<any> {
  * @param reportId The ObjectId of the report.
  * @returns The report metadata object.
  */
-export async function getReportDataById(reportId: string): Promise<any> {
+export async function getReportDataById(reportId: string): Promise<ReportDoc | null> {
 	const db = dbConnection.getConnection();
-	return db.collection(ReportDataCollection).findOne({ _id: new ObjectId(reportId.toString()) });
+	return db.collection<ReportDoc>(ReportDataCollection).findOne({ _id: new ObjectId(reportId.toString()) });
 }
 
 /**
@@ -94,7 +97,7 @@ export async function getReportDataById(reportId: string): Promise<any> {
  * @param reportResults The report object to be stored.
  * @returns The original report object, augmented with database IDs.
  */
-export async function uploadReport(reportResults: any): Promise<any> {
+export async function uploadReport(reportResults: ReportDoc): Promise<ReportDoc> {
 	const db = dbConnection.getConnection();
 	const reportData = { ...reportResults }; // Create a mutable copy
 
@@ -111,7 +114,8 @@ export async function uploadReport(reportResults: any): Promise<any> {
 	const len = Buffer.byteLength(JSON.stringify(data));
 
 	if (len >= 16000000) { // Threshold for GridFS
-		const bigReportId = await uploadBigJsonData(jReport, reportResults.storyId);
+		// storyId may be an ObjectId or a number depending on report mode — GridFS just stores it as the filename
+		const bigReportId = await uploadBigJsonData(jReport, String(reportResults.storyId));
 		reportData.bigReport = bigReportId;
 	} else {
 		const smallReportResult = await db.collection(ReportsCollection).insertOne(jReport);
@@ -126,15 +130,15 @@ export async function uploadReport(reportResults: any): Promise<any> {
  * Deletes a report's metadata and its associated data from either GridFS or the reports collection.
  * @param reportId The ObjectId of the report to delete.
  */
-export async function deleteReport(reportId: string): Promise<any> {
+export async function deleteReport(reportId: string): Promise<DeleteResult> {
 	const db = dbConnection.getConnection();
-	const collection = db.collection(ReportDataCollection);
+	const collection = db.collection<ReportDoc>(ReportDataCollection);
 	const reportData = await collection.findOne({ _id: new ObjectId(reportId) });
-	if (!reportData) 
+	if (!reportData)
 		throw AppError.notFound('Report to delete not found');
-    
 
-	if (reportData.smallReport) 
+
+	if (reportData.smallReport)
 		await db.collection(ReportsCollection).deleteOne({ _id: new ObjectId(reportData.smallReport) });
 	else if (reportData.bigReport) {
 		const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
@@ -149,9 +153,9 @@ export async function deleteReport(reportId: string): Promise<any> {
  * @param testReportId The ObjectId of the report.
  * @param isSaved The boolean value to set.
  */
-export async function setIsSavedTestReport(testReportId: string, isSaved: boolean): Promise<any> {
+export async function setIsSavedTestReport(testReportId: string, isSaved: boolean): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
-	return db.collection(ReportDataCollection).updateOne(
+	return db.collection<ReportDoc>(ReportDataCollection).updateOne(
 		{ _id: new ObjectId(testReportId) },
 		{ $set: { isSaved } }
 	);
@@ -175,7 +179,9 @@ export async function getReportHistory(storyId: string): Promise<ReportContainer
 	const prunedScenarioReports = await deleteOldReports(scenarioReports);
 	const prunedGroupReports = await deleteOldReports(groupReports);
 
-	return { storyReports: prunedStoryReports, scenarioReports: prunedScenarioReports, groupReports: prunedGroupReports };
+	// Cast to the shared-model report container at the service boundary — ReportDoc models the
+	// MongoDB persistence shape, while ReportContainer models the API contract used by the frontend.
+	return { storyReports: prunedStoryReports, scenarioReports: prunedScenarioReports, groupReports: prunedGroupReports } as unknown as ReportContainer;
 }
 
 /**
@@ -183,7 +189,7 @@ export async function getReportHistory(storyId: string): Promise<ReportContainer
  * @param uploadedReport The report object from the completed test run.
  * @param mode The mode in which the test was run.
  */
-export async function updateLatestTestStatus(uploadedReport: any, mode: ExecutionMode): Promise<void> {
+export async function updateLatestTestStatus(uploadedReport: ReportDoc, mode: ExecutionMode): Promise<void> {
 	switch (mode) {
 		case ExecutionMode.SCENARIO:
 			await updateScenarioTestStatus(uploadedReport);
@@ -191,17 +197,17 @@ export async function updateLatestTestStatus(uploadedReport: any, mode: Executio
 		case ExecutionMode.STORY:
 			{
 				// Prepare all update promises for the feature and its scenarios
-				const updatePromises: Promise<any>[] = [];
+				const updatePromises: Promise<unknown>[] = [];
 
-				// Promise to update the overall story status
-				updatePromises.push(storyService.updateStoryStatus(uploadedReport.featureId, uploadedReport.status));
+				// Promise to update the overall story status — featureId is always set for StoryReport documents
+				updatePromises.push(storyService.updateStoryStatus(uploadedReport.featureId!, uploadedReport.status));
 
 				// Promises to update each scenario's status within the story
-				for (const scenarioStatus of uploadedReport.scenarioStatuses) 
+				for (const scenarioStatus of uploadedReport.scenarioStatuses!)
 					updatePromises.push(
-						storyService.updateScenarioStatus(uploadedReport.featureId, scenarioStatus.scenarioId, scenarioStatus.status)
+						storyService.updateScenarioStatus(uploadedReport.featureId!, scenarioStatus.scenarioId, scenarioStatus.status)
 					);
-                
+
 
 				// Execute all updates concurrently and wait for them to finish
 				await Promise.all(updatePromises);
@@ -210,9 +216,9 @@ export async function updateLatestTestStatus(uploadedReport: any, mode: Executio
 		case ExecutionMode.GROUP:
 			{
 				// Prepare all update promises for all stories and their scenarios in the group
-				const updatePromises: Promise<any>[] = [];
+				const updatePromises: Promise<unknown>[] = [];
 
-				for (const storyStatus of uploadedReport.storyStatuses) {
+				for (const storyStatus of uploadedReport.storyStatuses!) {
 					// Promise to update the overall status of each story in the group
 					updatePromises.push(storyService.updateStoryStatus(storyStatus.storyId, storyStatus.status));
 
@@ -234,25 +240,25 @@ export async function updateLatestTestStatus(uploadedReport: any, mode: Executio
 
 // --- Helper Functions ---
 
-async function getReportFromDB(reportData: any): Promise<any> {
+async function getReportFromDB(reportData: ReportDoc): Promise<FullReport> {
 	const db = dbConnection.getConnection();
-	let result: any;
+	let result: FullReport;
 
 	if (reportData.smallReport) {
-		const reportJson = await db.collection(ReportsCollection).findOne({ _id: reportData.smallReport });
-		result = { _id: reportData._id, jsonReport: reportJson?.jsonReport };
+		const reportJson = await db.collection(ReportsCollection).findOne({ _id: oid(reportData.smallReport) });
+		result = { _id: reportData._id!, jsonReport: reportJson?.jsonReport as string | undefined };
 	} else if (reportData.bigReport) {
 		const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
 		const reportString = await streamToText(bucket.openDownloadStream(new ObjectId(reportData.bigReport.toString())));
-		const reportJson = JSON.parse(reportString);
-		result = { _id: reportData._id, jsonReport: reportJson.jsonReport };
-	} else 
-		throw new Error(`Report ${reportData._id} has neither a smallReport nor a bigReport reference.`);
-    
+		const reportJson = JSON.parse(reportString) as FullReport;
+		result = { _id: reportData._id!, jsonReport: reportJson.jsonReport };
+	} else
+		throw new Error(`Report ${String(reportData._id)} has neither a smallReport nor a bigReport reference.`);
+
 	return result;
 }
 
-async function uploadBigJsonData(data: any, fileName: string): Promise<ObjectId> {
+async function uploadBigJsonData(data: BigReportPayload, fileName: string): Promise<ObjectId> {
 	const db = dbConnection.getConnection();
 	const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
 	const id = new ObjectId();
@@ -270,7 +276,7 @@ async function uploadBigJsonData(data: any, fileName: string): Promise<ObjectId>
  * @param reports An array of report documents.
  * @returns The pruned array of reports.
  */
-async function deleteOldReports(reports: any[]): Promise<any[]> {
+async function deleteOldReports(reports: ReportDoc[]): Promise<ReportDoc[]> {
 	const keepReportAmount = parseInt(process.env.MAX_SAVED_REPORTS || '10', 10);
     
 	// Sort reports by time, newest first
@@ -283,17 +289,19 @@ async function deleteOldReports(reports: any[]): Promise<any[]> {
 	const reportsToKeep = reports.filter(r => r.isSaved || reports.indexOf(r) < keepReportAmount);
 
 	// Step 3: Delete on parallel.
-	const deletionPromises = reportsToDelete.map(report => deleteReport(report._id.toString()));
+	const deletionPromises = reportsToDelete.map(report => deleteReport(report._id!.toString()));
 	await Promise.all(deletionPromises);
         
 	return reportsToKeep;
 }
 
-async function updateScenarioTestStatus(uploadedReport: any): Promise<void> {
+async function updateScenarioTestStatus(uploadedReport: ReportDoc): Promise<void> {
 	let storyStatus = uploadedReport.status;
+	// storyId holds a Mongo ObjectId at runtime for ScenarioReport documents (see analyzeScenarioReport)
+	const storyId = String(uploadedReport.storyId);
 	// If the scenario passed, we need to check if this makes the whole story pass.
 	if (uploadedReport.status === true) {
-		const story = await storyService.getOneStory(uploadedReport.storyId);
+		const story = await storyService.getOneStory(storyId);
 		if (story) {
 			const scenarioIndex = story.scenarios.findIndex(scen => scen.scenario_id === uploadedReport.scenarioId);
 			if (scenarioIndex > -1) story.scenarios[scenarioIndex].lastTestPassed = true;
@@ -301,8 +309,8 @@ async function updateScenarioTestStatus(uploadedReport: any): Promise<void> {
 			storyStatus = story.scenarios.every(scen => scen.lastTestPassed === true);
 		}
 	}
-	await storyService.updateStoryStatus(uploadedReport.storyId, storyStatus);
-	await storyService.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.status);
+	await storyService.updateStoryStatus(storyId, storyStatus);
+	await storyService.updateScenarioStatus(storyId, uploadedReport.scenarioId!, uploadedReport.status);
 }
 
 
@@ -418,7 +426,10 @@ export function generateHtmlReport(reportName: string, jsonPath: string, isGroup
  * @param executionParams - Parameters used for the test run (e.g., group name).
  * @returns The final report object after analysis and DB insertion.
  */
-export async function resolveAndSaveReport(reportResult: any, mode: ExecutionMode, stories: Story[], executionParams: any): Promise<any> {
+// Return type stays `any` — different callers treat this as a ReportDoc (testExecution.controller.ts
+// reads `._id`) or as a specific report class (sanity.controller.ts expects a GroupReport), depending
+// on the ExecutionMode they passed in. Narrowing this would require touching those out-of-scope consumers.
+export async function resolveAndSaveReport(reportResult: ReportExecutionResult, mode: ExecutionMode, stories: Story[], executionParams: GroupExecutionParams): Promise<any> {
 	let reportName = reportResult.reportName;
 	let jsonPath: string;
 	let isGroupReport = false;
@@ -436,7 +447,7 @@ export async function resolveAndSaveReport(reportResult: any, mode: ExecutionMod
 		jsonPath = path.join(reportPathBase, `${reportName}.json`);
 		generateHtmlReport(reportName, jsonPath, false);
 		if (mode === ExecutionMode.SCENARIO)
-			analysisResult = await analyzeScenarioReport(stories, reportName, parseInt(reportResult.scenarioId, 10), jsonPath);
+			analysisResult = await analyzeScenarioReport(stories, reportName, parseInt(String(reportResult.scenarioId), 10), jsonPath);
 		else  // ExecutionMode.STORY
 			analysisResult = await analyzeStoryReport(stories, reportName, jsonPath);
 
@@ -491,7 +502,7 @@ async function analyzeStoryReport(stories: Story[], reportName: string, jsonPath
 
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
-		const cucumberReport: any[] = JSON.parse(data);
+		const cucumberReport: CucumberFeatureReport[] = JSON.parse(data);
 		if (cucumberReport.length === 0) throw AppError.badRequest('Cucumber JSON report is empty.');
 
 		const storyReport = cucumberReport[0]; // Assuming one feature per file
@@ -504,8 +515,9 @@ async function analyzeStoryReport(stories: Story[], reportName: string, jsonPath
 		reportResults.scenarioStatuses = result.scenarioStatuses;
 		return reportResults;
 
-	} catch (error: any) {
-		logger.error(`Error analyzing story report ${reportName}: ${error}`);
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		logger.error(`Error analyzing story report ${reportName}: ${message}`);
 		reportResults.status = false;
 		return reportResults; // Return default error state
 	}
@@ -515,19 +527,19 @@ async function analyzeScenarioReport(stories: Story[], reportName: string, scena
 	const reportResults = new ScenarioReport(); // Use interface/class from shared models
 	reportResults.reportName = reportName;
 	// ScenarioReport.storyId is typed as number but stores an ObjectId at runtime
-	reportResults.storyId = oid(stories[0]._id!) as any;
+	reportResults.storyId = oid(stories[0]._id!) as unknown as number;
 	reportResults.scenarioId = scenarioId;
 
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
-		const cucumberReport: any[] = JSON.parse(data);
+		const cucumberReport: CucumberFeatureReport[] = JSON.parse(data);
 		if (cucumberReport.length === 0) throw AppError.badRequest('Cucumber JSON report is empty.');
 
 		const storyReport = cucumberReport[0];
 		const story = stories[0];
 
 		// Find the specific scenario report element (Cucumber might add hooks as elements)
-		const scenarioReportElement = storyReport.elements.find((el: any) => el.type === 'scenario' && el.name === story.scenarios.find(s=> s.scenario_id === scenarioId)?.name);
+		const scenarioReportElement = storyReport.elements.find((el) => el.type === 'scenario' && el.name === story.scenarios.find(s=> s.scenario_id === scenarioId)?.name);
 		if (!scenarioReportElement) throw AppError.notFound(`Scenario element not found in report for scenario ID ${scenarioId}`);
 
 		const scenario = story.scenarios.find(scen => scen.scenario_id === scenarioId);
@@ -542,8 +554,9 @@ async function analyzeScenarioReport(stories: Story[], reportName: string, scena
 
 		return reportResults;
 
-	} catch (error: any) {
-		logger.error(`Error analyzing scenario report ${reportName}: ${error}`);
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		logger.error(`Error analyzing scenario report ${reportName}: ${message}`);
 		reportResults.status = false;
 		return reportResults; // Return default error state
 	}
@@ -555,7 +568,7 @@ export async function analyzeGroupReport(groupName: string, stories: Story[], js
 
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
-		const cucumberReport: any[] = JSON.parse(data); // Array of feature reports
+		const cucumberReport: CucumberFeatureReport[] = JSON.parse(data); // Array of feature reports
 
 		const scenariosTested = new PassedCount();
 		let overallPassedSteps = 0;
@@ -594,15 +607,16 @@ export async function analyzeGroupReport(groupName: string, stories: Story[], js
 		// reportResults.storiesTested = stories; // Maybe don't store full stories in DB report
 
 		return reportResults;
-	} catch (error: any) {
-		logger.error(`Error analyzing group report ${groupName}: ${error}`);
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		logger.error(`Error analyzing group report ${groupName}: ${message}`);
 		reportResults.status = false;
 		return reportResults;
 	}
 }
 
-function featureResult(featureReport: any, feature: Story): any { // Define a proper return type later
-	const storyId = feature._id;
+function featureResult(featureReport: CucumberFeatureReport, feature: Story): GroupReport['storyStatuses'][number] {
+	const storyId = feature._id!;
 	const featureStatus = {
 		storyId,
 		status: false,
@@ -616,13 +630,13 @@ function featureResult(featureReport: any, feature: Story): any { // Define a pr
 	let featureSkippedSteps = 0;
 
 	// Filter out potential hook results ('before all' / 'after all')
-	const scenarioElements = featureReport.elements.filter((el: any) => el.type === 'scenario');
+	const scenarioElements = featureReport.elements.filter((el) => el.type === 'scenario');
 
 	for (const scenReport of scenarioElements) {
 		// Match scenario report element to scenario data
 		// Using tags is more robust if available: @storyId_scenarioId
-		const tagMatch = scenReport.tags?.map((t: any) => t.name).find((n: string) => n.startsWith(`@${storyId}_`));
-		const scenarioId = tagMatch ? parseInt(tagMatch.split('_').pop(), 10) : null;
+		const tagMatch = scenReport.tags?.map((t) => t.name).find((n: string) => n.startsWith(`@${storyId}_`));
+		const scenarioId = tagMatch ? parseInt(tagMatch.split('_').pop()!, 10) : null;
 		const scenario = scenarioId ? feature.scenarios.find(s => s.scenario_id === scenarioId) : feature.scenarios.find(s => s.name === scenReport.name); // Fallback to name
 
 		if (!scenario) {
@@ -646,7 +660,7 @@ function featureResult(featureReport: any, feature: Story): any { // Define a pr
 	return featureStatus;
 }
 
-function scenarioResult(scenarioReport: any, scenario: Scenario): ScenarioStatus {
+function scenarioResult(scenarioReport: CucumberElement, scenario: Scenario): ScenarioStatus {
 	const scenarioId = scenario.scenario_id;
 	let scenarioPassedSteps = 0;
 	let scenarioFailedSteps = 0;
