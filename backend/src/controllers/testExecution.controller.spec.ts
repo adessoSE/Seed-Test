@@ -389,26 +389,25 @@ describe('TestExecutionController', () => {
 	// ==================== handleReportResult ====================
 
 	describe('handleReportResult', () => {
-		it('should return 500 when report result is null', async () => {
+		it('should throw AppError when report result is null', async () => {
 			const parameters = { stories: [] };
 
-			await controller.handleReportResult(res, null, 'feature' as any, parameters);
-
-			expect(res.status).toHaveBeenCalledWith(500);
-			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-				error: expect.stringContaining('failed to produce')
-			}));
+			// handleReportResult now throws instead of sending a direct error response
+			const error = await controller.handleReportResult(res, null, 'feature' as any, parameters)
+				.catch((e: any) => e);
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(500);
+			expect(error.message).toContain('failed to produce');
 		});
 
-		it('should return 500 when reportName is missing', async () => {
+		it('should throw AppError when reportName is missing', async () => {
 			const parameters = { stories: [] };
 
-			await controller.handleReportResult(res, { someField: 'value' }, 'feature' as any, parameters);
-
-			expect(res.status).toHaveBeenCalledWith(500);
-			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-				error: expect.stringContaining('failed to produce')
-			}));
+			const error = await controller.handleReportResult(res, { someField: 'value' }, 'feature' as any, parameters)
+				.catch((e: any) => e);
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(500);
+			expect(error.message).toContain('failed to produce');
 		});
 
 		it('should resolve report, read HTML, and return JSON on happy path', async () => {
@@ -434,7 +433,7 @@ describe('TestExecutionController', () => {
 			expect(reportService.scheduleReportDeletion).toHaveBeenCalled();
 		});
 
-		it('should return 500 if reading the HTML file fails', async () => {
+		it('should throw AppError when reading the HTML file fails', async () => {
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue({
 				_id: 'reportId',
 				reportName: 'test-report'
@@ -446,12 +445,14 @@ describe('TestExecutionController', () => {
 			const reportResult = { reportName: 'test-report', story: mockStory() };
 			const parameters = { stories: [mockStory()] };
 
-			await controller.handleReportResult(res, reportResult, 'feature' as any, parameters);
-
-			expect(res.status).toHaveBeenCalledWith(500);
-			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-				error: expect.stringContaining('Failed to read HTML')
-			}));
+			// handleReportResult now throws instead of sending a direct error response
+			const error = await controller.handleReportResult(res, reportResult, 'feature' as any, parameters)
+				.catch((e: any) => e);
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(500);
+			expect(error.message).toContain('Failed to read HTML');
+			// AppError carries reportId in its data property
+			expect(error.data).toEqual({ reportId: 'reportId' });
 			// scheduleReportDeletion still called in the finally block
 			expect(reportService.scheduleReportDeletion).toHaveBeenCalled();
 		});

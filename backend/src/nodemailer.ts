@@ -20,7 +20,7 @@ export async function sendResetLink(email: string, id: string): Promise<void> {
 			pass: process.env.EMAIL_PW
 		},
 		tls: {
-			ciphers: 'SSLv3'
+			minVersion: 'TLSv1.2'
 		}
 	});
 

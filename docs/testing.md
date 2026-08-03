@@ -19,7 +19,7 @@ npx vitest run src/services/story.service.spec.ts
 
 ## Backend (Vitest)
 
-- **599 Tests** in **42 Spec-Dateien** (Stand: Juli 2026)
+- **633 Tests** in **42 Spec-Dateien** (Stand: Juli 2026)
 - `*.spec.ts` Dateien liegen **neben der zu testenden Logik** (`services/`, `controllers/`, `helpers/`, `middleware/`, `utils/`, `testing/`, `schemas/`)
 - Vitest `v4.1` mit `@shared` Path-Alias (`vitest.config.ts`)
 - Target: `node` (kein DOM)
@@ -48,7 +48,7 @@ npx vitest run src/services/story.service.spec.ts
 | `logging.controller.spec.ts` | 6 | Log-Messages |
 | `playwright.controller.spec.ts` | 5 | Test-Status SSE |
 
-#### Services (14 Dateien, 193 Tests)
+#### Services (14 Dateien, 171 Tests)
 
 | Datei | Tests | Abdeckung |
 |-------|------:|-----------|
@@ -81,12 +81,12 @@ npx vitest run src/services/story.service.spec.ts
 | `validate.spec.ts` | 7 | Zod-Validation Middleware, Strip Unknown, Field Errors |
 | `authenticate.spec.ts` | 2 | isAuthenticated Pass/Fail |
 
-#### Helpers (4 Dateien, 39 Tests)
+#### Helpers (5 Dateien, 83 Tests)
 
 | Datei | Tests | Abdeckung |
 |-------|------:|-----------|
 | `sanitize.spec.ts` | 16 | HTML/XSS Sanitization |
-| `specialCommandParser.spec.ts` | 11 | Resolve Special Commands in Steps |
+| `specialCommandParser.spec.ts` | 45 | Resolve Special Commands in Steps |
 | `AppError.spec.ts` | 10 | Constructor, Factory Methods, instanceof |
 | `cryptoHelper.spec.ts` | 8 | AES-256-GCM Encrypt/Decrypt Round-Trip |
 | `jobQueue.spec.ts` | 4 | Sequential Processing, Error Recovery |
@@ -137,7 +137,7 @@ npx vitest --watch
 ## CI-Tests
 
 GitHub Actions CI (`CI_Tests_and_Report.yaml`) läuft:
-1. Docker Stack Build mit `docker-test.yml` (Node 20/22/24 Matrix)
+1. Docker Stack Build mit `docker-test.yml` (Node 22/24/26 Matrix)
 2. `docker exec Seed-backend npm test`
 3. `docker exec Seed-frontend npm test`
 4. Sanity Check: POST login → `/api/sanity/test/$REPO_ID/$GROUP_ID`

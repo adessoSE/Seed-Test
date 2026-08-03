@@ -22,7 +22,7 @@ export async function saveBlock(req: Request, res: Response, next: NextFunction)
 		(blockData as any).owner = oid(user._id);
 
 		const result = await blockService.saveBlock(blockData);
-		res.status(200).json({ insertedId: result.insertedId });
+		res.status(201).json({ insertedId: result.insertedId });
 	} catch (error) {
 		next(error);
 	}

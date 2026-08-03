@@ -44,7 +44,7 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
 
 		// The service handles checking for existing members and creating the workgroup if needed
 		const result = await workgroupService.addMember(repoId, userToAdd);
-		res.status(200).json(result);
+		res.status(201).json(result);
 
 	} catch (error: any) {
 		// Handle specific error from the service (e.g., user already exists)

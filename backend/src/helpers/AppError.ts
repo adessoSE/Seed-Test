@@ -1,6 +1,7 @@
 /** Options for preserving the original cause when wrapping errors. */
 interface AppErrorOptions {
 	cause?: unknown;
+	data?: Record<string, unknown>;
 }
 
 /**
@@ -12,12 +13,14 @@ export class AppError extends Error {
 	readonly statusCode: number;
 	readonly isOperational: boolean;
 	readonly code?: string;
+	readonly data?: Record<string, unknown>;
 
 	constructor(message: string, statusCode: number, code?: string, options?: AppErrorOptions) {
 		super(message, { cause: options?.cause });
 		this.statusCode = statusCode;
 		this.isOperational = true;
 		this.code = code;
+		this.data = options?.data;
 		Object.setPrototypeOf(this, AppError.prototype);
 	}
 
@@ -43,5 +46,9 @@ export class AppError extends Error {
 
 	static badGateway(message: string, options?: AppErrorOptions): AppError {
 		return new AppError(message, 502, 'BAD_GATEWAY', options);
+	}
+
+	static notImplemented(message: string, options?: AppErrorOptions): AppError {
+		return new AppError(message, 501, 'NOT_IMPLEMENTED', options);
 	}
 }

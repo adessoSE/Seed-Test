@@ -6,6 +6,8 @@ const uri: string = process.env.DATABASE_URI || 'mongodb://SeedAdmin:SeedTest@se
 // Docker default above matches docker-compose.yml — override via DATABASE_URI in .env for production
 
 let connection: Db | null = null;
+// Module-level client reference — needed for graceful shutdown (closeConnection)
+let client: MongoClient | null = null;
 
 // Create the database connection
 export async function establishConnection(attempt: number = 1): Promise<MongoClient> {
@@ -14,7 +16,7 @@ export async function establishConnection(attempt: number = 1): Promise<MongoCli
 	
 
 	try {
-		const client = await MongoClient.connect(uri, { maxPoolSize: 20 });
+		client = await MongoClient.connect(uri, { maxPoolSize: 20 });
 		connection = client.db('Seed');
 		return client;
 	} catch (_err) {
@@ -25,8 +27,17 @@ export async function establishConnection(attempt: number = 1): Promise<MongoCli
 }
 
 export function getConnection(): Db {
-	if (!connection) 
+	if (!connection)
 		throw new Error('Database connection has not been established yet.');
-	
+
 	return connection;
+}
+
+/** Closes the MongoDB connection pool. Used during graceful shutdown. */
+export async function closeConnection(): Promise<void> {
+	if (client) {
+		await client.close();
+		client = null;
+		connection = null;
+	}
 }

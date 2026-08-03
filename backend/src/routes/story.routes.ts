@@ -1,18 +1,29 @@
-import express from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import multer from 'multer';
+import path from 'node:path';
 import * as storyController from '../controllers/story.controller.js';
-import { authorizeRepo, authorizeByStory } from '../middleware/authorize.js';
+import { authorizeRepo, authorizeByStory, authorizeByIssueKey } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
 import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema } from '../schemas/story.schemas.js';
+import { AppError } from '../helpers/AppError.js';
 
 const router = express.Router();
 
 // CORS, body parsing, and authentication are handled globally in server.ts.
 
-// Setup multer for file uploads (used in import route)
+// Setup multer for file uploads (used in import route) with file type restriction
 const upload = multer({
 	storage: multer.memoryStorage(),
-	limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
+	limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+	fileFilter: (_req, file, cb) => {
+		const allowedMimes = ['application/zip', 'application/x-zip-compressed'];
+		const ext = path.extname(file.originalname).toLowerCase();
+		// Allow .zip by MIME type, or .seed by extension (transmitted as application/octet-stream)
+		if (allowedMimes.includes(file.mimetype) || (ext === '.seed' && file.mimetype === 'application/octet-stream'))
+			cb(null, true);
+		else
+			cb(new AppError('Only .zip and .seed files are allowed for import.', 400));
+	}
 });
 
 // Authorization helpers — URL-param-based
@@ -25,12 +36,22 @@ const canReadById = authorizeByStory('_id');
 // Body/query-based authorization for routes without repo ID in URL
 const canReadRepoByQuery = authorizeRepo('id', { source: 'query' });
 const canEditRepoByBody = authorizeRepo('_id', { requireEdit: true, source: 'body' });
+// Import routes — POST may create a new project (no repo_id), PUT always targets an existing repo
+const canEditRepoByImportQuery = authorizeRepo('repo_id', { requireEdit: true, source: 'query' });
+/** Conditional auth for import POST — only enforces repo auth when updating an existing project. */
+const canImport = async (req: Request, res: Response, next: NextFunction) => {
+	if (req.query.repo_id)
+		return canEditRepoByImportQuery(req, res, next);
+	next();
+};
+// Issue key route — read-only access via external issue key lookup
+const canReadByIssueKey = authorizeByIssueKey('issue_key');
 
 // Static and specific routes MUST be defined before dynamic routes.
 
 // --- Import / Export Routes (Static prefixes) ---
-router.post('/upload/import/', upload.single('file'), storyController.importProjectArchive);
-router.put('/upload/import/', upload.single('file'), storyController.importProjectArchive);
+router.post('/upload/import/', canImport, upload.single('file'), storyController.importProjectArchive);
+router.put('/upload/import/', canEditRepoByImportQuery, upload.single('file'), storyController.importProjectArchive);
 router.get('/download/story/:_id', canEditById, storyController.downloadSingleFeature);
 router.get('/download/project/:repo_id', canReadRepo, storyController.downloadProjectFeatures);
 router.get('/download/export/:repo_id', canReadRepo, storyController.exportProjectArchive);
@@ -38,7 +59,7 @@ router.get('/download/export/:repo_id', canReadRepo, storyController.exportProje
 // --- Other Specific Action Routes ---
 router.post('/specialCommands/resolve', validate(resolveCommandSchema), storyController.resolveSpecialCommands);
 router.post('/oneDriver/:storyID', canEditByStoryAlt, validate(setOneDriverSchema), storyController.setOneDriver);
-router.get('/issueKey/:issue_key', storyController.getStoryByIssueKey);
+router.get('/issueKey/:issue_key', canReadByIssueKey, storyController.getStoryByIssueKey);
 
 // --- AI Routes (Specific prefixes) ---
 router.post('/:story_id/generate-scenarios', canEditByStory, storyController.generateAiScenarios);

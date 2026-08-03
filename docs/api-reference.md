@@ -42,7 +42,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | POST | `/api/story/:story_id` | `{name}` | `Scenario` | Require |
 | PUT | `/api/story/:story_id/:_id` | `Scenario` | `Scenario` | Require |
 | GET | `/api/story/:story_id/:_id` | — | `Scenario` | Require |
-| DELETE | `/api/scenario/:story_id/:_id` | — | `{message}` | Require |
+| DELETE | `/api/story/scenario/:story_id/:_id` | — | `{message}` | Require |
 | PATCH | `/api/story/:story_id` | `Scenario[]` | `{message}` | Require |
 | GET | `/api/story/download/story/:_id` | — | Binary `.feature` | Require |
 | GET | `/api/story/download/project/:repo_id` | query: `version_id` | Binary `.zip` | Require |
@@ -97,7 +97,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 |---|---------|------|----------|------|
 | POST | `/api/files/:repoId` | multer file (binary) | `FileElement` | Require |
 | GET | `/api/files/:repoId` | — | `FileElement[]` | Require |
-| DELETE | `/api/files/:fileId` | — | `{message}` | Require |
+| DELETE | `/api/files/:repoId/:fileId` | — | `{message}` | Require |
 
 ## Reports
 
@@ -165,6 +165,12 @@ interface ExecuteTestRequest {
 |---|---------|------|----------|------|
 | POST | `/api/github/submitIssue` | `{title, body, ...}` | GitHub Issue JSON | Require |
 | DELETE | `/api/github/disconnectGithub` | — | `{message}` | Require |
+
+## AI
+
+| | Endpoint | Body | Response | Auth |
+|---|---------|------|----------|------|
+| GET | `/api/ai/available` | — | `{ available: boolean }` | Public |
 
 ## System
 

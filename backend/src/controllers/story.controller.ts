@@ -96,7 +96,7 @@ export async function createStory(req: Request, res: Response, next: NextFunctio
         
 		await repositoryService.insertStoryIdIntoRepo(dbId.toString(), repoId);
 		await featureFileService.updateFeatureFile(dbId.toString());
-		res.status(200).json({ _id: dbId }); // Return the new story ID
+		res.status(201).json({ _id: dbId }); // Return the new story ID
 	} catch (error) {
 		next(error);
 	}
@@ -131,7 +131,7 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
 			throw AppError.notFound('Story not found');
 		await storyService.deleteStory(repo_id, storyId);
 		await featureFileService.deleteFeatureFile(story.title, story._id);
-		res.status(200).json({ message: 'success' });
+		res.status(200).json({ message: 'Story deleted' });
 	} catch (error) {
 		next(error);
 	}
@@ -181,7 +181,7 @@ export async function createScenario(req: Request, res: Response, next: NextFunc
 
 		const scenario = await storyService.createScenario(storyId, name || 'New Scenario');
 		await featureFileService.updateFeatureFile(storyId);
-		res.status(200).json(scenario);
+		res.status(201).json(scenario);
 	} catch (error) {
 		next(error);
 	}
@@ -408,10 +408,8 @@ export function resolveSpecialCommands(req: Request, res: Response, next: NextFu
 export async function generateAiScenarios(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const aiAvailable = await aiService.isAiParserAvailable();
-		if (!aiAvailable) {
-			res.status(501).json({ error: 'AI features are not available. The @seed-test/ai-parser package is not installed.' });
-			return;
-		}
+		if (!aiAvailable)
+			throw AppError.notImplemented('AI features are not available. The @seed-test/ai-parser package is not installed.');
 
 		const storyId = req.params.story_id;
 		requireValidId(storyId, 'story ID');

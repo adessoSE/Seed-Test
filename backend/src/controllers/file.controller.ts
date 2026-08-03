@@ -22,7 +22,7 @@ export async function fileUpload(req: Request, res: Response, next: NextFunction
 			req.file.buffer
 		);
         
-		res.status(200).json(fileMetadata);
+		res.status(201).json(fileMetadata);
 	} catch (error) {
 		next(error);
 	}

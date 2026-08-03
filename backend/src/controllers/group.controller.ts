@@ -36,7 +36,7 @@ export async function createGroup(req: Request, res: Response, next: NextFunctio
 			sequence || false,    // Ensure default false if missing
 			xrayTestSet || false
 		);
-		res.status(200).json({ group_id: groupID });
+		res.status(201).json({ group_id: groupID });
 	} catch (error) {
 		next(error);
 	}
@@ -72,7 +72,7 @@ export async function deleteGroup(req: Request, res: Response, next: NextFunctio
 		requireValidId(group_id, 'group ID');
 
 		await repositoryService.deleteStoryGroup(repo_id, group_id);
-		res.status(200).json({ message: 'success' });
+		res.status(200).json({ message: 'Group deleted' });
 	} catch (error) {
 		next(error);
 	}
@@ -89,7 +89,7 @@ export async function addStoryToGroup(req: Request, res: Response, next: NextFun
 		requireValidId(story_id, 'story ID');
 
 		await repositoryService.addToStoryGroup(repo_id, group_id, story_id);
-		res.status(200).json({ message: 'success' });
+		res.status(200).json({ message: 'Story added to group' });
 	} catch (error) {
 		next(error);
 	}
@@ -106,7 +106,7 @@ export async function removeStoryFromGroup(req: Request, res: Response, next: Ne
 		requireValidId(story_id, 'story ID');
 
 		await repositoryService.removeFromStoryGroup(repo_id, group_id, story_id);
-		res.status(200).json({ message: 'success' });
+		res.status(200).json({ message: 'Story removed from group' });
 	} catch (error) {
 		next(error);
 	}
@@ -122,7 +122,7 @@ export async function updateGroupsArray(req: Request, res: Response, next: NextF
 
 		const groupsArray: Group[] = req.body;
 		await repositoryService.updateStoryGroupsArray(repoId, groupsArray);
-		res.status(200).json({ message: 'success' });
+		res.status(200).json({ message: 'Groups array updated' });
 	} catch (error) {
 		next(error);
 	}

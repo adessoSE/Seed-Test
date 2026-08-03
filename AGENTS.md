@@ -61,7 +61,7 @@ schemas/*.ts       → Zod v4 input validation schemas (applied via validate() m
 # Docker (recommended — spins up mongo, backend, frontend)
 cd /c/SeedTest && docker compose up -d
 
-# Local install (Node 20/22/24)
+# Local install (Node 22/24/26)
 npm install            # root package-lock.json does nothing
 cd backend && npm install
 cd ../frontend && npm install
@@ -92,7 +92,7 @@ npm run build                # Angular production build
 
 ## CI (GitHub Actions)
 PR → `.github/workflows/CI_Tests_and_Report.yaml`:
-1. Builds Docker stack with `docker-test.yml` (Node 20/22/24 matrix)
+1. Builds Docker stack with `docker-test.yml` (Node 22/24/26 matrix)
 2. Runs `docker exec Seed-backend npm test` and `docker exec Seed-frontend npm test`
 3. Sanity check: POST login to backend → call `/api/sanity/test/$REPO_ID/$GROUP_ID`
 4. Sends Microsoft Teams report via `actions/fullReport`
@@ -168,7 +168,7 @@ await db.collection(storiesCollection).updateOne(...);
 `backend/eslint.config.mjs` — ESLint 10 flat config with `typescript-eslint/recommendedTypeChecked` + `@stylistic/eslint-plugin`:
 - **Tabs** for indentation (`@stylistic/indent: tab`)
 - Single quotes, semicolons required, no `comma-dangle`
-- Curly braces **always required** (`"curly": ["error", "multi"]`)
+- Curly braces **required for multi-statement blocks** (`"curly": ["error", "multi"]`)
 - `prefer-arrow-callback` enforced, `no-console` off
 - **Type-aware rules (all error)**: `no-floating-promises`, `no-misused-promises`, `return-await` (in-try-catch), `no-require-imports`, `consistent-type-imports` (inline `type` keyword)
 - **Code quality (all error)**: `eqeqeq`, `preserve-caught-error` (ESLint 10 core), `no-duplicate-imports`

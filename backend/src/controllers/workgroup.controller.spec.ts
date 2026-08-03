@@ -152,7 +152,7 @@ describe('WorkgroupController', () => {
 				VALID_ID,
 				{ email: 'new@seed.de', canEdit: true }
 			);
-			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.status).toHaveBeenCalledWith(201);
 			expect(res.json).toHaveBeenCalledWith(addResult);
 		});
 

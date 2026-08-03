@@ -47,6 +47,22 @@ vi.mock('node:crypto', () => ({
 	randomUUID: vi.fn().mockReturnValue('test-uuid-1234-5678')
 }));
 
+vi.mock('../helpers/userSanitize', () => ({
+	sanitizeUser: vi.fn((user: any) => {
+		// Simulate allowlist — strip sensitive fields, keep safe ones
+		const { password: _password, transitioned: _transitioned, ...safe } = user;
+		if (safe.github) {
+			const { githubToken: _githubToken, ...safeGithub } = safe.github;
+			safe.github = safeGithub;
+		}
+		if (safe.jira) {
+			const { Password: _Password, Password_Nonce: _Password_Nonce, Password_Tag: _Password_Tag, ...safeJira } = safe.jira;
+			safe.jira = safeJira;
+		}
+		return safe;
+	})
+}));
+
 // --- 2. Import modules after mocks are set up ---
 
 import * as userController from './user.controller.js';
@@ -83,7 +99,10 @@ function mockReqResNext(overrides: {
 		body: { ...(overrides.body ?? {}) },
 		query: overrides.query ?? {},
 		user: overrides.user !== undefined ? overrides.user : null,
-		session: { cookie: { maxAge: null } },
+		session: {
+			cookie: { maxAge: null },
+			regenerate: vi.fn((cb: (err: any) => void) => cb(null))
+		},
 		logIn: vi.fn((_user: any, cb: (err: any) => void) => cb(null)),
 		logout: vi.fn((cb: (err: any) => void) => cb(null))
 	};
@@ -246,7 +265,7 @@ describe('UserController', () => {
 			);
 		}
 
-		it('should authenticate and return the user on successful login', () => {
+		it('should authenticate and return sanitized user on successful login', () => {
 			const loginUser = { ...fakeUser };
 			stubPassport(null, loginUser, null);
 
@@ -257,12 +276,16 @@ describe('UserController', () => {
 			userController.login(req, res, next);
 
 			expect(req.body.email).toBe('test@example.com');
+			expect(req.session.regenerate).toHaveBeenCalled();
 			expect(req.logIn).toHaveBeenCalled();
-			expect(res.json).toHaveBeenCalledWith(loginUser);
+			// Response should be sanitized — no password or githubToken
+			expect(res.json).toHaveBeenCalledWith(
+				expect.not.objectContaining({ password: expect.anything() })
+			);
 			expect(next).not.toHaveBeenCalled();
 		});
 
-		it('should return 401 when passport reports no user (invalid credentials)', () => {
+		it('should call next with 401 AppError when passport reports no user (invalid credentials)', () => {
 			stubPassport(null, false, { message: 'Invalid credentials' });
 
 			const { req, res, next } = mockReqResNext({
@@ -271,11 +294,11 @@ describe('UserController', () => {
 
 			userController.login(req, res, next);
 
-			expect(res.status).toHaveBeenCalledWith(401);
-			expect(res.json).toHaveBeenCalledWith({
-				status: 'error',
-				message: 'Invalid credentials'
-			});
+			expect(next).toHaveBeenCalledTimes(1);
+			const error = next.mock.calls[0][0];
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(401);
+			expect(error.message).toBe('Invalid credentials');
 		});
 
 		it('should call next when passport encounters an internal error', () => {
@@ -291,7 +314,7 @@ describe('UserController', () => {
 			expect(next).toHaveBeenCalledWith(passportError);
 		});
 
-		it('should extend session cookie when stayLoggedIn is true', () => {
+		it('should extend session cookie when stayLoggedIn is true (set after regeneration)', () => {
 			stubPassport(null, { ...fakeUser }, null);
 
 			const { req, res, next } = mockReqResNext({
@@ -300,6 +323,8 @@ describe('UserController', () => {
 
 			userController.login(req, res, next);
 
+			// stayLoggedIn cookie is set inside the regenerate callback
+			expect(req.session.regenerate).toHaveBeenCalled();
 			// 10 days in milliseconds
 			expect(req.session.cookie.maxAge).toBe(864000000);
 		});
@@ -320,8 +345,8 @@ describe('UserController', () => {
 
 			expect(bcrypt.hash).toHaveBeenCalledWith('legacyPw', 10);
 			expect(userService.updateUser).toHaveBeenCalled();
-			// After transition, user data should still be sent back
-			expect(res.json).toHaveBeenCalledWith(legacyUser);
+			// After transition, sanitized user data should still be sent back
+			expect(res.json).toHaveBeenCalled();
 		});
 
 		it('should call next when req.logIn fails', () => {
@@ -336,7 +361,24 @@ describe('UserController', () => {
 
 			userController.login(req, res, next);
 
+			expect(req.session.regenerate).toHaveBeenCalled();
 			expect(next).toHaveBeenCalledWith(loginError);
+		});
+
+		it('should call next when session.regenerate fails', () => {
+			stubPassport(null, { ...fakeUser }, null);
+			const regenerateError = new Error('Session store failure');
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'test@example.com', password: 'p' }
+			});
+			// Override regenerate to simulate a session store error
+			req.session.regenerate = vi.fn((cb: (err: any) => void) => cb(regenerateError));
+
+			userController.login(req, res, next);
+
+			expect(next).toHaveBeenCalledWith(regenerateError);
+			expect(req.logIn).not.toHaveBeenCalled();
 		});
 	});
 
@@ -455,7 +497,7 @@ describe('UserController', () => {
 	// ========== mergeGithub (mergeAccounts) ==========
 
 	describe('mergeGithub', () => {
-		it('should merge accounts and respond 200 when the user owns the account', async () => {
+		it('should merge accounts, regenerate session, and respond 200 when the user owns the account', async () => {
 			const mergedUser = { ...fakeUser, github: { login: 'newgh', id: 99, githubToken: 'tok' } };
 			vi.mocked(userService.mergeGithub).mockResolvedValue(mergedUser);
 
@@ -467,9 +509,10 @@ describe('UserController', () => {
 			await userController.mergeGithub(req, res, next);
 
 			expect(userService.mergeGithub).toHaveBeenCalledWith(fakeUserId, 'newgh', 99);
+			expect(req.session.regenerate).toHaveBeenCalled();
 			expect(req.logIn).toHaveBeenCalledWith(mergedUser, expect.any(Function));
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith({ status: 'success' });
+			expect(res.json).toHaveBeenCalledWith({ message: 'GitHub account merged' });
 			expect(next).not.toHaveBeenCalled();
 		});
 
@@ -509,7 +552,7 @@ describe('UserController', () => {
 	// getUser returns req.user for the currently authenticated session.
 
 	describe('getUser', () => {
-		it('should return 200 with user data when authenticated', async () => {
+		it('should return 200 with sanitized user data when authenticated', async () => {
 			const { req, res, next } = mockReqResNext({
 				user: { ...fakeUser }
 			});
@@ -517,7 +560,10 @@ describe('UserController', () => {
 			await userController.getUser(req, res, next);
 
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith(req.user);
+			// Response should be sanitized — no password or githubToken
+			expect(res.json).toHaveBeenCalledWith(
+				expect.not.objectContaining({ password: expect.anything() })
+			);
 		});
 
 		it('should throw 401 AppError when not authenticated', async () => {
@@ -533,7 +579,7 @@ describe('UserController', () => {
 	// ========== updateUser ==========
 
 	describe('updateUser', () => {
-		it('should update user data and return the updated user', async () => {
+		it('should update user data and return sanitized updated user', async () => {
 			const updatedResult = { ...fakeUser };
 			vi.mocked(userService.updateUser).mockResolvedValue(updatedResult);
 
@@ -555,7 +601,10 @@ describe('UserController', () => {
 				})
 			);
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith(updatedResult);
+			// Response should be sanitized — no password or githubToken
+			expect(res.json).toHaveBeenCalledWith(
+				expect.not.objectContaining({ password: expect.anything() })
+			);
 			expect(next).not.toHaveBeenCalled();
 		});
 

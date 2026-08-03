@@ -199,7 +199,7 @@ Jeder Step hat Zugriff auf `this` vom Typ (abhängig vom gewählten Runner):
 ## Technische Details
 
 ### Cucumber Runtime
-- `@cucumber/cucumber` v12
+- `@cucumber/cucumber` v13
 - Dynamisch geladen: `import('@cucumber/cucumber/api')`
 - Support Code StepDefs werden pro Runner **gecached** (Wiederverwendung zwischen Test-Calls)
 - Tags für single-Scenario-Selection: `@<storyID>_<scenarioId>`

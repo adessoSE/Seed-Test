@@ -7,7 +7,7 @@ Die Modelle in `shared/src/models/` werden vom Backend und Frontend genutzt via 
 ### `Story`
 ```typescript
 interface Story {
-    _id?: any;
+    _id?: string;
     issue_number?: number | string;
     story_id: number;
     storySource: string;
@@ -61,9 +61,9 @@ interface Background {
 ### `Group`
 ```typescript
 interface Group {
-    _id?: any;
+    _id?: string;
     name: string;
-    member_stories: any[];
+    member_stories: string[];
     isSequential: boolean;
     xrayTestSet?: boolean;
 }
@@ -72,15 +72,16 @@ interface Group {
 ### `Block`
 ```typescript
 interface Block {
-    _id?: any;
-    owner?: any;
+    _id?: string;
+    owner?: string;
     name?: string;
     stepDefinitions: StepDefinition;
-    repositoryId?: any;
+    repositoryId?: string;
     repository?: string;
     source?: string;
     isBackground?: boolean;
     usedAsReference?: boolean;
+    multipleScenarios?: MultipleScenario[];
 }
 ```
 
@@ -91,6 +92,13 @@ interface StepDefinition {
     when: StepType[];
     then: StepType[];
     example?: StepType[];
+}
+```
+
+### `StepDefinitionBackground`
+```typescript
+interface StepDefinitionBackground {
+    when: StepType[];
 }
 ```
 
@@ -120,7 +128,7 @@ interface StepType {
 ### `FileElement`
 ```typescript
 class FileElement {
-    _id?: any;
+    _id?: string;
     uploadDate?: string | Date;
     filename?: string;
 }
@@ -140,16 +148,37 @@ interface MultipleScenario {
 ### `Repository`
 ```typescript
 interface Repository {
-    _id?: any;
-    owner: any;
+    _id?: string;
+    owner: string;
     repoName: string;
-    stories: any[];
+    stories: string[];
     repoType: 'db' | 'github' | 'jira';
-    customBlocks?: any[];
+    customBlocks?: string[];
     groups: Group[];
     settings?: { stepWaitTime?: number; reportComment?: boolean; browser?: string; testRunner?: string; emulator?: string; width?: number; height?: number; activated?: boolean };
     aiConfig?: AiConfig;
     gitOwner?: string;
+}
+```
+
+### `RepositoryContainer`
+```typescript
+interface RepositoryContainer {
+    _id?: string;
+    repoName: string;
+    source: string;
+    canEdit?: boolean;
+    settings?: {
+        stepWaitTime?: number;
+        reportComment?: boolean;
+        browser?: string;
+        testRunner?: string;
+        emulator?: string;
+        width?: number;
+        height?: number;
+        activated?: boolean;
+    };
+    aiConfig?: AiConfig;
 }
 ```
 
@@ -172,7 +201,7 @@ interface AiProviderConfig {
 ### `User`
 ```typescript
 interface User {
-    _id?: any;
+    _id?: string;
     email: string;
     password?: string;
     transitioned?: boolean;
@@ -195,13 +224,13 @@ interface ReportContainer {
 ### `StoryReport`
 ```typescript
 interface StoryReport {
-    _id: any;
+    _id: string;
     reportName: string;
     reportTime: number;
-    reportOptions: any;
-    storyId: any;
+    reportOptions: Record<string, unknown>;
+    storyId: string;
     mode: string;
-    scenarioId?: any;
+    scenarioId?: string;
     isSaved?: boolean;
     overallTestStatus: boolean;
     storyStepResults: StepResults;
@@ -212,13 +241,13 @@ interface StoryReport {
 ### `ScenarioReport`
 ```typescript
 interface ScenarioReport {
-    _id?: any;
+    _id?: string;
     reportName: string;
     reportTime: number;
-    reportOptions: any;
-    storyId: any;
+    reportOptions: Record<string, unknown>;
+    storyId: string;
     mode: string;
-    scenarioId: any;
+    scenarioId: string;
     overallTestStatus: boolean;
     isSaved?: boolean;
     scenarioStatuses: ScenarioStatus;
@@ -228,10 +257,10 @@ interface ScenarioReport {
 ### `GroupReport`
 ```typescript
 interface GroupReport {
-    _id?: any;
+    _id?: string;
     reportName: string;
     reportTime: number;
-    reportOptions: any;
+    reportOptions: Record<string, unknown>;
     mode: string;
     isSaved?: boolean;
     overallTestStatus: boolean;
@@ -252,7 +281,7 @@ interface StepResults {
 ### `ScenarioStatus`
 ```typescript
 interface ScenarioStatus {
-    scenarioId: any;
+    scenarioId: string;
     status: boolean;
     stepResults: StepResults;
 }
@@ -261,7 +290,7 @@ interface ScenarioStatus {
 ### `StoryStatus`
 ```typescript
 interface StoryStatus {
-    storyId: any;
+    storyId: string;
     status: boolean;
     storyStepResults: StepResults;
     scenarioStatuses: ScenarioStatus[];

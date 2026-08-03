@@ -125,7 +125,7 @@ describe('GroupController', () => {
 			expect(mockedRepositoryService.createStoryGroup).toHaveBeenCalledWith(
 				VALID_REPO_ID, 'Regression', [VALID_STORY_ID], true, false
 			);
-			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.status).toHaveBeenCalledWith(201);
 			expect(res.json).toHaveBeenCalledWith({ group_id: newGroupId });
 			expect(next).not.toHaveBeenCalled();
 		});
@@ -212,7 +212,7 @@ describe('GroupController', () => {
 
 			expect(mockedRepositoryService.deleteStoryGroup).toHaveBeenCalledWith(VALID_REPO_ID, VALID_GROUP_ID);
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith({ message: 'success' });
+			expect(res.json).toHaveBeenCalledWith({ message: 'Group deleted' });
 			expect(next).not.toHaveBeenCalled();
 		});
 
@@ -253,7 +253,7 @@ describe('GroupController', () => {
 				VALID_REPO_ID, VALID_GROUP_ID, VALID_STORY_ID
 			);
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith({ message: 'success' });
+			expect(res.json).toHaveBeenCalledWith({ message: 'Story added to group' });
 			expect(next).not.toHaveBeenCalled();
 		});
 
@@ -298,7 +298,7 @@ describe('GroupController', () => {
 				VALID_REPO_ID, VALID_GROUP_ID, VALID_STORY_ID
 			);
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith({ message: 'success' });
+			expect(res.json).toHaveBeenCalledWith({ message: 'Story removed from group' });
 			expect(next).not.toHaveBeenCalled();
 		});
 
@@ -334,7 +334,7 @@ describe('GroupController', () => {
 
 			expect(mockedRepositoryService.updateStoryGroupsArray).toHaveBeenCalledWith(VALID_REPO_ID, groupsArray);
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith({ message: 'success' });
+			expect(res.json).toHaveBeenCalledWith({ message: 'Groups array updated' });
 			expect(next).not.toHaveBeenCalled();
 		});
 

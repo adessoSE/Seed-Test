@@ -332,7 +332,7 @@ describe('StoryController', () => {
 			expect(storyService.createStory).toHaveBeenCalledWith('New Story', 'Description', VALID_REPO_ID);
 			expect(repositoryService.insertStoryIdIntoRepo).toHaveBeenCalledWith(newId.toString(), VALID_REPO_ID);
 			expect(featureFileService.updateFeatureFile).toHaveBeenCalledWith(newId.toString());
-			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.status).toHaveBeenCalledWith(201);
 			expect(res.json).toHaveBeenCalledWith({ _id: newId });
 		});
 
@@ -438,7 +438,7 @@ describe('StoryController', () => {
 			expect(storyService.deleteStory).toHaveBeenCalledWith(VALID_REPO_ID, VALID_STORY_ID);
 			expect(featureFileService.deleteFeatureFile).toHaveBeenCalledWith('To Delete', VALID_STORY_ID);
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith({ message: 'success' });
+			expect(res.json).toHaveBeenCalledWith({ message: 'Story deleted' });
 		});
 
 		it('should pass 400 AppError to next for invalid repo ID', async () => {
@@ -560,7 +560,7 @@ describe('StoryController', () => {
 
 			expect(storyService.createScenario).toHaveBeenCalledWith(VALID_STORY_ID, 'Login Scenario');
 			expect(featureFileService.updateFeatureFile).toHaveBeenCalledWith(VALID_STORY_ID);
-			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.status).toHaveBeenCalledWith(201);
 			expect(res.json).toHaveBeenCalledWith(scenario);
 		});
 
@@ -1094,7 +1094,7 @@ describe('StoryController', () => {
 			expect(res.json).toHaveBeenCalledWith({ message: 'AI generation task accepted and queued.' });
 		});
 
-		it('should return 501 when AI parser is not available', async () => {
+		it('should call next with 501 AppError when AI parser is not available', async () => {
 			req.params = { story_id: VALID_STORY_ID };
 			req.body = { aiConfig };
 			req.headers = { repoid: VALID_REPO_ID };
@@ -1103,8 +1103,11 @@ describe('StoryController', () => {
 
 			await controller.generateAiScenarios(req, res, next);
 
-			expect(res.status).toHaveBeenCalledWith(501);
-			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: expect.stringContaining('not available') }));
+			// Now throws AppError.notImplemented which is caught and passed to next()
+			expect(next).toHaveBeenCalledWith(expect.any(AppError));
+			const error = next.mock.calls[0][0] as AppError;
+			expect(error.statusCode).toBe(501);
+			expect(error.message).toContain('not available');
 			// Should not attempt to queue
 			expect(aiService.queueAiScenarioGeneration).not.toHaveBeenCalled();
 		});

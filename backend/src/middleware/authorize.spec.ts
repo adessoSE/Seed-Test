@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import { authorizeRepo, authorizeByStory } from './authorize.js';
+import { authorizeRepo, authorizeByStory, authorizeByReport, extractStoryIdFromReport, authorizeByIssueKey } from './authorize.js';
 
 // Mock service dependencies
 vi.mock('../services/repository.service', () => ({
@@ -10,9 +10,18 @@ vi.mock('../services/repository.service', () => ({
 vi.mock('../services/workgroup.service', () => ({
 	getWorkgroup: vi.fn()
 }));
+vi.mock('../services/report.service', () => ({
+	getReportDataById: vi.fn(),
+	getReportByName: vi.fn()
+}));
+vi.mock('../services/story.service', () => ({
+	getOneStoryByIssueKey: vi.fn()
+}));
 
 import * as repositoryService from '../services/repository.service.js';
 import * as workgroupService from '../services/workgroup.service.js';
+import * as reportService from '../services/report.service.js';
+import * as storyService from '../services/story.service.js';
 
 // Helper to create mock Express req/res/next
 function mockReqResNext(overrides: {
@@ -39,6 +48,8 @@ const ownerId = new ObjectId();
 const otherUserId = new ObjectId();
 const repoId = new ObjectId();
 const storyId = new ObjectId();
+
+const reportId = new ObjectId();
 
 const mockRepo = { _id: repoId, owner: ownerId };
 
@@ -211,5 +222,155 @@ describe('authorizeByStory', () => {
 		});
 		await authorizeByStory('storyID', { source: 'body' })(req, res, next);
 		expect(next).toHaveBeenCalledWith();
+	});
+});
+
+describe('extractStoryIdFromReport', () => {
+	it('extracts featureId from a StoryReport', () => {
+		const report = { featureId: storyId };
+		expect(extractStoryIdFromReport(report)).toBe(storyId.toString());
+	});
+
+	it('extracts storyId from a ScenarioReport', () => {
+		const report = { storyId };
+		expect(extractStoryIdFromReport(report)).toBe(storyId.toString());
+	});
+
+	it('extracts first storyId from a GroupReport storyStatuses array', () => {
+		const report = { storyStatuses: [{ storyId }] };
+		expect(extractStoryIdFromReport(report)).toBe(storyId.toString());
+	});
+
+	it('returns null when report has no recognizable story reference', () => {
+		expect(extractStoryIdFromReport({})).toBeNull();
+		expect(extractStoryIdFromReport({ storyStatuses: [] })).toBeNull();
+	});
+});
+
+describe('authorizeByReport', () => {
+	it('rejects with 400 on invalid ObjectId', async () => {
+		const { req, res, next } = mockReqResNext({
+			params: { reportId: 'not-valid' }
+		});
+		await authorizeByReport('reportId')(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(400);
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it('rejects with 401 when user is not authenticated', async () => {
+		const { req, res, next } = mockReqResNext({
+			params: { reportId: reportId.toHexString() },
+			user: null
+		});
+		await authorizeByReport('reportId')(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(401);
+	});
+
+	it('returns 404 when report does not exist', async () => {
+		vi.mocked(reportService.getReportDataById).mockResolvedValue(null as any);
+		const { req, res, next } = mockReqResNext({
+			params: { reportId: reportId.toHexString() }
+		});
+		await authorizeByReport('reportId')(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(404);
+	});
+
+	it('allows repo owner through after resolving report → story → repo', async () => {
+		vi.mocked(reportService.getReportDataById).mockResolvedValue({ featureId: storyId } as any);
+		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
+		const { req, res, next } = mockReqResNext({
+			params: { reportId: reportId.toHexString() },
+			user: { _id: ownerId, email: 'owner@test.de' }
+		});
+		await authorizeByReport('reportId')(req, res, next);
+		expect(next).toHaveBeenCalledWith();
+	});
+
+	it('rejects non-member with 403', async () => {
+		vi.mocked(reportService.getReportDataById).mockResolvedValue({ featureId: storyId } as any);
+		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
+		vi.mocked(workgroupService.getWorkgroup).mockResolvedValue({ Members: [] } as any);
+		const { req, res, next } = mockReqResNext({
+			params: { reportId: reportId.toHexString() },
+			user: { _id: otherUserId, email: 'stranger@test.de' }
+		});
+		await authorizeByReport('reportId')(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(403);
+	});
+
+	it('supports name-based lookup with lookupBy: "name"', async () => {
+		vi.mocked(reportService.getReportByName).mockResolvedValue({ _id: reportId } as any);
+		vi.mocked(reportService.getReportDataById).mockResolvedValue({ featureId: storyId } as any);
+		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
+		const { req, res, next } = mockReqResNext({
+			params: { reportName: 'my-report' },
+			user: { _id: ownerId, email: 'owner@test.de' }
+		});
+		await authorizeByReport('reportName', { lookupBy: 'name' })(req, res, next);
+		expect(reportService.getReportByName).toHaveBeenCalledWith('my-report');
+		expect(next).toHaveBeenCalledWith();
+	});
+
+	it('rejects read-only workgroup member when requireEdit is true', async () => {
+		vi.mocked(reportService.getReportDataById).mockResolvedValue({ featureId: storyId } as any);
+		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
+		vi.mocked(workgroupService.getWorkgroup).mockResolvedValue({
+			Members: [{ email: 'reader@test.de', canEdit: false }]
+		} as any);
+		const { req, res, next } = mockReqResNext({
+			params: { reportId: reportId.toHexString() },
+			user: { _id: otherUserId, email: 'reader@test.de' }
+		});
+		await authorizeByReport('reportId', { requireEdit: true })(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(403);
+	});
+});
+
+describe('authorizeByIssueKey', () => {
+	it('rejects with 400 when issue key is missing', async () => {
+		const { req, res, next } = mockReqResNext({ params: {} });
+		await authorizeByIssueKey('issue_key')(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(400);
+	});
+
+	it('rejects with 401 when user is not authenticated', async () => {
+		const { req, res, next } = mockReqResNext({
+			params: { issue_key: 'PROJ-123' },
+			user: null
+		});
+		await authorizeByIssueKey('issue_key')(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(401);
+	});
+
+	it('returns 404 when no story matches the issue key', async () => {
+		vi.mocked(storyService.getOneStoryByIssueKey).mockResolvedValue(null as any);
+		const { req, res, next } = mockReqResNext({
+			params: { issue_key: 'PROJ-999' }
+		});
+		await authorizeByIssueKey('issue_key')(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(404);
+	});
+
+	it('allows repo owner through after resolving issueKey → story → repo', async () => {
+		vi.mocked(storyService.getOneStoryByIssueKey).mockResolvedValue({ _id: storyId } as any);
+		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
+		const { req, res, next } = mockReqResNext({
+			params: { issue_key: 'PROJ-123' },
+			user: { _id: ownerId, email: 'owner@test.de' }
+		});
+		await authorizeByIssueKey('issue_key')(req, res, next);
+		expect(next).toHaveBeenCalledWith();
+	});
+
+	it('rejects non-member with 403', async () => {
+		vi.mocked(storyService.getOneStoryByIssueKey).mockResolvedValue({ _id: storyId } as any);
+		vi.mocked(repositoryService.getRepoByStoryId).mockResolvedValue(mockRepo as any);
+		vi.mocked(workgroupService.getWorkgroup).mockResolvedValue({ Members: [] } as any);
+		const { req, res, next } = mockReqResNext({
+			params: { issue_key: 'PROJ-123' },
+			user: { _id: otherUserId, email: 'stranger@test.de' }
+		});
+		await authorizeByIssueKey('issue_key')(req, res, next);
+		expect(res.status).toHaveBeenCalledWith(403);
 	});
 });

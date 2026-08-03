@@ -26,10 +26,8 @@ function extractRunParams(req: Request): { repoId: string, repositoryName: strin
 
 // Helper for report post-processing
 export async function handleReportResult(res: Response, reportResult: any, mode: ExecutionMode, parameters: any, user?: User) {
-	if (!reportResult || !reportResult.reportName) {
-		res.status(500).json({ error: 'Test execution failed to produce a valid report result.' });
-		return;
-	}
+	if (!reportResult || !reportResult.reportName)
+		throw new AppError('Test execution failed to produce a valid report result.', 500);
 
 	// Resolve report (analyze JSON, generate HTML etc.)
 	const finalReport = await reportService.resolveAndSaveReport(reportResult, mode, reportResult.story ? [reportResult.story] : parameters.stories || [], parameters);
@@ -41,7 +39,7 @@ export async function handleReportResult(res: Response, reportResult: any, mode:
 		res.json({ htmlFile: htmlContent, reportId: finalReport._id, report: finalReport });
 	} catch (readError) {
 		logger.error(`Error reading HTML report: ${readError}`);
-		res.status(500).json({ error: 'Failed to read HTML report file.', reportId: finalReport._id });
+		throw new AppError('Failed to read HTML report file.', 500, undefined, { data: { reportId: finalReport._id } });
 	} finally {
 		// Clean up temporary files after a delay
 		const deletionTime = parseInt(process.env.REPORT_DELETION_TIME || '5') * 60000;

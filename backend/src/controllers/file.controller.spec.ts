@@ -84,7 +84,7 @@ describe('FileController', () => {
 				VALID_ID,
 				req.file.buffer
 			);
-			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.status).toHaveBeenCalledWith(201);
 			expect(res.json).toHaveBeenCalledWith(metadata);
 			expect(next).not.toHaveBeenCalled();
 		});

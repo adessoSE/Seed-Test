@@ -8,6 +8,7 @@ import * as nodeMail from '../nodemailer.js';
 import { type Session, type SessionData } from 'express-session';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
+import { sanitizeUser } from '../helpers/userSanitize.js';
 
 const saltRounds = 10;
 
@@ -82,34 +83,39 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
  * Handles local user login.
  */
 export function login(req: Request, res: Response, next: NextFunction): void {
-	if (req.body.stayLoggedIn) 
-		(req as RequestWithSession).session.cookie.maxAge = 864000000; // 10 days
-    
 	req.body.email = req.body.email.toLowerCase();
 
 	passport.authenticate('normal-local', {}, (error: any, user: User, info: any) => {
 		if (error) return next(error);
-		if (!user) 
-			return res.status(401).json({ status: 'error', message: info.message });
-        
-        
-		req.logIn(user, (err) => {
-			if (err) return next(err);
+		if (!user)
+			return next(AppError.unauthorized(info.message || 'Authentication failed'));
 
-			// Handle password hash transition if needed
-			void (async () => {
-				if (user.transitioned === false)
-					try {
-						const hashedPass = await bcrypt.hash(req.body.password, saltRounds);
-						user.password = hashedPass;
-						user.transitioned = true;
-						await userService.updateUser(user._id!, user);
-					} catch (hashError) {
-						return next(hashError);
-					}
+		// Session fixation prevention — regenerate before establishing new identity
+		(req as RequestWithSession).session.regenerate((regenerateErr) => {
+			if (regenerateErr) return next(regenerateErr);
 
-				res.json(user);
-			})();
+			// Set extended session lifetime after regeneration so the new session inherits it
+			if (req.body.stayLoggedIn)
+				(req as RequestWithSession).session.cookie.maxAge = 864000000; // 10 days
+
+			req.logIn(user, (loginErr) => {
+				if (loginErr) return next(loginErr);
+
+				// Handle password hash transition if needed
+				void (async () => {
+					if (user.transitioned === false)
+						try {
+							const hashedPass = await bcrypt.hash(req.body.password, saltRounds);
+							user.password = hashedPass;
+							user.transitioned = true;
+							await userService.updateUser(user._id!, user);
+						} catch (hashError) {
+							return next(hashError);
+						}
+
+					res.json(sanitizeUser(user));
+				})();
+			});
 		});
 	})(req, res, next);
 }
@@ -151,7 +157,7 @@ export function logout(req: Request, res: Response, next: NextFunction): void {
 	req.logout((err) => {
 		if (err)  return next(err); 
 		res.clearCookie('connect.sid', { path: '/' });
-		res.status(200).json({ status: 'success' });
+		res.status(200).json({ message: 'Logged out' });
 	});
 }
 
@@ -167,8 +173,7 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 
 	if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
 		logger.error('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET not set.');
-		res.status(501).send('Server configuration error.');
-		return;
+		throw new AppError('GitHub OAuth is not configured. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.', 501);
 	}
 
 	params.append('client_id', process.env.GITHUB_CLIENT_ID);
@@ -200,13 +205,13 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 		if (!user)
 			throw new AppError('Failed to register or find GitHub user', 500);
 
-		// Log the user in
-		req.logIn(user, (err) => {
-			if (err) return next(err);
-			// Redirect or send user data
-			// For a REST API, often you redirect to the frontend with a token
-			// Here, we'll just send the user data
-			res.status(200).json(user); // Or redirect
+		// Session fixation prevention — regenerate before establishing new identity
+		(req as RequestWithSession).session.regenerate((regenerateErr) => {
+			if (regenerateErr) return next(regenerateErr);
+			req.logIn(user, (loginErr) => {
+				if (loginErr) return next(loginErr);
+				res.status(200).json(sanitizeUser(user as User));
+			});
 		});
 
 	} catch (error) {
@@ -228,10 +233,13 @@ export async function mergeGithub(req: Request, res: Response, next: NextFunctio
 
 		const mergedUser = await userService.mergeGithub(userId, login, id);
         
-		// Re-login the user to update the session
-		req.logIn(mergedUser, (err) => {
-			if (err) return next(err);
-			res.status(200).json({ status: 'success' });
+		// Session fixation prevention — regenerate before establishing new identity
+		(req as RequestWithSession).session.regenerate((regenerateErr) => {
+			if (regenerateErr) return next(regenerateErr);
+			req.logIn(mergedUser, (loginErr) => {
+				if (loginErr) return next(loginErr);
+				res.status(200).json({ message: 'GitHub account merged' });
+			});
 		});
 	} catch (error) {
 		next(error);
@@ -245,7 +253,7 @@ export async function mergeGithub(req: Request, res: Response, next: NextFunctio
  */
 export async function getUser(req: Request, res: Response, _next: NextFunction): Promise<void> {
 	if (req.user)
-		res.status(200).json(req.user);
+		res.status(200).json(sanitizeUser(req.user as User));
 	else
 		throw AppError.unauthorized('Not authenticated');
     
@@ -303,7 +311,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 		updatedUserData.jira = user.jira;
 
 		const updatedUser = await userService.updateUser(userID, updatedUserData);
-		res.status(200).json(updatedUser);
+		res.status(200).json(sanitizeUser(updatedUser as User));
 	} catch (error) {
 		next(error);
 	}

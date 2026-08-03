@@ -6,6 +6,7 @@ import * as scriptController from '../controllers/script.controller.js';
 import { type Session, type SessionData } from 'express-session';
 import { validate } from '../middleware/validate.js';
 import { scriptGroupSchema, scriptFeatureSchema } from '../schemas/script.schemas.js';
+import { AppError } from '../helpers/AppError.js';
 
 const router = express.Router();
 
@@ -26,32 +27,33 @@ type RequestWithSession = Request & { session: Session & Partial<SessionData> };
 // This middleware handles the specific passport login flow for these routes.
 const authenticateAndProceed = (controllerFunction: (req: Request, res: Response, next: NextFunction) => Promise<void>) => {
 	return (req: Request, res: Response, next: NextFunction) => {
-		// 1. Set session duration if requested
-		if (req.body.stayLoggedIn) 
-			(req as RequestWithSession).session.cookie.maxAge = 86400000; // 10 days
-        
-		if (req.body.email) 
+		if (req.body.email)
 			req.body.email = req.body.email.toLowerCase();
-        
 
-		// 2. Authenticate using passport.authenticate with a custom callback
+		// Authenticate using passport.authenticate with a custom callback
 		passport.authenticate('normal-local', (error: any, user: any, info: any) => {
-			if (error) 
+			if (error)
 				return next(error); // Pass errors to central handler
-            
-			if (!user) 
-			// Send specific authentication failure message
-				return res.status(401).json({ status: 'error', message: info?.message || 'Authentication failed' });
-            
 
-			// 3. Manually log the user in (establishes session)
-			req.logIn(user, (loginErr) => {
-				if (loginErr)
-					return next(loginErr);
+			if (!user)
+				return next(AppError.unauthorized(info?.message || 'Authentication failed'));
 
-				// Authentication successful — void the async call to satisfy no-misused-promises
-				void controllerFunction(req, res, next)
-					.catch((controllerError) => next(controllerError));
+			// Session fixation prevention — regenerate before establishing new identity
+			(req as RequestWithSession).session.regenerate((regenerateErr) => {
+				if (regenerateErr) return next(regenerateErr);
+
+				// Set extended session lifetime after regeneration so the new session inherits it
+				if (req.body.stayLoggedIn)
+					(req as RequestWithSession).session.cookie.maxAge = 86400000; // 10 days
+
+				req.logIn(user, (loginErr) => {
+					if (loginErr)
+						return next(loginErr);
+
+					// Authentication successful — void the async call to satisfy no-misused-promises
+					void controllerFunction(req, res, next)
+						.catch((controllerError) => next(controllerError));
+				});
 			});
 		})(req, res, next); // Don't forget to invoke the middleware function returned by passport.authenticate
 	};

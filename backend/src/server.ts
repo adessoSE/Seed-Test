@@ -198,9 +198,13 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 	else
 		logger.warn(`Operational error [${statusCode}]: ${err.message}`);
 
-	res.status(statusCode).json({
+	const responseBody: Record<string, unknown> = {
 		error: statusCode === 500 ? 'Internal Server Error' : err.message
-	});
+	};
+	// Attach structured error data when available (e.g. field-level details from AppError)
+	if (err instanceof AppError && err.data)
+		Object.assign(responseBody, { data: err.data });
+	res.status(statusCode).json(responseBody);
 });
 
 type BrowserCheckResult = { name: string; status: 'ok' | 'installed' | 'failed' };
@@ -315,8 +319,38 @@ process.on('unhandledRejection', (reason: unknown) => {
 // Catch truly unexpected synchronous errors — log and exit, as state may be corrupted
 process.on('uncaughtException', (error: Error) => {
 	logger.error(`Uncaught Exception — shutting down: ${error.stack}`);
-	server.close(() => process.exit(1));
+	server.close(() => {
+		dbConnector.closeConnection()
+			.catch(() => {})
+			.finally(() => process.exit(1));
+	});
 });
+
+// --- Graceful Shutdown ---
+// On SIGTERM/SIGINT, close open connections before exiting to avoid data corruption
+function gracefulShutdown(signal: string) {
+	logger.info(`${signal} received — shutting down gracefully…`);
+	server.close(() => {
+		dbConnector.closeConnection()
+			.then(() => {
+				logger.info('Database connection closed. Exiting.');
+				process.exit(0);
+			})
+			.catch((err) => {
+				logger.error('Error during shutdown:', err);
+				process.exit(1);
+			});
+	});
+	// Force exit after 10 seconds if graceful shutdown stalls
+	const forceTimer = setTimeout(() => {
+		logger.error('Graceful shutdown timed out — forcing exit');
+		process.exit(1);
+	}, 10_000);
+	forceTimer.unref();
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 void startServer();
 

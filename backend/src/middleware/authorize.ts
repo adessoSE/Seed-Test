@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb';
 import { type User } from '@shared/models/User.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as workgroupService from '../services/workgroup.service.js';
+import * as reportService from '../services/report.service.js';
+import * as storyService from '../services/story.service.js';
 
 /** Where to read the ID from: URL params (default), request body, or query string. */
 type IdSource = 'params' | 'body' | 'query';
@@ -126,6 +128,179 @@ export function authorizeByStory(storyParamName: string, options: { requireEdit?
 
 			if (options.requireEdit && !member.canEdit) {
 				res.status(403).json({ error: 'Forbidden: You do not have edit permissions for this repository.' });
+				return;
+			}
+
+			next();
+		} catch (error) {
+			next(error);
+		}
+	};
+}
+
+/**
+ * Extracts a story ID from a report document, handling the three report types:
+ * - StoryReport: uses `featureId` as the story reference
+ * - ScenarioReport: uses `storyId` directly
+ * - GroupReport: uses the first `storyId` from the `storyStatuses` array
+ *
+ * @returns The first available storyId/featureId as a string, or null if none found.
+ */
+export function extractStoryIdFromReport(report: any): string | null {
+	// StoryReport — featureId is the story ObjectId
+	if (report.featureId)
+		return report.featureId.toString();
+	// ScenarioReport — storyId references the parent story
+	if (report.storyId)
+		return report.storyId.toString();
+	// GroupReport — storyStatuses array contains per-story results
+	if (Array.isArray(report.storyStatuses) && report.storyStatuses.length > 0 && report.storyStatuses[0].storyId)
+		return report.storyStatuses[0].storyId.toString();
+	return null;
+}
+
+/**
+ * Authorization middleware factory for report-level access control.
+ * Resolves a report to its parent story, then checks repository ownership/membership.
+ *
+ * @param paramName - Parameter containing the report identifier (e.g. 'reportId', 'reportName').
+ * @param options.requireEdit - When true, workgroup members must have canEdit permission.
+ * @param options.lookupBy - How to find the report: 'id' (default) validates ObjectId and fetches by ID,
+ *                           'name' fetches by report name string.
+ */
+export function authorizeByReport(paramName: string, options: { requireEdit?: boolean; lookupBy?: 'id' | 'name' } = {}) {
+	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+		try {
+			const user = req.user as User;
+			if (!user?._id) {
+				res.status(401).json({ error: 'Unauthorized' });
+				return;
+			}
+
+			const paramValue = req.params[paramName];
+			const lookupBy = options.lookupBy || 'id';
+
+			let report: any;
+			if (lookupBy === 'id') {
+				// Validate ObjectId format to prevent injection
+				if (!paramValue || !ObjectId.isValid(paramValue)) {
+					res.status(400).json({ error: `Invalid or missing report ID parameter: ${paramName}` });
+					return;
+				}
+				report = await reportService.getReportDataById(paramValue);
+			} else {
+				// Name-based lookup — needs a non-empty string
+				if (!paramValue) {
+					res.status(400).json({ error: `Missing report name parameter: ${paramName}` });
+					return;
+				}
+				try {
+					// getReportByName throws AppError.notFound when the report doesn't exist
+					const fullReport = await reportService.getReportByName(paramValue);
+					// getReportByName returns { _id, jsonReport } — fetch metadata for storyId extraction
+					report = await reportService.getReportDataById(fullReport._id.toString());
+				} catch (lookupError: any) {
+					// Convert not-found throws to null so the check below handles it uniformly
+					if (lookupError?.statusCode === 404)
+						report = null;
+					else
+						throw lookupError;
+				}
+			}
+
+			if (!report) {
+				res.status(404).json({ error: 'Report not found' });
+				return;
+			}
+
+			// Resolve report → storyId → repository
+			const storyId = extractStoryIdFromReport(report);
+			if (!storyId) {
+				res.status(404).json({ error: 'Could not determine story from report' });
+				return;
+			}
+
+			const repo = await repositoryService.getRepoByStoryId(storyId);
+			if (!repo) {
+				res.status(404).json({ error: 'Story not found in any repository' });
+				return;
+			}
+
+			const userId = user._id.toString();
+			const repoOwnerId = repo.owner?.toString();
+			const repoId = repo._id!.toString();
+
+			if (repoOwnerId === userId)
+				return next();
+
+			const workgroup = await workgroupService.getWorkgroup(repoId);
+			const member = workgroup?.Members.find(m => m.email === user.email);
+
+			if (!member) {
+				res.status(403).json({ error: 'Forbidden: You do not have access to this repository.' });
+				return;
+			}
+
+			if (options.requireEdit && !member.canEdit) {
+				res.status(403).json({ error: 'Forbidden: You do not have edit permissions for this repository.' });
+				return;
+			}
+
+			next();
+		} catch (error) {
+			next(error);
+		}
+	};
+}
+
+/**
+ * Authorization middleware that resolves the repository from a Jira/GitHub issue key.
+ * Looks up the story by issue key, finds which repository contains it, then checks ownership/membership.
+ * Grants read-only access — no requireEdit option.
+ *
+ * @param paramName - Parameter containing the issue key (e.g. 'issue_key').
+ */
+export function authorizeByIssueKey(paramName: string) {
+	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+		try {
+			const user = req.user as User;
+			if (!user?._id) {
+				res.status(401).json({ error: 'Unauthorized' });
+				return;
+			}
+
+			const issueKey = req.params[paramName];
+			if (!issueKey || typeof issueKey !== 'string') {
+				res.status(400).json({ error: `Invalid or missing issue key parameter: ${paramName}` });
+				return;
+			}
+
+			// Look up the story by its external issue key (Jira/GitHub)
+			const story = await storyService.getOneStoryByIssueKey(issueKey);
+			if (!story?._id) {
+				res.status(404).json({ error: 'Story not found for this issue key' });
+				return;
+			}
+
+			// Find which repository contains this story
+			const repo = await repositoryService.getRepoByStoryId(story._id.toString());
+			if (!repo) {
+				res.status(404).json({ error: 'Story not found in any repository' });
+				return;
+			}
+
+			const userId = user._id.toString();
+			const repoOwnerId = repo.owner?.toString();
+			const repoId = repo._id!.toString();
+
+			if (repoOwnerId === userId)
+				return next();
+
+			const workgroup = await workgroupService.getWorkgroup(repoId);
+			const member = workgroup?.Members.find(m => m.email === user.email);
+
+			if (!member) {
+				res.status(403).json({ error: 'Forbidden: You do not have access to this repository.' });
 				return;
 			}
 

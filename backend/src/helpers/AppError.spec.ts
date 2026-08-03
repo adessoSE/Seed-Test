@@ -68,4 +68,34 @@ describe('AppError', () => {
 			expect((err as AppError).statusCode).toBe(404);
 		}
 	});
+
+	describe('notImplemented factory', () => {
+		it('should return 501 with NOT_IMPLEMENTED code', () => {
+			const err = AppError.notImplemented('Feature not ready');
+			expect(err.statusCode).toBe(501);
+			expect(err.code).toBe('NOT_IMPLEMENTED');
+			expect(err.message).toBe('Feature not ready');
+		});
+	});
+
+	describe('data property', () => {
+		it('carries structured data through the constructor', () => {
+			const err = new AppError('Validation failed', 400, 'VALIDATION', {
+				data: { field: 'email', reason: 'invalid format' }
+			});
+			expect(err.data).toEqual({ field: 'email', reason: 'invalid format' });
+		});
+
+		it('is undefined when not provided', () => {
+			const err = new AppError('Plain error', 400);
+			expect(err.data).toBeUndefined();
+		});
+
+		it('is available on factory-created errors', () => {
+			const err = AppError.badRequest('Bad input', 'VALIDATION', {
+				data: { missing: ['name', 'email'] }
+			});
+			expect(err.data).toEqual({ missing: ['name', 'email'] });
+		});
+	});
 });
