@@ -107,7 +107,7 @@ Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
 - **Default secrets in compose are not secure**: `SESSION_SECRET=secretSessionKey`, `JIRA_SECRET=secretJiraKey`, `JIRA_SALT=BJ1yJTJ7AFql`
 
 ## Testing & branch conventions
-- **Backend tests**: 633 tests in 42 spec files — controllers, services, helpers, middleware, utils, schemas (see `docs/testing.md` for full inventory)
+- **Backend tests**: 668 tests in 44 spec files — controllers, services, helpers, middleware, utils, schemas (see `docs/testing.md` for full inventory)
 - **Primary test**: `npm test` (Vitest unit `.spec.ts` in both backend and frontend) — daily use
 - **Mock pattern**: `vi.hoisted()` + `vi.mock()` for ESM-safe mocking; `createReq()`/`createRes()` helpers in controller tests
 - **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report

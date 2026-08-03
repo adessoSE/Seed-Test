@@ -19,7 +19,7 @@ npx vitest run src/services/story.service.spec.ts
 
 ## Backend (Vitest)
 
-- **633 Tests** in **42 Spec-Dateien** (Stand: Juli 2026)
+- **668 Tests** in **44 Spec-Dateien** (Stand: August 2026)
 - `*.spec.ts` Dateien liegen **neben der zu testenden Logik** (`services/`, `controllers/`, `helpers/`, `middleware/`, `utils/`, `testing/`, `schemas/`)
 - Vitest `v4.1` mit `@shared` Path-Alias (`vitest.config.ts`)
 - Target: `node` (kein DOM)
