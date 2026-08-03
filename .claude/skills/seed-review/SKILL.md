@@ -1,5 +1,5 @@
 ---
-name: review
+name: seed-review
 description: Code-Review der aktuellen Änderungen nach Seed-Test-Projektregeln
 ---
 
