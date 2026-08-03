@@ -25,10 +25,7 @@ function getBackgroundSteps(steps: StepType[]): string {
 		const step = steps[i];
 		if (step.deactivated) continue;
 		data += i === 0 ? 'When ' : 'And ';
-		if (step.values[0] !== null)
-			data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;
-		else 
-			data += `${step.pre} ${step.mid}${getValues(step.values)} \n`;
+		data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;
         
 	}
 	return data + '\n';
@@ -52,15 +49,11 @@ function getSteps(steps: StepType[], stepType: string): string {
 	for (const step of steps) {
 		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
-		if (step.values[0] !== null && step.values[0] !== 'User') {
+		if (step.values[0] !== 'User') {
 			data += `${step.pre} '${step.values[0]}' ${step.mid || ''}${step.values[1] ? `'${step.values[1]}'` : ''}`;
 			if (step.post) data += ` ${step.post}${step.values[2] ? `'${step.values[2]}'` : ''}`;
-		} else if (step.values[0] === 'User') 
+		} else
 			data += `${step.pre} '${step.values[0]}'`;
-		else {
-			data += `${step.pre} ${step.mid}${getValues(step.values)}`;
-			if (step.post) data += ` ${step.post}`;
-		}
 		data += '\n';
 	}
 	return data;
@@ -82,12 +75,12 @@ function getExamples(steps: StepType[]): string {
 }
 
 // Building feature file scenario-name-content
-function getScenarioContent(scenarios: Scenario[], storyID: any): string {
+function getScenarioContent(scenarios: Scenario[], storyID: string | undefined): string {
 	let data = '';
 	for (const scenario of scenarios) {
 		data += `@${storyID}_${scenario.scenario_id}\n`;
 		// if there are examples
-		const examples = scenario.stepDefinitions.example || scenario.multipleScenarios;
+		const examples = scenario.stepDefinitions.example ?? scenario.multipleScenarios;
 		if (examples && examples.length > 0) 
 			data += `Scenario Outline: ${scenario.name}\n\n`;
 		else 
@@ -95,9 +88,9 @@ function getScenarioContent(scenarios: Scenario[], storyID: any): string {
         
 
 		// Get Stepdefinitions
-		if (scenario.stepDefinitions.given) data += `${getSteps(scenario.stepDefinitions.given, 'given')}\n`;
-		if (scenario.stepDefinitions.when) data += `${getSteps(scenario.stepDefinitions.when, 'when')}\n`;
-		if (scenario.stepDefinitions.then) data += `${getSteps(scenario.stepDefinitions.then, 'then')}\n`;
+		data += `${getSteps(scenario.stepDefinitions.given, 'given')}\n`;
+		data += `${getSteps(scenario.stepDefinitions.when, 'when')}\n`;
+		data += `${getSteps(scenario.stepDefinitions.then, 'then')}\n`;
 		if (examples && examples.length > 0) data += `${getExamples(examples as StepType[])}\n\n`;
 		if (scenario.comment) 
 			data += `# Comment:\n#  ${scenario.comment.replace(/\n/g, '\n#  ')}\n\n`;
@@ -111,7 +104,7 @@ export function getFeatureContent(story: Story): string {
 	const body = story.body ? story.body.replace(/#|(\/)/g, '') : '';
 	let data = `Feature: ${story.title}\n\n${body}\n\n`;
 
-	if (story.background) data += getBackgroundContent(story.background);
+	data += getBackgroundContent(story.background);
 	data += getScenarioContent(story.scenarios, story._id);
 	return data;
 }
@@ -138,17 +131,17 @@ export async function updateFeatureFile(storyId: string): Promise<void> {
 	}
 }
 
-export async function deleteFeatureFile(storyTitle: string, storyId: any): Promise<void> {
+export async function deleteFeatureFile(storyTitle: string, storyId: string | undefined): Promise<void> {
 	const filePath = path.join(process.cwd(), 'features', `${cleanFileName(storyTitle + storyId)}.feature`);
 	try {
 		await pfs.unlink(filePath);
 		logger.info(`FeatureFile deleted! ${storyTitle}${storyId}`);
-	} catch (e: any) {
-		if (e?.code === 'ENOENT') 
+	} catch (e: unknown) {
+		if ((e as Record<string, unknown>).code === 'ENOENT') 
 			logger.warn(`Feature file not found: ${filePath}`);
 		else 
-			logger.error(`Error deleting feature file: ${e}`);
-        
+			logger.error(`Error deleting feature file: ${e instanceof Error ? e.message : String(e)}`);
+		
 	}
 }
 
@@ -156,8 +149,9 @@ export async function replaceRefBlocks(scenarios: Scenario[]): Promise<Scenario[
 	if (!scenarios.some(scen => scen.hasRefBlock)) return scenarios;
 
 	const processedScenarios = await Promise.all(scenarios.map(async (scen) => {
-		const newStepDefinitions: any = {};
-		for (const stepType of ['given', 'when', 'then']) {
+		// Build step definitions from expanded block references
+		const newStepDefinitions: Record<string, StepType[]> = {};
+		for (const stepType of ['given', 'when', 'then'] as const) {
 			const steps = scen.stepDefinitions[stepType as keyof typeof scen.stepDefinitions];
 			if (!steps) continue;
             
@@ -173,7 +167,7 @@ export async function replaceRefBlocks(scenarios: Scenario[]): Promise<Scenario[
 			}));
 			newStepDefinitions[stepType] = expandedSteps.flat(1);
 		}
-		return { ...scen, stepDefinitions: newStepDefinitions };
+		return { ...scen, stepDefinitions: newStepDefinitions } as unknown as Scenario;
 	}));
 	return processedScenarios;
 }

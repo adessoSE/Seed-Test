@@ -88,7 +88,10 @@ export async function getStoryByIssueKey(req: Request, res: Response, next: Next
 
 export async function createStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { title, description, _id: repoId } = req.body; // repoId comes as _id in the body
+		const body = req.body as Record<string, unknown>;
+		const title = body.title as string;
+		const description = body.description as string;
+		const repoId = body._id as string; // repoId comes as _id in the body
 		if (!title)
 			throw AppError.badRequest('Missing story title');
 		requireValidId(repoId, 'repository ID');
@@ -107,10 +110,10 @@ export async function updateStory(req: Request, res: Response, next: NextFunctio
 		const storyId = req.params._id;
 		requireValidId(storyId, 'story ID');
 
-		const storyData: Story = req.body;
+		const storyData = req.body as Story;
 		// Ensure the ID in the body matches the URL parameter for consistency
 		// Story._id is typed as string but MongoDB needs ObjectId
-		(storyData as any)._id = oid(storyId);
+		(storyData as unknown as Record<string, unknown>)._id = oid(storyId);
 
 		const result = await storyService.updateStory(storyData);
 		await featureFileService.updateFeatureFile(storyId);
@@ -143,7 +146,7 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
 export async function updateStoryOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id } = req.params;
-		const storiesList: string[] = req.body; // Erwartet ein Array von Story-IDs
+		const storiesList = req.body as string[]; // Erwartet ein Array von Story-IDs
 		requireValidId(repo_id, 'repository ID');
 		await repositoryService.updateStoriesArrayInRepo(repo_id, storiesList);
 		res.status(200).json({ message: 'Story order updated' });
@@ -177,7 +180,7 @@ export async function createScenario(req: Request, res: Response, next: NextFunc
 		const storyId = req.params.story_id;
 		requireValidId(storyId, 'story ID');
 
-		const { name } = req.body; // Assuming name comes in body
+		const name = (req.body as Record<string, unknown>).name as string; // Assuming name comes in body
 
 		const scenario = await storyService.createScenario(storyId, name || 'New Scenario');
 		await featureFileService.updateFeatureFile(storyId);
@@ -195,7 +198,7 @@ export async function updateScenario(req: Request, res: Response, next: NextFunc
 		if (isNaN(scenarioId))
 			throw AppError.badRequest('Invalid scenario ID format');
 
-		const scenarioData: Scenario = req.body;
+		const scenarioData = req.body as Scenario;
 		// Ensure scenario_id matches
 		scenarioData.scenario_id = scenarioId;
 
@@ -204,12 +207,13 @@ export async function updateScenario(req: Request, res: Response, next: NextFunc
 		// 1. Clean up 'multipleScenarios' by removing any null or undefined entries
 		//    (caused by previous frontend bugs)
 		if (scenarioData.multipleScenarios) 
-			scenarioData.multipleScenarios = scenarioData.multipleScenarios.filter(item => item !== null && item !== undefined);
+			scenarioData.multipleScenarios = scenarioData.multipleScenarios.filter(Boolean);
 
 
 		// 2. Migrate the old 'stepDefinitions.example' (if present)
-		// We cast to 'any' as 'example' is deprecated and no longer in the TS model
-		const oldExamples = (scenarioData.stepDefinitions as any)?.example;
+		// 'example' is deprecated and no longer in the TS model — access via unknown bridge
+		const stepDefs = scenarioData.stepDefinitions as unknown as Record<string, unknown>;
+		const oldExamples = stepDefs.example;
 
 		if (oldExamples && Array.isArray(oldExamples) && oldExamples.length > 0) {
 
@@ -223,7 +227,7 @@ export async function updateScenario(req: Request, res: Response, next: NextFunc
             
 			// 3. Delete the old 'example' field to finalize migration
 			// and prevent future conflicts.
-			delete (scenarioData.stepDefinitions as any).example;
+			delete (scenarioData.stepDefinitions as unknown as Record<string, unknown>).example;
 		}
 
 		await storyService.updateScenario(story_id, scenarioData);
@@ -249,23 +253,23 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 		// Step 1: Delete from Seed-Test DB
 		await storyService.deleteScenario(story_id, scenarioId);
 		await featureFileService.updateFeatureFile(story_id);
-	} catch (error: any) {
-		logger.error(`Database error during scenario deletion: ${error}`);
-		dbError = error;
+	} catch (error: unknown) {
+		logger.error(`Database error during scenario deletion: ${error instanceof Error ? error.message : String(error)}`);
+		dbError = error instanceof Error ? error : new Error(String(error));
 	}
 
 	// Step 2: Delete from XRay if enabled
 	const xrayEnabled = req.headers['x-xray-enabled'] === 'true';
 	const user = req.user as User;
 
-	if (xrayEnabled && user?.jira) 
+	if (xrayEnabled && user.jira) 
 		try {
 			const testKey = req.headers['x-test-key'] as string;
 			// Call the new XRay service
 			await xrayService.deleteXrayStep(user, testKey, scenarioId);
-		} catch (error: any) {
-			logger.error(`Error while deleting XRay step: ${error}`);
-			xrayError = error;
+		} catch (error: unknown) {
+			logger.error(`Error while deleting XRay step: ${error instanceof Error ? error.message : String(error)}`);
+			xrayError = error instanceof Error ? error : new Error(String(error));
 		}
     
 
@@ -285,7 +289,7 @@ export async function updateScenarioList(req: Request, res: Response, next: Next
 		const storyId = req.params.story_id;
 		requireValidId(storyId, 'story ID');
 
-		const scenarioList: Scenario[] = req.body;
+		const scenarioList = req.body as Scenario[];
 		await storyService.updateScenarioList(storyId, scenarioList);
 		await featureFileService.updateFeatureFile(storyId);
 		res.status(200).json({ message: 'Scenario list updated' }); // Or return the list
@@ -324,7 +328,7 @@ export async function downloadProjectFeatures(req: Request, res: Response, next:
 		const version = req.query.version_id as string | undefined;
 		const zipBuffer = await featureFileService.exportProjectFeatureFiles(repoId, version);
 		const repo = await repositoryService.getOneRepositoryById(repoId); // Fetch repo for name
-		const filename = featureFileService.cleanFileName(repo?.repoName || `project_${repoId}`) + '.zip';
+		const filename = featureFileService.cleanFileName(repo?.repoName ?? `project_${repoId}`) + '.zip';
 
 		res.setHeader('Content-disposition', `attachment; filename=${filename}`);
 		res.setHeader('Content-type', 'application/zip');
@@ -341,7 +345,7 @@ export async function exportProjectArchive(req: Request, res: Response, next: Ne
 
 		const zipBuffer = await importExportService.exportProject(repoId);
 		const repo = await repositoryService.getOneRepositoryById(repoId);
-		const filename = featureFileService.cleanFileName(repo?.repoName || `export_${repoId}`) + '.zip';
+		const filename = featureFileService.cleanFileName(repo?.repoName ?? `export_${repoId}`) + '.zip';
 
 		res.setHeader('Content-disposition', `attachment; filename=${filename}`);
 		res.setHeader('Content-type', 'application/zip');
@@ -382,7 +386,7 @@ export async function setOneDriver(req: Request, res: Response, next: NextFuncti
 		const storyId = req.params.storyID;
 		requireValidId(storyId, 'story ID');
 		// Assuming the service expects the current value to toggle it
-		const result = await storyService.updateOneDriver(storyId, req.body.oneDriver);
+		const result = await storyService.updateOneDriver(storyId, (req.body as Record<string, unknown>).oneDriver as boolean);
 		res.status(200).json(result); // Return result from service
 	} catch (error) {
 		next(error);
@@ -391,7 +395,7 @@ export async function setOneDriver(req: Request, res: Response, next: NextFuncti
 
 export function resolveSpecialCommands(req: Request, res: Response, next: NextFunction): void {
 	try {
-		const command = req.body.command as string;
+		const command = (req.body as Record<string, unknown>).command as string;
 		if (typeof command !== 'string')
 			throw AppError.badRequest('Invalid command input');
 
@@ -415,11 +419,11 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 		requireValidId(storyId, 'story ID');
 
 		// The body now contains the structured AiConfig
-		const aiConfig: AiConfig = req.body.aiConfig;
-		const repoId = req.headers.repoid as string;
-
-		if (!aiConfig)
+		const rawAiConfig = (req.body as Record<string, unknown>).aiConfig;
+		if (!rawAiConfig)
 			throw AppError.badRequest('AI configuration is missing.');
+		const aiConfig = rawAiConfig as AiConfig;
+		const repoId = req.headers.repoid as string;
 
 		requireValidId(repoId, 'repository ID');
 
@@ -444,11 +448,11 @@ export function getAiGenerationStatus(req: Request, res: Response, _next: NextFu
 
 	logger.info(`SSE Client connected for AI status updates for story ${storyId}`);
 
-	const listener = (result: any) => {
+	const listener = (result: Record<string, unknown>) => {
 		try {
 			res.write(`data: ${JSON.stringify(result)}\n\n`);
-		} catch (err) {
-			logger.error(`SSE write failed for story ${storyId}: ${err}`);
+		} catch (err: unknown) {
+			logger.error(`SSE write failed for story ${storyId}: ${err instanceof Error ? err.message : String(err)}`);
 			aiService.aiJobEmitter.removeListener(`job-done-${storyId}`, listener);
 		}
 	};

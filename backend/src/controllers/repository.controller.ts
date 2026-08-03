@@ -19,10 +19,10 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 		const jiraPromise = externalSyncService.getJiraRepos(user.jira);
 		const dbPromise = repositoryService.dbProjects(user._id!.toString());
 
-		let starredPromise: Promise<any[]> = Promise.resolve([]);
-		let ownedPromise: Promise<any[]> = Promise.resolve([]);
+		let starredPromise: Promise<unknown[]> = Promise.resolve([]);
+		let ownedPromise: Promise<unknown[]> = Promise.resolve([]);
 
-		if (user?.github) {
+		if (user.github) {
 			const { login: githubName, githubToken: token, id: githubId } = user.github;
 			starredPromise = externalSyncService.starredRepositories(user._id!.toString(), githubId, githubName, token);
 			ownedPromise = externalSyncService.ownRepositories(user._id!.toString(), githubId, githubName, token);
@@ -47,11 +47,12 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 			dbPromise
 		]);
 
-		const processResult = (result: PromiseSettledResult<any>, name: string): any[] => {
+		const processResult = (result: PromiseSettledResult<unknown[]>, name: string): unknown[] => {
 			if (result.status === 'fulfilled') 
 				return result.value;
 			else {
-				logger.error(`Error fetching ${name}: ${result.reason?.message || result.reason}`);
+				const reason = result.reason instanceof Error ? result.reason.message : String(result.reason);
+				logger.error(`Error fetching ${name}: ${reason}`);
 				return [];
 			}
 		};
@@ -62,10 +63,10 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 		const db = processResult(results[3], 'DB Repos');
 
 		const merged: Partial<RepositoryContainer>[] = [
-			...(starred), 
-			...(owned), 
-			...(jira), 
-			...(db)
+			...(starred as Partial<RepositoryContainer>[]), 
+			...(owned as Partial<RepositoryContainer>[]), 
+			...(jira as Partial<RepositoryContainer>[]), 
+			...(db as Partial<RepositoryContainer>[])
 		];
 		const unique = repositoryService.uniqueRepositories(merged);
         
@@ -81,7 +82,7 @@ export async function getRepositories(req: Request, res: Response, next: NextFun
 export async function createRepository(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const user = req.user as User;
-		const { name } = req.body;
+		const name = (req.body as Record<string, unknown>).name as string;
 		if (!name)
 			throw AppError.badRequest('Repository name is required');
 
@@ -104,7 +105,7 @@ export async function updateRepositorySettings(req: Request, res: Response, next
 		const { repo_id } = req.params;
 		requireValidId(repo_id, 'repository ID');
 
-		const { repoName, settings, aiConfig }: { repoName?: string, settings?: any, aiConfig?: AiConfig } = req.body;
+		const { repoName, settings, aiConfig } = req.body as { repoName?: string; settings?: Record<string, unknown>; aiConfig?: AiConfig };
 
 		// Note: The repositoryService.updateRepository already handles API key encryption
 		const repo = await repositoryService.updateRepository(repo_id, repoName, settings, aiConfig);
@@ -153,7 +154,7 @@ export async function updateRepositoryOwner(req: Request, res: Response, next: N
 		const user = req.user as User;
 		requireValidId(repo_id, 'repository ID');
 
-		const newOwner = await userService.getUserByEmail(req.body.email);
+		const newOwner = await userService.getUserByEmail((req.body as Record<string, unknown>).email as string);
 		if (!newOwner)
 			throw AppError.notFound('New owner user not found');
 

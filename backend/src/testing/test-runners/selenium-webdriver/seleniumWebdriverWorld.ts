@@ -1,28 +1,32 @@
 // Selenium World uses dynamic properties (this.driver, this.downloadDir, etc.)
 // that bypass TypeScript's type system — typed via class declaration below
-import { World } from '@cucumber/cucumber';
+import { World, type IWorldOptions } from '@cucumber/cucumber';
 import webdriver from 'selenium-webdriver';
 import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import os from 'node:os';
+import type { SeleniumDriver, SeleniumTestParameters, SeleniumParameterCollection } from '../../../types/test-runner.types.js';
 
 // selenium-webdriver subpath imports lack TypeScript declarations — use createRequire bridge
 const require = createRequire(import.meta.url);
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 const chrome = require('selenium-webdriver/chrome');
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 const firefox = require('selenium-webdriver/firefox');
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 const edge = require('selenium-webdriver/edge');
 
 class SeleniumWebdriverWorld extends World {
 	// Dynamic properties used across Cucumber step definitions
 	downloadDir!: string;
 	tmpUploadDir!: string;
-	parameterCollection: any;
+	parameterCollection!: SeleniumParameterCollection;
 	scenarioCount!: number;
-	testParameters: any;
-	driver: any;
+	testParameters!: SeleniumTestParameters;
+	driver!: SeleniumDriver | null;
 	searchTimeout!: number;
 
-	constructor(options: any) {
+	constructor(options: IWorldOptions<Record<string, unknown>>) {
 		super(options);
 
 		// Verzeichnisse basierend auf Betriebssystem festlegen
@@ -43,7 +47,7 @@ class SeleniumWebdriverWorld extends World {
 		this.createDirectories();
 
 		// Parameter aus den Options übernehmen
-		this.parameterCollection = options.parameters;
+		this.parameterCollection = options.parameters as unknown as SeleniumParameterCollection;
 		this.scenarioCount = 0;
 		this.testParameters = {
 			browser: 'chrome',
@@ -73,7 +77,7 @@ class SeleniumWebdriverWorld extends World {
 	}
 
 	// Shared Instance für oneDriver
-	static sharedInstances: { driver: any } = {
+	static sharedInstances: { driver: SeleniumDriver | null } = {
 		driver: null
 	};
 
@@ -87,6 +91,7 @@ class SeleniumWebdriverWorld extends World {
 
 	getBrowserOptions() {
 		// Chrome-Optionen (--start-maximized removed — applied conditionally after build)
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		const chromeOptions = new chrome.Options()
 			.setUserPreferences({ 'download.default_directory': this.downloadDir })
 			.addArguments('--disable-dev-shm-usage')
@@ -95,6 +100,7 @@ class SeleniumWebdriverWorld extends World {
 			.addArguments('--excludeSwitches=enable-logging');
 
 		// Firefox-Optionen
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		const firefoxOptions = new firefox.Options()
 			.setPreference('browser.download.dir', this.downloadDir)
 			.setPreference('browser.download.folderList', 2)
@@ -106,6 +112,7 @@ class SeleniumWebdriverWorld extends World {
 			.setBrowserVersion('stable');
 
 		// Edge-Optionen (--start-maximized removed — applied conditionally after build)
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		const edgeOptions = new edge.Options()
 			.setUserPreferences({ 'download.default_directory': this.downloadDir })
 			.addArguments('--disable-dev-shm-usage')
@@ -152,6 +159,7 @@ class SeleniumWebdriverWorld extends World {
 			}
     
 
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		return { chromeOptions, firefoxOptions, edgeOptions };
 	}
 
@@ -192,10 +200,12 @@ class SeleniumWebdriverWorld extends World {
 					this.testParameters.browser = 'chrome';
 
 				// Browser-Optionen holen (must happen after browser name mapping)
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const { chromeOptions, firefoxOptions, edgeOptions } =
 					this.getBrowserOptions();
 
 				// Neuen Browser starten
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const builder = new webdriver.Builder().forBrowser(
 					this.testParameters.browser
 				);
@@ -213,11 +223,13 @@ class SeleniumWebdriverWorld extends World {
 						break;
 				}
 
-				// Browser starten
+				// Browser starten — driver is guaranteed non-null for the rest of this block
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				this.driver = await builder.build();
+				const d = this.driver!;
 
 				// Timeouts konfigurieren
-				await this.driver.manage().setTimeouts({
+				await d.manage().setTimeouts({
 					implicit: 1000,
 					pageLoad: 30000,
 					script: 15000
@@ -225,12 +237,12 @@ class SeleniumWebdriverWorld extends World {
 
 				// Fenster nur maximieren wenn kein custom window size und kein emulator konfiguriert ist
 				if (!this.testParameters.windowSize && !this.testParameters.emulator) 
-					await this.driver.manage().window().maximize();
+					await d.manage().window().maximize();
         
 
 				// Für oneDriver den Browser speichern
 				if (this.testParameters.oneDriver) 
-					SeleniumWebdriverWorld.sharedInstances.driver = this.driver;
+					SeleniumWebdriverWorld.sharedInstances.driver = d;
         
 
 				console.log('Browser launched successfully:', this.testParameters.browser);

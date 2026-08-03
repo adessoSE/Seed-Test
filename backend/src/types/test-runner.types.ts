@@ -14,6 +14,26 @@ export interface TestExecutionParameters {
 	waitTime: number;
 }
 
+/**
+ * Runtime test parameters used inside SeleniumWebdriverWorld.
+ * Populated from parsed Cucumber-world parameters, so some fields may arrive
+ * as strings (e.g. `headless: 'true'`).
+ */
+export interface SeleniumTestParameters {
+	browser: string;
+	waitTime: number;
+	windowSize: { width: number; height: number } | undefined;
+	headless: boolean | string;
+	daisyAutoLogout: boolean;
+	oneDriver: boolean;
+	emulator?: string;
+}
+
+/** Collection of scenario parameter sets passed through Cucumber world parameters. */
+export interface SeleniumParameterCollection {
+	scenarios: SeleniumTestParameters[];
+}
+
 // `selenium-webdriver` ships no type declarations (this repo ambiently declares it as an
 // untyped module in `src/types/vendor.d.ts`), so `WebDriver`/`WebElement` cannot be imported
 // as real types. These hand-rolled interfaces model only the methods the step definitions
@@ -52,9 +72,13 @@ export interface SeleniumDriver {
 		setTimeouts(options: { implicit?: number, pageLoad?: number, script?: number }): Promise<void>
 		addCookie(cookie: { name: string, value: string }): Promise<void>
 		deleteCookie(name: string): Promise<void>
+		// Selenium's window manager — used to maximise the browser window
+		window(): { maximize(): Promise<void> };
 	};
 	executeScript<T = unknown>(script: string, ...args: unknown[]): Promise<T>;
 	sleep(ms: number): Promise<void>;
+	getTitle(): Promise<string>;
+	takeScreenshot(): Promise<string>;
 	// `message` is loosely typed: some call sites pass a poll-interval number here instead
 	// of a message string (a pre-existing quirk, kept as-is to avoid behaviour changes)
 	wait<T = SeleniumElement>(condition: unknown, timeout?: number, message?: string | number, pollTimeout?: number): Promise<T> & T;

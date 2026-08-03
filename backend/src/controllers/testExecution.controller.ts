@@ -1,6 +1,7 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
+import { type ExecuteTestRequest, type TestExecutionResult } from '../testing/test-runner.service.js';
 import * as storyService from '../services/story.service.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as reportService from '../services/report.service.js';
@@ -8,7 +9,8 @@ import * as featureFileService from '../services/feature-file.service.js';
 import { type Story } from '@shared/models/Story.js';
 import { type User } from '@shared/models/User.js';
 import { IssueTracker, IssueTrackerOption, type Github } from '../models/IssueTracker.js';
-import { ExecutionMode } from '../models/models.js';
+import { ExecutionMode, type GenericReport } from '../models/models.js';
+import { type ReportDoc, type GroupExecutionParams } from '../types/report.types.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logging.js';
@@ -17,42 +19,50 @@ import { AppError } from '../helpers/AppError.js';
 
 // Helper function to extract common parameters
 function extractRunParams(req: Request): { repoId: string, repositoryName: string } {
-	const repoId = req.params.repoID || req.body.id || req.body.repoId || req.body.repositoryId;
-	const repositoryName = req.body.repository; // Assuming this comes in the body for groups/temps
+	const body = req.body as Record<string, unknown>;
+	const repoId = req.params.repoID || body.id as string || body.repoId as string || body.repositoryId as string;
+	const repositoryName = body.repository as string; // Assuming this comes in the body for groups/temps
 	requireValidId(repoId, 'repository ID');
     
 	return { repoId, repositoryName };
 }
 
-// Helper for report post-processing
-export async function handleReportResult(res: Response, reportResult: any, mode: ExecutionMode, parameters: any, user?: User) {
-	if (!reportResult || !reportResult.reportName)
+/**
+ * Post-processes a test execution result: resolves the report, sends HTML to client,
+ * then asynchronously posts comments to issue trackers.
+ */
+export async function handleReportResult(res: Response, reportResult: TestExecutionResult, mode: ExecutionMode, parameters: Record<string, unknown>, user?: User) {
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- null safety (test verifies null throws AppError not TypeError)
+	if (!reportResult?.reportName)
 		throw new AppError('Test execution failed to produce a valid report result.', 500);
 
 	// Resolve report (analyze JSON, generate HTML etc.)
-	const finalReport = await reportService.resolveAndSaveReport(reportResult, mode, reportResult.story ? [reportResult.story] : parameters.stories || [], parameters);
+	const finalReport = await reportService.resolveAndSaveReport(reportResult, mode, [reportResult.story], parameters as unknown as GroupExecutionParams);
+
+	// resolveAndSaveReport returns ReportDoc — widen via unknown for duck-typed field access
+	const report = finalReport as unknown as Record<string, unknown>;
 
 	// Send HTML Report back to client
-	const htmlPath = path.join(process.cwd(), 'features', mode === 'group' ? `${finalReport.reportName}/${finalReport.reportName}.html` : `${finalReport.reportName}.html`);
+	const htmlPath = path.join(process.cwd(), 'features', mode === ExecutionMode.GROUP ? `${String(report.reportName)}/${String(report.reportName)}.html` : `${String(report.reportName)}.html`);
 	try {
 		const htmlContent = await fs.promises.readFile(htmlPath, 'utf8');
-		res.json({ htmlFile: htmlContent, reportId: finalReport._id, report: finalReport });
-	} catch (readError) {
-		logger.error(`Error reading HTML report: ${readError}`);
-		throw new AppError('Failed to read HTML report file.', 500, undefined, { data: { reportId: finalReport._id } });
+		res.json({ htmlFile: htmlContent, reportId: report._id, report });
+	} catch (readError: unknown) {
+		logger.error(`Error reading HTML report: ${readError instanceof Error ? readError.message : String(readError)}`);
+		throw new AppError('Failed to read HTML report file.', 500, undefined, { data: { reportId: report._id } });
 	} finally {
 		// Clean up temporary files after a delay
-		const deletionTime = parseInt(process.env.REPORT_DELETION_TIME || '5') * 60000;
-		reportService.scheduleReportDeletion(finalReport.reportName, mode === 'group', deletionTime);
+		const deletionTime = parseInt(process.env.REPORT_DELETION_TIME ?? '5') * 60000;
+		reportService.scheduleReportDeletion(String(report.reportName), mode === ExecutionMode.GROUP, deletionTime);
 	}
 
 	// Post-response tasks: run after response is sent, errors must not propagate
 	// (calling next(error) after res.json() causes "headers already sent" and can drop the response)
 	try {
-		await reportService.updateLatestTestStatus(finalReport, mode);
-		await postCommentsToTrackers(finalReport, parameters.stories || [reportResult.story], mode, user, parameters);
-	} catch (postResponseError) {
-		logger.error(`Post-response processing error (response already sent): ${postResponseError}`);
+		await reportService.updateLatestTestStatus(report as unknown as ReportDoc, mode);
+		await postCommentsToTrackers(report, (parameters.stories ?? [reportResult.story]) as Story[], mode, user, parameters);
+	} catch (postResponseError: unknown) {
+		logger.error(`Post-response processing error (response already sent): ${postResponseError instanceof Error ? postResponseError.message : String(postResponseError)}`);
 	}
 }
 
@@ -71,10 +81,10 @@ export async function runFeature(req: Request, res: Response, next: NextFunction
 
 		// TODO: Determine repoId if needed for global settings lookup
 		// Assuming req.body might contain repositoryId or we fetch it based on story?
-		const repoId = req.body.repositoryId; // Adjust as needed
+		const repoId = (req.body as Record<string, unknown>).repositoryId as string; // Adjust as needed
 		const parameters = { repositoryId: repoId, stories: [story] };
 
-		const reportResult = await testRunnerService.executeTest(req as any, ExecutionMode.STORY, story);
+		const reportResult = await testRunnerService.executeTest(req as unknown as ExecuteTestRequest, ExecutionMode.STORY, story);
 		await handleReportResult(res, reportResult, ExecutionMode.STORY, parameters, req.user as User);
 
 	} catch (error) {
@@ -103,10 +113,10 @@ export async function runScenario(req: Request, res: Response, next: NextFunctio
 			throw AppError.notFound('Scenario not found in story');
 
 		// TODO: Determine repoId if needed
-		const repoId = req.body.repositoryId;
+		const repoId = (req.body as Record<string, unknown>).repositoryId as string;
 		const parameters = { repositoryId: repoId, stories: [story] };
 
-		const reportResult = await testRunnerService.executeTest(req as any, ExecutionMode.SCENARIO, story);
+		const reportResult = await testRunnerService.executeTest(req as unknown as ExecuteTestRequest, ExecutionMode.SCENARIO, story);
 		await handleReportResult(res, reportResult, ExecutionMode.SCENARIO, parameters, req.user as User);
 
 	} catch (error) {
@@ -123,7 +133,7 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 		const groupId = req.params.groupID;
 		requireValidId(groupId, 'group ID');
 
-		req.body.repositoryId = repoId;
+		(req.body as Record<string, unknown>).repositoryId = repoId;
 
 		const group = await repositoryService.getOneStoryGroup(repoId, groupId);
 		if (!group)
@@ -137,24 +147,25 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 			throw AppError.badRequest('No valid stories found in the group');
 
 		// Use group name for report directory, ensuring it's filesystem-safe
-		req.body.name = featureFileService.cleanFileName(`group_${group.name}_${Date.now()}`);
-		fs.mkdirSync(path.join(process.cwd(), 'features', req.body.name), { recursive: true });
+		(req.body as Record<string, unknown>).name = featureFileService.cleanFileName(`group_${group.name}_${Date.now()}`);
+		fs.mkdirSync(path.join(process.cwd(), 'features', (req.body as Record<string, unknown>).name as string), { recursive: true });
 
-		const parameters = { ...group, repositoryId: repoId, stories: validStories, repository: req.body.repository }; // Pass necessary info
-		let lastReportResult: any;
+		const parameters = { ...group, repositoryId: repoId, stories: validStories, repository: (req.body as Record<string, unknown>).repository }; // Pass necessary info
+		let lastReportResult: TestExecutionResult | undefined;
 
 		if (group.isSequential) 
 			for (const story of validStories) 
-				lastReportResult = await testRunnerService.executeTest(req as any, ExecutionMode.GROUP, story);
+				lastReportResult = await testRunnerService.executeTest(req as unknown as ExecuteTestRequest, ExecutionMode.GROUP, story);
             
 		else {
 			const results = await Promise.all(
-				validStories.map(story => testRunnerService.executeTest(req as any, ExecutionMode.GROUP, story))
+				validStories.map(story => testRunnerService.executeTest(req as unknown as ExecuteTestRequest, ExecutionMode.GROUP, story))
 			);
 			lastReportResult = results.pop();
 		}
         
-		await handleReportResult(res, lastReportResult, ExecutionMode.GROUP, parameters, req.user as User);
+		// `lastReportResult` is guaranteed set: `validStories` is non-empty (checked above)
+		await handleReportResult(res, lastReportResult!, ExecutionMode.GROUP, parameters, req.user as User);
 
 	} catch (error) {
 		next(error);
@@ -166,31 +177,33 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
  */
 export async function runTempGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const tempGroup = req.body.group;
+		const body = req.body as Record<string, unknown>;
+		const tempGroup = body.group as { member_stories?: Story[]; isSequential?: boolean; [key: string]: unknown } | undefined;
 		const repoInfo = extractRunParams(req); // Contains repoId and potentially repository name
-		const validStories = (tempGroup?.member_stories || []).filter((s: Story | null) => s !== null) as Story[];
+		const validStories = (tempGroup?.member_stories ?? []).filter((s: Story | null) => s !== null);
 
 		if (validStories.length === 0)
 			throw AppError.badRequest('No valid stories provided in the temporary group');
 
-		req.body.name = featureFileService.cleanFileName(`temp_group_${Date.now()}`);
-		fs.mkdirSync(path.join(process.cwd(), 'features', req.body.name), { recursive: true });
+		body.name = featureFileService.cleanFileName(`temp_group_${Date.now()}`);
+		fs.mkdirSync(path.join(process.cwd(), 'features', body.name as string), { recursive: true });
 
 		const parameters = { ...tempGroup, repositoryId: repoInfo.repoId, stories: validStories, repository: repoInfo.repositoryName };
-		let lastReportResult: any;
+		let lastReportResult: TestExecutionResult | undefined;
 
-		if (tempGroup.isSequential) 
+		if (tempGroup?.isSequential) 
 			for (const story of validStories) 
-				lastReportResult = await testRunnerService.executeTest(req as any, ExecutionMode.GROUP, story);
+				lastReportResult = await testRunnerService.executeTest(req as unknown as ExecuteTestRequest, ExecutionMode.GROUP, story);
             
 		else {
 			const results = await Promise.all(
-				validStories.map(story => testRunnerService.executeTest(req as any, ExecutionMode.GROUP, story))
+				validStories.map(story => testRunnerService.executeTest(req as unknown as ExecuteTestRequest, ExecutionMode.GROUP, story))
 			);
 			lastReportResult = results.pop();
 		}
 
-		await handleReportResult(res, lastReportResult, ExecutionMode.GROUP, parameters, req.user as User);
+		// `lastReportResult` is guaranteed set: `validStories` is non-empty (checked above)
+		await handleReportResult(res, lastReportResult!, ExecutionMode.GROUP, parameters, req.user as User);
 
 	} catch (error) {
 		next(error);
@@ -198,42 +211,44 @@ export async function runTempGroup(req: Request, res: Response, next: NextFuncti
 }
 
 // --- Issue Tracker Communication ---
-async function postCommentsToTrackers(finalReport: any, stories: Story[], mode: ExecutionMode, user?: User, parameters?: any) {
+async function postCommentsToTrackers(finalReport: Record<string, unknown>, stories: Story[], mode: ExecutionMode, user?: User, parameters?: Record<string, unknown>) {
 	if (!user) return; // Need user for credentials
 
 	// Check global settings for commenting preference
-	const repoSettings = parameters?.repositoryId ? await repositoryService.getRepoSettingsById(parameters.repositoryId) : null;
-	if (repoSettings && repoSettings.reportComment === false) {
-		logger.info(`Report comments disabled for repository ${parameters.repositoryId}`);
+	const repoSettings = parameters?.repositoryId ? await repositoryService.getRepoSettingsById(parameters.repositoryId as string) : null;
+	if (repoSettings?.reportComment === false) {
+		const repoIdStr = parameters?.repositoryId;
+		logger.info(`Report comments disabled for repository ${typeof repoIdStr === 'string' ? repoIdStr : 'unknown'}`);
 		return; // Skip posting comments if disabled globally
 	}
 
 	for (const story of stories) 
 		try {
 			const issueTracker = IssueTracker.getIssueTracker(story.storySource as IssueTrackerOption);
-			if (story.storySource === IssueTrackerOption.NONE) continue;
+			if (story.storySource as IssueTrackerOption === IssueTrackerOption.NONE) continue;
 
-			const comment = issueTracker.reportText(finalReport, mode === ExecutionMode.SCENARIO ? story.scenarios.find(s=> s.scenario_id === finalReport.scenarioId)?.name || 'Unknown Scenario' : story.title);
+			const scenarioId = finalReport.scenarioId as number | undefined;
+			const comment = issueTracker.reportText(finalReport as unknown as GenericReport, mode === ExecutionMode.SCENARIO ? story.scenarios.find(s=> s.scenario_id === scenarioId)?.name ?? 'Unknown Scenario' : story.title);
 
-			if (story.storySource === IssueTrackerOption.GITHUB && user.github) {
+			if ((story.storySource as IssueTrackerOption) === IssueTrackerOption.GITHUB) {
 				if (!parameters?.repository) {
 					logger.warn(`Cannot post GitHub comment for story ${story.title}: Missing repository name.`);
 					continue;
 				}
-				const [repoUser, repoName] = parameters.repository.split('/');
+				const [repoUser, repoName] = (parameters.repository as string).split('/');
 				if (!repoUser || !repoName || !story.issue_number) continue;
 
 				issueTracker.postComment(comment, { issueId: story.issue_number.toString(), repoUser, repoName }, user.github);
 				if (mode === ExecutionMode.STORY)  // Update label only on full feature run
-					(issueTracker as Github).updateLabel(finalReport.status, { issueId: story.issue_number.toString(), repoUser, repoName }, user.github.githubToken);
+					(issueTracker as Github).updateLabel(finalReport.status as boolean, { issueId: story.issue_number.toString(), repoUser, repoName }, user.github.githubToken);
                 
 
-			} else if (story.storySource === IssueTrackerOption.JIRA && user.jira) {
+			} else if ((story.storySource as IssueTrackerOption) === IssueTrackerOption.JIRA && user.jira) {
 				if (!story.issue_number) continue;
 				issueTracker.postComment(comment, { issueId: story.issue_number.toString() }, user.jira);
 			}
-		} catch (commentError) {
-			logger.error(`Failed to post comment for story ${story.title} (${story.storySource}): ${commentError}`);
+		} catch (commentError: unknown) {
+			logger.error(`Failed to post comment for story ${story.title} (${story.storySource}): ${commentError instanceof Error ? commentError.message : String(commentError)}`);
 		}
     
 }

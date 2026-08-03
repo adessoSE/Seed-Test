@@ -4,10 +4,11 @@ import path from 'node:path';
 import { logger } from '../logging.js';
 import { type Story } from '@shared/models/Story.js';
 import { type Scenario } from '@shared/models/Scenario.js';
+import { type Repository } from '@shared/models/Repository.js';
 import { type User } from '@shared/models/User.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
-import { type IConfiguration } from '@cucumber/cucumber/api';
+import { type IConfiguration, type ISupportCodeCoordinatesOrLibrary } from '@cucumber/cucumber/api';
 
 // --- Types and Interfaces ---
 
@@ -19,7 +20,7 @@ interface TestParameters {
 	daisyAutoLogout: boolean;
 	emulator?: string;
 	windowSize?: { height: number; width: number; };
-	[key: string]: any; // Add index signature to make it compatible
+	oneDriver?: boolean;
 }
 
 interface CucumberWorldParameters {
@@ -28,7 +29,8 @@ interface CucumberWorldParameters {
 	featurePath: string;
 	mode: TestMode;
 	scenarioId?: string;
-	[key: string]: any; // Add index signature to make it compatible
+	// JSON-serializable index for Cucumber's IConfiguration.worldParameters
+	[key: string]: unknown;
 }
 
 /** Per-run execution settings extracted from the request body. */
@@ -40,7 +42,7 @@ interface RequestSettings {
 	stepWaitTime?: number;
 }
 
-interface ExecuteTestRequest {
+export interface ExecuteTestRequest {
 	body: {
 		repositoryId?: string;
 		repoId?: string;
@@ -60,12 +62,21 @@ interface ExecuteTestRequest {
 	};
 }
 
+/** Shape of the object returned by executeTest(). */
+export interface TestExecutionResult {
+	success: boolean;
+	reportTime: number;
+	story: Story;
+	scenarioId?: string | undefined;
+	reportName: string;
+}
+
 
 // --- Cached Support Code for Cucumber ---
 // This is crucial to maintain the WebDriver/Playwright session across scenarios in a single run.
 const cachedSupportCode: {
-	seleniumWebdriver: any;
-	playwright: any;
+	seleniumWebdriver: ISupportCodeCoordinatesOrLibrary | null;
+	playwright: ISupportCodeCoordinatesOrLibrary | null;
 } = {
 	seleniumWebdriver: null,
 	playwright: null
@@ -111,11 +122,11 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 		const examples = scenario.stepDefinitions.example || scenario.multipleScenarios;
 		const scenarioCount = Math.max(examples?.length || 0, 1);
 		const additionalParams = getSettings(scenario, globalSettings, requestSettings);
-		parameters = { scenarios: Array(scenarioCount).fill(additionalParams) };
+		parameters = { scenarios: Array(scenarioCount).fill(additionalParams) as TestParameters[] };
 
 	} else if (mode === 'feature' || mode === 'group') {
 		// Feature/group mode: each scenario uses its own saved DB settings, no request overrides
-		const prep = scenarioPrep(story.scenarios, (story as any).oneDriver, globalSettings);
+		const prep = scenarioPrep(story.scenarios, story.oneDriver, globalSettings);
 		parameters = prep.parameters;
 	}
 
@@ -141,7 +152,7 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 		scenarioId: req.params.scenarioId
 	};
 
-	const userConfig: Partial<IConfiguration> = {
+	const userConfig = {
 		paths: [path.normalize(featurePath)],
 		require: [path.resolve(process.cwd(), `dist/testing/test-runners/${testRunnerPathName}/*.js`)],
 		format: [
@@ -149,7 +160,7 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 				? `json:features/${req.body.name}/${reportName}.json`
 				: `json:features/${reportName}.json`
 		],
-		worldParameters,
+		worldParameters: worldParameters as unknown as Record<string, unknown>,
 		tags: mode === 'scenario' ? `@${req.params.issueID}_${req.params.scenarioId}` : undefined
 	};
     
@@ -157,7 +168,7 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 		const cucumberAPI = await import('@cucumber/cucumber/api');
 		const { loadConfiguration, runCucumber, loadSupport } = cucumberAPI;
 
-		const { runConfiguration } = await loadConfiguration({ provided: userConfig });
+		const { runConfiguration } = await loadConfiguration({ provided: userConfig as unknown as Partial<IConfiguration> });
 
 		if (!cachedSupportCode[testRunner]) 
 			cachedSupportCode[testRunner] = await loadSupport(runConfiguration);
@@ -170,8 +181,8 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 
 		return { success, reportTime, story, scenarioId: req.params.scenarioId, reportName };
 
-	} catch (error) {
-		logger.error(`Test execution failed: ${error}`);
+	} catch (error: unknown) {
+		logger.error(`Test execution failed: ${error instanceof Error ? error.message : String(error)}`);
 		return { success: false, reportTime, story, scenarioId: req.params.scenarioId, reportName };
 	}
 }
@@ -185,11 +196,13 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
  * Request overrides are only passed for scenario mode — feature/group mode calls this without them,
  * so each scenario uses its own saved DB values.
  */
-function getSettings(scenario: Scenario, globalSettings: any, requestOverrides?: RequestSettings): TestParameters {
+function getSettings(scenario: Scenario, globalSettings: Repository['settings'] | null, requestOverrides?: RequestSettings): TestParameters {
+	// daisyAutoLogout is a dynamic DB property not present on the Scenario model
+	const daisyAutoLogout = (scenario as unknown as Record<string, unknown>).daisyAutoLogout === true;
 	const finalSettings: TestParameters = {
 		browser: scenario.browser || 'chromium',
 		waitTime: scenario.stepWaitTime ?? 0,
-		daisyAutoLogout: (scenario as any).daisyAutoLogout || false
+		daisyAutoLogout
 	};
 
 	if (globalSettings?.activated) {
@@ -221,8 +234,8 @@ function getSettings(scenario: Scenario, globalSettings: any, requestOverrides?:
 	return finalSettings;
 }
 
-function scenarioPrep(scenarios: Scenario[], oneDriver: boolean | undefined, globalSettings: any): { parameters: { scenarios: any[] } } {
-	const parameters: { scenarios: any[] } = { scenarios: [] };
+function scenarioPrep(scenarios: Scenario[], oneDriver: boolean | undefined, globalSettings: Repository['settings'] | null): { parameters: { scenarios: TestParameters[] } } {
+	const parameters: { scenarios: TestParameters[] } = { scenarios: [] };
 
 	scenarios.forEach((scenario) => {
 		// Each scenario uses its own saved DB settings — no request overrides in feature/group mode

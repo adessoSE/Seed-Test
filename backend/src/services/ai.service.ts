@@ -5,8 +5,10 @@ import * as storyService from './story.service.js';
 import { decrypt } from '../helpers/cryptoHelper.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
+import { type AiConfig } from '@shared/models/RepositoryContainer.js';
 
-let parseTextToStory: ((opts: any) => Promise<any>) | null = null;
+/** @see {@link isAiParserAvailable} — nullable until the optional parser module loads. */
+let parseTextToStory: ((opts: Record<string, unknown>) => Promise<Record<string, unknown> | null>) | null = null;
 let _parserChecked = false;
 
 async function loadParser(): Promise<boolean> {
@@ -14,8 +16,9 @@ async function loadParser(): Promise<boolean> {
 	_parserChecked = true;
 	try {
 		const parserModule = '@seed-test/ai-parser';
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- dynamic import of optional module
 		const mod = await import(/* webpackIgnore: true */ parserModule);
-		parseTextToStory = mod.parseTextToStory;
+		parseTextToStory = (mod as Record<string, unknown>).parseTextToStory as typeof parseTextToStory;
 		logger.info('AI Parser (@seed-test/ai-parser) loaded successfully.');
 		return true;
 	} catch {
@@ -45,7 +48,16 @@ export const aiJobEmitter = new EventEmitter();
  * @param aiConfig The AI configuration (will be modified with decrypted keys).
  * @param repoId The ID of the repository for fetching encrypted keys.
  */
-async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoId: string): Promise<void> {
+/**
+ * Orchestrates the AI scenario generation process for a specific story.
+ * Fetches story, decrypts API key, calls parser, and saves result as a suggestion.
+ * This function is intended to be called by the JobQueue.
+ * @param storyId The ID of the story to process.
+ * @param aiConfig The AI configuration (will be modified with decrypted keys) — stored as unknown
+ *   in the queue; narrowed by usage below.
+ * @param repoId The ID of the repository for fetching encrypted keys.
+ */
+async function generateAiScenariosForStory(storyId: string, aiConfig: AiConfig, repoId: string): Promise<void> {
 	try {
 		await loadParser();
 		if (!parseTextToStory) 
@@ -64,17 +76,17 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
         
 
 		// Decrypt API keys if cloud provider is used
-		if (aiConfig.textPreparation?.name === 'cloud' || aiConfig.jsonConversion?.name === 'cloud') {
+		if (aiConfig.textPreparation.name === 'cloud' || aiConfig.jsonConversion.name === 'cloud') {
 			const project = await repositoryService.getOneRepositoryById(repoId);
 			if (!project?.aiConfig) 
 				throw AppError.badRequest('Cloud provider is configured, but no AI config was found for this project.');
             
             
-			const encryptedTextApiKey = project.aiConfig.textPreparation?.apiKey;
-			const encryptedJsonApiKey = project.aiConfig.jsonConversion?.apiKey;
+			const encryptedTextApiKey = project.aiConfig.textPreparation.apiKey;
+			const encryptedJsonApiKey = project.aiConfig.jsonConversion.apiKey;
             
 			// Decrypt text key
-			if (aiConfig.textPreparation?.name === 'cloud') {
+			if (aiConfig.textPreparation.name === 'cloud') {
 				if (!encryptedTextApiKey) throw AppError.badRequest('Text preparation provider is cloud, but no API key was found.');
 				const decryptedApiKey = decrypt(encryptedTextApiKey);
 				if (!decryptedApiKey) throw new Error('Text API key decryption failed.');
@@ -82,7 +94,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
 			}
             
 			// Decrypt json key
-			if (aiConfig.jsonConversion?.name === 'cloud') {
+			if (aiConfig.jsonConversion.name === 'cloud') {
 				if (!encryptedJsonApiKey) throw AppError.badRequest('JSON conversion provider is cloud, but no API key was found.');
 				const decryptedApiKey = decrypt(encryptedJsonApiKey);
 				if (!decryptedApiKey) throw new Error('JSON API key decryption failed.');
@@ -98,7 +110,8 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
 			config: aiConfig // Pass the full, potentially decrypted config
 		});
 
-		if (!parsedStory || !parsedStory.scenarios || parsedStory.scenarios.length === 0) 
+		const scenarios = parsedStory?.scenarios as unknown[] | undefined;
+		if (!scenarios || scenarios.length === 0) 
 			throw AppError.badRequest('AI-Parser did not generate any valid scenarios.');
         
 
@@ -106,13 +119,13 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
         
 		// Save the AI-generated result as a suggestion on the story object
 		story.aiSuggestion = {
-			scenarios: parsedStory.scenarios,
-			background: parsedStory.background,
+			scenarios: scenarios,
+			background: parsedStory?.background,
 			metadata: {
 				generationTimestamp: new Date(),
 				modelsUsed: {
-					textModel: aiConfig.textPreparation?.modelName,
-					jsonModel: aiConfig.jsonConversion?.modelName
+					textModel: aiConfig.textPreparation.modelName,
+					jsonModel: aiConfig.jsonConversion.modelName
 				}
 			}
 		};
@@ -126,10 +139,10 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
 			storyId: storyId 
 		});
 
-	} catch (error: any) {
-		logger.error(`Error in generateAiScenariosForStory for storyId ${storyId}: ${error}`);
+	} catch (error: unknown) {
+		logger.error(`Error in generateAiScenariosForStory for storyId ${storyId}: ${error instanceof Error ? error.message : String(error)}`);
 		// Notify listeners (SSE client) about the error
-		aiJobEmitter.emit(`job-done-${storyId}`, { status: 'error', error: error.message });
+		aiJobEmitter.emit(`job-done-${storyId}`, { status: 'error', error: error instanceof Error ? error.message : String(error) });
 	}
 }
 
@@ -139,7 +152,7 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: any, repoI
  * @param aiConfig The AI configuration from the request.
  * @param repoId The ID of the repository.
  */
-export function queueAiScenarioGeneration(storyId: string, aiConfig: any, repoId: string): void {
+export function queueAiScenarioGeneration(storyId: string, aiConfig: AiConfig, repoId: string): void {
 	const task = () => generateAiScenariosForStory(storyId, aiConfig, repoId);
 	aiJobQueue.add(task);
 	logger.info(`AI Job for story ${storyId} has been added to the queue.`);

@@ -1,4 +1,5 @@
 
+import { type User } from '@shared/models/User.js';
 import { logger } from '../logging.js';
 import { ExecutionMode, type GenericReport, type GroupReport, type ScenarioReport, type StepStatus } from './models.js';
 import { checkValidGithubFormat, jiraDecryptPassword } from '../services/externalAccount.service.js';
@@ -34,13 +35,13 @@ abstract class IssueTracker {
 			commentReportResult = (report as ScenarioReport).featureTestResults;
 		
 		const testPassedIcon = report.status ? ':white_check_mark:' : ':x:';
-		const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+		const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:4200';
 		const reportUrl = `${frontendUrl}/report/${report.reportName}`;
 		if (report.mode === ExecutionMode.SCENARIO) comment = `# Test Result ${new Date(report.reportTime).toLocaleString()}\n## Tested Scenario: "${testedTitle}"\n### Test passed: ${report.status}${testPassedIcon}\nSteps passed: ${commentReportResult.passedSteps} :white_check_mark:\nSteps failed: ${commentReportResult.failedSteps} :x:\nSteps skipped: ${commentReportResult.skippedSteps} :warning:\nLink to the official report: [Report](${reportUrl})`;
 		else comment += `# Test Result ${new Date(report.reportTime).toLocaleString()}\n## Tested Story: "${testedTitle}"\n### Test passed: ${report.status}${testPassedIcon}\nScenarios passed: ${report.scenariosTested.passed} :white_check_mark:\nScenarios failed: ${report.scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
 		return comment;
 	}
-	abstract postComment(comment: string, issueDetail: {issueId: string, repoUser?: string, repoName?: string}, credentials: any): void;
+	abstract postComment(comment: string, issueDetail: {issueId: string, repoUser?: string, repoName?: string}, credentials: User['github'] | User['jira']): void;
 
 	//TODO: Durch ExternalServices AuthSTring ersetzen?
 	protected buildAuthText(username: string, password: string, authMethod: string){
@@ -58,7 +59,7 @@ class Github extends IssueTracker {
 	reportText(report: GenericReport, testedTitle: string) {
 		return super.reportText(report, testedTitle);
 	}
-	postComment(comment: string, issueDetail: any, credentials: any) {
+	postComment(comment: string, issueDetail: { issueId: string, repoUser?: string, repoName?: string }, credentials: User['github']) {
 		if (!checkValidGithubFormat(issueDetail.repoUser, issueDetail.repoName)) return;
 		if (!(new RegExp(/^\d+$/)).test(issueDetail.issueId)) return;
 		const link = `https://api.github.com/repos/${issueDetail.repoUser}/${issueDetail.repoName}/issues/${issueDetail.issueId}/comments`;
@@ -69,8 +70,8 @@ class Github extends IssueTracker {
 			headers: { Authorization: auth }
 		}).then(async (response) => {
 			logger.info(`GitHub comment posted: ${JSON.stringify(await response.json())}`);
-		}).catch((error) => {
-			logger.error(`Failed to post GitHub comment: ${error}`);
+		}).catch((error: unknown) => {
+			logger.error(`Failed to post GitHub comment: ${error instanceof Error ? error.message : String(error)}`);
 		});
 	}
 
@@ -117,7 +118,7 @@ class NoTracker extends IssueTracker {
 	reportText(report: GenericReport, testedTitle: string) {
 		return super.reportText(report, testedTitle);
 	}
-	postComment(_comment: string, _issueDetail: any, _credentials: any) {
+	postComment(_comment: string, _issueDetail: { issueId: string, repoUser?: string, repoName?: string }, _credentials: User['github'] | User['jira']) {
 		throw new Error('Method not implemented.');
 	}
 }
@@ -138,7 +139,7 @@ class Jira extends IssueTracker {
 		comment = comment.replace('Steps skipped:','(!) Skipped Steps:');
 		return comment;
 	}
-	postComment(comment: string, issueDetail: any, credentials: any) {
+	postComment(comment: string, issueDetail: { issueId: string }, credentials: NonNullable<User['jira']>) {
 		const clearPass = this.decryptPassword(credentials);
 		const authString = this.buildAuthText(credentials.AccountName, clearPass, credentials.AuthMethod);
 		// Defense-in-depth: validate host before constructing outbound URL
@@ -150,13 +151,13 @@ class Jira extends IssueTracker {
 			body: JSON.stringify(body),
 			headers: { Authorization: authString, 'Content-Type': 'application/json' }
 		}).then(async (response: Response) => {
-			const data = await response.json();
+			const data = await response.json() as Record<string, unknown>;
 			logger.info(`Jira comment posted: ${JSON.stringify(data)}`);
-		}).catch((error) => {
-			logger.error(`Failed to post Jira comment: ${error}`);
+		}).catch((error: unknown) => {
+			logger.error(`Failed to post Jira comment: ${error instanceof Error ? error.message : String(error)}`);
 		});
 	}
-	decryptPassword(credentials: any){
+	decryptPassword(credentials: NonNullable<User['jira']>){
 		const {Password, Password_Nonce, Password_Tag } = credentials;
 		return jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
 	}
