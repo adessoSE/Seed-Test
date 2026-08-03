@@ -172,8 +172,8 @@ export async function getReportHistory(storyId: string): Promise<ReportContainer
 	const groupReports = await getGroupTestReports(storyId);
 	const nonGroupReports = await getTestReports(storyId);
 
-	const storyReports = nonGroupReports.filter(r => r.mode === 'feature');
-	const scenarioReports = nonGroupReports.filter(r => r.mode === 'scenario');
+	const storyReports = nonGroupReports.filter(r => r.mode === ExecutionMode.STORY);
+	const scenarioReports = nonGroupReports.filter(r => r.mode === ExecutionMode.SCENARIO);
     
 	const prunedStoryReports = await deleteOldReports(storyReports);
 	const prunedScenarioReports = await deleteOldReports(scenarioReports);
@@ -277,7 +277,7 @@ async function uploadBigJsonData(data: BigReportPayload, fileName: string): Prom
  * @returns The pruned array of reports.
  */
 async function deleteOldReports(reports: ReportDoc[]): Promise<ReportDoc[]> {
-	const keepReportAmount = parseInt(process.env.MAX_SAVED_REPORTS || '10', 10);
+	const keepReportAmount = parseInt(process.env.MAX_SAVED_REPORTS ?? '10', 10);
     
 	// Sort reports by time, newest first
 	reports.sort((a, b) => b.reportTime - a.reportTime);
@@ -286,7 +286,7 @@ async function deleteOldReports(reports: ReportDoc[]): Promise<ReportDoc[]> {
 	const reportsToDelete = reports.filter(r => !r.isSaved).slice(keepReportAmount);
 
 	// Step 2: What to keep.
-	const reportsToKeep = reports.filter(r => r.isSaved || reports.indexOf(r) < keepReportAmount);
+	const reportsToKeep = reports.filter(r => r.isSaved === true || reports.indexOf(r) < keepReportAmount);
 
 	// Step 3: Delete on parallel.
 	const deletionPromises = reportsToDelete.map(report => deleteReport(report._id!.toString()));
@@ -334,17 +334,17 @@ const baseHtmlReporterOptions = {
 };
 
 function setHtmlOptions(reportName: string, jsonPath: string, isGroup: boolean = false): reporter.Options {
-	const myOptions = JSON.parse(JSON.stringify(baseHtmlReporterOptions));
-	myOptions.metadata.Platform = process.platform;
+	const myOptions = JSON.parse(JSON.stringify(baseHtmlReporterOptions)) as reporter.Options;
+	(myOptions.metadata as Record<string, unknown>).Platform = process.platform;
 	myOptions.name = `Seed-Test Report: ${reportName}`;
 	const outputPath = path.join(path.dirname(jsonPath), `${reportName}.html`); // Place HTML next to JSON
 
 	if (isGroup) {
 		myOptions.jsonDir = path.dirname(jsonPath); // Directory containing multiple JSONs
-		myOptions.jsonFile = null; // Important for jsonDir mode
+		myOptions.jsonFile = undefined; // Important for jsonDir mode
 	} else {
 		myOptions.jsonFile = jsonPath; // Path to the single JSON file
-		myOptions.jsonDir = null;
+		myOptions.jsonDir = undefined;
 	}
 	myOptions.output = outputPath;
 	return myOptions;
@@ -413,9 +413,10 @@ export function generateHtmlReport(reportName: string, jsonPath: string, isGroup
 		logger.info(`Generated HTML report at: ${reportOptions.output}`);
 		return reportOptions;
 	} catch (e) {
-		logger.error(`Could not generate HTML Report for ${reportName}. Error: ${e}`);
+		logger.error(`Could not generate HTML Report for ${reportName}. Error: ${String(e)}`);
 		return null;
 	}
+
 }
 
 /**
@@ -424,12 +425,11 @@ export function generateHtmlReport(reportName: string, jsonPath: string, isGroup
  * @param mode - The mode the test was run in.
  * @param stories - Array of stories involved in the test run.
  * @param executionParams - Parameters used for the test run (e.g., group name).
- * @returns The final report object after analysis and DB insertion.
+ * @returns The final ReportDoc after analysis and DB insertion. The returned object is both a
+ * ReportDoc (with _id, reportName, etc.) and a class instance matching the ExecutionMode
+ * (GroupReport, StoryReport, or ScenarioReport) — callers cast accordingly.
  */
-// Return type stays `any` — different callers treat this as a ReportDoc (testExecution.controller.ts
-// reads `._id`) or as a specific report class (sanity.controller.ts expects a GroupReport), depending
-// on the ExecutionMode they passed in. Narrowing this would require touching those out-of-scope consumers.
-export async function resolveAndSaveReport(reportResult: ReportExecutionResult, mode: ExecutionMode, stories: Story[], executionParams: GroupExecutionParams): Promise<any> {
+export async function resolveAndSaveReport(reportResult: ReportExecutionResult, mode: ExecutionMode, stories: Story[], executionParams: GroupExecutionParams): Promise<ReportDoc> {
 	let reportName = reportResult.reportName;
 	let jsonPath: string;
 	let isGroupReport = false;
@@ -456,7 +456,7 @@ export async function resolveAndSaveReport(reportResult: ReportExecutionResult, 
 	// Add common fields
 	analysisResult.reportTime = reportResult.reportTime;
 	analysisResult.mode = mode;
-	analysisResult.reportOptions = setHtmlOptions(reportName, jsonPath, isGroupReport);
+	analysisResult.reportOptions = setHtmlOptions(reportName, jsonPath, isGroupReport) as unknown as typeof analysisResult.reportOptions;
 	// For group reports, jsonFile is null in reportOptions (jsonDir mode) — set it explicitly
 	// so uploadReport knows which JSON to read
 	if (isGroupReport)
@@ -502,7 +502,7 @@ async function analyzeStoryReport(stories: Story[], reportName: string, jsonPath
 
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
-		const cucumberReport: CucumberFeatureReport[] = JSON.parse(data);
+		const cucumberReport = JSON.parse(data) as CucumberFeatureReport[];
 		if (cucumberReport.length === 0) throw AppError.badRequest('Cucumber JSON report is empty.');
 
 		const storyReport = cucumberReport[0]; // Assuming one feature per file
@@ -532,7 +532,7 @@ async function analyzeScenarioReport(stories: Story[], reportName: string, scena
 
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
-		const cucumberReport: CucumberFeatureReport[] = JSON.parse(data);
+		const cucumberReport = JSON.parse(data) as CucumberFeatureReport[];
 		if (cucumberReport.length === 0) throw AppError.badRequest('Cucumber JSON report is empty.');
 
 		const storyReport = cucumberReport[0];
@@ -568,7 +568,7 @@ export async function analyzeGroupReport(groupName: string, stories: Story[], js
 
 	try {
 		const data = await pfs.readFile(jsonPath, 'utf8');
-		const cucumberReport: CucumberFeatureReport[] = JSON.parse(data); // Array of feature reports
+		const cucumberReport = JSON.parse(data) as CucumberFeatureReport[]; // Array of feature reports
 
 		const scenariosTested = new PassedCount();
 		let overallPassedSteps = 0;
@@ -583,7 +583,7 @@ export async function analyzeGroupReport(groupName: string, stories: Story[], js
 		for (const storyReport of cucumberReport) {
 			// Find the corresponding story data using feature tags or names
 			// Cucumber JSON might store feature ID/name differently, adjust matching logic if needed
-			const storyIdMatch = storyReport.uri?.match(/_([a-f0-9]{24})\.feature$/)?.[1]; // Extract ID from URI if possible
+			const storyIdMatch = storyReport.uri.match(/_([a-f0-9]{24})\.feature$/)?.[1]; // Extract ID from URI if possible
 			const story = storyIdMatch ? storyMap.get(storyIdMatch) : stories.find(s => s.title === storyReport.name); // Fallback to name match
 
 			if (!story) {
@@ -682,6 +682,10 @@ function scenarioResult(scenarioReport: CucumberElement, scenario: Scenario): Sc
 			case 'pending': // Handle pending steps if necessary
 				scenarioSkippedSteps++; // Treat pending as skipped?
 				logger.warn(`Pending step found: ${step.keyword}${step.name}`);
+				break;
+			case undefined:
+				// step.result is undefined — step was not executed (e.g., before a failure)
+				scenarioSkippedSteps++;
 				break;
 			default:
 				logger.warn(`Unknown step status: ${step.result?.status} for step: ${step.keyword}${step.name}`);

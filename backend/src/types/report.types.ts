@@ -58,7 +58,7 @@ export interface ReportDoc {
 	// Present on GenericReport (models.ts) but never actually populated at runtime — kept here only
 	// so report class instances remain structurally assignable to/from ReportDoc at service boundaries
 	storiesTested?: unknown;
-	reportOptions?: reporter.Options;
+	reportOptions?: reporter.Options & Record<string, unknown>;
 	isSaved?: boolean;
 	// GenericReport (models.ts) declares smallReport as `string`, but uploadReport actually stores the
 	// inserted document's ObjectId — accept both so report class instances remain assignable here

@@ -3,6 +3,7 @@ import { requireValidId } from '../utils/validation.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
+import type { TestExecutionResult } from '../testing/test-runner.service.js';
 import * as reportService from '../services/report.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
 import { type Story } from '@shared/models/Story.js';
@@ -52,39 +53,38 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 
 		fs.mkdirSync(path.join(process.cwd(), 'features', testReq.body.name), { recursive: true });
 
-		let lastReportResult: any;
+		let lastReportResult: TestExecutionResult | undefined;
 		// Override name with the sanitized folder name so resolveAndSaveReport looks in the correct directory
 		const parameters = { ...group, name: sanityFolderName, repositoryId: repoID, stories: validStories };
 
 		if (group.isSequential) 
 			for (const story of validStories) 
-				lastReportResult = await testRunnerService.executeTest(testReq as any, ExecutionMode.GROUP, story);
+				lastReportResult = await testRunnerService.executeTest(testReq as unknown as Parameters<typeof testRunnerService.executeTest>[0], ExecutionMode.GROUP, story);
             
 		else {
 			const results = await Promise.all(
-				validStories.map(story => testRunnerService.executeTest(testReq as any, ExecutionMode.GROUP, story))
+				validStories.map(story => testRunnerService.executeTest(testReq as unknown as Parameters<typeof testRunnerService.executeTest>[0], ExecutionMode.GROUP, story))
 			);
 			lastReportResult = results.pop();
 		}
 
-		if (!lastReportResult || !lastReportResult.reportName)
+		if (!lastReportResult?.reportName)
 			throw new AppError('Sanity test execution failed to produce a valid report result.', 500);
-        
 
 		// --- Report Analysis & Response (adapted from original runSanityReport) ---
 		const finalReport = await reportService.resolveAndSaveReport(lastReportResult, ExecutionMode.GROUP, validStories, parameters);
 
 		// Format the specific notification string
-		const notificationText = formatSanityNotification(finalReport);
+		const notificationText = formatSanityNotification(finalReport as GroupReport);
 		res.status(200).send(notificationText);
 
 		// Post-response cleanup — errors here must not crash the process or trigger the error handler
 		try {
 			await reportService.updateLatestTestStatus(finalReport, ExecutionMode.GROUP);
-			const deletionTime = parseInt(process.env.REPORT_DELETION_TIME || '5') * 60000;
+			const deletionTime = parseInt(process.env.REPORT_DELETION_TIME ?? '5') * 60000;
 			reportService.scheduleReportDeletion(finalReport.reportName, true, deletionTime);
 		} catch (postErr) {
-			logger.error(`Error in post-response sanity cleanup: ${postErr}`);
+			logger.error(`Error in post-response sanity cleanup: ${String(postErr)}`);
 		}
 
 	} catch (error) {
@@ -103,8 +103,8 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
  */
 function formatSanityNotification(report: GroupReport): string {
 	// Ensure report structure matches expected GroupReport
-	const scenarios: PassedCount = report.scenariosTested || { passed: 0, failed: 0 };
-	const steps = report.groupTestResults || { passedSteps: 0, failedSteps: 0, skippedSteps: 0 };
+	const scenarios: PassedCount = report.scenariosTested;
+	const steps = report.groupTestResults;
 	const totalScenarios = scenarios.passed + scenarios.failed;
 	const totalSteps = steps.passedSteps + steps.failedSteps + steps.skippedSteps;
 

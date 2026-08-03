@@ -25,7 +25,7 @@ export interface User {
     /**
      * Github object of the user if it is connected to github
      */
-    github: {
+    github?: {
         /** 
          * Token to access the github data of the user
         */
