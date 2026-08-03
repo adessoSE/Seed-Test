@@ -13,7 +13,7 @@ import { DatePipe } from '@angular/common';
 	selector: 'app-file-manager',
 	templateUrl: './file-manager.component.html',
 	styleUrl: './file-manager.component.css',
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe]
 })
 
@@ -29,7 +29,7 @@ export class FileManagerComponent implements OnInit {
 	readonly searchedFiles = signal<FileElement[]>([]);
 	searchText: string = '';
 	fileElements!: Observable<FileElement[]>;
-	selection = new Set<any>();
+	selection = new Set<FileElement>();
 	isAllSelected: boolean = false;
 
 
@@ -53,7 +53,7 @@ export class FileManagerComponent implements OnInit {
 	/**
    * Updates the file elements by querying the file service with the repository ID.
    */
-	updateFileElementQuery(repoId: any): void {
+	updateFileElementQuery(repoId: string): void {
 		this.fileElements = this.fileService.queryFiles(repoId);
 	}
 
@@ -88,7 +88,7 @@ export class FileManagerComponent implements OnInit {
 	deleteFile(): void {
 		this.allFiles.set(this.allFiles().filter(file => !this.selection.has(file)));
 		Array.from(this.selection).map(file => {
-			this.fileService.deleteUploadedFile(this.repoId, file._id).subscribe(() => {
+			this.fileService.deleteUploadedFile(this.repoId, file._id!).subscribe(() => {
 				this.updateFileElementQuery(this.repoId);
 			});
 		});
@@ -100,7 +100,7 @@ export class FileManagerComponent implements OnInit {
    * Set checkbox to selected file
    * @param element
    */
-	selectedRow(element: any) {
+	selectedRow(element: FileElement) {
 		if (this.selection.has(element)) 
 			this.selection.delete(element);
 		else 
@@ -113,8 +113,8 @@ export class FileManagerComponent implements OnInit {
    * Uploads a selected file
    * @param event
    */
-	selectUploadFile(event: any): void {
-		const file: File = event.target.files.item(0);
+	selectUploadFile(event: Event): void {
+		const file: File = (event.target as HTMLInputElement).files!.item(0)!;
 		this.fileService.uploadFile(this.repoId, file)
 			.subscribe((_res: FileElement) => {
 				this.updateFileElementQuery(this.repoId);

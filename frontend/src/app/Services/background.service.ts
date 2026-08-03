@@ -57,7 +57,7 @@ export class BackgroundService {
    * @param background
    * @returns
   */
-	public updateBackground(storyID: any, background: Background): Observable<Background> {
+	public updateBackground(storyID: string, background: Background): Observable<Background> {
 		return this.http
 			.put<Background>(this.apiService.apiServer + '/background/' + storyID , background, ApiService.getOptions())
 			.pipe(tap(_ => {
@@ -89,9 +89,9 @@ export class BackgroundService {
     * @param storySource
     * @returns
   */
-	deleteBackground(storyID: any): Observable<any> {
+	deleteBackground(storyID: string): Observable<Background> {
 		return this.http
-			.delete<any>(this.apiService.apiServer + '/background/' + storyID , ApiService.getOptions())
+			.delete<Background>(this.apiService.apiServer + '/background/' + storyID , ApiService.getOptions())
 			.pipe(tap(() => {
 				//
 			}));

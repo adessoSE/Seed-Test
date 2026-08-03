@@ -9,17 +9,17 @@
         </button>
     </div>
     <div class="modal-body">
-        <div (keydown.enter)="enterSubmit($event)">
+        <div tabindex="0" (keydown.enter)="enterSubmit($event)">
             <div class="form-group modalsContent">
                 <div>
-                    <label>Edit Background Title</label>
-                    <input ngbAutofocus type="text" style="margin-left: 24px;" pattern="\S(.*\S)?" [formControl]="backgroundTitle" (keyup)="backgroundUnique()" required>
+                    <label for="rename-background-title">Edit Background Title</label>
+                    <input ngbAutofocus id="rename-background-title" type="text" style="margin-left: 24px;" pattern="\S(.*\S)?" [formControl]="backgroundTitle" (keyup)="backgroundUnique()" required>
                 </div>
             </div>
             
             <div class="modal-footer">
-                <button id="submitRenameBackground" (click)="onClickSubmit()"  class="normalButton" [disabled]="!backgroundTitle.valid || backgroundTitle.value == this.background.name"
-                [style.opacity]="!backgroundTitle.valid || backgroundTitle.value == this.background.name ?  '50%' : '100%'">Submit
+                <button id="submitRenameBackground" (click)="onClickSubmit()"  class="normalButton" [disabled]="!backgroundTitle.valid || backgroundTitle.value === this.background.name"
+                [style.opacity]="!backgroundTitle.valid || backgroundTitle.value === this.background.name ?  '50%' : '100%'">Submit
                 </button>
             </div>
         </div>

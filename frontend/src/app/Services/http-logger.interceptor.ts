@@ -12,9 +12,9 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
 		console.log('constructor http interceptor');
 	}
 	intercept(
-		req: HttpRequest<any>,
+		req: HttpRequest<unknown>,
 		next: HttpHandler
-	): Observable<HttpEvent<any>> {
+	): Observable<HttpEvent<unknown>> {
 		const startTime = Date.now();
 
 		const detail = {

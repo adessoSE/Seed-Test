@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, input, untracked } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, TemplateRef, inject, viewChild, signal, effect, input, untracked } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { StepType } from '@shared/models/StepType';
@@ -17,7 +17,7 @@ import { MatFormField, MatSelect, MatOption } from '@angular/material/select';
 	selector: 'app-add-block-form',
 	templateUrl: './add-block-form.component.html',
 	styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, MatSelectionList, FormsModule, MatListOption, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatFormField, MatSelect, ReactiveFormsModule, MatOption]
 })
 export class AddBlockFormComponent implements OnInit {
@@ -34,7 +34,7 @@ export class AddBlockFormComponent implements OnInit {
 		this.blockDeleted(this.selectedBlock);
 	});
 
-	readonly addBlockFormModal = viewChild<any>('addBlockFormModal');
+	readonly addBlockFormModal = viewChild<TemplateRef<unknown>>('addBlockFormModal');
  
 	currentStepType = new FormControl('When');
 	/**
@@ -44,7 +44,7 @@ export class AddBlockFormComponent implements OnInit {
 	/**
      * New block name when renaming
      */
-	newBlockName!: string;
+	newBlockName: string | undefined;
 
 	/**
      * Old block name
@@ -69,12 +69,12 @@ export class AddBlockFormComponent implements OnInit {
 	/**
       * If save button is disable
       */
-	saveBlockButtonDisable!: boolean;
+	saveBlockButtonDisable: boolean | undefined;
 
 	/**
       * Steps of the current block
       */
-	stepList: any;
+	stepList: StepType[] = [];
 
 	/**
       * Current selected block list
@@ -108,7 +108,7 @@ export class AddBlockFormComponent implements OnInit {
 	/**
      * Boolean, wether Block should be added as a single steps
      */
-	addAsSingleSteps!: boolean;
+	addAsSingleSteps: boolean | undefined;
 
 	modalReference!: NgbModalRef;
      
@@ -199,7 +199,7 @@ export class AddBlockFormComponent implements OnInit {
 
 					this.blocks.update(b => b.filter(x => x !== this.selectedBlock));
 					this.stepList = [];
-					this.selectedBlock = null as any;
+					this.selectedBlock = undefined!;
 					console.log(resp);
 					this.updateBlocksEventEmitter();
 					this.notify.error('', 'Block deleted');
@@ -242,10 +242,10 @@ export class AddBlockFormComponent implements OnInit {
 			});
 		});
 		//to avoid an error if the user select another block when the changes haven't been saved
-		if (!this.blockSaved){     
+		if (!this.blockSaved){
 			this.blockSaved = !this.blockSaved;
-			(this as any).saveBlockButtonDisable = undefined;
-			(this as any).newBlockName = undefined;
+			this.saveBlockButtonDisable = undefined;
+			this.newBlockName = undefined;
 		}
 	}
 
@@ -254,7 +254,7 @@ export class AddBlockFormComponent implements OnInit {
      */
 	copiedBlock() {
 		if (this.clipboardBlock) 
-			this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, null as any, false);
+			this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, null!, false);
       
 	}
 
@@ -262,9 +262,9 @@ export class AddBlockFormComponent implements OnInit {
      * Add a block to a scenario
      */
 	addBlockFormSubmit() {
-		this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.currentStepType.value!, this.addAsSingleSteps);
-		(this as any).addAsSingleSteps = undefined;
-		(this as any).selectedBlock = undefined;
+		this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.currentStepType.value!, this.addAsSingleSteps ?? false);
+		this.addAsSingleSteps = undefined;
+		this.selectedBlock = undefined!;
 		this.stepList = [];
 		this.currentStepType = new FormControl('When');
 		this.modalReference.close();
@@ -290,7 +290,7 @@ export class AddBlockFormComponent implements OnInit {
 					});
 			}
 			this.blockSaved = true;
-			(this as any).newBlockName = undefined;
+			this.newBlockName = undefined;
 		}
  
 	}
@@ -311,8 +311,8 @@ export class AddBlockFormComponent implements OnInit {
 		this.addBlockFormSubmit();
 	}
 	closeModal(){
-		(this as any).addAsSingleSteps = undefined;
-		(this as any).selectedBlock = undefined;
+		this.addAsSingleSteps = undefined;
+		this.selectedBlock = undefined!;
 		this.currentStepType = new FormControl('When');
 		this.stepList = [];
 		this.modalReference.close();

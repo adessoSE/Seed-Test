@@ -24,7 +24,7 @@ import { ReportComponent } from '../report/report.component';
 	selector: 'app-parent',
 	templateUrl: './parent.component.html',
 	styleUrls: ['./parent.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [StoriesBarComponent, StoryEditorComponent, ReportHistoryComponent, FileManagerComponent, ReportComponent]
 })
 export class ParentComponent implements OnInit, OnDestroy {
@@ -39,21 +39,21 @@ export class ParentComponent implements OnInit, OnDestroy {
 	/**
    * Stories in the selected project
    */
-	readonly stories = signal<Story[]>(undefined as any);
+	readonly stories = signal<Story[] | undefined>(undefined);
 
 	repositories!: RepositoryContainer[];
 
-	readonly selectedRepository = signal<RepositoryContainer>(undefined as any);
+	readonly selectedRepository = signal<RepositoryContainer | undefined>(undefined);
 
 	/**
    * Currently selected story
    */
-	readonly selectedStory = signal<Story>(undefined as any);
+	readonly selectedStory = signal<Story | undefined>(undefined);
 
 	/**
    * Currently selected Scenario
    */
-	readonly selectedScenario = signal<Scenario>(undefined as any);
+	readonly selectedScenario = signal<Scenario | undefined>(undefined);
 
 	/**
    * If the story Editor is shown or the report history
@@ -67,7 +67,7 @@ export class ParentComponent implements OnInit, OnDestroy {
 
 	groups!: Group[];
 
-	report: any;
+	report?: { reportId: string; htmlFile: string };
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
@@ -155,7 +155,7 @@ export class ParentComponent implements OnInit, OnDestroy {
 		const params = this.route.snapshot.paramMap;
 		if (params.has('story_id')) {
 			const story_id = params.get('story_id');
-			const story = this.stories().find(o => o._id === story_id)!;
+			const story = (this.stories() ?? []).find(o => o._id === story_id)!;
 			this.selectedStory.set(story);
 			if (params.has('scenario_id')) {
 				const scenario_id = params.get('scenario_id');
@@ -186,7 +186,7 @@ export class ParentComponent implements OnInit, OnDestroy {
    * @param scenario
    */
 	deselectScenario() {
-		this.selectedScenario.set(undefined as any);
+		this.selectedScenario.set(undefined);
 	}
 
 	/**
@@ -197,16 +197,16 @@ export class ParentComponent implements OnInit, OnDestroy {
 		this.isStoryEditorActive = !this.isStoryEditorActive;
 	}
 
-	viewReport($event: any) {
+	viewReport($event: { reportId: string; htmlFile: string }) {
 		this.report = $event;
 	}
 
-	testRunningGroup($event: any) {
+	testRunningGroup($event: boolean) {
 		this.isStoryEditorActive = true;
 		this.testRunningForGroup = $event;
-		if (this.testRunningForGroup === true) 
-			this.report = false;
-    
+		if (this.testRunningForGroup === true)
+			this.report = undefined;
+
 	}
 
 }

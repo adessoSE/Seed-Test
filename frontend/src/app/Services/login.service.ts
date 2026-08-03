@@ -3,7 +3,34 @@ import { Observable, from, of } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import type { User } from '@shared/models/User';
 
+/** Response from the GitHub OAuth callback endpoint */
+interface GithubCallbackResponse {
+	error?: boolean;
+	status?: number;
+	login: string;
+	id: number;
+}
+
+/** Response from the GitHub token login endpoint */
+interface GithubLoginResponse {
+	status: string;
+	message?: string;
+	repository?: string;
+}
+
+/** Credentials payload for login endpoints */
+interface LoginCredentials {
+	email: string;
+	password: string;
+	stayLoggedIn?: boolean;
+}
+
+/** Response from password reset request */
+interface ResetResponse {
+	message: string;
+}
 
 /**
  * Service for communication between login component and the backend
@@ -38,9 +65,9 @@ export class LoginService {
    * @param code
    * @returns
    */
-	githubCallback(code: string): Observable<any> {
+	githubCallback(code: string): Observable<GithubCallbackResponse> {
 		const url = this.apiService.apiServer + '/user/callback?code=' + code;
-		return this.http.get(url, { withCredentials: true }).pipe(
+		return this.http.get<GithubCallbackResponse>(url, { withCredentials: true }).pipe(
 			tap((_) => {
 				//
 			}),
@@ -54,11 +81,11 @@ export class LoginService {
    * @param id
    * @returns
    */
-	loginGithubToken(login: string, id: any): Observable<any> {
+	loginGithubToken(login: string, id: number): Observable<GithubLoginResponse> {
 		const str = this.apiService.apiServer + '/user/githubLogin';
 		const user = { login, id };
 
-		return this.http.post<any>(str, user, ApiService.getOptions()).pipe(
+		return this.http.post<GithubLoginResponse>(str, user, ApiService.getOptions()).pipe(
 			tap((_) => {
 				//
 			}),
@@ -72,11 +99,11 @@ export class LoginService {
    * @param id
    * @returns
    */
-	mergeAccountGithub(userId: string, login: string, id: any) {
+	mergeAccountGithub(userId: string, login: string, id: number) {
 		const str = this.apiService.apiServer + '/user/mergeGithub';
 		const body = { userId, login, id };
 
-		return this.http.post<any>(str, body, ApiService.getOptions()).pipe(
+		return this.http.post<User>(str, body, ApiService.getOptions()).pipe(
 			tap((_) => {
 				//
 			}),
@@ -88,13 +115,13 @@ export class LoginService {
    * @param user
    * @returns
    */
-	loginUserLegacy(user: any): Observable<any> {
+	loginUserLegacy(user: LoginCredentials): Observable<User | null> {
 		console.log('legacy Login');
 		const str = this.apiService.apiServer + '/user/login';
 
-		const req1: Observable<any> = this.http.post<any>(str, user, ApiService.getOptions());
+		const req1: Observable<User> = this.http.post<User>(str, user, ApiService.getOptions());
 		req1.pipe(
-			map(response=>JSON.parse(response)),
+			map(response=>JSON.parse(response as unknown as string)),
 			catchError(this.apiService.handleError)
 		);
 		return req1;
@@ -104,13 +131,13 @@ export class LoginService {
    * @param user
    * @returns
    */
-	loginUser(user: any): Observable<any> {
+	loginUser(user: LoginCredentials): Observable<User | null> {
 		const str = this.apiService.apiServer + '/user/login';
 		if (!window.isSecureContext) return this.loginUserLegacy(user);
 		return from(this.sha256(user.password)).pipe(
 			switchMap(hash => {
 				console.log('hashed', hash);
-				const req1: Observable<any> = this.http.post<any>(str, { ...user, password: hash }, ApiService.getOptions());
+				const req1: Observable<User> = this.http.post<User>(str, { ...user, password: hash }, ApiService.getOptions());
 				return req1.pipe(
 					tap(ab=> {if (ab._id) return ab; else throw Error('unsuccessfull');}),
 					catchError((err, _caught)=> {console.log('err', err); return this.loginUserLegacy(user);})
@@ -124,7 +151,7 @@ export class LoginService {
 		);
 	}
 
-	sha256 = async (data: any) => {
+	sha256 = async (data: string) => {
 		const textAsBuffer = new TextEncoder().encode(data);
 		const hashBuffer = await window.crypto.subtle.digest('SHA-256', textAsBuffer);
 		const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -162,10 +189,10 @@ export class LoginService {
    * @param email
    * @returns
    */
-	public requestReset(email: string): Observable<any> {
+	public requestReset(email: string): Observable<ResetResponse> {
 		const body = { email: email };
 		return this.http
-			.post<any>(this.apiService.apiServer + '/user/resetpassword/', body)
+			.post<ResetResponse>(this.apiService.apiServer + '/user/resetpassword/', body)
 			.pipe(
 				tap((_) => {
 					//
@@ -179,11 +206,11 @@ export class LoginService {
    * @param password
    * @returns
    */
-	confirmReset(uuid: string, password: string): Observable<any> {
+	confirmReset(uuid: string, password: string): Observable<ResetResponse> {
 		return from(this.sha256(password)).pipe(
 			switchMap(hash => {
 				console.log('hashed', hash);
-				const req1: Observable<any> = this.http.patch<any>(this.apiService.apiServer + '/user/reset', { uuid: uuid, password: hash });
+				const req1: Observable<ResetResponse> = this.http.patch<ResetResponse>(this.apiService.apiServer + '/user/reset', { uuid: uuid, password: hash });
 				return req1.pipe(
 					tap((_) => {
 						//
@@ -221,12 +248,12 @@ export class LoginService {
    * @param userId
    * @returns
    */
-	registerUser(email: string, password: string, userId: any): Observable<any> {
+	registerUser(email: string, password: string, userId: string | null): Observable<User> {
 		const user = { email, password, userId };
 		return from(this.sha256(user.password)).pipe(
 			switchMap(hash => {
 				console.log('hashed', hash);
-				const req1: Observable<any> = this.http.post<any>(this.apiService.apiServer + '/user/register', { ...user, password: hash }, ApiService.getOptions());
+				const req1: Observable<User> = this.http.post<User>(this.apiService.apiServer + '/user/register', { ...user, password: hash }, ApiService.getOptions());
 				return req1.pipe(
 					tap((_) => {
 						//

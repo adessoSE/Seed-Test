@@ -5,6 +5,14 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
 import { User } from '@shared/models/User';
 
+/** Jira account link request payload */
+interface JiraLinkRequest {
+	jiraAccountName: string;
+	jiraPassword: string;
+	jiraHost: string;
+	jiraAuthMethod: string;
+}
+
 /**
  * Service for communication between components for managment and the backend
  */
@@ -21,9 +29,9 @@ export class ManagementService {
    * @param request
    * @returns
    */
-	createJiraAccount(request: any) {
+	createJiraAccount(request: JiraLinkRequest) {
 		return this.http
-			.post<any>(
+			.post<User>(
 				this.apiService.apiServer + '/jira/link/',
 				request,
 				ApiService.getOptions()
@@ -37,7 +45,7 @@ export class ManagementService {
    */
 	disconnectJiraAccount() {
 		return this.http
-			.delete<any>(
+			.delete<User>(
 				this.apiService.apiServer + '/jira/disconnect/',
 				ApiService.getOptions()
 			)
@@ -64,7 +72,7 @@ export class ManagementService {
    */
 	deleteUser() {
 		return this.http
-			.delete<any>(
+			.delete<User>(
 				this.apiService.apiServer + '/user/',
 				ApiService.getOptions()
 			)
@@ -81,7 +89,7 @@ export class ManagementService {
    */
 	disconnectGithub() {
 		const str = this.apiService.apiServer + '/github/disconnectGithub';
-		return this.http.delete<any>(str, ApiService.getOptions()).pipe(
+		return this.http.delete<User>(str, ApiService.getOptions()).pipe(
 			tap((_) => {
 				//
 			}),
@@ -94,7 +102,7 @@ export class ManagementService {
    * @param version_id
    * @returns
    */
-	downloadProjectFeatureFiles(repo_id: any, version_id = ''): Observable<Blob> {
+	downloadProjectFeatureFiles(repo_id: string, version_id = ''): Observable<Blob> {
 		return this.http.get<Blob>(
 			this.apiService.apiServer + '/story/download/project/' + repo_id,
 			{
@@ -111,7 +119,7 @@ export class ManagementService {
    * @param version_id
    * @returns
    */
-	exportProject(repo_id: any, version_id = ''): Observable<Blob> {
+	exportProject(repo_id: string, version_id = ''): Observable<Blob> {
 		return this.http.get<Blob>(
 			this.apiService.apiServer + '/story/download/export/' + repo_id,
 			{

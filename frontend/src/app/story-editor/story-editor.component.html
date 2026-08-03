@@ -86,7 +86,7 @@
           }
         </div>
         <mat-menu #aiSettingsMenu="matMenu" class="ai-override-menu">
-          <div class="override-fields" (click)="$event.stopPropagation();">
+          <div class="override-fields" tabindex="0" role="group" (click)="$event.stopPropagation();" (keydown.enter)="$event.stopPropagation();">
             <h4 class="menu-title">Temporary Model Overrides</h4>
             <mat-form-field appearance="fill">
               <mat-label>Text Preparation Model</mat-label>
@@ -246,14 +246,14 @@
                               title="Switch Background">
                               <em class="material-icons">swap_horiz</em>
                             </button>
-                            @if (showBackground() && sortedBackgrounds() && this.openBlockModal == undefined) {
+                            @if (showBackground() && sortedBackgrounds() && this.openBlockModal === undefined) {
                               <div
                                 uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;">
                                 <ul class="uk-nav uk-dropdown-nav">
                                   @for (background of sortedBackgrounds(); track background; let j = $index) {
                                     <li>
-                                      <span id="{{name+'_add_step_type_' + j}}" class="dropdownStep"
-                                      (click)="replaceBackground(background);$event.stopPropagation();">{{background.name}}</span>
+                                      <span id="{{name+'_add_step_type_' + j}}" class="dropdownStep" tabindex="0" role="menuitem"
+                                      (click)="replaceBackground(background);$event.stopPropagation();" (keydown.enter)="replaceBackground(background);$event.stopPropagation();">{{background.name}}</span>
                                     </li>
                                   }
                                 </ul>
@@ -272,7 +272,7 @@
                                 <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
                               </button>
                             }
-                            @if ( this.selectedStory.background.saved!= false) {
+                            @if ( this.selectedStory.background.saved !== false) {
                               <button id="saveButtonBackground" class="storyTitle"
                                 data-uk-tooltip
                                 [class.disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
@@ -368,7 +368,7 @@
                                 File Manager
                               </button>
                               <div class="storyInOneSessionDiv">
-                                <label class="selectLabel SmallIcontext">Single Session:</label>
+                                <label class="selectLabel SmallIcontext" for="oneDriverCheck">Single Session:</label>
                                 <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()"
                                   [checked]="this.selectedStory.oneDriver">
                                   <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
@@ -382,11 +382,11 @@
                               <div class="storyInfoCenter">
                                 @if (!this.globalSettingsActivated()) {
                                   <div>
-                                    <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
+                                    <label class="selectLabel SmallIcontext" for="defaultWaitTimeInput">Wait between steps (ms):</label>
                                     <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
                                       value="{{this.selectedScenario.stepWaitTime || 0}}"
                                       (change)="setStepWaitTime($event.target.valueAsNumber)">
-                                      <label class="selectLabel SmallIcontext">Test Runner:</label>
+                                      <label class="selectLabel SmallIcontext" for="testRunnerSelect">Test Runner:</label>
                                       <select name="testRunner" class="select" id="testRunnerSelect"
                                         (change)="setTestRunner($event.target.value)">
                                         <option id="seleniumWebdriver" value="seleniumWebdriver"
@@ -394,7 +394,7 @@
                                         <option id="playwright" value="playwright" [selected]="this.testRunner() === 'playwright'">Playwright
                                         (experimental)</option>
                                       </select>
-                                      <label class="selectLabel SmallIcontext">Browser:</label>
+                                      <label class="selectLabel SmallIcontext" for="browserSelect">Browser:</label>
                                       <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
                                         @if (this.chromium_enabled) {
                                           <option id="chrome_browser" value="chromium"

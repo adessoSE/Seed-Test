@@ -16,7 +16,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 	selector: 'app-update-group',
 	templateUrl: './update-group.component.html',
 	styleUrls: ['./update-group.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class UpdateGroupComponent {
@@ -127,7 +127,7 @@ export class UpdateGroupComponent {
 
 	deleteGroup(event: Event) {
 		event.stopPropagation();
-		const repo_id = localStorage.getItem('id');
+		const repo_id = localStorage.getItem('id') ?? '';
 		this.groupService.deleteGroupEvent({'repo_id': repo_id, 'group_id': this.groupId});
 	}
 

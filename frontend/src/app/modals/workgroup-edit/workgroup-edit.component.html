@@ -45,7 +45,7 @@
             <!-- Wait Between Steps -->
             <div class="waitTimeDiv space-between">
               <div>
-                <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
+                <label class="selectLabel SmallIcontext" for="defaultWaitTimeInput">Wait between steps (ms):</label>
               </div>
               <div>
                 <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime"
@@ -64,7 +64,7 @@
               <!-- Test Runner -->
               <div class="testRunnerDiv space-between">
                 <div>
-                  <label class="selectLabel SmallIcontext">Test Runner:</label>
+                  <label class="selectLabel SmallIcontext" for="testRunnerSelect">Test Runner:</label>
                 </div>
                 <div>
                   <select name="testRunner" class="select" id="testRunnerSelect"
@@ -87,7 +87,7 @@
               <!-- Browser -->
               <div class="browserDiv space-between">
                 <div>
-                  <label class="selectLabel SmallIcontext">Browser:</label>
+                  <label class="selectLabel SmallIcontext" for="browserSelect">Browser:</label>
                 </div>
                 <div>
                   <select name="browser" class="select" id="browserSelect"
@@ -148,7 +148,7 @@
               <!-- Open Window Size Component-->
               <div class="windowSizeDiv space-between">
                 <div>
-                  <label class="selectLabel SmallIcontext">Change Windows Size:</label>
+                  <label class="selectLabel SmallIcontext" for="windowSizeButton">Change Windows Size:</label>
                 </div>
                 <div>
                   <app-window-size id="windowSizeButton" #windoSizeModal [width]="repoWidth"
@@ -167,10 +167,10 @@
               @if (workgroupProject?.source !== 'db') {
                 <div class="windowSizeDiv space-between">
                   <div>
-                    <label class="selectLabel SmallIcontext">Report comment</label>
+                    <label class="selectLabel SmallIcontext" for="reportCommentCheckbox">Report comment</label>
                   </div>
                   <div>
-                    <input type="checkbox" [(ngModel)]="reportComment">
+                    <input type="checkbox" id="reportCommentCheckbox" [(ngModel)]="reportComment">
                   </div>
                   <div>
                     <dfn class="def">
@@ -199,8 +199,8 @@
                 <!-- Only for WG-Owner -->
                 @if (userEmail===workgroupOwner()) {
                   <div>
-                    <label style="margin-right: 10px;">Project Owner:</label>
-                    @if (!this.workgroupList().length == 0) {
+                    <span style="margin-right: 10px;">Project Owner:</span>
+                    @if (!this.workgroupList().length === 0) {
                       <mat-form-field
                         style="margin-right: 10px; position: inherit;" appearance="fill"
                         [style.width]="workgroupOwner().length + 6 +'ch'">
@@ -215,8 +215,8 @@
                       </mat-form-field>
                     }
                     <button id="changeOwner" type="button" class="normalButton"
-                      [style.opacity]="this.workgroupList().length == 0 || selectedOwner == undefined  ?  '50%' : '100%'"
-                      [disabled]="this.workgroupList().length == 0 || selectedOwner == undefined "
+                      [style.opacity]="this.workgroupList().length === 0 || selectedOwner === undefined  ?  '50%' : '100%'"
+                      [disabled]="this.workgroupList().length === 0 || selectedOwner === undefined "
                       (click)="transferOwnership(selectedOwner);">Transfer Ownership
                     </button>
                     <div>
@@ -230,8 +230,8 @@
                   <!-- If User is not the WG-Owner -->
                   @if (userEmail!==workgroupOwner()) {
                     <div>
-                      <label style="margin-right: 10px;">Project Owner:</label>
-                      <label id="projectOwner">{{this.workgroupOwner()}}</label>
+                      <span style="margin-right: 10px;">Project Owner:</span>
+                      <span id="projectOwner">{{this.workgroupOwner()}}</span>
                     </div>
                   }
                 </div>
@@ -250,8 +250,8 @@
                         <button class="normalButton">Invite to Team</button>
                       </div>
                       <div class="canEditContainer divWrapper">
-                        <label class="canEditLabel addTeamMembersLabel">Can add team members</label>
-                        <input type="checkbox" ngModel name="canEdit" class="normalButton addTeamMembersLabel"
+                        <label class="canEditLabel addTeamMembersLabel" for="canEditTeamMembersCheckbox">Can add team members</label>
+                        <input type="checkbox" id="canEditTeamMembersCheckbox" ngModel name="canEdit" class="normalButton addTeamMembersLabel"
                           style="align-self: center;">
                         </div>
                       </form>
@@ -264,7 +264,7 @@
                           <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
                           <td mat-cell *matCellDef="let element">
                             <div class="emailTableContainer">
-                              <label>{{element.email}} </label>
+                              <span>{{element.email}} </span>
                               <button class="normalButton deleteButton"
                               (click)="removeFromWorkgroup(element);">Remove</button>
                             </div>

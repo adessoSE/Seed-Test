@@ -7,6 +7,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 	selector: 'app-terms',
 	templateUrl: './terms.component.html',
 	styleUrls: ['./terms.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TermsComponent {}

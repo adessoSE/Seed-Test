@@ -33,11 +33,21 @@ import { FormsModule } from '@angular/forms';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription } from '@angular/material/expansion';
 import { MatTooltip } from '@angular/material/tooltip';
 
+/**
+ * Shape of the drag data attached to a step during drag-and-drop reordering
+ * (see dragStarted/onDrop) — carries the multi-select indices being moved.
+ */
+interface StepDragData {
+	indices: { index: number; value: StepType }[] | null | undefined;
+	values: number[];
+	source: BaseEditorComponent;
+}
+
 @Component({
 	selector: 'app-base-editor',
 	templateUrl: './base-editor.component.html',
 	styleUrls: ['./base-editor.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgTemplateOutlet, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe]
 })
 export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, AfterViewInit {
@@ -161,7 +171,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    */
 	readonly isReviewing = input<boolean>(false);
 
-	readonly blockSelectTriggerEvent = output<string>();
+	readonly blockSelectTriggerEvent = output<StepType>();
 
 	/**
    * currently selected scenario
@@ -214,7 +224,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	/**
    * Block saved to clipboard
    */
-	clipboardBlock: any = null;
+	clipboardBlock: { stepDefinitions: Record<string, StepType[]>; multipleScenarios: MultipleScenario[] } | null = null;
 	/**
      * Blocks in Repository
      */
@@ -262,7 +272,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		if (this.templateName() == 'scenario' && blockValue[0] == 'scenario') {
 			if (!blockValue[3]) {
 				const blockReference: StepType = {
-					_blockReferenceId: blockValue[1]._id, id: 0, type: blockValue[1].name,
+					_blockReferenceId: blockValue[1]._id, id: 0, type: blockValue[1].name ?? '',
 					stepType: blockValue[2].toLowerCase(), pre: '', mid: '', post: '', values: []
 				};
 				const blockExamples = blockValue[1].stepDefinitions['example'];
@@ -289,7 +299,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 				this.addStep(blockReference, this.selectedScenario, 'scenario');
 			} else
-				this.insertStepsWithExamples(blockValue[1]);
+				this.insertStepsWithExamples(blockValue[1] as unknown as { stepDefinitions: Record<string, StepType[]> });
 
 			this.markUnsaved();
 		}
@@ -436,7 +446,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @param step
    */
 
-	fillExampleValues(_value: any, _index: number) {
+	fillExampleValues(_value: unknown, _index: number) {
 		// if (!this.selectedScenario.stepDefinitions[stepType][0] || !this.selectedScenario.stepDefinitions[stepType][0].values.some(r => step.values.includes(r))) {
 		//   this.selectedScenario.stepDefinitions[stepType].push(JSON.parse(JSON.stringify(step)));
 		// }
@@ -547,7 +557,8 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
     * @param templateName
     * @param step_idx Optional argument
     */
-	async addStep(step: StepType, selectedScenario: any, templateName: string, step_idx?: any) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- receives Scenario or Story depending on templateName; structural overlap prevents clean typing
+	async addStep(step: StepType, selectedScenario: any, templateName: string, step_idx?: number) {
 		let lastEl: number;
 		let newStep: StepType | undefined;
 		const stepLocation = templateName !== 'background' ? selectedScenario.stepDefinitions : selectedScenario.background.stepDefinitions;
@@ -694,14 +705,17 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @returns
    */
 
-	getLastIDinStep(stepDefs: any, stepStepType: string): number {
+	getLastIDinStep(stepDefs: StepDefinition | StepDefinitionBackground, stepStepType: string): number {
+		// Background only has a 'when' key — cast to a Record so 'given'/'then' lookups
+		// (which never execute for background step defs) still type-check.
+		const stepsRecord = stepDefs as unknown as Record<string, StepType[]>;
 		switch (stepStepType) {
 			case 'given':
-				return this.buildID(stepDefs.given);
+				return this.buildID(stepsRecord.given);
 			case 'when':
-				return this.buildID(stepDefs.when);
+				return this.buildID(stepsRecord.when);
 			case 'then':
-				return this.buildID(stepDefs.then);
+				return this.buildID(stepsRecord.then);
 				// case "example":
 				//   return this.buildID(stepDefs.example);
 			default:
@@ -735,7 +749,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
   * @returns 
   */
 
-	sortedStepTypes(): any[] {
+	sortedStepTypes(): (StepType | { type: string; label: string })[] {
 		const given = [];
 		const when = [];
 		const then = [];
@@ -797,7 +811,9 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		let screenshotAdded: boolean = false;
 
 		for (const step of this.sortedStepTypes()) {
-			const stepCopy = { ...step };
+			// sortedStepTypes() also yields header markers ({ type, label }) mixed into the
+			// list — cast to StepType since only step entries hit the branches below.
+			const stepCopy = { ...step } as StepType;
 			//for all unique steps set steptype to "when" for edit-block
 			stepCopy.stepType = 'when';
 
@@ -865,9 +881,9 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @param stepIndex
    */
 
-	onDrop(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
+	onDrop(event: CdkDragDrop<StepDragData>, stepDefs: StepDefinition, stepIndex: number) {
 		if (this.selectedCount(stepDefs, stepIndex) > 1) {
-			const indices = event.item.data.indices;
+			const indices = event.item.data.indices!;
 			const change = event.currentIndex - event.previousIndex;
 
 			let newList: StepType[] | undefined;
@@ -929,7 +945,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	}
 
 	onDropBlock(
-		event: CdkDragDrop<any>,
+		event: CdkDragDrop<StepDragData>,
 		stepDefs: StepDefinition,
 		stepIndex: number
 	) {
@@ -1079,7 +1095,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @returns
    */
 
-	isSelected(stepDefs: StepDefinition, i: number, j: number): any {
+	isSelected(stepDefs: StepDefinition, i: number, j: number): boolean | undefined {
 		switch (this.templateName()) {
 			case 'background':
 				//return stepDefs.when[j].checked;
@@ -1211,6 +1227,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		}
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- receives StepDefinition, StepDefinitionBackground, or MultipleScenario[]
 	checkOnIteration(stepsList: any, checkValue: boolean) {
 		//background & scenario
 		for (const prop in stepsList) 
@@ -1527,12 +1544,15 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    */
 	deleteRows() {
 		this.selectedScenario.stepDefinitions.given.forEach((_value: StepType, index: number) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
 			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.given[index].isExample as any[])[i] = undefined; });
 		});
 		this.selectedScenario.stepDefinitions.when.forEach((_value: StepType, index: number) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
 			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.when[index].isExample as any[])[i] = undefined; });
 		});
 		this.selectedScenario.stepDefinitions.then.forEach((_value: StepType, index: number) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
 			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.then[index].isExample as any[])[i] = undefined; });
 		});
 	}
@@ -1616,12 +1636,15 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	multipleScenariosDeactivated() {
 		this.selectedScenario.stepDefinitions.given.forEach((_value: StepType, index: number) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
 			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.given[index].isExample as any[])[i] = undefined; });
 		});
 		this.selectedScenario.stepDefinitions.when.forEach((_value: StepType, index: number) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
 			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.when[index].isExample as any[])[i] = undefined; });
 		});
 		this.selectedScenario.stepDefinitions.then.forEach((_value: StepType, index: number) => {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
 			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.then[index].isExample as any[])[i] = undefined; });
 		});
 	}
@@ -1736,7 +1759,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		let backgroundBlock: Block;
 		switch (this.templateName()) {
 			case 'background':
-				block = this.addStepsToBlockOnIteration(this.selectedStory.background.stepDefinitions);
+				block = this.addStepsToBlockOnIteration(this.selectedStory.background.stepDefinitions as unknown as Record<string, StepType[]>);
 				/* for (const prop in this.selectedStory.background.stepDefinitions) {
           for (const s in this.selectedStory.background.stepDefinitions[prop]) {
             if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
@@ -1751,7 +1774,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				break;
 
 			case 'scenario': {
-				block = this.addStepsToBlockOnIteration(this.selectedScenario.stepDefinitions, this.selectedScenario.multipleScenarios);
+				block = this.addStepsToBlockOnIteration(this.selectedScenario.stepDefinitions as unknown as Record<string, StepType[]>, this.selectedScenario.multipleScenarios);
 				/* for (const prop in this.selectedScenario.stepDefinitions) {
           if (prop !== 'example') {
             for (const s in this.selectedScenario.stepDefinitions[prop]) {
@@ -1786,7 +1809,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 			case 'block-editor': {
 				block = this.addStepsToBlockOnIteration(
-					this.selectedBlock()!.stepDefinitions
+					this.selectedBlock()!.stepDefinitions as unknown as Record<string, StepType[]>
 				);
 				const editBlock: Block = { stepDefinitions: block as unknown as StepDefinition };
 				sessionStorage.setItem('copiedEditBlock', JSON.stringify(editBlock));
@@ -1805,10 +1828,10 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @param stepsList Step Definitions or examples
    * @returns
    */
-	addStepsToBlockOnIteration(stepList: any, multipleScenarios?: MultipleScenario[]) {
+	addStepsToBlockOnIteration(stepList: Record<string, StepType[]>, multipleScenarios?: MultipleScenario[]) {
 		const stepsList = JSON.parse(JSON.stringify(stepList));
-		const copyBlock: Record<string, any[]> = { given: [], when: [], then: [], example: [] };
-		const stepsListIterate: Record<string, any[]> = { given: [], when: [], then: [] };
+		const copyBlock: Record<string, (StepType | MultipleScenario)[]> = { given: [], when: [], then: [], example: [] };
+		const stepsListIterate: Record<string, StepType[]> = { given: [], when: [], then: [] };
 		const examplesToBeCopied: string[] = [];
 		Object.keys(stepsListIterate).forEach((key: string, _: number) => {
 			for (const s in stepsList[key])
@@ -1866,19 +1889,19 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	insertBackgroundBlock(): void {
 		const clipboardRefBlock: StepType[] = [];
-		Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
-			if (key === 'when') 
+		Object.keys(this.clipboardBlock!.stepDefinitions).forEach((key, _) => {
+			if (key === 'when')
 				this.handleWhenKey(key, clipboardRefBlock);
-      
+
 		});
-		if (this.clipboardBlock.stepDefinitions.when.length !== clipboardRefBlock.length) 
+		if (this.clipboardBlock!.stepDefinitions.when.length !== clipboardRefBlock.length)
 			this.markUnsaved();
-    
+
 
 	}
 
 	handleWhenKey(key: string, clipboardRefBlock: StepType[]): void {
-		this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+		this.clipboardBlock!.stepDefinitions[key].forEach((step: StepType) => {
 			//to prevent blocks to be checked after pasting
 			if (!step._blockReferenceId) {
 				this.uncheckStep(step);
@@ -1890,7 +1913,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	}
 
 	insertScenarioBlock(): void {
-		if (this.clipboardBlock.stepDefinitions['example'].length !== 0) 
+		if (this.clipboardBlock!.stepDefinitions['example'].length !== 0)
 			this.handleScenarioWithExample();
 		else 
 			this.handleScenarioWithoutExample();
@@ -1915,9 +1938,9 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	}
 
 	handleScenarioWithoutExample(): void {
-		Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
-			if (key !== 'example') 
-				this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+		Object.keys(this.clipboardBlock!.stepDefinitions).forEach((key, _) => {
+			if (key !== 'example')
+				this.clipboardBlock!.stepDefinitions[key].forEach((step: StepType) => {
 					this.uncheckStep(step);
 					(this.selectedScenario.stepDefinitions as unknown as Record<string, StepType[]>)[key].push(JSON.parse(JSON.stringify(step)));
 				});
@@ -1928,7 +1951,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	}
 
 	insertExampleBlock(): void {
-		this.clipboardBlock.multipleScenarios.forEach((example: any) => {
+		this.clipboardBlock!.multipleScenarios.forEach((example: MultipleScenario) => {
 			this.selectedScenario.multipleScenarios!.push(example);
 		});
 		this.exampleService.updateExampleTableEmit();
@@ -1936,8 +1959,8 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	}
 
 	insertBlockEditorBlock(): void {
-		Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
-			this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+		Object.keys(this.clipboardBlock!.stepDefinitions).forEach((key, _) => {
+			this.clipboardBlock!.stepDefinitions[key].forEach((step: StepType) => {
 				step.checked = false;
 				(this.selectedBlock()!.stepDefinitions as unknown as Record<string, StepType[]>)[key].push(JSON.parse(JSON.stringify(step)));
 			});
@@ -1950,7 +1973,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @param indices indices of names to change
    * @param num number to append to the name
    */
-	changeExampleName(block: any, indices: number[], num: number) {
+	changeExampleName(block: { stepDefinitions: Record<string, StepType[]> }, indices: number[], num: number) {
 		indices.forEach((index: number) => {
 			const oldName = block.stepDefinitions['example'][0].values[index];
 			let newName;
@@ -1978,7 +2001,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * Inserts copied steps with examples
    * Checks for unique example names
    */
-	insertStepsWithExamples(block: any) {
+	insertStepsWithExamples(block: { stepDefinitions: Record<string, StepType[]> }) {
 		if (this.selectedScenario.multipleScenarios!.length != 0) {
 			let indices = this.selectedScenario.multipleScenarios![0].values
 				.map((x: string) => block.stepDefinitions['example'][0].values.indexOf(x))
@@ -2013,9 +2036,9 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * Removes examplenames from steps values
    */
 	insertStepsWithoutExamples() {
-		Object.keys(this.clipboardBlock.stepDefinitions).forEach((key: string, _: number) => {
+		Object.keys(this.clipboardBlock!.stepDefinitions).forEach((key: string, _: number) => {
 			if (key != 'example')
-				this.clipboardBlock.stepDefinitions[key].forEach(
+				this.clipboardBlock!.stepDefinitions[key].forEach(
 					(step: StepType, _j: number) => {
 						const stepCopy = JSON.parse(JSON.stringify(step));
 						step.isExample!.forEach((isExample: boolean, index: number) => {
@@ -2024,7 +2047,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 								stepCopy.values[index] = '';
 							}
 						});
-						(this.selectedScenario.stepDefinitions as Record<string, any>)[key].push(
+						(this.selectedScenario.stepDefinitions as unknown as Record<string, StepType[]>)[key].push(
 							JSON.parse(JSON.stringify(stepCopy))
 						);
 					}
@@ -2040,7 +2063,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * checks for number of values and adds 'value' in case of different lengths of clipboard and selected scenario
    * checks for example names and adds ' - Copy' in case of double names
    */
-	insertCopiedExamples(block: any) {
+	insertCopiedExamples(block: { stepDefinitions: Record<string, StepType[]> }) {
 		const selectedExampleDefs = this.selectedScenario.multipleScenarios!;
 		const blockExampleDefs = block.stepDefinitions['example'];
 
@@ -2148,7 +2171,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * Select Block by blockId to get Block Object
    * @param blockId: _id of the Block
    */
-	selectBlock(block: any) {
+	selectBlock(block: StepType) {
 		this.blockSelectTriggerEvent.emit(block);
 		block.blockStepExpanded = true;
 	}
@@ -2178,7 +2201,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		});
 		// Emitter expects Block but subscriber uses { block, stepReference } — legacy type mismatch
 		ref.afterClosed().subscribe(result => {
-			if (result === 'unpack') this.blockService.unpackBlockEmitter(toastData as any);
+			if (result === 'unpack') this.blockService.unpackBlockEmitter(toastData as unknown as Block);
 		});
 	}
 
@@ -2361,6 +2384,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	addExampleStep(step: StepType) {
 		console.log('addExampleStep');
 		const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- multipleScenarios typed as MultipleScenario[] but push receives StepType-derived newStep
 		(this.selectedScenario.multipleScenarios as any[])!.push(newStep);
 		const len = this.selectedScenario.multipleScenarios![0].values.length;
 		for (let j = 1; j < len; j++)

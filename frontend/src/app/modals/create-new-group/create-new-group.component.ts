@@ -16,7 +16,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 	selector: 'app-create-new-group',
 	templateUrl: './create-new-group.component.html',
 	styleUrls: ['./create-new-group.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class CreateNewGroupComponent {
@@ -89,7 +89,7 @@ export class CreateNewGroupComponent {
      * Checks wether the Story is already added
      * @param story
      */
-	isStoryChecked(story: any) {
+	isStoryChecked(story: Story) {
 		if (this.selectedStories === undefined) {
 			this.selectedStories = new Array<string>();
 			return false;
@@ -102,11 +102,11 @@ export class CreateNewGroupComponent {
      * Fuctionality for adding and removing Stories from a Group with a Checklist
      * @param story
      */
-	selectStory(story: any) {
+	selectStory(story: Story) {
 		if (this.isStoryChecked(story))
 			this.selectedStories = this.selectedStories!.filter(item => item !== story._id);
 		else
-			this.selectedStories!.push(story._id);
+			this.selectedStories!.push(story._id!);
     
 	}
 
@@ -120,7 +120,7 @@ export class CreateNewGroupComponent {
 	createNewGroup(form :NgForm) {
 		const title = form.value.title;
 		if (title.trim() !== '') {
-			const member_stories = this.selectedStories;
+			const member_stories = this.selectedStories ?? [];
 			const isSequential = this.isSequential;
 			const repoName = localStorage.getItem('repository')!;
 			const _id = localStorage.getItem('id')!;

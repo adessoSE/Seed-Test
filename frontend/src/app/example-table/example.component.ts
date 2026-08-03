@@ -13,7 +13,7 @@ import { BaseEditorComponent } from '../base-editor/base-editor.component';
     [originalStepTypes]="originalStepTypes()"
    /> `,
 	styleUrls: ['./example-table.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [BaseEditorComponent]
 })
 

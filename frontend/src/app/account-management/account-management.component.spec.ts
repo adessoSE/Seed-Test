@@ -35,7 +35,8 @@ describe('AccountManagementComponent', () => {
 		component.loginService.isLoggedIn();
 		component.repositories.set(repositories);
 		component.searchInput = '';
-		component.github.set('');
+		// No GitHub account connected — the template then renders the login link, not the disconnect link
+		component.github.set(undefined);
 		fixture.detectChanges();
 		router.currentNavigation();
 	});

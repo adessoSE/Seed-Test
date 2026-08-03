@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, output, viewChild, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, TemplateRef, inject, output, viewChild, computed } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Scenario } from '@shared/models/Scenario';
 import { Story } from '@shared/models/Story';
@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 	selector: 'app-execution-list',
 	templateUrl: './execution-list.component.html',
 	styleUrls: ['./execution-list.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class ExecutionListComponent {
@@ -22,7 +22,7 @@ export class ExecutionListComponent {
 	private storyService = inject(StoryService);
 
 
-	readonly executionListModal = viewChild<any>('executionListModal');
+	readonly executionListModal = viewChild<TemplateRef<unknown>>('executionListModal');
 
 	readonly selectedExecutions = output<{
 		scenarioId: number | null;
@@ -101,9 +101,9 @@ export class ExecutionListComponent {
 				const stories = await Promise.all(promises);
 				stories.forEach(story => {
 					if (story.scenarios && story.scenarios.length > 0) 
-						story.scenarios.forEach((scenario: any) => {
+						story.scenarios.forEach((scenario: Scenario) => {
 							if (scenario.testRunSteps && scenario.testRunSteps.length > 0)
-								scenario.testRunSteps.forEach((step: any) => {
+								scenario.testRunSteps.forEach((step: { testRunId: number; testRunStepId: number; testExecKey: string }) => {
 									this.testExecutions.push({
 										testRunId: step.testRunId,
 										testExecKey: step.testExecKey,
@@ -138,15 +138,15 @@ export class ExecutionListComponent {
 	}
   
 
-	isScenario(context: any): context is Scenario {
-		return context && Array.isArray(context.testRunSteps);
-	}
-  
-	isStory(context: any): context is Story {
-		return context && Array.isArray(context.scenarios);
+	isScenario(context: Scenario | Story | Group): context is Scenario {
+		return 'testRunSteps' in context && Array.isArray((context as Scenario).testRunSteps);
 	}
 
-	isGroup(context: any): context is Group {
-		return context && Array.isArray(context.member_stories);
+	isStory(context: Scenario | Story | Group): context is Story {
+		return 'scenarios' in context && Array.isArray((context as Story).scenarios);
+	}
+
+	isGroup(context: Scenario | Story | Group): context is Group {
+		return 'member_stories' in context && Array.isArray((context as Group).member_stories);
 	}
 }

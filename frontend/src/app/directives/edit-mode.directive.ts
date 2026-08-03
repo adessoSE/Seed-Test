@@ -4,8 +4,8 @@ import { Directive, TemplateRef, inject } from '@angular/core';
  * Directive to activate Edit Mode for the example table
  */
 
-@Directive({ selector: '[editMode]' })
+@Directive({ selector: '[appEditMode]' })
 
-export class EditModeDirective {	tpl = inject<TemplateRef<any>>(TemplateRef);
+export class EditModeDirective {	tpl = inject<TemplateRef<unknown>>(TemplateRef);
 
 }

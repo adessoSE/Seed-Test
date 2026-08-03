@@ -19,13 +19,13 @@
               </ul>
               <ul class="uk-switcher uk-margin">
                 <form [formGroup]="jiraBearer">
-                  <label class="uk-form-label">Enter Token*</label>
-                  <input name="jiraToken" type="password" formControlName="jiraToken" required>
+                  <label class="uk-form-label" for="jiraTokenInput">Enter Token*</label>
+                  <input name="jiraToken" id="jiraTokenInput" type="password" formControlName="jiraToken" required>
                 </form>
                 <form [formGroup]="jiraBasic">
                   <div>
-                    <label class="uk-form-label">Enter existing account name*</label>
-                    <input name="jiraAccountName" formControlName="jiraAccountName" required>
+                    <label class="uk-form-label" for="jiraAccountNameInput">Enter existing account name*</label>
+                    <input name="jiraAccountName" id="jiraAccountNameInput" formControlName="jiraAccountName" required>
                     @if (!jiraAccountName.valid && (jiraAccountName.dirty || jiraAccountName.touched)) {
                       <div class="alert alert-danger">
                         @if (jiraAccountName.errors?.['required']) {
@@ -39,24 +39,24 @@
                   </div>
                   <br>
                     <div>
-                      <label class="uk-form-label">Enter password*</label>
-                      <input name="jiraPassword" type="password" formControlName="jiraPassword" required>
+                      <label class="uk-form-label" for="jiraPasswordInput">Enter password*</label>
+                      <input name="jiraPassword" id="jiraPasswordInput" type="password" formControlName="jiraPassword" required>
                     </div>
                   </form>
                 </ul>
                 <div>
-                  <label class="uk-form-label">Enter server URL*</label>
-                  <input name="jiraHost" formControlName="jiraHost" required>
+                  <label class="uk-form-label" for="jiraHostInput">Enter server URL*</label>
+                  <input name="jiraHost" id="jiraHostInput" formControlName="jiraHost" required>
                 </div>
               </div>
               @if (type==='Github') {
                 <div id="githubForm">
                   <div class="padding_top uk-form-horizontal">
-                    <label class="padding_right">Github-AccountName:</label>
+                    <label class="padding_right" for="githubAccountName">Github-AccountName:</label>
                     <input id="githubAccountName">
                   </div>
                   <div class="padding_top uk-form-horizontal">
-                    <label class="padding_right">Github-Token:</label>
+                    <label class="padding_right" for="githubToken">Github-Token:</label>
                     <input id="githubToken">
                   </div>
                 </div>

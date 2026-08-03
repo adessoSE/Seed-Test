@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -25,7 +26,7 @@ export class HighlightInputService {
    * @returns if a regex was detected
    */
 	highlightInput(
-		element: any,
+		element: HTMLElement,
 		initialCall?: boolean,
 		isDark?: boolean,
 		regexInStory?: boolean,
@@ -159,7 +160,7 @@ export class HighlightInputService {
 							.setAttribute('uk-tooltip', `title:${resolvedCommand}`);
           
 				},
-				error: (error: any) => {
+				error: (error: HttpErrorResponse) => {
 					document
 						.querySelector(`#${identifier}`)!
 						.setAttribute('uk-tooltip', `title:Error: ${error.error.error}`);
@@ -205,26 +206,19 @@ export class HighlightInputService {
    * @param element HTMLElement
    * @returns num, offset of cursor position
    */
-	getCaretCharacterOffsetWithin(element: any) {
+	getCaretCharacterOffsetWithin(element: HTMLElement) {
 		let caretOffset = 0;
-		const doc = element.ownerDocument || element.document;
-		const win = doc.defaultView || doc.parentWindow;
-		let sel;
-		if (typeof win.getSelection != 'undefined') {
-			sel = win.getSelection();
-			if (sel.rangeCount > 0) {
-				const range = win.getSelection().getRangeAt(0);
+		const doc = element.ownerDocument ?? document;
+		const win = doc.defaultView;
+		if (win) {
+			const sel = win.getSelection();
+			if (sel && sel.rangeCount > 0) {
+				const range = sel.getRangeAt(0);
 				const preCaretRange = range.cloneRange();
 				preCaretRange.selectNodeContents(element);
 				preCaretRange.setEnd(range.endContainer, range.endOffset);
 				caretOffset = preCaretRange.toString().length;
 			}
-		} else if ((sel = doc.selection) && sel.type != 'Control') {
-			const textRange = sel.createRange();
-			const preCaretTextRange = doc.body.createTextRange();
-			preCaretTextRange.moveToElementText(element);
-			preCaretTextRange.setEndPoint('EndToEnd', textRange);
-			caretOffset = preCaretTextRange.text.length;
 		}
 		return caretOffset;
 	}

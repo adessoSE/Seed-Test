@@ -16,7 +16,7 @@ export class ResizeInputDirective {
 
 	maxWidth!: number;
 
-	@HostBinding() class?: any;
+	@HostBinding() class?: string;
 
 	@HostListener('change') onChange() {
 		this.resize();
@@ -32,7 +32,7 @@ export class ResizeInputDirective {
   
 		setTimeout(() => {
       
-			el.nativeElement.classList.forEach((value: any) => {
+			el.nativeElement.classList.forEach((value: string) => {
 				if (value === 'scenario' || value === 'background' || value === 'block-editor') 
 					this.class = value;
         

@@ -9,7 +9,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-create-scenario',
 	templateUrl: './create-scenario.component.html',
 	styleUrls: ['./create-scenario.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class CreateScenarioComponent {
@@ -28,7 +28,7 @@ export class CreateScenarioComponent {
 	/**
      * Event emitter to add a new scenario
      */
-	readonly createScenarioEvent = output<any>();
+	readonly createScenarioEvent = output<string>();
 
 	/**
  * Opens the rename scenario Modal

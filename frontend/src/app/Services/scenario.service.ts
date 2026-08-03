@@ -52,9 +52,9 @@ export class ScenarioService {
 		this.scenarioStatusChange.set(val);
 	}
 	/* Updating scenario list */
-	public updateScenarioList(story_id: string, scenario_list: Scenario[]): Observable<any> {
+	public updateScenarioList(story_id: string, scenario_list: Scenario[]): Observable<Story> {
 		return this.http
-			.patch(this.apiService.apiServer + '/story/' + story_id, scenario_list, ApiService.getOptions())
+			.patch<Story>(this.apiService.apiServer + '/story/' + story_id, scenario_list, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));
@@ -65,10 +65,10 @@ export class ScenarioService {
     * @param scenarioTitle
     * @returns
   */
-	addScenario(storyID: any, scenarioTitle: string): Observable<Scenario> {
+	addScenario(storyID: string, scenarioTitle: string): Observable<Scenario> {
 		const body = { 'name': scenarioTitle };
 		return this.http
-			.post<any>(this.apiService.apiServer + '/story/' + storyID, body, ApiService.getOptions())
+			.post<Scenario>(this.apiService.apiServer + '/story/' + storyID, body, ApiService.getOptions())
 			.pipe(tap(resp => {
 				console.log('Add new scenario in story ' + storyID + '!', resp);
 			}));
@@ -80,7 +80,7 @@ export class ScenarioService {
 */
 	public addFirstScenario(storyID: string): Observable<Scenario> {// not used ?
 		return this.http
-			.get<any>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions())// route doesn't exist
+			.get<Scenario>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions())// route doesn't exist
 			.pipe(tap(resp => {
 				console.log('Add new scenario in story ' + storyID + '!', resp);
 			}));
@@ -90,9 +90,9 @@ export class ScenarioService {
    * @param storyID
    * @param scenarioID
   */
-	getScenario(storyID: any, scenarioID: number): Observable<Scenario> {
+	getScenario(storyID: string, scenarioID: number): Observable<Scenario> {
 		return this.http
-			.get<any>(this.apiService.apiServer + '/story/' + storyID + '/' + scenarioID, ApiService.getOptions())
+			.get<Scenario>(this.apiService.apiServer + '/story/' + storyID + '/' + scenarioID, ApiService.getOptions())
 			.pipe(tap(resp => {
 				console.log('Get scenario in story ' + storyID + '!', resp);
 			}));
@@ -103,9 +103,9 @@ export class ScenarioService {
     * @param scenario updatedScenario
     * @returns
   */
-	updateScenario(storyID: any, scenario: Scenario): Observable<Scenario> {
+	updateScenario(storyID: string, scenario: Scenario): Observable<Scenario> {
 		return this.http
-			.put<any>(this.apiService.apiServer + '/story/' + storyID + '/' + scenario.scenario_id, scenario, ApiService.getOptions())
+			.put<Scenario>(this.apiService.apiServer + '/story/' + storyID + '/' + scenario.scenario_id, scenario, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));
@@ -116,7 +116,7 @@ export class ScenarioService {
     * @param scenario
     * @returns
   */
-	deleteScenario(storyID: any, scenario: Scenario, xrayEnabled: boolean): Observable<Story> {
+	deleteScenario(storyID: string, scenario: Scenario, xrayEnabled: boolean): Observable<Story> {
 		if (xrayEnabled) {
 			console.log('Xray enabled no 2: ' + xrayEnabled);
 			const headers = new HttpHeaders()
@@ -124,16 +124,16 @@ export class ScenarioService {
 				.set('x-test-key', scenario.testKey!.toString());
 			const options = { headers: headers, ...ApiService.getOptions() };
 			return this.http
-				.delete<any>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, options)
+				.delete<Story>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, options)
 				.pipe(tap(() => {
 					//
 				}));
-		} else 
+		} else
 			return this.http
-				.delete<any>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
+				.delete<Story>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
 				.pipe(tap(() => {
 					//
 				}));
-    
+
 	}
 }

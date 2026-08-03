@@ -4,7 +4,39 @@ import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NotificationService } from './notification.service';
 import { Group } from '@shared/models/Group';
+import type { RepositoryContainer } from '@shared/models/RepositoryContainer';
 
+/** Payload for creating a custom group via the signal */
+interface CreateGroupPayload {
+	repositoryContainer: RepositoryContainer;
+	group: { title: string; member_stories: string[]; isSequential: boolean };
+}
+
+/** Payload for updating a group via the signal */
+interface UpdateGroupPayload {
+	repositoryContainer: RepositoryContainer;
+	group: Group;
+}
+
+/** Payload for deleting a group via the signal */
+interface DeleteGroupPayload {
+	repo_id: string;
+	group_id: string;
+}
+
+/** Test execution parameters for running groups */
+interface GroupExecutionParams {
+	repository: string;
+	source: string;
+}
+
+/** Parameters for running a temporary group */
+interface TempGroupParams {
+	id: string | null;
+	repository: string | null;
+	source: string | null;
+	group: Record<string, unknown>;
+}
 
 /**
  * Service for communication between group component and the backend
@@ -18,29 +50,29 @@ export class GroupService {
 	notify = inject(NotificationService);
 
 	/** Signal for create custom group action — carries the group object */
-	readonly createCustomGroupValue = signal<any>(null);
+	readonly createCustomGroupValue = signal<CreateGroupPayload | null>(null);
 	/** Signal for update group action — carries the group object */
-	readonly updateGroupValue = signal<any>(null);
+	readonly updateGroupValue = signal<UpdateGroupPayload | null>(null);
 	/** Signal for delete group action — carries the values */
-	readonly deleteGroupValue = signal<any>(null);
+	readonly deleteGroupValue = signal<DeleteGroupPayload | null>(null);
 	/**
     * Sets the create group value
     * @param group
   */
-	createGroupEvent(group: any) {
+	createGroupEvent(group: CreateGroupPayload) {
 		this.createCustomGroupValue.set(group);
 	}
 	/**
    * Sets the update group value
    * @param group
   */
-	updateGroupEvent(group: any) {
+	updateGroupEvent(group: UpdateGroupPayload) {
 		this.updateGroupValue.set(group);
 	}
 	/**
     * Sets the delete group value
   */
-	public deleteGroupEvent(values: any) {
+	public deleteGroupEvent(values: DeleteGroupPayload) {
 		this.deleteGroupValue.set(values);
 	}
 	/**
@@ -69,9 +101,9 @@ export class GroupService {
     * @param updatedGroup
     * @returns
   */
-	updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> {
+	updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<Group> {
 		return this.http
-			.put(this.apiService.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions());
+			.put<Group>(this.apiService.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions());
 	}
 	/**
     * Create a group
@@ -81,11 +113,11 @@ export class GroupService {
     * @param isSequential
     * @returns
   */
-	createGroup(title: string, repoId: string, member_stories: string[], isSequential: boolean): Observable<any> {
+	createGroup(title: string, repoId: string, member_stories: string[], isSequential: boolean): Observable<Group> {
 		return this.http
-			.post(this.apiService.apiServer + '/group/' + repoId, { 'name': title, 'member_stories': member_stories, 'sequence': isSequential }, ApiService.getOptions());
+			.post<Group>(this.apiService.apiServer + '/group/' + repoId, { 'name': title, 'member_stories': member_stories, 'sequence': isSequential }, ApiService.getOptions());
 	}
-	updateGroupsArray(repoId: string, groupsArray: any) {
+	updateGroupsArray(repoId: string, groupsArray: Group[]) {
 		return this.http
 			.put(this.apiService.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions());
 	}
@@ -122,7 +154,7 @@ export class GroupService {
     * @param params
     * @returns
   */
-	runGroup(repoID: string, groupID: string, params: any) {
+	runGroup(repoID: string, groupID: string, params: GroupExecutionParams) {
 		const timeout = 6000000;
 		return this.http
 			.post(this.apiService.apiServer + '/execute/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
@@ -131,7 +163,7 @@ export class GroupService {
 	/*
   * Running a temporary group with precondition storys
   */
-	runTempGroup(params: any): Observable<any> {
+	runTempGroup(params: TempGroupParams): Observable<unknown> {
 		const timeout = 6000000;
 		return this.http
 			.post(this.apiService.apiServer + '/execute/TempGroup', params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });

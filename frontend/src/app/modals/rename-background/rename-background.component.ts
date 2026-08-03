@@ -15,7 +15,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-rename-background',
 	templateUrl: './rename-background.component.html',
 	styleUrls: ['./rename-background.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameBackgroundComponent{
@@ -32,7 +32,7 @@ export class RenameBackgroundComponent{
 	background!: Background;
 	backgrounds!: Background[];
 	story!: Story;
-	saveBackgroundAndRun: any;
+	saveBackgroundAndRun!: boolean;
 	blockToRename!: Block;
 	storiesWithBlock!: Story[];
 	backgroundTitle = new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
@@ -41,7 +41,7 @@ export class RenameBackgroundComponent{
    * @param backgrounds
    * @param background
    */
-	openRenameBackgroundModal(backgrounds: Background[], background: Background, story: Story, saveBackgroundAndRun: any, blockToRename: Block, storiesWithBlock: Story[]) {
+	openRenameBackgroundModal(backgrounds: Background[], background: Background, story: Story, saveBackgroundAndRun: boolean, blockToRename: Block, storiesWithBlock: Story[]) {
 		this.background = background;
 		this.backgrounds = backgrounds;
 		this.story = story;
@@ -63,7 +63,7 @@ export class RenameBackgroundComponent{
 			});
 		}
 		this.backgroundService
-			.updateBackground(this.story._id, this.story.background)
+			.updateBackground(this.story._id!, this.story.background)
 			.subscribe(_ => {
 				this.backgroundService.backgroundChangedEmitter();
 				this.notify.success('successfully saved', 'Background');

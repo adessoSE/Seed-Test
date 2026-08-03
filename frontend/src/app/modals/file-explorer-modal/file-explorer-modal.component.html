@@ -52,9 +52,9 @@
                   </table>
                 </div>
               }
-              @if (searchedFiles().length == 0) {
+              @if (searchedFiles().length === 0) {
                 <div class="noResultFound">
-                  <label style="color: gray; font-style: italic;">No result found</label>
+                  <span style="color: gray; font-style: italic;">No result found</span>
                 </div>
               }
               <div class="modal-footer">
@@ -70,10 +70,10 @@
         </form>
       </div>
     }
-    @if (allFiles().length == 0) {
+    @if (allFiles().length === 0) {
       <div class="modal-body modal-xl upload-modal storage-empty">
         <div class="empty-storage-message">
-          <label style="font-size: large; font-style: italic;">There are no files in this project yet</label>
+          <span style="font-size: large; font-style: italic;">There are no files in this project yet</span>
           <label class="label normalButton">
             <input type="file" (change)="selectUploadFile($event)" required />
             <span uk-icon="upload"></span>Upload

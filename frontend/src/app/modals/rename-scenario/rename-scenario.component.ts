@@ -9,7 +9,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-rename-scenario',
 	templateUrl: './rename-scenario.component.html',
 	styleUrls: ['./rename-scenario.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class RenameScenarioComponent {

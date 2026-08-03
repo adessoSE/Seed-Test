@@ -9,6 +9,19 @@ import { StepType } from '@shared/models/StepType';
 import { StoryService } from './story.service';
 import { Scenario } from '@shared/models/Scenario';
 
+/** Payload for adding a block to a scenario — [component, block, stepType, asSingleSteps] */
+type AddBlockPayload = [string, Block, string, boolean];
+
+/** Payload for scenario reference updates — [scenario, storyId] */
+type UpdateScenariosRefPayload = [Scenario, string];
+
+/** Toast notification data */
+interface ToastData {
+	title: string;
+	message: string;
+	type?: string;
+}
+
 /**
  * Service for communication between block component and the backend
  */
@@ -21,7 +34,7 @@ export class BlockService {
 	storyService = inject(StoryService);
 
 	/** Signal to add a block to the current scenario — carries [component, block, stepType, asSingleSteps] */
-	readonly addBlockToScenarioValue = signal<any>(null);
+	readonly addBlockToScenarioValue = signal<AddBlockPayload | null>(null);
 	/** Signal for block update trigger */
 	readonly updateBlocksTrigger = signal(0);
 	/** Signal to convert steps into reference — carries the block */
@@ -37,7 +50,7 @@ export class BlockService {
 	/** Signal to update reference block name — carries the block */
 	readonly updateNameRefValue = signal<Block | null>(null);
 	/** Signal for scenario reference updates — carries [scenario, storyId] */
-	readonly updateScenariosRefValue = signal<any>(null);
+	readonly updateScenariosRefValue = signal<UpdateScenariosRefPayload | null>(null);
 	/**
   * Stores an array of references blocks, before the reference is deleted
   */
@@ -51,10 +64,10 @@ export class BlockService {
 	block!: Block;
 
 	/** Reactive toast data state — replaces BehaviorSubject */
-	readonly toastData = signal<any>(null);
+	readonly toastData = signal<ToastData | null>(null);
 
 	/** Updates the toast data signal */
-	updateToastData(data: any) {
+	updateToastData(data: ToastData) {
 		this.toastData.set(data);
 	}
 	/**
@@ -63,7 +76,7 @@ export class BlockService {
   * @param correspondingComponent
   */
 	addBlockToScenario(block: Block, correspondingComponent: string, addBlockToStepType: string, addAsSingleSteps: boolean) {
-		const val = [correspondingComponent, block, addBlockToStepType, addAsSingleSteps];
+		const val: AddBlockPayload = [correspondingComponent, block, addBlockToStepType, addAsSingleSteps];
 		this.addBlockToScenarioValue.set(val);
 	}
 	/**
@@ -90,7 +103,7 @@ export class BlockService {
   * Sets the scenario reference update value
   */
 	public updateScenariosRefEmitt(scenario: Scenario, storyId: string) {
-		const val = [scenario, storyId];
+		const val: UpdateScenariosRefPayload = [scenario, storyId];
 		this.updateScenariosRefValue.set(val);
 	}
 	/**
@@ -156,7 +169,7 @@ export class BlockService {
   */
 	deleteBlock(blockId: string) {
 		const str = this.apiService.apiServer + '/block/' + blockId;
-		return this.http.delete<any>(str, ApiService.getOptions())
+		return this.http.delete<Block>(str, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}),
@@ -169,7 +182,7 @@ export class BlockService {
   */
 	saveBlock(block: Block) {
 		return this.http
-			.post<any>(this.apiService.apiServer + '/block/', block, ApiService.getOptions())
+			.post<Block>(this.apiService.apiServer + '/block/', block, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));

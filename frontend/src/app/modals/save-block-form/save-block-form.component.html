@@ -21,14 +21,14 @@
       <div class="blockNameContainer modalsContent">
         @if (isBackground === false || isBackground === undefined) {
           <div class="uk-form-label" id="inputLabels">
-            <label class="block">Enter name*</label>
+            <label class="block" for="blockNameInput">Enter name*</label>
             <input type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
           </div>
         }
         @if (isBackground === true) {
 <div class="uk-form-label" id="inputLabels" style="padding-right: 30px;
               font-size: 16px;">
-            <label>Background Name:</label>
+            <span>Background Name:</span>
             {{this.backgroundName}}
           </div>
         }
@@ -61,10 +61,10 @@
           @for (column of displayedColumnsSaveBlockExample; track column) {
             <ng-container [matColumnDef]="column">
               <td mat-cell *matCellDef="let element; let i=index">
-                @if (column==='stepType' && i==0) {
+                @if (column === 'stepType' && i === 0) {
                   Variable
                 }
-                @if (column==='stepType' && i!=0) {
+                @if (column === 'stepType' && i !== 0) {
                   Value
                 }
                 @if (column!=='stepType') {
@@ -78,8 +78,8 @@
       </div>
       @if (exampleBlock) {
         <div class="exampleCheckboxContainer">
-          <label class="uk-form-label">Save only Mutliple Scenario</label>
-          <input class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck()">
+          <label class="uk-form-label" for="example-only-checkbox">Save only Mutliple Scenario</label>
+          <input id="example-only-checkbox" class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck()">
         </div>
       }
     </div>
@@ -87,8 +87,8 @@
   <div id="saveBlockFooter" class="modal-footer">
     @if (blocks().length !== 0 && !isBackground) {
       <form class="saveAsSingleSteps">
-        <label id="saveAsSingleStepsLabel">Keep Steps separated: </label>
-        <input type="checkbox" [checked]="this.saveAsSingleSteps" [disabled]="this.selectedTemplate === 'background'" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
+        <label id="saveAsSingleStepsLabel" for="save-as-single-steps-checkbox">Keep Steps separated: </label>
+        <input id="save-as-single-steps-checkbox" type="checkbox" [checked]="this.saveAsSingleSteps" [disabled]="this.selectedTemplate === 'background'" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
         <dfn class="def">
           <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999; transform: translate(0px, 2px);"></span>
           <span rel="def">

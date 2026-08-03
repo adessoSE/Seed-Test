@@ -18,7 +18,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 	selector: 'app-login',
 	templateUrl: './login.component.html',
 	styleUrls: ['./login.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [CarouselModule, FormsModule, MatProgressSpinner, RouterLink]
 })
 export class LoginComponent implements OnInit, AfterViewInit {
@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	/**
      * Login error
      */
-	readonly error = signal<string>(undefined as any);
+	readonly error = signal<string | undefined>(undefined);
 	defaultErrorMessage = 'Wrong Username Or Password';
 
 	/**
@@ -166,14 +166,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @param login
      * @param id
      */
-	loginGithubToken(login: string, id: any) {
+	loginGithubToken(login: string, id: number) {
 		this.loginService.loginGithubToken(login, id).subscribe((resp) => {
 			if (resp.status === 'error') 
 				this.error.set(this.defaultErrorMessage);
 			else if (resp.message === 'repository') {
 				const repository = resp.repository;
 				localStorage.setItem('repositoryType', 'github');
-				localStorage.setItem('repository', repository);
+				localStorage.setItem('repository', repository!);
 				this.isLoadingRepositories.set(false);
 				this.router.navigate(['/']);
 			} else 
@@ -188,7 +188,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
 	async login(form: NgForm) {
 		this.isLoadingRepositories.set(true);
-		this.error.set(undefined as any);
+		this.error.set(undefined);
 		const user = {
 			email: form.value.email,
 			password: form.value.password,
@@ -249,7 +249,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * Loggs in the user with Github
      */
 	githubLogin() {
-		this.error.set(undefined as any);
+		this.error.set(undefined);
 		if (localStorage.getItem('clientId') === 'undefined') {
 			this.error.set('GitHub Integration has not been set up yet.');
 			return;

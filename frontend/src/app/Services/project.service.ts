@@ -6,6 +6,31 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { FileElement } from '@shared/models/FileElement';
 
+/** Workgroup member with email and edit permission */
+interface WorkgroupMember {
+	email: string;
+	canEdit: boolean;
+}
+
+/** Response from workgroup endpoints containing member list and owner */
+interface WorkgroupResponse {
+	member: WorkgroupMember[];
+	owner: { email: string };
+}
+
+/** Payload for creating a new repository */
+interface CreateRepositoryPayload {
+	repositoryContainer: RepositoryContainer;
+	name: string;
+}
+
+/** Update data sent when modifying repository settings */
+interface RepositoryUpdateData {
+	repoName: string;
+	settings?: RepositoryContainer['settings'];
+	aiConfig?: AiConfig;
+}
+
 
 /**
  * Service for communication between repositories and the backend
@@ -20,7 +45,7 @@ export class ProjectService {
 	/** Signal for rename project action — carries the RepositoryContainer */
 	readonly renameProjectValue = signal<RepositoryContainer | null>(null);
 	/** Signal for create repository action — carries the repository object */
-	readonly createRepositoryValue = signal<any>(null);
+	readonly createRepositoryValue = signal<CreateRepositoryPayload | null>(null);
 	/** Signal for update repository trigger */
 	readonly updateRepositoryTrigger = signal(0);
 	/** Signal for delete repository trigger */
@@ -42,7 +67,7 @@ export class ProjectService {
   * Sets the create repository value
   * @param repository
   */
-	createRepositoryEvent(repository: any) {
+	createRepositoryEvent(repository: CreateRepositoryPayload) {
 		this.createRepositoryValue.set(repository);
 	}
 
@@ -55,7 +80,7 @@ export class ProjectService {
 	changeOwner(repoId: string, email: string): Observable<RepositoryContainer> {
 		const url = this.apiService.apiServer + '/repository/owner/' + repoId;
 		return this.http
-			.put<any>(url, { email: email }, ApiService.getOptions())
+			.put<RepositoryContainer>(url, { email: email }, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}),
@@ -84,7 +109,7 @@ export class ProjectService {
     * @param _id
     * @returns
   */
-	createRepository(name: string, _id: string): Observable<any> {
+	createRepository(name: string, _id: string): Observable<RepositoryContainer> {
 		const body = { 'name': name, '_id': _id };
 		return this.http
 			.post<RepositoryContainer>(this.apiService.apiServer + '/repository/', body, ApiService.getOptions())
@@ -100,10 +125,10 @@ export class ProjectService {
 	//TODO: remove user, not used anymore
    * @returns
   */
-	public updateRepository(repoID: string, newRepoName: string, user: any, settings: any = null, aiConfig: AiConfig | null = null): Observable<any> {
+	public updateRepository(repoID: string, newRepoName: string, _user: unknown, settings: RepositoryContainer['settings'] | null = null, aiConfig: AiConfig | null = null): Observable<RepositoryContainer> {
 		// 1. Start with a clean base object.
-		const updateData: any = { 
-			repoName: newRepoName 
+		const updateData: RepositoryUpdateData = {
+			repoName: newRepoName
 		};
 
 		// 2. Conditionally add 'settings' if it has a value.
@@ -156,7 +181,7 @@ export class ProjectService {
 	getRepositorySettings(repoId: string) {
 		const str = this.apiService.apiServer + '/repository/settings/' + repoId;
 
-		return this.http.get<any>(str, ApiService.getOptions())
+		return this.http.get<RepositoryContainer['settings']>(str, ApiService.getOptions())
 			.pipe(
 				tap(settings => {
 					console.log('received settings:', settings);
@@ -195,9 +220,9 @@ export class ProjectService {
 	//TODO: Remove user, not needed anymore
    * @returns
   */
-	deleteRepository(repo: RepositoryContainer, _user: any) {
+	deleteRepository(repo: RepositoryContainer, _user: unknown) {
 		const str = this.apiService.apiServer + '/repository/' + repo._id;
-		return this.http.delete<any>(str, ApiService.getOptions())
+		return this.http.delete<RepositoryContainer>(str, ApiService.getOptions())
 			.pipe(tap(() => {
 				//
 			}),
@@ -209,9 +234,9 @@ export class ProjectService {
    * @param user
    * @returns
   */
-	addToWorkgroup(_id: string, user: any) {
+	addToWorkgroup(_id: string, user: WorkgroupMember) {
 		return this.http
-			.post<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
+			.post<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));
@@ -223,9 +248,9 @@ export class ProjectService {
    * @param user
    * @returns
    */
-	updateWorkgroupUser(_id: string, user: any) {
+	updateWorkgroupUser(_id: string, user: WorkgroupMember) {
 		return this.http
-			.put<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
+			.put<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));
@@ -237,7 +262,7 @@ export class ProjectService {
   */
 	getWorkgroup(_id: string) {
 		return this.http
-			.get<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, ApiService.getOptions())
+			.get<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));
@@ -257,7 +282,7 @@ export class ProjectService {
 		};
     
 		return this.http
-			.delete<any>(this.apiService.apiServer + `/workgroup/${_id}/members`, options) 
+			.delete<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, options)
 			.pipe(tap(_ => {
 				//
 			}));

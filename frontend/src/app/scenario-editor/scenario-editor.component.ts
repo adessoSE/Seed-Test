@@ -23,7 +23,7 @@ import { ExampleComponent } from '../example-table/example.component';
 	selector: 'app-scenario-editor',
 	templateUrl: './scenario-editor.component.html',
 	styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe]
 })
 
@@ -81,7 +81,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	/**
      * Last step id after adding new step 
      */
-	lastStepId: any;
+	lastStepId!: number;
 
 	indexOfExampleToDelete!: number;
 	scenarioToUpdate!: Scenario;
@@ -176,12 +176,12 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	/**
      * Event emitter to add a new scenario
      */
-	readonly addScenarioEvent = output<any>();
+	readonly addScenarioEvent = output<string>();
 
 	/**
      * Event emitter to run a test
      */
-	readonly runTestScenarioEvent = output<any>();
+	readonly runTestScenarioEvent = output<{ scenarioId: number }>();
 
 	/**
      * Scenario navigation events
@@ -271,7 +271,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 		this.checkOnReferences(this.scenarioToUpdate);
 		return new Promise<void>((resolve, _reject) => {
 			this.scenarioService
-				.updateScenario(storyIdUpdate, this.scenarioToUpdate)
+				// storyIdUpdate is always assigned above from storyId or selectedStory()._id
+				.updateScenario(storyIdUpdate!, this.scenarioToUpdate)
 				.subscribe(_resp => {
 					this.updateReferences(this.scenarioToUpdate);
 					this.scenarioService.scenarioChangedEmitter();
@@ -311,7 +312,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      
 	}
 
-	addScenarioToStory(event: any) {
+	addScenarioToStory(event: string) {
 		const scenarioName = event;
 		this.addScenarioEvent.emit(scenarioName);
 	}
@@ -475,7 +476,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 		this.createScenarioModal().openCreateScenarioModal(this.selectedStory());
 	}
 
-	blockSelectTrigger(block: any) {
+	blockSelectTrigger(block: StepType & { stepDefinitions?: StepDefinition }) {
 		this.selectedBlock = this.blocks().find(i => i._id == block._blockReferenceId)!;
 		block.stepDefinitions = this.selectedBlock?.stepDefinitions;
 	}

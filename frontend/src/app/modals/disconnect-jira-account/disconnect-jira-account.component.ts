@@ -1,13 +1,14 @@
 import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
+import type { User } from '@shared/models/User';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 @Component({
 	selector: 'app-disconnect-jira-account',
 	templateUrl: './disconnect-jira-account.component.html',
 	styleUrls: ['./disconnect-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent]
 })
 export class DisconnectJiraAccountComponent {
@@ -18,7 +19,7 @@ export class DisconnectJiraAccountComponent {
 	/**
      * Emits a response after the jira account has been disconnected
      */
-	readonly jiraAccountResponse = output<any>();
+	readonly jiraAccountResponse = output<User>();
 
 	readonly disconnectJiraModal = viewChild.required<DisconnectJiraAccountComponent>('disconnectJiraModal');
 

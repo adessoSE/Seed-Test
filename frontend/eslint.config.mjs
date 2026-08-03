@@ -49,30 +49,30 @@ export default defineConfig([
 				varsIgnorePattern: '^_',
 				caughtErrorsIgnorePattern: '^_'
 			}],
-			'@typescript-eslint/no-explicit-any': 'warn',
+			'@typescript-eslint/no-explicit-any': 'error',
 
 			// --- Angular rules ---
 			'@angular-eslint/prefer-inject': 'error',
 			'@angular-eslint/prefer-standalone': 'error',
-			'@angular-eslint/prefer-on-push-component-change-detection': 'warn',
+			'@angular-eslint/prefer-on-push-component-change-detection': 'error',
 			'@angular-eslint/no-empty-lifecycle-method': 'error',
 			'@angular-eslint/no-uncalled-signals': 'error',
 			'@angular-eslint/computed-must-return': 'error',
 			'@angular-eslint/inject-at-top': 'error',
 			'@angular-eslint/prefer-signals': 'error',
-			'@angular-eslint/prefer-signal-model': 'warn',
+			'@angular-eslint/prefer-signal-model': 'error',
 			'@angular-eslint/prefer-output-emitter-ref': 'error',
 			'@angular-eslint/prefer-output-readonly': 'error',
 
-			// --- Angular selectors (warn — existing components use non-standard selectors) ---
-			'@angular-eslint/directive-selector': ['warn', {
+			// --- Angular selectors ---
+			'@angular-eslint/directive-selector': ['error', {
 				type: 'attribute',
 				prefix: 'app',
 				style: 'camelCase'
 			}],
-			'@angular-eslint/component-selector': ['warn', {
+			'@angular-eslint/component-selector': ['error', {
 				type: 'element',
-				prefix: 'app',
+				prefix: ['app', 'editable'],
 				style: 'kebab-case'
 			}]
 		}
@@ -84,15 +84,15 @@ export default defineConfig([
 			angular.configs.templateAccessibility
 		],
 		rules: {
-			// Accessibility rules — real issues but gradual adoption
-			'@angular-eslint/template/label-has-associated-control': 'warn',
-			'@angular-eslint/template/interactive-supports-focus': 'warn',
-			'@angular-eslint/template/click-events-have-key-events': 'warn',
-			'@angular-eslint/template/elements-content': 'warn',
-			'@angular-eslint/template/alt-text': 'warn',
+			// Accessibility rules
+			'@angular-eslint/template/label-has-associated-control': 'error',
+			'@angular-eslint/template/interactive-supports-focus': 'error',
+			'@angular-eslint/template/click-events-have-key-events': 'error',
+			'@angular-eslint/template/elements-content': 'error',
+			'@angular-eslint/template/alt-text': 'error',
 
-			// Template strict equality — gradual adoption
-			'@angular-eslint/template/eqeqeq': 'warn'
+			// Template strict equality
+			'@angular-eslint/template/eqeqeq': 'error'
 		}
 	},
 	{

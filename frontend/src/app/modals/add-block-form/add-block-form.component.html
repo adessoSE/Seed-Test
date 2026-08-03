@@ -12,7 +12,7 @@
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
-<div (keydown.enter)="enterSubmit($event)">
+<div tabindex="0" (keydown.enter)="enterSubmit($event)">
   <div class="dividerContainer">
     <div class="savedBlocksContainer">
       <p class="subHeader">Saved Blocks</p>
@@ -24,39 +24,39 @@
       <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="changeBlockSelection($event)" name="folderss">
         @for (block of getFilteredListBlocks(); track block; let rowIndex = $index) {
           <mat-list-option  [value]="block" style="height: 100%; margin-bottom: 10px;">
-            <label mat-line style="white-space: pre-wrap; word-break: break-all;">{{rowIndex+1}}. {{block.name}}</label>
+            <span mat-line style="white-space: pre-wrap; word-break: break-all;">{{rowIndex+1}}. {{block.name}}</span>
           </mat-list-option>
         }
       </mat-selection-list>
     </div>
     <div class="previewContainer">
       <div class="previewEditBlock">
-        @if (selectedBlock == undefined) {
+        @if (selectedBlock === undefined) {
           <p class="subHeader">Preview</p>
         }
-        @if (selectedBlock != undefined) {
+        @if (selectedBlock !== undefined) {
           <div class="subHeader">
             Preview:
-            @if (this.blockSaved == true) {
-              <label id="newTitle" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
+            @if (this.blockSaved === true) {
+              <span id="newTitle" tabindex="0" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</span>
             }
-            @if (this.blockSaved == false) {
+            @if (this.blockSaved === false) {
               <input #newBlockTitle id="blockTitleChange" name="newBlockTitle" type="text"
                 value={{selectedBlock.name}}  (keyup)="checkName(newBlockTitle.value)" pattern="\S(.*\S)?" required>
             }
           </div>
         }
-        @if (this.blockSaved == true) {
-          <button id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
+        @if (this.blockSaved === true) {
+          <button id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock === undefined" [disabled]="selectedBlock === undefined">
             <em class="material-icons">edit</em>
           </button>
         }
-        @if (this.blockSaved == false) {
-          <button id="saveBlockButton" class="blockButton" title="Save Block" [class.disabled]="saveBlockButtonDisable == true" [disabled]="saveBlockButtonDisable == true" (click)="updateBlock();">
+        @if (this.blockSaved === false) {
+          <button id="saveBlockButton" class="blockButton" title="Save Block" [class.disabled]="saveBlockButtonDisable === true" [disabled]="saveBlockButtonDisable === true" (click)="updateBlock();">
             <em class="material-icons">save</em>
           </button>
         }
-        <button id="deleteBlock" class="blockButton" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined" title="Delete Block" (click)="deleteBlock($event)">
+        <button id="deleteBlock" class="blockButton" [class.disabled]="selectedBlock === undefined" [disabled]="selectedBlock === undefined" title="Delete Block" (click)="deleteBlock($event)">
           <em class="material-icons">delete</em>
         </button>
       </div>
@@ -89,8 +89,8 @@
         @if (blocks().length !== 0) {
           <form class="addBlockToScenario">
             <div class="addRefCheckbox">
-              <label id="addAsSingleStepsLabel">Add Block as single Steps: </label>
-              <input id="addAsSingleStepsCheckbox " type="checkbox" [checked]="this.addAsSingleSteps"
+              <label id="addAsSingleStepsLabel" for="addAsSingleStepsCheckbox">Add Block as single Steps: </label>
+              <input id="addAsSingleStepsCheckbox" type="checkbox" [checked]="this.addAsSingleSteps"
                 (change)="checkaddAsSingleSteps()" [disabled]="this.selectedBlock === undefined || this.selectedTemplate === 'background'">
                 <dfn class="def">
                   <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
@@ -103,11 +103,11 @@
                 @if (!this.addAsSingleSteps) {
                   <div class="addReferenceBlockToStepType">
                     <div>
-                      <label id="blockAddAslabel">Insert Block into:</label>
+                      <label id="blockAddAslabel" for="block-step-type-select">Insert Block into:</label>
                     </div>
                     <div class="addBlockDropDownDiv">
                       <mat-form-field appearance="outline" class="addBlockDropDown">
-                        <mat-select [formControl]="currentStepType">
+                        <mat-select id="block-step-type-select" [formControl]="currentStepType">
                           @for (addBlockOption of this.addBlockToStepType; track addBlockOption) {
                             <mat-option [value]="addBlockOption">
                               {{addBlockOption}}
@@ -127,7 +127,7 @@
                 @if (this.addAsSingleSteps) {
                   <div class="addReferenceBlockToStepType">
                     <div>
-                      <label id="splitStepsLabel">Single Steps will be inserted into their original Section</label>
+                      <span id="splitStepsLabel">Single Steps will be inserted into their original Section</span>
                     </div>
                   </div>
                 }

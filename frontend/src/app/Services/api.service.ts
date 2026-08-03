@@ -5,6 +5,36 @@ import { Observable, of, throwError } from 'rxjs';
 import { User } from '@shared/models/User';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 
+/** Backend info response from /backendInfo endpoint */
+interface BackendInfo {
+	url: string;
+	clientId: string;
+	version: string;
+	gecko_enabled: string;
+	chromium_enabled: string;
+	edge_enabled: string;
+	webkit_enabled: string;
+	gecko_emulators: string;
+	chromium_emulators: string;
+	edge_emulators: string;
+}
+
+/** GitHub issue submission payload */
+interface GitHubIssueRequest {
+	title: string;
+	body: string;
+	assignees: string[];
+	milestone: number | null;
+	labels: string[];
+}
+
+/** GitHub issue submission response */
+interface GitHubIssueResponse {
+	id: number;
+	number: number;
+	html_url: string;
+}
+
 /**
  * Service for communication between components and the backend
  */
@@ -75,16 +105,18 @@ export class ApiService {
    * @param caught
    * @returns
    */
-	handleStoryError = (_error: HttpErrorResponse, _caught: Observable<any>) => {
+	handleStoryError = <T>(_error: HttpErrorResponse, _caught: Observable<T>): Observable<T> => {
 		this.storiesErrorTrigger.update(n => n + 1);
-		return of([]);
+		// Cast the fallback empty array to the caller's expected type — callers vary
+		// between Story[] and User, but on error we always fall back to an empty result
+		return of([] as unknown as T);
 	};
 
 	/**
    * Retrieves the backend info for all api request necessary
    * @returns
    */
-	getBackendInfo(): Promise<any> {
+	getBackendInfo(): Promise<string | undefined> {
 		const url = localStorage.getItem('url_backend');
 		const clientId = localStorage.getItem('clientId');
 		const version = localStorage.getItem('version');
@@ -125,37 +157,38 @@ export class ApiService {
 			this.urlReceived = true;
 			this.backendUrlReadyTrigger.update(n => n + 1);
 			return Promise.resolve(url);
-		} else 
+		} else
 			return this.http
-				.get<any>(
+				.get<BackendInfo>(
 					window.location.origin + '/backendInfo',
 					ApiService.getOptions()
 				)
 				.toPromise()
 				.then((backendInfo) => {
-					localStorage.setItem('url_backend', backendInfo.url);
-					localStorage.setItem('clientId', backendInfo.clientId);
-					localStorage.setItem('version', backendInfo.version);
-					localStorage.setItem('gecko_enabled', backendInfo.gecko_enabled);
+					localStorage.setItem('url_backend', backendInfo!.url);
+					localStorage.setItem('clientId', backendInfo!.clientId);
+					localStorage.setItem('version', backendInfo!.version);
+					localStorage.setItem('gecko_enabled', backendInfo!.gecko_enabled);
 					localStorage.setItem(
 						'chromium_enabled',
-						backendInfo.chromium_enabled
+						backendInfo!.chromium_enabled
 					);
-					localStorage.setItem('edge_enabled', backendInfo.edge_enabled);
-					localStorage.setItem('webkit_enabled', backendInfo.webkit_enabled);
-					localStorage.setItem('gecko_emulators', backendInfo.gecko_emulators);
+					localStorage.setItem('edge_enabled', backendInfo!.edge_enabled);
+					localStorage.setItem('webkit_enabled', backendInfo!.webkit_enabled);
+					localStorage.setItem('gecko_emulators', backendInfo!.gecko_emulators);
 					localStorage.setItem(
 						'chromium_emulators',
-						backendInfo.chromium_emulators
+						backendInfo!.chromium_emulators
 					);
-					localStorage.setItem('edge_emulators', backendInfo.edge_emulators);
+					localStorage.setItem('edge_emulators', backendInfo!.edge_emulators);
 					this.getPlaywrightEmulators().subscribe();
-          
+
 					this.urlReceived = true;
 					this.backendUrlReadyTrigger.update(n => n + 1);
-          
+
+					return backendInfo!.url;
 				});
-    
+
 	}
 	/**
    * Updates a user
@@ -194,16 +227,16 @@ export class ApiService {
 			})
 		);
 	}
-  
+
 
 	/**
    * Submitts an issue to github to create a new step
    * @param obj
    * @returns
    */
-	submitGithub(obj: any) {
+	submitGithub(obj: GitHubIssueRequest) {
 		this.apiServer = localStorage.getItem('url_backend')!;
-		return this.http.post<any>(
+		return this.http.post<GitHubIssueResponse>(
 			this.apiServer + '/github/submitIssue/',
 			obj,
 			ApiService.getOptions()
@@ -236,9 +269,9 @@ export class ApiService {
 		return repo.source === 'db';
 	}
 
-	resolveSpecialCommand(command: any) {
+	resolveSpecialCommand(command: string) {
 		this.apiServer = localStorage.getItem('url_backend')!;
-		return this.http.post<any>(
+		return this.http.post<string>(
 			this.apiServer + '/story/specialCommands/resolve',
 			{ command: command },
 			ApiService.getOptions()

@@ -4,6 +4,9 @@ import { Story } from '@shared/models/Story';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@shared/models/Scenario';
 import { Group } from '@shared/models/Group';
+import { GroupReport } from '@shared/models/GroupReport';
+import { StoryStatus } from '@shared/models/StoryStatus';
+import { ScenarioStatus } from '@shared/models/ScenarioStatus';
 import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { NotificationService } from '../Services/notification.service';
 import { ThemingService } from '../Services/theming.service';
@@ -26,6 +29,21 @@ import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/
 import { TitleCasePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 
+// Payload types mirror the private signal payloads declared in StoryService/GroupService.
+// Derived structurally via ReturnType rather than importing (those interfaces aren't exported)
+// so effect handlers below can be typed without touching the shared service files.
+type CreateStoryPayload = NonNullable<ReturnType<StoryService['createCustomStoryValue']>>;
+type CreateGroupPayload = NonNullable<ReturnType<GroupService['createCustomGroupValue']>>;
+type UpdateGroupPayload = NonNullable<ReturnType<GroupService['updateGroupValue']>>;
+type DeleteGroupPayload = NonNullable<ReturnType<GroupService['deleteGroupValue']>>;
+
+/** Response shape of the group execution endpoint (POST /execute/Group/:repoId/:groupId) */
+interface RunGroupResponse {
+	htmlFile: string;
+	reportId: string;
+	report: GroupReport;
+}
+
 /**
  * Component of the Stories bar
  */
@@ -33,7 +51,7 @@ import { MatIcon } from '@angular/material/icon';
 	selector: 'app-stories-bar',
 	templateUrl: './stories-bar.component.html',
 	styleUrls: ['./stories-bar.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [CdkScrollable, MatTabGroup, MatTab, MatTabLabel, MatTooltip, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, CdkDropList, CdkDrag, MatIcon, CdkDragHandle, CreateNewGroupComponent, CreateNewStoryComponent, UpdateGroupComponent, CreateScenarioComponent, ExecutionListComponent, TitleCasePipe]
 })
 export class StoriesBarComponent implements OnChanges {
@@ -77,19 +95,19 @@ export class StoriesBarComponent implements OnChanges {
 	/**
      * Emits a new chosen story
      */
-	readonly storyChosen = output<any>();
+	readonly storyChosen = output<Story>();
 
 	/**
      * Emits a new chosen scenario
      */
-	readonly scenarioChosen = output<any>();
+	readonly scenarioChosen = output<Scenario>();
 
 	/**
      * Emits a new chosen scenario
      */
 	readonly scenarioDeselected = output<void>();
 
-	readonly testRunningGroup = output<any>();
+	readonly testRunningGroup = output<boolean>();
 
 	/**
      * groups in the project
@@ -140,16 +158,16 @@ export class StoriesBarComponent implements OnChanges {
 
 	isFilterActive = false;
 	showFilter = false;
-	assigneeModel: any;
-	testPassedModel: any;
-	groupModel: any;
+	assigneeModel?: string;
+	testPassedModel?: string;
+	groupModel?: string;
 
 	/**
      * Emits a new chosen Group
      */
-	readonly GroupChosen = output<any>();
+	readonly GroupChosen = output<Group>();
 
-	readonly report = output<any>();
+	readonly report = output<RunGroupResponse>();
 
 
 	/**
@@ -172,8 +190,8 @@ export class StoriesBarComponent implements OnChanges {
 	});
 
 	/** Creates a story via API, reloads story list, and selects the new story */
-	private async handleCreateStory(custom: any) {
-		await firstValueFrom(this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id));
+	private async handleCreateStory(custom: CreateStoryPayload) {
+		await firstValueFrom(this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id!));
 		const resp = await firstValueFrom(this.storyService.getStories(custom.repositoryContainer));
 		const filtered = (resp as Story[]).filter(s => s != null);
 		this.stories.set(filtered);
@@ -190,15 +208,15 @@ export class StoriesBarComponent implements OnChanges {
 	});
 
 	/** Creates a group via API, reloads group list, and opens the new group */
-	private async handleCreateGroup(custom: any) {
-		await firstValueFrom(this.groupService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.isSequential));
-		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id));
+	private async handleCreateGroup(custom: CreateGroupPayload) {
+		await firstValueFrom(this.groupService.createGroup(custom.group.title, custom.repositoryContainer._id!, custom.group.member_stories, custom.group.isSequential));
+		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id!));
 		this.groups.set(resp as Group[]);
 		this.filteredGroups.set(resp as Group[]);
 		this.groupTermChange();
 		const allGroups = this.getSortedGroups()!;
 		const newLiGroupList = new Array(allGroups.length).fill('');
-		const index = allGroups.findIndex((group: any) => group.name === custom.group.title);
+		const index = allGroups.findIndex((group: Group) => group.name === custom.group.title);
 		newLiGroupList[index] = 'uk-open';
 		this.liGroupList.set(newLiGroupList);
 		this.selectFirstStoryOfGroup(allGroups[index]);
@@ -212,9 +230,9 @@ export class StoriesBarComponent implements OnChanges {
 	});
 
 	/** Updates a group via API and reloads the group list */
-	private async handleUpdateGroup(custom: any) {
-		await firstValueFrom(this.groupService.updateGroup(custom.repositoryContainer._id, custom.group._id, custom.group));
-		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id));
+	private async handleUpdateGroup(custom: UpdateGroupPayload) {
+		await firstValueFrom(this.groupService.updateGroup(custom.repositoryContainer._id!, custom.group._id!, custom.group));
+		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id!));
 		this.groups.set(resp as Group[]);
 	}
 
@@ -226,7 +244,7 @@ export class StoriesBarComponent implements OnChanges {
 	});
 
 	/** Deletes a group via API and reloads the group list */
-	private async handleDeleteGroup(custom: any) {
+	private async handleDeleteGroup(custom: DeleteGroupPayload) {
 		await firstValueFrom(this.groupService.deleteGroup(custom.repo_id, custom.group_id));
 		const resp = await firstValueFrom(this.groupService.getGroups(custom.repo_id));
 		this.groups.set(resp as Group[]);
@@ -362,7 +380,7 @@ export class StoriesBarComponent implements OnChanges {
  * Evaluates whether to open xray execution list modal in run group.
  * @param group
  */
-	evaluateAndRunGroup(group: any) {
+	evaluateAndRunGroup(group: Group) {
 		if (group.xrayTestSet) {
 			this.selectedGroup = group;
 			this.executionListModal().openExecutionListModal(group);
@@ -384,21 +402,25 @@ export class StoriesBarComponent implements OnChanges {
 		this.testRunningGroup.emit(true);
 		const params = { repository: localStorage.getItem('repository')!, source: localStorage.getItem('source')! };
 		this.groupService.runGroup(id, group._id!, params).subscribe({
-			next: (ret: any) => {
-				this.report.emit(ret);
+			// groupService.runGroup() returns Observable<Object> (untyped http.post) — cast to the known response shape
+			next: (ret) => {
+				const typedRet = ret as unknown as RunGroupResponse;
+				this.report.emit(typedRet);
 				this.testRunningGroup.emit(false);
-				const report = ret.report;
-				report.storyStatuses.forEach((story: any) => {
-					story.scenarioStatuses.forEach((scenario: any) => {
+				const report = typedRet.report;
+				report.storyStatuses.forEach((story: StoryStatus) => {
+					story.scenarioStatuses.forEach((scenario: ScenarioStatus) => {
+						// ScenarioStatus.scenarioId is modeled as a string, but downstream APIs expect a number
+						const scenarioIdNum = Number(scenario.scenarioId);
 						this.scenarioService.scenarioStatusChangeEmit(
-							story.storyId, scenario.scenarioId, scenario.status);
+							story.storyId, scenarioIdNum, scenario.status);
 
-						this.scenarioService.getScenario(story.storyId, scenario.scenarioId).subscribe({
+						this.scenarioService.getScenario(story.storyId, scenarioIdNum).subscribe({
 							next: (fullScenario) => {
 								if (fullScenario && fullScenario.testRunSteps)
 									for (const testRun of fullScenario.testRunSteps)
 										if (selectedExecutions && selectedExecutions.includes(testRun.testRunId))
-											this.xrayService.sendXrayStatus(testRun.testRunId, testRun.testRunStepId, scenario.status)
+											this.xrayService.sendXrayStatus(testRun.testRunId, testRun.testRunStepId, String(scenario.status))
 												.subscribe({
 													next: () => {
 														console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, ' and Test Execution:', testRun.testExecKey);
@@ -448,7 +470,7 @@ export class StoriesBarComponent implements OnChanges {
      * @param scenario
      */
 	deselectScenario(){
-		this.selectedScenario = undefined as any;
+		this.selectedScenario = undefined as unknown as Scenario;
 		this.scenarioDeselected.emit();
 	}
 
@@ -493,7 +515,8 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	addScenario(scenarioName: string) {
-		this.scenarioService.addScenario(this.selectedStory._id, scenarioName)
+		// A scenario can only be added to an already-persisted story, so _id is guaranteed here
+		this.scenarioService.addScenario(this.selectedStory._id!, scenarioName)
 			.subscribe((resp: Scenario) => {
 				this.selectScenario(resp);
 				this.selectedStory.scenarios.push(resp);
@@ -613,9 +636,9 @@ export class StoriesBarComponent implements OnChanges {
      */
 	eraseSearchTerm(varToErase: string) {
 		if (varToErase === 'story')
-			this.storyString = null as any;
+			this.storyString = null as unknown as string;
 		else if (varToErase === 'group')
-			this.groupString = null as any;
+			this.groupString = null as unknown as string;
 
 	}
 
@@ -644,7 +667,7 @@ export class StoriesBarComponent implements OnChanges {
 
 		// filter for assignee in testPassed filter result
 		if (this.assigneeModel !== undefined)
-			filter = filter.filter(story => story.assignee.toLowerCase().includes(this.assigneeModel.toLowerCase()));
+			filter = filter.filter(story => story.assignee.toLowerCase().includes(this.assigneeModel!.toLowerCase()));
 
 
 		// check if no filter is active and apply search term

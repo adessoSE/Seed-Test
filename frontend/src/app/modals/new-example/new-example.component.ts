@@ -11,7 +11,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-new-example',
 	templateUrl: './new-example.component.html',
 	styleUrls: ['./new-example.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class NewExampleComponent {
@@ -25,8 +25,8 @@ export class NewExampleComponent {
 	step!: StepType;
 	selectedScenario!: Scenario;
 	newExampleName!: string;
-	columnIndex: any;
-	exampleNames: any;
+	columnIndex!: number;
+	exampleNames!: string[];
 	modalName!: string;
 
 	modalReference!: NgbModalRef;

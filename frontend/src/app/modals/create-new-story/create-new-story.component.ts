@@ -13,7 +13,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-create-new-story',
 	templateUrl: './create-new-story.component.html',
 	styleUrls: ['./create-new-story.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class CreateNewStoryComponent {
@@ -79,7 +79,7 @@ export class CreateNewStoryComponent {
 	storyUnique() {
 		this.storyService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
 	}
-	close(modal: any){
+	close(modal: NgbModalRef){
 		this.storyForm.reset({storyTitle:'', storyDescription:''});
 		modal.dismiss('Cross click');
 	}

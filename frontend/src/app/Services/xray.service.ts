@@ -4,6 +4,14 @@ import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { StoryService } from './story.service';
 import { Scenario } from '@shared/models/Scenario';
+import type { Story } from '@shared/models/Story';
+
+/** Pre-condition with associated stories resolved from test keys */
+interface PreConditionResult {
+	preConditionKey: string;
+	preConditionName: string;
+	stories: (Story | undefined)[];
+}
 
 @Injectable({
 	providedIn: 'root'
@@ -42,7 +50,7 @@ export class XrayService {
    * @param {number} testRunId - The ID of the test run.
    * @param {number} stepId - The ID of the test run step.
    * @param {string} status - The status to update (e.g., 'PASS', 'FAIL').
-   * @returns {Observable<any>} An observable that emits the result of the HTTP PUT request.
+   * @returns An observable that emits the result of the HTTP PUT request.
    */
 	sendXrayStatus(testRunId: number, stepId: number, status: string) {
 		const data = {
@@ -57,12 +65,12 @@ export class XrayService {
 
 	/**
    * Retrieves the stories for each precondition.
-   * 
-   * @param {any[]} preConditions - An array of preconditions, each containing test sets.
-   * @returns {any[]} An array of objects representing the results, including precondition details and associated stories.
+   *
+   * @param preConditions - An array of preconditions, each containing test sets.
+   * @returns An array of objects representing the results, including precondition details and associated stories.
    */
-	getPreconditionStories(preConditions: any[]): any[] {
-		const preConditionResults: any[] = [];
+	getPreconditionStories(preConditions: NonNullable<Story['preConditions']>): PreConditionResult[] {
+		const preConditionResults: PreConditionResult[] = [];
 		for (const precondition of preConditions) {
 
 			const testSetPromises = precondition.testSet.map((testKey: string) =>

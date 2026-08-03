@@ -9,7 +9,7 @@ import { MatButton } from '@angular/material/button';
 	selector: 'app-window-size',
 	templateUrl: './window-size.component.html',
 	styleUrls: ['./window-size.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [MatMenu, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatInput, MatButton, MatMenuTrigger]
 })
 export class WindowSizeComponent {

@@ -7,6 +7,18 @@ import { ThemingService } from '../Services/theming.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ReportService } from '../Services/report.service';
+import type { StoryReport } from '@shared/models/StoryReport';
+import type { ScenarioReport } from '@shared/models/ScenarioReport';
+import type { GroupReport } from '@shared/models/GroupReport';
+
+/** Data structure passed into the report component for rendering */
+interface ReportViewData {
+	reportId: string;
+	htmlFile: string;
+}
+
+/** Union of all possible report types returned by the report service */
+type AnyReport = StoryReport | ScenarioReport | GroupReport;
 
 
 /**
@@ -16,7 +28,7 @@ import { ReportService } from '../Services/report.service';
 	selector: 'app-report',
 	templateUrl: './report.component.html',
 	styleUrls: ['./report.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: {
 		'(window:storage)': 'onStorageEvent($event)'
 	}
@@ -34,17 +46,17 @@ export class ReportComponent implements OnChanges {
 	readonly testDone = signal(false);
 
 	// eslint-disable-next-line @angular-eslint/no-input-rename
-	protected readonly reportInput = input<any>(null, { alias: 'report' });
+	protected readonly reportInput = input<ReportViewData | null>(null, { alias: 'report' });
 	readonly report = linkedSignal(() => this.reportInput());
 
-	readonly reportId = signal<any>(null);
+	readonly reportId = signal<string | null>(null);
 
 	/** Current report data object */
-	readonly reportComponent = signal<any>(null);
+	readonly reportComponent = signal<AnyReport | null>(null);
 	/**
      * Changed report from other tabs via localStorage
      */
-	updatedReports: any;
+	updatedReports: AnyReport | null = null;
 	/**
      * html report of the result
      */
@@ -86,11 +98,13 @@ export class ReportComponent implements OnChanges {
 
 
 	ngOnChanges() {
-		this.reportId.set(this.report().reportId);
-		this.htmlReport = this.report().htmlFile;
+		// Non-null assertions: this is only invoked when reportInput()/report() has already
+		// been populated (guarded by the reportInputEffect / after getReport() sets it directly)
+		this.reportId.set(this.report()!.reportId);
+		this.htmlReport = this.report()!.htmlFile;
 		this.testDone.set(true);
 		const iframe: HTMLIFrameElement = document.getElementById('testFrameReport') as HTMLIFrameElement;
-		iframe.srcdoc = this.report().htmlFile;
+		iframe.srcdoc = this.report()!.htmlFile;
 		this.showResults.set(true);
 		setTimeout(() => {
 			iframe?.scrollIntoView?.();
@@ -98,7 +112,7 @@ export class ReportComponent implements OnChanges {
 		if (this.reportId())
 			return new Promise<void>((resolve, _reject) => {
 				this.reportService
-					.getReportData(this.reportId())
+					.getReportData(this.reportId()!)
 					.subscribe(resp => {
 						this.reportComponent.set(resp);
 						resolve();
@@ -113,8 +127,8 @@ export class ReportComponent implements OnChanges {
 	onStorageEvent(event: StorageEvent) {
 		if (event.key === 'reportComponent') {
 			const storedReportComponentString = localStorage.getItem('reportComponent');
-			this.updatedReports = JSON.parse(storedReportComponentString!);
-			if (this.updatedReports._id === this.reportComponent()?._id)
+			this.updatedReports = JSON.parse(storedReportComponentString!) as AnyReport;
+			if (this.updatedReports?._id === this.reportComponent()?._id)
 				this.reportComponent.set(JSON.parse(storedReportComponentString!));
 		}
 	}
@@ -132,7 +146,9 @@ export class ReportComponent implements OnChanges {
      * @returns
      */
 	unsaveReport(reportId: string) {
-		this.reportComponent.update(r => ({ ...r, isSaved: false }));
+		// Guard against null: spreading a null report would otherwise produce an
+		// object shape that satisfies neither AnyReport nor null
+		this.reportComponent.update(r => r ? { ...r, isSaved: false } : r);
 		localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent()));
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService
@@ -149,7 +165,9 @@ export class ReportComponent implements OnChanges {
      * @returns
      */
 	saveReport(reportId: string) {
-		this.reportComponent.update(r => ({ ...r, isSaved: true }));
+		// Guard against null: spreading a null report would otherwise produce an
+		// object shape that satisfies neither AnyReport nor null
+		this.reportComponent.update(r => r ? { ...r, isSaved: true } : r);
 		localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent()));
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService
@@ -171,7 +189,8 @@ export class ReportComponent implements OnChanges {
 	getReport(reportName: string) {
 		this.reportService.getReport(reportName).subscribe(resp => {
 			console.log('report', resp);
-			this.report.set(resp);
+			// getReport() returns a loosely-typed Record; cast to the shape this component expects
+			this.report.set(resp as unknown as ReportViewData);
 			this.ngOnChanges();
 			// const iframe: HTMLIFrameElement = document.getElementById('reportFrame') as HTMLIFrameElement;
 			// iframe.srcdoc = resp

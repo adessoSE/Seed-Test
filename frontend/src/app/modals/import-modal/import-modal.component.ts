@@ -14,7 +14,7 @@ import { MatButton } from '@angular/material/button';
 	selector: 'app-import-modal',
 	templateUrl: './import-modal.component.html',
 	styleUrls: ['./import-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatButton]
 })
 export class ImportModalComponent {
@@ -34,7 +34,7 @@ export class ImportModalComponent {
 	searchTerm: string = '';
 	searchList: RepositoryContainer[] = [];
 
-	chooseFile: any; // Used by the file input's [(ngModel)]
+	chooseFile!: string; // Used by the file input's [(ngModel)]
 	selectedProject!: string; // Used by the mat-select's [(ngModel)]
 	// ---------------------------------------------------
 
@@ -126,8 +126,8 @@ export class ImportModalComponent {
 
 	// --- Helper Functions ---
 
-	handleFileInput(event: any) {
-		const file = event.target.files[0];
+	handleFileInput(event: Event) {
+		const file = (event.target as HTMLInputElement).files![0];
 		const maxSizeInBytes = 10485760; // 10 MB
 
 		if (file) {

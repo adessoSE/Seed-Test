@@ -14,7 +14,7 @@
     @if (email()) {
       <div>
         <p class="SmallHeadline5">Email: </p>
-        <label id="emailLabel" class="active MediumBody2">{{email()}}</label>
+        <span id="emailLabel" class="active MediumBody2">{{email()}}</span>
         <hr>
           <p id="needCustomRepo" class="LargeBody2">Need a new Custom Project?</p>
           <p><button class="normalButton" (click)="newRepository()">Create Custom Project</button></p>
@@ -22,7 +22,7 @@
       }
       @if (!email()) {
         <div>
-          <label id="noEmail">- no email deposited -</label>
+          <span id="noEmail">- no email deposited -</span>
           <p><button class="normalButton" title="register" (click)="navToRegistration();">Register</button></p>
         </div>
       }
@@ -30,7 +30,7 @@
       @if (repositories()) {
         <div class="grid_customRepos repositories">
           <div id="DBRepositoriesList">
-            <label class="MediumHeadline5">Custom Projects:</label>
+            <span class="MediumHeadline5">Custom Projects:</span>
             <ul class="uk-list">
               @for (repository of repositories(); track repository; let i = $index) {
                 @if (this.apiService.isCustomRepo(repository)) {
@@ -38,15 +38,15 @@
                     <div class="db-item-list">
                       @if (this.apiService.isCustomRepo(repository)) {
                         <img class="repo_img"
-                          src="../assets/database-5-32.png">
+                          src="../assets/database-5-32.png" alt="custom project">
                         }
                         <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}"
-                        (click)="selectRepository(repository);">{{repository.repoName}}</a>
+                        tabindex="0" role="link" (click)="selectRepository(repository);" (keydown.enter)="selectRepository(repository);">{{repository.repoName}}</a>
                       </div>
                       <span class="flex-end-item">
                         @if (repository.canEdit) {
                           <mat-icon class="set-name-button setting-icon"
-                            id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip
+                            id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" data-uk-tooltip
                           title="Edit project">settings</mat-icon>
                         }
                       </span>
@@ -60,7 +60,7 @@
         @if (loginService.isLoggedIn()) {
           <div class="repositories">
             <div>
-              <label>Download Project</label>
+              <span>Download Project</span>
             </div>
             <div class="uk-flex uk-flex-row uk-search downloadWrapper">
               <div class="searchAndVersion">
@@ -120,9 +120,9 @@
       @if (github()) {
         <div [style.opacity]="clientId()==='undefined' ? '0.5' : '1'">
           <p class="SmallHeadline5">Github-Account: </p>
-          <label class="active MediumBody2">{{github()['login']}}</label>
+          <span class="active MediumBody2">{{github()['login']}}</span>
           <div>
-            <a class="githubLoginContainer" (click)="disconnectGithub();">
+            <a class="githubLoginContainer" tabindex="0" role="button" (click)="disconnectGithub();" (keydown.enter)="disconnectGithub();">
               <div class="githubLogin">
                 <img src="../assets/github-logo.png" alt="github">
                 <p style="margin-bottom: 0px;">Disconnect GitHub</p>
@@ -134,7 +134,7 @@
       @if (!github()) {
         <div class="grid_github">
           @if (clientId()!=='undefined') {
-            <a class="githubLoginContainer" (click)="login();">
+            <a class="githubLoginContainer" tabindex="0" role="button" (click)="login();" (keydown.enter)="login();">
               <div class="githubLogin">
                 <img src="../assets/github-logo.png" alt="github">
                 <p style="margin-bottom: 0px;">Login via GitHub</p>
@@ -151,7 +151,7 @@
         <div class="grid_githubRepos repositories"
           [style.opacity]="clientId()==='undefined' ? '0.5' : '1'">
           <div id="GitHubRepositoriesList">
-            <label class="MediumHeadline5">Github Projects:</label>
+            <span class="MediumHeadline5">Github Projects:</span>
             <ul class="uk-list">
               @for (repository of repositories(); track repository; let i = $index) {
                 @if (this.apiService.isGithubRepo(repository)) {
@@ -160,10 +160,10 @@
                       @if (this.apiService.isGithubRepo(repository)) {
                         <img class="repo_img" src="../assets/GitHub-Mark-32px.png" alt="github">
                       }
-                      <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.repoName}}</a>
+                      <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" tabindex="0" role="link" (click)="selectRepository(repository);" (keydown.enter)="selectRepository(repository);">{{repository.repoName}}</a>
                     </div>
                     <span class="flex-end-item">
-                      <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
+                      <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
                     </span>
                   </li>
                 }
@@ -181,11 +181,11 @@
           <div id="jiraDiv">
             <div class="uk-form-horizontal">
               <p class="SmallHeadline5">Jira-Name: </p>
-              <label class="active MediumBody2">{{jira()['AccountName']}}</label>
+              <span class="active MediumBody2">{{jira()['AccountName']}}</span>
             </div>
             <div class="uk-form-horizontal">
               <p class="SmallHeadline5">Jira-Server: </p>
-              <label class="active MediumBody2">{{jira()['Host']}}</label>
+              <span class="active MediumBody2">{{jira()['Host']}}</span>
             </div>
           </div>
         }
@@ -201,7 +201,7 @@
       @if (repositories()) {
         <div class="grid_jiraRepos repositories">
           <div id="JiraRepositoriesList">
-            <label class="MediumHeadline5">Jira Projects:</label>
+            <span class="MediumHeadline5">Jira Projects:</span>
             <ul class="uk-list">
               @for (repository of repositories(); track repository; let i = $index) {
                 @if (this.apiService.isJiraRepo(repository)) {
@@ -210,10 +210,10 @@
                       @if (this.apiService.isJiraRepo(repository)) {
                         <img class="repo_img" src="../assets/jira-icon.png" alt="jira">
                       }
-                      <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.repoName}}</a>
+                      <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" tabindex="0" role="link" (click)="selectRepository(repository);" (keydown.enter)="selectRepository(repository);">{{repository.repoName}}</a>
                     </div>
                     <span class="flex-end-item">
-                      <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
+                      <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
                     </span>
                   </li>
                 }

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 	selector: 'app-confirm-reset-password-popup',
 	templateUrl: './confirm-reset-password-popup.component.html',
 	styleUrls: ['./confirm-reset-password-popup.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmResetPasswordPopupComponent {
 	private router = inject(Router);

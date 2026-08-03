@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@
 import { UntypedFormGroup, UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
+import type { User } from '@shared/models/User';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
@@ -9,7 +10,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-change-jira-account',
 	templateUrl: './change-jira-account.component.html',
 	styleUrls: ['./change-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class ChangeJiraAccountComponent {
@@ -20,7 +21,7 @@ export class ChangeJiraAccountComponent {
 	/**
      * Emits a response after the jira account got created
      */
-	readonly jiraAccountResponse = output<any>();
+	readonly jiraAccountResponse = output<User>();
 
 	readonly changeJiraAccountModal = viewChild.required<ChangeJiraAccountComponent>('changeJiraAccountModal');
 

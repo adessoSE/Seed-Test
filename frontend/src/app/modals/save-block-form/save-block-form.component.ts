@@ -15,7 +15,7 @@ import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '
 	selector: 'app-save-block-form',
 	templateUrl: './save-block-form.component.html',
 	styleUrls: ['./save-block-form.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow]
 })
 export class SaveBlockFormComponent implements OnInit {
@@ -55,11 +55,11 @@ export class SaveBlockFormComponent implements OnInit {
 	/**
     * List with the steps to be saved to the block
     */
-	stepListSaveBlock = [];
+	stepListSaveBlock: StepType[] = [];
 	/**
     * List with the multiple scenarios to be saved to the block
     */
-	stepListSaveBlockExample = [];
+	stepListSaveBlockExample: StepType[] = [];
 
 	/**
     * If the block is an example
@@ -74,17 +74,17 @@ export class SaveBlockFormComponent implements OnInit {
 	/**
     * All Steps
     */
-	stepListComplete = [];
+	stepListComplete: StepType[] = [];
 
 	/**
     * Parent component
     */
-	parentComponent: any;
+	parentComponent!: { checkAllSteps: (checked: boolean) => void };
 
 	/**
     * Boolean, whether steps should be convert to a reference
     */
-	saveAsSingleSteps!: boolean;
+	saveAsSingleSteps: boolean | undefined;
 
 	modalReference!: NgbModalRef;
 
@@ -122,7 +122,7 @@ export class SaveBlockFormComponent implements OnInit {
      * @param backgroundName
      * @param stories
      */
-	openSaveBlockFormModal(block: Block, comp: any, isBackground?: boolean, backgroundName?: string) {
+	openSaveBlockFormModal(block: Block, comp: { checkAllSteps: (checked: boolean) => void }, isBackground?: boolean, backgroundName?: string) {
 		if (this.selectedTemplate === 'background')
 			this.checkSaveAsSingleSteps();
     
@@ -161,16 +161,16 @@ export class SaveBlockFormComponent implements OnInit {
 						});
 						toastrShown = true;
 					} else if (!step._blockReferenceId)
-						(this.stepListSaveBlock as StepType[]).push(step);
+						this.stepListSaveBlock.push(step);
             
 				} else 
-					(this.stepListSaveBlockExample as StepType[]).push(step);
+					this.stepListSaveBlockExample.push(step);
           
           
 			});
 		});
 		if (this.stepListSaveBlockExample.length > 0) {
-			const valueLength = (this.stepListSaveBlockExample[0] as StepType).values.length;
+			const valueLength = this.stepListSaveBlockExample[0].values.length;
 			this.displayedColumnsSaveBlockExample.push('stepType');
 			for (let index = 0; index < valueLength; index++) 
 				this.displayedColumnsSaveBlockExample.push(index.toString());
@@ -187,7 +187,7 @@ export class SaveBlockFormComponent implements OnInit {
 		if (this.exampleChecked) {
 			this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock));
 			this.stepListSaveBlock = this.stepListSaveBlock.filter(step => {
-				return (step as any).stepType.toString() === 'example';
+				return step.stepType.toString() === 'example';
 			});
 		} else 
 			this.stepListSaveBlock = JSON.parse(JSON.stringify(this.stepListComplete));
@@ -209,12 +209,14 @@ export class SaveBlockFormComponent implements OnInit {
 			this.blockService.saveBlock(this.block).subscribe((resp) => {
 				console.log(resp);
 				if (!this.saveAsSingleSteps){
-					this.block._id = resp.insertedId;
+					// Backend's insert response returns { insertedId }, not a full Block — block.service's
+					// return type doesn't reflect this, so we cast locally rather than weaken it to `any`
+					this.block._id = (resp as unknown as { insertedId: string }).insertedId;
 					this.blockService.convertToReferenceEmitter(this.block);
 					this.saveAsSingleSteps = (!this.saveAsSingleSteps);
 				}
 				this.updateBlocksEventEmitter();
-				(this as any).saveAsSingleSteps = undefined;
+				this.saveAsSingleSteps = undefined;
 				this.notify.success('successfully saved', 'Block');
 			});
 			this.modalReference.close();
@@ -289,7 +291,7 @@ export class SaveBlockFormComponent implements OnInit {
 	}
 
 	closeModal(){
-		(this as any).saveAsSingleSteps = undefined;
+		this.saveAsSingleSteps = undefined;
 		this.modalReference.close();
 	}
 }

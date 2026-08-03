@@ -13,7 +13,7 @@ import { PasswordConfirmedValidatorDirective } from '../directives/password-conf
 	selector: 'app-registration',
 	templateUrl: './registration.component.html',
 	styleUrls: ['./registration.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [FormsModule, PasswordConfirmedValidatorDirective]
 })
 
@@ -27,7 +27,7 @@ export class RegistrationComponent implements OnInit {
 	/**
      * Error during user creation
      */
-	error!: string;
+	error?: string;
 
 	isDark!:boolean;
 
@@ -46,7 +46,7 @@ export class RegistrationComponent implements OnInit {
 		try {
 			const userId = localStorage.getItem('userId');
 			localStorage.removeItem('userId');
-			this.error = undefined as any;
+			this.error = undefined;
 			const _response = await this.loginService.registerUser(form.value.email, form.value.password, userId).toPromise();
 			localStorage.setItem('login', 'true');
 			this.notify.success('successfully registered', 'Registration');

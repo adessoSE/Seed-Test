@@ -12,6 +12,7 @@ import { ApiService } from '../Services/api.service';
 import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDragHandle, CdkDrag } from '@angular/cdk/drag-drop';
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { StepDefinition } from '@shared/models/StepDefinition';
+import { MultipleScenario } from '@shared/models/MuiltipleScenario';
 import { ThemePalette } from '@angular/material/core';
 import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
@@ -27,7 +28,7 @@ import { NewExampleComponent as NewExampleComponent_1 } from '../modals/new-exam
 	selector: 'app-example-table',
 	templateUrl: './example-table.component.html',
 	styleUrls: ['./example-table.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [MatTable, CdkDropList, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatSlideToggle, FormsModule, ReactiveFormsModule, MatCellDef, MatCell, CdkDragHandle, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, CdkDrag, NewExampleComponent_1]
 })
 export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
@@ -61,7 +62,7 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
 	/**
    * Last row to render add button
    */
-	lastRow: any;
+	lastRow!: MultipleScenario;
 
 	/**
    * selected Scenario
@@ -293,7 +294,7 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
    * @param event change event
    * @param rowIndex row index of the changed cell
    */
-	checkExample(event: any, rowIndex: number) {
+	checkExample(_event: Event, rowIndex: number) {
 		this.checkRowIndex.emit(rowIndex + 1);
 	}
 
@@ -307,7 +308,7 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
    * Emitts the delete scenario event
    * @param event
    */
-	deleteExample(event: any, columnIndex: number) {
+	deleteExample(event: Scenario, columnIndex: number) {
 		this.indexOfExampleToDelete = columnIndex - 1;
 		this.deleteExampleEvent.emit();
 		this.showDeleteExampleToast(event);
@@ -379,7 +380,7 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
    * Drag and drop an examples value
    * @param event
    */
-	dropExample(event: CdkDragDrop<any>) {
+	dropExample(event: CdkDragDrop<Record<string, string>[]>) {
 		this.dragDisabled = true;
 		const previousIndex = this.data.findIndex((d) => d === event.item.data);
 		moveItemInArray(this.data, previousIndex, event.currentIndex);
@@ -418,7 +419,7 @@ export class ExampleTableComponent implements AfterViewInit, AfterViewChecked {
    */
 	exampleNullValue!: boolean;
 
-	private highlightRegex(el: HTMLElement, columnIndex: number | undefined, rowIndex: number | undefined, initialCall: boolean, element?: any, column?: string) {
+	private highlightRegex(el: HTMLElement, columnIndex: number | undefined, rowIndex: number | undefined, initialCall: boolean, element?: Record<string, string>, column?: string) {
 		const inputValue: string = el.textContent;
 
 		if (!initialCall) {

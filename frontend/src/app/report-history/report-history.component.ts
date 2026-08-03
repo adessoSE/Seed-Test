@@ -22,7 +22,7 @@ type Report = ScenarioReport | StoryReport | GroupReport;
 	selector: 'app-report-history',
 	templateUrl: './report-history.component.html',
 	styleUrls: ['./report-history.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [RouterLink, NgTemplateOutlet],
 	host: {
 		'(window:storage)': 'onStorageEvent($event)'
@@ -37,7 +37,7 @@ export class ReportHistoryComponent {
 	/**
 	 * Currently selected story
 	 */
-	selectedStory: Story = null as any;
+	selectedStory!: Story;
 
 	/**
 	 * groups in the project
@@ -47,10 +47,10 @@ export class ReportHistoryComponent {
 	/**
 	 * Reports of the selected story
 	 */
-	readonly reports = signal<ReportContainer>(null as any);
+	readonly reports = signal<ReportContainer>(null as unknown as ReportContainer);
 
 	readonly isDark = computed(() => this.themeService.isDark());
-	updatedReports: any;
+	updatedReports?: Report;
 
 	/**
 	 * Handles cross-tab report updates via localStorage storage events.
@@ -63,11 +63,13 @@ export class ReportHistoryComponent {
 			const currentReports = this.reports();
 			if (!currentReports) return;
 			// Deep-copy to avoid mutating the signal's inner value by reference
-			const newReports = JSON.parse(JSON.stringify(currentReports));
-			for (const prop in newReports)
-				for (let i = (newReports as any)[prop].length - 1; i >= 0; i--)
-					if ((newReports as any)[prop][i]._id == this.updatedReports._id)
-						(newReports as any)[prop][i] = this.updatedReports;
+			const newReports: ReportContainer = JSON.parse(JSON.stringify(currentReports));
+			for (const prop in newReports) {
+				const list = newReports[prop as keyof ReportContainer] as Report[];
+				for (let i = list.length - 1; i >= 0; i--)
+					if (list[i]._id == this.updatedReports!._id)
+						list[i] = this.updatedReports!;
+			}
 
 			this.reports.set(newReports);
 		}
@@ -93,7 +95,7 @@ export class ReportHistoryComponent {
 	 * Retrieves the reports of the story
 	 */
 	getReports() {
-		this.reports.set(null as any);
+		this.reports.set(null as unknown as ReportContainer);
 		this.reportService.getReportHistory(this.selectedStory._id!).subscribe(resp => {
 			this.reports.set(resp);
 		});
@@ -113,8 +115,8 @@ export class ReportHistoryComponent {
 	 * @param reps reports
 	 * @returns an array, sorted by the timestamps
 	 */
-	sortReportsTime(reps: any[]) {
-		return reps.sort((a: any, b: any) => a.reportTime - b.reportTime);
+	sortReportsTime(reps: Report[]) {
+		return reps.sort((a, b) => a.reportTime - b.reportTime);
 	}
 
 	/**
@@ -141,12 +143,13 @@ export class ReportHistoryComponent {
 	 */
 	deleteReport(report: Report) {
 		this.reportService
-			.deleteReport(report._id)
+			// Deletion always targets a persisted report, so _id is guaranteed to be set here
+			.deleteReport(report._id!)
 			.subscribe(_resp => {
-				const newReports = JSON.parse(JSON.stringify(this.reports()));
-				newReports.storyReports = newReports.storyReports.filter((rep: any) => rep._id !== report._id);
-				newReports.scenarioReports = newReports.scenarioReports.filter((rep: any) => rep._id !== report._id);
-				newReports.groupReports = newReports.groupReports.filter((rep: any) => rep._id !== report._id);
+				const newReports: ReportContainer = JSON.parse(JSON.stringify(this.reports()));
+				newReports.storyReports = newReports.storyReports.filter(rep => rep._id !== report._id);
+				newReports.scenarioReports = newReports.scenarioReports.filter(rep => rep._id !== report._id);
+				newReports.groupReports = newReports.groupReports.filter(rep => rep._id !== report._id);
 				this.reports.set(newReports);
 			});
 	}
@@ -159,7 +162,8 @@ export class ReportHistoryComponent {
 		report.isSaved = false;
 		localStorage.setItem('reportComponent', JSON.stringify(report));
 		this.reportService
-			.unsaveReport(report._id)
+			// Unsaving always targets a persisted report, so _id is guaranteed to be set here
+			.unsaveReport(report._id!)
 			.subscribe(_resp => {
 			});
 	}
@@ -172,7 +176,8 @@ export class ReportHistoryComponent {
 		report.isSaved = true;
 		localStorage.setItem('reportComponent', JSON.stringify(report));
 		this.reportService
-			.saveReport(report._id)
+			// Saving always targets a persisted report, so _id is guaranteed to be set here
+			.saveReport(report._id!)
 			.subscribe(_resp => {
 			});
 	}

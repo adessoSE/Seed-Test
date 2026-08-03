@@ -4,9 +4,37 @@ import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NotificationService } from './notification.service';
 import { Story } from '@shared/models/Story';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import type { AiConfig, RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { catchError, tap } from 'rxjs/operators';
 import { StepType } from '@shared/models/StepType';
+
+/** Payload for creating a custom story via the signal */
+interface CreateCustomStoryPayload {
+	repositoryContainer: RepositoryContainer;
+	story: { title: string; description: string };
+}
+
+/** Test execution parameters */
+interface TestExecutionParams {
+	repository?: string;
+	source?: string;
+}
+
+/** Response from the AI scenario generation endpoint */
+interface AiGenerationResponse {
+	message: string;
+	status: string;
+	error?: string;
+}
+
+/** SSE result from the AI status stream */
+interface AiStatusResult {
+	status: string;
+	error?: string;
+	scenarios?: unknown[];
+	/** Present on the success payload only — the error branch omits it */
+	storyId?: string;
+}
 
 /**
  * Service for communication between story component and the backend
@@ -26,11 +54,11 @@ export class StoryService {
 	/** Signal for delete story trigger */
 	readonly deleteStoryTrigger = signal(0);
 	/** Signal for create custom story action — carries the story object */
-	readonly createCustomStoryValue = signal<any>(null);
+	readonly createCustomStoryValue = signal<CreateCustomStoryPayload | null>(null);
 	/** Signal for active story view — carries the view name */
 	readonly activeView = signal<string>('');
 	/** Signal for rename description action */
-	readonly renameDescriptionValue = signal<any>(null);
+	readonly renameDescriptionValue = signal<string | null>(null);
 	/** Triggers the delete story signal */
 	public deleteStoryEmitter() {
 		this.deleteStoryTrigger.update(n => n + 1);
@@ -57,7 +85,7 @@ export class StoryService {
   * Sets the create custom story value
   * @param story
   */
-	createCustomStoryEvent(story: any) {
+	createCustomStoryEvent(story: CreateCustomStoryPayload) {
 		this.createCustomStoryValue.set(story);
 	}
 	/**
@@ -65,7 +93,7 @@ export class StoryService {
     * @param _id storyID
     * @return single Story object
   */
-	public getStory(_id: string): Observable<any> {
+	public getStory(_id: string): Observable<Story> {
 		return this.http
 			.get<Story>(this.apiService.apiServer + '/story/' + _id, ApiService.getOptions())
 			.pipe(tap(_ => {
@@ -90,7 +118,7 @@ export class StoryService {
     * @param _id id of the repository
     * @returns
   */
-	public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
+	public createStory(title: string, description: string, repository: string, _id: string): Observable<Story> {
 		const body = { 'title': title, 'description': description, 'repo': repository, '_id': _id };
 		return this.http
 			.post<Story>(this.apiService.apiServer + '/story/', body, ApiService.getOptions())
@@ -102,7 +130,7 @@ export class StoryService {
     * updates a Story
     * @param story updatedStory
   */
-	public updateStory(story: Story): Observable<any> {
+	public updateStory(story: Story): Observable<Story> {
 		return this.http
 			.put<Story>(this.apiService.apiServer + '/story/' + story._id, story, ApiService.getOptions())
 			.pipe(tap(_ => {
@@ -114,9 +142,9 @@ export class StoryService {
     * @param repository Specifies the repository where a Story should be deleted
     * @param _id StoryID
   */
-	public deleteStory(repository: string, _id: string): Observable<any> {
+	public deleteStory(repository: string, _id: string): Observable<Story> {
 		return this.http
-			.delete<any>(this.apiService.apiServer + '/story/' + repository + '/' + _id, ApiService.getOptions())
+			.delete<Story>(this.apiService.apiServer + '/story/' + repository + '/' + _id, ApiService.getOptions())
 			.pipe(tap());
 	}
 	/**
@@ -147,7 +175,7 @@ export class StoryService {
    * @param storiesList
    * @returns
   */
-	updateStoryList(repo_id: string, storiesList: any) {
+	updateStoryList(repo_id: string, storiesList: (string | undefined)[]) {
 		return this.http
 			.put(this.apiService.apiServer + '/story/' + repo_id, storiesList, ApiService.getOptions())
 			.pipe(tap());
@@ -159,7 +187,7 @@ export class StoryService {
    * @param params
    * @returns
   */
-	runTests(storyID: any, scenarioID: number, params: any) {
+	runTests(storyID: string, scenarioID: number | null, params: TestExecutionParams) {
 		const timeout = 900000;
 		if (scenarioID) 
 			return this.http
@@ -184,7 +212,7 @@ export class StoryService {
     * @param storyID
     * @returns
   */
-	public changeOneDriver(oneDriver: boolean, storyID: any) {
+	public changeOneDriver(oneDriver: boolean, storyID: string) {
 		return this.http
 			.post(this.apiService.apiServer + '/story/oneDriver/' + storyID, { oneDriver }, ApiService.getOptions());
 	}
@@ -243,7 +271,7 @@ export class StoryService {
    * @param aiConfig Configuration for the parser.
    * @returns Obervable with success message.
    */
-	generateScenariosFromAI(storyId: string, aiConfig: any, repoId: string): Observable<any> {
+	generateScenariosFromAI(storyId: string, aiConfig: AiConfig, repoId: string): Observable<AiGenerationResponse> {
 		const url = this.apiService.apiServer + `/story/${storyId}/generate-scenarios`;
 		const timeout = 300000; // 5 minutes timeout
     
@@ -259,7 +287,7 @@ export class StoryService {
 		};
 
 		console.log('Wir schicken KI-Anfrage ans Backend! (REMOVE)');
-		return this.http.post(url, { aiConfig }, options);
+		return this.http.post<AiGenerationResponse>(url, { aiConfig }, options);
 	}
 
 	/**
@@ -267,7 +295,7 @@ export class StoryService {
    * @param storyId The ID of the story to listen for.
    * @returns An Observable that emits the result object from the backend.
    */
-	listenForAiResults(storyId: string): Observable<any> {
+	listenForAiResults(storyId: string): Observable<AiStatusResult> {
 		const url = this.apiService.apiServer + `/story/${storyId}/generate-scenarios/status`;
     
 		return new Observable(observer => {

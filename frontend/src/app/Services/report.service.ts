@@ -39,9 +39,9 @@ export class ReportService {
     * @param reportName: name of the Report
     * @returns
   */
-	getReport(reportName: string): Observable<any> {
+	getReport(reportName: string): Observable<Record<string, unknown>> {
 		const str = this.apiService.apiServer + '/report/regenerate/' + reportName;
-		return this.http.get(str, { responseType: 'json', withCredentials: true })
+		return this.http.get<Record<string, unknown>>(str, { responseType: 'json', withCredentials: true })
 			.pipe(tap(_ => {
 				//
 			}),
@@ -53,9 +53,9 @@ export class ReportService {
     * @param reportId
     * @returns
   */
-	deleteReport(reportId: any): Observable<any> {
+	deleteReport(reportId: string): Observable<StoryReport | ScenarioReport | GroupReport> {
 		return this.http
-			.delete<any>(this.apiService.apiServer + '/report/' + reportId, ApiService.getOptions())
+			.delete<StoryReport | ScenarioReport | GroupReport>(this.apiService.apiServer + '/report/' + reportId, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));
@@ -66,9 +66,9 @@ export class ReportService {
     * @param reportId
     * @returns
   */
-	saveReport(reportId: any): Observable<any> {
+	saveReport(reportId: string): Observable<StoryReport | ScenarioReport | GroupReport> {
 		return this.http
-			.put<any>(this.apiService.apiServer + '/report/save/' + reportId, {}, ApiService.getOptions())
+			.put<StoryReport | ScenarioReport | GroupReport>(this.apiService.apiServer + '/report/save/' + reportId, {}, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));
@@ -79,9 +79,9 @@ export class ReportService {
     * @param reportId
     * @returns
   */
-	unsaveReport(reportId: any): Observable<any> {
+	unsaveReport(reportId: string): Observable<StoryReport | ScenarioReport | GroupReport> {
 		return this.http
-			.put<any>(this.apiService.apiServer + '/report/unsave/' + reportId, {}, ApiService.getOptions())
+			.put<StoryReport | ScenarioReport | GroupReport>(this.apiService.apiServer + '/report/unsave/' + reportId, {}, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));

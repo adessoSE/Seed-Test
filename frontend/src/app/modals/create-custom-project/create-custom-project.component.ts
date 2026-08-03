@@ -11,7 +11,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-create-custom-project',
 	templateUrl: './create-custom-project.component.html',
 	styleUrls: ['./create-custom-project.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class CreateCustomProjectComponent {

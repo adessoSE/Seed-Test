@@ -22,7 +22,7 @@ import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, Ma
 		'./workgroup-edit.component.css',
 		'../layout-modal/layout-modal.component.css'
 	],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class WorkgroupEditComponent {
@@ -40,7 +40,7 @@ export class WorkgroupEditComponent {
 	/**
    * List of all members in the workgroup
    */
-	readonly workgroupList = signal<any[]>([]);
+	readonly workgroupList = signal<{ email: string; canEdit: boolean }[]>([]);
 
 	/**
    * Owner of the workgroup
@@ -68,13 +68,13 @@ export class WorkgroupEditComponent {
    * varibales to work with settings
    */
 
-	gecko_enabled;
+	gecko_enabled: string | null;
 
-	chromium_enabled;
+	chromium_enabled: string | null;
 
-	edge_enabled;
+	edge_enabled: string | null;
 
-	webkit_enabled;
+	webkit_enabled: string | null;
 
 	browser!: string;
 
@@ -152,7 +152,7 @@ export class WorkgroupEditComponent {
 	}
 
 	onModalClosed() {
-		this.selectedOwner = undefined as any;
+		this.selectedOwner = undefined!;
 		// ownerSelect is a signal viewChild — Angular manages its lifecycle automatically
 	}
 
@@ -304,9 +304,9 @@ export class WorkgroupEditComponent {
    * Removes a user from the workgroup
    * @param user
    */
-	removeFromWorkgroup(user: any) {
+	removeFromWorkgroup(user: { email: string; canEdit: boolean }) {
 		this.projectService
-			.removeFromWorkgroup(this.workgroupProject._id!, user)
+			.removeFromWorkgroup(this.workgroupProject._id!, user.email)
 			.subscribe((res) => {
 				this.workgroupList.set(res.member);
 			});
@@ -317,7 +317,7 @@ export class WorkgroupEditComponent {
    * @param event
    * @param user
    */
-	checkEditUser(event: any, user: any) {
+	checkEditUser(_event: Event, user: { email: string; canEdit: boolean }) {
 		user.canEdit = !user.canEdit;
 		this.projectService
 			.updateWorkgroupUser(this.workgroupProject._id!, user)
@@ -436,7 +436,7 @@ export class WorkgroupEditComponent {
 		this.repoSwitchModal().openModal();
 	}
 
-	enterSubmit(event: any, form: NgForm) {
+	enterSubmit(event: KeyboardEvent, form: NgForm) {
 		if (event.keyCode === 13) {
 			this.workgroupInvite(form);
 			form.reset();
@@ -483,11 +483,11 @@ export class WorkgroupEditComponent {
    * To store emulator
    */
 
-	emulator: any;
+	emulator: string | undefined;
 	/**
    * Boolean emulator indicator
    */
-	emulator_enabled: any;
+	emulator_enabled!: boolean;
 
 	/**
    * List of supported emulators for gecko
@@ -536,7 +536,7 @@ export class WorkgroupEditComponent {
    * Set the emultaor
    * @param newEmultaor
    */
-	setEmulator(newEmulator: any) {
+	setEmulator(newEmulator: string | undefined) {
 		this.emulator = newEmulator;
 	}
 

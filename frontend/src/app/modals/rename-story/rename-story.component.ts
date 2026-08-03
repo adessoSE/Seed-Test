@@ -10,7 +10,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-rename-story',
 	templateUrl: './rename-story.component.html',
 	styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameStoryComponent {

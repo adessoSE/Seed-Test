@@ -22,6 +22,7 @@ import { ImportModalComponent } from '../modals/import-modal/import-modal.compon
 import { MatIcon } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
+import type { User } from '@shared/models/User';
 
 
 /**
@@ -31,7 +32,7 @@ import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/
 	selector: 'app-account-management',
 	templateUrl: './account-management.component.html',
 	styleUrls: ['./account-management.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [RouterLink, MatIcon, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, ChangeJiraAccountComponent, DisconnectJiraAccountComponent, CreateCustomProjectComponent, DeleteAccountComponent, WorkgroupEditComponent, RepoSwichComponent]
 })
 
@@ -59,28 +60,28 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	/**
      * Viewchild to auto open mat-select
      */
-	readonly ngSelect = viewChild<any>('ngSelect');
+	readonly ngSelect = viewChild<MatSelect>('ngSelect');
 
 
 	/**
      * Repositories or projects of this user
      */
-	readonly repositories = signal<RepositoryContainer[]>(undefined as any);
+	readonly repositories = signal<RepositoryContainer[] | undefined>(undefined);
 
 	/**
      * Email of the user
      */
-	readonly email = signal<string>(undefined as any);
+	readonly email = signal<string | undefined>(undefined);
 
 	/**
      * Github object of the user
      */
-	readonly github = signal<any>(undefined);
+	readonly github = signal<User['github'] | undefined>(undefined);
 
 	/**
      * Jira object of the user
      */
-	readonly jira = signal<any>(undefined);
+	readonly jira = signal<User['jira'] | undefined>(undefined);
 
 	/**
      * User id
@@ -91,7 +92,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	versionInput!: string;
 
-	readonly searchList = signal<RepositoryContainer[]>(undefined as any);
+	readonly searchList = signal<RepositoryContainer[] | undefined>(undefined);
 
 	navigationSubscription: Subscription;
 
@@ -101,7 +102,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	isActualRepoToDelete!: boolean;
 
-	readonly clientId = signal<string>(undefined as any);
+	readonly clientId = signal<string | undefined>(undefined);
 
 	/**
      * Subscribtions for all EventEmitter
@@ -136,7 +137,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		const themeService = this.themeService;
 
 		this.themeService = themeService;
-		this.navigationSubscription = this.router.events.subscribe((e: any) => {
+		this.navigationSubscription = this.router.events.subscribe((e) => {
 			// If it is a NavigationEnd event re-initalise the component
 			if (e instanceof NavigationEnd) 
 				this.ngOnInit();
@@ -183,7 +184,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Opens Modal to create a new custom project
      */
 	newRepository() {
-		this.createCustomProject().openCreateCustomProjectModal(this.repositories());
+		this.createCustomProject().openCreateCustomProjectModal(this.repositories() ?? []);
 	}
 
 	/**
@@ -204,7 +205,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Opens Modal to delete the Seed-Test account
      */
 	deleteAccount() {
-		this.deleteAccountModal().openDeleteAccountModal(this.email());
+		this.deleteAccountModal().openDeleteAccountModal(this.email()!);
 	}
 
 	/**
@@ -212,7 +213,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param project
      */
 	workGroupEdit(project: RepositoryContainer) {
-		this.workgroupEditModal().openWorkgroupEditModal(project, this.email(), this.id);
+		this.workgroupEditModal().openWorkgroupEditModal(project, this.email()!, this.id);
 	}
 
 	/**
@@ -293,7 +294,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	downloadProjectFeatures(repo_id: string) {
 		if (repo_id) {
-			const userRepo = this.searchList().find(repo => repo._id == repo_id);
+			const userRepo = this.searchList()?.find(repo => repo._id == repo_id);
 			console.log(userRepo);
 			const id = userRepo!._id!;
 			this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
@@ -308,7 +309,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	exportProject(repo_id: string) {
 		if (repo_id) {
-			const userRepo = this.searchList().find(repo => repo._id == repo_id);
+			const userRepo = this.searchList()?.find(repo => repo._id == repo_id);
 			console.log(userRepo);
 			const id = userRepo!._id!;
 			this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {

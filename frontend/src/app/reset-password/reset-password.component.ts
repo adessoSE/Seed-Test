@@ -11,7 +11,7 @@ import { LoginService } from '../Services/login.service';
 	selector: 'app-reset-password',
 	templateUrl: './reset-password.component.html',
 	styleUrls: ['./reset-password.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [FormsModule]
 })
 export class ResetPasswordComponent implements OnInit {
@@ -22,13 +22,13 @@ export class ResetPasswordComponent implements OnInit {
 	/**
    * Error during reset password
    */
-	readonly error = signal<string>(undefined as any);
+	readonly error = signal<string | undefined>(undefined);
 	defaultErrorMessage = 'Reset password email faild';
 
 	/**
    * Successfully sent email
    */
-	readonly success = signal<string>(undefined as any);
+	readonly success = signal<string | undefined>(undefined);
 	defaultSuccessMessage = 'Email has been sent!';
 
 	isDark!: boolean;
@@ -42,15 +42,15 @@ export class ResetPasswordComponent implements OnInit {
    * @param form
    */
 	requestReset(form: NgForm) {
-		this.error.set(undefined as any);
-		this.success.set(undefined as any);
+		this.error.set(undefined);
+		this.success.set(undefined);
 		this.loginService.requestReset(form.value.email).subscribe({
 			next: (_value) => {
-				this.error.set(undefined as any);
+				this.error.set(undefined);
 				this.success.set(this.defaultSuccessMessage);
 			},
 			error: (error) => {
-				this.success.set(undefined as any);
+				this.success.set(undefined);
 				if (error !== 'No user found with the given email adress!') {
 					this.error.set("Email couldn't be send.");
 					return;

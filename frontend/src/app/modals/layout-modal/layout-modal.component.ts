@@ -4,7 +4,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 	selector: 'app-layout-modal',
 	templateUrl: './layout-modal.component.html',
 	styleUrls: ['./layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LayoutModalComponent {
 	constructor() {

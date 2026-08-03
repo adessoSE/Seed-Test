@@ -8,7 +8,7 @@ export class StepValidationService implements OnDestroy {
 	private notify = inject(NotificationService);
 
 
-	private warningTimeout: any;
+	private warningTimeout: ReturnType<typeof setTimeout> | undefined;
 
 	ngOnDestroy(): void {
 		clearTimeout(this.warningTimeout);

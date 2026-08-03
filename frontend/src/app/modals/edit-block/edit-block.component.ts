@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, input, viewChild, computed, linkedSignal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, TemplateRef, inject, input, viewChild, computed, linkedSignal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
@@ -11,7 +11,7 @@ import { BaseEditorComponent } from '../../base-editor/base-editor.component';
 	selector: 'app-edit-block',
 	templateUrl: './edit-block.component.html',
 	styleUrls: ['./edit-block.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, BaseEditorComponent]
 })
 export class EditBlockComponent {
@@ -20,7 +20,7 @@ export class EditBlockComponent {
 	themeService = inject(ThemingService);
 
 
-	readonly editBlockModal = viewChild<any>('editBlockModal');
+	readonly editBlockModal = viewChild<TemplateRef<unknown>>('editBlockModal');
 
 	/**
    * Original step types not sorted or changed
@@ -52,7 +52,7 @@ export class EditBlockComponent {
 		this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock')!);
 		this.selectedBlock.set(block);
 		Object.keys(this.selectedBlock().stepDefinitions).forEach((key, _) => {
-			(this.selectedBlock().stepDefinitions as any)[key].forEach((step: StepType) => {
+			(this.selectedBlock().stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach((step: StepType) => {
 				//to prevent blocks to be checked after pasting
 				step.checked = false;
 			});
@@ -78,7 +78,7 @@ export class EditBlockComponent {
 		this.blockService.updateBlocksEmitter();
 	}
 
-	enterSubmit(event: any) {
+	enterSubmit(event: KeyboardEvent) {
 		if (event.keyCode === 13) 
 			this.editBlockSubmit();
     

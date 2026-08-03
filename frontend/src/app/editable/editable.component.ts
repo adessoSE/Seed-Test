@@ -11,7 +11,7 @@ import { NgTemplateOutlet } from '@angular/common';
 	selector: 'editable',
 	templateUrl: './editable.component.html',
 	styleUrls: ['./editable.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgTemplateOutlet],
 	host: {
 		'(dblclick)': 'onDblClick()',

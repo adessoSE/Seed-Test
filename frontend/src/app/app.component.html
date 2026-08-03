@@ -29,6 +29,7 @@
                                   src="../assets/database-5-32.png" alt="database">
                                 }
                                 <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
+                                tabindex="0" role="link" (keydown.enter)="selectRepository(repository)"
                                 routerLink=''>{{repository.repoName}}</a>
                               </li>
                             }
@@ -106,10 +107,10 @@
 
         <footer id="footer" class="footer">
           <div class="footerCenter">
-            <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
-            <p class="terms" (click)="openTerms()">Terms</p>
+            <p class="impressum" id="impressum" tabindex="0" role="button" (click)="openImpressum();" (keydown.enter)="openImpressum();">Impressum</p>
+            <p class="terms" tabindex="0" role="button" (click)="openTerms()" (keydown.enter)="openTerms()">Terms</p>
             <p><a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" rel="noopener noreferrer"
-            target="_blank" uk-icon="github"></a></p>
+            target="_blank" uk-icon="github" aria-label="GitHub repository"></a></p>
           </div>
           <div class="expendable">
             @if (showImpressum) {

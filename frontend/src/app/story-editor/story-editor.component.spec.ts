@@ -194,7 +194,7 @@ describe('StoryEditorComponent', () => {
 			Object.defineProperty(component, 'scenarioChild', { value: () => findComponent(fixture, '#scenarioChild') });
 			const html = '<h1 #testFrame>Hi</h1>';
 			vi.spyOn(component.storyService, 'runTests');
-			component.storyService.runTests(component.selectedStory._id, scenarioId, {}).subscribe((_resp)=> {
+			component.storyService.runTests(component.selectedStory._id!, scenarioId, {}).subscribe((_resp)=> {
 				expect(component.htmlReport).toBe(html);
 				expect(component.testDone()).toBeTruthy();
 				expect(component.showResults()).toBeTruthy();
@@ -211,7 +211,7 @@ describe('StoryEditorComponent', () => {
 			component.selectedStory = stories[0];
 			const scenariosAmount = component.selectedStory.scenarios.length;
 			vi.spyOn(component.scenarioService, 'addScenario');
-			component.scenarioService.addScenario(component.selectedStory._id, scenarioName).subscribe((_resp)=> {
+			component.scenarioService.addScenario(component.selectedStory._id!, scenarioName).subscribe((_resp)=> {
 				expect(component.scenarioService.addScenario).toHaveBeenCalled();
 				expect(component.selectedStory.scenarios.length).toBe(scenariosAmount + 1);
 			});
@@ -223,7 +223,7 @@ describe('StoryEditorComponent', () => {
 			const scenariosAmount = component.selectedStory.scenarios.length;
 			fixture.detectChanges();
 			vi.spyOn(component, 'selectScenario');
-			component.scenarioService.addScenario(component.selectedStory._id, scenarioName).subscribe((_resp)=> {
+			component.scenarioService.addScenario(component.selectedStory._id!, scenarioName).subscribe((_resp)=> {
 				expect(component.selectScenario).toHaveBeenCalled();
 				expect(component.selectedStory.scenarios.length).toEqual(scenariosAmount + 1);
 			});

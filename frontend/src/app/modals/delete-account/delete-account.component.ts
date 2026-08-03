@@ -11,7 +11,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	selector: 'app-delete-account',
 	templateUrl: './delete-account.component.html',
 	styleUrls: ['./delete-account.component.css', '../layout-modal/layout-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class DeleteAccountComponent {

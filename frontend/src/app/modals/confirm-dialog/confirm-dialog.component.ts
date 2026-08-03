@@ -47,7 +47,7 @@ export interface ConfirmDialogData {
 			}
 		</mat-dialog-actions>
 	`,
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatDialogActions, MatButton]
 })
 export class ConfirmDialogComponent {

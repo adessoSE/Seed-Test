@@ -3,7 +3,7 @@ import { Directive, ElementRef, AfterViewInit, inject } from '@angular/core';
 /**
  * Directive for an table cell to be focusable
  */
-@Directive({ selector: '[focusable]' })
+@Directive({ selector: '[appFocusable]' })
 export class FocusableDirective implements AfterViewInit {
 	private host = inject(ElementRef);
 

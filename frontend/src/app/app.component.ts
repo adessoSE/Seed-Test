@@ -21,7 +21,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 	selector: 'app-root',
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [RouterLink, RouterOutlet, MatIcon, MatSlideToggle, ReactiveFormsModule, NgClass]
 })
 export class AppComponent implements OnInit, AfterViewInit{
@@ -36,7 +36,7 @@ export class AppComponent implements OnInit, AfterViewInit{
 	/**
    * Currently retrieved projects
    */
-	readonly repositories = signal<RepositoryContainer[]>(undefined as any);
+	readonly repositories = signal<RepositoryContainer[] | undefined>(undefined);
 
 	/**
    * If the impressum is shown
@@ -62,8 +62,8 @@ export class AppComponent implements OnInit, AfterViewInit{
 	readonly helpMenu = viewChild.required<ElementRef>('helpMenu');
 
 	closed: boolean = false;
-	helpPosition: any;
-	menuPosition: any;
+	helpPosition!: number;
+	menuPosition!: number;
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
@@ -101,8 +101,9 @@ export class AppComponent implements OnInit, AfterViewInit{
 	});
 
 	/** Creates a repository via API and reloads the repository list */
-	private async handleCreateRepo(custom: any) {
-		await firstValueFrom(this.projectService.createRepository(custom.repository.repoName, custom.repository._id));
+	// Payload shape matches ProjectService's CreateRepositoryPayload (not exported — kept inline here)
+	private async handleCreateRepo(custom: { repositoryContainer: RepositoryContainer; name: string }) {
+		await firstValueFrom(this.projectService.createRepository(custom.name, custom.repositoryContainer._id!));
 		this.getRepositories();
 	}
 
@@ -228,7 +229,7 @@ export class AppComponent implements OnInit, AfterViewInit{
    * Loggs out the user and redirects it to the login page
    */
 	logout() {
-		this.repositories.set(undefined as any);
+		this.repositories.set(undefined);
 		this.loginService.logoutUser().subscribe(_ => {
 			//
 		});

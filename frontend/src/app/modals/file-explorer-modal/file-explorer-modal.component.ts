@@ -13,7 +13,7 @@ import { DatePipe } from '@angular/common';
 	selector: 'app-file-explorer-modal',
 	templateUrl: './file-explorer-modal.component.html',
 	styleUrls: ['./file-explorer-modal.component.css'],
-	changeDetection: ChangeDetectionStrategy.Eager,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe]
 })
 export class FileExplorerModalComponent implements OnInit {
@@ -61,8 +61,8 @@ export class FileExplorerModalComponent implements OnInit {
 		return window.btoa(base64);
 	}
 
-	selectUploadFile(event: any) {
-		const file: File = event.target.files.item(0);
+	selectUploadFile(event: Event) {
+		const file: File = (event.target as HTMLInputElement).files!.item(0)!;
 		this.fileService.uploadFile(this.repoId, file)
 			.subscribe((_res: FileElement) => {
 				this.updateFileElementQuery();
