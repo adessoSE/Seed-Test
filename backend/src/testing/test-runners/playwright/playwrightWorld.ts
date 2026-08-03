@@ -49,7 +49,9 @@ class PlaywrightWorld extends World {
 	constructor(options: IWorldOptions) {
 		super(options);
 		console.log('Initializing PlaywrightWorld with options:', {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Cucumber IWorldOptions.parameters is untyped
 			scenario0: options.parameters.scenarios[0],
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Cucumber IWorldOptions.parameters is untyped
 			parameters: options.parameters,
 			scenarioCount: this.scenarioCount
 		});

@@ -56,6 +56,7 @@ async function handleError(f: () => Promise<unknown>): Promise<void> {
 Before(async function (this: SeleniumWebdriverWorld) {
 	// Browser start
 	if (scenarioCount === 0) {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		totalScenarios = this.parameters.scenarios.length;
 		console.log(`Total scenarios to run: ${totalScenarios}`);
 	}
@@ -122,7 +123,7 @@ After(async function (this: SeleniumWebdriverWorld, scenario: ITestCaseHookParam
 });
 
 // / #################### GIVEN ########################################
-Given('As a {string}', async function (userRole: string) {
+Given('As a {string}', function (userRole: string) {
 	this.role = userRole;
 	// await driver.sleep(100 + currentParameters.waitTime);
 });
@@ -197,8 +198,8 @@ Given('I remove a session-storage with the name {string}', async function addSes
 Given('I take a screenshot', async function (this: SeleniumWebdriverWorld) {
 	await handleError(async () => {
 		const world = this;
-		await driver.wait(async () => driver.executeScript<string>('return document.readyState')
-			.then(async (readyState: string) => readyState === 'complete'));
+		await driver.wait(() => driver.executeScript<string>('return document.readyState')
+			.then((readyState: string) => readyState === 'complete'));
 		try {
 			await world.attachScreenshot();
 		} catch (e: unknown) {
@@ -213,8 +214,8 @@ Given('I take a screenshot', async function (this: SeleniumWebdriverWorld) {
 Given('I take a screenshot. Optionally: Focus the page on the element {string}', async function takeScreenshot(this: SeleniumWebdriverWorld, element: string) {
 	await handleError(async () => {
 		const world = this;
-		await driver.wait(async () => driver.executeScript<string>('return document.readyState')
-			.then(async (readyState: string) => readyState === 'complete'));
+		await driver.wait(() => driver.executeScript<string>('return document.readyState')
+			.then((readyState: string) => readyState === 'complete'));
 		const identifiers = [`//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
 		const promises = [];
 		for (const idString of identifiers) promises.push(driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(idString))));
@@ -544,7 +545,7 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 	await handleError(async () => {
 		const world = this;
 		try {
-			await driver.getCurrentUrl().then(async (currentUrl: string) => {
+			await driver.getCurrentUrl().then((currentUrl: string) => {
 				assert.strictEqual(currentUrl.replace(/\/$/g, ''), url.replace(/[\s]|\/\s*$/g, ''), 'ERROR expected: ...');
 			});
 		} catch (e: unknown) {
@@ -577,8 +578,11 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 
 		await Promise.any(promises)
 			.then(async (elem) => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				let resp = await elem.getText();
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				resp = resp === '' ? await elem.getAttribute('value') : resp;
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				resp = resp === '' ? await elem.getAttribute('outerHTML') : resp;
 				if (regexFound) assert.match(resp, RegExp(resultString), `The Textfield ${label} does not contain the string/regex: '${resultString}' , actual: '${resp}'!`);
 				else assert.strictEqual(resp, resultString, `The Textfield ${label} does not contain the string: '${resultString}' , actual: '${resp}'!`);
@@ -599,7 +603,7 @@ Then('So I can see the text: {string}', async function textPresent(this: Seleniu
 		const { resultString, regexFound } = resolveRegex(expectedText);
 		const world = this;
 		try {
-			await driver.wait(async () => driver.executeScript<string>('return document.readyState').then(async (readyState: string) => readyState === 'complete'));
+			await driver.wait(() => driver.executeScript<string>('return document.readyState').then((readyState: string) => readyState === 'complete'));
 			await driver.wait(until.elementLocated(By.css('Body')), searchTimeout)
 				.then(async (body: SeleniumElement) => {
 					const cssBody = await body.getText().then((bodytext: string) => bodytext);
@@ -627,6 +631,7 @@ Then('So I can\'t see text in the textbox: {string}', async function textAbsent(
 
 		await Promise.any(promises)
 			.then(async (elem) => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const resp = await elem.getText().then((text: string) => text);
 				assert.strictEqual(resp, '', 'Textfield does contain some Text');
 			})
@@ -672,19 +677,24 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 		await Promise.any(promises)
 			.then(async (elem) => {
 				if (await elem.getTagName() === 'picture') {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 					const childSourceElems = await elem.findElements(By.xpath('.//source'));
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 					const elementWithSrcset = await childSourceElems.find(async (element: SeleniumElement) => {
 						const srcsetValue = await element.getAttribute('srcset');
 						return srcsetValue && srcsetValue.includes(name);
 					});
 					if (elementWithSrcset) 
+						// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 						finSrc = await elementWithSrcset.getAttribute('srcset');
                     
 				}
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const primSrc = await elem.getAttribute('src');
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const secSrc = await elem.getAttribute('srcset');
-				if (!finSrc && primSrc && primSrc.includes(name)) finSrc = primSrc;
-				if (!finSrc && secSrc && secSrc.includes(name)) finSrc = secSrc;
+				if (!finSrc && primSrc?.includes(name)) finSrc = primSrc as string;
+				if (!finSrc && secSrc?.includes(name)) finSrc = secSrc as string;
 				finSrc = (finSrc as string).split(' ').filter((substring: string) => substring.includes(name));
 			})
 			.catch(async (e: unknown) => {
@@ -694,7 +704,7 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 			});
 
 		// Ensure finSrc is not an empty array before fetch
-		const srcToFetch = Array.isArray(finSrc) ? finSrc[0] : finSrc; 
+		const srcToFetch = Array.isArray(finSrc) ? (finSrc as string[])[0] : finSrc; 
 		if (!srcToFetch) 
 			throw new Error(`Image source for "${name}" could not be determined.`);
         
@@ -718,7 +728,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 		const { resultString, regexFound } = resolveRegex(expectedText);
 		const world = this;
 		try {
-			await driver.wait(async () => driver.executeScript<string>('return document.readyState').then(async (readyState: string) => readyState === 'complete'));
+			await driver.wait(() => driver.executeScript<string>('return document.readyState').then((readyState: string) => readyState === 'complete'));
 			await driver.wait(until.elementLocated(By.css('Body')), searchTimeout).then(async (body: SeleniumElement) => {
 				const cssBody = await body.getText().then((bodytext: string) => bodytext);
 				const innerHtmlBody = await driver.executeScript<string>('return document.documentElement.innerHTML');
@@ -767,10 +777,11 @@ Then('So on element {string} the css property {string} is {string}', async funct
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 		await Promise.any(promises)
 			.then(async (elem) => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const actual = await elem.getCssValue(property);
 				// in selenium colors are always rgba. support.Color is not implemented in javascript
-				if (actual.startsWith('rgba')) {
-					const colorNumbers = actual.replace('rgba(', '').replace(')', '')
+				if ((actual as string).startsWith('rgba')) {
+					const colorNumbers = (actual as string).replace('rgba(', '').replace(')', '')
 						.split(',');
 					const [r, g, b] = colorNumbers.map((v: string) => Number(v).toString(16));
 					const hex = `#${r}${g}${b}`;
@@ -794,6 +805,7 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 		for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 		await Promise.any(promises)
 			.then(async (elem) => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const actual = await elem.getAttribute('title');
 				assert.strictEqual(actual, value);
 			})
