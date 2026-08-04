@@ -14,8 +14,8 @@
  * this redirects them to the real test database without changing production code.
  */
 import { type Db, type MongoClient, ObjectId } from 'mongodb';
+import type { StartedMongoDBContainer } from '@testcontainers/mongodb';
 import {
-	assertLocalUri,
 	tryCreateClient,
 	closeClient,
 	clearCollections,
@@ -30,6 +30,7 @@ import {
 } from './setup.js';
 import type { User } from '@shared/models/User.js';
 
+let container: StartedMongoDBContainer | null = null;
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
@@ -63,11 +64,9 @@ function mockRes(): { statusCode: number; body: unknown; status: (code: number) 
 }
 
 beforeAll(async () => {
-	// Host-Guard MUSS vor connect() stehen — Remote-URI = hartes Fail, kein Skip
-	assertLocalUri();
-
 	const setup = await tryCreateClient();
 	if (!setup) return;
+	container = setup.container;
 	client = setup.client;
 	db = setup.db;
 	_testDb = db;
@@ -95,9 +94,7 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-	if (client) 
-		await closeClient(client);
-	
+	await closeClient(client, container);
 });
 
 async function seedAdditionalUser(email: string): Promise<User> {

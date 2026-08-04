@@ -1,85 +1,28 @@
 /**
- * Integration test helper — connects to the real MongoDB at INTEGRATION_DATABASE_URI
+ * Integration test helper — starts an isolated MongoDB container via Testcontainers
  * and provides per-file setup/teardown.
  *
- * SECURITY: Host-Whitelist-Guard — die URI wird vor dem Verbinden auf lokale Hosts
- * geprüft. Remote-Hosts (Produktion, Atlas, CI) werden HART abgelehnt, weil die
- * Suite Collections leert.
+ * SECURITY: No host guard needed. Testcontainers starts a fresh container on a random
+ * host port, so there is zero risk of touching production or shared databases.
  *
- * Option A chosen (see report): tests create their own MongoClient and select
- * `Seed_itest` explicitly, bypassing DbConnector entirely. This is the least
- * invasive approach because:
- *   1. It requires zero changes to DbConnector.ts — no risk of breaking the
- *      689 existing unit tests that mock getConnection().
- *   2. DbConnector.establishConnection() is called by production code paths
- *      (import-export.service.ts) — adding an optional parameter there changes
- *      the mock surface for every existing test.
- *   3. Integration tests are inherently different from unit tests — they own
- *      their connection lifecycle and should not share state with the app's
- *      singleton connection.
+ * The container runs as a ReplicaSet (rs0), enabling MongoDB transactions.
+ * Authentication is enabled with a fixed test credential.
  *
  * Each test file MUST:
- *   1. Call createClient() in its own beforeAll
+ *   1. Call createClient() or tryCreateClient() in its own beforeAll
  *   2. Register its own beforeEach to clear the collections it touches
  *   3. Call closeClient() in its own afterAll
  * File-level isolation (not module-level singletons) keeps suites order-agnostic.
  */
+import { MongoDBContainer, type StartedMongoDBContainer } from '@testcontainers/mongodb';
 import { MongoClient, type Db, ObjectId } from 'mongodb';
 import { type UserDoc, type RepositoryDoc, type StoryDoc } from '../types/mongo.types.js';
 import type { Workgroup } from '../services/workgroup.service.js';
 import type { ReportDoc } from '../types/report.types.js';
 
-/** Allowed host patterns — nur lokale/adapter addresses sind sicher. */
-const ALLOWED_HOSTS: ReadonlySet<string> = new Set([
-	'localhost',
-	'127.0.0.1',
-	'::1',
-	'[::1]',
-	'mongodb',       // Docker-Compose-Servicename
-	'seedmongodb',   // Docker-Compose-Servicename aus diesem Projekt
-	'host.docker.internal'
-]);
-
-/**
- * Extrahiert den Host aus einer MongoDB-URI und prüft, ob er auf der Whitelist steht.
- * Unterstützt beide URI-Schemata: mongodb:// und mongodb+srv://.
- * Wirft einen Fehler VOR dem Verbindungsaufbau, wenn der Host nicht erlaubt ist.
- */
-function assertLocalHost(uri: string): void {
-	let host: string;
-	if (uri.startsWith('mongodb+srv://')) {
-		// mongodb+srv://user:pass@hostname.mongodb.net/...
-		// Der Host ist der erste Teil nach dem @
-		const atIndex = uri.indexOf('@');
-		if (atIndex === -1) throw new Error(`Invalid mongodb+srv URI: no @ found in "${uri.slice(0, 50)}..."`);
-		const afterAt = uri.slice(atIndex + 1);
-		// Nächster Slash oder Fragezeichen beendet den Host
-		const hostEnd = afterAt.search(/[?/]/);
-		host = hostEnd === -1 ? afterAt : afterAt.slice(0, hostEnd);
-	} else {
-		// mongodb://user:pass@host:port/...
-		// Extrahiere den Host-Teil der Authority
-		const atIndex = uri.indexOf('@');
-		const afterAt = atIndex === -1 ? uri.slice('mongodb://'.length) : uri.slice(atIndex + 1);
-		const hostEnd = afterAt.search(/[:?/]/);
-		host = hostEnd === -1 ? afterAt : afterAt.slice(0, hostEnd);
-	}
-
-	const isAllowed = ALLOWED_HOSTS.has(host)
-		|| host.startsWith('localhost:')
-		|| host.startsWith('127.0.0.1:')
-		|| host.startsWith('[::1]:');
-
-	if (!isAllowed)
-		throw new Error(
-			`Refusing to run integration tests against a non-local database: ${host}.\n`
-			+ 'Integration tests write to and clear collections — they must never run\n'
-			+ 'against a shared or production cluster.\n'
-			+ '\n'
-			+ 'Set INTEGRATION_DATABASE_URI to a local MongoDB, e.g.\n'
-			+ '  mongodb://SeedAdmin:SeedTest@localhost:27017\n'
-		);
-}
+/** Test credentials embedded in the container. */
+const TEST_USER = 'itest';
+const TEST_PASSWORD = 'itest123';
 
 /**
  * Shared collection names — import these so file-level beforeEach
@@ -97,22 +40,32 @@ export const COLLECTIONS = {
 } as const;
 
 /**
- * Creates a MongoClient connected to the test database.
- * Liest INTEGRATION_DATABASE_URI (nicht DATABASE_URI), um zu verhindern,
- * dass versehentlich die Produktionsdatenbank aus .env getroffen wird.
- * Führt den Host-Whitelist-Guard AUS vor MongoClient.connect().
- * Uses a 3-second serverSelectionTimeout for fast skip when no MongoDB is reachable.
+ * Creates a MongoClient connected to a fresh Testcontainers MongoDB instance.
+ * The container runs as a ReplicaSet (rs0), so transactions are supported.
  * Throws on failure — caller should use tryCreateClient() for safe skips.
+ * Timeout is high (120 s) to allow for the initial Docker image pull.
  */
-export async function createClient(): Promise<{ client: MongoClient; db: Db }> {
-	// INTEGRATION_DATABASE_URI — nie DATABASE_URI, damit .env nicht die Produktion trifft
-	const uri = process.env.INTEGRATION_DATABASE_URI ?? 'mongodb://SeedAdmin:SeedTest@localhost:27017';
+export async function createClient(): Promise<{
+	client: MongoClient;
+	db: Db;
+	container: StartedMongoDBContainer;
+}> {
+	// Start a MongoDB 8 container with auth + ReplicaSet
+	const container = await new MongoDBContainer('mongo:8')
+		.withUsername(TEST_USER)
+		.withPassword(TEST_PASSWORD)
+		.withStartupTimeout(120_000)
+		.start();
 
-	// Host-Guard MUSS vor connect() stehen
-	assertLocalHost(uri);
+	// directConnection=true forces the Node driver to connect to the single
+	// host:port that Testcontainers exposes (container.getMappedPort()).
+	// Without it the driver would attempt SRV-style discovery which fails
+	// on a random mapped port.
+	const baseUri = container.getConnectionString();
+	const uri = `${baseUri}&directConnection=true`;
 
 	const client = await MongoClient.connect(uri, {
-		serverSelectionTimeoutMS: 3000,
+		serverSelectionTimeoutMS: 10_000,
 		maxPoolSize: 5
 	});
 
@@ -120,22 +73,19 @@ export async function createClient(): Promise<{ client: MongoClient; db: Db }> {
 
 	await db.admin().ping();
 
-	return { client, db };
+	return { client, db, container };
 }
 
 /**
- * Tries to create a client, returning null if the database is unreachable.
- * Falls der Host-Guard greift (Remote-URI), wird der Fehler NICHT abgefangen —
- * Remote-Hosts müssen HART failen, nicht skippen.
+ * Tries to create a client + container, returning null if the database is unreachable
+ * (e.g. Docker is not running or the image cannot be pulled).
  * Call this from beforeAll — if null, skip all tests with a clear message.
  */
-/**
- * Tries to create a client, returning null only if the database is UNREACHABLE.
- * Wenn der Host-Guard greift (Remote-URI per INTEGRATION_DATABASE_URI), wird der
- * Fehler NICHT abgefangen — die Test-Datei muss dann hart failen.
- * Call this from beforeAll — if null, skip all tests with a clear message.
- */
-export async function tryCreateClient(): Promise<{ client: MongoClient; db: Db } | null> {
+export async function tryCreateClient(): Promise<{
+	client: MongoClient;
+	db: Db;
+	container: StartedMongoDBContainer;
+} | null> {
 	try {
 		return await createClient();
 	} catch {
@@ -143,27 +93,22 @@ export async function tryCreateClient(): Promise<{ client: MongoClient; db: Db }
 	}
 }
 
-/**
- * Assert-funktion für Test-Dateien: prüft, ob der Host-Guard gegriffen hätte.
- * Wird vor tryCreateClient() aufgerufen, damit Remote-URI nicht im Catch
- * verschwinden, sondern hart failen.
- * Wirft sofort, wenn INTEGRATION_DATABASE_URI auf einen Remote-Host zeigt.
- */
-export function assertLocalUri(): void {
-	const uri = process.env.INTEGRATION_DATABASE_URI ?? 'mongodb://SeedAdmin:SeedTest@localhost:27017';
-	assertLocalHost(uri);
-}
-
 /** Message printed when no MongoDB is reachable. */
-export const SKIP_MESSAGE = 'Integration tests require a running MongoDB — run \'docker compose up -d seedmongodb\'';
+export const SKIP_MESSAGE = 'Integration tests require Docker (Testcontainers) — ensure Docker Desktop or Podman Desktop (with Docker API) is running';
 
 /**
- * Closes the client connection. Safe to call multiple times.
+ * Closes the client connection and stops the container.
+ * Safe to call multiple times passing null values.
  */
-export async function closeClient(client: MongoClient | null): Promise<void> {
-	if (client) 
+export async function closeClient(
+	client: MongoClient | null,
+	container: StartedMongoDBContainer | null | undefined
+): Promise<void> {
+	if (client)
 		await client.close();
-	
+
+	if (container)
+		await container.stop();
 }
 
 /**
@@ -172,9 +117,8 @@ export async function closeClient(client: MongoClient | null): Promise<void> {
  * @param names Collection names to clear. Empty array = clear everything.
  */
 export async function clearCollections(db: Db, names: string[]): Promise<void> {
-	for (const name of names) 
+	for (const name of names)
 		await db.collection(name).deleteMany({});
-	
 }
 
 /**
@@ -276,7 +220,6 @@ export async function seedWorkgroup(
 	repoId: string,
 	members: { email: string; canEdit: boolean }[]
 ): Promise<void> {
-	const { ObjectId } = await import('mongodb');
 	await db.collection<Workgroup>(COLLECTIONS.Workgroups).insertOne({
 		name: 'ITest WG',
 		owner: members[0]?.email ?? 'owner@test.de',
@@ -311,7 +254,6 @@ export async function seedReport(
 		mode: 1 as unknown as ReportDoc['mode'], // STORY mode
 		status: true,
 		featureId: storyId,
-		// smallReport must be a string per shared model, but the type accepts ObjectId | string
 		...overrides
 	};
 	const result = await db.collection<ReportDoc>(COLLECTIONS.ReportData).insertOne(doc);
@@ -325,8 +267,8 @@ export async function seedReport(
  */
 export async function getCollectionCounts(db: Db): Promise<Record<string, number>> {
 	const counts: Record<string, number> = {};
-	for (const [key, name] of Object.entries(COLLECTIONS)) 
+	for (const [key, name] of Object.entries(COLLECTIONS))
 		counts[key] = await db.collection(name).countDocuments();
-	
+
 	return counts;
 }

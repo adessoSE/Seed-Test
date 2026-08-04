@@ -77,7 +77,7 @@ export default defineConfig([
 	},
 	{
 		// Test files get relaxed rules — mocks and test utilities need flexibility
-		files: ['src/**/*.spec.ts'],
+		files: ['src/**/*.spec.ts', 'src/**/*.itest.ts'],
 		rules: {
 			'@typescript-eslint/no-explicit-any': 'off',
 			'@typescript-eslint/no-unsafe-assignment': 'off',

@@ -137,68 +137,50 @@ npx vitest run src/app/Services/api.service.spec.ts
 npx vitest --watch
 ```
 
-## Integrationstests (gegen echte MongoDB)
+## Integrationstests (Testcontainers)
 
-Seit August 2026 gibt es eine Integrationstest-Schicht, die gegen eine **lokale MongoDB** testet — nicht gegen gemockte Datenbankverbindungen.
+Seit August 2026 gibt es eine Integrationstest-Schicht, die gegen eine **isolierte MongoDB im Container** testet — nicht gegen gemockte Datenbankverbindungen.
 
 ### Motivation
 
 Die 689 Unit-Tests mocken `DbConnector.getConnection()` via `vi.hoisted()` + `vi.mock()`. Dadurch werden **Query-Shape-Fehler, ObjectId-Koerzionsfehler, Index-Nutzung und Cascade-Verhalten** nie getestet. Integrationstests schließen diese Lücke.
 
-### WARNUNG: Die Suite LEERT Collections
+### Technologie: Testcontainers
 
-Integrationstests schreiben Testdaten und leeren Collections (`deleteMany({})`). Sie **dürfen niemals gegen eine geteilte oder Produktions-Datenbank laufen**. Ein Host-Guard in `setup.ts` verhindert das:
+Die Tests nutzen [`testcontainers`](https://testcontainers.com/) für Node.js. Bei jedem Lauf wird ein frischer `mongo:8`-Container gestartet:
 
-- Die Suite liest **`INTEGRATION_DATABASE_URI`** (nicht `DATABASE_URI`)
-- Der Host wird **vor** `MongoClient.connect()` gegen eine Whitelist geprüft
-- Erlaubte Hosts: `localhost`, `127.0.0.1`, `::1`, `mongodb`, `seedmongodb`, `host.docker.internal`
-- Bei einem Remote-Host (Atlas, CI, Produktion) failt die Suite SOFORT mit einer Fehlermeldung — kein Skip, kein Connect
-- Fehlt die Variable, greift der Default `mongodb://SeedAdmin:SeedTest@localhost:27017`
-
-Parallel laufende Integrationstests mehrerer Entwickler auf derselben Datenbank zerstören sich gegenseitig — jeder Entwickler braucht seine eigene lokale MongoDB.
-
-### Warum die existierende Docker-MongoDB statt mongodb-memory-server?
-
-`mongodb-memory-server` wurde explizit **abgelehnt**, weil:
-
-- `docker-compose.yml` und `docker-test.yml` starten bereits `mongo:latest` mit Healthcheck
-- `mongodb-memory-server` lädt ein ~80MB MongoDB-Binary herunter, was hinter Corporate-Proxies scheitert
-- Es würde einen **zweiten, parallelen** MongoDB-Instanz neben der bereits laufenden bedeuten
-
-Stattdessen verwenden die Integrationstests `INTEGRATION_DATABASE_URI` und schreiben in eine **dedizierte Datenbank `Seed_itest`** (nicht die Produktionsdatenbank `Seed`).
+- **Isolation pur**: Der Container läuft auf einem zufälligen Host-Port — kein Konflikt mit der Produktions-Datenbank (`Seed`) oder dem Entwicklungs-Container (`seedmongodb`)
+- **ReplicaSet inklusive**: Der Container wird mit `--replSet rs0` gestartet und initialisiert, sodass MongoDB-Transaktionen funktionieren
+- **Automatische Bereinigung**: Der Ryuk-Sidecar von Testcontainers stoppt und entfernt den Container nach Test-Ende
+- **Sicherheit**: Kein Host-Guard nötig — der Container ist von Haus aus lokal und kurzlebig
 
 ### Ausführen
 
 ```bash
-# INTEGRATION_DATABASE_URI setzen (optional — Default greift auf localhost)
-export INTEGRATION_DATABASE_URI=mongodb://SeedAdmin:SeedTest@localhost:27017
-
-# MongoDB muss laufen (Docker oder lokal):
-docker compose up -d seedmongodb
-
-# Integrationstests starten:
+# Ein Befehl — Testcontainers startet/stoppt MongoDB automatisch
 cd backend && npm run test:integration
 ```
 
-Falls keine lokale MongoDB erreichbar ist, skippt die Suite mit:
+**Erster Durchlauf**: ~60s (Docker pull für `mongo:8`).  
+**Alle weiteren**: ~15s (Image gecached, Container-Start + Replica-Init in <5s).
+
+Falls Docker nicht läuft, skippt die Suite mit:
 ```
-Integration tests require a running MongoDB — run 'docker compose up -d seedmongodb'
+Integration tests require Docker (Testcontainers) — ensure Docker Desktop
+or Podman Desktop (with Docker API) is running
 ```
 
-### Host-Guard im Detail
+### Voraussetzung: Docker oder Podman
 
-Die Funktion `assertLocalHost()` in `src/integration/setup.ts`:
+**Docker Desktop**: Einfach laufen lassen — Testcontainers findet den Docker-Socket automatisch.
 
-1. Extrahiert den Host aus der URI (unterstützt `mongodb://` und `mongodb+srv://`)
-2. Vergleicht gegen die Whitelist lokaler Adressen
-3. Bei Treffer: Verbindung wird zugelassen
-4. Bei Nichttreffer: **sofortiger Abbruch vor `MongoClient.connect()`**
+**Podman Desktop**: Aktivere den **Docker API compatibility mode** in Podman Desktop (Settings → Docker API). Testcontainers kommuniziert dann nahtlos über die Docker-API-Emulation.
 
-Die Whitelist enthält `localhost`, `127.0.0.1`, `::1`, `mongodb`, `seedmongodb` und `host.docker.internal`. Ein Atlas-Cluster (`mongodb+srv://...mongodb.net`) wird zuverlässig abgewiesen.
+Kein manuelles `docker compose up` mehr nötig.
 
-### Datenbank-Wahl: Option A
+### Datenbank-Wahl: Eigenständiger Client
 
-Die Integrationstests verwenden **Option A**: Sie erzeugen einen eigenen `MongoClient` und wählen `Seed_itest` explizit aus, ohne `DbConnector` zu nutzen. Begründung:
+Die Integrationstests erzeugen einen eigenen `MongoClient` und wählen `Seed_itest` explizit aus, ohne `DbConnector` zu nutzen. Begründung:
 
 1. **Keine Änderung an `DbConnector.ts`** — Null-Risiko für die 689 bestehenden Unit-Tests, die `getConnection()` mocken
 2. `DbConnector.establishConnection()` wird von Produktionscode-Pfaden genutzt (z.B. `import-export.service.ts`) — ein optionaler Parameter dort würde die Mock-Oberfläche für alle existierenden Tests ändern
@@ -213,15 +195,14 @@ Die Integrationstests verwenden **Option A**: Sie erzeugen einen eigenen `MongoC
 
 ### Test-Isolation
 
-- **Per File**: `beforeAll`/`afterAll` erzeugen/schließen den Client
-- **Per Test**: `beforeEach` leert alle Collections, die das File berührt
-- Keine geteilten Fixtures zwischen Files — die Suite ist order-agnostisch
+- **Global**: `vitest.integration.config.ts` setzt `fileParallelism: false` — jede Datei bekommt ihren eigenen Container
+- **Per Datei**: `beforeAll` startet den Container und `MongoClient`, `afterAll` stoppt beides
+- **Per Test**: `beforeEach` leert alle Collections, die die Datei berührt
+- Keine geteilten Fixtures zwischen Dateien — die Suite ist order-agnostisch
 
-### Bekanntes Issue: Transaktionen
+### Transaktionen (gelöst)
 
-`src/services/import-export.service.ts` (Zeilen 66–96) verwendet `client.startSession()` + `session.withTransaction()`. MongoDB-Transaktionen **erfordern einen Replica Set**, aber weder `docker-compose.yml` noch `docker-test.yml` starten Mongo mit `--replSet`.
-
-**Dies ist ein offenes Issue** — der Import/Export-Transaktionspfad kann nicht gegen einen Standalone-MongoDB funktionieren und könnte ein echter Produktions-Bug sein. Eine separate Untersuchung ist erforderlich.
+Das frühere Issue — `import-export.service.ts` benötigt MongoDB-Transaktionen, die einen ReplicaSet voraussetzen — ist mit Testcontainers gelöst: der `mongo:8`-Container startet standardmäßig als ReplicaSet (`rs0`). Transaktionspfade können nun korrekt getestet werden.
 
 ### Gefundene Bugs
 

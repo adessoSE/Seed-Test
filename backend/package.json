@@ -8,6 +8,7 @@
   "scripts": {
     "start": "tsc -b && node --env-file-if-exists=.env dist/server.js",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "test-coverage": "vitest run --coverage",
     "test-watch": "vitest",
     "database": "tsc -b && node --env-file-if-exists=.env dist/database/installDatabase.js",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "@testcontainers/mongodb": "^12.1.0",
     "@types/adm-zip": "^0.5.8",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
@@ -55,6 +57,7 @@
     "@types/passport-local": "^1.0.38",
     "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^10.8.0",
+    "testcontainers": "^12.1.0",
     "typescript": ">=6.0.0 <6.1.0",
     "typescript-eslint": "^8.65.0",
     "vitest": "^4.1.10"

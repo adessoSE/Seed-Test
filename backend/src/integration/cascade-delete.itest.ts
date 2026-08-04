@@ -13,8 +13,8 @@
  * per describe block.
  */
 import { type Db, type MongoClient, ObjectId } from 'mongodb';
+import type { StartedMongoDBContainer } from '@testcontainers/mongodb';
 import {
-	assertLocalUri,
 	tryCreateClient,
 	closeClient,
 	clearCollections,
@@ -27,6 +27,7 @@ import {
 	SKIP_MESSAGE
 } from './setup.js';
 
+let container: StartedMongoDBContainer | null = null;
 let client: MongoClient;
 let db: Db;
 let ownerId: string;
@@ -34,14 +35,12 @@ let repoId: string;
 let skipTests = false;
 
 beforeAll(async () => {
-	// Host-Guard MUSS vor connect() stehen — Remote-URI = hartes Fail, kein Skip
-	assertLocalUri();
-
 	const setup = await tryCreateClient();
 	if (!setup) {
 		skipTests = true;
 		return;
 	}
+	container = setup.container;
 	client = setup.client;
 	db = setup.db;
 });
@@ -65,7 +64,7 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-	await closeClient(client);
+	await closeClient(client, container);
 });
 
 function checkSkipped(): void {
