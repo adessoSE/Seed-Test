@@ -156,19 +156,23 @@ export async function updateRepository(repoId: string, newName?: string, globalS
 	if (globalSettings !== undefined) updateFields.settings = globalSettings;
     
 	// Encrypt API keys before saving
+	// The JSON round-trip strips undefined fields, and at runtime
+	// configToSave may be a partial object missing textPreparation or
+	// jsonConversion (e.g. import from a repo that never configured AI).
+	// Cast via Partial to allow optional-chain without false lint positives.
 	if (aiConfig !== undefined) {
 		// Create a deep copy to avoid modifying the input object
-		const configToSave = JSON.parse(JSON.stringify(aiConfig)) as AiConfig;
+		const configToSave = JSON.parse(JSON.stringify(aiConfig)) as Partial<AiConfig>;
 
-		if (configToSave.textPreparation.apiKey && !isAlreadyEncrypted(configToSave.textPreparation.apiKey)) 
+		if (configToSave.textPreparation?.apiKey && !isAlreadyEncrypted(configToSave.textPreparation.apiKey)) 
 			configToSave.textPreparation.apiKey = encrypt(configToSave.textPreparation.apiKey) ?? undefined;
         
 
-		if (configToSave.jsonConversion.apiKey && !isAlreadyEncrypted(configToSave.jsonConversion.apiKey)) 
+		if (configToSave.jsonConversion?.apiKey && !isAlreadyEncrypted(configToSave.jsonConversion.apiKey)) 
 			configToSave.jsonConversion.apiKey = encrypt(configToSave.jsonConversion.apiKey) ?? undefined;
         
 
-		updateFields.aiConfig = configToSave;
+		updateFields.aiConfig = configToSave as AiConfig;
 	}
 
 	const result = await db.collection<RepositoryDoc>(repositoriesCollection).findOneAndUpdate(

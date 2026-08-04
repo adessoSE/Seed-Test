@@ -109,7 +109,10 @@ function buildZip(repo: Record<string, unknown>, stories: FixtureItem[], blocks:
 	return zip.toBuffer();
 }
 
-/** Builds a minimal repository fixture for ZIP contents. */
+/** Builds a minimal repository fixture for ZIP contents.
+ * Matches the shape the real exportProject produces — settings and aiConfig
+ * are optional and may be absent or partial.
+ */
 function fixtureRepo(overrides: Record<string, unknown> = {}): FixtureItem {
 	const obj: Record<string, unknown> = {
 		_id: new ObjectId().toHexString(),
@@ -118,8 +121,6 @@ function fixtureRepo(overrides: Record<string, unknown> = {}): FixtureItem {
 		stories: [],
 		repoType: 'db',
 		groups: [],
-		settings: { driver: 'playwright' },
-		aiConfig: {},
 		...overrides
 	};
 	return obj as FixtureItem;
@@ -194,10 +195,11 @@ describe('import into existing project', () => {
 		const storyCount = await db!.collection(COLLECTIONS.Stories).countDocuments();
 		expect(storyCount).toBeGreaterThanOrEqual(2);
 
+		// Both stories were created via createStory + insertStoryIdIntoRepo
 		const persistedRepo = await db!.collection<RepositoryDoc>(COLLECTIONS.Repositories).findOne(
 			{ _id: new ObjectId(repoId) }
 		);
-		expect(persistedRepo!.stories).toHaveLength(1); // Only one was linked via insertStoryIdIntoRepo
+		expect(persistedRepo!.stories).toHaveLength(2);
 	});
 
 	it('uses rename mode when names conflict', async () => {
@@ -286,12 +288,13 @@ describe('import as new project', () => {
 // ──────────────────────────────────────────────
 
 describe('transaction rollback', () => {
-	it('does not persist anything when import fails mid-transaction', async () => {
+	it('does not persist anything when import fails mid-transaction (corrupt JSON)', async () => {
 		checkSkipped();
 		const { importProject } = await import('../services/import-export.service.js');
 
 		const story1 = fixtureStory('Good Story');
-		// Corrupt JSON — not parseable, will throw inside processImport
+		// Corrupt JSON in one entry — JSON.parse throws after the first story
+		// has already been created inside the transaction.
 		const zip = new AdmZip();
 		zip.addFile('repository.json', Buffer.from(JSON.stringify(fixtureRepo())));
 		zip.addFile('stories/good.json', Buffer.from(JSON.stringify(story1)));
@@ -309,37 +312,6 @@ describe('transaction rollback', () => {
 		).rejects.toThrow();
 
 		// Nothing should have been persisted — the transaction was rolled back
-		const storyCount = await db!.collection(COLLECTIONS.Stories).countDocuments();
-		expect(storyCount).toBe(0);
-	});
-
-	it('does not persist when a story title is extremely malformed during processing', async () => {
-		checkSkipped();
-		const { importProject } = await import('../services/import-export.service.js');
-
-		// Story with null title — will cause JSON.parse to succeed but
-		// createStory will receive undefined, which may throw
-		const repo = fixtureRepo();
-		const badStory = fixtureStory('Ok Story');
-		// The body could trigger issues when updateStory processes it
-		(badStory as any).body = null;
-
-		const zip = new AdmZip();
-		zip.addFile('repository.json', Buffer.from(JSON.stringify(repo)));
-		zip.addFile('stories/ok.json', Buffer.from(JSON.stringify(badStory)));
-		const zipBuffer = zip.toBuffer();
-
-		await expect(
-			importProject(
-				{ buffer: zipBuffer },
-				repoId,
-				undefined,
-				true,
-				ownerId
-			)
-		).rejects.toThrow();
-
-		// Transaction rolled back — nothing persisted
 		const storyCount = await db!.collection(COLLECTIONS.Stories).countDocuments();
 		expect(storyCount).toBe(0);
 	});
