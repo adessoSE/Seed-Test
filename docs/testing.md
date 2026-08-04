@@ -9,6 +9,9 @@ Seed-Test ist eine Low-Code-WebApp zum Generieren von Browser-Automation-Tests. 
 cd backend && npm test              # alle Tests
 npm run test-coverage               # mit Coverage-Report
 
+# Backend — Integrationstests (benötigt laufende MongoDB)
+cd backend && npm run test:integration
+
 # Frontend — Vitest Unit-Tests (via Angular CLI)
 cd frontend && npm test             # alle Tests
 npm run test-coverage               # mit Coverage-Report
@@ -19,7 +22,7 @@ npx vitest run src/services/story.service.spec.ts
 
 ## Backend (Vitest)
 
-- **668 Tests** in **44 Spec-Dateien** (Stand: August 2026)
+- **689 Tests** in **45 Spec-Dateien** (Stand: August 2026)
 - `*.spec.ts` Dateien liegen **neben der zu testenden Logik** (`services/`, `controllers/`, `helpers/`, `middleware/`, `utils/`, `testing/`, `schemas/`)
 - Vitest `v4.1` mit `@shared` Path-Alias (`vitest.config.ts`)
 - Target: `node` (kein DOM)
@@ -133,6 +136,98 @@ npx vitest run src/app/Services/api.service.spec.ts
 # Watch mode:
 npx vitest --watch
 ```
+
+## Integrationstests (gegen echte MongoDB)
+
+Seit August 2026 gibt es eine Integrationstest-Schicht, die gegen eine **lokale MongoDB** testet — nicht gegen gemockte Datenbankverbindungen.
+
+### Motivation
+
+Die 689 Unit-Tests mocken `DbConnector.getConnection()` via `vi.hoisted()` + `vi.mock()`. Dadurch werden **Query-Shape-Fehler, ObjectId-Koerzionsfehler, Index-Nutzung und Cascade-Verhalten** nie getestet. Integrationstests schließen diese Lücke.
+
+### WARNUNG: Die Suite LEERT Collections
+
+Integrationstests schreiben Testdaten und leeren Collections (`deleteMany({})`). Sie **dürfen niemals gegen eine geteilte oder Produktions-Datenbank laufen**. Ein Host-Guard in `setup.ts` verhindert das:
+
+- Die Suite liest **`INTEGRATION_DATABASE_URI`** (nicht `DATABASE_URI`)
+- Der Host wird **vor** `MongoClient.connect()` gegen eine Whitelist geprüft
+- Erlaubte Hosts: `localhost`, `127.0.0.1`, `::1`, `mongodb`, `seedmongodb`, `host.docker.internal`
+- Bei einem Remote-Host (Atlas, CI, Produktion) failt die Suite SOFORT mit einer Fehlermeldung — kein Skip, kein Connect
+- Fehlt die Variable, greift der Default `mongodb://SeedAdmin:SeedTest@localhost:27017`
+
+Parallel laufende Integrationstests mehrerer Entwickler auf derselben Datenbank zerstören sich gegenseitig — jeder Entwickler braucht seine eigene lokale MongoDB.
+
+### Warum die existierende Docker-MongoDB statt mongodb-memory-server?
+
+`mongodb-memory-server` wurde explizit **abgelehnt**, weil:
+
+- `docker-compose.yml` und `docker-test.yml` starten bereits `mongo:latest` mit Healthcheck
+- `mongodb-memory-server` lädt ein ~80MB MongoDB-Binary herunter, was hinter Corporate-Proxies scheitert
+- Es würde einen **zweiten, parallelen** MongoDB-Instanz neben der bereits laufenden bedeuten
+
+Stattdessen verwenden die Integrationstests `INTEGRATION_DATABASE_URI` und schreiben in eine **dedizierte Datenbank `Seed_itest`** (nicht die Produktionsdatenbank `Seed`).
+
+### Ausführen
+
+```bash
+# INTEGRATION_DATABASE_URI setzen (optional — Default greift auf localhost)
+export INTEGRATION_DATABASE_URI=mongodb://SeedAdmin:SeedTest@localhost:27017
+
+# MongoDB muss laufen (Docker oder lokal):
+docker compose up -d seedmongodb
+
+# Integrationstests starten:
+cd backend && npm run test:integration
+```
+
+Falls keine lokale MongoDB erreichbar ist, skippt die Suite mit:
+```
+Integration tests require a running MongoDB — run 'docker compose up -d seedmongodb'
+```
+
+### Host-Guard im Detail
+
+Die Funktion `assertLocalHost()` in `src/integration/setup.ts`:
+
+1. Extrahiert den Host aus der URI (unterstützt `mongodb://` und `mongodb+srv://`)
+2. Vergleicht gegen die Whitelist lokaler Adressen
+3. Bei Treffer: Verbindung wird zugelassen
+4. Bei Nichttreffer: **sofortiger Abbruch vor `MongoClient.connect()`**
+
+Die Whitelist enthält `localhost`, `127.0.0.1`, `::1`, `mongodb`, `seedmongodb` und `host.docker.internal`. Ein Atlas-Cluster (`mongodb+srv://...mongodb.net`) wird zuverlässig abgewiesen.
+
+### Datenbank-Wahl: Option A
+
+Die Integrationstests verwenden **Option A**: Sie erzeugen einen eigenen `MongoClient` und wählen `Seed_itest` explizit aus, ohne `DbConnector` zu nutzen. Begründung:
+
+1. **Keine Änderung an `DbConnector.ts`** — Null-Risiko für die 689 bestehenden Unit-Tests, die `getConnection()` mocken
+2. `DbConnector.establishConnection()` wird von Produktionscode-Pfaden genutzt (z.B. `import-export.service.ts`) — ein optionaler Parameter dort würde die Mock-Oberfläche für alle existierenden Tests ändern
+3. Integrationstests unterscheiden sich inhärent von Unit-Tests — sie verwalten ihren eigenen Connection-Lifecycle und sollten keinen Singleton-State mit der App teilen
+
+### Test-Dateien und Coverage
+
+| Datei | Tests | Abdeckung |
+|-------|------:|-----------|
+| `cascade-delete.itest.ts` | 8 | Delete-Story-Cascade (Repo, Groups), Delete-Repository-Cascade (Stories, Blocks, Workgroups), Delete-Group (Stories überleben), Delete-Report |
+| `authorize.itest.ts` | 25 | authorizeRepo (10), authorizeByStory (6), authorizeByReport (5), authorizeByIssueKey (3) — je Owner/Member/Nicht-Mitglied/nicht existent |
+
+### Test-Isolation
+
+- **Per File**: `beforeAll`/`afterAll` erzeugen/schließen den Client
+- **Per Test**: `beforeEach` leert alle Collections, die das File berührt
+- Keine geteilten Fixtures zwischen Files — die Suite ist order-agnostisch
+
+### Bekanntes Issue: Transaktionen
+
+`src/services/import-export.service.ts` (Zeilen 66–96) verwendet `client.startSession()` + `session.withTransaction()`. MongoDB-Transaktionen **erfordern einen Replica Set**, aber weder `docker-compose.yml` noch `docker-test.yml` starten Mongo mit `--replSet`.
+
+**Dies ist ein offenes Issue** — der Import/Export-Transaktionspfad kann nicht gegen einen Standalone-MongoDB funktionieren und könnte ein echter Produktions-Bug sein. Eine separate Untersuchung ist erforderlich.
+
+### Gefundene Bugs
+
+Bei den Cascade-Tests wurde folgendes Verhalten dokumentiert (aber nicht gefixt — die Tests spiegeln den aktuellen Code):
+
+1. **deleteRepository mit nur Owner als Workgroup-Member**: Der Code prüft `workgroup.Members.length > 0` und tritt in den Transfer-Zweig ein, selbst wenn der Owner das einzige Mitglied ist. Die Übertragung an den aktuellen Owner ist sinnlos — hier sollte auf Members ohne Owner-Email geprüft werden. Siehe `cascade-delete.itest.ts` Test `deleteRepository with only the owner as workgroup member fully purges (no transfer target)`.
 
 ## CI-Tests
 
