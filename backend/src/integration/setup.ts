@@ -7,6 +7,8 @@
  *
  * The container runs as a ReplicaSet (rs0), enabling MongoDB transactions.
  * Authentication is enabled with a fixed test credential.
+ * Uses database 'Seed' — this is the isolated Testcontainers instance, not the
+ * production database. The container is ephemeral and runs on a random port.
  *
  * Each test file MUST:
  *   1. Call createClient() or tryCreateClient() in its own beforeAll
@@ -69,7 +71,11 @@ export async function createClient(): Promise<{
 		maxPoolSize: 5
 	});
 
-	const db = client.db('Seed_itest');
+	// Uses 'Seed' because all services hardcode client.db('Seed') when inside
+	// transactions (createStory, createRepo, saveBlock, etc.). Since Testcontainers
+	// creates an isolated container on a random port, there is zero risk of touching
+	// the production or development database — the container is ephemeral and local.
+	const db = client.db('Seed');
 
 	await db.admin().ping();
 

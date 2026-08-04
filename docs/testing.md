@@ -180,7 +180,7 @@ Kein manuelles `docker compose up` mehr nötig.
 
 ### Datenbank-Wahl: Eigenständiger Client
 
-Die Integrationstests erzeugen einen eigenen `MongoClient` und wählen `Seed_itest` explizit aus, ohne `DbConnector` zu nutzen. Begründung:
+Die Integrationstests erzeugen einen eigenen `MongoClient` und mocken `DbConnector`, sodass alle Service-Aufrufe gegen denselben Testcontainer laufen. Der Container verwendet die Datenbank `Seed` — da der Container isoliert und ephemeral ist, besteht keine Gefahr für die Produktion. Begründung:
 
 1. **Keine Änderung an `DbConnector.ts`** — Null-Risiko für die 689 bestehenden Unit-Tests, die `getConnection()` mocken
 2. `DbConnector.establishConnection()` wird von Produktionscode-Pfaden genutzt (z.B. `import-export.service.ts`) — ein optionaler Parameter dort würde die Mock-Oberfläche für alle existierenden Tests ändern
@@ -190,8 +190,9 @@ Die Integrationstests erzeugen einen eigenen `MongoClient` und wählen `Seed_ite
 
 | Datei | Tests | Abdeckung |
 |-------|------:|-----------|
-| `cascade-delete.itest.ts` | 8 | Delete-Story-Cascade (Repo, Groups), Delete-Repository-Cascade (Stories, Blocks, Workgroups), Delete-Group (Stories überleben), Delete-Report |
-| `authorize.itest.ts` | 25 | authorizeRepo (10), authorizeByStory (6), authorizeByReport (5), authorizeByIssueKey (3) — je Owner/Member/Nicht-Mitglied/nicht existent |
+| `cascade-delete.itest.ts` | 9 | Delete-Story-Cascade (Repo, Groups), Delete-Repository-Cascade, Ownership-Transfer, Delete-Group, Delete-Report — alle rufen echte Services auf |
+| `authorize.itest.ts` | 24 | authorizeRepo (10), authorizeByStory (6), authorizeByReport (5), authorizeByIssueKey (3) — je Owner/Member/Nicht-Mitglied/nicht existent |
+| `import-export.itest.ts` | 5 | Import in bestehendes Projekt, Import als neues Projekt, Rename-Mode, Transaktions-Rollback bei Fehler |
 
 ### Test-Isolation
 
@@ -204,11 +205,9 @@ Die Integrationstests erzeugen einen eigenen `MongoClient` und wählen `Seed_ite
 
 Das frühere Issue — `import-export.service.ts` benötigt MongoDB-Transaktionen, die einen ReplicaSet voraussetzen — ist mit Testcontainers gelöst: der `mongo:8`-Container startet standardmäßig als ReplicaSet (`rs0`). Transaktionspfade können nun korrekt getestet werden.
 
-### Gefundene Bugs
+### Gefundene Fehlannahme (behoben)
 
-Bei den Cascade-Tests wurde folgendes Verhalten dokumentiert (aber nicht gefixt — die Tests spiegeln den aktuellen Code):
-
-1. **deleteRepository mit nur Owner als Workgroup-Member**: Der Code prüft `workgroup.Members.length > 0` und tritt in den Transfer-Zweig ein, selbst wenn der Owner das einzige Mitglied ist. Die Übertragung an den aktuellen Owner ist sinnlos — hier sollte auf Members ohne Owner-Email geprüft werden. Siehe `cascade-delete.itest.ts` Test `deleteRepository with only the owner as workgroup member fully purges (no transfer target)`.
+Die ursprüngliche Version der Cascade-Tests enthielt einen Test, der eine Workgroup mit dem Owner als einzigem Member seedete und einen Bug vermutete, weil `deleteRepository()` in den Transfer-Zweig lief (`workgroup.Members.length > 0`). Die Analyse des Produktivcodes ergab: **Das ist kein Bug.** Der Owner steht in der Anwendung nie in `Members` — `transferOwnership()` und `promoteNewOwner()` entfernen den neuen Owner aus Members, und `addMember()` blockiert Duplikate. Der irreführende Test wurde durch einen realistischen Ownership-Transfer-Test mit einem echten zweiten Mitglied ersetzt.
 
 ## CI-Tests
 

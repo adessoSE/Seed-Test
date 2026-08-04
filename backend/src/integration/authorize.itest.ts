@@ -8,7 +8,7 @@
  * non-existent document scenarios.
  *
  * Connection strategy: vi.mock DbConnector before any service imports
- * so that getConnection() returns the Seed_itest database handle.
+ * so that getConnection() returns the Testcontainers database handle.
  * The middleware's service calls (repositoryService, workgroupService,
  * reportService, storyService) all use getConnection() internally —
  * this redirects them to the real test database without changing production code.
