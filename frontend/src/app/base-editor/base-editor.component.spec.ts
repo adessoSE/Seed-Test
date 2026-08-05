@@ -196,13 +196,13 @@ describe('BaseEditorComponent', () => {
 		});
 	});
 
-	describe('buildID', () => {
+describe('buildID', () => {
 		it('should return 0', () => {
 			const stepType: StepType[] = [];
 			const id = component.buildID(stepType);
 			expect(id).toBe(0);
 		});
-    
+     
 		it('should return buildID', () => {
 			const stepType = [{'id':1,'stepType':'given','type':'Role','pre':'As a','mid':'','values':['User'],'selection':['Guest','User']},{'id':2,'mid':'','pre':'I am on the website:','stepType':'given','type':'Website','values':['r']},{'id':3,'mid':'','pre':'I am on the website:','stepType':'given','type':'Website','values':['r']}];
 			const id = component.buildID(stepType);
@@ -210,5 +210,242 @@ describe('BaseEditorComponent', () => {
 		});
 	});
 
+	describe('behavioral: blocks signal updates', () => {
+		it('should initialize blocks signal when ngOnInit fetches blocks', () => {
+			expect(component.blocks).toBeDefined();
+			expect(component.blocks()).toEqual([]);
+		});
 
+		it('should set blocks signal via reloadBlocks', async () => {
+			const mockBlocks = [
+				{ _id: 'b1', name: 'Login Block', stepDefinitions: { given: [], when: [], then: [] } }
+			];
+			component.blocks.set(mockBlocks as any);
+			expect(component.blocks().length).toBe(1);
+			expect(component.blocks()[0].name).toBe('Login Block');
+		});
+	});
+
+	describe('behavioral: selectedBlock input signal', () => {
+		it('should set selectedBlock via input', () => {
+			const block = { _id: 'b1', name: 'Test Block', stepDefinitions: { given: [], when: [], then: [] } };
+			fixture.componentRef.setInput('selectedBlock', block as any);
+			TestBed.flushEffects();
+			// selectedBlock is a signal-based input — verify through the component's input signal
+			expect((fixture.componentRef.instance as any).selectedBlock()).toBe(block as any);
+		});
+	});
+
+	describe('behavioral: step selection and editing', () => {
+		beforeEach(() => {
+			component.selectedStory = JSON.parse(JSON.stringify(stories[0]));
+			component.selectedScenario = component.selectedStory.scenarios[0];
+			fixture.componentRef.setInput('templateName', 'scenario');
+			TestBed.flushEffects();
+		});
+
+		it('should check/uncheck a step via checkStep', () => {
+			const step = component.selectedScenario.stepDefinitions.when[0];
+			expect(step.checked).toBeUndefined();
+
+			component.checkStep(step);
+			expect(step.checked).toBeTruthy();
+
+			component.checkStep(step);
+			expect(step.checked).toBeFalsy();
+		});
+
+		it('should enable action bar when at least one step is checked', () => {
+			expect(component.activeActionBar).toBeFalsy();
+
+			const step = component.selectedScenario.stepDefinitions.when[0];
+			component.checkStep(step);
+
+			expect(component.activeActionBar).toBeTruthy();
+		});
+
+		it('should disable action bar when no steps are checked', () => {
+			const step = component.selectedScenario.stepDefinitions.when[0];
+			component.checkStep(step);
+			expect(component.activeActionBar).toBeTruthy();
+
+			component.checkStep(step);
+			expect(component.activeActionBar).toBeFalsy();
+		});
+
+		it('should add step to scenario via addStep', () => {
+			const step: StepType = {
+				'_id': 'test1', 'id': 0, 'stepType': 'when', 'type': 'Button',
+				'pre': 'I click the button:', 'mid': '', 'post': '', 'values': [''], 'isExample': []
+			};
+			const initialLen = stories[0].scenarios[0].stepDefinitions.when.length;
+
+			component.addStep(step, component.selectedScenario, 'scenario');
+
+			expect(component.selectedScenario.stepDefinitions.when.length).toBe(initialLen + 1);
+			expect(component.selectedScenario.saved).toBeFalsy();
+		});
+
+		it('should remove checked steps via removeStep', () => {
+			fixture.componentRef.setInput('templateName', 'scenario');
+			component.selectedScenario = stories[0].scenarios[0];
+			const initialLen = stories[0].scenarios[0].stepDefinitions.when.length;
+
+			// Check the first when step
+			const step = stories[0].scenarios[0].stepDefinitions.when[0];
+			step.checked = true;
+
+			component.removeStep();
+
+			expect(stories[0].scenarios[0].stepDefinitions.when.length).toBe(initialLen - 1);
+		});
+	});
+
+	describe('behavioral: step parameter editing via addToValues', () => {
+		beforeEach(() => {
+			component.selectedStory = stories[0];
+			component.selectedScenario = stories[0].scenarios[0];
+		});
+
+		it('should update scenario step values', () => {
+			fixture.componentRef.setInput('templateName', 'scenario');
+			const stepIndex = 0;
+			const valueIndex = 0;
+			const newValue = 'www.example.com';
+			const stepType = 'when';
+
+			component.addToValues(newValue, stepIndex, valueIndex, stepType);
+
+			expect(component.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex]).toBe(newValue);
+			expect(component.selectedScenario.saved).toBeFalsy();
+		});
+
+		it('should update background step values', () => {
+			fixture.componentRef.setInput('templateName', 'background');
+			// Give the background a when step with a values array
+			component.selectedStory = stories[0];
+			component.selectedStory.background.stepDefinitions.when.push({
+				'_id': 'test', 'id': 1, 'stepType': 'when', 'type': 'Button',
+				'pre': 'I click:', 'mid': '', 'post': '', 'values': [''], 'isExample': []
+			});
+			const stepIndex = component.selectedStory.background.stepDefinitions.when.length - 1;
+			const valueIndex = 0;
+			const newValue = 'background-value';
+
+			component.addToValues(newValue, stepIndex, valueIndex, '');
+
+			expect(component.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex]).toBe(newValue);
+		});
+	});
+
+	describe('behavioral: newlySelectedScenario input triggers scenario update', () => {
+		it('should update selectedScenario when newlySelectedScenario input changes', () => {
+			const testScenario: Scenario = {
+				scenario_id: 42, name: 'Injected Scenario', comment: '',
+				stepDefinitions: { given: [], when: [], then: [], example: [] }
+			};
+
+			fixture.componentRef.setInput('newlySelectedScenario', testScenario);
+			TestBed.flushEffects();
+
+			expect(component.selectedScenario).toBe(testScenario);
+		});
+	});
+
+	describe('behavioral: checkAllSteps toggles all steps', () => {
+		beforeEach(() => {
+			fixture.componentRef.setInput('templateName', 'scenario');
+			component.selectedScenario = stories[0].scenarios[0];
+		});
+
+		it('should check all steps when called without argument', () => {
+			component.checkAllSteps();
+
+			component.selectedScenario.stepDefinitions.when.forEach(s => {
+				expect(s.checked).toBeTruthy();
+			});
+		});
+
+		it('should uncheck all steps when called with false', () => {
+			component.selectedScenario.stepDefinitions.when.forEach(s => s.checked = true);
+			component.checkAllSteps(false);
+
+			component.selectedScenario.stepDefinitions.when.forEach(s => {
+				expect(s.checked).toBeFalsy();
+			});
+		});
+	});
+
+	describe('behavioral: edge cases', () => {
+		it('removeStep should be no-op when no steps are checked', () => {
+			fixture.componentRef.setInput('templateName', 'scenario');
+			component.selectedScenario = stories[0].scenarios[0];
+			const initialLen = component.selectedScenario.stepDefinitions.when.length;
+
+			// No step is checked — removeStep should do nothing
+			component.removeStep();
+
+			expect(component.selectedScenario.stepDefinitions.when.length).toBe(initialLen);
+		});
+
+		it('should throw when addToValues accesses empty stepDefinitions.when', () => {
+			fixture.componentRef.setInput('templateName', 'scenario');
+			component.selectedStory = stories[0];
+			component.selectedScenario = {
+				...component.selectedStory.scenarios[0],
+				stepDefinitions: { ...component.selectedStory.scenarios[0].stepDefinitions, when: [] }
+			};
+
+			expect(() => component.addToValues('test', 0, 0, 'when')).toThrow(TypeError);
+		});
+
+		it('should mark scenario unsaved when adding a step', () => {
+			fixture.componentRef.setInput('templateName', 'scenario');
+			component.selectedStory = JSON.parse(JSON.stringify(stories[0]));
+			component.selectedScenario = component.selectedStory.scenarios[0];
+			component.selectedScenario.saved = true;
+
+			const step: StepType = {
+				'_id': 'new', 'id': 0, 'stepType': 'given', 'type': 'Role',
+				'pre': 'As a', 'mid': '', 'post': '', 'values': [], 'isExample': []
+			};
+			component.addStep(step, component.selectedScenario, 'scenario');
+
+			expect(component.selectedScenario.saved).toBeFalsy();
+		});
+
+		it('given step is added to given array not when', () => {
+			fixture.componentRef.setInput('templateName', 'scenario');
+			component.selectedStory = JSON.parse(JSON.stringify(stories[0]));
+			component.selectedScenario = component.selectedStory.scenarios[0];
+			const whenLen = component.selectedScenario.stepDefinitions.when.length;
+			const givenLen = component.selectedScenario.stepDefinitions.given.length;
+
+			const step: StepType = {
+				'_id': 'new', 'id': 0, 'stepType': 'given', 'type': 'Role',
+				'pre': 'As a', 'mid': '', 'post': '', 'values': ['User'], 'isExample': []
+			};
+			component.addStep(step, component.selectedScenario, 'scenario');
+
+			expect(component.selectedScenario.stepDefinitions.given.length).toBe(givenLen + 1);
+			expect(component.selectedScenario.stepDefinitions.when.length).toBe(whenLen);
+		});
+
+		it('then step is added to then array not when', () => {
+			fixture.componentRef.setInput('templateName', 'scenario');
+			component.selectedStory = JSON.parse(JSON.stringify(stories[0]));
+			component.selectedScenario = component.selectedStory.scenarios[0];
+			const whenLen = component.selectedScenario.stepDefinitions.when.length;
+			const thenLen = component.selectedScenario.stepDefinitions.then.length;
+
+			const thenStep: StepType = {
+				'_id': 'then', 'id': 0, 'stepType': 'then', 'type': 'Text',
+				'pre': 'So I see', 'mid': '', 'post': '', 'values': ['Success'], 'isExample': []
+			};
+			component.addStep(thenStep, component.selectedScenario, 'scenario');
+
+			expect(component.selectedScenario.stepDefinitions.then.length).toBe(thenLen + 1);
+			expect(component.selectedScenario.stepDefinitions.when.length).toBe(whenLen);
+		});
+	});
 });

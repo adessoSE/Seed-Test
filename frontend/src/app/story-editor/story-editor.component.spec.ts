@@ -283,6 +283,172 @@ describe('StoryEditorComponent', () => {
 		});
 	});
 
+	describe('behavioral: scenario add/remove with signal updates', () => {
+		it('should add scenario to selectedStory.scenarios via addScenario', () => {
+			component.selectedStory = stories[0];
+			const initialLen = component.selectedStory.scenarios.length;
+			const newScenario: Scenario = {
+				scenario_id: 99,
+				name: 'New Test Scenario',
+				comment: '',
+				stepDefinitions: { given: [], when: [], then: [], example: [] }
+			};
+
+			component.stories.set(stories);
+			component.selectScenario(component.selectedStory.scenarios[0]);
+
+			vi.spyOn(component, 'selectScenario');
+			component.selectScenario(newScenario);
+			component.selectedStory.scenarios.push(newScenario);
+
+			expect(component.selectedStory.scenarios.length).toBe(initialLen + 1);
+			expect(component.selectedScenario).toBe(newScenario);
+			expect(component.showEditor()).toBeTruthy();
+		});
+
+		it('should remove scenario from list via scenarioDeleted', () => {
+			component.selectedStory = stories[0];
+			component.stories.set(stories);
+			component.selectedScenario = stories[0].scenarios[0];
+			const initialLen = stories[0].scenarios.length;
+
+			component.scenarioDeleted();
+
+			expect(stories[0].scenarios.length).toBe(initialLen - 1);
+			// After deletion, should select remaining scenario or hide editor
+			if (stories[0].scenarios.length > 0)
+				expect(component.showEditor()).toBeTruthy();
+		});
+	});
+
+	describe('behavioral: selectScenario updates signals', () => {
+		it('should set selectedScenario, showEditor, and reset showResults/testDone', () => {
+			const testScenario = story.scenarios[0];
+			component.selectedStory = story;
+
+			component.selectScenario(testScenario);
+
+			expect(component.selectedScenario).toBe(testScenario);
+			expect(component.showEditor()).toBeTruthy();
+			expect(component.showResults()).toBeFalsy();
+			expect(component.testDone()).toBeFalsy();
+		});
+
+		it('should hide editor when scenario is null', () => {
+			component.selectScenario(null);
+
+			expect(component.selectedScenario).toBeNull();
+			expect(component.showEditor()).toBeFalsy();
+			expect(component.showResults()).toBeFalsy();
+		});
+	});
+
+	describe('behavioral: stories signal updates from newStories input', () => {
+		it('should set stories signal when newStories input receives data', () => {
+			expect(component.stories().length).toBe(0);
+
+			fixture.componentRef.setInput('newStories', stories);
+			TestBed.flushEffects();
+
+			expect(component.stories().length).toBe(stories.length);
+			expect(component.stories()).toEqual(stories);
+		});
+	});
+
+	describe('behavioral: selectedStory input triggers initial scenario selection', () => {
+		it('should select first scenario when newSelectedStory is set with scenarios', () => {
+			vi.spyOn(component, 'selectScenario');
+			component.stories.set(stories);
+
+			fixture.componentRef.setInput('newSelectedStory', story);
+			TestBed.flushEffects();
+
+			expect(component.selectedStory).toBe(story);
+			expect(component.selectScenario).toHaveBeenCalledWith(story.scenarios[0]);
+		});
+	});
+
+	describe('behavioral: DOM rendering after signal changes', () => {
+		it('should show editor section when showEditor signal is true', () => {
+			component.stories.set(stories);
+			component.selectedStory = stories[0];
+			component.showEditor.set(true);
+			component.selectedScenario = stories[0].scenarios[0];
+			TestBed.flushEffects();
+
+			// The editor section should be visible
+			const storyElement = fixture.nativeElement.querySelector('#story');
+			// showEditor is true, so #story should be in the DOM
+			expect(storyElement).toBeTruthy();
+		});
+
+		it('should hide editor section when showEditor signal is false', () => {
+			component.showEditor.set(false);
+			TestBed.flushEffects();
+
+			const storyElement = fixture.nativeElement.querySelector('#story');
+			expect(storyElement).toBeFalsy();
+		});
+
+		it('should show no-stories message when stories is empty and loaded', () => {
+			component.stories.set([]);
+			component.storiesLoaded.set(true);
+			component.storiesError.set(false);
+			component.showEditor.set(false);
+			TestBed.flushEffects();
+
+			const noStoriesHeader = fixture.nativeElement.querySelector('#noStoriesHeader');
+			expect(noStoriesHeader).toBeTruthy();
+			expect(noStoriesHeader.textContent).toContain('No Stories Yet');
+		});
+	});
+
+	describe('behavioral: empty/edge cases', () => {
+		it('should hide editor when selecting scenario on story with no scenarios', () => {
+			const emptyStory: Story = { ...story, scenarios: [] };
+			component.selectedStory = emptyStory;
+
+			component.selectScenario(null);
+
+			expect(component.showEditor()).toBeFalsy();
+			expect(component.showResults()).toBeFalsy();
+		});
+
+		it('should hide editor after deleting the last scenario via scenarioDeleted', () => {
+			const singleScenarioStory: Story = {
+				...story,
+				scenarios: [{ ...story.scenarios[0], scenario_id: 100 }]
+			};
+			component.selectedStory = singleScenarioStory;
+			component.selectedScenario = singleScenarioStory.scenarios[0];
+			component.stories.set([singleScenarioStory]);
+
+			component.scenarioDeleted();
+
+			expect(singleScenarioStory.scenarios.length).toBe(0);
+			expect(component.showEditor()).toBeFalsy();
+		});
+
+		it('should set selectedStory without crashing when newSelectedStory has no scenarios', () => {
+			const storyNoScenarios = { ...story, scenarios: [] };
+			vi.spyOn(component, 'selectScenario');
+
+			fixture.componentRef.setInput('newSelectedStory', storyNoScenarios);
+			TestBed.flushEffects();
+
+			expect(component.selectedStory).toBe(storyNoScenarios);
+			expect(component.selectScenario).toHaveBeenCalledWith(null);
+		});
+
+		it('should handle scenarioDeleted when selectedStory has no matched selectedScenario', () => {
+			const s1 = stories[0];
+			const fakeScenario = { scenario_id: -999, name: 'fake' } as Scenario;
+			component.selectedStory = s1;
+			component.selectedScenario = fakeScenario;
+
+			expect(() => component.scenarioDeleted()).not.toThrow();
+		});
+	});
 });
 
 

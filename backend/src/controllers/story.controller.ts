@@ -438,30 +438,37 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 
 export function getAiGenerationStatus(req: Request, res: Response, _next: NextFunction): void {
 	// This function remains unchanged as it only uses the emitter
-	const storyId = req.params.story_id;
-	requireValidId(storyId, 'story ID');
+	try {
+		const storyId = req.params.story_id;
+		requireValidId(storyId, 'story ID');
 
-	res.setHeader('Content-Type', 'text/event-stream');
-	res.setHeader('Cache-Control', 'no-cache');
-	res.setHeader('Connection', 'keep-alive');
-	res.flushHeaders();
+		res.setHeader('Content-Type', 'text/event-stream');
+		res.setHeader('Cache-Control', 'no-cache');
+		res.setHeader('Connection', 'keep-alive');
+		res.flushHeaders();
 
-	logger.info(`SSE Client connected for AI status updates for story ${storyId}`);
+		logger.info(`SSE Client connected for AI status updates for story ${storyId}`);
 
-	const listener = (result: Record<string, unknown>) => {
-		try {
-			res.write(`data: ${JSON.stringify(result)}\n\n`);
-		} catch (err: unknown) {
-			logger.error(`SSE write failed for story ${storyId}: ${err instanceof Error ? err.message : String(err)}`);
+		const listener = (result: Record<string, unknown>) => {
+			try {
+				res.write(`data: ${JSON.stringify(result)}\n\n`);
+			} catch (err: unknown) {
+				logger.error(`SSE write failed for story ${storyId}: ${err instanceof Error ? err.message : String(err)}`);
+				aiService.aiJobEmitter.removeListener(`job-done-${storyId}`, listener);
+			}
+		};
+
+		aiService.aiJobEmitter.on(`job-done-${storyId}`, listener);
+
+		req.on('close', () => {
 			aiService.aiJobEmitter.removeListener(`job-done-${storyId}`, listener);
-		}
-	};
-
-	aiService.aiJobEmitter.on(`job-done-${storyId}`, listener);
-
-	req.on('close', () => {
-		aiService.aiJobEmitter.removeListener(`job-done-${storyId}`, listener);
-		logger.info(`SSE Client disconnected for AI status updates for story ${storyId}`);
+			logger.info(`SSE Client disconnected for AI status updates for story ${storyId}`);
+			res.end();
+		});
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		logger.error(`SSE setup failed for story ${req.params.story_id}: ${message}`);
+		res.write(`event: error\ndata: ${JSON.stringify({ message })}\n\n`);
 		res.end();
-	});
+	}
 }

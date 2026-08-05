@@ -7,6 +7,11 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthGuard } from '../guards/auth.guard';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
+import { LoginService } from '../Services/login.service';
+import { ProjectService } from '../Services/project.service';
+import { Observable, of, throwError } from 'rxjs';
+import { User } from '@shared/models/User';
+import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 
 class MockedApiService {
 	authenticated = false;
@@ -20,10 +25,28 @@ describe('LoginComponent', () => {
 	let component: LoginComponent;
 	let fixture: ComponentFixture<LoginComponent>;
 	let router: Router;
+	let loginService: unknown;
+	let projectService: unknown;
 
 	beforeEach(async () => {
+		loginService = {
+			loginUser: vi.fn(),
+			githubLogin: vi.fn(),
+			githubCallback: vi.fn(),
+			loginGithubToken: vi.fn()
+		};
+		projectService = {
+			getRepositories: vi.fn()
+		};
+
 		await TestBed.configureTestingModule({
-			providers: [AuthGuard, MockedApiService, provideRouter([])],
+			providers: [
+				AuthGuard,
+				MockedApiService,
+				provideRouter([]),
+				{ provide: LoginService, useValue: loginService },
+				{ provide: ProjectService, useValue: projectService }
+			],
 			imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MatSnackBarModule, LoginComponent],
 			schemas: [NO_ERRORS_SCHEMA]
 		})
@@ -31,6 +54,8 @@ describe('LoginComponent', () => {
 	});
 
 	beforeEach(() => {
+		loginService = TestBed.inject(LoginService);
+		projectService = TestBed.inject(ProjectService);
 		router = TestBed.inject(Router);
 		fixture = TestBed.createComponent(LoginComponent);
 		fixture.detectChanges();
@@ -109,4 +134,150 @@ describe('LoginComponent', () => {
 
 	}));
 
+	describe('behavioral: isLoading signal during login', () => {
+		it('should set isLoadingRepositories to true at start of login()', () => {
+			(loginService as any).loginUser.mockReturnValue(of({ _id: '123' } as User));
+			(projectService as any).getRepositories.mockReturnValue(of([]));
+
+			expect(component.isLoadingRepositories()).toBeFalsy();
+
+			// login() sets isLoading=true before calling loginUser
+			// Use a never-completing observable to prevent the subscribe handler from firing
+			(loginService as any).loginUser.mockReturnValue(new Observable(() => {}));
+			(projectService as any).getRepositories.mockReturnValue(of([]));
+
+			component.login({ value: { email: 'a@b.de', password: 'pwd', stayLoggedIn: false } } as any);
+
+			// isLoadingRepositories should now be true (set at start of login())
+			expect(component.isLoadingRepositories()).toBeTruthy();
+		});
+
+		it('should reset isLoadingRepositories after error from getRepositories', () => {
+			(projectService as any).getRepositories.mockReturnValue(throwError(() => new Error('API error')));
+
+			component.isLoadingRepositories.set(true);
+			component.getRepositories();
+
+			// After error callback, isLoading should be false
+			expect(component.isLoadingRepositories()).toBeFalsy();
+		});
+	});
+
+	describe('behavioral: error signal display', () => {
+		it('should show error message in DOM when error signal is set', () => {
+			component.error.set('Wrong Username Or Password');
+			TestBed.flushEffects();
+			fixture.detectChanges();
+
+			const errorEl = fixture.nativeElement.querySelector('.alert-danger');
+			expect(errorEl).toBeTruthy();
+			expect(errorEl.textContent).toContain('Wrong Username Or Password');
+		});
+
+		it('should hide error message when error signal is cleared', () => {
+			component.error.set('Some error');
+			TestBed.flushEffects();
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('.alert-danger')).toBeTruthy();
+
+			component.error.set(undefined);
+			TestBed.flushEffects();
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('.alert-danger')).toBeFalsy();
+		});
+
+		it('should clear error when login() is called', () => {
+			component.error.set('Previous error');
+			// Use never-completing observable so the subscribe handler doesn't interfere
+			(loginService as any).loginUser.mockReturnValue(new Observable(() => {}));
+
+			component.login({ value: { email: 'a@b.de', password: 'pwd', stayLoggedIn: false } } as any);
+
+			// login() sets error to undefined at the start
+			expect(component.error()).toBeUndefined();
+		});
+	});
+
+	describe('behavioral: successful login navigates', () => {
+		it('should call router.navigate when repository already selected', () => {
+			// Clear all mocks first
+			(projectService as any).getRepositories.mockReturnValue(of([]));
+			localStorage.setItem('login', 'true');
+			localStorage.setItem('repository', 'my-repo');
+			localStorage.setItem('source', 'db');
+			localStorage.setItem('id', 'abc123');
+			vi.spyOn(router, 'navigate');
+
+			component.ngOnInit();
+
+			expect(router.navigate).toHaveBeenCalledWith(['/']);
+			localStorage.clear();
+		});
+
+		it('should navigate to accountManagement when getRepositories returns empty', () => {
+			(projectService as any).getRepositories.mockReturnValue(of([]));
+			// Set localStorage so getRepositories has data
+			localStorage.setItem('id', 'testId');
+			localStorage.setItem('repository', '');
+			localStorage.setItem('source', 'db');
+			vi.spyOn(router, 'navigate');
+
+			component.getRepositories();
+
+			expect(router.navigate).toHaveBeenCalledWith(['/accountManagement']);
+			localStorage.clear();
+		});
+
+		it('should set error message when getRepositories fails', () => {
+			(projectService as any).getRepositories.mockReturnValue(throwError(() => new Error('API error')));
+			localStorage.setItem('id', 'testId');
+			localStorage.setItem('repository', 'test');
+			localStorage.setItem('source', 'db');
+
+			component.getRepositories();
+
+			expect(component.error()).toBe(component.defaultErrorMessage);
+			expect(component.isLoadingRepositories()).toBeFalsy();
+			localStorage.clear();
+		});
+
+		it('should reset isLoadingRepositories to false on successful getRepositories', () => {
+			const mockRepos: RepositoryContainer[] = [
+				{ repoName: 'my-repo', source: 'db', _id: 'abc123' }
+			];
+			(projectService as any).getRepositories.mockReturnValue(of(mockRepos));
+			localStorage.setItem('id', 'abc123');
+			localStorage.setItem('repository', 'my-repo');
+			localStorage.setItem('source', 'db');
+			vi.spyOn(router, 'navigate');
+
+			component.getRepositories();
+
+			expect(component.isLoadingRepositories()).toBeFalsy();
+			expect(component.repositories).toBe(mockRepos);
+			expect(router.navigate).toHaveBeenCalledWith(['']);
+			localStorage.clear();
+		});
+	});
+
+	describe('behavioral: githubLogin edge cases', () => {
+		it('should set error and return early when clientId in localStorage is "undefined"', () => {
+			localStorage.setItem('clientId', 'undefined');
+
+			component.githubLogin();
+
+			expect(component.error()).toBe('GitHub Integration has not been set up yet.');
+			localStorage.removeItem('clientId');
+		});
+
+		it('should clear existing error before github login', () => {
+			component.error.set('Previous error');
+			localStorage.setItem('clientId', 'valid-id');
+
+			component.githubLogin();
+
+			expect(component.error()).toBeUndefined();
+			localStorage.removeItem('clientId');
+		});
+	});
 });

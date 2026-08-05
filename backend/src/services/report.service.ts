@@ -516,10 +516,11 @@ async function analyzeStoryReport(stories: Story[], reportName: string, jsonPath
 		return reportResults;
 
 	} catch (error: unknown) {
+		if (error instanceof AppError) throw error; // Propagate known errors (parse failures, missing files)
 		const message = error instanceof Error ? error.message : String(error);
 		logger.error(`Error analyzing story report ${reportName}: ${message}`);
 		reportResults.status = false;
-		return reportResults; // Return default error state
+		return reportResults; // Return default error state for unknown errors
 	}
 }
 
@@ -555,10 +556,11 @@ async function analyzeScenarioReport(stories: Story[], reportName: string, scena
 		return reportResults;
 
 	} catch (error: unknown) {
+		if (error instanceof AppError) throw error; // Propagate known errors (parse failures, missing files)
 		const message = error instanceof Error ? error.message : String(error);
 		logger.error(`Error analyzing scenario report ${reportName}: ${message}`);
 		reportResults.status = false;
-		return reportResults; // Return default error state
+		return reportResults; // Return default error state for unknown errors
 	}
 }
 
@@ -608,10 +610,11 @@ export async function analyzeGroupReport(groupName: string, stories: Story[], js
 
 		return reportResults;
 	} catch (error: unknown) {
+		if (error instanceof AppError) throw error; // Propagate known errors (parse failures, missing files)
 		const message = error instanceof Error ? error.message : String(error);
 		logger.error(`Error analyzing group report ${groupName}: ${message}`);
 		reportResults.status = false;
-		return reportResults;
+		return reportResults; // Return default error state for unknown errors
 	}
 }
 

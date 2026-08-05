@@ -1189,11 +1189,13 @@ describe('StoryController', () => {
 			expect(req.on).toHaveBeenCalledWith('close', expect.any(Function));
 		});
 
-		it('should throw for invalid story ID', () => {
+		it('should send error event for invalid story ID', () => {
 			req.params = { story_id: INVALID_ID };
 
-			// getAiGenerationStatus throws directly (not wrapped in try/catch)
-			expect(() => controller.getAiGenerationStatus(req, res, next)).toThrow();
+			// getAiGenerationStatus now catches errors internally and sends an SSE error event
+			controller.getAiGenerationStatus(req, res, next);
+			expect(res.write).toHaveBeenCalledWith(expect.stringContaining('event: error'));
+			expect(res.end).toHaveBeenCalled();
 		});
 	});
 });
