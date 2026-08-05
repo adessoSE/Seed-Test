@@ -1,40 +1,39 @@
-# Test Execution Engine — Produktfeature
+# Test Execution Engine — Product Feature
 
-Seed-Test kann **beliebige Web-Apps via Low-Code testen**. Der Nutzer erstellt Scenarios mit vordefinierten Steps, die in echte Browser-Automatisierung (Playwright oder Selenium) übersetzt werden.
+Seed-Test can test **any web app via low-code**. The user creates scenarios with predefined steps that are translated into real browser automation (Playwright or Selenium).
 
-## Architektur
+## Architecture
 
 ```
-[User erstellt Story] → Seed-Test generiert [.feature] Cucumber-Datei
+[User creates Story] → Seed-Test generates [.feature] Cucumber file
                         ↓
-                  [User führt Test aus] → Seed-Test API → Cucumber Runtime
+                  [User runs test] → Seed-Test API → Cucumber Runtime
                         ↓
-                  [Playwright od. Selenium] → Browser steuern die Ziel-App
+                  [Playwright or Selenium] → Browser controls target app
                         ↓
-                  [JSON Report] → Seed-Test Report-Service
+                  [JSON Report] → Seed-Test Report Service
 ```
 
-## Konfiguration des Nutzers
+## User configuration
 
-Jedes Repository (Project) hat Settings für den Test-Runner:
+Each repository (project) has settings for the test runner:
 
-| Setting | Type | Default | Beschreibung |
-|---------|------|---------|-------------|
+| Setting | Type | Default | Description |
 | `browser` | string | chromium | Chromium, Firefox, WebKit, MicrosoftEdge |
-| `waitTime` | number | 0 | Millisekunden Pause pro Step |
-| `emulator` | string | — | Playwright Device Descriptor (z.B. "iPhone 12") |
-| `width` / `height` | number | — | Fenstergröße (1920x1080 Standard) |
-| `daisyAutoLogout` | boolean | false | Daisy-System: Auto-Logout aktivieren |
-| `oneDriver` | boolean | false | Einen Browser über mehrere Scenarios teilen |
+| `waitTime` | number | 0 | Milliseconds pause per step |
+| `emulator` | string | — | Playwright device descriptor (e.g. "iPhone 12") |
+| `width` / `height` | number | — | Window size (1920x1080 default) |
+| `daisyAutoLogout` | boolean | false | Daisy system: enable auto-logout |
+| `oneDriver` | boolean | false | Share one browser across multiple scenarios |
 
-## Test-Erstellung im Tool
+## Creating tests in the tool
 
-Der Nutzer erstellt im Seed-Test-Frontend:
-1. **Story** → Name, Beschreibung, Repository
-2. **Background** → Gemeinsame Setup-Schritte (muss nicht existieren)
-3. **Scenarios** → Einzelne Tests mit Given/When/Then Steps
-4. **Steps** mit `StepType`-Referenzen → vordefinierte Aktionen (Button klick, Text einfügen etc.)
-5. **Block-References** (`_blockReferenceId`) → wiederverwendbare Step-Gruppen
+The user creates in the Seed-Test frontend:
+1. **Story** → Name, description, repository
+2. **Background** → Shared setup steps (optional)
+3. **Scenarios** → Individual tests with Given/When/Then steps
+4. **Steps** with `StepType` references → predefined actions (click button, insert text, etc.)
+5. **Block references** (`_blockReferenceId`) → reusable step groups
 
 ## Feature-Generierung
 
@@ -88,12 +87,12 @@ Request Body:
 }
 ```
 
-## Step Definitionen — das Herz
+## Step definitions — the heart
 
-Das Tool enthält **32 vordefinierte Low-Code Steps**, die sowohl für **Playwright** als auch **Selenium** laufen (runner-agnostisch):
+The tool contains **32 predefined low-code steps** that work with both **Playwright** and **Selenium** (runner-agnostic):
 
-### Given (8 Steps)
-| Step Pattern | Funktion |
+### Given (8 steps)
+| Step Pattern | Function |
 |-------------|----------|
 | `As a {string}` | Rolle/User speichern |
 | `I am on the website: {string}` | Zur URL navigieren |
@@ -104,8 +103,8 @@ Das Tool enthält **32 vordefinierte Low-Code Steps**, die sowohl für **Playwri
 | `I take a screenshot` | Page-Screenshot an Report anhängen |
 | `I take a screenshot. Optionally: Focus the page on the element {string}` | Screenshot + Scroll zum Element |
 
-### When (14 Steps)
-| Step Pattern | Funktion |
+### When (14 steps)
+| Step Pattern | Function |
 |-------------|----------|
 | `I go to the website: {string}` | Zur URL navigieren |
 | `I click the button: {string}` | Button finden & klicken (mit Download-Polling) |
@@ -122,8 +121,8 @@ Das Tool enthält **32 vordefinierte Low-Code Steps**, die sowohl für **Playwri
 | `I switch to the next tab` | Nächster Tab |
 | `I want to upload the file from this path: {string} into this uploadfield: {string}` | Datei-Upload |
 
-### Then (10 Steps)
-| Step Pattern | Funktion |
+### Then (10 steps)
+| Step Pattern | Function |
 |-------------|----------|
 | `So I will be navigated to the website: {string}` | URL-Assertion |
 | `So I can see the text {string} in the textbox: {string}` | Input-Value-Assertion |
@@ -136,90 +135,90 @@ Das Tool enthält **32 vordefinierte Low-Code Steps**, die sowohl für **Playwri
 | `So on element {string} the css property {string} is {string}` | CSS-Property-Assertion (inkl. Farben) |
 | `So the element {string} has the tool-tip {string}` | Tooltip-Assertion |
 
-## Locating Strategy
+## Locating strategy
 
-Jeder Step versucht **mehrere Locator-Strategien sequentiell**, bis einer erfolgreich ist.
+Each step tries **multiple locator strategies sequentially** until one succeeds.
 
-### Playwright (Primary)
+### Playwright (primary)
 1. **Preferred locators** → `getByRole()`, `getByLabel()`, `getByText()`, `locator()` (CSS)  
 2. **XPath locators** → `locator('xpath=...')`  
-3. Wenn alle fehlschlagen → Fehler mit Liste aller versuchten Locators
+3. If all fail → error with list of all locators tried
 
-Die Locator-Strategie ist für jede Aktion (click, fill, check, hover, ...) speziell optimiert. Beispiel "button click":
-`getByRole("button", name)`, `getByText`, `getByLabel`, `#${id}`, `[id*=...]`, dann 8 XPath-Varianten.
+The locator strategy is specifically optimized per action (click, fill, check, hover, ...). Example "button click":
+`getByRole("button", name)`, `getByText`, `getByLabel`, `#${id}`, `[id*=...]`, then 8 XPath variants.
 
-### Selenium (Legacy)
-Nur XPath-basiert mit string-Interpolation und `Promise.any()` über Locator-Array.
+### Selenium (legacy)
+XPath-only, using string interpolation and `Promise.any()` over locator array.
 
-## Special Features
+## Special features
 
-### `@*` Wildcard Expansion
-Steps unterstützen Selenium's `@*=`, `contains(@*, ...)` Wildcards. Playwright expandiert diese automatisch in eine Liste bekannter Attribute (`id`, `name`, `class`, `data-testid`, `aria-label`, `title`, ...) basierend auf Element-Typ.
+### `@*` wildcard expansion
+Steps support Selenium's `@*=`, `contains(@*, ...)` wildcards. Playwright automatically expands these into a list of known attributes (`id`, `name`, `class`, `data-testid`, `aria-label`, `title`, ...) based on element type.
 
 ### `Apply Special Commands`
-`text` Parameter werden durch `applySpecialCommands()` gefiltert — unterstützt Commands wie `{Enter}`, `{Tab}`, `{Backspace}` etc. (definiert in `helpers/specialCommandParser.ts`).
+`text` parameters are filtered through `applySpecialCommands()` — supports commands like `{Enter}`, `{Tab}`, `{Backspace}` etc. (defined in `helpers/specialCommandParser.ts`).
 
-### `Regex` Assertions
-Text-Assertions unterstützen `{Regex:pattern}` Syntax um regular Expressions in Assertions zu verwenden.
+### `Regex` assertions
+Text assertions support `{Regex:pattern}` syntax to use regular expressions in assertions.
 
-## `World` Klassen
+## `World` classes
 
-Jeder Step hat Zugriff auf `this` vom Typ (abhängig vom gewählten Runner):
+Each step has access to `this` whose type depends on the selected runner:
 
 ### PlaywrightWorld (`PlaywrightWorld`)
-- Browser-Session: `chromium`, `firefox`, `webkit`, `MicrosoftEdge`
-- Download-Verzeichnis: `C:\Users\Public\seed_Downloads\` / `/home/public/Downloads/`
-- Upload-Verzeichnis: `C:\Users\Public\SeedTmp\` / `/home/public/SeedTmp\`
-- `download.suggestedFilename()` für Download-Capture
-- Tab-Management über `context.pages()` + `bringToFront()`
+- Browser session: `chromium`, `firefox`, `webkit`, `MicrosoftEdge`
+- Download directory: `C:\Users\Public\seed_Downloads\` / `/home/public/Downloads/`
+- Upload directory: `C:\Users\Public\SeedTmp\` / `/home/public/SeedTmp\`
+- `download.suggestedFilename()` for download capture
+- Tab management via `context.pages()` + `bringToFront()`
 
 ### SeleniumWebdriverWorld (`SeleniumWebdriverWorld`)
-- WebDriver-Session mit `By.xpath()`
-- Download-Verifizierung über `fs.promises.access()` + `fs.promises.rename()`
-- Tab-Management über `driver.getAllWindowHandles()` + `driver.switchTo().window()`
+- WebDriver session with `By.xpath()`
+- Download verification via `fs.promises.access()` + `fs.promises.rename()`
+- Tab management via `driver.getAllWindowHandles()` + `driver.switchTo().window()`
 
-### Shared Features
-- **`oneDriver`-Modus**: Browser-Session über mehrere Scenarios teilen (geteilte Instances)
-- **Screenshot on fail**: Auto-Screenshot + Report-Anhang bei Step-Fehler
-- **Emulator-Modus**: Playwright Device Descriptors (z.B. "iPhone 12") — nur Chromium-basierte Browser
+### Shared features
+- **`oneDriver` mode**: Share browser session across multiple scenarios (shared instances)
+- **Screenshot on fail**: Auto-screenshot + report attachment on step failure
+- **Emulator mode**: Playwright device descriptors (e.g. "iPhone 12") — Chromium-based browsers only
 
 ## Reporting
 
 | Artifact | Location | Format |
 |----------|----------|--------|
-| Roh-JSON Report | `backend/features/reporting_<timestamp>.json` | Cucumber JSON |
-| HTML Report | `backend/features/reporting_<timestamp>.html` | HTML |
-| Screenshot (fail) | Download-Verzeichnis | PNG |
-| Screenshot (manual) | Download-Verzeichnis | `manual-{timestamp}.png` |
+| Raw JSON report | `backend/features/reporting_<timestamp>.json` | Cucumber JSON |
+| HTML report | `backend/features/reporting_<timestamp>.html` | HTML |
+| Screenshot (fail) | Download directory | PNG |
+| Screenshot (manual) | Download directory | `manual-{timestamp}.png` |
 
-- Reports werden nach `REPORT_DELETION_TIME` Minuten automatisch gelöscht
-- Report-Service speichert Reports in DB (`reportId` für API-Rückgabe)
-- HTML-Report: gruppierte JSON → Cucumber-Reporter → `cucumber-html-reporter`
+- Reports are automatically deleted after `REPORT_DELETION_TIME` minutes
+- Report service stores reports in DB (`reportId` for API return)
+- HTML report: grouped JSON → Cucumber reporter → `cucumber-html-reporter`
 
-## Technische Details
+## Technical details
 
-### Cucumber Runtime
+### Cucumber runtime
 - `@cucumber/cucumber` v13
-- Dynamisch geladen: `import('@cucumber/cucumber/api')`
-- Support Code StepDefs werden pro Runner **gecached** (Wiederverwendung zwischen Test-Calls)
-- Tags für single-Scenario-Selection: `@<storyID>_<scenarioId>`
+- Dynamically loaded: `import('@cucumber/cucumber/api')`
+- Support code step definitions are **cached** per runner (reused between test calls)
+- Tags for single scenario selection: `@<storyID>_<scenarioId>`
 
-### Timeout-Strategie
+### Timeout strategy
 - Playwright: 30s global, 15s searchTimeout, 5s/10s context/page-level
 - Selenium: 60s global default
 - `page.setDefaultTimeout(5000)` + `page.setDefaultNavigationTimeout(10000)`
 
-### Test-Modes
-- `scenario`: Einzelnes Scenario einer Story
-- `feature`: Alle Scenarios einer Story  
-- `group`: Alle Stories einer Gruppe
+### Test modes
+- `scenario`: Single scenario of a story
+- `feature`: All scenarios of a story  
+- `group`: All stories of a group
 
 ### Caching
-`cachedSupportCode` hält Playwright- und Selenium-StepDefs im Speicher zwischen. `loadSupport()` vom Cucumber-Runner wird nur beim **ersten** Test pro Runner aufgerufen. Folge-Tests verwenden die gecachte Instance → spart Startzeit.
+`cachedSupportCode` holds Playwright and Selenium step definitions in memory between runs. `loadSupport()` from the Cucumber runner is only called on the **first** test per runner. Subsequent tests use the cached instance → saves startup time.
 
-### Frontend-Support
-Die UI zeigt:
-- Live-Fortschritt pro Scenario (Loading/Running/Done)
-- Download-Link für den HTML Report
-- Report-Status in der Story-Ansicht
-- Pre-Conditions Editor für Gruppen-Tests
+### Frontend support
+The UI shows:
+- Live progress per scenario (Loading/Running/Done)
+- Download link for the HTML report
+- Report status in the story view
+- Pre-conditions editor for group tests

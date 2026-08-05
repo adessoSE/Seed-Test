@@ -1,6 +1,6 @@
 # Shared Models (TypeScript)
 
-Die Modelle in `shared/src/models/` werden vom Backend und Frontend genutzt via `import { Foo } from '@shared/models/Foo'`.
+Models in `shared/src/models/` are used by both backend and frontend via `import { Foo } from '@shared/models/Foo'`.
 
 ## Core Domain Models
 
@@ -299,4 +299,4 @@ interface StoryStatus {
 
 ## Frontend-local models
 
-Im Frontend (`frontend/src/app/model/`) gibt es **dieselben Models** als lokale Kopien (nicht referenziell identisch zu `shared/`). Sie werden direkt in Template-Typen verwendet. Die Felder decken sich mit den shared-Modellen.
+The frontend (`frontend/src/app/model/`) has **the same models** as local copies (not referentially identical to `shared/`). They are used directly in template types. The fields match the shared models.

@@ -1,8 +1,8 @@
-# API Endpunkte Übersicht
+# API Endpoints Overview
 
-Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middleware erfordern Login. Public (`/api/user`, `/api/playwright`, `/api/log`) sind auth-frei.
+All endpoints are routed under `/api/`. Routes with `isAuthenticated` middleware require login. Public routes (`/api/user`, `/api/playwright`, `/api/log`) are auth-free.
 
-## Authentifizierung
+## Authentication
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -19,6 +19,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 
 ## Repositories
 
+
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
 | GET | `/api/repository/` | — | `RepositoryContainer[]` | Require |
@@ -30,6 +31,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | DELETE | `/api/repository/:repo_id` | — | `Result` | Require |
 
 ## Stories
+
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -56,6 +58,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 
 ## Groups
 
+
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
 | GET | `/api/group/:repo_id` | — | `Group[]` | Require |
@@ -67,6 +70,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | PUT | `/api/group/:repo_id` | `Group[]` | `{message}` | Require |
 
 ## Blocks
+
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -82,7 +86,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | PUT | `/api/background/:storyID` | `Background` | `{Background}` | Require |
 | DELETE | `/api/background/:storyID` | — | `{}` | Require |
 
-## Workgroups (Team-Mitglieder)
+## Workgroups (Team members)
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -93,6 +97,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 
 ## Files (Upload)
 
+
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
 | POST | `/api/files/:repoId` | multer file (binary) | `FileElement` | Require |
@@ -100,6 +105,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | DELETE | `/api/files/:repoId/:fileId` | — | `{message}` | Require |
 
 ## Reports
+
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -113,6 +119,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 ## Test Execution
 
 | | Endpoint | Body | Response | Auth |
+
 |---|---------|------|----------|------|
 | POST | `/api/execute/Feature/:issueID` | `{repositoryId}` | `{htmlFile, reportId, report}` | Require |
 | POST | `/api/execute/Scenario/:issueID/:scenarioId` | `{repositoryId}` | `{htmlFile, reportId, report}` | Require |
@@ -139,20 +146,21 @@ interface ExecuteTestRequest {
 }
 ```
 
-## Script (automatisierte Ausführung ohne Browser)
+## Script (automated execution without browser)
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
 | POST | `/api/script/Group` | `{repoID, groupID, repository?, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Passport+Body |
 | POST | `/api/script/Feature/:issueID` | `{issueID, repositoryId, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Passport+Body |
 
-> `script` Route verwendet eigenes Auth-Middleware (`authenticateAndProceed`) — Body enthält Login-Credentials direkt.
+> `script` route uses its own auth middleware (`authenticateAndProceed`) — body contains login credentials directly.
 
 ## External Integrations
 
 ### Jira
 
 | | Endpoint | Body | Response | Auth |
+
 |---|---------|------|----------|------|
 | POST | `/api/jira/link` | `{jiraAccountName, jiraPassword, jiraHost, jiraAuthMethod?}` | `{message}` | Require |
 | DELETE | `/api/jira/disconnect` | — | `{message}` | Require |
@@ -162,6 +170,7 @@ interface ExecuteTestRequest {
 ### GitHub
 
 | | Endpoint | Body | Response | Auth |
+
 |---|---------|------|----------|------|
 | POST | `/api/github/submitIssue` | `{title, body, ...}` | GitHub Issue JSON | Require |
 | DELETE | `/api/github/disconnectGithub` | — | `{message}` | Require |
@@ -169,12 +178,14 @@ interface ExecuteTestRequest {
 ## AI
 
 | | Endpoint | Body | Response | Auth |
+
 |---|---------|------|----------|------|
 | GET | `/api/ai/available` | — | `{ available: boolean }` | Public |
 
 ## System
 
 | | Endpoint | Body | Response | Auth |
+
 |---|---------|------|----------|------|
 | GET | `/api/health` | — | `OK` | Public |
 | GET | `/api` | — | HTML page | Public |

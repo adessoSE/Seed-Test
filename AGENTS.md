@@ -112,6 +112,7 @@ Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
 - **Mock pattern**: `vi.hoisted()` + `vi.mock()` for ESM-safe mocking; `createReq()`/`createRes()` helpers in controller tests
 - **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report
 - **Branching**: Feature branches → `dev`; `master` reserved for official release tags (triggers Docker Hub build)
+- **Frontend tests**: 119 tests (Vitest via `ng test`) — see `docs/testing.md` for full inventory
 
 ## Code comments
 
@@ -121,6 +122,11 @@ Comments are a required part of this codebase. Do NOT remove existing comments w
 - **Always comment:** Business logic branches, async flow control paths (effects/signal chains/firstValueFrom), non-obvious constraints or consequences, workarounds, and integration points with external systems (Jira, Xray, MongoDB)
 - **Always JSDoc:** All exported functions, classes, and interfaces — describe purpose, parameters, return values, and side effects
 - **Skip comments for:** Self-explanatory one-liners where naming makes intent obvious
+
+### Language
+- **English only** for all code comments, JSDoc, documentation files (`.md`), and commit messages
+- Every long-lived `.md` file must be written in English to keep the project accessible to international contributors
+- German is acceptable only for ephemeral notes (task lists, working drafts) that will be deleted once resolved
 
 ### What to write
 - **Explain WHY** (intent, business reason, consequence) — not WHAT (the code already shows what)
@@ -172,10 +178,16 @@ await db.collection(storiesCollection).updateOne(...);
 - `prefer-arrow-callback` enforced, `no-console` off
 - **Type-aware rules (all error)**: `no-floating-promises`, `no-misused-promises`, `return-await` (in-try-catch), `no-require-imports`, `consistent-type-imports` (inline `type` keyword), `require-await`, `only-throw-error`, `no-unnecessary-type-assertion`, `restrict-template-expressions`, `no-explicit-any`
 - **Code quality (all error)**: `eqeqeq`, `preserve-caught-error` (ESLint 10 core), `no-duplicate-imports`, `no-useless-catch`
-- **Unsafe operations (all error)**: `no-unsafe-assignment`, `no-unsafe-call`, `no-unsafe-argument`, `no-unsafe-return`, `no-unsafe-enum-comparison`. `no-unsafe-member-access` is `warn` (~122 warnings in selenium-webdriver and Cucumber test runner files with no type declarations).
+- **Unsafe operations (all error)**: `no-unsafe-assignment`, `no-unsafe-call`, `no-unsafe-argument`, `no-unsafe-return`, `no-unsafe-enum-comparison`. `no-unsafe-member-access` is `off` for `test-runners/**/*.ts` (selenium-webdriver has no type declarations — tracked in code comment).
 - **Modern strict rules (all error)**: `prefer-nullish-coalescing`, `prefer-optional-chain`, `switch-exhaustiveness-check`, `no-unnecessary-condition`
-- Lint target: all `src/**/*.ts`; 0 errors, ~306 warnings (all in `src/testing/` — no-unsafe-*, modern strict rules, and switch-exhaustiveness-check in untyped selenium-webdriver and Cucumber files)
+- Lint target: all `src/**/*.ts`; **0 errors, 0 warnings** (5 `no-unsafe-*` rules disabled in `test-runners/**/*.ts` via eslint.config.mjs with rationale comment)
 - Typed domains (`any` cleaned up): Xray, report/Cucumber JSON, Jira/GitHub sync, and both stepdefs — see `src/types/{xray,report,external,test-runner}.types.ts`
+
+## Style conventions (frontend)
+`frontend/eslint.config.mjs` — Angular ESLint with strict TypeScript rules:
+- **0 errors, 0 warnings** enforced
+- All components use `ChangeDetectionStrategy.OnPush`
+- Directives use the `app` prefix
 
 ## Files/gitignore
 Always gitignore: `.feature`, `reporting_*`, `dist/`, `node_modules/`, `.env`, `tsconfig.tsbuildinfo`, `coverage/`, `logs/`, `*.bat`, `*.sh`
