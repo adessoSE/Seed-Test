@@ -1,6 +1,6 @@
 import { AiConfig, RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, ReplaySubject } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -90,16 +90,19 @@ export class ProjectService {
 
 
 	/**
-    * Emits if repositories changed
-  */
+   * Emits if repositories changed and invalidates cache
+   */
 	public updateRepositoryEmitter() {
 		this.updateRepositoryTrigger.update(n => n + 1);
+		this.refreshRepositories();
 	}
 	/**
-  * Triggers repositories reload signal
-  */
+   * Triggers repositories reload signal and invalidates the getRepositories cache
+   * so the next call fetches fresh data from the server.
+   */
 	public getRepositoriesEmitter() {
 		this.getRepositoriesTrigger.update(n => n + 1);
+		this.refreshRepositories();
 	}
 
 
@@ -159,19 +162,50 @@ export class ProjectService {
 				//
 			}));
 	}
-	/**
-   * Retrieves the repositories
-   * @returns
-  */
-	getRepositories(): Observable<RepositoryContainer[]> {
-		const str = this.apiService.apiServer + '/repository/';
 
-		return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
-			.pipe(tap(resp => {
-				sessionStorage.setItem('repositories', JSON.stringify(resp));
-				this.updateRepositoryEmitter();
-			}),
-			catchError(this.apiService.handleError));
+	/** Cached replay subject for getRepositories — shares the last HTTP response across subscribers */
+	private repositoriesCache$ = new ReplaySubject<RepositoryContainer[]>(1);
+
+	/** Guards against concurrent HTTP fetch */
+	private repositoriesFetchInFlight = false;
+
+	/**
+   * Retrieves the repositories, caching the last HTTP response so all concurrent
+   * callers share a single request. Call refreshRepositories() to force a new fetch.
+   * @returns
+   */
+	getRepositories(): Observable<RepositoryContainer[]> {
+		// Lazy fetch — only runs HTTP once; subsequent subscribers get the cached ReplaySubject value
+		if (!this.repositoriesFetchInFlight) {
+			this.repositoriesFetchInFlight = true;
+			const str = this.apiService.apiServer + '/repository/';
+
+			this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
+				.pipe(
+					tap(resp => {
+						sessionStorage.setItem('repositories', JSON.stringify(resp));
+					}),
+					catchError(this.apiService.handleError)
+				)
+				.subscribe({
+					next: resp => this.repositoriesCache$.next(resp),
+					error: err => this.repositoriesCache$.error(err)
+				});
+		}
+
+		return this.repositoriesCache$.asObservable();
+	}
+
+	/**
+   * Forces a fresh HTTP fetch of the repository list, invalidating the cache.
+   * Call after create / delete / rename operations so the next getRepositories()
+   * subscriber receives up-to-date data.
+   */
+	refreshRepositories(): void {
+		this.repositoriesFetchInFlight = false;
+		this.repositoriesCache$ = new ReplaySubject<RepositoryContainer[]>(1);
+		// Immediately kick off a new fetch so subscribers don't wait
+		this.getRepositories();
 	}
 
 	/**

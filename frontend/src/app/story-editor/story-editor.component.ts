@@ -634,10 +634,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Stories bar component
    */
 	constructor() {
+		// Backend info already initialized by APP_INITIALIZER — load step types if url is ready
 		if (this.apiService.urlReceived) 
 			this.loadStepTypes();
-		else 
-			this.apiService.getBackendInfo();
     
 
 		if (this.selectedStory) {

@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA, provideZonelessChangeDetection } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, provideZonelessChangeDetection, APP_INITIALIZER } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ROUTES } from './routes/routes';
 import { AppComponent } from './app.component';
@@ -104,7 +104,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		MatProgressSpinnerModule,
 		CarouselModule,
 		LoggerModule.forRoot({
-			serverLoggingUrl: localStorage.getItem('url_backend') + '/log',
+			serverLoggingUrl: (localStorage.getItem('url_backend') ?? localStorage.getItem('log_url') ?? 'http://localhost:8080/api') + '/log',
 			level: NgxLoggerLevel.DEBUG,
 			serverLogLevel: NgxLoggerLevel.DEBUG
 		}),
@@ -185,6 +185,12 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		],
 		[{ provide: DEFAULT_TIMEOUT, useValue: 120000 }],
 		ThemingService,
+		{
+			provide: APP_INITIALIZER,
+			useFactory: (apiService: ApiService) => () => apiService.initializeBackendInfo(),
+			deps: [ApiService],
+			multi: true
+		},
 		provideHttpClient(withXhr(), withInterceptorsFromDi())
 	],
 	bootstrap: [AppComponent],

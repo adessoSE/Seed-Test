@@ -76,21 +76,21 @@ export class AppComponent implements OnInit, AfterViewInit{
 	private logoutEffect = effect(() => {
 		const trigger = this.loginService.logoutTrigger();
 		if (trigger === 0) return;
-		this.logout();
+		untracked(() => this.logout());
 	});
 
 	/** Refreshes repositories when service triggers */
 	private getReposEffect = effect(() => {
 		const trigger = this.projectService.getRepositoriesTrigger();
 		if (trigger === 0) return;
-		this.getRepositories();
+		untracked(() => this.getRepositories());
 	});
 
 	/** Updates repositories when service triggers */
 	private updateReposEffect = effect(() => {
 		const trigger = this.projectService.updateRepositoryTrigger();
 		if (trigger === 0) return;
-		this.updateRepositories();
+		untracked(() => this.updateRepositories());
 	});
 
 	/** Creates repository when service emits creation data */
@@ -129,8 +129,7 @@ export class AppComponent implements OnInit, AfterViewInit{
    * Retrieves Repositories
    */
 	ngOnInit() {
-		if (!this.apiService.urlReceived)
-			this.apiService.getBackendInfo();
+		// Backend info is already initialized by APP_INITIALIZER — no need to call getBackendInfo() here
 
 		this.themeService.loadTheme();
 		if (this.isDark())

@@ -88,16 +88,18 @@ h1{
     border: 12px solid #999;
 }
 
-::ng-deep .owl-next{
-    margin: -30% 0 0 43% !important;
-    position: absolute !important;
+::ng-deep .owl-next, ::ng-deep .owl-prev{
     background: none !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 1000 !important;
 }
-
+::ng-deep .owl-next{
+    right: -30px !important;
+}
 ::ng-deep .owl-prev{
-    margin: -30% 0 0 -50% !important;
-    position: absolute !important;
-    background: none !important;
+    left: -30px !important;
 }
 ::ng-deep .owl-prev .material-icons:hover,
 ::ng-deep .owl-next .material-icons:hover{

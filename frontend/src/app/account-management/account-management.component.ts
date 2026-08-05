@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -120,7 +120,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	private renameProjectEffect = effect(() => {
 		const proj = this.projectService.renameProjectValue();
 		if (!proj) return;
-		this.updateRepository(proj);
+		untracked(() => this.updateRepository(proj));
 	});
 
 	/**

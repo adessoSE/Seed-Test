@@ -254,7 +254,7 @@ export class StoriesBarComponent implements OnChanges {
 	private deleteStoryEffect = effect(() => {
 		const trigger = this.storyService.deleteStoryTrigger();
 		if (!trigger) return;
-		this.deleteStory();
+		untracked(() => this.deleteStory());
 	});
 
 	/** Effect: watch for scenario status changes (e.g. after test runs) */

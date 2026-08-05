@@ -46,9 +46,9 @@ export class ApiService {
 
 
 	/**
-   * url of the backend
-   */
-	public apiServer: string = localStorage.getItem('url_backend')!;
+    * url of the backend
+    */
+	public apiServer: string = localStorage.getItem('url_backend') || 'http://localhost:8080/api';
 
 	/**
    * If the backend url was received
@@ -113,10 +113,25 @@ export class ApiService {
 	};
 
 	/**
-   * Retrieves the backend info for all api request necessary
-   * @returns
-   */
+    * Initializes backend info before Angular app boot — called by APP_INITIALIZER.
+    * Also updates the logger URL so LoggerModule config resolves correctly.
+    */
+	async initializeBackendInfo(): Promise<void> {
+		if (this.urlReceived) return; // Already initialized
+		await this.getBackendInfo();
+		const url = localStorage.getItem('url_backend');
+		if (url) localStorage.setItem('log_url', url);
+	}
+
+	/**
+    * Retrieves the backend info for all api request necessary.
+    * Idempotent — returns immediately if urlReceived is already true.
+    * @returns
+    */
 	getBackendInfo(): Promise<string | undefined> {
+		// Idempotent guard — skip if already initialized
+		if (this.urlReceived) return Promise.resolve(localStorage.getItem('url_backend') ?? undefined);
+
 		const url = localStorage.getItem('url_backend');
 		const clientId = localStorage.getItem('clientId');
 		const version = localStorage.getItem('version');

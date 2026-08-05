@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, linkedSignal } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, linkedSignal, untracked } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
@@ -6,7 +6,7 @@ import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 import { Group } from '@shared/models/Group';
 import { ActivatedRoute } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
-import { Subscription } from 'rxjs';
+
 import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
 import { ProjectService } from '../Services/project.service';
@@ -27,7 +27,7 @@ import { ReportComponent } from '../report/report.component';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [StoriesBarComponent, StoryEditorComponent, ReportHistoryComponent, FileManagerComponent, ReportComponent]
 })
-export class ParentComponent implements OnInit, OnDestroy {
+export class ParentComponent implements OnInit {
 	apiService = inject(ApiService);
 	route = inject(ActivatedRoute);
 	themeService = inject(ThemingService);
@@ -86,34 +86,17 @@ export class ParentComponent implements OnInit, OnDestroy {
 	private backendUrlEffect = effect(() => {
 		const trigger = this.apiService.backendUrlReadyTrigger();
 		if (trigger === 0) return;
-		this.loadStories();
+		untracked(() => this.loadStories());
 	});
-
-	getRepositoriesObservable!: Subscription;
 
 	/**
    * Requests the repositories on init
    */
 	ngOnInit() {
-		if (!sessionStorage.getItem('repositories'))
-			this.getRepositoriesObservable = this.projectService.getRepositories().subscribe(() => {
-				console.log('parent get Repos');
-			});
 
-		// needs to be after backendUrl effect setup to work properly
+		// Backend info already initialized by APP_INITIALIZER — loadStories if url is ready
 		if (this.apiService.urlReceived)
 			this.loadStories();
-		else
-			this.apiService.getBackendInfo();
-
-
-	}
-
-	ngOnDestroy() {
-		if (this.getRepositoriesObservable)
-			if (this.getRepositoriesObservable && !this.getRepositoriesObservable.closed)
-				this.getRepositoriesObservable.unsubscribe();
-
 
 	}
 
