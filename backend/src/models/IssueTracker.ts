@@ -63,6 +63,7 @@ class Github extends IssueTracker {
 		if (!checkValidGithubFormat(issueDetail.repoUser, issueDetail.repoName)) return;
 		if (!(new RegExp(/^\d+$/)).test(issueDetail.issueId)) return;
 		const link = `https://api.github.com/repos/${issueDetail.repoUser}/${issueDetail.repoName}/issues/${issueDetail.issueId}/comments`;
+		if (!credentials) return;
 		const auth = this.buildAuthText(credentials.login, credentials.githubToken, 'basic');
 		fetch(link, {
 			method: 'post',

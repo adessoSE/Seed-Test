@@ -244,6 +244,7 @@ export async function getStoriesFromSource(user: User, query: { [key: string]: s
 		if (!checkValidGithubFormat(githubName, repository))  // Use the helper
 			throw AppError.badRequest('Invalid GitHub username or repository name');
         
+		if (!user.github) throw AppError.unauthorized('GitHub account not linked');
 		const token = user.github.githubToken;
 		const githubRepoUrl = `${githubName}/${repository}`;
         
