@@ -9,11 +9,8 @@ import type { SeleniumDriver, SeleniumTestParameters, SeleniumParameterCollectio
 
 // selenium-webdriver subpath imports lack TypeScript declarations — use createRequire bridge
 const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 const chrome = require('selenium-webdriver/chrome');
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 const firefox = require('selenium-webdriver/firefox');
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 const edge = require('selenium-webdriver/edge');
 
 class SeleniumWebdriverWorld extends World {
@@ -30,6 +27,7 @@ class SeleniumWebdriverWorld extends World {
 		super(options);
 
 		// Verzeichnisse basierend auf Betriebssystem festlegen
+		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check -- all cases handled by default
 		switch (os.platform()) {
 			case 'win32':
 				this.downloadDir = 'C:\\Users\\Public\\seed_Downloads\\';
@@ -91,7 +89,6 @@ class SeleniumWebdriverWorld extends World {
 
 	getBrowserOptions() {
 		// Chrome-Optionen (--start-maximized removed — applied conditionally after build)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		const chromeOptions = new chrome.Options()
 			.setUserPreferences({ 'download.default_directory': this.downloadDir })
 			.addArguments('--disable-dev-shm-usage')
@@ -100,7 +97,6 @@ class SeleniumWebdriverWorld extends World {
 			.addArguments('--excludeSwitches=enable-logging');
 
 		// Firefox-Optionen
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		const firefoxOptions = new firefox.Options()
 			.setPreference('browser.download.dir', this.downloadDir)
 			.setPreference('browser.download.folderList', 2)
@@ -112,7 +108,6 @@ class SeleniumWebdriverWorld extends World {
 			.setBrowserVersion('stable');
 
 		// Edge-Optionen (--start-maximized removed — applied conditionally after build)
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		const edgeOptions = new edge.Options()
 			.setUserPreferences({ 'download.default_directory': this.downloadDir })
 			.addArguments('--disable-dev-shm-usage')
@@ -159,7 +154,6 @@ class SeleniumWebdriverWorld extends World {
 			}
     
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 		return { chromeOptions, firefoxOptions, edgeOptions };
 	}
 
@@ -200,12 +194,10 @@ class SeleniumWebdriverWorld extends World {
 					this.testParameters.browser = 'chrome';
 
 				// Browser-Optionen holen (must happen after browser name mapping)
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const { chromeOptions, firefoxOptions, edgeOptions } =
 					this.getBrowserOptions();
 
 				// Neuen Browser starten
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				const builder = new webdriver.Builder().forBrowser(
 					this.testParameters.browser
 				);
@@ -224,7 +216,6 @@ class SeleniumWebdriverWorld extends World {
 				}
 
 				// Browser starten — driver is guaranteed non-null for the rest of this block
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- selenium-webdriver has no type declarations
 				this.driver = await builder.build();
 				const d = this.driver!;
 

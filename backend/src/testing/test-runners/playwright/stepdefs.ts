@@ -52,7 +52,6 @@ Before(async function (this: PlaywrightWorld) {
 	console.log('World Parameters:', this.parameters);
 
 	if (scenarioCount === 0) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Cucumber parameters are untyped
 		totalScenarios = this.parameters.scenarios.length;
 		console.log(`Total scenarios to run: ${totalScenarios}`);
 	}
@@ -146,7 +145,7 @@ function expandAttributeWildcard(locatorString: string) {
 
 	// Bestimme Element-Typ nur aus dem XPath-Teil
 	const elementType =
-		locatorString.match(/checkbox|button|input/)?.[0] || 'default';
+		locatorString.match(/checkbox|button|input/)?.[0] ?? 'default';
 
 	const attributes = {
 		default: ['id', 'name', 'class', 'data-testid', 'aria-label', 'title'],
@@ -176,7 +175,7 @@ function expandAttributeWildcard(locatorString: string) {
 			value = match.split('"')[1];
 
 
-		const attrList = attributes[elementType as keyof typeof attributes] || attributes.default;
+		const attrList = attributes[elementType as keyof typeof attributes];
 		const expansion = `(${attrList
 			.map((attr: string) =>
 				isContains ? `contains(@${attr}, "${value}")` : `@${attr}="${value}"`
@@ -372,7 +371,7 @@ async function mapLocatorsToPromises(
 					} catch (error) {
 						if (error instanceof AggregateError) {
 							// Handle Promise.any failure (no locator found)
-							const errorMessages: string[] = error.errors?.map((e: { message: string }) => e.message) || [];
+							const errorMessages: string[] = [...error.errors].map((e: { message: string }) => e.message);
 							throw new Error(
 								[
 									`No visible locator found for "${action}"`,
@@ -455,8 +454,7 @@ async function mapLocatorsToPromises(
 		return await Promise.any(promises);
 	} catch (error) {
 		if (error instanceof AggregateError) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- AggregateError.errors is Iterable, mapped to string[]
-			const errorMessages: string[] = error.errors?.map((e) => e.message) || [];
+			const errorMessages: string[] = [...error.errors].map((e: { message: string }) => e.message);
 			throw new Error(
 				[
 					`No locator found for: "${action}".`,
@@ -1285,7 +1283,7 @@ Then('So I will be navigated to the website: {string}', async function (this: Pl
 });
 
 const resolveRegex = (rawString?: string): { resultString: string, regexFound: boolean } => {
-	const string = !rawString ? '' : rawString;
+	const string = rawString ?? '';
 	const regex = /(\{Regex:)(.*)(\})(.*)/g;
 	const regexFound = regex.test(string);
 	const resultString = regexFound ? string.replace(regex, '$2$4') : string;

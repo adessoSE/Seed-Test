@@ -240,7 +240,8 @@ async function postCommentsToTrackers(finalReport: Record<string, unknown>, stor
 
 				issueTracker.postComment(comment, { issueId: story.issue_number.toString(), repoUser, repoName }, user.github);
 				if (mode === ExecutionMode.STORY)  // Update label only on full feature run
-					(issueTracker as Github).updateLabel(finalReport.status as boolean, { issueId: story.issue_number.toString(), repoUser, repoName }, user.github.githubToken);
+					if (user.github)
+						(issueTracker as Github).updateLabel(finalReport.status as boolean, { issueId: story.issue_number.toString(), repoUser, repoName }, user.github.githubToken);
                 
 
 			} else if ((story.storySource as IssueTrackerOption) === IssueTrackerOption.JIRA && user.jira) {

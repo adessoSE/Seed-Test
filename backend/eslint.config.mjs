@@ -92,18 +92,35 @@ export default defineConfig([
 	},
 	{
 		// Cucumber step definitions use 'const self = this' for World context
-		// Selenium-webdriver is untyped — no-unsafe-* rules kept at warn to avoid noise
+		// Selenium-webdriver is untyped — most rules now at error, but no-unsafe-member-access
+		// kept at warn because selenium-webdriver has no type declarations (122 warnings)
 		files: ['src/testing/**/*.ts'],
+		// Exclude spec files — their relaxations in the block above take precedence
+		ignores: ['src/testing/**/*.spec.ts', 'src/testing/**/*.itest.ts'],
 		rules: {
 			'@typescript-eslint/no-this-alias': 'off',
-			'@typescript-eslint/no-unsafe-call': 'warn',
-			'@typescript-eslint/no-unsafe-return': 'warn',
-			'@typescript-eslint/no-unsafe-argument': 'warn',
-			'@typescript-eslint/no-unsafe-enum-comparison': 'warn',
-			'@typescript-eslint/no-unnecessary-condition': 'warn',
-			'@typescript-eslint/prefer-nullish-coalescing': 'warn',
-			'@typescript-eslint/prefer-optional-chain': 'warn',
-			'@typescript-eslint/switch-exhaustiveness-check': 'warn'
+			'@typescript-eslint/no-unsafe-call': 'error',
+			'@typescript-eslint/no-unsafe-return': 'error',
+			'@typescript-eslint/no-unsafe-argument': 'error',
+			'@typescript-eslint/no-unsafe-enum-comparison': 'error',
+			'@typescript-eslint/no-unnecessary-condition': 'error',
+			'@typescript-eslint/prefer-nullish-coalescing': 'error',
+			'@typescript-eslint/prefer-optional-chain': 'error',
+			'@typescript-eslint/switch-exhaustiveness-check': 'error'
+		}
+	},
+	{
+		// selenium-webdriver has no TypeScript type declarations (no @types/selenium-webdriver).
+		// All no-unsafe-* rules produce only noise here — every browser API call is `any`.
+		// Remove this block once official type declarations become available.
+		files: ['src/testing/test-runners/**/*.ts'],
+		rules: {
+			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-unsafe-call': 'off',
+			'@typescript-eslint/no-unsafe-argument': 'off',
+			'@typescript-eslint/no-unsafe-return': 'off',
+			'@typescript-eslint/no-unsafe-assignment': 'off',
+			'@typescript-eslint/no-unnecessary-condition': 'off'
 		}
 	}
 ]);

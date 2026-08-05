@@ -93,25 +93,25 @@ const cachedSupportCode: {
  * @returns An object containing the results and metadata of the test run.
  */
 export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story: Story) {
-	const repoId = req.body.repositoryId || req.body.repoId;
+	const repoId = req.body.repositoryId ?? req.body.repoId;
 	if (!repoId) 
 		throw new Error('Repository ID is missing from the request body.');
     
 
-	const testRunner = req.body.testRunner || 'seleniumWebdriver';
+	const testRunner = req.body.testRunner ?? 'seleniumWebdriver';
 	const testRunnerPathName = testRunner === 'seleniumWebdriver' ? 'selenium-webdriver' : 'playwright';
     
 	const globalSettings = await repositoryService.getRepoSettingsById(repoId);
     
-	let parameters: { scenarios: TestParameters[] } = { scenarios: [] };
+	let parameters: { scenarios: TestParameters[] };
 
 	// Extract per-run settings from the request body (browser, emulator, window size, wait time)
 	const requestSettings: RequestSettings = {
-		browser: req.body.browser || undefined,
-		emulator: req.body.emulator || undefined,
+		browser: req.body.browser ?? undefined,
+		emulator: req.body.emulator ?? undefined,
 		width: req.body.width ? Number(req.body.width) : undefined,
 		height: req.body.height ? Number(req.body.height) : undefined,
-		stepWaitTime: req.body.stepWaitTime !== null ? Number(req.body.stepWaitTime) : undefined
+		stepWaitTime: req.body.stepWaitTime ?? undefined
 	};
 
 	if (mode === 'scenario') {
@@ -119,12 +119,13 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 		const scenario = story.scenarios.find(elem => elem.scenario_id === parseInt(req.params.scenarioId!, 10));
 		if (!scenario) throw new Error(`Scenario with ID ${req.params.scenarioId} not found in story.`);
 
-		const examples = scenario.stepDefinitions.example || scenario.multipleScenarios;
-		const scenarioCount = Math.max(examples?.length || 0, 1);
+		const examples = scenario.stepDefinitions.example ?? scenario.multipleScenarios;
+		const scenarioCount = Math.max(examples?.length ?? 0, 1);
 		const additionalParams = getSettings(scenario, globalSettings, requestSettings);
 		parameters = { scenarios: Array(scenarioCount).fill(additionalParams) as TestParameters[] };
 
-	} else if (mode === 'feature' || mode === 'group') {
+	} else {
+	// mode is 'feature' or 'group' (scenario case handled above)
 		// Feature/group mode: each scenario uses its own saved DB settings, no request overrides
 		const prep = scenarioPrep(story.scenarios, story.oneDriver, globalSettings);
 		parameters = prep.parameters;
@@ -170,8 +171,7 @@ export async function executeTest(req: ExecuteTestRequest, mode: TestMode, story
 
 		const { runConfiguration } = await loadConfiguration({ provided: userConfig as unknown as Partial<IConfiguration> });
 
-		if (!cachedSupportCode[testRunner]) 
-			cachedSupportCode[testRunner] = await loadSupport(runConfiguration);
+		cachedSupportCode[testRunner] ??= await loadSupport(runConfiguration);
         
 
 		const { success } = await runCucumber({
@@ -200,15 +200,15 @@ function getSettings(scenario: Scenario, globalSettings: Repository['settings'] 
 	// daisyAutoLogout is a dynamic DB property not present on the Scenario model
 	const daisyAutoLogout = (scenario as unknown as Record<string, unknown>).daisyAutoLogout === true;
 	const finalSettings: TestParameters = {
-		browser: scenario.browser || 'chromium',
+		browser: scenario.browser ?? 'chromium',
 		waitTime: scenario.stepWaitTime ?? 0,
 		daisyAutoLogout
 	};
 
 	if (globalSettings?.activated) {
 		// Global settings override everything when activated
-		finalSettings.browser = globalSettings.browser || finalSettings.browser;
-		finalSettings.waitTime = globalSettings.stepWaitTime || finalSettings.waitTime;
+		finalSettings.browser = globalSettings.browser ?? finalSettings.browser;
+		finalSettings.waitTime = globalSettings.stepWaitTime ?? finalSettings.waitTime;
 		if (globalSettings.emulator) 
 			finalSettings.emulator = globalSettings.emulator;
 		else if (globalSettings.width && globalSettings.height) 
@@ -216,14 +216,14 @@ function getSettings(scenario: Scenario, globalSettings: Repository['settings'] 
         
 	} else {
 		// Use request overrides if provided (scenario mode), fall back to DB scenario values
-		const browser = requestOverrides?.browser || scenario.browser;
+		const browser = requestOverrides?.browser ?? scenario.browser;
 		if (browser) finalSettings.browser = browser;
 
 		finalSettings.waitTime = requestOverrides?.stepWaitTime ?? scenario.stepWaitTime ?? 0;
 
-		const emulator = requestOverrides?.emulator || scenario.emulator;
-		const width = requestOverrides?.width || scenario.width;
-		const height = requestOverrides?.height || scenario.height;
+		const emulator = requestOverrides?.emulator ?? scenario.emulator;
+		const width = requestOverrides?.width ?? scenario.width;
+		const height = requestOverrides?.height ?? scenario.height;
 
 		if (emulator) 
 			finalSettings.emulator = emulator;
@@ -240,8 +240,8 @@ function scenarioPrep(scenarios: Scenario[], oneDriver: boolean | undefined, glo
 	scenarios.forEach((scenario) => {
 		// Each scenario uses its own saved DB settings — no request overrides in feature/group mode
 		const additionalParams = getSettings(scenario, globalSettings);
-		const examples = scenario.stepDefinitions.example || scenario.multipleScenarios;
-		const count = Math.max(examples?.length || 0, 1);
+		const examples = scenario.stepDefinitions.example ?? scenario.multipleScenarios;
+		const count = Math.max(examples?.length ?? 0, 1);
 
 		for (let i = 0; i < count; i++) 
 			parameters.scenarios.push({

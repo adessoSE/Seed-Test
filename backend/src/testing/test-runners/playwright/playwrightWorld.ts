@@ -49,9 +49,7 @@ class PlaywrightWorld extends World {
 	constructor(options: IWorldOptions) {
 		super(options);
 		console.log('Initializing PlaywrightWorld with options:', {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Cucumber IWorldOptions.parameters is untyped
 			scenario0: options.parameters.scenarios[0],
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Cucumber IWorldOptions.parameters is untyped
 			parameters: options.parameters,
 			scenarioCount: this.scenarioCount
 		});
@@ -65,6 +63,7 @@ class PlaywrightWorld extends World {
 		};
 
 		// Verzeichnisse basierend auf Betriebssystem festlegen
+		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check -- all cases handled by default
 		switch (os.platform()) {
 			case 'win32':
 				this.downloadDir = 'C:\\Users\\Public\\seed_Downloads\\';
@@ -139,8 +138,7 @@ class PlaywrightWorld extends World {
 					if (device) {
 						try {
 							// Neuen Browser nur starten wenn noch keiner existiert
-							if (!this.browser) 
-								this.browser = await browserType.launch({...browserConfig, timeout: 10000});
+							this.browser ??= await browserType.launch({...browserConfig, timeout: 10000});
                             
 						} catch (error: unknown) {
 							throw new Error(`Browser launch failed in Emulator: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
@@ -225,6 +223,7 @@ class PlaywrightWorld extends World {
 
 	private getBrowserType() {
 		console.log('Browser selection:', this.testParameters.browser);
+		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check -- all cases handled by default
 		switch (this.testParameters.browser) {
 			case 'firefox': 
 				console.log('Selected Firefox browser engine');
