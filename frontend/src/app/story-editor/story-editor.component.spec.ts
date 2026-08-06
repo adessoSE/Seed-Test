@@ -77,7 +77,7 @@ describe('StoryEditorComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(StoryEditorComponent);
 		component = fixture.componentInstance;
-		component.selectedStory = story;
+		component.selectedStory.set(story);
 		// Provide required signal input before first change detection
 		fixture.componentRef.setInput('isDark', false);
 		fixture.detectChanges();
@@ -90,7 +90,7 @@ describe('StoryEditorComponent', () => {
 	describe('set newSelectedStory', () => {
 		it('should set newSelectedStory', () => {
 			fixture.componentRef.setInput('newSelectedStory', story);
-			expect(component.selectedStory).toBe(story);
+			expect(component.selectedStory()).toBe(story);
 		});
 	});
 
@@ -105,7 +105,7 @@ describe('StoryEditorComponent', () => {
 		});
 
 		it('should set newSelectedScenario with selectScenario', () => {
-			component.selectedStory = story;
+			component.selectedStory.set(story);
 			vi.spyOn(component, 'selectScenario');
 			fixture.componentRef.setInput('newSelectedScenario', scenario);
 			// Flush effects without full change detection to avoid NG0100
@@ -117,7 +117,7 @@ describe('StoryEditorComponent', () => {
 
 	describe('updateBackground', () => {
 		it('should update the background', () => {
-			component.selectedStory = story;
+			component.selectedStory.set(story);
 			// stories must be set so checkStoriesForBack() can filter them
 			component.stories.set(stories);
 			// blocks must be initialized so changeBackgroundBlock() can iterate them
@@ -132,11 +132,11 @@ describe('StoryEditorComponent', () => {
 		it('should delete the background', () => {
 			const emptyBackground = {stepDefinitions: {when: []}};
 			component.stories.set(stories);
-			component.selectedStory = stories[0];
+			component.selectedStory.set(stories[0]);
 
 			component.deleteBackground();
 			expect(component.showBackground()).toBeFalsy();
-			expect(component.stories()[component.stories().indexOf(component.selectedStory)].background).toEqual(emptyBackground);
+			expect(component.selectedStory()?.background).toEqual(emptyBackground);
 		});
 	});
 
@@ -157,10 +157,10 @@ describe('StoryEditorComponent', () => {
 	describe('deleteScenario', () => {
 		it('should send delete request', async () => {
 			component.stories.set(stories);
-			component.selectedStory = stories[0];
+			component.selectedStory.set(stories[0]);
 			vi.spyOn(component.scenarioService, 'deleteScenario');
 			vi.spyOn(component, 'scenarioDeleted');
-			component.deleteScenario(component.selectedStory.scenarios[0], false);
+			component.deleteScenario(component.selectedStory()?.scenarios![0]!, false);
 			fixture.detectChanges();
 			expect(component.scenarioService.deleteScenario).toHaveBeenCalled();
 		});
@@ -170,16 +170,17 @@ describe('StoryEditorComponent', () => {
 	describe('scenarioDeleted', () => {
 		it('should delete the Scenario', () => {
 			component.stories.set(stories);
-			component.selectedStory = stories[0];
+			component.selectedStory.set(stories[0]);
 			component.selectedScenario = stories[0].scenarios[0];
-			const indexScenario: number = component.selectedStory.scenarios.indexOf(component.selectedScenario);
-			const deletedScenario = component.selectedStory.scenarios[indexScenario];
+			const story = component.selectedStory()!;
+			const indexScenario: number = story.scenarios.indexOf(component.selectedScenario);
+			const deletedScenario = story.scenarios[indexScenario];
 
 			component.scenarioDeleted();
 			// After deleting one of two scenarios, selectScenario is called on the remaining one, setting showEditor = true
 			expect(component.showEditor()).toBeTruthy();
 
-			expect(component.stories()[component.stories().indexOf(component.selectedStory)].scenarios).not.toContain(deletedScenario);
+			expect(component.stories()[component.stories().indexOf(component.selectedStory()!)].scenarios).not.toContain(deletedScenario);
 			expect(indexScenario).not.toBe(-1);
 
 		});
@@ -189,43 +190,41 @@ describe('StoryEditorComponent', () => {
 
 		it('should start runTest', () => {
 			const scenarioId = 1;
-			component.selectedStory = story;
+			component.selectedStory.set(story);
 			// scenarioChild is now a viewChild signal — mock it via Object.defineProperty
 			Object.defineProperty(component, 'scenarioChild', { value: () => findComponent(fixture, '#scenarioChild') });
 			const html = '<h1 #testFrame>Hi</h1>';
 			vi.spyOn(component.storyService, 'runTests');
-			component.storyService.runTests(component.selectedStory._id!, scenarioId, {}).subscribe((_resp)=> {
+			component.storyService.runTests(component.selectedStory()?._id!, scenarioId, {}).subscribe((_resp)=> {
 				expect(component.htmlReport).toBe(html);
 				expect(component.testDone()).toBeTruthy();
 				expect(component.showResults()).toBeTruthy();
 				expect(component.testRunning()).toBeFalsy();
 			});
-
-
 		});
 	});
 
 	describe('addScenario', () => {
 		it('should add Scenario', () => {
 			const scenarioName = 'my new name';
-			component.selectedStory = stories[0];
-			const scenariosAmount = component.selectedStory.scenarios.length;
+			component.selectedStory.set(stories[0]);
+			const scenariosAmount = component.selectedStory()!.scenarios.length;
 			vi.spyOn(component.scenarioService, 'addScenario');
-			component.scenarioService.addScenario(component.selectedStory._id!, scenarioName).subscribe((_resp)=> {
+			component.scenarioService.addScenario(component.selectedStory()?._id!, scenarioName).subscribe((_resp)=> {
 				expect(component.scenarioService.addScenario).toHaveBeenCalled();
-				expect(component.selectedStory.scenarios.length).toBe(scenariosAmount + 1);
+				expect(component.selectedStory()?.scenarios.length).toBe(scenariosAmount + 1);
 			});
 		});
 
 		it('should call selectScenario', async () => {
 			const scenarioName = 'my new name';
-			component.selectedStory = story;
-			const scenariosAmount = component.selectedStory.scenarios.length;
+			component.selectedStory.set(story);
+			const scenariosAmount = component.selectedStory()!.scenarios.length;
 			fixture.detectChanges();
 			vi.spyOn(component, 'selectScenario');
-			component.scenarioService.addScenario(component.selectedStory._id!, scenarioName).subscribe((_resp)=> {
+			component.scenarioService.addScenario(component.selectedStory()?._id!, scenarioName).subscribe((_resp)=> {
 				expect(component.selectScenario).toHaveBeenCalled();
-				expect(component.selectedStory.scenarios.length).toEqual(scenariosAmount + 1);
+				expect(component.selectedStory()?.scenarios.length).toEqual(scenariosAmount + 1);
 			});
 		});
 
@@ -248,7 +247,7 @@ describe('StoryEditorComponent', () => {
 			component.stories.set(stories);
 			vi.spyOn(component, 'selectScenario');
 			component.selectStoryScenario(stories[0]);
-			expect(component.selectedStory).toBe(stories[0]);
+			expect(component.selectedStory()).toBe(stories[0]);
 			expect(component.showResults()).toBeFalsy();
 			expect(component.showEditor()).toBeTruthy();
 			expect(component.selectScenario).toHaveBeenCalled();
@@ -275,7 +274,7 @@ describe('StoryEditorComponent', () => {
 		});
 		it('should call openRenameStoryModal',() => {
 			component.stories.set(stories);
-			//component.selectedStory = story;
+			//component.selectedStory.set(story);
 			vi.spyOn(component, 'changeStoryTitle').mockImplementation(mockComp.openRenameStoryModal);
 			component.changeStoryTitle();
 			expect(mockComp.openRenameStoryModal).toHaveBeenCalled();
@@ -285,8 +284,8 @@ describe('StoryEditorComponent', () => {
 
 	describe('behavioral: scenario add/remove with signal updates', () => {
 		it('should add scenario to selectedStory.scenarios via addScenario', () => {
-			component.selectedStory = stories[0];
-			const initialLen = component.selectedStory.scenarios.length;
+			component.selectedStory.set(stories[0]);
+			const initialLen = component.selectedStory()!.scenarios.length;
 			const newScenario: Scenario = {
 				scenario_id: 99,
 				name: 'New Test Scenario',
@@ -295,19 +294,19 @@ describe('StoryEditorComponent', () => {
 			};
 
 			component.stories.set(stories);
-			component.selectScenario(component.selectedStory.scenarios[0]);
+			component.selectScenario(component.selectedStory()!.scenarios[0]);
 
 			vi.spyOn(component, 'selectScenario');
 			component.selectScenario(newScenario);
-			component.selectedStory.scenarios.push(newScenario);
+			component.selectedStory()!.scenarios.push(newScenario);
 
-			expect(component.selectedStory.scenarios.length).toBe(initialLen + 1);
+			expect(component.selectedStory()?.scenarios.length).toBe(initialLen + 1);
 			expect(component.selectedScenario).toBe(newScenario);
 			expect(component.showEditor()).toBeTruthy();
 		});
 
 		it('should remove scenario from list via scenarioDeleted', () => {
-			component.selectedStory = stories[0];
+			component.selectedStory.set(stories[0]);
 			component.stories.set(stories);
 			component.selectedScenario = stories[0].scenarios[0];
 			const initialLen = stories[0].scenarios.length;
@@ -324,7 +323,7 @@ describe('StoryEditorComponent', () => {
 	describe('behavioral: selectScenario updates signals', () => {
 		it('should set selectedScenario, showEditor, and reset showResults/testDone', () => {
 			const testScenario = story.scenarios[0];
-			component.selectedStory = story;
+			component.selectedStory.set(story);
 
 			component.selectScenario(testScenario);
 
@@ -363,7 +362,7 @@ describe('StoryEditorComponent', () => {
 			fixture.componentRef.setInput('newSelectedStory', story);
 			TestBed.flushEffects();
 
-			expect(component.selectedStory).toBe(story);
+			expect(component.selectedStory()).toBe(story);
 			expect(component.selectScenario).toHaveBeenCalledWith(story.scenarios[0]);
 		});
 	});
@@ -371,7 +370,7 @@ describe('StoryEditorComponent', () => {
 	describe('behavioral: DOM rendering after signal changes', () => {
 		it('should show editor section when showEditor signal is true', () => {
 			component.stories.set(stories);
-			component.selectedStory = stories[0];
+			component.selectedStory.set(stories[0]);
 			component.showEditor.set(true);
 			component.selectedScenario = stories[0].scenarios[0];
 			TestBed.flushEffects();
@@ -406,7 +405,7 @@ describe('StoryEditorComponent', () => {
 	describe('behavioral: empty/edge cases', () => {
 		it('should hide editor when selecting scenario on story with no scenarios', () => {
 			const emptyStory: Story = { ...story, scenarios: [] };
-			component.selectedStory = emptyStory;
+			component.selectedStory.set(emptyStory);
 
 			component.selectScenario(null);
 
@@ -419,7 +418,7 @@ describe('StoryEditorComponent', () => {
 				...story,
 				scenarios: [{ ...story.scenarios[0], scenario_id: 100 }]
 			};
-			component.selectedStory = singleScenarioStory;
+			component.selectedStory.set(singleScenarioStory);
 			component.selectedScenario = singleScenarioStory.scenarios[0];
 			component.stories.set([singleScenarioStory]);
 
@@ -436,14 +435,14 @@ describe('StoryEditorComponent', () => {
 			fixture.componentRef.setInput('newSelectedStory', storyNoScenarios);
 			TestBed.flushEffects();
 
-			expect(component.selectedStory).toBe(storyNoScenarios);
+			expect(component.selectedStory()).toBe(storyNoScenarios);
 			expect(component.selectScenario).toHaveBeenCalledWith(null);
 		});
 
 		it('should handle scenarioDeleted when selectedStory has no matched selectedScenario', () => {
 			const s1 = stories[0];
 			const fakeScenario = { scenario_id: -999, name: 'fake' } as Scenario;
-			component.selectedStory = s1;
+			component.selectedStory.set(s1);
 			component.selectedScenario = fakeScenario;
 
 			expect(() => component.scenarioDeleted()).not.toThrow();

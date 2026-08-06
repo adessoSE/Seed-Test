@@ -22,6 +22,6 @@ export const updateBlockSchema = z.object({
 	source: z.string().optional(),
 	isBackground: z.boolean().optional(),
 	usedAsReference: z.boolean().optional(),
-	stepDefinitions: stepDefinitionSchema,
-	multipleScenarios: z.array(multipleScenarioSchema).optional()
+	stepDefinitions: stepDefinitionSchema.passthrough(),
+	multipleScenarios: z.array(multipleScenarioSchema.passthrough()).optional()
 });

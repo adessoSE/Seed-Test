@@ -129,7 +129,9 @@ export async function runScenario(req: Request, res: Response, next: NextFunctio
  */
 export async function runGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repoId } = extractRunParams(req);
+		// The predefined-group endpoint carries the repository ID in its URL, not its body.
+		const repoId = req.params.repoID;
+		requireValidId(repoId, 'repository ID');
 		const groupId = req.params.groupID;
 		requireValidId(groupId, 'group ID');
 
@@ -139,12 +141,54 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 		if (!group)
 			throw AppError.notFound('Group not found');
 
+		// LOGGING: Log member_stories to debug "No valid stories found" error
+		const memberStoryIds = group.member_stories.map((id: unknown) => {
+			const rawType = typeof id;
+			const stringValue = String(id);
+			let hexString: string | undefined;
+			if (rawType === 'object' && id !== null) {
+				try {
+					hexString = (id as { toHexString?: () => string }).toHexString?.();
+				} catch { /* ignore */ }
+			}
+			return { raw: id, type: rawType, string: stringValue, hex: hexString };
+		});
+		logger.info(`runGroup: Group '${group.name}' has ${group.member_stories.length} member_stories: ${JSON.stringify(memberStoryIds)}`);
+
+		// Resolve member_stories to actual Story objects
 		const stories: (Story | null)[] = await Promise.all(
-			group.member_stories.map(id => storyService.getOneStory(id.toString()))
+			group.member_stories.map(async (id: unknown) => {
+				const rawType = typeof id;
+				let storyIdStr: string;
+
+				if (rawType === 'string') {
+					storyIdStr = id as string;
+				} else if (rawType === 'object' && id !== null) {
+					try {
+						const oid = id as { toHexString?: () => string; toString?: () => string };
+						// Try toHexString() first (MongoDB ObjectId), fallback to toString()
+						storyIdStr = oid.toHexString?.() ?? oid.toString?.() ?? String(id);
+					} catch {
+						storyIdStr = String(id);
+					}
+				} else {
+					storyIdStr = String(id);
+				}
+
+				logger.debug(`runGroup: Looking up story by ID '${storyIdStr}' (raw type: ${rawType})`);
+				const story = await storyService.getOneStory(storyIdStr);
+				if (!story) {
+					logger.warn(`runGroup: Story ID '${storyIdStr}' not found in database`);
+				}
+				return story;
+			})
 		);
-		const validStories = stories.filter(s => s !== null);
-		if (validStories.length === 0)
+		const validStories = stories.filter(s => s !== null) as Story[];
+		logger.info(`runGroup: Found ${validStories.length} valid story(es) for group '${group.name}'`);
+		if (validStories.length === 0) {
+			logger.error(`runGroup: No valid stories for group '${group.name}' (member_stories: ${JSON.stringify(group.member_stories.map(id => ({ type: typeof id, value: String(id) })))})`);
 			throw AppError.badRequest('No valid stories found in the group');
+		}
 
 		// Use group name for report directory, ensuring it's filesystem-safe
 		(req.body as Record<string, unknown>).name = featureFileService.cleanFileName(`group_${group.name}_${Date.now()}`);

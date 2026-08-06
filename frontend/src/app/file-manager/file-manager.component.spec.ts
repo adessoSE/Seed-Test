@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
+import { FileElement } from '@shared/models/FileElement';
 
 import { FileManagerComponent } from './file-manager.component';
 import { ThemingService } from '../Services/theming.service';
@@ -10,6 +11,7 @@ import { ProjectService } from '../Services/project.service';
 describe('FileManagerComponent', () => {
 	let component: FileManagerComponent;
 	let fixture: ComponentFixture<FileManagerComponent>;
+	let projectServiceSpy: Partial<ProjectService>;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
@@ -31,10 +33,11 @@ describe('FileManagerComponent', () => {
 				{
 					provide: ProjectService,
 					useValue: {
-						queryFiles: () => of([]),
-						deleteUploadedFile: vi.fn(),
-						uploadFile: vi.fn()
-					}
+						fileElements: signal<FileElement[]>([]),
+						queryFiles: vi.fn().mockReturnValue(of([])),
+						deleteUploadedFile: vi.fn().mockReturnValue(of({})),
+						uploadFile: vi.fn().mockReturnValue(of({} as FileElement))
+					} as Partial<ProjectService>
 				}
 			]
 		})

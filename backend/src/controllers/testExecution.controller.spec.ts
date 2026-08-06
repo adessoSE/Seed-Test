@@ -457,4 +457,26 @@ describe('TestExecutionController', () => {
 			expect(reportService.scheduleReportDeletion).toHaveBeenCalled();
 		});
 	});
+
+	describe('runGroup', () => {
+		it('should use the repository ID from the route when the body only contains group settings', async () => {
+			const story = setupReportMocks();
+			const req = createReq({
+				params: { repoID: VALID_ID, groupID: VALID_ID },
+				body: { repository: 'owner/repo', source: 'github' }
+			});
+			vi.mocked(repositoryService.getOneStoryGroup).mockResolvedValue({
+				_id: VALID_ID,
+				name: 'Group',
+				member_stories: [story._id],
+				isSequential: true
+			} as any);
+			vi.mocked(storyService.getOneStory).mockResolvedValue(story);
+
+			await controller.runGroup(req, res, next);
+
+			expect(repositoryService.getOneStoryGroup).toHaveBeenCalledWith(VALID_ID, VALID_ID);
+			expect(next).not.toHaveBeenCalled();
+		});
+	});
 });

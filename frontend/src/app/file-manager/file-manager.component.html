@@ -12,7 +12,7 @@
         <p class="LargeHeadline3 headline">File Manager</p>
       </div>
     </div>
-    @if (allFiles().length > 0) {
+    @if ((allFiles() ?? []).length > 0) {
       <div class="bodyContainer upload-container storage-not-empty">
         <div class="bodyContainer top">
           <div class="searchFile">
@@ -72,7 +72,7 @@
           </div>
         </div>
       }
-      @if (allFiles().length === 0) {
+      @if ((allFiles() ?? []).length === 0) {
         <div class="bodyContainer upload-container storage-empty">
           <div class="empty-storage-message">
             <p style="font-size: large; font-style: italic;">There are no files in this project yet</p>

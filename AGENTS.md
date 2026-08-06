@@ -11,6 +11,11 @@ GitHub: `adessoSE/Seed-Test` (wiki/docs at `adessoAG/Seed-Test`). Open-source BD
 ## Architecture
 Monorepo with 3 packages: `backend` (Express/TS), `frontend` (Angular 22), `shared` (TS models).
 
+## Agent Tooling
+- **Codebase Memory**: Use the `SeedTest` knowledge-graph index before non-trivial cross-file work. Start with `index_status` (or index when stale), then use `search_graph`/`trace_path` for definitions, callers, data flow, and impact analysis. Prefer it over broad text searches.
+- **Angular CLI MCP**: For Angular work, call `list_projects` first, `get_best_practices` before implementation, and use `search_documentation` for Angular APIs. Verify with the Angular build/test target when available.
+- **Context7**: Use for current third-party library documentation and APIs.
+
 Backend is TypeScript — old `serverRouter/` removed; replaced by clean 3-layer architecture.
 
 ### Frontend — Angular Signals + Zoneless

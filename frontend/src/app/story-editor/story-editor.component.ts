@@ -144,7 +144,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	/**
    * Currently selected story
    */
-	selectedStory!: Story;
+	readonly selectedStory = signal<Story | undefined>(undefined);
 
 	/**
    * Currently selected scenario
@@ -393,6 +393,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	private readonly deleteScenarioEffect = effect(() => {
 		const xrayEnabled = this.scenarioService.deleteScenarioValue();
 		if (xrayEnabled === null) return;
+		const story = this.selectedStory();
+		if (!story) return;
 		untracked(() => {
 			this.deleteScenario(this.selectedScenario, xrayEnabled);
 		});
@@ -402,6 +404,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	private readonly runSaveOptionEffect = effect(() => {
 		const option = this.apiService.runSaveOptionValue();
 		if (option === null) return;
+		const story = this.selectedStory();
+		if (!story) return;
 		untracked(() => {
 			if (option === 'run') {
 				this.runUnsaved = true;
@@ -517,14 +521,17 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	private readonly applyChangesBackgroundEffect = effect(() => {
 		const option = this.backgroundService.applyChangesBackgroundValue();
 		if (option === null) return;
+		const story = this.selectedStory();
+		if (!story) return;
 		untracked(() => {
 			if (option == 'toCurrentBackground') {
 				this.notify.info(
 					'Please enter a new Background name to save your changes'
 				);
 				this.changeBackgroundTitle();
-			} else if (option == 'centrally')
-				this.applyChangesToBackgrounds(this.selectedStory.background);
+			} else if (option == 'centrally') {
+				this.applyChangesToBackgrounds(story.background);
+			}
 		});
 	});
 
@@ -532,6 +539,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	private readonly convertToReferenceEffect = effect(() => {
 		const block = this.blockService.convertToReferenceValue();
 		if (block === null) return;
+		const story = this.selectedStory();
+		if (!story) return;
 		untracked(() => {
 			this.blockService.convertSelectedStepsToRef(
 				block,
@@ -544,6 +553,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	private readonly newSelectedScenarioEffect = effect(() => {
 		const scenario = this.newSelectedScenario();
 		if (!scenario) return;
+		const story = this.selectedStory();
+		if (!story) return;
 		untracked(() => {
 			if (this.isReviewingAi())
 				this.exitAiReviewMode();
@@ -566,27 +577,29 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		const story = this.newSelectedStory();
 		if (!story) return;
 		untracked(() => {
-			console.log('Wir selecten diese Story hier:', story);
-			this.selectedStory = story;
-			this.initializeIsExampleForStory(this.selectedStory);
+			console.log('Setting selectedStory via effect:', story._id);
+			this.selectedStory.set(story);
+			this.initializeIsExampleForStory(this.selectedStory());
 			this.isReviewingAi.set(false);
 
-			if (this.selectedStory && this.selectedStory.aiSuggestion)
-				this.aiSuggestions.set(this.selectedStory._id!, this.selectedStory.aiSuggestion as { scenarios: Scenario[] });
-			else if (this.selectedStory)
-				this.aiSuggestions.delete(this.selectedStory._id!);
+			const storyForAi = this.selectedStory();
+if (storyForAi && storyForAi.aiSuggestion)
+				this.aiSuggestions.set(storyForAi._id!, storyForAi.aiSuggestion as { scenarios: Scenario[] });
+			else if (storyForAi)
+				this.aiSuggestions.delete(storyForAi._id!);
 
-			if (this.selectedStory !== undefined && this.selectedStory.preConditions)
+			const _stories = this.selectedStory();
+			if (_stories !== undefined && _stories.preConditions)
 				this.preConditionResults = this.xrayService.getPreconditionStories(
-					this.selectedStory.preConditions
+					_stories.preConditions
 				);
 
-			if (this.selectedStory &&
-				this.selectedStory.scenarios &&
-				this.selectedStory.scenarios.length > 0
+			if (this.selectedStory() &&
+				this.selectedStory()!.scenarios &&
+				this.selectedStory()!.scenarios.length > 0
 			)
-				this.selectScenario(this.selectedStory.scenarios[0]);
-			else if (this.selectedStory)
+				this.selectScenario(this.selectedStory()!.scenarios[0]);
+			else if (this.selectedStory())
 				// Editor hiding is happening in selectScenario
 				this.selectScenario(null);
 		});
@@ -638,8 +651,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		if (this.apiService.urlReceived) 
 			this.loadStepTypes();
     
-
-		if (this.selectedStory) {
+		const storedStory = this.selectedStory();
+		if (storedStory) {
 			this.storiesLoaded.set(true);
 			this.storiesError.set(false);
 		}
@@ -662,16 +675,19 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		this.checkGlobalSettings();
 	}
 
-	handleSizeChange(event: { width: number; height: number }) {
-		if (this.width !== event.width || this.height !== event.height) 
+handleSizeChange(event: { width: number; height: number }) {
+		const story = this.selectedStory();
+		if (!story) return;
+		if (this.selectedScenario && (this.width !== event.width || this.height !== event.height)) 
 			this.selectedScenario.saved = false;
-    
+      
 		this.selectedScenario.width = event.width;
 		this.selectedScenario.height = event.height;
 	}
 
 	ngAfterViewChecked() {
 		this.openBlockModal = undefined;
+		const storedStory = this.selectedStory();
 		/**
      * when loading for group is displayed scroll to it
      */
@@ -679,8 +695,12 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			const loadingScreen = document.getElementById('loading');
 			loadingScreen!.scrollIntoView();
 		}
-		if (this.selectedStory !== undefined && this.stories().length && this.blocks().length) {
-			this.storeCurrentBackground(this.selectedStory.background);
+		if (storedStory && this.stories().length && this.blocks().length) {
+			if (storedStory.background) {
+				this.storeCurrentBackground(storedStory.background);
+			} else {
+				storedStory.background = emptyBackground;
+			}
 			this.backgrounds = this.stories()
 				.filter((s) => s !== null)
 				.map((s) => s.background);
@@ -715,18 +735,20 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		});
 	}
 
-	/**
-   * Runs the test without saving it
-   */
+/**
+    * Runs the test without saving it
+    */
 	runOption() {
+		const story = this.selectedStory();
+		if (!story) return;
 		const child = this.scenarioChild();
 		const tmpScenarioSaved = child?.scenarioSaved;
-		const tmpBackgroundSaved = this.selectedStory.background.saved;
+		const tmpBackgroundSaved = story.background.saved;
 		if (child) child.scenarioSaved = true;
-		this.selectedStory.background.saved = true;
+		story.background.saved = true;
 		this.runTests(this.currentTestScenarioId);
 		if (child) child.scenarioSaved = tmpScenarioSaved;
-		this.selectedStory.background.saved = tmpBackgroundSaved;
+		story.background.saved = tmpBackgroundSaved;
 	}
 
 	/**
@@ -745,13 +767,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		this.selectedScenario = scenario;
 	}
 
-	/**
-   * Navigates to the previous scenario in the currently active list (original or AI).
-   */
+/**
+    * Navigates to the previous scenario in the currently active list (original or AI).
+    */
 	navigateScenarioLeft() {
+		const story = this.selectedStory();
+		if (!story) return;
 		const currentList = this.isReviewingAi()
-			? this.aiSuggestions.get(this.selectedStory._id!)?.scenarios
-			: this.selectedStory.scenarios;
+			? this.aiSuggestions.get(story._id!)?.scenarios
+			: story.scenarios;
 		if (!currentList) return;
 
 		const currentIndex = currentList.findIndex(
@@ -762,13 +786,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
     
 	}
 
-	/**
-   * Navigates to the next scenario in the currently active list (original or AI).
-   */
+/**
+    * Navigates to the next scenario in the currently active list (original or AI).
+    */
 	navigateScenarioRight() {
+		const story = this.selectedStory();
+		if (!story) return;
 		const currentList = this.isReviewingAi()
-			? this.aiSuggestions.get(this.selectedStory._id!)?.scenarios
-			: this.selectedStory.scenarios;
+			? this.aiSuggestions.get(story._id!)?.scenarios
+			: story.scenarios;
 		if (!currentList) return;
 
 		const currentIndex = currentList.findIndex(
@@ -796,10 +822,12 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	}
 
 	setOneDriver() {
+		const story = this.selectedStory();
+		if (!story) return;
 		this.storyService
-			.changeOneDriver(this.selectedStory.oneDriver!, this.selectedStory._id!)
+			.changeOneDriver(story.oneDriver!, story._id!)
 			.subscribe((resp) => {
-				this.selectedStory = resp as Story;
+				this.selectedStory.set(resp as Story);
 			});
 	}
 
@@ -848,52 +876,60 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * @param scenario
    */
 	deleteScenario(scenario: Scenario, xrayEnabled: boolean) {
+		const story = this.selectedStory();
+		if (!story) return;
 		this.scenarioService
-			.deleteScenario(this.selectedStory._id!, scenario, xrayEnabled)
+			.deleteScenario(story._id!, scenario, xrayEnabled)
 			.subscribe((_) => {
 				this.scenarioDeleted();
 				this.notify.error('', 'Scenario deleted');
 			});
 	}
 
-	/**
-   * Removes scenario from the selected story
-   */
+/**
+    * Removes scenario from the selected story
+    */
 	scenarioDeleted() {
-		const indexScenario: number = this.selectedStory.scenarios.indexOf(
+		const story = this.selectedStory();
+		if (!story) return;
+		const indexScenario: number = story.scenarios.indexOf(
 			this.selectedScenario
 		);
 		if (indexScenario !== -1) 
-			this.selectedStory.scenarios.splice(indexScenario, 1);
+			story.scenarios.splice(indexScenario, 1);
     
 
-		if (this.selectedStory.scenarios.length > 0)
-			this.selectScenario(this.selectedStory.scenarios.slice(-1)[0]);
+		if (story.scenarios.length > 0)
+			this.selectScenario(story.scenarios.slice(-1)[0]);
 		else
 			this.showEditor.set(false);
     
 	}
 
-	/**
-   * Adds a scenario to story
-   */
+/**
+    * Adds a scenario to story
+    */
 	addScenario(event: string) {
 		const scenarioName = event;
+		const story = this.selectedStory();
+		if (!story) return;
 		this.scenarioService
-			.addScenario(this.selectedStory._id!, scenarioName)
+			.addScenario(story._id!, scenarioName)
 			.subscribe((resp: Scenario) => {
 				this.selectScenario(resp);
-				this.selectedStory.scenarios.push(resp);
+				story.scenarios.push(resp);
 				this.notify.info('', 'Scenario added');
 			});
 	}
-	/**
-   * updates the background
-   */
+/**
+    * updates the background
+    */
 	updateBackground() {
-		Object.keys(this.selectedStory.background.stepDefinitions).forEach(
+		const story = this.selectedStory();
+		if (!story) return;
+		Object.keys(story.background.stepDefinitions).forEach(
 			(key, _) => {
-				(this.selectedStory.background.stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach(
+				(story.background.stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach(
 					(step: StepType) => {
 						delete step.checked;
 						if (step.outdated) 
@@ -907,15 +943,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		if (
 			usingBackground.length > 1 &&
       this.backgroundService.backgroundReplaced == undefined &&
-      (this.selectedStory.background.saved == undefined ||
-        !this.selectedStory.background.saved)
+      (story.background.saved == undefined ||
+        !story.background.saved)
 		) 
 			this.backgroundChecks();
 		else {
 			this.changeBackgroundBlock();
-			delete this.selectedStory.background.saved;
+			delete story.background.saved;
 			this.backgroundService
-				.updateBackground(this.selectedStory._id!, this.selectedStory.background)
+				.updateBackground(story._id!, story.background)
 				.subscribe((_) => {
 					this.backgroundService.backgroundChangedEmitter();
 					this.notify.success('successfully saved', 'Background');
@@ -926,33 +962,37 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				});
 		}
 	}
-	/**
-   * Check: if the same background is used in different stories
-   */
+/**
+    * Check: if the same background is used in different stories
+    */
 	checkStoriesForBack() {
+		const story = this.selectedStory();
+		if (!story) return [];
 		const usingBackground = this.stories().filter(
 			(s) =>
 				s !== null &&
-        s.background.name == this.selectedStory.background.name &&
+        s.background.name == story.background.name &&
         s.background.name !== 'New Background' &&
         s.background.stepDefinitions.when.length !== 0
 		);
 		return usingBackground;
 	}
 
-	/**
-   * Change Block if background
-   */
+/**
+    * Change Block if background
+    */
 	changeBackgroundBlock() {
+		const story = this.selectedStory();
+		if (!story) return;
 		this.blocks().forEach((block) => {
 			if (
 				block.isBackground &&
         this.backgroundService.backgroundReplaced == undefined &&
-        block.name == this.selectedStory.background.name &&
-        block.stepDefinitions != this.selectedStory.background.stepDefinitions
+        block.name == story.background.name &&
+        block.stepDefinitions != story.background.stepDefinitions
 			) {
 				block.stepDefinitions.when =
-					this.selectedStory.background.stepDefinitions.when;
+					story.background.stepDefinitions.when;
 				this.blockService
 					.updateBlock(block)
 					.subscribe((_) => this.blockService.updateBlocksEmitter());
@@ -982,12 +1022,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Applying changes for all relevant backgrounds in repository
    */
 	applyChangesToBackgrounds(background: Background) {
-		delete this.selectedStory.background.saved;
+		const story = this.selectedStory();
+		if (!story) return;
+		delete story.background.saved;
 		const storyId: (string | undefined)[] = [];
-		this.stories().forEach((story) => {
-			if (story.background.name === background.name) {
-				story.background.stepDefinitions = background.stepDefinitions;
-				storyId.push(story._id);
+		this.stories().forEach((s) => {
+			if (s.background.name === background.name) {
+				s.background.stepDefinitions = background.stepDefinitions;
+				storyId.push(s._id);
 			}
 		});
 		this.changeBackgroundBlock();
@@ -995,7 +1037,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			// Stories in this.stories() are persisted and always carry an _id
 			if (!_id) return;
 			this.backgroundService
-				.updateBackground(_id, this.selectedStory.background)
+				.updateBackground(_id, story.background)
 				.subscribe((_) => {
 					this.backgroundService.backgroundChangedEmitter();
 					if (this.saveBackgroundAndRun) {
@@ -1007,23 +1049,25 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		this.notify.success('successfully saved', 'Backgrounds');
 	}
 
-	/**
-   * deletes the background
-   */
+/**
+    * deletes the background
+    */
 	deleteBackground() {
+		const story = this.selectedStory();
+		if (!story) return;
 		this.backgroundService
-			.deleteBackground(this.selectedStory._id!)
+			.deleteBackground(story._id!)
 			.subscribe((_) => {
 				this.showBackground.set(false);
 				const blockBackgrounds = this.blocks().filter((b) => b.isBackground);
 				if (blockBackgrounds)
 					for (const block of this.blocks())
-						if (block.name == this.selectedStory.background.name) 
+						if (block.name == story.background.name) 
 							this.blockService.checkBackgroundsOnDelete(block, this.stories());
           
         
-				this.selectedStory.background = emptyBackground;
-				this.selectedStory.background.saved = true;
+				story.background = emptyBackground;
+				story.background.saved = true;
 			});
 	}
 
@@ -1064,17 +1108,19 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		}
 	}
 
-	/**
-   * Sort the backgrounds of stories in a list
-   * @returns
-   */
+/**
+    * Sort the backgrounds of stories in a list
+    * @returns
+    */
 	sortedBackgrounds() {
+		const story = this.selectedStory();
+		if (!story) return undefined;
 		if (this.backgrounds !== undefined) {
 			this.filteredBackgrounds = [];
 			this.filteredBackgrounds = this.backgrounds
 				.filter(
 					(s) =>
-						s.name !== this.selectedStory.background.name &&
+						s.name !== story?.background.name &&
             s.name !== 'New Background' &&
             s.stepDefinitions.when.length !== 0
 				)
@@ -1102,14 +1148,16 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			JSON.stringify(originalBackground)
 		);
 	}
-	/**
-   * Select another background to replace
-   */
+/**
+    * Select another background to replace
+    */
 	replaceBackground(background: Background) {
-		this.selectedStory.background.stepDefinitions.when = JSON.parse(
+		const story = this.selectedStory();
+		if (!story) return;
+		story.background.stepDefinitions.when = JSON.parse(
 			JSON.stringify(background.stepDefinitions.when)
 		);
-		this.selectedStory.background.name = background.name;
+		story.background.name = background.name;
 		this.backgroundService.backgroundReplaced = true;
 		const currentStepsLength =
 			this.backgroundService.currentBackground.stepDefinitions.when.length;
@@ -1156,7 +1204,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * @param scenario_id
    * @param selectedExecutions - optional parameter to update xray status
    */
-	async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
+async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
+		const story = this.selectedStory();
+		if (!story) return;
 		if (this.storySaved()) {
 			// if story is saved
 			// Reset state for new test run
@@ -1173,7 +1223,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			// CASE 1: Run a single scenario by its ID
 			if (scenario_id) 
 				this.storyService
-					.runTests(this.selectedStory._id!, scenario_id, params)
+					.runTests(story._id!, scenario_id, params)
 					.subscribe({
 						next: (resp) => {
 							this.testRunResponse(resp as TestRunResponse);
@@ -1190,7 +1240,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 									selectedExecutions,
 									testStatus
 								);
-              
+               
 						},
 						error: (err) => {
 							console.error('Test execution failed:', err);
@@ -1241,7 +1291,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				else 
 				// CASE 3: No pre-conditions — run all scenarios of the story directly
 					this.storyService
-						.runTests(this.selectedStory._id!, null!, params)
+						.runTests(story._id!, null!, params)
 						.subscribe({
 							next: (resp) => {
 								this.testRunResponse(resp as TestRunResponse);
@@ -1250,14 +1300,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 								// Emit status change for each scenario and update Xray if applicable
 								this.testReport.scenarioStatuses.forEach((scenario) => {
 									this.scenarioService.scenarioStatusChangeEmit(
-										this.selectedStory._id!,
+										story._id!,
 										scenario.scenarioId,
 										scenario.status
 									);
 
 									// Find the matching scenario object for Xray update
 									const currentScenarioId = scenario.scenarioId;
-									const currentScenario = this.selectedStory.scenarios.find(
+									const currentScenario = story.scenarios.find(
 										(scenario) => scenario.scenario_id === currentScenarioId
 									);
 									if (selectedExecutions)
@@ -1266,7 +1316,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 											selectedExecutions,
 											testStatus
 										);
-                  
+                   
 								});
 							},
 							error: (err) => {
@@ -1280,7 +1330,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		} else {
 			// if story is not saved, inform user
 			this.currentTestScenarioId = scenario_id!;
-			this.currentTestStoryId = this.selectedStory.story_id;
+			this.currentTestStoryId = story.story_id;
 			const ref = this.dialog.open(ConfirmDialogComponent, {
 				data: {
 					title: 'Scenario was not saved',
@@ -1302,27 +1352,29 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Creates temporary group for preconditions storys + current selected story
    */
 	async createTempGroup() {
+		const story = this.selectedStory();
+		if (!story) throw new Error('No story selected');
 		const seenStories = new Set<string | number>();
 
 		// add current story to seen stories
-		seenStories.add(this.selectedStory.issue_number!);
+		seenStories.add(story.issue_number!);
 
 		// collect all pre-stories
 		const member_stories = await this.collectPreStories(
-			this.selectedStory,
+			story,
 			seenStories,
 			[]
 		);
 
-		member_stories.push(this.selectedStory);
+		member_stories.push(story);
 
-		for (const story of member_stories) 
-			console.log('Temp group story:', story.issue_number);
+		for (const s of member_stories) 
+			console.log('Temp group story:', s.issue_number);
     
 
 		const temp_group = {
 			_id: -1,
-			name: this.selectedStory.title,
+			name: story.title,
 			member_stories: member_stories,
 			isSequential: true
 		};
@@ -1375,9 +1427,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		return member_stories;
 	}
 
-	/*
-   * Prepare parameters for test run
-   */
+/*
+    * Prepare parameters for test run
+    */
 	testRunParams() {
 		let browserSelectValue = null;
 		let emulatorSelectValue = null;
@@ -1396,6 +1448,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			'We are giving the following testRunner to the Backend: ',
 			this.testRunner()
 		);
+		const story = this.selectedStory();
 		return {
 			browser: browserSelectValue,
 			emulator: emulatorSelectValue,
@@ -1406,7 +1459,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			repository: localStorage.getItem('repository') ?? undefined,
 			repositoryId: localStorage.getItem('id') ?? undefined,
 			source: localStorage.getItem('source') ?? undefined,
-			oneDriver: this.selectedStory.oneDriver,
+			oneDriver: story?.oneDriver,
 			testRunner: this.testRunner()
 		};
 	}
@@ -1452,15 +1505,17 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Evaluates whether to open xray execution list modal in run story.
    */
 	evaluateAndRunStory() {
+		const story = this.selectedStory();
+		if (!story) return;
 		// Check if there is at least one scenario in the story with xray key and execution
-		const executableTests = this.selectedStory.scenarios.some(
+		const executableTests = story.scenarios.some(
 			(scenario) =>
 				scenario.testKey &&
         scenario.testRunSteps &&
         scenario.testRunSteps.length > 0
 		);
 		if (executableTests) 
-			this.executionListModal().openExecutionListModal(this.selectedStory);
+			this.executionListModal().openExecutionListModal(story);
 		else 
 			this.runTests(null);
     
@@ -1480,12 +1535,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
     
 	}
 
-	/**
-   * Download the test report
-   */
+/**
+    * Download the test report
+    */
 	downloadFile() {
+		const story = this.selectedStory();
+		if (!story) return;
 		const blob = new Blob([this.htmlReport], { type: 'text/html' });
-		saveAs(blob, this.selectedStory.title + '.html');
+		saveAs(blob, story.title + '.html');
 	}
 
 	/**
@@ -1655,13 +1712,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * @returns
    */
 
-	storySaved() {
+storySaved() {
+		const story = this.selectedStory();
 		return (
 			this.runUnsaved ||
       ((this.scenarioChild()?.selectedScenario.saved === undefined ||
         this.scenarioChild()?.selectedScenario.saved) &&
-        (this.selectedStory.background.saved === undefined ||
-          this.selectedStory.background.saved))
+        (story?.background.saved === undefined ||
+          story?.background.saved))
 		);
 	}
 
@@ -1695,37 +1753,43 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		});
 	}
 
-	/**
-   * Opens the Modal to rename the story
-   * @param newStoryTitle
-   */
+/**
+    * Opens the Modal to rename the story
+    * @param newStoryTitle
+    */
 	changeStoryTitle() {
+		const story = this.selectedStory();
+		if (!story) return;
 		this.renameStoryModal().openRenameStoryModal(
 			this.stories(),
-			this.selectedStory
+			story
 		);
 	}
 
-	/**
-   * Renames the story
-   * @param newStoryTitle
-   * @param newStoryDescription
-   */
+/**
+    * Renames the story
+    * @param newStoryTitle
+    * @param newStoryDescription
+    */
 	renameStory(newStoryTitle: string, newStoryDescription: string) {
+		const story = this.selectedStory();
+		if (!story) return;
 		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) 
-			this.selectedStory.title = newStoryTitle;
+			story.title = newStoryTitle;
     
 		if (
 			newStoryDescription &&
-      newStoryDescription.replace(/\s/g, '').length > 0
+       newStoryDescription.replace(/\s/g, '').length > 0
 		) 
-			this.selectedStory.body = newStoryDescription;
+			story.body = newStoryDescription;
     
 		this.updateStory();
 	}
 
 	renameBackground(newBackgroundName: string) {
-		this.selectedStory.background.name = newBackgroundName;
+		const story = this.selectedStory();
+		if (!story) return;
+		story.background.name = newBackgroundName;
 	}
 
 	/**
@@ -1733,19 +1797,23 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    *
    */
 	updateStory() {
-		this.storyService.updateStory(this.selectedStory).subscribe((_resp) => {
+		const story = this.selectedStory();
+		if (!story) return;
+		this.storyService.updateStory(story).subscribe((_resp) => {
 			this.notify.success('successfully saved', 'Story');
 		});
 	}
 
-	storyLink() {
+storyLink() {
+		const story = this.selectedStory();
+		if (!story) return '';
 		return (
 			'https://' +
-      window.location.hostname +
-      ':' +
-      window.location.port +
-      '/story/' +
-      this.selectedStory._id
+       window.location.hostname +
+       ':' +
+       window.location.port +
+       '/story/' +
+       story._id
 		);
 	}
 
@@ -1775,11 +1843,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	}
 
 	downloadFeature() {
-		const id = this.selectedStory._id!;
+		const story = this.selectedStory();
+		if (!story) return;
+		const id = story._id!;
 		this.storyService.downloadStoryFeatureFile(id).subscribe((ret) => {
 			saveAs(
 				ret,
-				this.selectedStory.title + this.selectedStory._id + '.feature'
+				story.title + story._id + '.feature'
 			);
 		});
 	}
@@ -1789,26 +1859,31 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * TODO: Currently not in use
    */
 	deleteStory() {
-		this.deleteStoryEvent.emit(this.selectedStory);
+		const story = this.selectedStory();
+		if (!story) return;
+		this.deleteStoryEvent.emit(story);
 	}
 
-	/**
-   * Removes the selected story
-   */
+/**
+    * Removes the selected story
+    */
 	storyDeleted() {
-		if (this.stories().find((x) => x === this.selectedStory))
-			this.stories.set(this.stories().filter((x) => x !== this.selectedStory));
+		const story = this.selectedStory();
+		if (story && this.stories().find((x) => x === story))
+			this.stories.set(this.stories().filter((x) => x !== story));
 
 	}
 
-	/**
-   * Opens modal to rename background
-   */
+/**
+    * Opens modal to rename background
+    */
 	changeBackgroundTitle() {
-		const background = this.selectedStory.background;
+		const story = this.selectedStory();
+		if (!story) return;
+		const background = story.background;
 		let storiesWithBlock;
 		const blockToRename = this.blocks().find(
-			(b) => b.isBackground && b.name === this.selectedStory.background.name
+			(b) => b.isBackground && b.name === story.background.name
 		);
 		if (blockToRename)
 			storiesWithBlock = this.stories().filter(
@@ -1818,7 +1893,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		this.renameBackgroundModal().openRenameBackgroundModal(
 			this.backgrounds,
 			background,
-			this.selectedStory,
+			story,
 			this.saveBackgroundAndRun,
 			blockToRename!,
 			storiesWithBlock!
@@ -1826,24 +1901,26 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	}
 
 	toTicket(issue_number: string) {
-		const host = this.selectedStory.host;
+		const story = this.selectedStory();
+		if (!story) return;
+		const host = story.host;
 		const url = `https://${host}/browse/${issue_number}`;
 		window.open(url, '_blank');
 	}
 
-	/**
-   * Selects a new Story and with it a new scenario
-   * @param story
-   */
+/**
+    * Selects a new Story and with it a new scenario
+    * @param story
+    */
 	selectStoryScenario(story: Story) {
-		this.selectedStory = story;
+		this.selectedStory.set(story);
 		this.initialyAddIsExample();
 		this.preConditionResults = [];
 		this.storyChosen.emit(story);
 		if (
 			story.scenarios.length > 0 &&
-      story.scenarios[0] != null &&
-      story.scenarios[0] != undefined
+       story.scenarios[0] != null &&
+       story.scenarios[0] != undefined
 		) 
 			this.selectScenario(story.scenarios[0]);
 		else this.selectScenario(null);
@@ -1851,11 +1928,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	}
 
 	openCreateScenario() {
-		this.createScenarioModal().openCreateScenarioModal(this.selectedStory);
+		const story = this.selectedStory();
+		if (!story) return;
+		this.createScenarioModal().openCreateScenarioModal(story);
 	}
 
 	initialyAddIsExample() {
-		this.selectedStory.scenarios.forEach((scenario) => {
+		const story = this.selectedStory();
+		if (!story) return;
+		story.scenarios.forEach((scenario) => {
 			scenario.stepDefinitions.given.forEach((value, index) => {
 				if (!scenario.stepDefinitions.given[index].isExample) {
 					scenario.stepDefinitions.given[index].isExample = new Array(
@@ -1900,7 +1981,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			this.exitAiReviewMode();
     
 
-		if (!this.selectedStory || !this.selectedStory._id) {
+		const story = this.selectedStory();
+		if (!story || !story._id) {
 			console.error('No valid story selected.');
 			this.snackBar.open(
 				'No valid story selected. Is your database entry corrupted?',
@@ -1912,8 +1994,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			return;
 		}
 
-		if (!this.selectedStory.body) {
-			// || !this.selectedStory.sourceSteps? include when sourceSteps merged
+		if (!story.body) {
+			// || !story.sourceSteps? include when sourceSteps merged
 			console.error(
 				'Story has no possible input text in description or xRay steps'
 			);
@@ -1927,9 +2009,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			return;
 		}
 
-		const storyId = this.selectedStory._id!;
+		const storyId = story._id!;
 		const repoId = this.selectedRepository()._id!;
-		const storyTitle = this.selectedStory.title;
+		const storyTitle = story.title;
 		this.aiLoadingStories.add(storyId);
 
 		// --- Configuration of AI Parser ---
@@ -2011,7 +2093,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 											)
 											.onAction()
 											.subscribe(() => {
-												if (this.selectedStory._id !== storyId) {
+												const current = this.selectedStory();
+												if (current && current._id !== storyId) {
 													const storyToReview = this.stories().find(
 														(s) => s._id === storyId
 													);
@@ -2056,19 +2139,21 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Enters the AI review mode for the currently selected story.
    */
 	async enterAiReviewMode() {
-		if (!this.aiSuggestions.has(this.selectedStory._id!)) {
+		const story = this.selectedStory();
+		if (!story) return;
+		if (!this.aiSuggestions.has(story._id!)) {
 			this.notify.info('No AI suggestion available for this story.');
 			return;
 		}
 
 		// Fetch the full suggestion from the backend
 		this.storyService
-			.getStory(this.selectedStory._id!)
+			.getStory(story._id!)
 			.subscribe((fullStory) => {
 				const suggestion = fullStory.aiSuggestion as { scenarios: Scenario[] } | undefined;
 				this.initializeIsExampleForStory(suggestion);
 
-				this.aiSuggestions.set(this.selectedStory._id!, suggestion!);
+				this.aiSuggestions.set(story._id!, suggestion!);
 				this.isReviewingAi.set(true);
 				this.reviewModeChanged.emit(true);
 
@@ -2086,52 +2171,58 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Can optionally update the story with new data.
    * @param updatedStory - The updated story object from the server, if available.
    */
-	exitAiReviewMode(updatedStory?: Story) {
+exitAiReviewMode(updatedStory?: Story) {
 		this.isReviewingAi.set(false);
 		this.reviewModeChanged.emit(false);
 
 		// If a story was updated (meaning a merge or discard happened),
 		// update the local state and remove the suggestion from the map.
 		if (updatedStory) {
-			this.selectedStory = updatedStory;
+			this.selectedStory.set(updatedStory);
 			const storiesArr = [...this.stories()];
 			const index = storiesArr.findIndex((s) => s._id === updatedStory._id);
 			if (index > -1)
 				storiesArr[index] = updatedStory;
 			this.stories.set(storiesArr);
-			this.aiSuggestions.delete(this.selectedStory._id!);
+			this.aiSuggestions.delete(updatedStory._id!);
 			this.storyService.stories.set(this.stories());
 		}
 
 		// Always restore the view to the first original scenario.
+		const currentStory = this.selectedStory();
 		if (
-			this.selectedStory.scenarios &&
-      this.selectedStory.scenarios.length > 0
+			currentStory &&
+       currentStory.scenarios &&
+       currentStory.scenarios.length > 0
 		) 
-			this.selectScenario(this.selectedStory.scenarios[0]);
+			this.selectScenario(currentStory.scenarios[0]);
 		else 
 			this.selectScenario(null);
     
 	}
 
-	/**
-   * Discards the current AI suggestion.
-   */
+/**
+    * Discards the current AI suggestion.
+    */
 	discardAiSuggestion() {
-		this.selectedStory.aiSuggestion = undefined;
+		const story = this.selectedStory();
+		if (!story) return;
+		story.aiSuggestion = undefined;
 
-		this.storyService.updateStory(this.selectedStory).subscribe(updatedStory => {
+		this.storyService.updateStory(story).subscribe(updatedStory => {
 			this.notify.info('AI suggestion discarded.');
 			this.exitAiReviewMode(updatedStory);
 		});
 	}
 
-	/**
-   * Merges the AI suggestion with the existing scenarios.
-   * @param overwrite If true, replaces existing scenarios. If false, appends them.
-   */
+/**
+    * Merges the AI suggestion with the existing scenarios.
+    * @param overwrite If true, replaces existing scenarios. If false, appends them.
+    */
 	mergeAiSuggestion(overwrite: boolean) {
-		const suggestion = this.aiSuggestions.get(this.selectedStory._id!);
+		const story = this.selectedStory();
+		if (!story) return;
+		const suggestion = this.aiSuggestions.get(story._id!);
 		if (!suggestion || !suggestion.scenarios) return;
 
 		let combinedScenarios: Scenario[];
@@ -2139,19 +2230,19 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		if (overwrite) 
 			combinedScenarios = suggestion.scenarios;
 		else 
-			combinedScenarios = [...this.selectedStory.scenarios, ...suggestion.scenarios];
+			combinedScenarios = [...story.scenarios, ...suggestion.scenarios];
     
 
 		combinedScenarios.forEach((scenario, index) => {
 			scenario.scenario_id = index + 1;
 		});
 
-		this.selectedStory.scenarios = combinedScenarios;
-		this.selectedStory.aiSuggestion = undefined; // Also clear it on the object
+		story.scenarios = combinedScenarios;
+		story.aiSuggestion = undefined; // Also clear it on the object
 
 		// Save the updated story
 		this.storyService
-			.updateStory(this.selectedStory)
+			.updateStory(story)
 			.subscribe((updatedStory) => {
 				this.notify.success(
 					'AI scenarios have been saved to the story!',
@@ -2176,8 +2267,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		}
     
 		// If the updated story is the one currently being viewed, refresh it
-		if (this.selectedStory._id === storyId) {
-			this.selectedStory = updatedStory;
+		const currentStory = this.selectedStory();
+		if (currentStory && currentStory._id === storyId) {
+			this.selectedStory.set(updatedStory);
 
 			// After an auto-merge, the scenario list has changed.
 			// We must select a scenario to refresh the editor view.

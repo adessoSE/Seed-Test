@@ -248,7 +248,7 @@
                                         </div>
                                       }
                                       <div>{{currentStep.mid}}</div>
-                                      @if (((currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue !== 1) && currentStep.values[1] !== null) {
+                                      @if (((currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue !== 1) && currentStep.values[1] != null) {
                                         <div style="display: flex; align-items: center; overflow: hidden;">
                                           @if (currentStep.isExample[1] === true && name!=='block-editor') {
                                             @if (currentStep.isExample[1] === true && name!=='block-editor') {
@@ -309,7 +309,7 @@
                                       @if ((currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue !== 2) {
                                         <div
                                           style="display:flex">
-                                          @if (currentStep.values[2] !== null) {
+                                          @if (currentStep.values[2] != null) {
                                             <div style="display: flex;">
                                               @if (currentStep.isExample[2] === true && name!=='block-editor') {
                                                 @if (currentStep.isExample[2] === true && name!=='block-editor') {
@@ -405,7 +405,7 @@
                           id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightInput(step_type_input1, j, index, currentStep.stepType, currentStep,
                           currentStep.pre, undefined, sd)" (blur)="onStepInputQuoteValidation($event, stepIndex, valueIndex, stepType)" (click)="matchString(step_type_input1)" (keydown.enter)="matchString(step_type_input1)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
                           1px; white-space: nowrap; overflow: hidden;">
-                                              {{ currentStep.values[index].indexOf('<') !== -1 && currentStep.values[index].indexOf('>') !== -1 ? '<  ' + currentStep.values[index].replace('<', '').replace('>', '') + '  >' : currentStep.values[index]}}
+                                              {{ formatStepValue(currentStep.values, index) }}
                                             </div>
                                           </div>
                                           @if (name!=='block-editor' && this.selectedScenario?.multipleScenarios?.[0] !== undefined) {

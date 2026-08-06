@@ -28,6 +28,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
 import { TitleCasePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
+import { MatAccordion, MatExpansionModule, MatExpansionPanel } from '@angular/material/expansion';
 
 // Payload types mirror the private signal payloads declared in StoryService/GroupService.
 // Derived structurally via ReturnType rather than importing (those interfaces aren't exported)
@@ -52,7 +53,7 @@ interface RunGroupResponse {
 	templateUrl: './stories-bar.component.html',
 	styleUrls: ['./stories-bar.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [CdkScrollable, MatTabGroup, MatTab, MatTabLabel, MatTooltip, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, CdkDropList, CdkDrag, MatIcon, CdkDragHandle, CreateNewGroupComponent, CreateNewStoryComponent, UpdateGroupComponent, CreateScenarioComponent, ExecutionListComponent, TitleCasePipe]
+	imports: [CdkScrollable, MatTabGroup, MatTab, MatTabLabel, MatTooltip, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, CdkDropList, CdkDrag, MatIcon, CdkDragHandle, MatAccordion, MatExpansionModule, MatExpansionPanel, CreateNewGroupComponent, CreateNewStoryComponent, UpdateGroupComponent, CreateScenarioComponent, ExecutionListComponent, TitleCasePipe]
 })
 export class StoriesBarComponent implements OnChanges {
 	notify = inject(NotificationService);
@@ -148,13 +149,54 @@ export class StoriesBarComponent implements OnChanges {
 	readonly filteredGroups = signal<Group[]>([]);
 
 	/**
-     * List to manually open element in group list
-     * "uk-open" for open
-     * "" for close
-     * Needs to be initialized at init
-     * Length = Number of Groups
+     * List to track the expansion state of groups (for backwards compatibility tracking)
+     * Previously used: "uk-open" for open, "" for close
+     * Now unused but kept for compatibility
      */
 	readonly liGroupList = signal<string[]>([]);
+
+	/** Tracks which stories are expanded in the accordion */
+	readonly storyExpansion = signal<Map<Story, boolean>>(new Map());
+
+	/**
+     * Toggles story expansion in accordion
+     * @param story The story to expand/collapse
+     */
+	toggleStoryExpansion(story: Story) {
+		const prev = new Map(this.storyExpansion());
+		if (prev.has(story))
+			prev.delete(story);
+		else
+			prev.set(story, true);
+		this.storyExpansion.set(prev);
+		this.selectStory(story);
+	}
+
+	/**
+     * Marks the current group as open in the liGroupList
+     * @param group The group that was opened
+     */
+	onGroupOpened(group: Group) {
+		const groups = this.groups();
+		const index = groups.findIndex(g => g._id === group._id);
+		if (index === -1) return;
+		const liList = [...this.liGroupList()];
+		liList[index] = '';
+		this.liGroupList.set(liList);
+	}
+
+	/**
+     * Updates liGroupList when a panel closes (no-op for new accordion)
+     * @param group The group that was closed
+     */
+	onGroupClosed(group: Group) {
+		const groups = this.groups();
+		const index = groups.findIndex(g => g._id === group._id);
+		if (index === -1) return;
+		const liList = [...this.liGroupList()];
+		liList[index] = '';
+		this.liGroupList.set(liList);
+	}
 
 	isFilterActive = false;
 	showFilter = false;
@@ -217,7 +259,8 @@ export class StoriesBarComponent implements OnChanges {
 		const allGroups = this.getSortedGroups()!;
 		const newLiGroupList = new Array(allGroups.length).fill('');
 		const index = allGroups.findIndex((group: Group) => group.name === custom.group.title);
-		newLiGroupList[index] = 'uk-open';
+		if (index !== -1)
+			newLiGroupList[index] = '';
 		this.liGroupList.set(newLiGroupList);
 		this.selectFirstStoryOfGroup(allGroups[index]);
 	}

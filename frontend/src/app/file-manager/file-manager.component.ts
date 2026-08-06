@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, linkedSignal, effect } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { ThemingService } from '../Services/theming.service';
 import { StoryService } from '../Services/story.service';
 import { FileElement } from '@shared/models/FileElement';
 import { ProjectService } from '../Services/project.service';
-import { Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -25,36 +25,50 @@ export class FileManagerComponent implements OnInit {
 
 	readonly isDark = computed(() => this.themeService.isDark());
 	repoId!: string;
-	readonly allFiles = signal<FileElement[]>([]);
+	readonly refreshFilesTrigger = signal(0);
+	/**
+     * Direct signal dependency on service's fileElements — no BehaviorSubject bridge.
+     * Automatically syncs whenever the service signal changes (query, upload, delete).
+     */
+	readonly allFiles = linkedSignal(() => this.fileService.fileElements());
 	readonly searchedFiles = signal<FileElement[]>([]);
 	searchText: string = '';
-	fileElements!: Observable<FileElement[]>;
 	selection = new Set<FileElement>();
 	isAllSelected: boolean = false;
 
-
 	/**
-   * @ignore
-   */
+     * Reactive file refresh effect — calls loadFiles when refreshFilesTrigger changes.
+     * Uses field initializer to stay within injection context.
+     */
+	constructor() {
+		effect(() => {
+			this.refreshFilesTrigger();
+			this.loadFiles();
+		});
+	}
+
+
 	ngOnInit(): void {
 		this.repoId = localStorage.getItem('id')!;
-		this.updateFileElementQuery(this.repoId);
-		this.fileElements.subscribe((files: FileElement[]) => {
-			this.allFiles.set(files);
-			this.searchFile();
-		});
+		this.refreshFilesTrigger.update(n => n + 1);
+	}
 
+	/**
+     * Loads files from the backend and syncs with the service signal.
+     * The queryFiles() method already sets fileElements via tap(), so no duplicate set needed.
+     */
+	async loadFiles(): Promise<void> {
+		try {
+			// queryFiles already sets fileElements in its tap() handler
+			await firstValueFrom(this.fileService.queryFiles(this.repoId));
+		} catch (error) {
+			console.error('Failed to load files:', error);
+			this.fileService.fileElements.set([]);
+		}
 	}
 
 	goBackToStoryEditor(): void {
 		this.storyService.changeStoryViewEvent('storyView');
-	}
-
-	/**
-   * Updates the file elements by querying the file service with the repository ID.
-   */
-	updateFileElementQuery(repoId: string): void {
-		this.fileElements = this.fileService.queryFiles(repoId);
 	}
 
 	/**
@@ -83,17 +97,18 @@ export class FileManagerComponent implements OnInit {
 	}
 
 	/**
-   * Deletes the selected files
+   * Deletes the selected files and refreshes the file list.
    */
-	deleteFile(): void {
-		this.allFiles.set(this.allFiles().filter(file => !this.selection.has(file)));
-		Array.from(this.selection).map(file => {
-			this.fileService.deleteUploadedFile(this.repoId, file._id!).subscribe(() => {
-				this.updateFileElementQuery(this.repoId);
-			});
-		});
+	async deleteFile(): Promise<void> {
+		const filesToDelete = Array.from(this.selection);
+		await Promise.all(
+			filesToDelete.map(file =>
+				firstValueFrom(this.fileService.deleteUploadedFile(this.repoId, file._id!))
+			)
+		);
 		this.selection.clear();
 		this.isAllSelected = false;
+		this.refreshFilesTrigger.update(n => n + 1);
 	}
 
 	/**
@@ -110,15 +125,13 @@ export class FileManagerComponent implements OnInit {
 	}
 
 	/**
-   * Uploads a selected file
+   * Uploads a selected file and refreshes the file list.
    * @param event
    */
-	selectUploadFile(event: Event): void {
+	async selectUploadFile(event: Event): Promise<void> {
 		const file: File = (event.target as HTMLInputElement).files!.item(0)!;
-		this.fileService.uploadFile(this.repoId, file)
-			.subscribe((_res: FileElement) => {
-				this.updateFileElementQuery(this.repoId);
-			});
+		await firstValueFrom(this.fileService.uploadFile(this.repoId, file));
+		this.refreshFilesTrigger.update(n => n + 1);
 	}
 
 	/**

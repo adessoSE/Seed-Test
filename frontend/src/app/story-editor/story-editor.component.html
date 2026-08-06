@@ -68,7 +68,7 @@
           @if (isAiAvailable()) {
             <div class="ai-generate-container">
               <button class="button" mat-fab extended color="accent" (click)="generateAiScenarios()"
-                [disabled]="aiLoadingStories.has(selectedStory._id)">
+                [disabled]="aiLoadingStories.has(selectedStory()?._id)">
                 <em class="material-icons">psychology</em>
                 Generate Scenarios with AI
               </button>
@@ -78,7 +78,7 @@
               </button>
             </div>
           }
-          @if (isAiAvailable() && aiLoadingStories.has(selectedStory._id)) {
+          @if (isAiAvailable() && aiLoadingStories.has(selectedStory()?._id)) {
             <div class="loading-container">
               <mat-spinner diameter="24" />
               <span>Generating...</span>
@@ -99,7 +99,7 @@
           </div>
         </mat-menu>
         <div style="flex-grow: .5;">
-          <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title
+          <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory()?.issue_number ?? ''}}. {{ selectedStory()?.title ?? ''
           }}</span>
           @if (this.selectedStory) {
             <span id="storytitle" class="MediumHeadline5"></span>
@@ -129,7 +129,7 @@
               </mat-expansion-panel-header>
               <br>
                 <div style="white-space: pre-wrap;">
-                  {{selectedStory.body}}
+                  {{selectedStory()?.body ?? ''}}
                 </div>
               </mat-expansion-panel>
             </mat-accordion>
@@ -149,7 +149,7 @@
                   </mat-expansion-panel-header>
                   <br>
                     <div style="white-space: pre-wrap;">
-                      {{selectedStory.sourceSteps}}
+                      {{selectedStory()?.sourceSteps ?? ''}}
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>
@@ -235,17 +235,43 @@
               In short: A background allows to set Given-Steps used for all scenarios."></span>
                             </div>
                           </mat-panel-title>
-                          <div class="backgroundTitle">
-                            <span class="MediumHeadline5 scenarioTitle"> {{selectedStory.background.name}}</span>
-                            <button class="storyTitle pencil_icon" (click)="changeBackgroundTitle();$event.stopPropagation();"
-                              data-uk-tooltip title="Change Background Title">
-                              <em class="material-icons">edit</em>
-                            </button>
-                            <!-- replace Background -->
-                            <button [class.disabled]="sortedBackgrounds() === undefined" class="storyTitle pencil_icon" data-uk-tooltip
-                              title="Switch Background">
-                              <em class="material-icons">swap_horiz</em>
-                            </button>
+<div class="backgroundTitle">
+                            @if (this.selectedStory()?.background) {
+                              <button class="storyTitle pencil_icon" (click)="changeBackgroundTitle();$event.stopPropagation();" data-uk-tooltip title="Change Background Title">
+                                <em class="material-icons">edit</em>
+                              </button>
+                              <span class="MediumHeadline5 scenarioTitle"> {{this.selectedStory()!.background.name}}</span>
+                              <!-- replace Background -->
+                              <button [class.disabled]="sortedBackgrounds() === undefined" class="storyTitle pencil_icon" data-uk-tooltip title="Switch Background">
+                                <em class="material-icons">swap_horiz</em>
+                              </button>
+                            }
+                           </div>
+<div>
+                              @if (this.selectedStory()?.background?.saved === false) {
+                                <button id="saveButtonBackground" class="storyTitle" data-uk-tooltip
+                                  [class.disabled]="testRunning() || this.selectedStory()?.background?.saved || this.selectedStory()?.background?.saved === undefined"
+                                  [disabled]="testRunning() || this.selectedStory()?.background?.saved || this.selectedStory()?.background?.saved === undefined"
+                                  title="Save Background"
+                                  [class.iconButton_unsaved]="this.selectedStory()?.background?.saved === false && this.selectedStory()?.background?.saved !== undefined"
+                                  (click)="updateBackground();$event.stopPropagation();">
+                                  <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
+                                </button>
+                              }
+                              @if (this.selectedStory()?.background?.saved !== false) {
+                                <button id="saveButtonBackground" class="storyTitle" data-uk-tooltip
+                                  [class.disabled]="testRunning() || this.selectedStory()?.background?.saved || this.selectedStory()?.background?.saved === undefined"
+                                  [disabled]="testRunning() || this.selectedStory()?.background?.saved || this.selectedStory()?.background?.saved === undefined"
+                                  title="Without changes"
+                                  [class.iconButton_unsaved]="this.selectedStory()?.background?.saved === false && this.selectedStory()?.background?.saved !== undefined">
+                                  <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
+                                </button>
+                              }
+                              @if (this.selectedStory()?.background) {
+                               <button id="background_delete" [class.disabled]="testRunning()" [disabled]="testRunning()" class="storyTitle" data-uk-tooltip title="Delete Background" (click)="deleteBackground();$event.stopPropagation();">
+                                 <em class="material-icons">delete</em>
+                               </button>
+                             }
                             @if (showBackground() && sortedBackgrounds() && this.openBlockModal === undefined) {
                               <div
                                 uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;">
@@ -260,37 +286,10 @@
                               </div>
                             }
                           </div>
-                          <div>
-                            @if ( this.selectedStory.background.saved === false) {
-                              <button id="saveButtonBackground" class="storyTitle"
-                                data-uk-tooltip
-                                [class.disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-                                [disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-                                title="Save Background"
-                                [class.iconButton_unsaved]="this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined"
-                                (click)="updateBackground();$event.stopPropagation();">
-                                <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
-                              </button>
-                            }
-                            @if ( this.selectedStory.background.saved !== false) {
-                              <button id="saveButtonBackground" class="storyTitle"
-                                data-uk-tooltip
-                                [class.disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-                                [disabled]="testRunning() || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-                                title="Without changes"
-                                [class.iconButton_unsaved]="this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined">
-                                <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
-                              </button>
-                            }
-                            <button id="background_delete" [class.disabled]="testRunning()" [disabled]="testRunning()" class="storyTitle"
-                              data-uk-tooltip title="Delete Background" (click)="deleteBackground();$event.stopPropagation();">
-                              <em class="material-icons">delete</em>
-                            </button>
-                          </div>
                         </mat-expansion-panel-header>
                         @if (showBackground()) {
                           <app-base-editor [templateName]="TEMPLATE_NAME" [newlySelectedScenario]="selectedScenario"
-                            [newlySelectedStory]="selectedStory" [testRunning]="testRunning()" [originalStepTypes]="originalStepTypes()"
+                            [newlySelectedStory]="selectedStory()" [testRunning]="testRunning()" [originalStepTypes]="originalStepTypes()"
                           [uncheckBackgroundCheckboxes]="showBackground()" />
                         }
                       </mat-expansion-panel>
@@ -300,20 +299,20 @@
                       @if (this.selectedScenario) {
                         <div id="storyEditorContainer">
                           <!--AI Review Bar-->
-                          @if (!isReviewingAi() && aiSuggestions.has(selectedStory._id)) {
+                          @if (!isReviewingAi() && aiSuggestions.has(selectedStory()?._id)) {
                             <div
                               class="storyEditorHeadContainer ai-review-prompt">
                               <div class="review-prompt-content">
                                 <span>🤖 AI suggestions are ready for this story.</span>
                                 <div class="review-prompt-metadata">
-                                  <span class="metadata-item" uk-tooltip="Generation Time">
-                                    <mat-icon>schedule</mat-icon>
-                                    {{ $safeNavigationMigration(selectedStory.aiSuggestion.metadata?.generationTimestamp) | date:'short' }}
-                                  </span>
-                                  <span class="metadata-item" uk-tooltip="Models Used (Text / JSON)">
-                                    <mat-icon>memory</mat-icon>
-                                    {{ selectedStory.aiSuggestion.metadata?.modelsUsed?.textModel }} / {{
-                                    selectedStory.aiSuggestion.metadata?.modelsUsed?.jsonModel }}
+<span class="metadata-item" uk-tooltip="Generation Time">
+                                     <mat-icon>schedule</mat-icon>
+                                     {{ $safeNavigationMigration(selectedStory()?.aiSuggestion?.metadata?.generationTimestamp) | date:'short' }}
+                                   </span>
+                                   <span class="metadata-item" uk-tooltip="Models Used (Text / JSON)">
+                                     <mat-icon>memory</mat-icon>
+                                     {{ selectedStory()?.aiSuggestion?.metadata?.modelsUsed?.textModel }} / {{
+                                     selectedStory()?.aiSuggestion?.metadata?.modelsUsed?.jsonModel }}
                                   </span>
                                 </div>
                               </div>
@@ -346,7 +345,7 @@
                             <div class="ai-scenario-selector-bar">
                               <span class="selector-title">Reviewing Scenarios:</span>
                               <div class="scenario-list">
-                                @for (scenario of aiSuggestions.get(selectedStory._id)?.scenarios; track scenario) {
+                                @for (scenario of aiSuggestions.get(selectedStory()?._id)?.scenarios; track scenario) {
                                   <button
                                     class="scenario-selector-button" [class.active]="scenario.scenario_id === selectedScenario?.scenario_id"
                                     (click)="selectScenario(scenario)">
@@ -367,10 +366,10 @@
                                 <em class="material-icons">folder_open</em>
                                 File Manager
                               </button>
-                              <div class="storyInOneSessionDiv">
-                                <label class="selectLabel SmallIcontext" for="oneDriverCheck">Single Session:</label>
-                                <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()"
-                                  [checked]="this.selectedStory.oneDriver">
+<div class="storyInOneSessionDiv">
+                                 <label class="selectLabel SmallIcontext" for="oneDriverCheck">Single Session:</label>
+                                 <input type="checkbox" id="oneDriverCheck" (change)="setOneDriver()"
+                                   [checked]="this.selectedStory()?.oneDriver">
                                   <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
                                   <span rel="def" style="font-weight: normal;">
                                     Executes all scenarios consecutively in one single Browser session.
@@ -455,10 +454,10 @@
                                             Runs the test on a simulated device.
                                           </span>
                                         </dfn>
-                                        <!-- Window Size -->
-                                        <app-window-size #windoSizeModal [width]="this.selectedScenario.width"
+<!-- Window Size -->
+<app-window-size #windoSizeModal [width]="this.selectedScenario.width"
                                           [height]="this.selectedScenario.height" [emulator]="emulator_enabled"
-                                        (sizeChange)="handleSizeChange($event)" />
+                                          (sizeChange)="handleSizeChange($event)" />
                                       </div>
                                     }
                                     @if (this.globalSettingsActivated()) {
@@ -520,9 +519,9 @@
                                 <app-scenario-editor [isDark]="isDark()" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);"
                                   (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);"
                                   (navigateLeft)="navigateScenarioLeft()" (navigateRight)="navigateScenarioRight()"
-                                  [originalStepTypes]="originalStepTypes()" [testRunning]="testRunning()" [selectedStory]="selectedStory"
+                                  [originalStepTypes]="originalStepTypes()" [testRunning]="testRunning()" [selectedStory]="selectedStory()"
                                   [selectedScenario]="selectedScenario"
-                                  [scenarios]="isReviewingAi() ? $safeNavigationMigration(aiSuggestions.get(selectedStory._id)?.scenarios) : selectedStory.scenarios" />
+                                  [scenarios]="isReviewingAi() ? $safeNavigationMigration(aiSuggestions.get(selectedStory()?._id)?.scenarios) : selectedStory()?.scenarios" />
                               </div>
                               <app-rename-story #renameStoryModal />
                               <app-rename-background #renameBackgroundModal />
@@ -568,7 +567,7 @@
                                       </div>
                                     }
                                     <!--emptyScenarioPlaceholderContainer - used then there is no selectedScenario -->
-                                    @if (!isReviewingAi() && (!selectedStory.scenarios || selectedStory.scenarios.length === 0)) {
+                                    @if (!isReviewingAi() && (!selectedStory()?.scenarios || selectedStory()?.scenarios.length === 0)) {
                                       <div id="emptyScenarioPlaceholderContainer"
                                         >
                                         <p>Seems like you have no Scenarios in this Story yet.</p>

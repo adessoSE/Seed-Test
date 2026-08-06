@@ -230,6 +230,17 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
      */
 	readonly blocks = signal<Block[]>([]);
 
+	/**
+	 * Formats a step value for the editable fallback control.
+	 * Imported or legacy steps can omit optional second and third values.
+	 */
+	formatStepValue(values: readonly string[] | null | undefined, index: number): string {
+		const value = values?.[index] ?? '';
+		return value.includes('<') && value.includes('>')
+			? `<  ${value.replace('<', '').replace('>', '')}  >`
+			: value;
+	}
+
 	indexOfExampleToDelete: number | null = null;
 
 	dragging: DragRef | null = null;

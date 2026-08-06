@@ -126,9 +126,10 @@ const globalLimiter = rateLimit({
 });
 
 // Stricter limiter for log-flooding from unauthenticated clients
+// Increased to 500/min — NGXLogger can be chatty; global limiter (100/min) still protects all other routes
 const logLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
-	max: 60, // max 60 log messages per minute per IP
+	max: 500, // 500 log messages per minute per IP
 	standardHeaders: true,
 	legacyHeaders: false,
 	message: { error: 'Too many log requests.' },
