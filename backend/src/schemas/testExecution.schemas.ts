@@ -15,5 +15,14 @@ export const runTempGroupSchema = z.object({
 
 /** POST /api/execute/Feature and /api/execute/Scenario — minimal body */
 export const runTestSchema = z.object({
-	repositoryId: z.string().min(1, 'Repository ID is required')
+	repositoryId: z.string().min(1, 'Repository ID is required'),
+	browser: z.string().optional(),
+	emulator: z.string().nullable().optional(),
+	width: z.number().optional(),
+	height: z.number().optional(),
+	stepWaitTime: z.number().optional(),
+	repository: z.string().optional(),
+	source: z.string().optional(),
+	oneDriver: z.boolean().optional(),
+	testRunner: z.string().optional()
 });
