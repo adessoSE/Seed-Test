@@ -3,10 +3,12 @@ import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse
 import { tap, catchError } from 'rxjs/operators';
 import { NGXLogger } from 'ngx-logger';
 import { Observable, throwError } from 'rxjs';
+import { NotificationService } from './notification.service';
 
 @Injectable()
 export class HttpLoggerInterceptor implements HttpInterceptor {
 	private logger = inject(NGXLogger);
+	private notification = inject(NotificationService);
 
 	constructor() {
 		console.log('constructor http interceptor');
@@ -28,18 +30,26 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
 			tap((event) => {
 				console.debug('http-logger tap', event);
 			}),
-			catchError((err: HttpErrorResponse) => {
-				if (err.status == HttpStatusCode.Unauthorized) {
-					window.localStorage.removeItem('login');
-					if (
-						window.location.pathname != '/login' &&
-            window.location.pathname != '/resetpasswordconfirm'
-					)
-						window.location.href = '/login';
-				}
-				console.error(err);
+catchError((err: HttpErrorResponse) => {
+			if (err.status === 429) {
+				console.warn('[RateLimit]', err.status, err.url);
+				const message = err.url?.includes('/api/log')
+					? 'Rate limit on logging — requests will be suppressed'
+					: 'Too many requests — please wait a moment';
+				this.notification.warning(message, 'Rate Limit Exceeded');
 				return throwError(() => err);
-			})
+			}
+			if (err.status == HttpStatusCode.Unauthorized) {
+				window.localStorage.removeItem('login');
+				if (
+					window.location.pathname != '/login' &&
+          window.location.pathname != '/resetpasswordconfirm'
+				)
+					window.location.href = '/login';
+			}
+			console.error(err);
+			return throwError(() => err);
+		})
 		);
 	}
 }
