@@ -286,7 +286,13 @@ export async function updateStoriesArrayInRepo(repoId: string, storiesArray: str
 export async function getAllStoryGroups(repoId: string): Promise<Group[]> {
 	const db = dbConnection.getConnection();
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }, { projection: { groups: 1 } });
-	return (repo?.groups ?? []) as unknown as Group[];
+	// Convert ObjectId fields to proper types — MongoDB returns _id as ObjectId and member_stories as ObjectId[]
+	// but shared Group model expects _id: string and member_stories: string[]
+	return ((repo?.groups ?? []) as unknown as GroupDoc[]).map(g => ({
+		...g,
+		_id: g._id?.toString() ?? '',
+		member_stories: (g.member_stories ?? []).map(m => m?.toString?.() ?? '')
+	})) as unknown as Group[];
 }
 
 export async function getOneStoryGroup(repoId: string, groupId: string): Promise<Group | undefined> {
@@ -321,6 +327,8 @@ export async function updateStoryGroup(repoId: string, groupId: string, updatedG
 	const db = session && client ? client.db('Seed', session) : dbConnection.getConnection();
 	// Group model uses string for _id, but MongoDB stores ObjectId — cast preserves runtime behaviour
 	updatedGroup._id = oid(groupId) as unknown as string;
+	// Convert member_stories strings to ObjectIds — frontend sends string[] but MongoDB GroupDoc expects ObjectId[]
+	(updatedGroup as unknown as GroupDoc).member_stories = ((updatedGroup.member_stories ?? []) as string[]).filter(Boolean).map(id => oid(id));
 	const collection = db.collection<RepositoryDoc>(repositoriesCollection);
 	const repo = await collection.findOne({ _id: oid(repoId) }, { session });
 
@@ -331,7 +339,7 @@ export async function updateStoryGroup(repoId: string, groupId: string, updatedG
 	const index = repo.groups.findIndex((g) => g._id?.toString() === groupId);
 	if (index === -1) 
 		throw AppError.notFound('Group not found in repository');
-    
+     
 
 	repo.groups[index] = updatedGroup as unknown as GroupDoc;
 
@@ -365,10 +373,15 @@ export async function removeFromStoryGroup(repoId: string, groupId: string, stor
 
 export async function updateStoryGroupsArray(repoId: string, groupsArray: Group[]): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
+	// Convert member_stories strings to ObjectIds — frontend sends string[] but MongoDB GroupDoc expects ObjectId[]
+	const syncedGroups = groupsArray.map(group => ({
+		...group,
+		_id: group._id ? oid(group._id) as unknown as string : undefined,
+		member_stories: (group.member_stories ?? []).map(id => (id ? oid(id) : undefined))
+	})) as unknown as GroupDoc[];
 	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },
-		// Group._id (string) vs GroupDoc._id (ObjectId) — cast for MongoDB
-		{ $set: { groups: groupsArray as unknown as GroupDoc[] } }
+		{ $set: { groups: syncedGroups } }
 	);
 }
 

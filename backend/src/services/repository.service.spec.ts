@@ -503,12 +503,13 @@ describe('RepositoryService', () => {
 
 	describe('getAllStoryGroups', () => {
 		it('should return groups from repo', async () => {
+			const groupId = new ObjectId();
 			const groups = [{ _id: new ObjectId(), name: 'Group 1', member_stories: [] }];
 			mockRepoCollection.findOne.mockResolvedValue({ groups });
 
 			const result = await repositoryService.getAllStoryGroups(REPO_ID);
 
-			expect(result).toEqual(groups);
+			expect(result).toEqual([{ _id: expect.any(String), name: 'Group 1', member_stories: [] }]);
 			expect(mockRepoCollection.findOne).toHaveBeenCalledWith(
 				{ _id: new ObjectId(REPO_ID) },
 				expect.objectContaining({ projection: { groups: 1 } })
@@ -651,14 +652,21 @@ describe('RepositoryService', () => {
 
 	describe('updateStoryGroupsArray', () => {
 		it('should replace the entire groups array', async () => {
-			const groups = [{ name: 'G1' }, { name: 'G2' }] as any;
+			const groupId = new ObjectId();
+			const storyId = new ObjectId().toHexString();
+			const groups = [{ _id: groupId.toHexString(), name: 'G1', member_stories: [storyId] }, { _id: new ObjectId().toHexString(), name: 'G2', member_stories: [] }] as any;
 			mockRepoCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
 
 			await repositoryService.updateStoryGroupsArray(REPO_ID, groups);
 
 			expect(mockRepoCollection.updateOne).toHaveBeenCalledWith(
 				{ _id: new ObjectId(REPO_ID) },
-				{ $set: { groups } }
+				{ $set: { groups: expect.arrayContaining([
+					expect.objectContaining({
+						name: 'G1',
+						member_stories: expect.arrayContaining([expect.any(ObjectId)])
+					})
+				])} }
 			);
 		});
 	});

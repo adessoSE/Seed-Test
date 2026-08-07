@@ -58,6 +58,7 @@ export class FileManagerComponent implements OnInit {
      * The queryFiles() method already sets fileElements via tap(), so no duplicate set needed.
      */
 	async loadFiles(): Promise<void> {
+		if (!this.repoId) return;
 		try {
 			// queryFiles already sets fileElements in its tap() handler
 			await firstValueFrom(this.fileService.queryFiles(this.repoId));

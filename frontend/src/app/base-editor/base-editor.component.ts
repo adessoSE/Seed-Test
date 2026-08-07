@@ -109,6 +109,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		const scenario = this.newlySelectedScenario();
 		if (!scenario) return;
 		untracked(() => {
+			if (this.templateName() === 'background' && !this.selectedStory?.background) return;
 			if (this.selectedScenario)
 				this.checkAllSteps(false);
 
@@ -122,6 +123,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		const showBackground = this.uncheckBackgroundCheckboxes();
 		if (!showBackground) return;
 		untracked(() => {
+			if (this.templateName() === 'background' && !this.selectedStory?.background) return;
 			this.checkAllSteps(false);
 		});
 	});
@@ -265,6 +267,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		const blockValue = this.blockService.addBlockToScenarioValue();
 		if (blockValue === null) return;
 		if (this.templateName() == 'background' && blockValue[0] == 'background') {
+			if (!this.selectedStory?.background) return;
 			const whenSteps = blockValue[1].stepDefinitions['when'] || [];
 			if (whenSteps.length === 0) {
 				// Background only supports 'when' steps — warn user if block has none
@@ -334,6 +337,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	private scenarioChangedEffect = effect(() => {
 		const trigger = this.scenarioService.scenarioChangedTrigger();
 		if (trigger === 0) return;
+		if (this.templateName() === 'background' && !this.selectedStory?.background) return;
 		this.checkAllSteps(false);
 		this.initialRegex = true;
 	});
@@ -358,6 +362,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	private backgroundChangedEffect = effect(() => {
 		const trigger = this.backgroundService.backgroundChangedTrigger();
 		if (trigger === 0) return;
+		if (this.templateName() === 'background' && !this.selectedStory?.background) return;
 		this.checkAllSteps(false);
 	});
 
@@ -488,6 +493,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	) {
 		switch (this.templateName()) {
 			case 'background':
+				if (!this.selectedStory?.background) return;
 				this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
 				this.markUnsaved();
 				break;
@@ -974,6 +980,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	markUnsaved() {
 		switch (this.templateName()) {
 			case 'background':
+				if (!this.selectedStory?.background) return;
 				this.selectedStory.background.saved = false;
 				this.backgroundService.backgroundReplaced = false;
 				break;
@@ -1000,6 +1007,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	updateList(stepIndex: number, newList: StepType[]) {
 		switch (this.templateName()) {
 			case 'background':
+				if (!this.selectedStory?.background) return;
 				this.selectedStory.background.stepDefinitions.when = newList;
 				break;
 			case 'scenario':
@@ -1208,6 +1216,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		this.isReferenceBlock = false;
 		switch (this.templateName()) {
 			case 'background':
+				if (!this.selectedStory?.background) return;
 				this.checkOnIteration(
 					this.selectedStory.background.stepDefinitions,
 					this.allChecked
@@ -1299,6 +1308,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				break;
 			}
 			case 'background': {
+				if (!this.selectedStory?.background) break;
 				const bgSteps = (this.selectedStory.background.stepDefinitions as unknown as Record<string, StepType[]>)[currentStep.stepType];
 				const background_val = bgSteps[lastTmp].checked;
 				for (let i = start + 1; i <= end; i++)
@@ -1430,6 +1440,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 			}
 
 			case 'background': {
+				if (!this.selectedStory?.background) break;
 				const bgStepDefs = this.selectedStory.background.stepDefinitions as unknown as Record<string, StepType[]>;
 				for (const prop in bgStepDefs)
 					for (
@@ -1494,6 +1505,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 		switch (this.templateName()) {
 			case 'background':
+				if (!this.selectedStory?.background) break;
 				saveBlock = this.addStepsToBlockOnIteration(
 					JSON.parse(
 						JSON.stringify(this.selectedStory.background.stepDefinitions)
@@ -1575,6 +1587,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	deactivateStep(): void {
 		switch (this.templateName()) {
 			case 'background':
+				if (!this.selectedStory?.background) break;
 				this.deactivateOnIteration(
 					this.selectedStory.background.stepDefinitions
 				);
@@ -1682,6 +1695,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	removeStep() {
 		switch (this.templateName()) {
 			case 'background':
+				if (!this.selectedStory?.background) break;
 				this.removeStepOnIteration(this.selectedStory.background.stepDefinitions);
 				/* for (const prop in this.selectedStory.background.stepDefinitions) {
           for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
@@ -1770,6 +1784,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		let backgroundBlock: Block;
 		switch (this.templateName()) {
 			case 'background':
+				if (!this.selectedStory?.background) break;
 				block = this.addStepsToBlockOnIteration(this.selectedStory.background.stepDefinitions as unknown as Record<string, StepType[]>);
 				/* for (const prop in this.selectedStory.background.stepDefinitions) {
           for (const s in this.selectedStory.background.stepDefinitions[prop]) {
@@ -1912,6 +1927,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	}
 
 	handleWhenKey(key: string, clipboardRefBlock: StepType[]): void {
+		if (!this.selectedStory?.background) return;
 		this.clipboardBlock!.stepDefinitions[key].forEach((step: StepType) => {
 			//to prevent blocks to be checked after pasting
 			if (!step._blockReferenceId) {

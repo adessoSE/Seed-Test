@@ -144,26 +144,24 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 		// LOGGING: Log member_stories to debug "No valid stories found" error
 		const memberStoryIds = group.member_stories.map((id: unknown) => {
 			const rawType = typeof id;
-			const stringValue = String(id);
 			let hexString: string | undefined;
 			if (rawType === 'object' && id !== null) {
 				try {
 					hexString = (id as { toHexString?: () => string }).toHexString?.();
 				} catch { /* ignore */ }
 			}
-			return { raw: id, type: rawType, string: stringValue, hex: hexString };
+			return { raw: id, type: rawType, string: String(id), hex: hexString };
 		});
 		logger.info(`runGroup: Group '${group.name}' has ${group.member_stories.length} member_stories: ${JSON.stringify(memberStoryIds)}`);
 
 		// Resolve member_stories to actual Story objects
 		const stories: (Story | null)[] = await Promise.all(
 			group.member_stories.map(async (id: unknown) => {
-				const rawType = typeof id;
 				let storyIdStr: string;
+				const rawType = typeof id;
 
-				if (rawType === 'string') {
-					storyIdStr = id as string;
-				} else if (rawType === 'object' && id !== null) {
+				// Handle ObjectId instances from MongoDB
+				if (rawType === 'object' && id !== null) {
 					try {
 						const oid = id as { toHexString?: () => string; toString?: () => string };
 						// Try toHexString() first (MongoDB ObjectId), fallback to toString()
