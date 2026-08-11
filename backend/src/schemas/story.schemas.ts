@@ -17,6 +17,11 @@ export const setOneDriverSchema = z.object({
 	oneDriver: z.boolean()
 });
 
+/** PUT /api/story/list/:repo_id — reorder stories */
+export const updateStoryOrderSchema = z.object({
+	storyIds: z.array(z.string().min(1))
+});
+
 /** POST /api/story/specialCommands/resolve */
 export const resolveCommandSchema = z.object({
 	command: z.string().min(1, 'Command is required')

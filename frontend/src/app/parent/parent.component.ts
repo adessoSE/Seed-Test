@@ -104,7 +104,10 @@ export class ParentComponent implements OnInit {
    * Leads the stories of the current selected repository
    */
 	loadStories() {
-		const repoId = localStorage.getItem('id') ?? '';
+		// Bail early if no repository is selected — prevents endless "Loading Stories ..." spinner
+		// when navigating to the root route without a selected repo (e.g., pressing back after login).
+		const repoId = localStorage.getItem('id');
+		if (!repoId) return;
 
 		// 1. Fetch the complete list of repositories
 		this.projectService.getRepositories().subscribe((allRepos: RepositoryContainer[]) => {

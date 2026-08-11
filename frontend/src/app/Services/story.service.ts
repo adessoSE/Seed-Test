@@ -177,7 +177,7 @@ export class StoryService {
   */
 	updateStoryList(repo_id: string, storiesList: (string | undefined)[]) {
 		return this.http
-			.put(this.apiService.apiServer + '/story/' + repo_id, storiesList, ApiService.getOptions())
+			.put(this.apiService.apiServer + '/story/list/' + repo_id, { storyIds: storiesList.filter((id): id is string => id != null) }, ApiService.getOptions())
 			.pipe(tap());
 	}
 	/**

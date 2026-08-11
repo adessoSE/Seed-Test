@@ -146,7 +146,7 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
 export async function updateStoryOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { repo_id } = req.params;
-		const storiesList = req.body as string[]; // Erwartet ein Array von Story-IDs
+		const { storyIds: storiesList } = req.body as { storyIds: string[] }; // Erwartet ein Array von Story-IDs
 		requireValidId(repo_id, 'repository ID');
 		await repositoryService.updateStoriesArrayInRepo(repo_id, storiesList);
 		res.status(200).json({ message: 'Story order updated' });

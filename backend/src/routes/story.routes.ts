@@ -4,7 +4,7 @@ import path from 'node:path';
 import * as storyController from '../controllers/story.controller.js';
 import { authorizeRepo, authorizeByStory, authorizeByIssueKey } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema } from '../schemas/story.schemas.js';
+import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema, updateStoryOrderSchema } from '../schemas/story.schemas.js';
 import { AppError } from '../helpers/AppError.js';
 
 const router = express.Router();
@@ -80,7 +80,7 @@ router.patch('/:story_id', canEditByStory, storyController.updateScenarioList);
  */
 router.get('/', canReadRepoByQuery, storyController.getStories);
 router.post('/', canEditRepoByBody, validate(createStorySchema), storyController.createStory);
-router.put('/list/:repo_id', canEditRepo, storyController.updateStoryOrder);
+router.put('/list/:repo_id', canEditRepo, validate(updateStoryOrderSchema), storyController.updateStoryOrder);
 router.get('/:_id', canReadById, storyController.getStoryById);
 router.put('/:_id', canEditById, storyController.updateStory);
 router.delete('/:repo_id/:_id', canEditRepo, storyController.deleteStory);

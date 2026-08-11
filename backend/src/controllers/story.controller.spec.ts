@@ -477,7 +477,7 @@ describe('StoryController', () => {
 		it('should update the story order for a valid repo', async () => {
 			const storyIds = [new ObjectId().toHexString(), new ObjectId().toHexString()];
 			req.params = { repo_id: VALID_REPO_ID };
-			req.body = storyIds;
+			req.body = { storyIds };
 
 			vi.mocked(repositoryService.updateStoriesArrayInRepo).mockResolvedValue(null);
 
@@ -490,7 +490,7 @@ describe('StoryController', () => {
 
 		it('should pass 400 AppError to next for invalid repo ID', async () => {
 			req.params = { repo_id: INVALID_ID };
-			req.body = [];
+			req.body = { storyIds: [] };
 
 			await controller.updateStoryOrder(req, res, next);
 

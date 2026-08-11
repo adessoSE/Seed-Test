@@ -29,10 +29,14 @@ export async function getOneStory(storyId: string | number | ObjectId): Promise<
 	if (typeof storyId === 'number') 
 		query = { story_id: storyId };
 	else 
-	// ObjectId for MongoDB query — shared interface uses string
 		query = { _id: oid(storyId.toString()) };
     
-	return await collection.findOne(query) as unknown as Story | null;
+	const story = await collection.findOne(query) as unknown as Story | null;
+	if (!story) return null;
+	return {
+		...story,
+		background: story.background ?? emptyBackground()
+	};
 }
 
 /**
@@ -47,7 +51,11 @@ export async function getAllStoriesOfRepo(repoId: string): Promise<Story[]> {
 		return [];
     
 	const storyIds = repo.stories.map((id: string | ObjectId) => oid(id));
-	return await db.collection<StoryDoc>(storiesCollection).find({ _id: { $in: storyIds } }).toArray() as unknown as Story[];
+	const stories = await db.collection<StoryDoc>(storiesCollection).find({ _id: { $in: storyIds } }).toArray() as unknown as Story[];
+	return stories.map((story: Story) => ({
+		...story,
+		background: story.background ?? emptyBackground()
+	}));
 }
 
 /**
@@ -336,5 +344,10 @@ export async function getStoriesByIssueKeys(issueKeys: string[]): Promise<string
 
 export async function getOneStoryByIssueKey(issueKey: string): Promise<Story | null> {
 	const db = dbConnection.getConnection();
-	return await db.collection<StoryDoc>(storiesCollection).findOne({ issue_number: issueKey }) as unknown as Story | null;
+	const story = await db.collection<StoryDoc>(storiesCollection).findOne({ issue_number: issueKey }) as unknown as Story | null;
+	if (!story) return null;
+	return {
+		...story,
+		background: story.background ?? emptyBackground()
+	};
 }

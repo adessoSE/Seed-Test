@@ -427,7 +427,11 @@ export async function matchStoryOrder(
 
 	// 5. Return the complete list, mapped from the now-complete storiesMap
 	return finalStoryIdList
-		.map((id: string) => storiesMap.get(id)!) // Map all valid IDs
+		.map((id: string) => {
+			const story = storiesMap.get(id)!;
+			story.background = story.background ?? emptyBackground();
+			return story;
+		}) // Map all valid IDs
 		.filter(Boolean); // Filter out any that were truly missing or orphaned
 };
 
@@ -497,7 +501,7 @@ async function fuseStoryWithDb(story: Partial<Story>): Promise<Story> {
  */
 function mergeStories(dbStory: Story, jiraStory: Story): Story {
 	// Start with the DB story (to keep _id, background, lastTestPassed etc.)
-	const mergedStory: Story = { ...dbStory };
+	const mergedStory: Story = { ...dbStory, background: dbStory.background ?? emptyBackground() };
 
 	mergedStory.title = jiraStory.title;
 	mergedStory.body = jiraStory.body;

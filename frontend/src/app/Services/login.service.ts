@@ -234,6 +234,11 @@ export class LoginService {
 	logoutUser() {
 		const url = this.apiService.apiServer + '/user/logout';
 		localStorage.removeItem('login');
+		// Clear persisted repoId so a subsequent login by a different user
+		// does not send a stale repoId that triggers a 403.
+		localStorage.removeItem('id');
+		localStorage.removeItem('repository');
+		localStorage.removeItem('source');
 		return this.http.get<string[]>(url, ApiService.getOptions()).pipe(
 			tap((_) => {
 				//
