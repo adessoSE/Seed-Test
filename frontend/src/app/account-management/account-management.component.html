@@ -46,8 +46,7 @@
                       <span class="flex-end-item">
                         @if (repository.canEdit) {
                           <mat-icon class="set-name-button setting-icon"
-                            id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" data-uk-tooltip
-                          title="Edit project">settings</mat-icon>
+                            id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" matTooltip="Edit project">settings</mat-icon>
                         }
                       </span>
                     </li>
@@ -82,13 +81,13 @@
             <div class="downloadExportButton">
               <div>
                 <button (click)="downloadProjectFeatures(downloadRepoID)"  class="normalButton">Download</button>
-                <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
+                <dfn class="def"><span class="infoIcon" id="downloadInfo"><mat-icon>info</mat-icon></span>
                 <span rel="def">Download all Tests as Feature files of a Project in a zip File</span>
               </dfn>
             </div>
             <div>
               <button (click)="exportProject(downloadRepoID)"  class="normalButton" style="width: 86.76px;" >Export</button>
-              <dfn class="def"><span class="infoIcon" uk-icon="info" id="exportInfo"></span>
+              <dfn class="def"><span class="infoIcon" id="exportInfo"><mat-icon>info</mat-icon></span>
               <span rel="def">Export Tests in Gherkin: Export your project as a .zip file containing the stories and blocks of a project importable as .json.</span>
             </dfn>
           </div>
@@ -96,7 +95,7 @@
             <div>
               <button class="normalButton" style="width: 86.76px;" (click)="openImportProjectModal()">Import</button>
               <dfn class="def">
-                <span class="infoIcon" uk-icon="info" id="importInfo"></span>
+                <span class="infoIcon" id="importInfo"><mat-icon>info</mat-icon></span>
                 <span rel="def">Import Tests: Import test cases from a previously exported project.</span>
               </dfn>
             </div>
@@ -163,7 +162,7 @@
                       <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" tabindex="0" role="link" (click)="selectRepository(repository);" (keydown.enter)="selectRepository(repository);">{{repository.repoName}}</a>
                     </div>
                     <span class="flex-end-item">
-                      <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
+                      <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" matTooltip="Edit project">settings</mat-icon>
                     </span>
                   </li>
                 }
@@ -213,7 +212,7 @@
                       <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" tabindex="0" role="link" (click)="selectRepository(repository);" (keydown.enter)="selectRepository(repository);">{{repository.repoName}}</a>
                     </div>
                     <span class="flex-end-item">
-                      <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
+                      <mat-icon class="set-name-button setting-icon" id="edit_{{'repository_'+i}}" tabindex="0" role="button" (click)="workGroupEdit(repository)" (keydown.enter)="workGroupEdit(repository)" matTooltip="Edit project">settings</mat-icon>
                     </span>
                   </li>
                 }

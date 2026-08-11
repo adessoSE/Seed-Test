@@ -20,6 +20,7 @@ import { ManagementService } from '../Services/management.service';
 import { DisconnectJiraAccountComponent } from '../modals/disconnect-jira-account/disconnect-jira-account.component';
 import { ImportModalComponent } from '../modals/import-modal/import-modal.component';
 import { MatIcon } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
 import type { User } from '@shared/models/User';
@@ -33,7 +34,7 @@ import type { User } from '@shared/models/User';
 	templateUrl: './account-management.component.html',
 	styleUrls: ['./account-management.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [RouterLink, MatIcon, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, ChangeJiraAccountComponent, DisconnectJiraAccountComponent, CreateCustomProjectComponent, DeleteAccountComponent, WorkgroupEditComponent, RepoSwichComponent]
+	imports: [RouterLink, MatIcon, FormsModule, MatFormField, MatLabel, MatSelect, MatOption, ChangeJiraAccountComponent, DisconnectJiraAccountComponent, CreateCustomProjectComponent, DeleteAccountComponent, WorkgroupEditComponent, RepoSwichComponent, MatTooltipModule]
 })
 
 
