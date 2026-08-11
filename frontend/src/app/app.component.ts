@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, AfterViewInit, ChangeDetectionStrategy, inject, viewChild, signal, computed, effect, untracked } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -12,6 +12,7 @@ import { StoryService } from './Services/story.service';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 /**
@@ -22,9 +23,9 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [RouterLink, RouterOutlet, MatIcon, MatSlideToggle, ReactiveFormsModule, NgClass]
+	imports: [RouterLink, RouterOutlet, MatIcon, MatSlideToggle, ReactiveFormsModule, NgClass, MatMenuModule]
 })
-export class AppComponent implements OnInit, AfterViewInit{
+export class AppComponent implements OnInit{
 	apiService = inject(ApiService);
 	router = inject(Router);
 	themeService = inject(ThemingService);
@@ -58,12 +59,10 @@ export class AppComponent implements OnInit, AfterViewInit{
    */
 	error!: string;
 
-	readonly dropdownMenu = viewChild.required<ElementRef>('dropdownMenu');
-	readonly helpMenu = viewChild.required<ElementRef>('helpMenu');
-
 	closed: boolean = false;
 	helpPosition!: number;
 	menuPosition!: number;
+	private closeHelpTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
@@ -144,21 +143,7 @@ export class AppComponent implements OnInit, AfterViewInit{
 		untracked(() => this.setModeOnToggle(val));
 	});
 
-	ngAfterViewInit(){
-		this.helpPosition = this.dropdownMenu().nativeElement.offsetTop;
-		this.menuPosition = this.helpMenu().nativeElement.offsetTop;
 
-	}
-
-	@HostListener('window:scroll')
-	handleScroll() {
-		const windowScroll = window.scrollY;
-		if (windowScroll > this.helpPosition) 
-			this.closed = true;
-		else 
-			this.closed = false;
-      
-	}
 
 	/**
    * Opens the terms section
@@ -237,5 +222,28 @@ export class AppComponent implements OnInit, AfterViewInit{
 
 	setModeOnToggle(isDark: boolean) {
 		this.themeService.setNewTheme(isDark);
+	}
+
+	/**
+	 * Opens the help menu on hover. Cancels any pending close timer so rapid
+	 * mouse movement back over the button keeps the menu open.
+	 */
+	onHelpHover(trigger: { openMenu: () => void }) {
+		if (this.closeHelpTimeout) {
+			clearTimeout(this.closeHelpTimeout);
+			this.closeHelpTimeout = null;
+		}
+		trigger.openMenu();
+	}
+
+	/**
+	 * Starts a delayed close timer on mouse leave (300ms). Gives the user time
+	 * to move from the button to the menu panel before it closes. If the mouse
+	 * re-enters the button during this window, onHelpHover cancels the timer.
+	 */
+	onHelpLeave(trigger: { closeMenu: () => void }) {
+		this.closeHelpTimeout = setTimeout(() => {
+			trigger.closeMenu();
+		}, 300);
 	}
 }

@@ -1,72 +1,56 @@
 <div class="grid mat-app-background" [class.darkTheme]="isDark()">
   <div class="topnav">
     <!--left-->
-    <div class="uk-inline dropdown">
+    <div class="topnavLeft">
       @if (this.loginService.isLoggedIn()) {
-        <button class="menuButton material-icons" title="menu">menu</button>
+        <button class="menuButton material-icons" title="menu"
+        [matMenuTriggerFor]="mainMenu">menu</button>
       }
-      <div #dropdownMenu [class.closedMenu]="closed">
-        @if (this.loginService.isLoggedIn()) {
-          <ul uk-dropdown="mode: hover" class="dropdown-list">
-            <li>
-              @if (this.repositories()) {
-                <div class="dropdown">
-                  <button class="menuSelection" title="Select Project">Projects</button>
-                  <div uk-dropdown="mode: click" id="static">
-                    <ul class="dropdown-list">
-                      @for (repository of repositories(); track repository; let i = $index) {
-                        <li class="list-item">
-                          @if (this.apiService.isGithubRepo(repository)) {
-                            <img class="repo_img"
-                              src="../assets/GitHub-Mark-32px.png" alt="github">
-                            }
-                            @if (this.apiService.isJiraRepo(repository)) {
-                              <img class="repo_img"
-                                src="../assets/jira-icon.png" alt="jira">
-                              }
-                              @if (this.apiService.isCustomRepo(repository)) {
-                                <img class="repo_img"
-                                  src="../assets/database-5-32.png" alt="database">
-                                }
-                                <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
-                                tabindex="0" role="link" (keydown.enter)="selectRepository(repository)"
-                                routerLink=''>{{repository.repoName}}</a>
-                              </li>
-                            }
-                          </ul>
-                        </div>
-                      </div>
-                    }
-                  </li>
-                  <li>
-                    <button id="manageAccount" class="menuSelection" title="Account Settings"
-                    routerLink='/accountManagement'>Account Settings</button>
-                  </li>
-                  <li>
-                    <button class="menuSelection" id="logout" title="Logout" (click)="logout();">Logout</button>
-                  </li>
-                </ul>
-              }
-            </div>
-            <div class="vertical-container">
-              <div id="version" class="Largecaption">
-                Version 1.8.1 {{version === '' ? " (demo)" : ""}}
-              </div>
-              @if (this.version === '') {
-                <dfn id="defaultVersionWarning" class="def">
-                  <span uk-icon="warning"></span>
-                  <span rel="def" style="font-weight: normal">
-                    This is a demo version of Seed-Test.
-                    Please note that to use it in production, you need to make some configurations to ensure it's fully
-                    functional.
-                    Certain features may not work until you complete the installation process.
-                    <b>We strongly advise against using this unconfigured version in a production environment.</b>
-                    For more information, please refer to the README.
-                  </span>
-                </dfn>
-              }
-            </div>
-          </div>
+      <div class="vertical-container">
+        <div id="version" class="Largecaption">
+          Version 1.8.1 {{version === '' ? " (demo)" : ""}}
+        </div>
+        @if (this.version === '') {
+          <dfn id="defaultVersionWarning" class="def">
+            <mat-icon>warning</mat-icon>
+            <span rel="def" style="font-weight: normal">
+              This is a demo version of Seed-Test.
+              Please note that to use it in production, you need to make some configurations to ensure it's fully
+              functional.
+              Certain features may not work until you complete the installation process.
+              <b>We strongly advise against using this unconfigured version in a production environment.</b>
+              For more information, please refer to the README.
+            </span>
+          </dfn>
+        }
+      </div>
+    </div>
+    <mat-menu #mainMenu="matMenu">
+      @if (this.loginService.isLoggedIn()) {
+        @if (this.repositories()) {
+          <button mat-menu-item [matMenuTriggerFor]="projectsMenu">Projects</button>
+        }
+        <button mat-menu-item id="manageAccount" routerLink='/accountManagement'>Account Settings</button>
+        <button mat-menu-item id="logout" (click)="logout();">Logout</button>
+      }
+    </mat-menu>
+    <mat-menu #projectsMenu="matMenu">
+      @for (repository of repositories(); track repository; let i = $index) {
+        <button mat-menu-item class="list-item" (click)="selectRepository(repository)"
+        routerLink=''>
+          @if (this.apiService.isGithubRepo(repository)) {
+            <img class="repo_img" src="../assets/GitHub-Mark-32px.png" alt="github">
+          }
+          @if (this.apiService.isJiraRepo(repository)) {
+            <img class="repo_img" src="../assets/jira-icon.png" alt="jira">
+          }
+          @if (this.apiService.isCustomRepo(repository)) {
+            <img class="repo_img" src="../assets/database-5-32.png" alt="database">
+          }
+          {{repository.repoName}}
+        </button>
+      }
+    </mat-menu>
 
 
           <!--center-->
@@ -85,19 +69,17 @@
               [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark()}" title="Switch to dark/light mode" />
               <mat-icon>bedtime</mat-icon>
             </div>
-            <div class="dropdown">
-              <button class="rightButton">Help</button>
-              <div #helpMenu [class.closedMenu]="closed">
-                <div class="dropdown-list">
-                  <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
-                  target="_blank">Tutorial (german)</a>
-                  <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
-                  target="_blank">Tutorial (english)</a>
-                  <a rel="noopener noreferrer" href="../assets/documentation/index.html"
-                  target="_blank">Dokumentation (german)</a>
-                </div>
-              </div>
-            </div>
+            <button class="rightButton help-button" [matMenuTriggerFor]="helpMenu" #helpTrigger="matMenuTrigger"
+              (mouseenter)="onHelpHover(helpTrigger)"
+              (mouseleave)="onHelpLeave(helpTrigger)">Help</button>
+            <mat-menu #helpMenu="matMenu" class="help-menu-panel">
+              <a mat-menu-item rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
+              target="_blank">Tutorial (german)</a>
+              <a mat-menu-item rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
+              target="_blank">Tutorial (english)</a>
+              <a mat-menu-item rel="noopener noreferrer" href="../assets/documentation/index.html"
+              target="_blank">Dokumentation (german)</a>
+            </mat-menu>
           </div>
         </div>
 
@@ -110,7 +92,7 @@
             <p class="impressum" id="impressum" tabindex="0" role="button" (click)="openImpressum();" (keydown.enter)="openImpressum();">Impressum</p>
             <p class="terms" tabindex="0" role="button" (click)="openTerms()" (keydown.enter)="openTerms()">Terms</p>
             <p><a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" rel="noopener noreferrer"
-            target="_blank" uk-icon="github" aria-label="GitHub repository"></a></p>
+            target="_blank" aria-label="GitHub repository"><mat-icon>code</mat-icon></a></p>
           </div>
           <div class="expendable">
             @if (showImpressum) {
