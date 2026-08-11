@@ -114,7 +114,8 @@ export class AddBlockFormComponent implements OnInit {
 	modalReference!: NgbModalRef;
      
 	ngOnInit() {
-		const id = localStorage.getItem('id')!;
+		const id = localStorage.getItem('id');
+		if (!id) return;
 		this.blockService.getBlocks(id).subscribe((resp) => {
 			this.blocks.set(resp);
 		});

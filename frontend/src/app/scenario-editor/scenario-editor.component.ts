@@ -151,7 +151,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 
 	/** Fetches blocks from the backend and updates the local signal */
 	private async reloadBlocks() {
-		const id = localStorage.getItem('id')!;
+		const id = localStorage.getItem('id');
+		if (!id) return;
 		const resp = await firstValueFrom(this.blockService.getBlocks(id));
 		this.blocks.set(resp);
 	}
@@ -196,7 +197,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
     * Loads initial blocks on component init
     */
 	ngOnInit() {
-		const id = localStorage.getItem('id')!;
+		const id = localStorage.getItem('id');
+		if (!id) return;
 		this.blockService.getBlocks(id).subscribe((resp) => {
 			this.blocks.set(resp);
 		});

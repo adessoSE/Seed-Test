@@ -100,7 +100,8 @@ export class SaveBlockFormComponent implements OnInit {
 
 	/** Fetches blocks from the backend and updates the local signal */
 	private async reloadBlocks() {
-		const id = localStorage.getItem('id')!;
+		const id = localStorage.getItem('id');
+		if (!id) return;
 		const resp = await firstValueFrom(this.blockService.getBlocks(id));
 		this.blocks.set(resp);
 	}
@@ -109,7 +110,8 @@ export class SaveBlockFormComponent implements OnInit {
 	backgroundName!: string;
 
 	ngOnInit() {
-		const id = localStorage.getItem('id')!;
+		const id = localStorage.getItem('id');
+		if (!id) return;
 		this.blockService.getBlocks(id).subscribe((resp) => {
 			this.blocks.set(resp);
 		});

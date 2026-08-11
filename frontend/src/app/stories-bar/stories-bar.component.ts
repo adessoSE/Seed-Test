@@ -604,7 +604,8 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	dropStory(event: CdkDragDrop<Story[]>) {
-		const repo_id = localStorage.getItem('id')!;
+		const repo_id = localStorage.getItem('id');
+		if (!repo_id) return;
 		const arr = [...this.getSortedStories()];
 		moveItemInArray(arr, event.previousIndex, event.currentIndex);
 		this.stories.set(arr);

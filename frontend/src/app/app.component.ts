@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal, computed, effect, untracked, ViewChild, ElementRef } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -63,6 +63,8 @@ export class AppComponent implements OnInit{
 	helpPosition!: number;
 	menuPosition!: number;
 	private closeHelpTimeout: ReturnType<typeof setTimeout> | null = null;
+	/** Bound cleanup function for the overlay mouseenter listener */
+	private helpOverlayCleanup: (() => void) | null = null;
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
@@ -237,13 +239,43 @@ export class AppComponent implements OnInit{
 	}
 
 	/**
-	 * Starts a delayed close timer on mouse leave (300ms). Gives the user time
-	 * to move from the button to the menu panel before it closes. If the mouse
-	 * re-enters the button during this window, onHelpHover cancels the timer.
+	 * Starts a delayed close timer on mouse leave. The wrapper's mouseleave
+	 * fires when the cursor leaves both the button and the menu overlay area.
+	 * onHelpMenuOpened also attaches a mouseenter listener on the overlay panel
+	 * so entering the menu from the gap cancels the timer.
 	 */
 	onHelpLeave(trigger: { closeMenu: () => void }) {
 		this.closeHelpTimeout = setTimeout(() => {
 			trigger.closeMenu();
 		}, 300);
+	}
+
+	/**
+	 * After the menu overlay appears, attach a mouseenter listener to the
+	 * overlay panel element so entering the menu during the close-delay window
+	 * cancels the timer.
+	 */
+	onHelpMenuOpened() {
+		// Short delay to let the CDK render the overlay panel
+		requestAnimationFrame(() => {
+			const overlay = document.querySelector('.help-menu-panel');
+			if (!overlay) return;
+			const onEnter = () => {
+				if (this.closeHelpTimeout) {
+					clearTimeout(this.closeHelpTimeout);
+					this.closeHelpTimeout = null;
+				}
+			};
+			overlay.addEventListener('mouseenter', onEnter);
+			this.helpOverlayCleanup = () => overlay.removeEventListener('mouseenter', onEnter);
+		});
+	}
+
+	/**
+	 * Clean up the overlay listener when the menu closes.
+	 */
+	onHelpMenuClosed() {
+		this.helpOverlayCleanup?.();
+		this.helpOverlayCleanup = null;
 	}
 }

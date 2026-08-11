@@ -78,3 +78,4 @@
 - **#031**: Worker's mergeById immutable fix may have made groups completely unusable — **top priority**
 - **#038**: New — logout doesn't clear localStorage repoId → 403 on re-login
 - **#029**: Worker dismissed as "no fix needed" but user still sees 400 — needs fresh investigation
+- **Committed**: 6 commits on `AI-integration-prototype` — UIkit migration + bugfixes + task tracking

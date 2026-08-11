@@ -225,7 +225,8 @@ export class WorkgroupEditComponent {
 		this.projectService.checkAiAvailability().subscribe(available => {
 			this.isAiAvailable.set(available);
 		});
-		if (!this.workgroupProject.aiConfig) 
+		// Deep-check: aiConfig may exist but have missing sub-fields (e.g. empty object from DB)
+		if (!this.workgroupProject.aiConfig?.textPreparation?.name) 
 			this.workgroupProject.aiConfig = {
 				textPreparation: {
 					name: 'local',

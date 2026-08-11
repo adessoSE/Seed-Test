@@ -729,7 +729,8 @@ handleSizeChange(event: { width: number; height: number }) {
 			this.storiesLoaded.set(true);
 
 		// get blocks
-		const id = localStorage.getItem('id')!;
+		const id = localStorage.getItem('id');
+		if (!id) return;
 		this.blockService.getBlocks(id).subscribe((resp) => {
 			this.blocks.set(resp);
 		});
@@ -1578,10 +1579,12 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
 	}
 
 	/**
-   *  Check for global settings
-   */
+    *  Check for global settings
+    */
 	checkGlobalSettings() {
-		this.repoId = localStorage.getItem('id')!;
+		const id = localStorage.getItem('id');
+		if (!id) return;
+		this.repoId = id;
 		this.projectService.getRepositorySettings(this.repoId).subscribe({
 			next: (settings) => {
 				this.repoSettings = settings;
