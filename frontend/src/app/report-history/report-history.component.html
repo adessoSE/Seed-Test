@@ -2,19 +2,19 @@
   <div class="reportButtons">
     @if (rep.isSaved) {
       <button
-        class="actionButton" uk-tooltip title="Do not Save Report"
+        class="actionButton" matTooltip="Do not Save Report"
         (click)="unsaveReport(rep);">
         <em class="material-icons-outlined">cancel</em>
       </button>
     }
     @if (!rep.isSaved) {
       <button
-        class="actionButton" uk-tooltip title="Save Report"
+        class="actionButton" matTooltip="Save Report"
         (click)="saveReport(rep);">
         <em class="material-icons">save</em>
       </button>
     }
-    <button class="actionButton" uk-tooltip title="Delete Report" (click)="deleteReport(rep);">
+    <button class="actionButton" matTooltip="Delete Report" (click)="deleteReport(rep);">
       <em class="material-icons">delete</em>
     </button>
   </div>

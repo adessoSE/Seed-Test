@@ -6,13 +6,14 @@ import { StepType } from '@shared/models/StepType';
 import { ThemingService } from '../../Services/theming.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { BaseEditorComponent } from '../../base-editor/base-editor.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
 	selector: 'app-edit-block',
 	templateUrl: './edit-block.component.html',
 	styleUrls: ['./edit-block.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [LayoutModalComponent, BaseEditorComponent]
+	imports: [LayoutModalComponent, BaseEditorComponent, MatIconModule]
 })
 export class EditBlockComponent {
 	private modalService = inject(NgbModal);

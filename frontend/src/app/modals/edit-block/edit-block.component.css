@@ -54,7 +54,3 @@ span.infoIcon {
 
 }
 
-:host ::ng-deep .darkTheme.uk-dropdown {
-  background-color: #60767b;
-  color: var(--light-blue);
-} 

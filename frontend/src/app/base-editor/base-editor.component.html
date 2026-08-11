@@ -9,11 +9,11 @@
     <div class="scenarioBarContainer" [style.margin]="(name==='example') ? '0px' : ''">
       <div class="actionBarButtonGroup">
         <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()"
-          [checked]="this.allChecked" uk-tooltip title="Check All Steps" />
+          [checked]="this.allChecked" matTooltip="Check All Steps" matTooltipPosition="right" />
           <div [class.disabled]="!this.activeActionBar || isReviewing()" class="actionBarButtons">
             @if (name !== 'example' && name !== 'block-editor') {
               <button id="{{name+'_addBlock_step_'}}"
-                class="actionButton" uk-tooltip title="Save Steps as Block" (click)="saveBlock();"
+                class="actionButton" matTooltip="Save Steps as Block" (click)="saveBlock();"
                 [disabled]="!this.activeActionBar || isReviewing() || this.isReferenceBlock"
                 [class.disabled]="this.isReferenceBlock">
                 @if (name === 'background') {
@@ -25,21 +25,21 @@
                 }
               </button>
             }
-            <button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="De-/Activate Step"
+            <button id="{{name+'_deactivate_step_'}}" class="actionButton" matTooltip="De-/Activate Step"
               (click)="deactivateStep();" [disabled]="!this.activeActionBar">
               <em class="material-icons">do_not_touch</em>
             </button>
-            <button id="{{name+'_delete_step'}}" class="actionButton" uk-tooltip title="Delete Step"
+            <button id="{{name+'_delete_step'}}" class="actionButton" matTooltip="Delete Step"
               (click)="removeStep();" [disabled]="!this.activeActionBar">
               <em class="material-icons">delete</em>
             </button>
-            <button id="{{name+'_copy_step'}}" class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+            <button id="{{name+'_copy_step'}}" class="actionButton" matTooltip="Copy Step to Clipboard"
               (click)="copyBlock();" [disabled]="!this.activeActionBar">
               <em class="material-icons">content_copy</em>
             </button>
           </div>
           @if (name==='example') {
-            <button id="{{name+'_add_column'}}" uk-tooltip title="Add new Variable"
+            <button id="{{name+'_add_column'}}" matTooltip="Add new Variable"
               (click)="openNewExample(step)">
               <div class="actionButton" style="display:grid;">
                 <em class="material-icons-outlined"
@@ -50,7 +50,7 @@
             </button>
           }
           @if (name==='example') {
-            <button id="{{name+'_add_row'}}" uk-tooltip title="Add Example"
+            <button id="{{name+'_add_row'}}" matTooltip="Add Example"
               (click)="addExampleValueRow()">
               <div class="actionButton" style="display: grid;">
                 <em class="material-icons-outlined" style="grid-column: 1; grid-row: 1;">view_stream</em>
@@ -68,43 +68,40 @@
             </button>
           }
           <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock === null"
-            [disabled]="this.clipboardBlock === null" uk-tooltip="Add Step from Clipboard"
+            [disabled]="this.clipboardBlock === null" matTooltip="Add Step from Clipboard"
             (click)="insertCopiedBlock()">
             <em class="material-icons">copy_all</em>
           </button>
           @if (name !== 'example' && name !== 'block-editor') {
             <button id="add_block" class="scenarioButton"
-              [class.disabled]="testRunning()" [disabled]="testRunning()" uk-tooltip="Add Saved Block" type="button"
+              [class.disabled]="testRunning()" [disabled]="testRunning()" matTooltip="Add Saved Block" type="button"
               (click)="addBlock()">
               <em class="material-icons-outlined">queue</em>
             </button>
           }
           @if (name === 'block-editor') {
-            <button id="block_add_step" class="scenarioButton" title="Add New Step"
-              uk-tooltip>
-              <em class="material-icons-outlined">add_circle_outline</em>
-            </button>
-          }
-          @if (name === 'block-editor') {
-            <div uk-dropdown="pos: right-top; shift: false; flip: false">
-              <ul class="uk-nav uk-dropdown-nav">
+            <div class="hover-dropdown dropdown-right" style="display: inline-block;">
+              <button id="block_add_step" class="scenarioButton" matTooltip="Add New Step">
+                <em class="material-icons-outlined">add_circle_outline</em>
+              </button>
+              <div class="dropdown-menu">
                 @for (header of ['Given', 'When', 'Then']; track header; let i = $index) {
-                  <li class="dropdownHeader">
+                  <div class="dropdownHeader">
                     <span tabindex="0" role="menuitem" (click)="toggleHeader(header)" (keydown.enter)="toggleHeader(header)">{{header}}</span>
                     @if (isHeaderActive(header)) {
-                      <ul class="stepsList uk-nav uk-dropdown-nav">
+                      <div class="stepsList">
                         @for (step of originalStepTypes(); track step) {
-                          <li
+                          <div
                             [hidden]="step.stepType !== header.toLowerCase() || step.type === this.newStepName || step.type === 'Role' || step.type === 'Add Variable'"
                             class="dropdownStep">
                             <span tabindex="0" role="menuitem" (click)="addStepToBlock(step)" (keydown.enter)="addStepToBlock(step)">{{step.type}}</span>
-                          </li>
+                          </div>
                         }
-                      </ul>
+                      </div>
                     }
-                  </li>
+                  </div>
                 }
-              </ul>
+              </div>
             </div>
           }
         </div>
@@ -218,12 +215,12 @@
                                           @if (currentStep.isExample[0] === true && name!=='block-editor') {
                                             <button
                                               class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType)"
-                                              uk-tooltip="title: Use Textfield; pos: right">
-                                              &nbsp;<p class="exampleButton">1</p>&nbsp;
-                                            </button>
-                                            }&nbsp;
-                                          }
-                                          @if (currentStep.isExample[0] !== true && name!=='block-editor') {
+                                               matTooltip="Use Textfield">
+                                               &nbsp;<p class="exampleButton">1</p>&nbsp;
+                                             </button>
+                                             }&nbsp;
+                                           }
+                                           @if (currentStep.isExample[0] !== true && name!=='block-editor') {
                                             <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 0}" />
                                           }
                                           @if (name==='block-editor') {
@@ -274,12 +271,12 @@
                                               @if (currentStep.isExample[1] === true && name!=='block-editor') {
                                                 <button
                                                   class="scenarioTitle" (click)="addIsExample('text input', j, 1, currentStep.stepType)"
-                                                  uk-tooltip="title: Use Textfield; pos: right">
-                                                  &nbsp;<p class="exampleButton">1</p>&nbsp;
-                                                </button>
-                                                }&nbsp;
-                                              }
-                                              @if (currentStep.isExample[1] !== true && name!=='block-editor') {
+                                                   matTooltip="Use Textfield" matTooltipPosition="right">
+                                                   &nbsp;<p class="exampleButton">1</p>&nbsp;
+                                                 </button>
+                                                 }&nbsp;
+                                               }
+                                               @if (currentStep.isExample[1] !== true && name!=='block-editor') {
                                                 <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 1}" />
                                               }
                                               @if (name==='block-editor') {
@@ -335,12 +332,12 @@
                                                   @if (currentStep.isExample[2] === true && name!=='block-editor') {
                                                     <button
                                                       class="scenarioTitle" (click)="addIsExample('text input', j, 2, currentStep.stepType)"
-                                                      uk-tooltip="title: Use Textfield; pos: right">
-                                                      &nbsp;<p class="exampleButton">1</p>&nbsp;
-                                                    </button>
-                                                    }&nbsp;
-                                                  }
-                                                  @if (currentStep.isExample[2] !== true && name!=='block-editor') {
+                                                       matTooltip="Use Textfield" matTooltipPosition="right">
+                                                       &nbsp;<p class="exampleButton">1</p>&nbsp;
+                                                     </button>
+                                                     }&nbsp;
+                                                   }
+                                                   @if (currentStep.isExample[2] !== true && name!=='block-editor') {
                                                     <ng-container *ngTemplateOutlet="fallbackBlock; context: {index: 2}" />
                                                   }
                                                   @if (name==='block-editor') {
@@ -390,7 +387,7 @@
                                           }
                                           @if (currentStep.outdated) {
                                             <div>
-                                              <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
+                                              <dfn class="def"><span class="infoIcon icon-wrapper"><mat-icon>info</mat-icon></span>
                                               <span rel="def">
                                                 This step got updated. Please check if the implemented logic is still valid. When you've
                                                 adjusted the step, save the scenario to confirm your adjustments.
@@ -411,7 +408,7 @@
                                           @if (name!=='block-editor' && this.selectedScenario?.multipleScenarios?.[0] !== undefined) {
                                             <button
                                               class="scenarioTitle" (click)="addIsExample('example', j, index, currentStep.stepType)"
-                                              uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                                                matTooltip="Use Multiple Scenarios" matTooltipPosition="right">
                                               &nbsp;<p class="exampleButton">1+</p>&nbsp;
                                             </button>
                                           }
@@ -426,17 +423,16 @@
                           <br>
                             <!-- [class.disabled]="(stepDefs.example.length <= 0 && sd === 'example')"
                             [disabled]="(stepDefs.example.length <= 0 && sd === 'example')" -->
-                            @if (name!=='block-editor' && sd !== 'example') {
-                              <button id="{{name+'_add_step' + i}}" class="addStepButton" title="Add New Step"
-                                uk-tooltip>
-                                <em class="material-icons addStep">add_circle_outline</em>
-                              </button>
-                            }
                             @if (name!=='block-editor') {
-                              <div uk-dropdown="mode:hover">
-                                <ul class="uk-nav uk-dropdown-nav" style="max-height: 20rem; overflow: scroll;">
+                              <div class="hover-dropdown add-step-btn-wrapper" style="display: inline-block;">
+                                @if (sd !== 'example') {
+                                  <button id="{{name+'_add_step' + i}}" class="addStepButton" matTooltip="Add New Step">
+                                    <em class="material-icons addStep">add_circle_outline</em>
+                                  </button>
+                                }
+                                <div class="dropdown-menu" style="max-height: 20rem; overflow: scroll;">
                                   @for (step of sortedStepTypes(); track step; let j = $index) {
-                                    <li>
+                                    <div>
                                       @if (step.stepType===sd) {
                                         <span [ngClass]="(step.type!==this.newStepName) ? 'dropdownStep':'dropdownStepUndefined'"
                                           id="{{name+'_add_step_' + i + '_type_' + j}}"
@@ -445,9 +441,9 @@
                                           (keydown.enter)="addStep(step, this.selectedScenario, name, i);">
                                         {{step.type}}</span>
                                       }
-                                    </li>
+                                    </div>
                                   }
-                                </ul>
+                                </div>
                               </div>
                             }
                           </ng-template>
@@ -457,7 +453,7 @@
                         @if (name === 'example') {
                           <div class="stepsListContainer SmallHeadline5">
                             <div class="Smallnavigation2"> Multiple Scenarios
-                              <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                              <dfn class="def"><span id="infoIcon"><mat-icon>info</mat-icon></span>
                               <span rel="def">
                                 Define multiple Values in your Steps, to run a Scenario with the same Steps multiple times, but with
                                 different Data. Each line in the following Table, results in a separate Scenario.
@@ -472,7 +468,7 @@
                           </div>
                           @if (this.selectedScenario?.multipleScenarios?.length === 0) {
                             <div>
-                              <button id="{{name+'_add_step' + i}}" (click)="openExampleModal('createFirst')" title="Activate Multiple Scenarios" uk-tooltip>
+                              <button id="{{name+'_add_step' + i}}" (click)="openExampleModal('createFirst')" matTooltip="Activate Multiple Scenarios" matTooltipPosition="right">
                                 <div style="display:grid">
                                   <em style="grid-column: 1; grid-row: 1; font-size: 26px !important"
                                   class="material-icons">table_chart</em>
@@ -487,11 +483,11 @@
                           <div class="scenarioBarContainer" [style.margin]="(name==='example') ? '0px' : ''">
                             <div class="actionBarButtonGroup">
                               <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()"
-                                [checked]="this.allChecked" uk-tooltip title="Check All Steps" />
+          [checked]="this.allChecked" matTooltip="Check All Steps" matTooltipPosition="right" />
                                 <div [class.disabled]="!this.activeActionBar || isReviewing()" class="actionBarButtons">
                                   @if (name !== 'example' && name !== 'block-editor') {
                                     <button id="{{name+'_addBlock_step_'}}"
-                                      class="actionButton" uk-tooltip title="Save Steps as Block" (click)="saveBlock();"
+                class="actionButton" matTooltip="Save Steps as Block" (click)="saveBlock();"
                                       [disabled]="!this.activeActionBar || isReviewing() || this.isReferenceBlock"
                                       [class.disabled]="this.isReferenceBlock">
                                       @if (name === 'background') {
@@ -503,21 +499,21 @@
                                       }
                                     </button>
                                   }
-                                  <button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="De-/Activate Step"
+            <button id="{{name+'_deactivate_step_'}}" class="actionButton" matTooltip="De-/Activate Step"
                                     (click)="deactivateStep();" [disabled]="!this.activeActionBar">
                                     <em class="material-icons">do_not_touch</em>
                                   </button>
-                                  <button id="{{name+'_delete_step'}}" class="actionButton" uk-tooltip title="Delete Step"
+            <button id="{{name+'_delete_step'}}" class="actionButton" matTooltip="Delete Step"
                                     (click)="removeStep();" [disabled]="!this.activeActionBar">
                                     <em class="material-icons">delete</em>
                                   </button>
-                                  <button id="{{name+'_copy_step'}}" class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+            <button id="{{name+'_copy_step'}}" class="actionButton" matTooltip="Copy Step to Clipboard"
                                     (click)="copyBlock();" [disabled]="!this.activeActionBar">
                                     <em class="material-icons">content_copy</em>
                                   </button>
                                 </div>
                                 @if (name==='example') {
-                                  <button id="{{name+'_add_column'}}" uk-tooltip title="Add new Variable"
+            <button id="{{name+'_add_column'}}" matTooltip="Add new Variable"
                                     (click)="openNewExample(step)">
                                     <div class="actionButton" style="display:grid;">
                                       <em class="material-icons-outlined"
@@ -528,7 +524,7 @@
                                   </button>
                                 }
                                 @if (name==='example') {
-                                  <button id="{{name+'_add_row'}}" uk-tooltip title="Add Example"
+            <button id="{{name+'_add_row'}}" matTooltip="Add Example"
                                     (click)="addExampleValueRow()">
                                     <div class="actionButton" style="display: grid;">
                                       <em class="material-icons-outlined" style="grid-column: 1; grid-row: 1;">view_stream</em>
@@ -546,43 +542,40 @@
                                   </button>
                                 }
                                 <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock === null"
-                                  [disabled]="this.clipboardBlock === null" uk-tooltip="Add Step from Clipboard"
+                                  [disabled]="this.clipboardBlock === null" matTooltip="Add Step from Clipboard"
                                   (click)="insertCopiedBlock()">
                                   <em class="material-icons">copy_all</em>
                                 </button>
                                 @if (name !== 'example' && name !== 'block-editor') {
                                   <button id="add_block" class="scenarioButton"
-                                    [class.disabled]="testRunning()" [disabled]="testRunning()" uk-tooltip="Add Saved Block" type="button"
+                                    [class.disabled]="testRunning()" [disabled]="testRunning()" matTooltip="Add Saved Block" type="button"
                                     (click)="addBlock()">
                                     <em class="material-icons-outlined">queue</em>
                                   </button>
                                 }
                                 @if (name === 'block-editor') {
-                                  <button id="block_add_step" class="scenarioButton" title="Add New Step"
-                                    uk-tooltip>
-                                    <em class="material-icons-outlined">add_circle_outline</em>
-                                  </button>
-                                }
-                                @if (name === 'block-editor') {
-                                  <div uk-dropdown="pos: right-top; shift: false; flip: false">
-                                    <ul class="uk-nav uk-dropdown-nav">
+                                  <div class="hover-dropdown dropdown-right" style="display: inline-block;">
+                                    <button id="block_add_step" class="scenarioButton" matTooltip="Add New Step">
+                                      <em class="material-icons-outlined">add_circle_outline</em>
+                                    </button>
+                                    <div class="dropdown-menu">
                                       @for (header of ['Given', 'When', 'Then']; track header; let i = $index) {
-                                        <li class="dropdownHeader">
+                                        <div class="dropdownHeader">
                                           <span tabindex="0" role="menuitem" (click)="toggleHeader(header)" (keydown.enter)="toggleHeader(header)">{{header}}</span>
                                           @if (isHeaderActive(header)) {
-                                            <ul class="stepsList uk-nav uk-dropdown-nav">
+                                            <div class="stepsList">
                                               @for (step of originalStepTypes(); track step) {
-                                                <li
+                                                <div
                                                   [hidden]="step.stepType !== header.toLowerCase() || step.type === this.newStepName || step.type === 'Role' || step.type === 'Add Variable'"
                                                   class="dropdownStep">
                                                   <span tabindex="0" role="menuitem" (click)="addStepToBlock(step)" (keydown.enter)="addStepToBlock(step)">{{step.type}}</span>
-                                                </li>
+                                                </div>
                                               }
-                                            </ul>
+                                            </div>
                                           }
-                                        </li>
+                                        </div>
                                       }
-                                    </ul>
+                                    </div>
                                   </div>
                                 }
                               </div>
@@ -684,7 +677,7 @@
                                               </div>
                                               @if (currentStep.outdated) {
                                                 <div>
-                                                  <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
+                                                  <dfn class="def"><span class="infoIcon icon-wrapper"><mat-icon>info</mat-icon></span>
                                                   <span rel="def">
                                                     This step got updated. Please check if the implemented logic is still valid. When you've
                                                     adjusted the step, save the background to confirm your adjustments.
@@ -699,14 +692,14 @@
                                   }
                                 </div>
                                 <br>
-                                  <button id="{{name+'_add_step_'+ i}}" class="addStepButton" [class.disabled]="testRunning()"
-                                    [disabled]="testRunning()" title="Add New Step" uk-tooltip>
-                                    <em class="material-icons addStep">add_circle_outline</em>
-                                  </button>
-                                  <div uk-dropdown="mode:hover">
-                                    <ul class="uk-nav uk-dropdown-nav">
+                                  <div class="hover-dropdown add-step-btn-wrapper" style="display: inline-block;">
+                                    <button id="{{name+'_add_step_'+ i}}" class="addStepButton" [class.disabled]="testRunning()"
+                                      [disabled]="testRunning()" matTooltip="Add New Step">
+                                      <em class="material-icons addStep">add_circle_outline</em>
+                                    </button>
+                                    <div class="dropdown-menu">
                                       @for (step of sortedStepTypes(); track step; let j = $index) {
-                                        <li>
+                                        <div>
                                           @if (step.stepType === 'when' && step.type !== this.newStepName) {
                                             <span id="{{name+'_add_step_type_' + j}}" class="dropdownStep"
                                               tabindex="0" role="menuitem"
@@ -714,9 +707,9 @@
                                               (keydown.enter)="addStep(step,this.selectedStory, name);">
                                             {{step.type}}</span>
                                           }
-                                        </li>
+                                        </div>
                                       }
-                                    </ul>
+                                    </div>
                                   </div>
                                 </div>
                               }
@@ -746,11 +739,11 @@
                             </mat-panel-description>
                           </div>
                           <div class="blockButtonGroup">
-                            <button id="editBlock" uk-tooltip title="Edit Block" class="blockButton"
+                            <button id="editBlock" matTooltip="Edit Block" class="blockButton"
                               (click)="editBlock($event, blockStep);">
                               <em class="material-icons">edit</em>
                             </button>
-                            <button id="block_RemoveReference" uk-tooltip title="Remove Reference and Unpack Block" class="blockButton"
+                            <button id="block_RemoveReference" matTooltip="Remove Reference and Unpack Block" class="blockButton"
                               (click)="showUnpackBlockToast(this.selectedBlock(), blockStep, $event);">
                               <em class="material-icons">link_off</em>
                             </button>

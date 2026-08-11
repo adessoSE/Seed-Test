@@ -9,6 +9,7 @@ import { firstValueFrom } from 'rxjs';
 import { BackgroundService } from '../../Services/background.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @Component({
@@ -16,7 +17,7 @@ import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '
 	templateUrl: './save-block-form.component.html',
 	styleUrls: ['./save-block-form.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow]
+	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatIconModule]
 })
 export class SaveBlockFormComponent implements OnInit {
 	private modalService = inject(NgbModal);

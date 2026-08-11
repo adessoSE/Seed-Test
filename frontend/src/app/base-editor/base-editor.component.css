@@ -152,7 +152,13 @@ em.dragIcon {
 	color: var(--ocean-blue);
 	float: right;
 	transform: translate(0, -45px);
+}
 
+/* Make the hover-dropdown wrapper for add-step buttons full-width so
+   the right-floated button aligns to the container's right edge. */
+.add-step-btn-wrapper {
+	display: block !important;
+	width: 100%;
 }
 
 em.addStep {
@@ -276,14 +282,102 @@ input[type="text"] {
 	color: var(--white);
 }
 
-.uk-dropdown {
-	padding: 15px;
+/*
+ * CSS-only dropdowns replacing UIkit uk-dropdown.
+ * .hover-dropdown — shows .dropdown-menu on :hover
+ * .dropdown-right — positions menu to the right of the trigger
+ */
+.hover-dropdown {
+	position: relative;
 }
 
-/* :host ::ng-deep .darkTheme . ng-star-inserted.uk-dropdown {
-  background-color: #60767b;
-  color: var(--light-blue);
-}  */
+.hover-dropdown .dropdown-menu {
+	display: none;
+	position: absolute;
+	background-color: #f9f9f9;
+	min-width: 160px;
+	box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+	z-index: 100;
+	padding: 8px 0;
+}
+
+.hover-dropdown:hover .dropdown-menu {
+	display: block;
+}
+
+.dropdown-right .dropdown-menu {
+	left: 100%;
+	top: 0;
+}
+
+/* Dark theme overrides for dropdown menus */
+:host ::ng-deep .darkTheme .dropdown-menu {
+	background-color: #60767b;
+	color: white;
+}
+
+:host ::ng-deep .darkTheme .dropdown-menu .dropdownStep {
+	color: var(--light-blue);
+}
+
+:host ::ng-deep .darkTheme .dropdown-menu .dropdownStepUndefined {
+	color: #00B0FF;
+}
+
+:host ::ng-deep .darkTheme .dropdown-menu .dropdownStep:hover {
+	color: white;
+}
+
+/* Dropdown menu items */
+:host ::ng-deep .dropdown-menu .dropdownStep {
+	display: block;
+	padding: 4px 16px;
+	cursor: pointer;
+	color: var(--ocean-blue);
+	white-space: nowrap;
+}
+
+:host ::ng-deep .dropdown-menu .dropdownStep:hover {
+	color: gray;
+}
+
+:host ::ng-deep .dropdown-menu .dropdownStepUndefined {
+	color: var(--marine-blue);
+}
+
+:host ::ng-deep .dropdown-menu .dropdownHeader {
+	padding: 10px 20px 10px 0;
+	border-top: 1px solid #ddd;
+	margin-top: 5px;
+}
+
+:host ::ng-deep .dropdown-menu .dropdownHeader:first-of-type {
+	border-top: none;
+	margin-top: 0;
+	padding-top: 0;
+}
+
+:host ::ng-deep .dropdown-menu .dropdownHeader > span {
+	padding: 1px;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+:host ::ng-deep .dropdown-menu .dropdownHeader > span:hover {
+	color: gray;
+}
+
+:host ::ng-deep .darkTheme .dropdown-menu .dropdownHeader > span:hover {
+	color: white;
+}
+
+:host ::ng-deep .dropdown-menu .stepsList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+
 
 .padding {
 	padding-top: 20px;
@@ -377,26 +471,7 @@ input[type="text"] {
 	padding-left: 5px;
 }
 
-.uk-nav>li>span {
-	padding: 1px;
-	cursor: pointer;
-}
 
-:host ::ng-deep .uk-nav>li>span:hover {
-	color: gray;
-}
-
-:host ::ng-deep .darkTheme .uk-nav>li>span:hover {
-	color: white;
-}
-
-:host ::ng-deep .uk-nav>li>.dropdownStepUndefined {
-	color: var(--marine-blue);
-}
-
-:host ::ng-deep .darkTheme .uk-nav>li>.dropdownStepUndefined {
-	color: #00B0FF;
-}
 
 #saveButton.iconButton_unsaved em {
 	color: red !important;

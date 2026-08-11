@@ -75,9 +75,9 @@ export class StoriesBarComponent implements OnChanges {
 	});
 
 	/**
-     * Currently selected story
+     * Currently selected story — signal for zoneless OnPush reactivity
      */
-	selectedStory!: Story;
+	readonly selectedStory = signal<Story | undefined>(undefined);
 
 	/**
      * Currently selected scenario
@@ -323,7 +323,9 @@ export class StoriesBarComponent implements OnChanges {
      * @param reportService
      */
 	constructor() {
-		this.groupService.getGroups(localStorage.getItem('id')!).subscribe(groups => {
+		const repoId = localStorage.getItem('id');
+		if (!repoId) return;
+		this.groupService.getGroups(repoId).subscribe(groups => {
 			this.groups.set(groups);
 			this.liGroupList.set(new Array(groups.length).fill(''));
 		});
@@ -332,10 +334,10 @@ export class StoriesBarComponent implements OnChanges {
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes.newSelectedStory) {
-			this.selectedStory = this.newSelectedStory();
+			this.selectedStory.set(this.newSelectedStory());
 			this.scrollToSelectedStory();
-			if (this.selectedStory)
-				this.selectStory(this.selectedStory);
+			if (this.selectedStory())
+				this.selectStory(this.selectedStory()!);
 
 		}
 		if (changes.stories && changes.stories.currentValue) {
@@ -368,22 +370,23 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	/**
-     * Filters out "ghost stories" (deleted or non-existent story IDs) from each group's member_stories.
-     * member_stories contains string IDs — this method keeps them as IDs and only removes
-     * entries that no longer correspond to an existing story.
-     * Mutates group.member_stories in-place to preserve object references for accordion state (liGroupList).
+     * Returns a copy of groups with non-existent story IDs removed from member_stories.
+     * Does NOT mutate the original groups — returns a new array with filtered member_stories.
      * @param groups Groups to validate
      * @param stories Currently loaded stories to validate against
-     * @returns The groups array with invalid story IDs removed
+     * @returns New groups array with invalid story IDs removed
      */
 	mergeById(groups: Group[], stories: Story[]): Group[] {
-		// 1. Build a Set of all valid, existing story IDs
+		// Build a Set of all valid, existing story IDs — handle ObjectId at runtime
 		const validIds = new Set<string>();
 		if (stories)
 			for (const story of stories) {
-				if (story && story._id)
-					validIds.add(story._id.toString());
-
+				if (story && story._id) {
+					const storyId = typeof story._id === 'object' && story._id !== null
+						? (story._id as { toHexString: () => string }).toHexString()
+						: String(story._id);
+					validIds.add(storyId);
+				}
 			}
 		else {
 			console.warn('mergeById called with no stories.');
@@ -392,21 +395,20 @@ export class StoriesBarComponent implements OnChanges {
 
 		if (!groups)  return [];
 
-		// 2. Filter each group's member_stories to only keep valid IDs
-		for (const group of groups)
-			if (group.member_stories)
-				group.member_stories = group.member_stories.filter(id => {
-					if (!id) return false;
-					const strId = id.toString();
-					if (!validIds.has(strId)) {
-						console.warn(`Story ID ${strId} in group '${group.name}' not found. Skipping.`);
-						return false;
-					}
-					return true;
-				});
-
-
-		return groups;
+		// Return new group objects with filtered member_stories — avoid mutating originals
+		return groups.map(group => {
+			if (!group.member_stories) return { ...group };
+			const filtered = group.member_stories.filter(id => {
+				if (!id) return false;
+				const strId = String(id);
+				if (!validIds.has(strId)) {
+					console.warn(`Story ID ${strId} in group '${group.name}' not found. Skipping.`);
+					return false;
+				}
+				return true;
+			});
+			return { ...group, member_stories: filtered };
+		});
 	}
 
 	/**
@@ -416,7 +418,12 @@ export class StoriesBarComponent implements OnChanges {
      * @returns The Story object, or undefined if not found
      */
 	getStoryById(id: string): Story | undefined {
-		return this.stories().find(s => s._id === id);
+		return this.stories().find(s => {
+			const storyId = typeof s._id === 'object' && s._id !== null
+				? (s._id as { toHexString: () => string }).toHexString()
+				: String(s._id ?? '');
+			return storyId === id;
+		});
 	}
 
 	/**
@@ -494,7 +501,12 @@ export class StoriesBarComponent implements OnChanges {
      */
 	selectFirstStoryOfGroup(group: Group) {
 		if (!group?.member_stories?.length) return;
-		const story = this.stories().find(o => o._id === group.member_stories[0]);
+		const story = this.stories().find(s => {
+			const storyId = typeof s._id === 'object' && s._id !== null
+				? (s._id as { toHexString: () => string }).toHexString()
+				: String(s._id ?? '');
+			return storyId === group.member_stories![0];
+		});
 		if (story)
 			this.selectStory(story);
 
@@ -518,17 +530,22 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	/**
-     * Selects a new Story
+     * Selects a new Story — updates local state immediately and emits to parent.
+     * Local selectedStory is set first so template bindings (expansion, highlight)
+     * react in the same change detection cycle, preventing stale-UI bugs where
+     * the first click appears to do nothing.
      * @param story
      */
 	selectStory(story: Story) {
+		this.selectedStory.set(story);
 		this.storyChosen.emit(story);
 	}
 
 	scrollToSelectedStory() {
-		if (this.storyElements() && this.selectedStory)
+		const story = this.selectedStory();
+		if (this.storyElements() && story)
 			setTimeout(() => {
-				const selectedElementRef = this.storyElements().find(element => element.nativeElement.id === `story${this.selectedStory.issue_number}`);
+				const selectedElementRef = this.storyElements().find(element => element.nativeElement.id === `story${story.issue_number}`);
 				if (selectedElementRef) {
 					console.log('Found selected element', selectedElementRef.nativeElement);
 					selectedElementRef.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -558,11 +575,12 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	addScenario(scenarioName: string) {
+		const story = this.selectedStory();
 		// A scenario can only be added to an already-persisted story, so _id is guaranteed here
-		this.scenarioService.addScenario(this.selectedStory._id!, scenarioName)
+		this.scenarioService.addScenario(story!._id!, scenarioName)
 			.subscribe((resp: Scenario) => {
 				this.selectScenario(resp);
-				this.selectedStory.scenarios.push(resp);
+				story!.scenarios.push(resp);
 				this.notify.info('Successfully added', 'Scenario');
 			});
 	}
@@ -582,12 +600,12 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	openCreateScenario() {
-		this.createNewScenario().openCreateScenarioModal(this.selectedStory);
+		this.createNewScenario().openCreateScenarioModal(this.selectedStory()!);
 	}
 
-	dropStory(event: CdkDragDrop<string[]>) {
+	dropStory(event: CdkDragDrop<Story[]>) {
 		const repo_id = localStorage.getItem('id')!;
-		const arr = [...this.stories()];
+		const arr = [...this.getSortedStories()];
 		moveItemInArray(arr, event.previousIndex, event.currentIndex);
 		this.stories.set(arr);
 		this.storyService.updateStoryList(repo_id, arr.map((s: Story) => s._id)).subscribe(_ => { });
@@ -620,15 +638,16 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	/**
-    * Deletes story
-    * @param story
-    */
+     * Deletes story
+     * @param story
+     */
 	deleteStory() {
-		if (this.stories().find(x => x === this.selectedStory)) {
+		const story = this.selectedStory();
+		if (this.stories().find(x => x === story)) {
 			const repository = localStorage.getItem('id')!;
 			{
 				this.storyService
-					.deleteStory(repository, this.selectedStory._id!)
+					.deleteStory(repository, story!._id!)
 					.subscribe(_ => {
 						this.storyDeleted();
 						this.groupService.getGroups(localStorage.getItem('id')!).subscribe(groups => {
@@ -641,12 +660,13 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	/**
-    * Removes the selected story
-    */
+     * Removes the selected story
+     */
 	storyDeleted() {
+		const story = this.selectedStory();
 		const stories = this.stories();
-		if (stories.find(x => x === this.selectedStory)) {
-			const updated = stories.filter(x => x !== this.selectedStory);
+		if (stories.find(x => x === story)) {
+			const updated = stories.filter(x => x !== story);
 			this.stories.set(updated);
 		}
 	}

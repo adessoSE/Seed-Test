@@ -11,6 +11,7 @@ import { ReportService } from '../Services/report.service';
 import { StoryService } from '../Services/story.service';
 import { RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 type Report = ScenarioReport | StoryReport | GroupReport;
@@ -23,7 +24,7 @@ type Report = ScenarioReport | StoryReport | GroupReport;
 	templateUrl: './report-history.component.html',
 	styleUrls: ['./report-history.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [RouterLink, NgTemplateOutlet],
+	imports: [RouterLink, NgTemplateOutlet, MatTooltipModule],
 	host: {
 		'(window:storage)': 'onStorageEvent($event)'
 	}

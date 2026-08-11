@@ -27,7 +27,7 @@
         (click)="setCurrentTab('ownership'); $event.preventDefault();">Ownership</a>
       </li>
     }
-    @if (this.workgroupProject.source === 'db') {
+    @if (this.workgroupProject.source === 'db' && this.isAiAvailable()) {
       <li class="nav-item">
         <a class="nav-link" href="#" [class.active]="currentTab === 'aiGenerationSettings'"
         (click)="setCurrentTab('aiGenerationSettings'); $event.preventDefault();">AI Generation Settings</a>
@@ -53,7 +53,7 @@
                 </div>
                 <div>
                   <dfn class="def">
-                    <span id="settingsInfoIcon" uk-icon="info"></span>
+                    <span id="settingsInfoIcon"><mat-icon>info</mat-icon></span>
                     <span rel="def" style="font-weight: normal">
                       Specifies the amount of time (in milliseconds) to wait between each step when
                       running
@@ -77,7 +77,7 @@
                 </div>
                 <div>
                   <dfn class="def">
-                    <span id="settingsInfoIcon" uk-icon="info"></span>
+                    <span id="settingsInfoIcon"><mat-icon>info</mat-icon></span>
                     <span rel="def" style="font-weight: normal">
                       Selects a test runner (Selenium Webdriver, Playwright) for running the test.
                     </span>
@@ -113,7 +113,7 @@
                 </div>
                 <div>
                   <dfn class="def">
-                    <span id="settingsInfoIcon" uk-icon="info"></span>
+                    <span id="settingsInfoIcon"><mat-icon>info</mat-icon></span>
                     <span rel="def" style="font-weight: normal">
                       Selects a web browser (Chrome, Firefox, Edge, Webkit) for running the test.
                     </span>
@@ -138,7 +138,7 @@
                 </div>
                 <div>
                   <dfn class="def">
-                    <span id="settingsInfoIcon" uk-icon="info"></span>
+                    <span id="settingsInfoIcon"><mat-icon>info</mat-icon></span>
                     <span rel="def" style="font-weight: normal">
                       Runs the test on a simulated device.
                     </span>
@@ -157,7 +157,7 @@
                 </div>
                 <div>
                   <dfn class="def">
-                    <span uk-icon="info"></span>
+                    <mat-icon>info</mat-icon>
                     <span rel="def" style="font-weight: normal">
                       Changes height and width to adjust the size of the window for the test.
                     </span>
@@ -174,7 +174,7 @@
                   </div>
                   <div>
                     <dfn class="def">
-                      <span uk-icon="info"></span>
+                      <mat-icon>info</mat-icon>
                       <span rel="def" style="font-weight: normal">
                         Creates a comment with the Test Results on your connected Issue Tracker
                       </span>

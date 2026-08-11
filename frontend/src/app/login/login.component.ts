@@ -10,6 +10,7 @@ import { OwlOptions, CarouselModule } from 'ngx-owl-carousel-o';
 import { LoginService } from '../Services/login.service';
 import { ProjectService } from '../Services/project.service';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Component to handle the client login
@@ -19,7 +20,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 	templateUrl: './login.component.html',
 	styleUrls: ['./login.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [CarouselModule, FormsModule, MatProgressSpinner, RouterLink]
+	imports: [CarouselModule, FormsModule, MatProgressSpinner, RouterLink, MatIconModule]
 })
 export class LoginComponent implements OnInit, AfterViewInit {
 	loginService = inject(LoginService);

@@ -5,7 +5,7 @@
   <app-layout-modal />
   <div class="modal-header">
     <span id="modalHeader" class="MediumSubline1H4 modal-title">Save Steps as Block</span>
-    <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+    <dfn class="def"><span class="infoIcon"><mat-icon>info</mat-icon></span>
     <span id="infoSpan" rel="def">
       Save multiple Steps as a Block. Use Blocks to create reusable processes that are saved project-wide.
       Changes to a Block will affect other Scenarios using the same Block.
@@ -90,7 +90,7 @@
         <label id="saveAsSingleStepsLabel" for="save-as-single-steps-checkbox">Keep Steps separated: </label>
         <input id="save-as-single-steps-checkbox" type="checkbox" [checked]="this.saveAsSingleSteps" [disabled]="this.selectedTemplate === 'background'" (change)="checkSaveAsSingleSteps()" style="transform: translate(0px, 2px);">
         <dfn class="def">
-          <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999; transform: translate(0px, 2px);"></span>
+          <span class="infoIcon icon-wrapper" style="color:#999999; transform: translate(0px, 2px);"><mat-icon>info</mat-icon></span>
           <span rel="def">
             Use this Option to keep the Steps separated in the current Scenario.
             Otherwise the selected Steps will be turned into a Block automatically.

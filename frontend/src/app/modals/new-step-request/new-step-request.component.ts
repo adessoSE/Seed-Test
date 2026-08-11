@@ -3,6 +3,7 @@ import { UntypedFormControl, UntypedFormGroup, Validators, FormsModule, Reactive
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from '../../../app/Services/api.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { MatIconModule } from '@angular/material/icon';
 
 
 @Component({
@@ -10,7 +11,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	templateUrl: './new-step-request.component.html',
 	styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, MatIconModule]
 })
 export class NewStepRequestComponent {
 	private modalService = inject(NgbModal);

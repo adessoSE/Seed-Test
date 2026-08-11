@@ -3,7 +3,7 @@
   <app-layout-modal />
   <div class="modal-header">
     <span id="modalHeader" class="MediumSubline1H4 modal-title">Add Block</span>
-    <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
+    <dfn class="def"><span class="infoIcon icon-wrapper"><mat-icon>info</mat-icon></span>
     <span rel="def">Add a Block to the current Scenario. Changes to a Block will affect other Scenarios using the same Block.
     </span>
   </dfn>
@@ -93,7 +93,7 @@
               <input id="addAsSingleStepsCheckbox" type="checkbox" [checked]="this.addAsSingleSteps"
                 (change)="checkaddAsSingleSteps()" [disabled]="this.selectedBlock === undefined || this.selectedTemplate === 'background'">
                 <dfn class="def">
-                  <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
+                  <span class="infoIcon icon-wrapper" style="color:#999999"><mat-icon>info</mat-icon></span>
                   <span rel="def">
                     Use this Option to add the Steps of a Block to the Scenario, without creating a Block, that is affected by changes.
                   </span>
@@ -116,7 +116,7 @@
                         </mat-select>
                       </mat-form-field>
                       <dfn class="def">
-                        <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
+                        <span class="infoIcon icon-wrapper" style="color:#999999"><mat-icon>info</mat-icon></span>
                         <span class="tooltipAddBlockDropDown" rel="def">
                           Specify the Section of the Scenario where the Block will be added.
                         </span>

@@ -14,6 +14,8 @@ import { BlockService } from '../Services/block.service';
 import { firstValueFrom } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
 import { ExampleComponent } from '../example-table/example.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 /**
@@ -24,7 +26,7 @@ import { ExampleComponent } from '../example-table/example.component';
 	templateUrl: './scenario-editor.component.html',
 	styleUrls: ['../base-editor/base-editor.component.css', './scenario-editor.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe]
+	imports: [BaseEditorComponent, ExampleComponent, RenameScenarioComponent, CreateScenarioComponent, TitleCasePipe, MatIconModule, MatTooltipModule]
 })
 
 export class ScenarioEditorComponent implements OnInit, OnChanges{

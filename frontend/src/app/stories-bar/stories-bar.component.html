@@ -87,13 +87,13 @@
                <div cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="dropStory($event)" class="stories-drop-container">
                  <mat-accordion displayMode="flat" class="stories-accordion">
                    @for (s of getSortedStories(); track s; let i = $index) {
-                     <mat-expansion-panel class="story-expansion-panel cdk-drag"
-                       [class.cdk-drag-dragging]="s === selectedStory"
+                     <mat-expansion-panel [cdkDrag] class="story-expansion-panel cdk-drag"
+                        [class.cdk-drag-dragging]="s === selectedStory()"
                        [expanded]="storyExpansion().has(s)"
                        (opened)="toggleStoryExpansion(s)" (closed)="toggleStoryExpansion(s)">
                        <mat-expansion-panel-header>
                          <mat-panel-title id="storyList" tabindex="0" role="button"
-                           [class.selected]="s.issue_number === selectedStory?.issue_number"
+                            [class.selected]="s.issue_number === selectedStory()?.issue_number"
                            style="cursor:pointer">
                            @if (!isCustomStory()) {
                              <span class="jiraGithubStoryIcons">
@@ -114,7 +114,7 @@
                            <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
                            <a class="storyListLink" maxlength="10" id="{{'story' + i}}"
                              matTooltip="{{s.title}}" title="{{s.title}}">
-                             {{s.issue_number}}. {{s.title}}
+                             {{s.issue_number && s.issue_number > 0 ? s.issue_number : i + 1}}. {{s.title}}
                            </a>
                          </mat-panel-title>
                        </mat-expansion-panel-header>
@@ -182,12 +182,12 @@
                   <hr>
 <div class="groups-list-container" cdkDropList (cdkDropListDropped)="dropGroup($event)">
                       <mat-accordion displayMode="flat" class="groups-accordion">
-                        @for (g of getSortedGroups(); track g; let i = $index) {
-                          <mat-expansion-panel class="group-expansion-panel cdk-drag" (opened)="onGroupOpened(g)" (closed)="onGroupClosed(g)">
+                        @for (g of getSortedGroups(); track g._id; let i = $index) {
+                          <mat-expansion-panel [cdkDrag] class="group-expansion-panel cdk-drag" (opened)="onGroupOpened(g)" (closed)="onGroupClosed(g)">
                            <mat-expansion-panel-header>
                              <mat-panel-title class="group-panel-title" tabindex="0" role="button"
-                               (click)="selectFirstStoryOfGroup(g);evaluateAndRunGroup(g);$event.preventDefault();"
-                               (keydown.enter)="selectFirstStoryOfGroup(g);evaluateAndRunGroup(g);$event.preventDefault();">
+                               (click)="selectFirstStoryOfGroup(g);$event.preventDefault();"
+                               (keydown.enter)="selectFirstStoryOfGroup(g);$event.preventDefault();">
                                <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}"
                                  matTooltip="{{g.name}}" title="{{g.name}}">
                                  <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>

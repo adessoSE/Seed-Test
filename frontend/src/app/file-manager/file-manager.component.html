@@ -18,12 +18,12 @@
           <div class="searchFile">
             <input class="form-control" type="text" name="search" [(ngModel)]="searchText" (input)="searchFile()"
               autocomplete="off" placeholder="Search file...">
-              <span uk-icon="search"></span>
+              <mat-icon>search</mat-icon>
             </div>
             <div class="uploadFile normalButton">
               <label class="label">
                 <input type="file" (change)="selectUploadFile($event)" required />
-                <span uk-icon="upload"></span>Upload
+                <mat-icon>upload</mat-icon>Upload
               </label>
             </div>
           </div>
@@ -44,7 +44,7 @@
                       <th mat-header-cell *matHeaderCellDef class="fileCell">Name</th>
                       <td mat-cell *matCellDef="let file" class="fileCell fileNameCell">
                         <div class="fileNameContainer">
-                          <span class="fileIcon" uk-icon="file-text"></span>{{file.filename}}
+                          <span class="fileIcon"><mat-icon>description</mat-icon></span>{{file.filename}}
                         </div>
                       </td>
                     </ng-container>
@@ -72,7 +72,7 @@
                       <th mat-header-cell *matHeaderCellDef class="fileCell">Name</th>
                       <td mat-cell *matCellDef="let file" class="fileCell fileNameCell">
                         <div class="fileNameContainer">
-                          <span class="fileIcon" uk-icon="file-text"></span>{{file.filename}}
+                          <span class="fileIcon"><mat-icon>description</mat-icon></span>{{file.filename}}
                         </div>
                       </td>
                     </ng-container>
@@ -101,7 +101,7 @@
             <p style="font-size: large; font-style: italic;">There are no files in this project yet</p>
             <label class="label normalButton">
               <input type="file" (change)="selectUploadFile($event)" required />
-              <span uk-icon="upload"></span>Upload
+              <mat-icon>upload</mat-icon>Upload
             </label>
           </div>
         </div>

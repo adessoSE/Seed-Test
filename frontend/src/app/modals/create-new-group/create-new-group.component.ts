@@ -94,7 +94,8 @@ export class CreateNewGroupComponent {
 			this.selectedStories = new Array<string>();
 			return false;
 		}
-		const exists = this.selectedStories.find((x) => {return x == story._id; });
+		const storyId = typeof story._id === 'object' && story._id !== null ? (story._id as { toHexString: () => string }).toHexString() : String(story._id ?? '');
+		const exists = this.selectedStories.find((x) => {return x == storyId; });
 		return exists !== undefined;
 	}
 
@@ -103,10 +104,14 @@ export class CreateNewGroupComponent {
      * @param story
      */
 	selectStory(story: Story) {
+		if (this.selectedStories === undefined) {
+			this.selectedStories = [];
+		}
+		const storyId = typeof story._id === 'object' && story._id !== null ? (story._id as { toHexString: () => string }).toHexString() : String(story._id ?? '');
 		if (this.isStoryChecked(story))
-			this.selectedStories = this.selectedStories!.filter(item => item !== story._id);
+			this.selectedStories = this.selectedStories!.filter(item => item !== storyId);
 		else
-			this.selectedStories!.push(story._id!);
+			this.selectedStories!.push(storyId);
     
 	}
 

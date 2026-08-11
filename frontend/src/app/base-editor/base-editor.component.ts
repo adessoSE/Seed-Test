@@ -32,6 +32,7 @@ import { MatFormField, MatSelect, MatOption } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription } from '@angular/material/expansion';
 import { MatTooltip } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Shape of the drag data attached to a step during drag-and-drop reordering
@@ -48,7 +49,7 @@ interface StepDragData {
 	templateUrl: './base-editor.component.html',
 	styleUrls: ['./base-editor.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe]
+	imports: [NgTemplateOutlet, CdkDropList, CdkDrag, NgClass, CdkDragHandle, CdkDragPreview, MatFormField, MatSelect, FormsModule, MatOption, ExampleTableComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTooltip, NewExampleComponent, NewStepRequestComponent, AddBlockFormComponent, SaveBlockFormComponent, FileExplorerModalComponent, SlicePipe, MatIconModule]
 })
 export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, AfterViewInit {
 	notify = inject(NotificationService);

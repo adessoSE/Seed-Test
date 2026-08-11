@@ -14,6 +14,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { WindowSizeComponent } from '../window-size/window-size.component';
 
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
 	selector: 'app-workgroup-edit',
@@ -23,7 +24,7 @@ import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, Ma
 		'../layout-modal/layout-modal.component.css'
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
+	imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatIconModule]
 })
 export class WorkgroupEditComponent {
 	private modalService = inject(NgbModal);
@@ -31,6 +32,9 @@ export class WorkgroupEditComponent {
 	private notify = inject(NotificationService);
 	dialog = inject(MatDialog);
 	apiService = inject(ApiService);
+
+	/** Whether the AI module is available on the backend — hides AI settings tab when unavailable */
+	readonly isAiAvailable = signal(false);
 
 	/**
    * Columns of the workgroup table
@@ -210,13 +214,17 @@ export class WorkgroupEditComponent {
 	}
 
 	/**
-   * Opens the workgroup edit modal
-   */
+    * Opens the workgroup edit modal
+    */
 	openWorkgroupEditModal(project: RepositoryContainer, userEmail: string, userId: string) {
 		this.userEmail = userEmail;
 		this.userId = userId;
 		this.workgroupList.set([]);
 		this.workgroupProject = project;
+		// Check AI availability on open so the AI tab can be conditionally hidden
+		this.projectService.checkAiAvailability().subscribe(available => {
+			this.isAiAvailable.set(available);
+		});
 		if (!this.workgroupProject.aiConfig) 
 			this.workgroupProject.aiConfig = {
 				textPreparation: {
@@ -375,17 +383,18 @@ export class WorkgroupEditComponent {
 		project.aiConfig = {
 			textPreparation: {
 				provider: 'custom' as const,
-				name: project.aiConfig!.textPreparation.name,
-				modelName: project.aiConfig!.textPreparation.modelName,
-				baseURL: project.aiConfig!.textPreparation.baseURL,
-				apiKey: project.aiConfig!.textPreparation.apiKey
+				// Fall back to 'local' when textPreparation is missing entirely (imported repo without AI config)
+				name: project.aiConfig?.textPreparation?.name ?? 'local',
+				modelName: project.aiConfig?.textPreparation?.modelName ?? '',
+				baseURL: project.aiConfig?.textPreparation?.baseURL ?? '',
+				apiKey: project.aiConfig?.textPreparation?.apiKey ?? ''
 			},
 			jsonConversion: {
 				provider: 'custom' as const,
-				name: project.aiConfig!.jsonConversion.name,
-				modelName: project.aiConfig!.jsonConversion.modelName,
-				baseURL: project.aiConfig!.jsonConversion.baseURL,
-				apiKey: project.aiConfig!.jsonConversion.apiKey
+				name: project.aiConfig?.jsonConversion?.name ?? 'local',
+				modelName: project.aiConfig?.jsonConversion?.modelName ?? '',
+				baseURL: project.aiConfig?.jsonConversion?.baseURL ?? '',
+				apiKey: project.aiConfig?.jsonConversion?.apiKey ?? ''
 			}
 		};
 

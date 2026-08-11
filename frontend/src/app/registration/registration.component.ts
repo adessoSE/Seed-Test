@@ -5,6 +5,7 @@ import { NotificationService } from '../Services/notification.service';
 import { ThemingService } from '../Services/theming.service';
 import { LoginService } from '../Services/login.service';
 import { PasswordConfirmedValidatorDirective } from '../directives/password-confirmed.directive';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Component to register a new user
@@ -14,7 +15,7 @@ import { PasswordConfirmedValidatorDirective } from '../directives/password-conf
 	templateUrl: './registration.component.html',
 	styleUrls: ['./registration.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [FormsModule, PasswordConfirmedValidatorDirective]
+	imports: [FormsModule, PasswordConfirmedValidatorDirective, MatIconModule]
 })
 
 export class RegistrationComponent implements OnInit {

@@ -2,7 +2,7 @@
   <app-layout-modal />
   <div [class.darkTheme] ="isDark()" class="modal-header">
     <span id="modalHeader" class="MediumSubline1H4 modal-title">Edit Block</span>
-    <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
+    <dfn class="def"><span class="infoIcon icon-wrapper"><mat-icon>info</mat-icon></span>
     <span rel="def">Edit a saved Block. Scenarios that use this block will be updated.
     </span>
   </dfn>
@@ -21,7 +21,7 @@
     <div class="BlockHeaderContainer">
       <div>
         <span id="scenarioHeader" class="Smallnavigation2">Block</span>
-        <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
+        <dfn class="def"><span class="infoIcon icon-wrapper"><mat-icon>info</mat-icon></span>
         <span rel="def" id="blockInfoTextPosition">A Block contains Steps and can be used across
           Scenarios.
           Scenarios, that have a Reference to the Block will be changed, if the Block is changed.
