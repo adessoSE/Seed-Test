@@ -305,7 +305,13 @@ export class StoriesBarComponent implements OnChanges {
 		const custom = this.scenarioService.scenarioStatusChange();
 		if (!custom) return;
 		const stories = this.stories();
-		const storyIndex = stories.findIndex(story => story._id === custom.storyId);
+		// custom.storyId is a string, but story._id is a MongoDB ObjectId at runtime — convert before comparing
+		const storyIndex = stories.findIndex(story => {
+			const storyIdStr = typeof story._id === 'object' && story._id !== null
+				? (story._id as { toHexString: () => string }).toHexString()
+				: String(story._id ?? '');
+			return storyIdStr === custom.storyId;
+		});
 		if (storyIndex === -1) return;
 		const scenarioIndex = stories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
 		if (scenarioIndex === -1) return;
@@ -339,11 +345,6 @@ export class StoriesBarComponent implements OnChanges {
 			if (this.selectedStory())
 				this.selectStory(this.selectedStory()!);
 
-		}
-		if (changes.stories && changes.stories.currentValue) {
-			const filtered = changes.stories.currentValue.filter((s: Story) => s != null);
-			this.stories.set(filtered);
-			this.filteredStories.set(filtered);
 		}
 	}
 
@@ -562,9 +563,21 @@ export class StoriesBarComponent implements OnChanges {
 		this.selectedGroup = group;
 	}
 
+	/**
+     * Selects the story matching a member_stories ID.
+     * Converts story._id (MongoDB ObjectId at runtime) to string for comparison.
+     * @param id The story ID (hex string) from group.member_stories
+     */
 	selectStoryOfGroup(id: string) {
-		const story = this.stories().find(o => o._id === id);
-		this.selectStory(story!);
+		const story = this.stories().find(s => {
+			const storyId = typeof s._id === 'object' && s._id !== null
+				? (s._id as { toHexString: () => string }).toHexString()
+				: String(s._id ?? '');
+			return storyId === id;
+		});
+		if (story)
+			this.selectStory(story);
+
 	}
 
 	/**
@@ -723,10 +736,16 @@ export class StoriesBarComponent implements OnChanges {
 				filter = stories;
 				break;
 		}
-		// filter for group membership (member_stories contains story IDs)
+		// CASE: Filter by group membership — member_stories contains string IDs,
+		// but story._id is a MongoDB ObjectId at runtime; convert before comparing
 		if (this.groupModel !== undefined) {
 			const group = this.groups().filter(grp => grp.name == this.groupModel)[0];
-			filter = filter.filter(story => group.member_stories.includes(story._id!));
+			filter = filter.filter(story => {
+				const storyId = typeof story._id === 'object' && story._id !== null
+					? (story._id as { toHexString: () => string }).toHexString()
+					: String(story._id ?? '');
+				return group.member_stories.includes(storyId);
+			});
 		}
 
 		// filter for assignee in testPassed filter result
