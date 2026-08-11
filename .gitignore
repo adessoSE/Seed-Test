@@ -87,3 +87,10 @@ opencode.jsonc
 
 # AI tool config — commit project-level config, ignore ephemeral data
 .claude/worktrees/
+
+# Agent working files (local tracking only, never committed)
+docs/buglist.md
+**/VORGEHENSWEISE.md
+workers/
+tasks/
+tasks/archive/

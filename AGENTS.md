@@ -199,3 +199,5 @@ Always gitignore: `.feature`, `reporting_*`, `dist/`, `node_modules/`, `.env`, `
 
 ## SonarCloud
 Frontend-only: project key `adessoAG_Seed-Test`, test inclusions `**/*.spec.ts`, report at `frontend/coverage/lcov.info`.
+
+**Task tracking**: `docs/tasks.md` (live board, gitignored) — `workers/` (scopes) — `tasks/` (lifecycle). See `tasks/README.md` for lifecycle rules.
