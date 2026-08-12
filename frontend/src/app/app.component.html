@@ -69,9 +69,10 @@
               [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark()}" title="Switch to dark/light mode" />
               <mat-icon>bedtime</mat-icon>
             </div>
-            <div #helpWrapper class="help-wrapper" (mouseenter)="onHelpHover(helpTrigger)" (mouseleave)="onHelpLeave(helpTrigger)">
-              <button class="rightButton help-button" [matMenuTriggerFor]="helpMenu" #helpTrigger="matMenuTrigger">Help</button>
-              <mat-menu #helpMenu="matMenu" class="help-menu-panel" (menuOpened)="onHelpMenuOpened()" (menuClosed)="onHelpMenuClosed()">
+            <button class="rightButton help-button" [matMenuTriggerFor]="helpMenu" #helpTrigger="matMenuTrigger"
+              (mouseenter)="onHelpHover(helpTrigger)"
+              (mouseleave)="onHelpLeave(helpTrigger)">Help</button>
+            <mat-menu #helpMenu="matMenu" class="help-menu-panel">
               <a mat-menu-item rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
               target="_blank">Tutorial (german)</a>
               <a mat-menu-item rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
