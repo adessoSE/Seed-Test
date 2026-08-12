@@ -1,11 +1,13 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { StoryEditorComponent } from './story-editor.component';
 import { Story } from '@shared/models/Story';
 import { Scenario } from '@shared/models/Scenario';
+import { Background } from '@shared/models/Background';
 import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { MatTableModule } from '@angular/material/table';
@@ -133,6 +135,8 @@ describe('StoryEditorComponent', () => {
 			const emptyBackgroundAfterDelete = {name: '', saved: true, stepDefinitions: {when: []}};
 			component.stories.set(stories);
 			component.selectedStory.set(stories[0]);
+			// Mock deleteBackground to emit synchronously so the subscribe callback fires immediately
+			vi.spyOn(component.backgroundService, 'deleteBackground').mockReturnValue(of({stepDefinitions: { when: [] }} as unknown as Background));
 
 			component.deleteBackground();
 			expect(component.showBackground()).toBeFalsy();

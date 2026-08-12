@@ -63,14 +63,6 @@ interface TestReport {
 }
 
 /**
- * Empty background
- */
-const emptyBackground: Background = {
-	name: 'New Background',
-	stepDefinitions: { when: [] }
-};
-
-/**
  * Component for the Story editor
  */
 @Component({
@@ -689,16 +681,20 @@ handleSizeChange(event: { width: number; height: number }) {
 		this.openBlockModal = undefined;
 		const storedStory = this.selectedStory();
 		/**
-     * when loading for group is displayed scroll to it
-     */
+      * when loading for group is displayed scroll to it
+      */
 		if (this.testRunningGroup === true) {
 			const loadingScreen = document.getElementById('loading');
 			loadingScreen!.scrollIntoView();
 		}
 		if (storedStory && this.stories().length && this.blocks().length) {
+			// CASE: Story has no background — replace via signal update so consumers are notified
 			if (!storedStory.background) {
-				// Replace the story object with a new reference so the signal notifies consumers
-				this.selectedStory.update(s => ({...s!, background: {name: '', saved: true, stepDefinitions: { when: [] }}}));
+				this.selectedStory.update((s) =>
+					s ? { ...s, background: { name: '', stepDefinitions: { when: [] }, saved: true } } : s
+				);
+			} else {
+				this.storeCurrentBackground(storedStory.background);
 			}
 			this.storeCurrentBackground(this.selectedStory()!.background);
 			this.backgrounds = this.stories()
@@ -1056,6 +1052,7 @@ handleSizeChange(event: { width: number; height: number }) {
 	deleteBackground() {
 		const story = this.selectedStory();
 		if (!story) return;
+		const oldName = story.background.name;
 		this.backgroundService
 			.deleteBackground(story._id!)
 			.subscribe((_) => {
@@ -1063,11 +1060,13 @@ handleSizeChange(event: { width: number; height: number }) {
 				const blockBackgrounds = this.blocks().filter((b) => b.isBackground);
 				if (blockBackgrounds)
 					for (const block of this.blocks())
-						if (block.name == story.background.name) 
+						if (block.name == oldName) 
 							this.blockService.checkBackgroundsOnDelete(block, this.stories());
          
-				// Replace the story object with a new reference so the signal notifies consumers
-				this.selectedStory.update(s => ({...s!, background: {name: '', saved: true, stepDefinitions: { when: [] }}}));
+				// Replace the background via signal update to notify consumers of the new reference
+				this.selectedStory.update((s) =>
+					s ? { ...s, background: { name: '', stepDefinitions: { when: [] }, saved: true } } : s
+				);
 			});
 	}
 
