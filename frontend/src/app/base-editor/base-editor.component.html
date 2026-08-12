@@ -424,7 +424,7 @@
                             <!-- [class.disabled]="(stepDefs.example.length <= 0 && sd === 'example')"
                             [disabled]="(stepDefs.example.length <= 0 && sd === 'example')" -->
                             @if (name!=='block-editor') {
-                              <div class="hover-dropdown add-step-btn-wrapper" style="display: inline-block;">
+                              <div class="hover-dropdown add-step-btn-wrapper">
                                 @if (sd !== 'example') {
                                   <button id="{{name+'_add_step' + i}}" class="addStepButton" matTooltip="Add New Step">
                                     <em class="material-icons addStep">add_circle_outline</em>
@@ -692,7 +692,7 @@
                                   }
                                 </div>
                                 <br>
-                                  <div class="hover-dropdown add-step-btn-wrapper" style="display: inline-block;">
+                                  <div class="hover-dropdown add-step-btn-wrapper">
                                     <button id="{{name+'_add_step_'+ i}}" class="addStepButton" [class.disabled]="testRunning()"
                                       [disabled]="testRunning()" matTooltip="Add New Step">
                                       <em class="material-icons addStep">add_circle_outline</em>

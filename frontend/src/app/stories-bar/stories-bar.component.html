@@ -114,7 +114,8 @@
                            <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
                            <a class="storyListLink" maxlength="10" id="{{'story' + i}}"
                              matTooltip="{{s.title}}" title="{{s.title}}">
-                             {{s.issue_number && s.issue_number > 0 ? s.issue_number : i + 1}}. {{s.title}}
+                              <!-- Display fallback: use i + 1 when issue_number is missing (local stories) -->
+                              {{s.issue_number && s.issue_number > 0 ? s.issue_number : i + 1}}. {{s.title}}
                            </a>
                          </mat-panel-title>
                        </mat-expansion-panel-header>
@@ -126,7 +127,8 @@
                                [class.passed]="scen.lastTestPassed && scen.lastTestPassed !== undefined" [class.notTested]=""
                                tabindex="0" role="button" (click)="selectScenario(scen);" (keydown.enter)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
                                <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                               #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
+                                <!-- Display fallback for scenario: use i + 1 when issue_number is missing -->
+                                #{{s.issue_number || i + 1}}.{{c+1}} {{scen.name | titlecase}}
                                @if (scen.lastTestPassed && scen.lastTestPassed !== undefined) {
                                  <mat-icon class="icon passed"
                                  >check_circle_outline</mat-icon>
@@ -211,7 +213,8 @@
                                  @if (getStoryById(storyId); as story) {
                                    <a class="Largecaption scenarioListItem" cdkDrag>
                                      <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                                     {{story.issue_number}} {{story.title | titlecase}}
+                                      <!-- Display fallback for local stories: use the group-local index when issue_number is missing -->
+                                      {{story.issue_number || $index + 1}} {{story.title | titlecase}}
                                    </a>
                                  }
                                </li>
