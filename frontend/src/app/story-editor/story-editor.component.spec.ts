@@ -130,13 +130,13 @@ describe('StoryEditorComponent', () => {
 
 	describe('deleteBackgroundd', () => {
 		it('should delete the background', () => {
-			const emptyBackground = {stepDefinitions: {when: []}};
+			const emptyBackgroundAfterDelete = {name: '', saved: true, stepDefinitions: {when: []}};
 			component.stories.set(stories);
 			component.selectedStory.set(stories[0]);
 
 			component.deleteBackground();
 			expect(component.showBackground()).toBeFalsy();
-			expect(component.selectedStory()?.background).toEqual(emptyBackground);
+			expect(component.selectedStory()?.background).toEqual(emptyBackgroundAfterDelete);
 		});
 	});
 

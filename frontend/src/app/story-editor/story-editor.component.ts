@@ -696,11 +696,11 @@ handleSizeChange(event: { width: number; height: number }) {
 			loadingScreen!.scrollIntoView();
 		}
 		if (storedStory && this.stories().length && this.blocks().length) {
-			if (storedStory.background) {
-				this.storeCurrentBackground(storedStory.background);
-			} else {
-				storedStory.background = emptyBackground;
+			if (!storedStory.background) {
+				// Replace the story object with a new reference so the signal notifies consumers
+				this.selectedStory.update(s => ({...s!, background: {name: '', saved: true, stepDefinitions: { when: [] }}}));
 			}
+			this.storeCurrentBackground(this.selectedStory()!.background);
 			this.backgrounds = this.stories()
 				.filter((s) => s !== null)
 				.map((s) => s.background);
@@ -1065,10 +1065,9 @@ handleSizeChange(event: { width: number; height: number }) {
 					for (const block of this.blocks())
 						if (block.name == story.background.name) 
 							this.blockService.checkBackgroundsOnDelete(block, this.stories());
-          
-        
-				story.background = emptyBackground;
-				story.background.saved = true;
+         
+				// Replace the story object with a new reference so the signal notifies consumers
+				this.selectedStory.update(s => ({...s!, background: {name: '', saved: true, stepDefinitions: { when: [] }}}));
 			});
 	}
 
