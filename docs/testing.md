@@ -254,13 +254,7 @@ Agents automatically have `browser_navigate`, `browser_click`, `browser_snapshot
 
 ### Agent discipline — port hygiene
 
-Agents **must clean up after themselves** when using Playwright MCP:
-
-1. **No standalone dev servers** — Agents must use the existing Docker/Podman stack (`docker compose up -d` or `podman` equivalent). Never start `ng serve` or `npm run dev` independently.
-2. **Never occupy ports 4200 or 8080** — These are the user's development ports. Agents must check they are free before assuming the stack is down; if the user's app is already running there, use it.
-3. **Shut down what you start** — If an agent starts a process (e.g. a test container, a temp server), it must kill it on completion. Use `try/finally` or `Promise.finally()`.
-4. **Docker containers** — Agents may restart Docker containers (`docker compose restart`) but must leave the stack running afterward so the user can continue testing.
-5. **Verify before leaving** — After testing, agents must confirm the app is accessible at `http://localhost:4200` (or report if they broke it).
+If an agent starts a local dev server (`ng serve`, `npm run dev`, etc.) for testing, it **must shut it down** afterwards. Never leave a process occupying ports 4200 or 8080 — those belong to the user's running instance.
 
 ## CI tests
 
