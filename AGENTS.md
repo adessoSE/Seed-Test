@@ -7,6 +7,7 @@ GitHub: `adessoSE/Seed-Test` (wiki/docs at `adessoAG/Seed-Test`). Open-source BD
 **Shared models**: `docs/shared-models.md` (all schema types + frontend copies)
 **Repo testing**: `docs/testing.md` (Vitest — backend + frontend)
 **Test execution engine**: `docs/test-execution.md` (Cucumber/Playwright/Selenium product feature)
+**Playwright MCP testing**: `docs/testing.md#playwright-mcp--browser-based-e2e-testing-via-agent` (agent-driven browser tests)
 
 ## Architecture
 Monorepo with 3 packages: `backend` (Express/TS), `frontend` (Angular 22), `shared` (TS models).

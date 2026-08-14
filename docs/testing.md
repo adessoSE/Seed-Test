@@ -213,6 +213,55 @@ The earlier issue — `import-export.service.ts` needs MongoDB transactions, whi
 
 The original version of the cascade tests contained a test that seeded a workgroup with the owner as the only member and assumed a bug because `deleteRepository()` entered the transfer branch (`workgroup.Members.length > 0`). Analysis of the production code revealed: **That is not a bug.** The owner is never in `Members` in the application — `transferOwnership()` and `promoteNewOwner()` remove the new owner from Members, and `addMember()` blocks duplicates. The misleading test was replaced with a realistic ownership-transfer test with a real second member.
 
+## Playwright MCP — Browser-based E2E testing via Agent
+
+The Playwright MCP (`@playwright/mcp`) is configured in `opencode.jsonc` and lets agent sessions control a real Chromium browser. This is **not** a test-framework; it's a tool for agents to verify UI changes interactively.
+
+### How agents use Playwright MCP
+
+Agents automatically have `browser_navigate`, `browser_click`, `browser_snapshot`, `browser_screenshot` etc. available whenever the MCP server is running. No special import needed — just describe what to do.
+
+### Typical testing workflow
+
+```
+1. Start stack:  docker compose up -d (or podman equivalent)
+2. In agent prompt: "Use Playwright MCP to open http://localhost:4200/login,
+   log in with seed@test.de / seedtest, and verify X"
+3. Agent navigates, fills forms, clicks, takes screenshots
+4. Agent reports what worked/didn't
+```
+
+### Known working patterns (from benchmarks)
+
+| Action | How agents did it | Notes |
+|---|---|---|
+| Login | `browser_navigate` → fill email+password → click submit → wait for redirect | Works reliably |
+| Story numbering | Open project → read story titles → check numbers are unique | CSS-only fix (no wrapper) verified via this method |
+| Group creation | Click groups tab → create group → verify in UI | Signal-reset fix verified |
+| Screenshots | `browser_screenshot` | Saves to MCP temp directory |
+
+### When Playwright MCP fails
+
+- **Docker not running**: Agent needs to check `docker ps` first (or the equivalent)
+- **App not compiled**: Run `ng build` or wait for Docker rebuild
+- **MCP not configured**: Must be listed in `opencode.jsonc` `mcp` section (already done)
+
+### Limitations
+
+- No `@playwright/test` assertion library — agents assert manually via DOM inspection
+- Headless by default — agents can set `headless: false` for debugging
+- One browser session per MCP connection; state (cookies, localStorage) persists until disconnect
+
+### Agent discipline — port hygiene
+
+Agents **must clean up after themselves** when using Playwright MCP:
+
+1. **No standalone dev servers** — Agents must use the existing Docker/Podman stack (`docker compose up -d` or `podman` equivalent). Never start `ng serve` or `npm run dev` independently.
+2. **Never occupy ports 4200 or 8080** — These are the user's development ports. Agents must check they are free before assuming the stack is down; if the user's app is already running there, use it.
+3. **Shut down what you start** — If an agent starts a process (e.g. a test container, a temp server), it must kill it on completion. Use `try/finally` or `Promise.finally()`.
+4. **Docker containers** — Agents may restart Docker containers (`docker compose restart`) but must leave the stack running afterward so the user can continue testing.
+5. **Verify before leaving** — After testing, agents must confirm the app is accessible at `http://localhost:4200` (or report if they broke it).
+
 ## CI tests
 
 GitHub Actions CI (`CI_Tests_and_Report.yaml`) runs:
