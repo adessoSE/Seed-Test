@@ -20,6 +20,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@shared': path.resolve(import.meta.dirname, '../shared/src'),
+		'@seed-test/shared': path.resolve(import.meta.dirname, '../shared/src'),
 		},
 	},
 });

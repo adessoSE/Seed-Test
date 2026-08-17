@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import * as userController from '../controllers/user.controller.js';
 import { isAuthenticated } from '../middleware/authenticate.js';
 import { validate } from '../middleware/validate.js';
-import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema, githubLoginSchema, githubRegisterSchema } from '@shared/schemas/user.schemas.js';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema, githubLoginSchema, githubRegisterSchema } from '@seed-test/shared/schemas/user.schemas.js';
 
 const router = express.Router();
 

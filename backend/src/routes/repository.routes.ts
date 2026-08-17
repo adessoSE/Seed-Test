@@ -2,7 +2,7 @@ import express from 'express';
 import * as repositoryController from '../controllers/repository.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { createRepositorySchema, updateSettingsSchema, transferOwnerSchema } from '@shared/schemas/repository.schemas.js';
+import { createRepositorySchema, updateSettingsSchema, transferOwnerSchema } from '@seed-test/shared/schemas/repository.schemas.js';
 
 const router = express.Router();
 

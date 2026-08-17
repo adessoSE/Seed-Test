@@ -2,7 +2,7 @@ import express from 'express';
 import * as testExecutionController from '../controllers/testExecution.controller.js';
 import { authorizeRepo, authorizeByStory } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { runTempGroupSchema, runTestSchema } from '@shared/schemas/testExecution.schemas.js';
+import { runTempGroupSchema, runTestSchema } from '@seed-test/shared/schemas/testExecution.schemas.js';
 
 const router = express.Router();
 

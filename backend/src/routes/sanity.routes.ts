@@ -4,7 +4,7 @@ import initializePassport from '../passport-config.js';
 import * as userService from '../services/user.service.js';
 import * as sanityController from '../controllers/sanity.controller.js';
 import { validate } from '../middleware/validate.js';
-import { sanityTestSchema } from '@shared/schemas/sanity.schemas.js';
+import { sanityTestSchema } from '@seed-test/shared/schemas/sanity.schemas.js';
 
 const router = express.Router();
 

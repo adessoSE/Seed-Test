@@ -2,7 +2,7 @@ import express from 'express';
 import * as blockController from '../controllers/block.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { saveBlockSchema, updateBlockSchema } from '@shared/schemas/block.schemas.js';
+import { saveBlockSchema, updateBlockSchema } from '@seed-test/shared/schemas/block.schemas.js';
 
 const router = express.Router();
 

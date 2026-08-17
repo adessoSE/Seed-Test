@@ -2,7 +2,7 @@ import express from 'express';
 import * as workgroupController from '../controllers/workgroup.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { addMemberSchema, updateMemberSchema, removeMemberSchema } from '@shared/schemas/workgroup.schemas.js';
+import { addMemberSchema, updateMemberSchema, removeMemberSchema } from '@seed-test/shared/schemas/workgroup.schemas.js';
 
 const router = express.Router();
 

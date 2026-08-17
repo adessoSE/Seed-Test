@@ -1,7 +1,7 @@
 import express from 'express';
 import * as jiraController from '../controllers/jira.controller.js';
 import { validate } from '../middleware/validate.js';
-import { linkJiraSchema, jiraLoginSchema, updateXrayStatusSchema } from '@shared/schemas/jira.schemas.js';
+import { linkJiraSchema, jiraLoginSchema, updateXrayStatusSchema } from '@seed-test/shared/schemas/jira.schemas.js';
 
 const router = express.Router();
 

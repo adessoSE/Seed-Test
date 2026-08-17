@@ -4,7 +4,7 @@ import path from 'node:path';
 import * as storyController from '../controllers/story.controller.js';
 import { authorizeRepo, authorizeByStory, authorizeByIssueKey } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema, updateStoryOrderSchema } from '@shared/schemas/story.schemas.js';
+import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema, updateStoryOrderSchema } from '@seed-test/shared/schemas/story.schemas.js';
 import { AppError } from '../helpers/AppError.js';
 
 const router = express.Router();
