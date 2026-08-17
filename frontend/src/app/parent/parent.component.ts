@@ -101,38 +101,61 @@ export class ParentComponent implements OnInit {
 	}
 
 	/**
-   * Leads the stories of the current selected repository
-   */
+    * Leads the stories of the current selected repository
+    */
 	loadStories() {
 		// Bail early if no repository is selected — prevents endless "Loading Stories ..." spinner
 		// when navigating to the root route without a selected repo (e.g., pressing back after login).
 		const repoId = localStorage.getItem('id');
-		if (!repoId) return;
+		if (!repoId) {
+			// Ensure loading state is cleared — set empty arrays so UI doesn't hang on spinner
+			this.stories.set([]);
+			return;
+		}
 
 		// 1. Fetch the complete list of repositories
-		this.projectService.getRepositories().subscribe((allRepos: RepositoryContainer[]) => {
-			this.repositories = allRepos;
+		this.projectService.getRepositories().subscribe({
+			next: (allRepos: RepositoryContainer[]) => {
+				this.repositories = allRepos;
 
-			// 2. Find the full, currently selected repository object from the list
-			const selectedRepo = this.repositories.find(repo => repo._id === repoId)!;
-			this.selectedRepository.set(selectedRepo);
+				// 2. Find the full, currently selected repository object from the list
+				const selectedRepo = this.repositories.find(repo => repo._id === repoId);
+				this.selectedRepository.set(selectedRepo);
 
-			// 3. If the full repository object is found, load its stories
-			if (selectedRepo)
-				this.storyService
-					.getStories(selectedRepo)
-					.subscribe((resp: Story[]) => {
-						this.stories.set(resp);
-						this.routing(); // Handle routing after stories are loaded
+				// 3. If the full repository object is found, load its stories
+				if (selectedRepo)
+					this.storyService.getStories(selectedRepo).subscribe({
+						next: (resp: Story[]) => {
+							this.stories.set(resp);
+							this.routing(); // Handle routing after stories are loaded
+						},
+						error: () => {
+							// Prevent "Loading Stories ..." spinner from hanging on API failure
+							this.stories.set([]);
+						}
 					});
-      
+				else {
+					// Repository from localStorage not found in server response — user may lack access
+					this.stories.set([]);
+				}
+			},
+			error: () => {
+				// API failure — clear stories so UI doesn't hang on spinner
+				this.stories.set([]);
+			}
 		});
 
 		// Also load the groups for the current repository
 		this.groupService
 			.getGroups(repoId)
-			.subscribe((resp: Group[]) => {
-				this.groups = resp;
+			.subscribe({
+				next: (resp: Group[]) => {
+					this.groups = resp;
+				},
+				error: () => {
+					// Prevent spinner hang on group load failure
+					this.groups = [];
+				}
 			});
 	}
 

@@ -84,20 +84,20 @@
 <div [class.itemListDiv]="stories().length !== 0 && isCustomStory()"
                  [class.storyListDivNotCustom]="stories().length !== 0 && !isCustomStory()"
                  [class.storyListDivWithFilter]="showFilter">
-               <div cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="dropStory($event)" class="stories-drop-container">
-                 <mat-accordion displayMode="flat" class="stories-accordion">
-                   @for (s of getSortedStories(); track s; let i = $index) {
-                     <mat-expansion-panel [cdkDrag] class="story-expansion-panel cdk-drag"
-                        [class.cdk-drag-dragging]="s === selectedStory()"
-                       [expanded]="storyExpansion().has(s)"
-                       (opened)="toggleStoryExpansion(s)" (closed)="toggleStoryExpansion(s)">
-                       <mat-expansion-panel-header>
-                         <mat-panel-title id="storyList" tabindex="0" role="button"
-                            [class.selected]="s.issue_number === selectedStory()?.issue_number"
-                           style="cursor:pointer">
-                           @if (!isCustomStory()) {
-                             <span class="jiraGithubStoryIcons">
-                               <button class="toTicket" (click)="toTicket(s.issue_number);$event.stopPropagation();">
+<div cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="dropStory($event)" class="stories-drop-container">
+                  <mat-accordion displayMode="flat" class="stories-accordion">
+                    @for (s of storyNumbering().stories; track s; let i = $index) {
+                      <mat-expansion-panel [cdkDrag] class="story-expansion-panel cdk-drag"
+                         [class.cdk-drag-dragging]="selectedStory() === s"
+                        [expanded]="storyExpansion().has(s)"
+                        (opened)="toggleStoryExpansion(s)" (closed)="toggleStoryExpansion(s)">
+                        <mat-expansion-panel-header>
+                          <mat-panel-title id="storyList" tabindex="0" role="button"
+                             [class.selected]="selectedStory() === s"
+                            style="cursor:pointer">
+                            @if (!isCustomStory()) {
+                              <span class="jiraGithubStoryIcons">
+                                <button class="toTicket" (click)="toTicket(getIssueNumber(s));$event.stopPropagation();">
                                  <mat-icon class="toTicket">launch</mat-icon>
                                </button>
                                @if (s.assignee_avatar_url === null) {
@@ -111,11 +111,10 @@
                                }
                              </span>
                            }
-                           <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                           <a class="storyListLink" maxlength="10" id="{{'story' + i}}"
-                             matTooltip="{{s.title}}" title="{{s.title}}">
-                              <!-- Display fallback: use i + 1 when issue_number is missing (local stories) -->
-                              {{s.issue_number && s.issue_number > 0 ? s.issue_number : i + 1}}. {{s.title}}
+<em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                             <a class="storyListLink" maxlength="10" id="{{'story' + (i + 1)}}"
+                               matTooltip="{{s.title}}" title="{{s.title}}">
+                                {{getIssueNumber(s)}}. {{s.title}}
                            </a>
                          </mat-panel-title>
                        </mat-expansion-panel-header>
@@ -126,9 +125,8 @@
                                [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed !== undefined"
                                [class.passed]="scen.lastTestPassed && scen.lastTestPassed !== undefined" [class.notTested]=""
                                tabindex="0" role="button" (click)="selectScenario(scen);" (keydown.enter)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
-                               <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                                <!-- Display fallback for scenario: use i + 1 when issue_number is missing -->
-                                #{{s.issue_number || i + 1}}.{{c+1}} {{scen.name | titlecase}}
+<em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                                  #{{getIssueNumber(s)}}.{{c+1}} {{scen.name | titlecase}}
                                @if (scen.lastTestPassed && scen.lastTestPassed !== undefined) {
                                  <mat-icon class="icon passed"
                                  >check_circle_outline</mat-icon>
@@ -208,13 +206,12 @@
                            </mat-expansion-panel-header>
                            <ul class="group-story-drop-list" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList
                              cdkDropListLockAxis="y">
-                             @for (storyId of g.member_stories; track storyId) {
-                               <li tabindex="0" role="button" (click)="selectStoryOfGroup(storyId)" (keydown.enter)="selectStoryOfGroup(storyId)">
-                                 @if (getStoryById(storyId); as story) {
-                                   <a class="Largecaption scenarioListItem" cdkDrag>
-                                     <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                                      <!-- Display fallback for local stories: use the group-local index when issue_number is missing -->
-                                      {{story.issue_number || $index + 1}} {{story.title | titlecase}}
+@for (storyId of g.member_stories; track storyId) {
+                                <li tabindex="0" role="button" (click)="selectStoryOfGroup(storyId)" (keydown.enter)="selectStoryOfGroup(storyId)">
+                                  @if (getStoryById(storyId); as story) {
+                                    <a class="Largecaption scenarioListItem" cdkDrag>
+                                      <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                                    {{getIssueNumber(story)}} {{story.title | titlecase}}
                                    </a>
                                  }
                                </li>

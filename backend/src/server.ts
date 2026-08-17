@@ -115,21 +115,18 @@ app.use(httpLog);
 
 // --- Rate Limiting ---
 
-// Global API limiter — prevents abuse across all endpoints
 const globalLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
-	max: 100, // max 100 requests per minute per IP
+	max: 500, // 500 req/min/IP — generous for project setup (~70 page-loads at 7 calls each)
 	standardHeaders: true,
 	legacyHeaders: false,
 	message: { error: 'Too many requests, please try again later.' },
 	validate: { ip: false }
 });
 
-// Stricter limiter for log-flooding from unauthenticated clients
-// Increased to 500/min — NGXLogger can be chatty; global limiter (100/min) still protects all other routes
 const logLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1 minute
-	max: 500, // 500 log messages per minute per IP
+	max: 60, // 60 log messages per minute per IP
 	standardHeaders: true,
 	legacyHeaders: false,
 	message: { error: 'Too many log requests.' },
@@ -294,7 +291,11 @@ async function startServer() {
 		logger.info('Connecting to database...');
         
 		await dbConnector.establishConnection();
-		logger.info('Database connection established successfully.');
+		// Log the database connection target to help distinguish local vs Atlas
+		// The DATABASE_URI is masked to show hostname + db name only (credentials stripped)
+		const dbUri = validatedConfig.value?.DATABASE_URI ?? 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017';
+		const dbHost = dbUri.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@');
+		logger.info(`Database connection established successfully. (${dbHost})`);
         
 		server.listen(port, () => {
 			logger.info(`App now running on port: ${port}`);

@@ -67,11 +67,16 @@ export class StoriesBarComponent implements OnChanges {
 
 
 	/**
-     * Stories in the project — derived from service, writable for local mutations
+     * Stories in the project — derived from service, writable for local mutations.
+     * Normalizes issue_number to sequential integers (1-based) in array order,
+     * fixing the bug where all DB stories show "1" due to duplicate issue_number values.
      */
 	readonly stories = linkedSignal<Story[]>(() => {
 		const raw = this.storyService.stories();
-		return raw.filter(s => s != null);
+		return raw.filter(s => s != null).map((s, idx) => ({
+			...s,
+			issue_number: idx + 1
+		}));
 	});
 
 	/**
@@ -85,12 +90,18 @@ export class StoriesBarComponent implements OnChanges {
 	selectedScenario!: Scenario;
 
 	/**
-     * If it is a custom story — derived from whether current source is 'db'
+     * If it is a custom story — check localStorage source first, then verify we have stories loaded.
+     * localStorage check takes priority so "Create New Story" button is visible even in empty projects.
      */
 	readonly isCustomStory = linkedSignal(() => {
 		const stories = this.storyService.stories();
-		if (!stories.length) return false;
-		return localStorage.getItem('source') === 'db';
+		const source = localStorage.getItem('source');
+		// Priority 1: if source is set and isn't 'db', it's never custom regardless of stories
+		if (source && source !== 'db') return false;
+		// Priority 2: if source is 'db' (or unset), treat as custom if stories are empty or all are db-sourced
+		if (source === 'db') return true;
+		// Fallback: no source in localStorage — infer from stories array
+		return stories.length === 0 || stories.every(s => s.storySource === 'db' || s.repo_type === 'db');
 	});
 
 	/**
@@ -136,11 +147,15 @@ export class StoriesBarComponent implements OnChanges {
      */
 	groupString!: string;
 	/**
-     * Stories filtered for searchterm — derived from service, writable for local search filtering
+     * Stories filtered for searchterm — derived from service, writable for local search filtering.
+     * Normalizes issue_number the same way as the stories signal above.
      */
 	readonly filteredStories = linkedSignal<Story[]>(() => {
 		const raw = this.storyService.stories();
-		return raw.filter(s => s != null);
+		return raw.filter(s => s != null).map((s, idx) => ({
+			...s,
+			issue_number: idx + 1
+		}));
 	});
 
 	/**
@@ -157,6 +172,39 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Tracks which stories are expanded in the accordion */
 	readonly storyExpansion = signal<Map<Story, boolean>>(new Map());
+
+	/**
+     * Computes sequential numbering for stories. Falls back to position-based when issue_number is missing, null, or zero.
+     * @returns Stories array with a computed numbering property for display
+     */
+	storyNumbering() {
+		const stories = this.getSortedStories();
+		const numbering = new Map<Story, number>();
+		stories.forEach((s, index) => {
+			const num = s.issue_number;
+			const numVal = typeof num === 'string' ? parseInt(num, 10) : num;
+			if (typeof numVal === 'number' && numVal > 0)
+				numbering.set(s, numVal);
+			else
+				// Issue: issue_number is null/missing/0/invalid — assign position-based number for display
+				numbering.set(s, index + 1);
+		});
+		return { stories, numbering };
+	}
+
+	/**
+     * Returns the display issue number for a story (uses stored issue_number or falls back to position).
+     * @param story The story to get the number for
+     * @returns The issue number to display
+     */
+	getIssueNumber(story: Story): number | undefined {
+		const num = story.issue_number;
+		const numVal = typeof num === 'string' ? parseInt(num, 10) : num;
+		if (typeof numVal === 'number' && numVal > 0)
+			return numVal;
+		const stories = this.getSortedStories();
+		return stories.indexOf(story) + 1;
+	}
 
 	/**
      * Toggles story expansion in accordion
@@ -233,13 +281,19 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Creates a story via API, reloads story list, and selects the new story */
 	private async handleCreateStory(custom: CreateStoryPayload) {
-		await firstValueFrom(this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id!));
-		const resp = await firstValueFrom(this.storyService.getStories(custom.repositoryContainer));
-		const filtered = (resp as Story[]).filter(s => s != null);
-		this.stories.set(filtered);
-		this.filteredStories.set(filtered);
-		this.storyTermChange();
-		this.selectStory((resp as Story[])[(resp as Story[]).length - 1]);
+		// Reset the signal immediately to prevent re-firing on component re-initialization
+		this.storyService.createCustomStoryValue.set(null);
+		try {
+			await firstValueFrom(this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id!));
+			const resp = await firstValueFrom(this.storyService.getStories(custom.repositoryContainer));
+			const filtered = (resp as Story[]).filter(s => s != null);
+			this.stories.set(filtered);
+			this.filteredStories.set(filtered);
+			this.storyTermChange();
+			this.selectStory((resp as Story[])[(resp as Story[]).length - 1]);
+		} catch (error) {
+			this.notify.error('Failed to create story. Please try again.');
+		}
 	}
 
 	/** Effect: watch for custom group creation requests */
@@ -251,6 +305,8 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Creates a group via API, reloads group list, and opens the new group */
 	private async handleCreateGroup(custom: CreateGroupPayload) {
+		// Reset the signal immediately to prevent re-firing on component re-initialization
+		this.groupService.createCustomGroupValue.set(null);
 		await firstValueFrom(this.groupService.createGroup(custom.group.title, custom.repositoryContainer._id!, custom.group.member_stories, custom.group.isSequential));
 		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id!));
 		this.groups.set(resp as Group[]);
@@ -274,6 +330,8 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Updates a group via API and reloads the group list */
 	private async handleUpdateGroup(custom: UpdateGroupPayload) {
+		// Reset the signal immediately to prevent re-firing on component re-initialization
+		this.groupService.updateGroupValue.set(null);
 		await firstValueFrom(this.groupService.updateGroup(custom.repositoryContainer._id!, custom.group._id!, custom.group));
 		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id!));
 		this.groups.set(resp as Group[]);
@@ -288,6 +346,8 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Deletes a group via API and reloads the group list */
 	private async handleDeleteGroup(custom: DeleteGroupPayload) {
+		// Reset the signal immediately to prevent re-firing on component re-initialization
+		this.groupService.deleteGroupValue.set(null);
 		await firstValueFrom(this.groupService.deleteGroup(custom.repo_id, custom.group_id));
 		const resp = await firstValueFrom(this.groupService.getGroups(custom.repo_id));
 		this.groups.set(resp as Group[]);

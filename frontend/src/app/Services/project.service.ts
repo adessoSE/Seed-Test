@@ -170,10 +170,12 @@ export class ProjectService {
 	private repositoriesFetchInFlight = false;
 
 	/**
-   * Retrieves the repositories, caching the last HTTP response so all concurrent
-   * callers share a single request. Call refreshRepositories() to force a new fetch.
-   * @returns
-   */
+    * Retrieves the repositories, caching the last HTTP response so all concurrent
+    * callers share a single request. Call refreshRepositories() to force a new fetch.
+    * On HTTP error, logs the error and emits the sessionStorage fallback (if any) so the UI
+    * never hangs on a broken ReplaySubject. The next caller triggers a new fetch.
+    * @returns
+    */
 	getRepositories(): Observable<RepositoryContainer[]> {
 		// Lazy fetch — only runs HTTP once; subsequent subscribers get the cached ReplaySubject value
 		if (!this.repositoriesFetchInFlight) {
@@ -189,7 +191,22 @@ export class ProjectService {
 				)
 				.subscribe({
 					next: resp => this.repositoriesCache$.next(resp),
-					error: err => this.repositoriesCache$.error(err)
+					error: () => {
+						// Instead of killing the ReplaySubject (which would break all future subscribers),
+						// fall back to sessionStorage and reset the cache for next caller.
+						const cached = sessionStorage.getItem('repositories');
+						if (cached) {
+							try {
+								this.repositoriesCache$.next(JSON.parse(cached));
+							} catch {
+								this.repositoriesCache$.next([]);
+							}
+						} else {
+							this.repositoriesCache$.next([]);
+						}
+						// Allow next caller to retry the HTTP fetch
+						this.repositoriesFetchInFlight = false;
+					}
 				});
 		}
 
@@ -204,6 +221,8 @@ export class ProjectService {
 	refreshRepositories(): void {
 		this.repositoriesFetchInFlight = false;
 		this.repositoriesCache$ = new ReplaySubject<RepositoryContainer[]>(1);
+		// Reset the in-flight flag so the next call triggers a real HTTP fetch
+		this.repositoriesFetchInFlight = false;
 		// Immediately kick off a new fetch so subscribers don't wait
 		this.getRepositories();
 	}

@@ -84,7 +84,7 @@ export class UpdateGroupComponent {
 	}
 
 	groupUnique(form :NgForm) {
-		this.groupService.groupUnique('submitUpdateGroup', form.value.title, this.groups, this.group);
+		this.groupService.groupUnique('submitUpdateGroup', form.value.title, this.groups, this.scrGroup);
 	}
 
 	/**

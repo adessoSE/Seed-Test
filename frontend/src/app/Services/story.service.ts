@@ -122,9 +122,11 @@ export class StoryService {
 		const body = { 'title': title, 'description': description, 'repo': repository, '_id': _id };
 		return this.http
 			.post<Story>(this.apiService.apiServer + '/story/', body, ApiService.getOptions())
-			.pipe(tap(_ => {
-				//
-			}));
+			.pipe(
+				tap(_ => {
+					//
+				})
+			);
 	}
 	/**
     * updates a Story
@@ -165,8 +167,9 @@ export class StoryService {
 
 		return this.http
 			.get<Story[]>(this.apiService.apiServer + '/story/', { params, withCredentials: true })
-			.pipe(tap(resp => {
-				this.stories.set(resp);
+			.pipe(
+				tap(resp => {
+					this.stories.set(resp);
 			}), catchError(this.apiService.handleStoryError));
 	}
 	/**

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, retryWhen, tap, delayWhen } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, timer } from 'rxjs';
 import { User } from '@shared/models/User';
 import { RepositoryContainer } from '@shared/models/RepositoryContainer';
 
@@ -69,15 +69,37 @@ export class ApiService {
    * Gets api headers
    * @returns
    */
+	/**
+	 * Retries an HTTP request with exponential backoff on 429 (rate-limit) or network errors.
+	 * @param maxRetries Maximum number of retry attempts (default 3)
+	 * @returns An RxJS pipeable operator for retryWhen
+	 */
+	public static retryWithBackoff(maxRetries = 3) {
+		return retryWhen((errors: Observable<HttpErrorResponse>) =>
+			errors.pipe(
+				delayWhen((error, index) => {
+					const shouldRetry = index < maxRetries && (
+						error.status === 429 ||
+						error.status === 0 ||
+						error.status === 503
+					);
+					if (!shouldRetry) throw error;
+					const delayMs = Math.min(1000 * Math.pow(2, index), 4000);
+					return timer(delayMs);
+				})
+			)
+		);
+	}
+
 	public static getOptions() {
 		return { withCredentials: true };
 	}
 
 	/**
-   * Handles http error
-   * @param error
-   * @returns
-   */
+    * Handles http error
+    * @param error
+    * @returns
+    */
 	public handleError(error: HttpErrorResponse) {
 		console.log(JSON.stringify(error));
 		return throwError(() => error);

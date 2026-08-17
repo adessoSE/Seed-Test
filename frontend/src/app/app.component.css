@@ -279,11 +279,18 @@ a:hover{
   display: none;
 }
 
-/* Hover bridge for help menu: overlaps the trigger button so the mouse
-   can move from button to menu panel without a gap triggering close. */
+/* Remove ineffective margin-top from overlay — Material uses absolute positioning
+   with explicit top/left, so margin-top has no visual effect on the panel position. */
 ::ng-deep .help-menu-panel {
-  margin-top: 0;
-  padding-top: 4px;
+  padding-top: 12px !important;
+}
+
+/* Extend .help-button hit area downward to eliminate the gap between button
+   and menu panel that triggers premature mouseleave, causing the flicker. */
+.help-button {
+  position: relative;
+  overflow: visible;
+  padding-bottom: 8px;
 }
 
 .slide-toggle-container {
