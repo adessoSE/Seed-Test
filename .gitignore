@@ -89,6 +89,7 @@ opencode.jsonc
 .claude/worktrees/
 
 # Agent working files (local tracking only, never committed)
+docs/tasks.md
 docs/buglist.md
 **/VORGEHENSWEISE.md
 workers/
