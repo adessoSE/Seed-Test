@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema } from './user.schemas.js';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, githubLoginSchema, githubRegisterSchema } from './user.schemas.js';
 
 describe('loginSchema', () => {
 	it('accepts valid login', () => {
@@ -94,3 +94,44 @@ describe('mergeGithubSchema', () => {
 		expect(mergeGithubSchema.safeParse({}).success).toBe(false);
 	});
 });
+
+describe('githubLoginSchema', () => {
+	it('accepts valid github login credentials', () => {
+		const result = githubLoginSchema.safeParse({ login: 'octocat', id: 583234 });
+		expect(result.success).toBe(true);
+	});
+
+	it('coerces string id to integer', () => {
+		const result = githubLoginSchema.safeParse({ login: 'octocat', id: '583234' });
+		expect(result.success).toBe(true);
+		if (result.success) 
+			expect(result.data.id).toBe(583234);
+	});
+
+	it('rejects empty login', () => {
+		const result = githubLoginSchema.safeParse({ login: '', id: 123 });
+		expect(result.success).toBe(false);
+	});
+
+	it('rejects missing id', () => {
+		const result = githubLoginSchema.safeParse({ login: 'octocat' });
+		expect(result.success).toBe(false);
+	});
+});
+
+describe('githubRegisterSchema', () => {
+	it('accepts valid github registration payload', () => {
+		const result = githubRegisterSchema.safeParse({
+			login: 'octocat',
+			id: 583234,
+			avatar_url: 'https://github.com/images/error/octocat_happy.gif',
+			email: 'octocat@github.com'
+		});
+		expect(result.success).toBe(true);
+	});
+
+	it('rejects missing login or id', () => {
+		expect(githubRegisterSchema.safeParse({ email: 'test@test.de' }).success).toBe(false);
+	});
+});
+

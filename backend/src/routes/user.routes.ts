@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import * as userController from '../controllers/user.controller.js';
 import { isAuthenticated } from '../middleware/authenticate.js';
 import { validate } from '../middleware/validate.js';
-import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema } from '../schemas/user.schemas.js';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema, githubLoginSchema, githubRegisterSchema } from '../schemas/user.schemas.js';
 
 const router = express.Router();
 
@@ -69,6 +69,20 @@ router.patch('/reset', authLimiter, validate(resetPasswordSchema), userControlle
 router.get('/callback', userController.githubCallback);
 
 /**
+ * @route   POST /api/user/githubLogin
+ * @desc    Logs in a user with a GitHub account
+ * @access  Public
+ */
+router.post('/githubLogin', authLimiter, validate(githubLoginSchema), userController.githubLogin);
+
+/**
+ * @route   POST /api/user/githubRegister
+ * @desc    Registers a user with a GitHub account
+ * @access  Public
+ */
+router.post('/githubRegister', authLimiter, validate(githubRegisterSchema), userController.githubRegister);
+
+/**
  * @route   POST /api/user/mergeGithub
  * @desc    Merges a GitHub account with the logged-in user
  * @access  Private
@@ -97,9 +111,5 @@ router.delete('/', isAuthenticated, userController.deleteUser);
  * @access  Private
  */
 router.post('/update/:userID', isAuthenticated, validate(updateUserSchema), userController.updateUser);
-
-// Note: /githubLogin and /githubRegister from the old router seem redundant 
-// if the main flow is via the OAuth callback. They are omitted here.
-// If they served a different purpose (e.g., manual linking), they can be added back.
 
 export default router;

@@ -51,7 +51,7 @@ export default function initialize(
 	passport.use('normal-local', new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
 		void authenticateUser(email, password, done);
 	}));
-	passport.use('github-local', new LocalStrategy({ usernameField: 'login', passwordField: process.env.PASSPORT_GITHUB_LOCAL_PW_FIELD }, (login, id, done) => {
+	passport.use('github-local', new LocalStrategy({ usernameField: 'login', passwordField: process.env.PASSPORT_GITHUB_LOCAL_PW_FIELD || 'id' }, (login, id, done) => {
 		void authenticateUserGithub(login, id, done);
 	}));
 

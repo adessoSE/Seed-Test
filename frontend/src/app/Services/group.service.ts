@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { catchError, tap } from 'rxjs/operators';
 import { NotificationService } from './notification.service';
 import { Group } from '@shared/models/Group';
 import type { RepositoryContainer } from '@shared/models/RepositoryContainer';
@@ -32,7 +33,8 @@ interface GroupExecutionParams {
 
 /** Parameters for running a temporary group */
 interface TempGroupParams {
-	id: string | null;
+	id?: string | null;
+	repositoryId?: string | null;
 	repository: string | null;
 	source: string | null;
 	group: Record<string, unknown>;

@@ -164,7 +164,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
  */
 export function logout(req: Request, res: Response, next: NextFunction): void {
 	req.logout((err) => {
-		if (err)  return next(err); 
+		if (err) return next(err); 
 		res.clearCookie('connect.sid', { path: '/' });
 		res.status(200).json({ message: 'Logged out' });
 	});
@@ -185,7 +185,6 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 
 	params.append('client_id', validatedConfig.value!.GITHUB_CLIENT_ID!);
 	params.append('client_secret', validatedConfig.value!.GITHUB_CLIENT_SECRET!);
-
 	params.append('code', req.query.code as string);
 
 	try {
@@ -197,7 +196,6 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 		if (!accessToken)
 			throw AppError.badGateway(tokenData.get('error') ?? 'Failed to get access token');
         
-
 		// Now get user data from GitHub
 		const userResponse = await fetch('https://api.github.com/user', {
 			headers: { Authorization: `token ${accessToken}` }
@@ -218,10 +216,70 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 			if (regenerateErr) return next(regenerateErr);
 			req.logIn(user, (loginErr) => {
 				if (loginErr) return next(loginErr);
-				res.status(200).json(sanitizeUser(user));
+				res.status(200).json({
+					...sanitizeUser(user),
+					login: user.github?.login,
+					id: user.github?.id
+				});
 			});
 		});
 
+	} catch (error) {
+		next(error);
+	}
+}
+
+/**
+ * Handles GitHub user login via passport github-local strategy.
+ */
+export function githubLogin(req: Request, res: Response, next: NextFunction): void {
+	const authenticateMiddleware = passport.authenticate('github-local', {}, (error: unknown, user: User | false, info: { message?: string } | undefined) => {
+		if (error) return next(error);
+		if (!user)
+			return next(AppError.unauthorized(info?.message ?? 'GitHub authentication failed'));
+
+		(req as RequestWithSession).session.regenerate((regenerateErr) => {
+			if (regenerateErr) return next(regenerateErr);
+
+			req.logIn(user, (loginErr) => {
+				if (loginErr) return next(loginErr);
+				res.status(200).json({
+					...sanitizeUser(user),
+					login: user.github?.login,
+					id: user.github?.id
+				});
+			});
+		});
+	}) as (req: Request, res: Response, next: NextFunction) => void;
+	authenticateMiddleware(req, res, next);
+}
+
+/**
+ * Handles GitHub user registration.
+ */
+export async function githubRegister(req: Request, res: Response, next: NextFunction): Promise<void> {
+	try {
+		const body = req.body as { login: string; id: number; avatar_url?: string; email?: string; name?: string; githubToken?: string };
+		const profile = {
+			...body,
+			githubToken: body.githubToken ?? ''
+		};
+		const user = await userService.findOrRegisterGithub(profile);
+		if (!user)
+			throw AppError.badRequest('Could not register GitHub user');
+
+		(req as RequestWithSession).session.regenerate((regenerateErr) => {
+			if (regenerateErr) return next(regenerateErr);
+
+			req.logIn(user, (loginErr) => {
+				if (loginErr) return next(loginErr);
+				res.status(200).json({
+					...sanitizeUser(user),
+					login: user.github?.login,
+					id: user.github?.id
+				});
+			});
+		});
 	} catch (error) {
 		next(error);
 	}
@@ -267,7 +325,6 @@ export function getUser(req: Request, res: Response, _next: NextFunction): void 
 		res.status(200).json(sanitizeUser(req.user as User));
 	else
 		throw AppError.unauthorized('Not authenticated');
-    
 }
 
 /**
@@ -293,7 +350,8 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
 
 /**
  * Updates user data (e.g., password change from profile).
- * Note: This is a simple replace. Add logic for specific fields if needed.
+ * Only the password field is mutable via this endpoint — sensitive fields
+ * (email, github, jira) are always taken from the authenticated session user.
  */
 export async function updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
@@ -301,28 +359,21 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 		const user = req.user as User | undefined;
          
 		if (user?._id!.toString() !== userID)
-			throw AppError.forbidden('Forbidden: You can only update your own account');
-         
-		const updatedUserData = req.body as User;
-         
-		// Ensure sensitive data isn't overwritten incorrectly
-		// e.g., if password is being changed, it must be re-hashed
-		if (updatedUserData.password && updatedUserData.password !== user.password) {
-			updatedUserData.password = await bcrypt.hash(updatedUserData.password, saltRounds);
-			updatedUserData.transitioned = true;
-		} else 
-		// Keep the old password if not provided
-			updatedUserData.password = user.password;
-         
-         
-		// Preserve other critical data
-		updatedUserData._id = user._id;
-		updatedUserData.email = user.email; // Don't allow email change here
-		updatedUserData.github = user.github;
-		updatedUserData.jira = user.jira;
+			throw AppError.forbidden('Forbidden: You can only update your own profile');
+        
+		const updateData = req.body as Partial<User>;
 
-		const updatedUser = await userService.updateUser(userID, updatedUserData);
-		res.status(200).json(sanitizeUser(updatedUser as User));
+		// Only re-hash when the submitted password actually differs from the stored one
+		if (updateData.password && updateData.password !== user!.password) 
+			updateData.password = await bcrypt.hash(updateData.password, saltRounds);
+		else
+			// Keep the existing password when unchanged or absent
+			updateData.password = user!.password;
+        
+		// Merge update into authenticated user — sensitive fields from session take precedence
+		const updatedUser: User = { ...user!, password: updateData.password };
+		await userService.updateUser(userID, updatedUser);
+		res.status(200).json(sanitizeUser(updatedUser));
 	} catch (error) {
 		next(error);
 	}

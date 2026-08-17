@@ -6,17 +6,17 @@ export const createRepositorySchema = z.object({
 });
 
 const aiProviderConfigSchema = z.object({
-	provider: z.literal('custom'),
-	name: z.enum(['local', 'cloud']),
-	modelName: z.string().min(1),
-	baseURL: z.string().min(1, 'Base URL is required'),
+	provider: z.literal('custom').optional().default('custom'),
+	name: z.enum(['local', 'cloud']).optional().default('local'),
+	modelName: z.string().optional().default(''),
+	baseURL: z.string().optional().default(''),
 	// nullable: frontend may send null (apiKey stored as null in DB when not set)
 	apiKey: z.string().nullable().optional()
 });
 
 const aiConfigSchema = z.object({
-	textPreparation: aiProviderConfigSchema,
-	jsonConversion: aiProviderConfigSchema
+	textPreparation: aiProviderConfigSchema.optional(),
+	jsonConversion: aiProviderConfigSchema.optional()
 });
 
 /** PUT /api/repository/settings/:repo_id */
