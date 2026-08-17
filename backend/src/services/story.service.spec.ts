@@ -1,12 +1,12 @@
-// src/services/story.service.spec.ts
+﻿// src/services/story.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 
 // --- 1. Import types only ---
 import type * as StoryService from './story.service.js';
-import type { Story } from '@shared/models/Story.js';
-import type { Repository } from '@shared/models/Repository.js';
+import type { Story } from '@seed-test/shared/models/Story.js';
+import type { Repository } from '@seed-test/shared/models/Repository.js';
 
 // --- 2. Mock all dependencies ---
 // These are hoisted by Vitest and run before all imports.

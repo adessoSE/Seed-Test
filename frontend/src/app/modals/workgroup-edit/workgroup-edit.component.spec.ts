@@ -1,4 +1,4 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -9,7 +9,7 @@ import { WorkgroupEditComponent } from './workgroup-edit.component';
 import { ProjectService } from 'src/app/Services/project.service';
 import { of } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
 // Mock to prevent MatSnackBar overlay calls after injector teardown
 const notificationMock = { success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() };

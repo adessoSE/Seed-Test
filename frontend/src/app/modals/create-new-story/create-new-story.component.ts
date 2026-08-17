@@ -1,9 +1,9 @@
-import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+﻿import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Group } from '@shared/models/Group';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { Story } from '@shared/models/Story';
+import { Group } from '@seed-test/shared/models/Group';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { Story } from '@seed-test/shared/models/Story';
 import { UntypedFormGroup, UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoryService } from 'src/app/Services/story.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';

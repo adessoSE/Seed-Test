@@ -1,5 +1,5 @@
-import * as dbConnection from '../database/DbConnector.js';
-import { type StepType } from '@shared/models/StepType.js';
+﻿import * as dbConnection from '../database/DbConnector.js';
+import { type StepType } from '@seed-test/shared/models/StepType.js';
 
 const stepTypesCollection = 'stepTypes';
 

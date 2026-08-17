@@ -1,5 +1,5 @@
-import { type Request, type Response, type NextFunction } from 'express';
-import { type User } from '@shared/models/User.js';
+﻿import { type Request, type Response, type NextFunction } from 'express';
+import { type User } from '@seed-test/shared/models/User.js';
 import * as externalAccountService from '../services/externalAccount.service.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';

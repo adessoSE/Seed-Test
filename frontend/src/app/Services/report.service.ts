@@ -1,13 +1,13 @@
-import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ApiService } from '../Services/api.service';
 
-import { ReportContainer } from '@shared/models/ReportContainer';
-import { StoryReport } from '@shared/models/StoryReport';
-import { ScenarioReport } from '@shared/models/ScenarioReport';
-import { GroupReport } from '@shared/models/GroupReport';
+import { ReportContainer } from '@seed-test/shared/models/ReportContainer';
+import { StoryReport } from '@seed-test/shared/models/StoryReport';
+import { ScenarioReport } from '@seed-test/shared/models/ScenarioReport';
+import { GroupReport } from '@seed-test/shared/models/GroupReport';
 
 /**
  * Service for communication between report component and the backend

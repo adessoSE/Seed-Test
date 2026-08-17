@@ -30,7 +30,7 @@ The frontend runs **zoneless** (`provideZonelessChangeDetection()` in `app.modul
 - **No ngOnDestroy for cleanup**: Signals and effects auto-clean on component destroy — no manual `Subscription.unsubscribe()` needed.
 - **Templates**: Signal reads use function call syntax: `isDark()`, `stories()`, `blocks()`.
 
-| Shared models | — | — | imported via `@shared` alias |
+| Shared models | — | — | imported via `@seed-test/shared` aliases |
 
 - **Database**: MongoDB. Default connection in `docker-compose.yml`: `mongodb://SeedAdmin:SeedTest@seedmongodb:27017`
 - **Frontend dev**: `http://localhost:4200/login`

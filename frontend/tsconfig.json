@@ -22,7 +22,7 @@
     "strict": true,
     "incremental": true,
     "paths": {
-      "@shared/*": ["../shared/src/*"],
+      "@seed-test/shared/*": ["../shared/dist/*"],
       "@/*": ["./*"],
       "src/*": ["./src/*"]
     }

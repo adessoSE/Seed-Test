@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -10,8 +10,8 @@ import {findComponent} from '../../test_helper';
 import { LoginService } from '../Services/login.service';
 import { ProjectService } from '../Services/project.service';
 import { Observable, of, throwError } from 'rxjs';
-import { User } from '@shared/models/User';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { User } from '@seed-test/shared/models/User';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
 class MockedApiService {
 	authenticated = false;

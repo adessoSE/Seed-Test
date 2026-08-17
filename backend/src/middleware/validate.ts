@@ -1,4 +1,4 @@
-import { type z } from 'zod';
+import { type z } from '@seed-test/shared';
 import { type Request, type Response, type NextFunction } from 'express';
 import { logger } from '../logging.js';
 

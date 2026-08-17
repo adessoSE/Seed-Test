@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import type { Repository } from '@shared/models/Repository.js';
+import type { Repository } from '@seed-test/shared/models/Repository.js';
 import type * as WorkgroupServiceModule from './workgroup.service.js';
 type Workgroup = WorkgroupServiceModule.Workgroup;
 

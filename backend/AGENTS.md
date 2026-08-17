@@ -14,4 +14,4 @@ Global limiter (100 req/min/IP) on all `/api` routes. Auth routes (`login`, `reg
 ## Test runners
 Playwright (`@playwright/test`) and Selenium-Webdriver are both available in `src/test-runners/`. Mode is selected via a request parameter.
 
-Shared models are imported via the `@shared` alias.
+Shared models are imported via the `@seed-test/shared` aliases.

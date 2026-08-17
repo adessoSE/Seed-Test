@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, TemplateRef, inject, output, viewChild, computed } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, TemplateRef, inject, output, viewChild, computed } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Scenario } from '@shared/models/Scenario';
-import { Story } from '@shared/models/Story';
-import { Group } from '@shared/models/Group';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { Story } from '@seed-test/shared/models/Story';
+import { Group } from '@seed-test/shared/models/Group';
 import { ThemingService } from '../../Services/theming.service';
 import { lastValueFrom } from 'rxjs';
 import { StoryService } from '../../Services/story.service';

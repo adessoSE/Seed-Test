@@ -1,12 +1,12 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Scenario } from '@shared/models/Scenario';
-import { StepType } from '@shared/models/StepType';
-import { Story } from '@shared/models/Story';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { StepType } from '@seed-test/shared/models/StepType';
+import { Story } from '@seed-test/shared/models/Story';
 import { BaseEditorComponent } from './base-editor.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { StepDefinition } from '@shared/models/StepDefinition';
+import { StepDefinition } from '@seed-test/shared/models/StepDefinition';
 
 
 const stepBackgroundDefinitions: StepDefinition = {'given': [], 'when':[{'_id':'5dce728851e70f2894a170b4','id': 6, 'stepType':'when', 'type' :'HoverOverAndSelect', 'pre':'I hover over the element', 'mid':'and select the option','values':['',''], 'post':'', 'isExample':[]}], 'then': [], 'example':[]};

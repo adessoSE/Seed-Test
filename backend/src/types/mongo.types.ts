@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MongoDB Document Types
  *
  * Maps shared model interfaces to their MongoDB representation.
@@ -14,12 +14,12 @@
  * at service function boundaries: `return doc as unknown as Story | null;`
  */
 import { ObjectId } from 'mongodb';
-import { type Block } from '@shared/models/Block.js';
-import { type Story } from '@shared/models/Story.js';
-import { type Repository } from '@shared/models/Repository.js';
-import { type Group } from '@shared/models/Group.js';
-import { type User } from '@shared/models/User.js';
-import { type FileElement } from '@shared/models/FileElement.js';
+import { type Block } from '@seed-test/shared/models/Block.js';
+import { type Story } from '@seed-test/shared/models/Story.js';
+import { type Repository } from '@seed-test/shared/models/Repository.js';
+import { type Group } from '@seed-test/shared/models/Group.js';
+import { type User } from '@seed-test/shared/models/User.js';
+import { type FileElement } from '@seed-test/shared/models/FileElement.js';
 
 // --- Conversion Helpers ---
 

@@ -1,10 +1,10 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { Scenario } from '@shared/models/Scenario';
+﻿import { Injectable, inject, signal } from '@angular/core';
+import { Scenario } from '@seed-test/shared/models/Scenario';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { Story } from '@shared/models/Story';
+import { Story } from '@seed-test/shared/models/Story';
 
 
 /**

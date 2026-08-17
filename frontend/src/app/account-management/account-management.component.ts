@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change-jira-account.component';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
@@ -23,7 +23,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatSelect, MatOption } from '@angular/material/select';
-import type { User } from '@shared/models/User';
+import type { User } from '@seed-test/shared/models/User';
 
 
 /**

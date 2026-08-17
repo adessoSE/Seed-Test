@@ -1,4 +1,4 @@
-import { type Background } from '@shared/models/Background.js';
+﻿import { type Background } from '@seed-test/shared/models/Background.js';
 
 export function emptyBackground(): Background {
 	return {

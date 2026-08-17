@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 

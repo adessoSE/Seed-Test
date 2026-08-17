@@ -1,11 +1,11 @@
-import { EventEmitter } from 'node:events';
+﻿import { EventEmitter } from 'node:events';
 import { JobQueue } from '../helpers/jobQueue.js';
 import * as repositoryService from './repository.service.js';
 import * as storyService from './story.service.js';
 import { decrypt } from '../helpers/cryptoHelper.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
-import { type AiConfig } from '@shared/models/RepositoryContainer.js';
+import { type AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
 
 /** @see {@link isAiParserAvailable} — nullable until the optional parser module loads. */
 let parseTextToStory: ((opts: Record<string, unknown>) => Promise<Record<string, unknown> | null>) | null = null;

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import type { User } from '@shared/models/User.js';
+import type { User } from '@seed-test/shared/models/User.js';
 import type * as ExtAccountServiceModule from './externalAccount.service.js';
 
 process.env.JIRA_SECRET = 'test-jira-secret';

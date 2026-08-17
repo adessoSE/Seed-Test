@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Story } from '@shared/models/Story';
+import { Story } from '@seed-test/shared/models/Story';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 

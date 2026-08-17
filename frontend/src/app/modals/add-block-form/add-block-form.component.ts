@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, TemplateRef, inject, viewChild, signal, effect, input, untracked } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, TemplateRef, inject, viewChild, signal, effect, input, untracked } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import { Block } from '@shared/models/Block';
-import { StepType } from '@shared/models/StepType';
+import { Block } from '@seed-test/shared/models/Block';
+import { StepType } from '@seed-test/shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';

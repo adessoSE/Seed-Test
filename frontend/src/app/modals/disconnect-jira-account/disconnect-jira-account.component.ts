@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
-import type { User } from '@shared/models/User';
+import type { User } from '@seed-test/shared/models/User';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 @Component({

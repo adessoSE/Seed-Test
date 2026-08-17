@@ -1,0 +1,5 @@
+{
+  "name": "seed-test-monorepo",
+  "private": true,
+  "workspaces": ["backend", "shared", "frontend"]
+}

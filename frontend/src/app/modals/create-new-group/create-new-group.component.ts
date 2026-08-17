@@ -1,10 +1,10 @@
-import { Component, ChangeDetectionStrategy, inject, viewChild, signal } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Group } from '@shared/models/Group';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { Story } from '@shared/models/Story';
+import { Group } from '@seed-test/shared/models/Group';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { Story } from '@seed-test/shared/models/Story';
 import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';

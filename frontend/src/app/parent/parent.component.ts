@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, linkedSignal, untracked } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, linkedSignal, untracked } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import { Story } from '@shared/models/Story';
-import { Scenario } from '@shared/models/Scenario';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
-import { Group } from '@shared/models/Group';
+import { Story } from '@seed-test/shared/models/Story';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { Group } from '@seed-test/shared/models/Group';
 import { ActivatedRoute } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
 

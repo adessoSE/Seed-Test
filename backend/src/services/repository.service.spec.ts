@@ -1,12 +1,12 @@
-// src/services/repository.service.spec.ts
+﻿// src/services/repository.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 
 // --- 1. Import types and the module under test ---
-import type { AiConfig } from '@shared/models/RepositoryContainer.js';
+import type { AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
 import type { Workgroup } from './workgroup.service.js';
-import type { Repository } from '@shared/models/Repository.js';
+import type { Repository } from '@seed-test/shared/models/Repository.js';
 
 // --- 2. Mock all external dependencies ---
 // vi.hoisted runs at hoist-time alongside vi.mock, avoiding TDZ errors

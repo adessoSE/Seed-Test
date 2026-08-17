@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, viewChild, signal, effect } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal, effect } from '@angular/core';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';

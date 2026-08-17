@@ -94,3 +94,12 @@ docs/buglist.md
 workers/
 tasks/
 tasks/archive/
+
+# Ephemeral artifacts from Playwright E2E testing and debugging
+*.png
+*.mjs
+*.log
+*.log.*
+cookies.txt
+frontend-test*.txt
+backend-err.log

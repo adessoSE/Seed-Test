@@ -1,7 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
-import { FileElement } from '@shared/models/FileElement';
+import { FileElement } from '@seed-test/shared/models/FileElement';
 
 import { FileManagerComponent } from './file-manager.component';
 import { ThemingService } from '../Services/theming.service';

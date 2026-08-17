@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, linkedSignal, effect } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, linkedSignal, effect } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ThemingService } from '../Services/theming.service';
 import { StoryService } from '../Services/story.service';
-import { FileElement } from '@shared/models/FileElement';
+import { FileElement } from '@seed-test/shared/models/FileElement';
 import { ProjectService } from '../Services/project.service';
 import { FormsModule } from '@angular/forms';
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';

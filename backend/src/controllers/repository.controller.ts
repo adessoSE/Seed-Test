@@ -1,7 +1,7 @@
-import { type Request, type Response, type NextFunction } from 'express';
+﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
-import { type User } from '@shared/models/User.js';
-import { type RepositoryContainer, type AiConfig } from '@shared/models/RepositoryContainer.js';
+import { type User } from '@seed-test/shared/models/User.js';
+import { type RepositoryContainer, type AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as userService from '../services/user.service.js';
 import * as externalSyncService from '../services/externalSync.service.js';

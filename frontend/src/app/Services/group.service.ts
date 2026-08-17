@@ -1,11 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
 import { NotificationService } from './notification.service';
-import { Group } from '@shared/models/Group';
-import type { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { Group } from '@seed-test/shared/models/Group';
+import type { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
 /** Payload for creating a custom group via the signal */
 interface CreateGroupPayload {

@@ -1,7 +1,7 @@
-import { type Request, type Response, type NextFunction } from 'express';
+﻿import { type Request, type Response, type NextFunction } from 'express';
 import { type Session, type SessionData } from 'express-session';
 import * as userService from '../services/user.service.js';
-import { type User } from '@shared/models/User.js';
+import { type User } from '@seed-test/shared/models/User.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
 

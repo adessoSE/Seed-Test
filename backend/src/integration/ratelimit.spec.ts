@@ -133,6 +133,7 @@ describe('GET /api/story — limiter (100/min)', () => {
 		expect(res.status).toBe(200);
 	});
 
+	// Test-standalone limiter is 100/min — story routes use global limiter (500/min)
 	it('returns 429 after exceeding 100 requests', async () => {
 		let found429 = false;
 		for (let b = 0; b < 2 && !found429; b++) {

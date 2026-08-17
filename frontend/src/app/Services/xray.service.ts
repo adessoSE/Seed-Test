@@ -1,10 +1,10 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { tap } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { StoryService } from './story.service';
-import { Scenario } from '@shared/models/Scenario';
-import type { Story } from '@shared/models/Story';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import type { Story } from '@seed-test/shared/models/Story';
 
 /** Pre-condition with associated stories resolved from test keys */
 interface PreConditionResult {

@@ -1,12 +1,12 @@
-import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BackgroundService } from 'src/app/Services/background.service';
-import { Background } from '@shared/models/Background';
-import { Story } from '@shared/models/Story';
+import { Background } from '@seed-test/shared/models/Background';
+import { Story } from '@seed-test/shared/models/Story';
 import { NotificationService } from '../../Services/notification.service';
 import { ApiService } from '../../Services/api.service';
-import { Block } from '@shared/models/Block';
+import { Block } from '@seed-test/shared/models/Block';
 import { BlockService } from '../../Services/block.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 

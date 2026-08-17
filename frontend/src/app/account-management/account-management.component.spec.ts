@@ -1,9 +1,9 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { findComponent } from '../../test_helper';
 import { AccountManagementComponent } from './account-management.component';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { provideRouter, Router } from '@angular/router';
 import { ROUTES } from '../routes/routes';
 import { NO_ERRORS_SCHEMA } from '@angular/core';

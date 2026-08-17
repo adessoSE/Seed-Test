@@ -1,5 +1,5 @@
-
-import { type User } from '@shared/models/User.js';
+﻿
+import { type User } from '@seed-test/shared/models/User.js';
 import { logger } from '../logging.js';
 import { ExecutionMode, type GenericReport, type GroupReport, type ScenarioReport, type StepStatus } from './models.js';
 import { checkValidGithubFormat, jiraDecryptPassword } from '../services/externalAccount.service.js';

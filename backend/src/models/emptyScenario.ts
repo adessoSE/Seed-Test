@@ -1,4 +1,4 @@
-import { type Scenario } from '@shared/models/Scenario.js';
+﻿import { type Scenario } from '@seed-test/shared/models/Scenario.js';
 
 // Unused imports removed
 export function emptyScenario(): Omit<Scenario, '_id' | 'scenario_id'> & { scenario_id: number } {

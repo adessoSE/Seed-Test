@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from '@seed-test/shared';
 import { AppError } from './helpers/AppError.js';
 
 /**

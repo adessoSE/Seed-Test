@@ -1,4 +1,4 @@
-import { ObjectId, GridFSBucket, type DeleteResult, type UpdateResult } from 'mongodb';
+﻿import { ObjectId, GridFSBucket, type DeleteResult, type UpdateResult } from 'mongodb';
 import { logger } from '../logging.js';
 import * as dbConnection from '../database/DbConnector.js';
 import { Readable } from 'node:stream';
@@ -7,10 +7,10 @@ import fs from 'node:fs';
 import pfs from 'node:fs/promises';
 import path from 'node:path';
 import reporter from 'cucumber-html-reporter'; // Import the reporter
-import { type ReportContainer } from '@shared/models/ReportContainer.js';
+import { type ReportContainer } from '@seed-test/shared/models/ReportContainer.js';
 import * as storyService from './story.service.js';
-import { type Story } from '@shared/models/Story.js';
-import { type Scenario } from '@shared/models/Scenario.js';
+import { type Story } from '@seed-test/shared/models/Story.js';
+import { type Scenario } from '@seed-test/shared/models/Scenario.js';
 import {
 	type GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ExecutionMode, type ScenarioStatus
 } from '../models/models.js';

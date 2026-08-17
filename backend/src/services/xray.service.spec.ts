@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { StepType } from '@shared/models/StepType.js';
+﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { StepType } from '@seed-test/shared/models/StepType.js';
 
 // Use vi.hoisted so mock objects are available when vi.mock factories run (hoisted above imports)
 const { mockedExternalAccountService, mockedStepTypeService, mockFetch } = vi.hoisted(() => ({

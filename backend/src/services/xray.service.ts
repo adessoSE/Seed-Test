@@ -1,7 +1,7 @@
-import { type User } from '@shared/models/User.js';
+﻿import { type User } from '@seed-test/shared/models/User.js';
 import { logger } from '../logging.js';
-import { type Scenario } from '@shared/models/Scenario.js';
-import { type StepType } from '@shared/models/StepType.js';
+import { type Scenario } from '@seed-test/shared/models/Scenario.js';
+import { type StepType } from '@seed-test/shared/models/StepType.js';
 import * as externalAccountService from './externalAccount.service.js';
 import * as stepTypeService from './step-type.service.js';
 import { AppError } from '../helpers/AppError.js';

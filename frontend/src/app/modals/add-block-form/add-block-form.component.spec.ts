@@ -1,8 +1,8 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
-import { Block } from '@shared/models/Block';
+import { Block } from '@seed-test/shared/models/Block';
 import { AddBlockFormComponent } from './add-block-form.component';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 

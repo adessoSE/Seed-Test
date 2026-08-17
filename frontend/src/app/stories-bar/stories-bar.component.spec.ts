@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { StoriesBarComponent } from './stories-bar.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Story } from '@shared/models/Story';
+import { Story } from '@seed-test/shared/models/Story';
 
 describe('StoriesBarComponent', () => {
 	let component: StoriesBarComponent;

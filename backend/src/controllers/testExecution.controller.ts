@@ -1,4 +1,4 @@
-import { type Request, type Response, type NextFunction } from 'express';
+﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
 import { type ExecuteTestRequest, type TestExecutionResult } from '../testing/test-runner.service.js';
@@ -6,8 +6,8 @@ import * as storyService from '../services/story.service.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as reportService from '../services/report.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
-import { type Story } from '@shared/models/Story.js';
-import { type User } from '@shared/models/User.js';
+import { type Story } from '@seed-test/shared/models/Story.js';
+import { type User } from '@seed-test/shared/models/User.js';
 import { IssueTracker, IssueTrackerOption, type Github } from '../models/IssueTracker.js';
 import { ExecutionMode, type GenericReport } from '../models/models.js';
 import { type ReportDoc, type GroupExecutionParams } from '../types/report.types.js';

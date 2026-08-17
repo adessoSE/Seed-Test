@@ -1,4 +1,4 @@
-import { ApiService } from 'src/app/Services/api.service';
+﻿import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, OnInit, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect, signal, untracked } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
@@ -7,12 +7,12 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dia
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
-import { Block } from '@shared/models/Block';
-import { Scenario } from '@shared/models/Scenario';
-import { StepDefinition } from '@shared/models/StepDefinition';
-import { StepDefinitionBackground } from '@shared/models/StepDefinitionBackground';
-import { StepType } from '@shared/models/StepType';
-import { Story } from '@shared/models/Story';
+import { Block } from '@seed-test/shared/models/Block';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { StepDefinition } from '@seed-test/shared/models/StepDefinition';
+import { StepDefinitionBackground } from '@seed-test/shared/models/StepDefinitionBackground';
+import { StepType } from '@seed-test/shared/models/StepType';
+import { Story } from '@seed-test/shared/models/Story';
 import { BlockService } from '../Services/block.service';
 
 import { ExampleTableComponent } from '../example-table/example-table.component';
@@ -25,7 +25,7 @@ import { ThemingService } from '../Services/theming.service';
 import { HighlightInputService } from '../Services/highlight-input.service';
 import { firstValueFrom } from 'rxjs';
 import { FileExplorerModalComponent } from '../modals/file-explorer-modal/file-explorer-modal.component';
-import { MultipleScenario } from '@shared/models/MuiltipleScenario';
+import { MultipleScenario } from '@seed-test/shared/models/MuiltipleScenario';
 import { StepValidationService } from '../Services/step-validation.service';
 import { NgTemplateOutlet, NgClass, SlicePipe } from '@angular/common';
 import { MatFormField, MatSelect, MatOption } from '@angular/material/select';

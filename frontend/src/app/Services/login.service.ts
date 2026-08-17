@@ -1,9 +1,9 @@
-import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import type { User } from '@shared/models/User';
+import type { User } from '@seed-test/shared/models/User';
 
 /** Response from the GitHub OAuth callback endpoint */
 interface GithubCallbackResponse {

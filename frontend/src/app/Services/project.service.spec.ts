@@ -3,6 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProjectService } from './project.service';
 
+
 describe('ProjectService', () => {
 
 	let service: ProjectService;
@@ -145,5 +146,54 @@ describe('ProjectService', () => {
 			expect(service.updateRepositoryTrigger()).toBe(initialTriggerValue);
 		});
 	});
+
+	// ----------------------------------------------------------------
+	// sessionStorage fallback on HTTP error
+	// ----------------------------------------------------------------
+	describe('sessionStorage fallback on HTTP error', () => {
+
+		beforeEach(() => {
+			service.refreshRepositories();
+		});
+
+		it('should fall back to sessionStorage when getRepositories HTTP call fails', () => {
+			const cachedRepos = [{ _id: 'cached-1', repoName: 'CachedRepo' }];
+			sessionStorage.setItem('repositories', JSON.stringify(cachedRepos));
+
+			const results: unknown[] = [];
+
+			service.getRepositories().subscribe({
+				next: r => results.push(r),
+				error: () => results.push('ERROR')
+			});
+
+			const req = httpController.expectOne('http://localhost:8080/api/repository/');
+			req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+
+			// The error handler reads from sessionStorage and emits the cached value
+			expect(results).toEqual([cachedRepos]);
+		});
+
+		it('should emit empty array when sessionStorage is empty and HTTP call fails', () => {
+			sessionStorage.removeItem('repositories');
+
+			const results: unknown[] = [];
+
+			service.getRepositories().subscribe({
+				next: r => results.push(r),
+				error: () => results.push('ERROR')
+			});
+
+			const req = httpController.expectOne('http://localhost:8080/api/repository/');
+			req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+
+			// The error handler falls back to sessionStorage (empty) and emits []
+			expect(results).toEqual([[]]);
+		});
+
+	});
+
+
+
 });
 

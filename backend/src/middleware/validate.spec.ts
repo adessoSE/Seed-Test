@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { z } from 'zod';
+import { z } from '@seed-test/shared';
 import { validate } from './validate.js';
 
 // Suppress logger output during tests

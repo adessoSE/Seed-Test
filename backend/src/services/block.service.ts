@@ -1,6 +1,6 @@
-import { type ClientSession, type MongoClient } from 'mongodb';
+﻿import { type ClientSession, type MongoClient } from 'mongodb';
 import * as dbConnection from '../database/DbConnector.js';
-import { type Block } from '@shared/models/Block.js';
+import { type Block } from '@seed-test/shared/models/Block.js';
 import { type BlockDoc, oid } from '../types/mongo.types.js';
 import { mongoSanitize } from '../utils/mongo-sanitize.js';
 

@@ -1,7 +1,7 @@
-import { type ObjectId, Binary } from 'mongodb';
+﻿import { type ObjectId, Binary } from 'mongodb';
 import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import * as userService from './user.service.js'; // To fetch/update the user document
-import { type User } from '@shared/models/User.js';
+import { type User } from '@seed-test/shared/models/User.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
 import { validatedConfig } from '../config.js';

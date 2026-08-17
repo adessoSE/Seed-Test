@@ -1,7 +1,7 @@
-import { Component, ChangeDetectionStrategy, input, effect, untracked } from '@angular/core';
-import { Scenario } from '@shared/models/Scenario';
-import { Story } from '@shared/models/Story';
-import { StepType } from '@shared/models/StepType';
+﻿import { Component, ChangeDetectionStrategy, input, effect, untracked } from '@angular/core';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { Story } from '@seed-test/shared/models/Story';
+import { StepType } from '@seed-test/shared/models/StepType';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 
 @Component({

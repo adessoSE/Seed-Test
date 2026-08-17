@@ -1,9 +1,9 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
+﻿import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {ApiService} from '../Services/api.service';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { NgForm, FormsModule } from '@angular/forms';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
 
 import { OwlOptions, CarouselModule } from 'ngx-owl-carousel-o';

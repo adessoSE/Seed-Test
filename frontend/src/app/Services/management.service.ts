@@ -1,9 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
-import { User } from '@shared/models/User';
+import { User } from '@seed-test/shared/models/User';
 
 /** Jira account link request payload */
 interface JiraLinkRequest {

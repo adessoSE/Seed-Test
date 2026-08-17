@@ -1,3 +1,4 @@
+export { z } from 'zod';
 export * from './schemas/shared.schemas.js';
 export * from './schemas/repository.schemas.js';
 export * from './schemas/user.schemas.js';

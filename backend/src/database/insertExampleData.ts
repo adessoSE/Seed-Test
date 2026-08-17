@@ -1,10 +1,10 @@
-import { exit } from 'process';
+﻿import { exit } from 'process';
 import bcrypt from 'bcrypt';
 import * as userService from '../services/user.service.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
-import { type Scenario } from '@shared/models/Scenario.js';
-import { type User } from '@shared/models/User.js';
+import { type Scenario } from '@seed-test/shared/models/Scenario.js';
+import { type User } from '@seed-test/shared/models/User.js';
 
 const exampleUserEmail = 'seed@test.de';
 const examplePassword = 'seedtest';

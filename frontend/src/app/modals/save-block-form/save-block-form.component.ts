@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked, input } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked, input } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
-import { Block } from '@shared/models/Block';
-import { StepType } from '@shared/models/StepType';
+import { Block } from '@seed-test/shared/models/Block';
+import { StepType } from '@seed-test/shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
 import { firstValueFrom } from 'rxjs';
 import { BackgroundService } from '../../Services/background.service';

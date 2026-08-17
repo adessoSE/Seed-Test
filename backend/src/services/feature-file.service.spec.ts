@@ -1,4 +1,4 @@
-// src/services/feature-file.service.spec.ts
+﻿// src/services/feature-file.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as featureFileService from './feature-file.service.js';
@@ -7,9 +7,9 @@ import * as featureFileService from './feature-file.service.js';
 import * as blockService from './block.service.js';
 
 // Import types for creating mock data
-import { type Story } from '@shared/models/Story.js';
-import { type Block } from '@shared/models/Block.js';
-import { type Scenario } from '@shared/models/Scenario.js';
+import { type Story } from '@seed-test/shared/models/Story.js';
+import { type Block } from '@seed-test/shared/models/Block.js';
+import { type Scenario } from '@seed-test/shared/models/Scenario.js';
 
 // --- 1. Mock Dependencies ---
 vi.mock('./story.service', () => ({

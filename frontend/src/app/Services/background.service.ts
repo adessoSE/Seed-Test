@@ -1,9 +1,9 @@
-import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { Background } from '@shared/models/Background';
+import { Background } from '@seed-test/shared/models/Background';
 import { NotificationService } from './notification.service';
 /**
  * Service for communication between background of the story and the backend

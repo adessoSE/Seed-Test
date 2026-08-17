@@ -1,9 +1,9 @@
-import { ObjectId, type ClientSession, type MongoClient, type WithId, type InsertOneResult, type UpdateResult, type UpdateFilter } from 'mongodb';
+﻿import { ObjectId, type ClientSession, type MongoClient, type WithId, type InsertOneResult, type UpdateResult, type UpdateFilter } from 'mongodb';
 import { type RepositoryDoc, type UserDoc, type GroupDoc, oid } from '../types/mongo.types.js';
 import * as dbConnection from '../database/DbConnector.js';
-import { type Group } from '@shared/models/Group.js';
-import { type Repository } from '@shared/models/Repository.js';
-import { type RepositoryContainer, type AiConfig } from '@shared/models/RepositoryContainer.js';
+import { type Group } from '@seed-test/shared/models/Group.js';
+import { type Repository } from '@seed-test/shared/models/Repository.js';
+import { type RepositoryContainer, type AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
 import { deleteStory } from './story.service.js';
 import { getUserById } from './user.service.js';
 import * as workgroupService from './workgroup.service.js';

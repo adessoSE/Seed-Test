@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+﻿import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ObjectId } from 'mongodb';
-import type { Story } from '@shared/models/Story.js';
-import type { AiConfig } from '@shared/models/RepositoryContainer.js';
+import type { Story } from '@seed-test/shared/models/Story.js';
+import type { AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
 import type * as AiServiceModule from './ai.service.js';
 
 // --- Mock Dependencies ---

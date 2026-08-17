@@ -1,6 +1,6 @@
-import { Component, ChangeDetectionStrategy, inject, effect, untracked } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, effect, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { NgForm, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';

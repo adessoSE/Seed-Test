@@ -1,11 +1,11 @@
-import { Component, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked, linkedSignal } from '@angular/core';
+﻿import { Component, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked, linkedSignal } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import { Story } from '@shared/models/Story';
-import { Scenario } from '@shared/models/Scenario';
-import { StepType } from '@shared/models/StepType';
-import { StepDefinition } from '@shared/models/StepDefinition';
+import { Story } from '@seed-test/shared/models/Story';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { StepType } from '@seed-test/shared/models/StepType';
+import { StepDefinition } from '@seed-test/shared/models/StepDefinition';
 import { NotificationService } from '../Services/notification.service';
-import { Block } from '@shared/models/Block';
+import { Block } from '@seed-test/shared/models/Block';
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { ScenarioService } from '../Services/scenario.service';

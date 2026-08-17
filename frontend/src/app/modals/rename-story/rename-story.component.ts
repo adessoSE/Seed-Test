@@ -1,7 +1,7 @@
-import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+﻿import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Story } from '@shared/models/Story';
+import { Story } from '@seed-test/shared/models/Story';
 import { StoryService } from 'src/app/Services/story.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 

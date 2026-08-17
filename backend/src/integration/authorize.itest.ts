@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Integration tests for the authorization middleware against real MongoDB documents.
  *
  * The unit tests in middleware/authorize.spec.ts mock every service call.
@@ -28,7 +28,7 @@ import {
 	seedAdditionalUser as seedAdditionalUserHelper,
 	SKIP_MESSAGE
 } from './setup.js';
-import type { User } from '@shared/models/User.js';
+import type { User } from '@seed-test/shared/models/User.js';
 
 let container: StartedMongoDBContainer | null = null;
 let client: MongoClient | null = null;

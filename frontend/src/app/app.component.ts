@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';

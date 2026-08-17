@@ -1,13 +1,13 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { StoryEditorComponent } from './story-editor.component';
-import { Story } from '@shared/models/Story';
-import { Scenario } from '@shared/models/Scenario';
-import { Background } from '@shared/models/Background';
+import { Story } from '@seed-test/shared/models/Story';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { Background } from '@seed-test/shared/models/Background';
 import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { MatTableModule } from '@angular/material/table';

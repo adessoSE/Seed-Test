@@ -1,6 +1,6 @@
-import { type ObjectId, type InsertOneResult, type DeleteResult, type UpdateResult } from 'mongodb';
+﻿import { type ObjectId, type InsertOneResult, type DeleteResult, type UpdateResult } from 'mongodb';
 import * as dbConnection from '../database/DbConnector.js';
-import { type User } from '@shared/models/User.js';
+import { type User } from '@seed-test/shared/models/User.js';
 import * as repositoryService from './repository.service.js';
 import * as workgroupService from './workgroup.service.js';
 import { type UserDoc, type RepositoryDoc, oid } from '../types/mongo.types.js';

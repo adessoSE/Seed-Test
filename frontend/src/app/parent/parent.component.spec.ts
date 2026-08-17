@@ -1,11 +1,11 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ParentComponent } from './parent.component';
-import { Story } from '@shared/models/Story';
+import { Story } from '@seed-test/shared/models/Story';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { ROUTES } from '../routes/routes';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Scenario } from '@shared/models/Scenario';
+import { Scenario } from '@seed-test/shared/models/Scenario';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {findComponent} from '../../test_helper';
 import { of } from 'rxjs';

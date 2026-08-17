@@ -1,4 +1,4 @@
-import { DragDropModule } from '@angular/cdk/drag-drop';
+﻿import { DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import {ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -7,8 +7,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ResizeInputDirective } from '../directives/resize-input.directive';
 import { ScenarioEditorComponent } from './scenario-editor.component';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
-import { Scenario } from '@shared/models/Scenario';
-import { Story } from '@shared/models/Story';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { Story } from '@seed-test/shared/models/Story';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 

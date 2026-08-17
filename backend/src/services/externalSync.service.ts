@@ -1,4 +1,4 @@
-import { type ObjectId } from 'mongodb';
+﻿import { type ObjectId } from 'mongodb';
 
 import { jiraDecryptPassword, buildAuthString, checkValidGithubFormat } from './externalAccount.service.js';
 import { logger } from '../logging.js';
@@ -9,12 +9,12 @@ import * as xrayService from './xray.service.js';
 
 import { emptyScenario } from '../models/emptyScenario.js';
 import { emptyBackground } from '../models/emptyBackground.js';
-import { type Story } from '@shared/models/Story.js';
-import { type Scenario } from '@shared/models/Scenario.js';
-import { type StepType } from '@shared/models/StepType.js';
-import { type StepDefinition } from '@shared/models/StepDefinition.js';
-import { type User } from '@shared/models/User.js';
-import { type Repository } from '@shared/models/Repository.js';
+import { type Story } from '@seed-test/shared/models/Story.js';
+import { type Scenario } from '@seed-test/shared/models/Scenario.js';
+import { type StepType } from '@seed-test/shared/models/StepType.js';
+import { type StepDefinition } from '@seed-test/shared/models/StepDefinition.js';
+import { type User } from '@seed-test/shared/models/User.js';
+import { type Repository } from '@seed-test/shared/models/Repository.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
 import { requireSafeExternalHost } from '../utils/validation.js';

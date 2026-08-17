@@ -1,8 +1,8 @@
-import { type Request, type Response, type NextFunction } from 'express';
+﻿import { type Request, type Response, type NextFunction } from 'express';
 import { type ObjectId, type InsertOneResult, type DeleteResult } from 'mongodb';
 import { requireValidId } from '../utils/validation.js';
 import * as blockService from '../services/block.service.js';
-import { type Block } from '@shared/models/Block.js';
+import { type Block } from '@seed-test/shared/models/Block.js';
 import { oid, type BlockDoc } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
 

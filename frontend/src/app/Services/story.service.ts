@@ -1,12 +1,12 @@
-import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NotificationService } from './notification.service';
-import { Story } from '@shared/models/Story';
-import type { AiConfig, RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { Story } from '@seed-test/shared/models/Story';
+import type { AiConfig, RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { catchError, tap } from 'rxjs/operators';
-import { StepType } from '@shared/models/StepType';
+import { StepType } from '@seed-test/shared/models/StepType';
 
 /** Payload for creating a custom story via the signal */
 interface CreateCustomStoryPayload {

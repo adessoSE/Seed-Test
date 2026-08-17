@@ -1,5 +1,5 @@
-import { Scenario } from '@shared/models/Scenario';
-import { StepType } from '@shared/models/StepType';
+﻿import { Scenario } from '@seed-test/shared/models/Scenario';
+import { StepType } from '@seed-test/shared/models/StepType';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';

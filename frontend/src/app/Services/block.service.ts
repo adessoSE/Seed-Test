@@ -1,13 +1,13 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { Block } from '@shared/models/Block';
+﻿import { Injectable, inject, signal } from '@angular/core';
+import { Block } from '@seed-test/shared/models/Block';
 import { Observable} from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
-import { Story } from '@shared/models/Story';
-import { StepType } from '@shared/models/StepType';
+import { Story } from '@seed-test/shared/models/Story';
+import { StepType } from '@seed-test/shared/models/StepType';
 import { StoryService } from './story.service';
-import { Scenario } from '@shared/models/Scenario';
+import { Scenario } from '@seed-test/shared/models/Scenario';
 
 /** Payload for adding a block to a scenario — [component, block, stepType, asSingleSteps] */
 type AddBlockPayload = [string, Block, string, boolean];

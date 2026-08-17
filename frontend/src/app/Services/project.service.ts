@@ -1,10 +1,10 @@
-import { AiConfig, RepositoryContainer } from '@shared/models/RepositoryContainer';
+﻿import { AiConfig, RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, of, throwError, ReplaySubject } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
-import { FileElement } from '@shared/models/FileElement';
+import { FileElement } from '@seed-test/shared/models/FileElement';
 
 /** Workgroup member with email and edit permission */
 interface WorkgroupMember {

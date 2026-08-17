@@ -1,9 +1,9 @@
-import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { catchError, retryWhen, tap, delayWhen } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError, timer } from 'rxjs';
-import { User } from '@shared/models/User';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { User } from '@seed-test/shared/models/User';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
 /** Backend info response from /backendInfo endpoint */
 interface BackendInfo {

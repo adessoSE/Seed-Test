@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnChanges, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked, input, linkedSignal } from '@angular/core';
+﻿import { Component, ElementRef, OnChanges, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked, input, linkedSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
@@ -7,9 +7,9 @@ import { ThemingService } from '../Services/theming.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ReportService } from '../Services/report.service';
-import type { StoryReport } from '@shared/models/StoryReport';
-import type { ScenarioReport } from '@shared/models/ScenarioReport';
-import type { GroupReport } from '@shared/models/GroupReport';
+import type { StoryReport } from '@seed-test/shared/models/StoryReport';
+import type { ScenarioReport } from '@seed-test/shared/models/ScenarioReport';
+import type { GroupReport } from '@seed-test/shared/models/GroupReport';
 
 /** Data structure passed into the report component for rendering */
 interface ReportViewData {

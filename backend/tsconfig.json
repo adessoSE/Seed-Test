@@ -13,8 +13,8 @@
     "preserveSymlinks": true,
     "typeRoots": ["./node_modules/@types"],
     "paths": {
-      "@shared/*": ["../shared/src/*"],
-      "@seed-test/shared/*": ["../shared/src/*"]
+      "@seed-test/shared": ["../shared/dist/index"],
+      "@seed-test/shared/*": ["../shared/dist/*"]
     },
     "lib": ["es2024", "dom"]
   },

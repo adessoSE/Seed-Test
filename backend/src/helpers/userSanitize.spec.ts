@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import type { User } from '@shared/models/User.js';
+﻿import { describe, it, expect } from 'vitest';
+import type { User } from '@seed-test/shared/models/User.js';
 import { sanitizeUser } from './userSanitize.js';
 
 /** Full user fixture with all sensitive fields populated. */

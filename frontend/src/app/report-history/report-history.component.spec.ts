@@ -1,4 +1,4 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -8,8 +8,8 @@ import { of } from 'rxjs';
 import { ReportHistoryComponent } from './report-history.component';
 import { ReportService } from '../Services/report.service';
 import { StoryService } from '../Services/story.service';
-import { Story } from '@shared/models/Story';
-import { ReportContainer } from '@shared/models/ReportContainer';
+import { Story } from '@seed-test/shared/models/Story';
+import { ReportContainer } from '@seed-test/shared/models/ReportContainer';
 
 const mockStory: Story = {
 	_id: 'story-1', story_id: 1, title: 'Test Story', body: '',

@@ -1,11 +1,11 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import pfs from 'node:fs/promises';
 import path from 'node:path';
 import { logger } from '../logging.js';
-import { type Story } from '@shared/models/Story.js';
-import { type Scenario } from '@shared/models/Scenario.js';
-import { type Repository } from '@shared/models/Repository.js';
-import { type User } from '@shared/models/User.js';
+import { type Story } from '@seed-test/shared/models/Story.js';
+import { type Scenario } from '@seed-test/shared/models/Scenario.js';
+import { type Repository } from '@seed-test/shared/models/Repository.js';
+import { type User } from '@seed-test/shared/models/User.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
 import { type IConfiguration, type ISupportCodeCoordinatesOrLibrary } from '@cucumber/cucumber/api';

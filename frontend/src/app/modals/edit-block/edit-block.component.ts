@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, TemplateRef, inject, input, viewChild, computed, linkedSignal } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, TemplateRef, inject, input, viewChild, computed, linkedSignal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Block } from '@shared/models/Block';
+import { Block } from '@seed-test/shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
-import { StepType } from '@shared/models/StepType';
+import { StepType } from '@seed-test/shared/models/StepType';
 import { ThemingService } from '../../Services/theming.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { BaseEditorComponent } from '../../base-editor/base-editor.component';

@@ -1,6 +1,6 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed, signal } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FileElement } from '@shared/models/FileElement';
+import { FileElement } from '@seed-test/shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ThemingService } from '../../Services/theming.service';

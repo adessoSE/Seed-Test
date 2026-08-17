@@ -1,4 +1,4 @@
-import type { User } from '@shared/models/User.js';
+﻿import type { User } from '@seed-test/shared/models/User.js';
 
 /**
  * Safe subset of a User object, with sensitive fields removed.

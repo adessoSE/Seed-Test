@@ -1,4 +1,4 @@
-// src/services/externalSync.service.spec.ts
+﻿// src/services/externalSync.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
@@ -7,11 +7,11 @@ import { ObjectId } from 'mongodb';
 import type * as ExternalSyncService from './externalSync.service.js';
 
 // Import types
-import { type User } from '@shared/models/User.js';
-import { type Story } from '@shared/models/Story.js';
-import { type Repository } from '@shared/models/Repository.js';
-import { type StepType } from '@shared/models/StepType.js';
-import { type Scenario } from '@shared/models/Scenario.js';
+import { type User } from '@seed-test/shared/models/User.js';
+import { type Story } from '@seed-test/shared/models/Story.js';
+import { type Repository } from '@seed-test/shared/models/Repository.js';
+import { type StepType } from '@seed-test/shared/models/StepType.js';
+import { type Scenario } from '@seed-test/shared/models/Scenario.js';
 
 // --- 1. Mock all external dependencies ---
 const mockDb = { collection: vi.fn() };

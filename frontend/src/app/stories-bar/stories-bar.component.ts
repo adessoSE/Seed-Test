@@ -1,12 +1,12 @@
-import { Component, OnChanges, ElementRef, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren, signal, effect, untracked, linkedSignal } from '@angular/core';
+﻿import { Component, OnChanges, ElementRef, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren, signal, effect, untracked, linkedSignal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { Story } from '@shared/models/Story';
+import { Story } from '@seed-test/shared/models/Story';
 import { XrayService } from '../Services/xray.service';
-import { Scenario } from '@shared/models/Scenario';
-import { Group } from '@shared/models/Group';
-import { GroupReport } from '@shared/models/GroupReport';
-import { StoryStatus } from '@shared/models/StoryStatus';
-import { ScenarioStatus } from '@shared/models/ScenarioStatus';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { Group } from '@seed-test/shared/models/Group';
+import { GroupReport } from '@seed-test/shared/models/GroupReport';
+import { StoryStatus } from '@seed-test/shared/models/StoryStatus';
+import { ScenarioStatus } from '@seed-test/shared/models/ScenarioStatus';
 import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { NotificationService } from '../Services/notification.service';
 import { ThemingService } from '../Services/theming.service';
@@ -14,7 +14,7 @@ import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-g
 import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
 import { UpdateGroupComponent } from '../modals/update-group/update-group.component';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-import { RepositoryContainer } from '@shared/models/RepositoryContainer';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
 import { ScenarioService } from '../Services/scenario.service';
