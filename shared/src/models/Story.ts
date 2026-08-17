@@ -1,5 +1,5 @@
-import {Scenario} from './Scenario';
-import { Background } from './Background';
+import {Scenario} from './Scenario.js';
+import { Background } from './Background.js';
 
 /**
  * Interface of the story

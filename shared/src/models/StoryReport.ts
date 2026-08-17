@@ -1,8 +1,8 @@
 /**
  * Interface of a report
  */
-import {StepResults} from './StepResults';
-import {ScenarioStatus} from './ScenarioStatus';
+import {StepResults} from './StepResults.js';
+import {ScenarioStatus} from './ScenarioStatus.js';
 
 export interface StoryReport {
 

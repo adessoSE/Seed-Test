@@ -1,4 +1,4 @@
-import { StepType } from './StepType';
+import { StepType } from './StepType.js';
 
 /**
  * Interface of a Step definition

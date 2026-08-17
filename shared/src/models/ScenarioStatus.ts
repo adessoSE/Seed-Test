@@ -1,4 +1,4 @@
-import {StepResults} from './StepResults';
+import {StepResults} from './StepResults.js';
 
 /**
  * Interface of a ScenarioStatus - Details to the Scenario executed a Report

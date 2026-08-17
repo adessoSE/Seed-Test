@@ -1,6 +1,6 @@
-import { StoryReport } from './StoryReport';
-import {ScenarioReport} from './ScenarioReport';
-import {GroupReport} from './GroupReport';
+import { StoryReport } from './StoryReport.js';
+import {ScenarioReport} from './ScenarioReport.js';
+import {GroupReport} from './GroupReport.js';
 
 /**
  * Interface of a StoryReport container for the report history

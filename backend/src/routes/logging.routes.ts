@@ -1,7 +1,7 @@
 import express from 'express';
 import * as loggingController from '../controllers/logging.controller.js';
 import { validate } from '../middleware/validate.js';
-import { logMessageSchema } from '../schemas/logging.schemas.js';
+import { logMessageSchema } from '@shared/schemas/logging.schemas.js';
 
 const router = express.Router();
 

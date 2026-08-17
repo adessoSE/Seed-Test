@@ -1,5 +1,5 @@
-import {StoryStatus} from './StoryStatus';
-import {StepResults} from './StepResults';
+import {StoryStatus} from './StoryStatus.js';
+import {StepResults} from './StepResults.js';
 /**
  * Interface of a report
  */

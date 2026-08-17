@@ -1,5 +1,5 @@
-import { MultipleScenario } from "./MuiltipleScenario";
-import { StepDefinition } from "./StepDefinition";
+import { MultipleScenario } from "./MuiltipleScenario.js";
+import { StepDefinition } from "./StepDefinition.js";
 
 /**
  * Interface of a block

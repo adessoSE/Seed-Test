@@ -1,5 +1,5 @@
-import {StepResults} from './StepResults';
-import {ScenarioStatus} from './ScenarioStatus';
+import {StepResults} from './StepResults.js';
+import {ScenarioStatus} from './ScenarioStatus.js';
 
 /**
  * Interface of a report - Details to Story executed

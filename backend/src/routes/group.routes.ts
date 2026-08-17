@@ -2,7 +2,7 @@ import express from 'express';
 import * as groupController from '../controllers/group.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { createGroupSchema } from '../schemas/group.schemas.js';
+import { createGroupSchema } from '@shared/schemas/group.schemas.js';
 
 const router = express.Router();
 

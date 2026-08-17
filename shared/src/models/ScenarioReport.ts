@@ -1,4 +1,4 @@
-import {ScenarioStatus} from './ScenarioStatus';
+import {ScenarioStatus} from './ScenarioStatus.js';
 /**
  * Interface of a report
  */

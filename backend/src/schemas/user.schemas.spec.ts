@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, githubLoginSchema, githubRegisterSchema } from './user.schemas.js';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, githubLoginSchema, githubRegisterSchema } from '@shared/schemas/user.schemas.js';
 
 describe('loginSchema', () => {
 	it('accepts valid login', () => {

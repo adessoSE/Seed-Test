@@ -1,7 +1,7 @@
 import express from 'express';
 import * as githubController from '../controllers/github.controller.js';
 import { validate } from '../middleware/validate.js';
-import { submitIssueSchema } from '../schemas/github.schemas.js';
+import { submitIssueSchema } from '@shared/schemas/github.schemas.js';
 
 const router = express.Router();
 

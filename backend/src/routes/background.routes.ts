@@ -2,7 +2,7 @@ import express from 'express';
 import * as backgroundController from '../controllers/background.controller.js';
 import { authorizeByStory } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { updateBackgroundSchema } from '../schemas/background.schemas.js';
+import { updateBackgroundSchema } from '@shared/schemas/background.schemas.js';
 
 const router = express.Router();
 

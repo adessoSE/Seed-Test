@@ -1,5 +1,5 @@
-import { AiConfig } from './RepositoryContainer';
-import { Group } from './Group';
+import { AiConfig } from './RepositoryContainer.js';
+import { Group } from './Group.js';
 
 export interface Repository {
     _id?: string;

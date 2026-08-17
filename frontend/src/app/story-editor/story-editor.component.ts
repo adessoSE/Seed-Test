@@ -1252,10 +1252,8 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
 				if (this.preConditionResults && this.preConditionResults.length > 0) 
 					try {
 						const temp_group = await this.createTempGroup();
-						const repoId = localStorage.getItem('id');
 						const params = {
-							id: repoId,
-							repositoryId: repoId,
+							repositoryId: localStorage.getItem('id'),
 							repository: localStorage.getItem('repository'),
 							source: localStorage.getItem('source'),
 							group: temp_group

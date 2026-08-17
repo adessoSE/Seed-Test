@@ -1,4 +1,4 @@
-import { StepDefinitionBackground } from './StepDefinitionBackground';
+import { StepDefinitionBackground } from './StepDefinitionBackground.js';
 
 /**
  * Interface of the Background 

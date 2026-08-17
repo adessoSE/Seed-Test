@@ -5,7 +5,7 @@ import * as userService from '../services/user.service.js';
 import * as scriptController from '../controllers/script.controller.js';
 import { type Session, type SessionData } from 'express-session';
 import { validate } from '../middleware/validate.js';
-import { scriptGroupSchema, scriptFeatureSchema } from '../schemas/script.schemas.js';
+import { scriptGroupSchema, scriptFeatureSchema } from '@shared/schemas/script.schemas.js';
 import { AppError } from '../helpers/AppError.js';
 
 const router = express.Router();
