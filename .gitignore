@@ -89,12 +89,9 @@ opencode.jsonc
 .claude/worktrees/
 
 # Agent working files (local tracking only, never committed)
-docs/tasks.md
-docs/buglist.md
-**/VORGEHENSWEISE.md
 workers/
 tasks/
-tasks/archive/
+**/VORGEHENSWEISE.md
 
 # Ephemeral artifacts from Playwright E2E testing and debugging
 *.png
