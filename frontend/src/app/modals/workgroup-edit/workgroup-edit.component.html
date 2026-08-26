@@ -200,7 +200,7 @@
                 @if (userEmail===workgroupOwner()) {
                   <div>
                     <span style="margin-right: 10px;">Project Owner:</span>
-                    @if (!this.workgroupList().length === 0) {
+                    @if (this.workgroupList().length > 0) {
                       <mat-form-field
                         style="margin-right: 10px; position: inherit;" appearance="fill"
                         [style.width]="workgroupOwner().length + 6 +'ch'">
@@ -285,10 +285,10 @@
                       </div>
                     </div>
                   }
-                  @if (currentTab === 'aiGenerationSettings' && workgroupProject.aiConfig) {
+                  @if (currentTab === 'aiGenerationSettings') {
                     <div>
                       <!-- Part: AI Generation Settings -->
-                      @if (currentTab === 'aiGenerationSettings' && workgroupProject.aiConfig) {
+                      @if (workgroupProject.aiConfig) {
                         <div>
                           <h5 class="section-header">AI Provider</h5>
                           <div class="form-group" style="display: flex; gap: 20px; justify-content: center;">

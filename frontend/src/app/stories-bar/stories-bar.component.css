@@ -252,6 +252,27 @@ a.storyListLink:hover{
   padding: 0 !important;
 }
 
+/* Hover effect on the full panel header row — not just the inner title span.
+   Overrides Angular Material's default header background on hover. */
+.stories-accordion ::ng-deep .mat-expansion-panel-header:hover,
+.groups-accordion ::ng-deep .mat-expansion-panel-header:hover {
+  background-color: #f1f1f1 !important;
+}
+
+.darkTheme .stories-accordion ::ng-deep .mat-expansion-panel-header:hover,
+.darkTheme .groups-accordion ::ng-deep .mat-expansion-panel-header:hover {
+  background-color: #546E7A !important;
+}
+
+/* Visual indicator for the currently selected story in the accordion panel header */
+.stories-accordion .selected {
+  font-weight: 600;
+}
+
+.darkTheme .stories-accordion .selected {
+  color: white;
+}
+
 .stories-accordion ::ng-deep .mat-expansion-panel-header,
 .groups-accordion ::ng-deep .mat-expansion-panel-header {
   height: auto !important;

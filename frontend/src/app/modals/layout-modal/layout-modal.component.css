@@ -35,6 +35,12 @@
   color: black;
 }
 
+/* In dark mode the modal body background is #455A64 — override the black label
+   to white so form labels remain readable. */
+::ng-deep .darkTheme .uk-form-label {
+  color: white;
+}
+
 ::ng-deep span[rel=def] {
   top: 1em;
   left: 16em;

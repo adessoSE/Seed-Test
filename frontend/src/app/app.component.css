@@ -286,11 +286,12 @@ a:hover{
 }
 
 /* Extend .help-button hit area downward to eliminate the gap between button
-   and menu panel that triggers premature mouseleave, causing the flicker. */
+   and menu panel that triggers premature mouseleave, causing the flicker.
+   !important needed to override .rightButton's padding: 2px !important. */
 .help-button {
   position: relative;
   overflow: visible;
-  padding-bottom: 8px;
+  padding-bottom: 8px !important;
 }
 
 .slide-toggle-container {

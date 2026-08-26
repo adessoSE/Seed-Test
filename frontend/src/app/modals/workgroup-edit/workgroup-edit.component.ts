@@ -262,6 +262,8 @@ export class WorkgroupEditComponent {
 			.setAttribute('style', 'display: none');
 		this.projectService.changeOwner(this.workgroupProject._id!, newOwner).subscribe((_) => {
 			this.notify.success('successfully changed', 'New owner');
+			// Invalidate repository cache so the UI reflects the new owner immediately
+			this.projectService.updateRepositoryEmitter();
 		});
 		this.modalReference.close();
 	}

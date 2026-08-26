@@ -22,6 +22,7 @@
   "private": true,
   "dependencies": {
     "@cucumber/cucumber": "^13.2.0",
+    "@playwright/test": "^1.62.1",
     "@seed-test/shared": "*",
     "adm-zip": "^0.6.0",
     "bcrypt": "^6.0.0",

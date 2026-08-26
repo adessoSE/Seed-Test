@@ -239,6 +239,12 @@ export class LoginService {
 		localStorage.removeItem('id');
 		localStorage.removeItem('repository');
 		localStorage.removeItem('source');
+		// Clear all session-specific keys that could leak stale data
+		// across users (Jira session, GitHub repo type, userId, report state).
+		localStorage.removeItem('JiraSession');
+		localStorage.removeItem('repositoryType');
+		localStorage.removeItem('userId');
+		localStorage.removeItem('reportComponent');
 		return this.http.get<string[]>(url, ApiService.getOptions()).pipe(
 			tap((_) => {
 				//

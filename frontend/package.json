@@ -19,7 +19,6 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^22.0.8",
-    "@seed-test/shared": "*",
     "@angular/cdk": "^22.0.6",
     "@angular/cli": "^22.0.8",
     "@angular/common": "^22.0.8",
@@ -32,15 +31,16 @@
     "@angular/platform-browser-dynamic": "^22.0.8",
     "@angular/router": "^22.0.8",
     "@ng-bootstrap/ng-bootstrap": "^21.0.0",
+    "@seed-test/shared": "*",
     "express": "^5.2.1",
     "file-saver": "^2.0.5",
     "html2canvas": "1.4.1",
     "jspdf": "^4.2.1",
     "ngx-cookie-service": "^22.0.0",
     "ngx-logger": "~5.0.12",
-    "ngx-owl-carousel-o": "22.0.0",
+    "ngx-owl-carousel-o": "^22.0.0",
     "rxjs": "^6.5.3 || ^7.4.0",
-    "uikit": "^3.25.20"
+    "uikit": "^3.25.21"
   },
   "devDependencies": {
     "@angular/build": "^22.0.8",

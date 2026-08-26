@@ -1,5 +1,12 @@
 {
   "name": "seed-test-monorepo",
   "private": true,
-  "workspaces": ["backend", "shared", "frontend"]
+  "workspaces": [
+    "backend",
+    "shared",
+    "frontend"
+  ],
+  "dependencies": {
+    "@popperjs/core": "^2.11.8"
+  }
 }
