@@ -1,5 +1,6 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
 import { type ExecuteTestRequest, type TestExecutionResult } from '../testing/test-runner.service.js';
 import * as storyService from '../services/story.service.js';
@@ -20,7 +21,7 @@ import { AppError } from '../helpers/AppError.js';
 // Helper function to extract common parameters
 function extractRunParams(req: Request): { repoId: string, repositoryName: string } {
 	const body = req.body as Record<string, unknown>;
-	const repoId = req.params.repoID || body.id as string || body.repoId as string || body.repositoryId as string;
+	const repoId = param(req, 'repoID') || body.id as string || body.repoId as string || body.repositoryId as string;
 	const repositoryName = body.repository as string; // Assuming this comes in the body for groups/temps
 	requireValidId(repoId, 'repository ID');
     
@@ -72,8 +73,7 @@ export async function handleReportResult(res: Response, reportResult: TestExecut
  */
 export async function runFeature(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.issueID;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'issueID'), 'story ID');
 
 		const story = await storyService.getOneStory(storyId);
 		if (!story)
@@ -97,9 +97,8 @@ export async function runFeature(req: Request, res: Response, next: NextFunction
  */
 export async function runScenario(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.issueID;
-		const scenarioId = req.params.scenarioId;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'issueID'), 'story ID');
+		const scenarioId = param(req, 'scenarioId');
 
 		// Scenario ID is numeric in the model
 		if (!scenarioId || isNaN(parseInt(scenarioId)))
@@ -130,10 +129,8 @@ export async function runScenario(req: Request, res: Response, next: NextFunctio
 export async function runGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		// The predefined-group endpoint carries the repository ID in its URL, not its body.
-		const repoId = req.params.repoID;
-		requireValidId(repoId, 'repository ID');
-		const groupId = req.params.groupID;
-		requireValidId(groupId, 'group ID');
+		const repoId = requireValidId(param(req, 'repoID'), 'repository ID');
+		const groupId = requireValidId(param(req, 'groupID'), 'group ID');
 
 		(req.body as Record<string, unknown>).repositoryId = repoId;
 

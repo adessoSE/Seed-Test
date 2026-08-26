@@ -7,6 +7,7 @@ import * as reportService from '../services/report.service.js';
 import * as storyService from '../services/story.service.js';
 import type { ReportDoc } from '../types/report.types.js';
 import { AppError } from '../helpers/AppError.js';
+import { param } from '../utils/request-params.js';
 
 /** Where to read the ID from: URL params (default), request body, or query string. */
 type IdSource = 'params' | 'body' | 'query';
@@ -15,7 +16,7 @@ type IdSource = 'params' | 'body' | 'query';
 function getIdFromRequest(req: Request, name: string, source: IdSource): string | undefined {
 	if (source === 'body') return (req.body as Record<string, unknown>)[name] as string | undefined;
 	if (source === 'query') return req.query[name] as string | undefined;
-	return req.params[name];
+	return param(req, name);
 }
 
 /**
@@ -185,7 +186,7 @@ export function authorizeByReport(paramName: string, options: { requireEdit?: bo
 				return;
 			}
 
-			const paramValue = req.params[paramName];
+			const paramValue = param(req, paramName);
 			const lookupBy = options.lookupBy ?? 'id';
 
 			let report: ReportDoc | null;
@@ -278,7 +279,7 @@ export function authorizeByIssueKey(paramName: string) {
 				return;
 			}
 
-			const issueKey = req.params[paramName];
+			const issueKey = param(req, paramName);
 			if (!issueKey || typeof issueKey !== 'string') {
 				res.status(400).json({ error: `Invalid or missing issue key parameter: ${paramName}` });
 				return;

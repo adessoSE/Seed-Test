@@ -1,5 +1,6 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
@@ -21,9 +22,8 @@ import { AppError } from '../helpers/AppError.js';
 export async function runSanityTest(req: Request, res: Response, next: NextFunction): Promise<void> {
 	let sanityFolderName: string | undefined;
 	try {
-		const { repoID, groupID } = req.params;
-		requireValidId(repoID, 'repository ID');
-		requireValidId(groupID, 'group ID');
+		const repoID = requireValidId(param(req, 'repoID'), 'repository ID');
+		const groupID = requireValidId(param(req, 'groupID'), 'group ID');
 
 		const group = await repositoryService.getOneStoryGroup(repoID, groupID);
 		if (!group)

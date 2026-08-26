@@ -1,5 +1,6 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import { type User } from '@seed-test/shared/models/User.js';
 import { type RepositoryContainer, type AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
 import * as repositoryService from '../services/repository.service.js';
@@ -102,8 +103,7 @@ export async function createRepository(req: Request, res: Response, next: NextFu
  */
 export async function updateRepositorySettings(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id } = req.params;
-		requireValidId(repo_id, 'repository ID');
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
 
 		const { repoName, settings, aiConfig } = req.body as { repoName?: string; settings?: Record<string, unknown>; aiConfig?: AiConfig };
 
@@ -120,8 +120,7 @@ export async function updateRepositorySettings(req: Request, res: Response, next
  */
 export async function getRepositorySettings(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id } = req.params;
-		requireValidId(repo_id, 'repository ID');
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
 
 		const settings = await repositoryService.getRepoSettingsById(repo_id);
 		res.status(200).json(settings);
@@ -135,8 +134,7 @@ export async function getRepositorySettings(req: Request, res: Response, next: N
  */
 export async function getRepositoryAiConfig(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id } = req.params;
-		requireValidId(repo_id, 'repository ID');
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
 
 		const aiConfig = await repositoryService.getRepoAiConfigById(repo_id);
 		res.status(200).json(aiConfig);
@@ -150,9 +148,8 @@ export async function getRepositoryAiConfig(req: Request, res: Response, next: N
  */
 export async function updateRepositoryOwner(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id } = req.params;
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
 		const user = req.user as User;
-		requireValidId(repo_id, 'repository ID');
 
 		const newOwner = await userService.getUserByEmail((req.body as Record<string, unknown>).email as string);
 		if (!newOwner)
@@ -170,9 +167,8 @@ export async function updateRepositoryOwner(req: Request, res: Response, next: N
  */
 export async function deleteRepository(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id } = req.params;
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
 		const user = req.user as User;
-		requireValidId(repo_id, 'repository ID');
 
 		const result = await repositoryService.deleteRepository(repo_id, user._id!.toString());
 		res.status(200).json(result);

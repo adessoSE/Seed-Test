@@ -101,3 +101,8 @@ tasks/
 cookies.txt
 frontend-test*.txt
 backend-err.log
+
+# Ephemeral agent tooling data (indexes, traces, browser panel state)
+.codebase-memory/
+.openchamber/
+.playwright-mcp/

@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as workgroupService from '../services/workgroup.service.js';
 import * as userService from '../services/user.service.js';
 import { AppError } from '../helpers/AppError.js';
@@ -9,8 +10,7 @@ import { AppError } from '../helpers/AppError.js';
  */
 export async function getMembers(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'id'), 'repository ID');
 
 		const members = await workgroupService.getMembers(repoId);
 		res.status(200).json(members);
@@ -24,8 +24,7 @@ export async function getMembers(req: Request, res: Response, next: NextFunction
  */
 export async function addMember(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'id'), 'repository ID');
 
 		// Ensure email is lowercase and validate user exists
 		const body = req.body as Record<string, unknown>;
@@ -61,8 +60,7 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
  */
 export async function updateMemberStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'id'), 'repository ID');
 
 		const body = req.body as Record<string, unknown>;
 		const userToUpdate = {
@@ -84,8 +82,7 @@ export async function updateMemberStatus(req: Request, res: Response, next: Next
  */
 export async function removeMember(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'id'), 'repository ID');
 
 		// The user object might be nested differently in the original JS request body
 		const body = req.body as Record<string, unknown>;

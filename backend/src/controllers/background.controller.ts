@@ -1,5 +1,6 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as storyService from '../services/story.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
 import { type Background } from '@seed-test/shared/models/Background.js';
@@ -10,8 +11,7 @@ import { type Background } from '@seed-test/shared/models/Background.js';
  */
 export async function updateBackground(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.storyID;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'storyID'), 'story ID');
 
 		const backgroundData = req.body as Background;
 
@@ -32,8 +32,7 @@ export async function updateBackground(req: Request, res: Response, next: NextFu
  */
 export async function deleteBackground(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.storyID;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'storyID'), 'story ID');
 
 		await storyService.deleteBackground(storyId);
 		// Trigger feature file update after successful DB update

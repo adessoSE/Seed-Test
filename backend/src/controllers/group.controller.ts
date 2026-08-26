@@ -1,5 +1,6 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as repositoryService from '../services/repository.service.js';
 import { type Group } from '@seed-test/shared/models/Group.js';
 
@@ -8,8 +9,7 @@ import { type Group } from '@seed-test/shared/models/Group.js';
  */
 export async function getAllGroups(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.repo_id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'repo_id'), 'repository ID');
 
 		// The service now returns only the groups array
 		const groups = await repositoryService.getAllStoryGroups(repoId);
@@ -24,8 +24,7 @@ export async function getAllGroups(req: Request, res: Response, next: NextFuncti
  */
 export async function createGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.repo_id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'repo_id'), 'repository ID');
 
 		const body = req.body as Record<string, unknown>;
 		const name = body.name as string;
@@ -51,9 +50,8 @@ export async function createGroup(req: Request, res: Response, next: NextFunctio
  */
 export async function updateGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id, group_id } = req.params;
-		requireValidId(repo_id, 'repository ID');
-		requireValidId(group_id, 'group ID');
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
+		const group_id = requireValidId(param(req, 'group_id'), 'group ID');
 
 		const updatedGroupData = req.body as Group;
 
@@ -71,9 +69,8 @@ export async function updateGroup(req: Request, res: Response, next: NextFunctio
  */
 export async function deleteGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id, group_id } = req.params;
-		requireValidId(repo_id, 'repository ID');
-		requireValidId(group_id, 'group ID');
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
+		const group_id = requireValidId(param(req, 'group_id'), 'group ID');
 
 		await repositoryService.deleteStoryGroup(repo_id, group_id);
 		res.status(200).json({ message: 'Group deleted' });
@@ -87,10 +84,9 @@ export async function deleteGroup(req: Request, res: Response, next: NextFunctio
  */
 export async function addStoryToGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id, group_id, story_id } = req.params;
-		requireValidId(repo_id, 'repository ID');
-		requireValidId(group_id, 'group ID');
-		requireValidId(story_id, 'story ID');
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
+		const group_id = requireValidId(param(req, 'group_id'), 'group ID');
+		const story_id = requireValidId(param(req, 'story_id'), 'story ID');
 
 		await repositoryService.addToStoryGroup(repo_id, group_id, story_id);
 		res.status(200).json({ message: 'Story added to group' });
@@ -104,10 +100,9 @@ export async function addStoryToGroup(req: Request, res: Response, next: NextFun
  */
 export async function removeStoryFromGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id, group_id, story_id } = req.params;
-		requireValidId(repo_id, 'repository ID');
-		requireValidId(group_id, 'group ID');
-		requireValidId(story_id, 'story ID');
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
+		const group_id = requireValidId(param(req, 'group_id'), 'group ID');
+		const story_id = requireValidId(param(req, 'story_id'), 'story ID');
 
 		await repositoryService.removeFromStoryGroup(repo_id, group_id, story_id);
 		res.status(200).json({ message: 'Story removed from group' });
@@ -121,8 +116,7 @@ export async function removeStoryFromGroup(req: Request, res: Response, next: Ne
  */
 export async function updateGroupsArray(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.repo_id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'repo_id'), 'repository ID');
 
 		const groupsArray = req.body as Group[];
 		await repositoryService.updateStoryGroupsArray(repoId, groupsArray);

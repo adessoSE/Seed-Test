@@ -1,5 +1,6 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import * as featureFileService from '../services/feature-file.service.js';
@@ -56,8 +57,7 @@ export async function getStories(req: Request, res: Response, next: NextFunction
 
 export async function getStoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params._id;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, '_id'), 'story ID');
 
 		const story = await storyService.getOneStory(storyId);
 		if (!story)
@@ -71,7 +71,7 @@ export async function getStoryById(req: Request, res: Response, next: NextFuncti
 
 export async function getStoryByIssueKey(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const issueKey = req.params.issue_key;
+		const issueKey = param(req, 'issue_key');
 		// Basic validation, adjust if Jira keys have stricter rules
 		if (!issueKey || typeof issueKey !== 'string')
 			throw AppError.badRequest('Invalid issue key format');
@@ -107,8 +107,7 @@ export async function createStory(req: Request, res: Response, next: NextFunctio
 
 export async function updateStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params._id;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, '_id'), 'story ID');
 
 		const storyData = req.body as Story;
 		// Ensure the ID in the body matches the URL parameter for consistency
@@ -125,9 +124,8 @@ export async function updateStory(req: Request, res: Response, next: NextFunctio
 
 export async function deleteStory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id, _id: storyId } = req.params;
-		requireValidId(repo_id, 'repository ID');
-		requireValidId(storyId, 'story ID');
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
+		const storyId = requireValidId(param(req, '_id'), 'story ID');
 
 		const story = await storyService.getOneStory(storyId); // Fetch story to get title for file deletion
 		if (!story)
@@ -145,9 +143,8 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
  */
 export async function updateStoryOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { repo_id } = req.params;
+		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
 		const { storyIds: storiesList } = req.body as { storyIds: string[] }; // Erwartet ein Array von Story-IDs
-		requireValidId(repo_id, 'repository ID');
 		await repositoryService.updateStoriesArrayInRepo(repo_id, storiesList);
 		res.status(200).json({ message: 'Story order updated' });
 	} catch (error) {
@@ -159,9 +156,9 @@ export async function updateStoryOrder(req: Request, res: Response, next: NextFu
 
 export async function getScenario(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { story_id, _id: scenarioNumId } = req.params;
+		const story_id = requireValidId(param(req, 'story_id'), 'story ID');
+		const scenarioNumId = param(req, '_id') as string;
 		const scenarioId = parseInt(scenarioNumId, 10);
-		requireValidId(story_id, 'story ID');
 		if (isNaN(scenarioId))
 			throw AppError.badRequest('Invalid scenario ID format');
 
@@ -177,8 +174,7 @@ export async function getScenario(req: Request, res: Response, next: NextFunctio
 
 export async function createScenario(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.story_id;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'story_id'), 'story ID');
 
 		const name = (req.body as Record<string, unknown>).name as string; // Assuming name comes in body
 
@@ -192,9 +188,9 @@ export async function createScenario(req: Request, res: Response, next: NextFunc
 
 export async function updateScenario(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { story_id, _id: scenarioNumId } = req.params;
+		const story_id = requireValidId(param(req, 'story_id'), 'story ID');
+		const scenarioNumId = param(req, '_id') as string;
 		const scenarioId = parseInt(scenarioNumId, 10);
-		requireValidId(story_id, 'story ID');
 		if (isNaN(scenarioId))
 			throw AppError.badRequest('Invalid scenario ID format');
 
@@ -242,10 +238,10 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 	let dbError: Error | null = null;
 	let xrayError: Error | null = null;
 
-	const { story_id, _id: scenarioNumId } = req.params;
+	const story_id = requireValidId(param(req, 'story_id'), 'story ID');
+	const scenarioNumId = param(req, '_id') as string;
 	const scenarioId = parseInt(scenarioNumId, 10);
 
-	requireValidId(story_id, 'story ID');
 	if (isNaN(scenarioId))
 		throw AppError.badRequest('Invalid scenario ID format');
 
@@ -286,8 +282,7 @@ export async function deleteScenario(req: Request, res: Response, _next: NextFun
 
 export async function updateScenarioList(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.story_id;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'story_id'), 'story ID');
 
 		const scenarioList = req.body as Scenario[];
 		await storyService.updateScenarioList(storyId, scenarioList);
@@ -303,8 +298,7 @@ export async function updateScenarioList(req: Request, res: Response, next: Next
 
 export async function downloadSingleFeature(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params._id;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, '_id'), 'story ID');
 
 		const fileContent = await featureFileService.exportSingleFeatureFile(storyId);
 		// Fetch story to get title for filename
@@ -322,8 +316,7 @@ export async function downloadSingleFeature(req: Request, res: Response, next: N
 
 export async function downloadProjectFeatures(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.repo_id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'repo_id'), 'repository ID');
 
 		const version = req.query.version_id as string | undefined;
 		const zipBuffer = await featureFileService.exportProjectFeatureFiles(repoId, version);
@@ -340,8 +333,7 @@ export async function downloadProjectFeatures(req: Request, res: Response, next:
 
 export async function exportProjectArchive(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.repo_id;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'repo_id'), 'repository ID');
 
 		const zipBuffer = await importExportService.exportProject(repoId);
 		const repo = await repositoryService.getOneRepositoryById(repoId);
@@ -383,8 +375,7 @@ export async function importProjectArchive(req: Request, res: Response, next: Ne
 
 export async function setOneDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.storyID;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'storyID'), 'story ID');
 		// Assuming the service expects the current value to toggle it
 		const result = await storyService.updateOneDriver(storyId, (req.body as Record<string, unknown>).oneDriver as boolean);
 		res.status(200).json(result); // Return result from service
@@ -415,8 +406,7 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 		if (!aiAvailable)
 			throw AppError.notImplemented('AI features are not available. The @seed-test/ai-parser package is not installed.');
 
-		const storyId = req.params.story_id;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'story_id'), 'story ID');
 
 		// The body now contains the structured AiConfig
 		const rawAiConfig = (req.body as Record<string, unknown>).aiConfig;
@@ -439,8 +429,7 @@ export async function generateAiScenarios(req: Request, res: Response, next: Nex
 export function getAiGenerationStatus(req: Request, res: Response, _next: NextFunction): void {
 	// This function remains unchanged as it only uses the emitter
 	try {
-		const storyId = req.params.story_id;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'story_id'), 'story ID');
 
 		res.setHeader('Content-Type', 'text/event-stream');
 		res.setHeader('Cache-Control', 'no-cache');
@@ -467,7 +456,7 @@ export function getAiGenerationStatus(req: Request, res: Response, _next: NextFu
 		});
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : String(error);
-		logger.error(`SSE setup failed for story ${req.params.story_id}: ${message}`);
+		logger.error(`SSE setup failed for story ${param(req, 'story_id')}: ${message}`);
 		res.write(`event: error\ndata: ${JSON.stringify({ message })}\n\n`);
 		res.end();
 	}

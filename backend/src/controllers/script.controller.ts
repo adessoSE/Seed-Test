@@ -1,5 +1,6 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as repositoryService from '../services/repository.service.js';
 import * as storyService from '../services/story.service.js';
 import * as testRunnerService from '../testing/test-runner.service.js';
@@ -71,8 +72,7 @@ export async function runGroupViaScript(req: Request, res: Response, next: NextF
  */
 export async function runFeatureViaScript(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.issueID; // Get ID from URL parameter
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'issueID'), 'story ID');
 
 		const story = await storyService.getOneStory(storyId);
 		if (!story)

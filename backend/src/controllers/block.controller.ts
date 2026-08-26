@@ -1,6 +1,7 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import { type ObjectId, type InsertOneResult, type DeleteResult } from 'mongodb';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as blockService from '../services/block.service.js';
 import { type Block } from '@seed-test/shared/models/Block.js';
 import { oid, type BlockDoc } from '../types/mongo.types.js';
@@ -35,8 +36,7 @@ export async function saveBlock(req: Request, res: Response, next: NextFunction)
  */
 export async function getBlocks(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const repoId = req.params.repoId;
-		requireValidId(repoId, 'repository ID');
+		const repoId = requireValidId(param(req, 'repoId'), 'repository ID');
 		const result = await blockService.getBlocks(repoId);
 		res.status(200).json(result);
 	} catch (error) {
@@ -51,8 +51,7 @@ export async function getBlocks(req: Request, res: Response, next: NextFunction)
  */
 export async function updateBlock(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const blockId = req.params.blockId;
-		requireValidId(blockId, 'block ID');
+		const blockId = requireValidId(param(req, 'blockId'), 'block ID');
 
 		const user = req.user as { _id?: ObjectId | string };
 		if (!user._id) // Still good practice to check user exists
@@ -76,8 +75,7 @@ export async function updateBlock(req: Request, res: Response, next: NextFunctio
  */
 export async function deleteBlock(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const blockId = req.params.blockId;
-		requireValidId(blockId, 'block ID');
+		const blockId = requireValidId(param(req, 'blockId'), 'block ID');
 
 		const user = req.user as { _id?: ObjectId | string };
 		if (!user._id)

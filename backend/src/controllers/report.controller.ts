@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
 import * as reportService from '../services/report.service.js';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -11,8 +12,7 @@ import { AppError } from '../helpers/AppError.js';
  */
 export async function getReportData(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const reportId = req.params.reportId;
-		requireValidId(reportId, 'report ID');
+		const reportId = requireValidId(param(req, 'reportId'), 'report ID');
 
 		// Use the dedicated service function
 		const result = await reportService.getReportDataById(reportId);
@@ -29,7 +29,7 @@ export async function getReportData(req: Request, res: Response, next: NextFunct
  */
 export async function regenerateReport(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const reportName = req.params.reportName;
+		const reportName = param(req, 'reportName') as string;
 		// Regenerate based on name - logic moved from reporting.ts/createReport
 		const fullReport = await reportService.getReportByName(reportName);
 		if (!fullReport.jsonReport)
@@ -61,8 +61,7 @@ export async function regenerateReport(req: Request, res: Response, next: NextFu
  */
 export async function getReportHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const storyId = req.params.storyId;
-		requireValidId(storyId, 'story ID');
+		const storyId = requireValidId(param(req, 'storyId'), 'story ID');
 		const reportContainer = await reportService.getReportHistory(storyId);
 		res.status(200).json(reportContainer);
 	} catch (error) {
@@ -75,8 +74,7 @@ export async function getReportHistory(req: Request, res: Response, next: NextFu
  */
 export async function deleteReport(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const reportId = req.params.reportId;
-		requireValidId(reportId, 'report ID');
+		const reportId = requireValidId(param(req, 'reportId'), 'report ID');
 
 		await reportService.deleteReport(reportId);
 		res.status(200).json({ message: 'Report deleted successfully' });
@@ -88,8 +86,7 @@ export async function deleteReport(req: Request, res: Response, next: NextFuncti
 /** Marks a report as saved. */
 export async function saveReport(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { reportId } = req.params;
-		requireValidId(reportId, 'report ID');
+		const reportId = requireValidId(param(req, 'reportId'), 'report ID');
 
 		await reportService.setIsSavedTestReport(reportId, true);
 		res.status(200).json({ message: 'Report marked as saved.' });
@@ -101,8 +98,7 @@ export async function saveReport(req: Request, res: Response, next: NextFunction
 /** Marks a report as unsaved. */
 export async function unsaveReport(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
-		const { reportId } = req.params;
-		requireValidId(reportId, 'report ID');
+		const reportId = requireValidId(param(req, 'reportId'), 'report ID');
 
 		await reportService.setIsSavedTestReport(reportId, false);
 		res.status(200).json({ message: 'Report marked as unsaved.' });
