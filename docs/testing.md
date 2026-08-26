@@ -256,7 +256,88 @@ Agents automatically have `browser_navigate`, `browser_click`, `browser_snapshot
 
 If an agent starts a local dev server (`ng serve`, `npm run dev`, etc.) for testing, it **must shut it down** afterwards. Never leave a process occupying ports 4200 or 8080 — those belong to the user's running instance.
 
-## CI tests
+## Agent operational notes — Debugging & Testing
+
+These are lessons learned from debugging sessions that trip up automated agents. Keep them concise so future agents don't waste cycles.
+
+### Angular frontend rebuild cycle
+
+After editing **any** Angular source file (`*.ts`, `*.html`, `*.css`, `*.scss`), the dev server must be rebuilt before changes take effect:
+
+```bash
+# 1. Build (60-68s on typical hardware)
+cd C:\SeedTest\frontend && npm run build
+
+# 2. Stop old server (port 4200)
+Stop-Process -Name node -Force   # kills ALL node processes on this machine
+
+# 3. Start new server
+cd C:\SeedTest\frontend; node server.js > C:\Users\meilbeck\AppData\Local\Temp\frontend-stdout.log 2>&1 &
+
+# 4. Wait for readiness
+Start-Sleep -Seconds 3
+Test-NetConnection -ComputerName localhost -Port 4200 -WarningAction SilentlyContinue | Select-Object TcpTestSucceeded
+```
+
+**Critical**: `server.js` serves the **last built bundle** from `dist/cucumber-frontend/browser`. It does NOT hot-reload. Every source edit → build → restart. This is the #1 bottleneck in the test-feedback loop.
+
+### Running frontend tests — use `ng test`, NOT `vitest` directly
+
+```bash
+# CORRECT — uses Angular CLI wrapper which sets up globals (describe, expect, beforeEach)
+cd C:\SeedTest\frontend && npx ng test --include "src/app/login/login.component.spec.ts" --watch=false
+
+# WRONG — fails with "describe is not defined" because vitest globals are not injected
+cd C:\SeedTest\frontend && npx vitest run src/app/login/login.component.spec.ts
+```
+
+The Angular CLI wrapper (`ng test`) configures the Vitest runner with globals, JSDOM environment, and Angular-specific setup. Calling `vitest` directly skips all of that.
+
+### Windows PowerShell gotchas
+
+| Unix convention | Windows PowerShell equivalent |
+|----------------|------------------------------|
+| `cmd | head -5` | `... | Select-Object -First 5` |
+| `cmd | wc -l` | `... | Measure-Object -Line` |
+| `timeout 5` | `Start-Sleep -Seconds 5` |
+| `kill 12345` | `Stop-Process -Id 12345 -Force` |
+| `lsof -i :4200` | `Test-NetConnection -ComputerName localhost -Port 4200` |
+| Background: `cmd &` | `Start-Process -FilePath "node" -ArgumentList "server.js" -PassThru` |
+| Read last N bytes of file | `Get-Content file.log -Tail 20` |
+| `curl -s url` | `Invoke-WebRequest -Uri url -UseBasicParsing | Select-Object -ExpandProperty Content` |
+
+**Process management**: On Windows, `Stop-Process -Name node -Force` kills ALL node processes (both backend and frontend). If you need to target one, use `Stop-Process -Id <PID> -Force` instead.
+
+### Playwright harness scripts
+
+- Use `require('C:/SeedTest/node_modules/playwright')` (bundled Playwright, no install needed).
+- Save harness scripts to `C:\Users\meilbeck\AppData\Local\Temp\opencode\` (agent temp directory, already exists).
+- Each Playwright context is isolated — clear state between scenarios by creating a new `chromium.launch()` + `newContext()`.
+- `page.addInitScript()` seeds localStorage **before** any page load, which is necessary for testing stale-state bugs.
+
+### Server restart timing
+
+After `Stop-Process` and before the new server accepts connections, there is a ~3 second gap. Always wait before testing:
+
+```powershell
+Stop-Process -Name node -Force -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 3   # let OS release ports, old processes fully terminate
+cd C:\SeedTest\frontend; node server.js ...
+Start-Sleep -Seconds 3   # let new server initialize and bind to port
+# THEN test
+```
+
+### Frontend test count baseline (August 2026)
+
+| Scope | Tests | Files |
+|-------|------:|------:|
+| Frontend (all) | 248 | 55 |
+| Login component | 19 | 1 |
+| Backend (all) | 708 | 47 |
+
+If your change causes the frontend test count to drop (e.g. from 248 to 19), you likely targeted the wrong test glob or used `vitest run` directly instead of `ng test`.
+
+### CI tests
 
 GitHub Actions CI (`CI_Tests_and_Report.yaml`) runs:
 1. Docker stack build with `docker-test.yml` (Node 22/24/26 matrix)

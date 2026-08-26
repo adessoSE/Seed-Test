@@ -199,9 +199,11 @@ describe('LoginComponent', () => {
 	});
 
 	describe('behavioral: successful login navigates', () => {
-		it('should call router.navigate when repository already selected', () => {
-			// Clear all mocks first
-			(projectService as any).getRepositories.mockReturnValue(of([]));
+		it('should NOT auto-navigate to / when repository is already selected (prevents thrash loop)', () => {
+			// Regression: auto-navigate to '/' when login= and repository were set caused
+			// unauthenticated users to enter the shell, trigger 401 fetches, storiesErrorEffect
+			// removed login and navigated back to /login, creating an infinite / <-> /login loop.
+			// Fix: ngOnInit no longer auto-navigates to '/'.
 			localStorage.setItem('login', 'true');
 			localStorage.setItem('repository', 'my-repo');
 			localStorage.setItem('source', 'db');
@@ -210,7 +212,19 @@ describe('LoginComponent', () => {
 
 			component.ngOnInit();
 
-			expect(router.navigate).toHaveBeenCalledWith(['/']);
+			expect(router.navigate).not.toHaveBeenCalled();
+			localStorage.clear();
+		});
+
+		it('should call getRepositories when login is set but no repository selected', () => {
+			(projectService as any).getRepositories.mockReturnValue(of([]));
+			localStorage.setItem('login', 'true');
+			localStorage.removeItem('repository');
+			vi.spyOn(component, 'getRepositories').mockImplementation(() => {});
+
+			component.ngOnInit();
+
+			expect(component.getRepositories).toHaveBeenCalled();
 			localStorage.clear();
 		});
 
@@ -256,6 +270,24 @@ describe('LoginComponent', () => {
 			expect(component.isLoadingRepositories()).toBeFalsy();
 			expect(component.repositories).toBe(mockRepos);
 			expect(router.navigate).toHaveBeenCalledWith(['']);
+			localStorage.clear();
+		});
+	});
+
+	describe('behavioral: failed login must not mark user as logged in', () => {
+		// Regression: a failed login (loginUser emits null) previously still set
+		// localStorage 'login'='true', which made the app enter the logged-in shell
+		// and loop 401 requests until the backend rate limiter blocked everything.
+		it('should NOT set login=true and should NOT call getRepositories when loginUser emits null', () => {
+			localStorage.removeItem('login');
+			(loginService as any).loginUser.mockReturnValue(of(null));
+			(projectService as any).getRepositories.mockReturnValue(of([]));
+			vi.spyOn(component, 'getRepositories');
+
+			component.login({ value: { email: 'a@b.de', password: 'pwd', stayLoggedIn: false } } as any);
+
+			expect(localStorage.getItem('login')).toBeNull();
+			expect(component.getRepositories).not.toHaveBeenCalled();
 			localStorage.clear();
 		});
 	});

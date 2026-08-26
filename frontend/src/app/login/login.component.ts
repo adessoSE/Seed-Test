@@ -151,14 +151,19 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @ignore
      */
 	ngOnInit() {
-		if ((localStorage.getItem('login')))
-			if (localStorage.getItem('repository'))
-				this.router.navigate(['/']);
-            
-			else 
-				this.getRepositories();
-			
-        
+		// Removed unconditional auto-navigate to '/' when login= and repository are set.
+		// Auto-navigation was the thrash loop trigger: it sent unauthenticated users into
+		// the shell, which fired 401 fetches, storiesErrorEffect removed 'login', navigated
+		// back to /login, ngOnInit saw login again, and the cycle repeated indefinitely.
+		// The shell's storiesErrorEffect handles 401 -> /login redirection cleanly.
+		// For users with valid sessions: no stale localStorage needed — backend cookie
+		// is valid and fetches succeed. For invalid sessions: fetch fails, storiesErrorEffect
+		// lands on /login without thrashing.
+		// Still call getRepositories() when login=true but no repository selected
+		// (user logged in but needs to pick a project). The getRepositories result
+		// handles valid/empty repos via router.navigate to accountManagement or '/'.
+		if (localStorage.getItem('login') && !localStorage.getItem('repository'))
+			this.getRepositories();
 	}
 
 
@@ -195,19 +200,22 @@ export class LoginComponent implements OnInit, AfterViewInit {
 			password: form.value.password,
 			stayLoggedIn: form.value.stayLoggedIn
 		};
-		// const response = await
-		this.loginService.loginUser(user).subscribe(_ => {
+		// CASE 1: Login succeeded — loginUser resolved a real user (has _id).
+		// Only then may we mark the user as logged in and fetch repositories.
+		// CASE 2: Login failed — loginUser emits null (login.service catches the error and
+		// returns of(null)), so we must NOT set login=true. Doing so would make the app enter
+		// the logged-in shell without a valid session and loop 401 requests until the backend
+		// rate limiter blocks everything (see bootstrap effects in app.component/parent).
+		this.loginService.loginUser(user).subscribe((loggedInUser) => {
+			if (!loggedInUser) {
+				this.error.set(this.defaultErrorMessage);
+				this.isLoadingRepositories.set(false);
+				return;
+			}
 			localStorage.setItem('login', 'true');
-			// this.apiService.updateRepositoryEmitter();
+			this.isLoadingRepositories.set(false);
 			this.getRepositories();
 		});
-		// if (response.status === 'error') {
-		//     this.isLoadingRepositories.set(false);
-		//     this.error = response.message;
-		// } else {
-		//     localStorage.setItem('login', 'true');
-		//     this.getRepositories();
-		// }
 	}
 	/**
      * Retrieves the repositories / projects of the user
