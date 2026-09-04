@@ -202,7 +202,8 @@ export class ParentComponent implements OnInit {
 			const currentScenario = this.selectedScenario();
 			if (currentScenario) {
 				// Check if the current scenario belongs to the new story
-				const belongsToNewStory = story.scenarios.some(
+				// Guard against stories without scenarios array — prevents TypeError
+				const belongsToNewStory = story.scenarios && story.scenarios.length > 0 && story.scenarios.some(
 					sc => sc.scenario_id === currentScenario.scenario_id
 				);
 				if (!belongsToNewStory)

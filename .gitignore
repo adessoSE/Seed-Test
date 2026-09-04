@@ -102,6 +102,11 @@ cookies.txt
 frontend-test*.txt
 backend-err.log
 
+# Ephemeral agent test-output logs (ensure these are never tracked)
+frontend/ng-test-output.txt
+frontend/test-output.txt
+frontend/vitest-output.txt
+
 # Ephemeral agent tooling data (indexes, traces, browser panel state)
 .codebase-memory/
 .openchamber/

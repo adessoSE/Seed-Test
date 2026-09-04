@@ -150,12 +150,20 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 		const memberStoryIds = group.member_stories.map((id: unknown) => {
 			const rawType = typeof id;
 			let hexString: string | undefined;
+			let safeString: string;
 			if (rawType === 'object' && id !== null) 
 				try {
-					hexString = (id as { toHexString?: () => string }).toHexString?.();
-				} catch { /* ignore */ }
+					const oid = id as { toHexString?: () => string; toString?: () => string };
+					hexString = oid.toHexString?.();
+					safeString = oid.toString?.() ?? '[object]';
+				} catch {
+					safeString = '[object]';
+				}
+			else {
+				safeString = String(id);
+			}
 			
-			return { raw: id, type: rawType, string: String(id), hex: hexString };
+			return { raw: id, type: rawType, string: safeString, hex: hexString };
 		});
 		logger.info(`runGroup: Group '${group.name}' has ${group.member_stories.length} member_stories: ${JSON.stringify(memberStoryIds)}`);
 
@@ -169,15 +177,15 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 				if (rawType === 'object' && id !== null) 
 					try {
 						const oid = id as { toHexString?: () => string; toString?: () => string };
-						// Try toHexString() first (MongoDB ObjectId), fallback to toString()
-						storyIdStr = oid.toHexString?.() ?? oid.toString?.() ?? (id as string);
+						// Try toHexString() first (MongoDB ObjectId), fallback to toString(),
+						// then JSON.stringify() for objects without toString — prevents leaking '[object Object]'
+						storyIdStr = oid.toHexString?.() ?? oid.toString?.() ?? JSON.stringify(id);
 					} catch {
-						storyIdStr = id as string;
+						storyIdStr = JSON.stringify(id);
 					}
 				else 
-					storyIdStr = id as string;
+					storyIdStr = String(id);
 				
-
 				logger.debug(`runGroup: Looking up story by ID '${storyIdStr}' (raw type: ${rawType})`);
 				const story = await storyService.getOneStory(storyIdStr);
 				if (!story) 
