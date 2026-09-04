@@ -1,0 +1,572 @@
+npm notice run npx
+npm notice run vitest run
+
+ RUN  v4.1.10 C:/SeedTest/frontend
+
+stderr | src/app/confirm-reset-password/confirm-reset-password.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/confirm-reset-password/confirm-reset-password.component.spec.ts (0 test)
+stderr | src/app/report/report.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/report/report.component.spec.ts (0 test)
+stderr | src/app/report-history/report-history.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/report-history/report-history.component.spec.ts (0 test)
+
+stderr | src/app/account-management/account-management.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/account-management/account-management.component.spec.ts (0 test)
+
+stderr | src/app/parent/parent.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/parent/parent.component.spec.ts (0 test)
+stderr | src/app/registration/registration.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/registration/registration.component.spec.ts (0 test)
+
+stderr | src/app/reset-password/reset-password.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/reset-password/reset-password.component.spec.ts (0 test)
+stderr | src/app/scenario-editor/scenario-editor.component.spec.ts
+JIT compilation failed for service [class _CdkPrivateStyleLoader]
+ ÔØ» src/app/scenario-editor/scenario-editor.component.spec.ts (0 test)
+
+ ÔØ» src/app/confirm-reset-password-popup/confirm-reset-password-popup.component.spec.ts (0 test)
+ ÔØ» src/app/base-editor/base-editor.component.spec.ts (0 test)
+ ÔØ» src/app/editable/editable.component.spec.ts (0 test)
+ ÔØ» src/app/Services/background.service.spec.ts (0 test)
+ ÔØ» src/app/Services/example.service.spec.ts (0 test)
+ ÔØ» src/app/Services/block.service.spec.ts (0 test)
+ ÔØ» src/app/Services/api.service.spec.ts (0 test)
+ ÔØ» src/app/Services/project.service.spec.ts (0 test)
+ ÔØ» src/app/Services/group.service.spec.ts (0 test)
+ ÔØ» src/app/Services/highlight-input.service.spec.ts (0 test)
+ ÔØ» src/app/Services/login.service.spec.ts (0 test)
+ ÔØ» src/app/Services/http-logger.interceptor.spec.ts (0 test)
+ ÔØ» src/app/Services/theming.service.spec.ts (0 test)
+ ÔØ» src/app/file-manager/file-manager.component.spec.ts (0 test)
+ ÔØ» src/app/Services/management.service.spec.ts (0 test)
+ ÔØ» src/app/app.component.spec.ts (0 test)
+ ÔØ» src/app/Services/step-validation.service.spec.ts (0 test)
+ ÔØ» src/app/Services/report.service.spec.ts (0 test)
+ ÔØ» src/app/login/login.component.spec.ts (0 test)
+ ÔØ» src/app/Services/scenario.service.spec.ts (0 test)
+ ÔØ» src/app/Services/story.service.spec.ts (0 test)
+ ÔØ» src/app/example-table/example-table.component.spec.ts (0 test)
+ ÔØ» src/app/Services/xray.service.spec.ts (0 test)
+stderr | src/app/story-editor/story-editor.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/story-editor/story-editor.component.spec.ts (0 test)
+stderr | src/app/modals/change-jira-account/change-jira-account.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/modals/change-jira-account/change-jira-account.component.spec.ts (0 test)
+
+stderr | src/app/modals/create-custom-project/create-custom-project.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/modals/create-custom-project/create-custom-project.component.spec.ts (0 test)
+
+stderr | src/app/modals/add-block-form/add-block-form.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/modals/add-block-form/add-block-form.component.spec.ts (0 test)
+
+stderr | src/app/modals/delete-account/delete-account.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/modals/delete-account/delete-account.component.spec.ts (0 test)
+
+stderr | src/app/modals/create-new-group/create-new-group.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/modals/create-new-group/create-new-group.component.spec.ts (0 test)
+stderr | src/app/modals/disconnect-jira-account/disconnect-jira-account.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/modals/disconnect-jira-account/disconnect-jira-account.component.spec.ts (0 test)
+stderr | src/app/modals/create-scenario/create-scenario.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/modals/create-scenario/create-scenario.component.spec.ts (0 test)
+
+ ÔØ» src/app/terms/terms.component.spec.ts (0 test)
+stderr | src/app/modals/new-step-request/new-step-request.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/modals/new-step-request/new-step-request.component.spec.ts (0 test)
+
+stderr | src/app/modals/repo-swich/repo-swich.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/modals/repo-swich/repo-swich.component.spec.ts (0 test)
+stderr | src/app/modals/rename-background/rename-background.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/modals/rename-background/rename-background.component.spec.ts (0 test)
+stderr | src/app/modals/new-example/new-example.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/modals/new-example/new-example.component.spec.ts (0 test)
+stderr | src/app/modals/update-group/update-group.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/modals/update-group/update-group.component.spec.ts (0 test)
+stderr | src/app/modals/save-block-form/save-block-form.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+ ÔØ» src/app/modals/save-block-form/save-block-form.component.spec.ts (0 test)
+
+stderr | src/app/modals/rename-scenario/rename-scenario.component.spec.ts
+ ÔØ» src/app/modals/rename-scenario/rename-scenario.component.spec.ts (0 test)
+JIT compilation failed for service [class BrowserXhr]
+
+stderr | src/app/modals/rename-story/rename-story.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/modals/rename-story/rename-story.component.spec.ts (0 test)
+stderr | src/app/modals/workgroup-edit/workgroup-edit.component.spec.ts
+JIT compilation failed for service [class BrowserXhr]
+
+ ÔØ» src/app/modals/workgroup-edit/workgroup-edit.component.spec.ts (0 test)
+ ÔØ» src/app/modals/create-new-story/create-new-story.component.spec.ts (0 test)
+ ÔØ» src/app/modals/edit-block/edit-block.component.spec.ts (0 test)
+ ÔØ» src/app/stories-bar/stories-bar.component.spec.ts (0 test)
+ ÔØ» src/app/modals/execution-list/execution-list.component.spec.ts (0 test)
+ ÔØ» src/app/modals/import-modal/import-modal.component.spec.ts (0 test)
+ ÔØ» src/app/modals/window-size/window-size.component.spec.ts (0 test)
+ ÔØ» src/app/modals/file-explorer-modal/file-explorer-modal.component.spec.ts (0 test)
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Suites 56 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  src/app/app.component.spec.ts [ src/app/app.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/app.component.spec.ts:18:1
+     16|
+     17|
+     18| describe('AppComponent', () => {
+       | ^
+     19|  let component: AppComponent;
+     20|  let fixture: ComponentFixture<AppComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/56]ÔÄ»
+
+ FAIL  src/app/account-management/account-management.component.spec.ts [ src/app/account-management/account-management.component.spec.ts ]
+ FAIL  src/app/confirm-reset-password/confirm-reset-password.component.spec.ts [ src/app/confirm-reset-password/confirm-reset-password.component.spec.ts ]
+ FAIL  src/app/parent/parent.component.spec.ts [ src/app/parent/parent.component.spec.ts ]
+ FAIL  src/app/registration/registration.component.spec.ts [ src/app/registration/registration.component.spec.ts ]
+ FAIL  src/app/report/report.component.spec.ts [ src/app/report/report.component.spec.ts ]
+ FAIL  src/app/report-history/report-history.component.spec.ts [ src/app/report-history/report-history.component.spec.ts ]
+ FAIL  src/app/reset-password/reset-password.component.spec.ts [ src/app/reset-password/reset-password.component.spec.ts ]
+ FAIL  src/app/story-editor/story-editor.component.spec.ts [ src/app/story-editor/story-editor.component.spec.ts ]
+ FAIL  src/app/modals/add-block-form/add-block-form.component.spec.ts [ src/app/modals/add-block-form/add-block-form.component.spec.ts ]
+ FAIL  src/app/modals/change-jira-account/change-jira-account.component.spec.ts [ src/app/modals/change-jira-account/change-jira-account.component.spec.ts ]
+ FAIL  src/app/modals/create-custom-project/create-custom-project.component.spec.ts [ src/app/modals/create-custom-project/create-custom-project.component.spec.ts ]
+ FAIL  src/app/modals/create-scenario/create-scenario.component.spec.ts [ src/app/modals/create-scenario/create-scenario.component.spec.ts ]
+ FAIL  src/app/modals/delete-account/delete-account.component.spec.ts [ src/app/modals/delete-account/delete-account.component.spec.ts ]
+ FAIL  src/app/modals/create-new-group/create-new-group.component.spec.ts [ src/app/modals/create-new-group/create-new-group.component.spec.ts ]
+ FAIL  src/app/modals/disconnect-jira-account/disconnect-jira-account.component.spec.ts [ src/app/modals/disconnect-jira-account/disconnect-jira-account.component.spec.ts ]
+ FAIL  src/app/modals/new-example/new-example.component.spec.ts [ src/app/modals/new-example/new-example.component.spec.ts ]
+ FAIL  src/app/modals/new-step-request/new-step-request.component.spec.ts [ src/app/modals/new-step-request/new-step-request.component.spec.ts ]
+ FAIL  src/app/modals/rename-background/rename-background.component.spec.ts [ src/app/modals/rename-background/rename-background.component.spec.ts ]
+ FAIL  src/app/modals/rename-scenario/rename-scenario.component.spec.ts [ src/app/modals/rename-scenario/rename-scenario.component.spec.ts ]
+ FAIL  src/app/modals/rename-story/rename-story.component.spec.ts [ src/app/modals/rename-story/rename-story.component.spec.ts ]
+ FAIL  src/app/modals/repo-swich/repo-swich.component.spec.ts [ src/app/modals/repo-swich/repo-swich.component.spec.ts ]
+ FAIL  src/app/modals/save-block-form/save-block-form.component.spec.ts [ src/app/modals/save-block-form/save-block-form.component.spec.ts ]
+ FAIL  src/app/modals/update-group/update-group.component.spec.ts [ src/app/modals/update-group/update-group.component.spec.ts ]
+ FAIL  src/app/modals/workgroup-edit/workgroup-edit.component.spec.ts [ src/app/modals/workgroup-edit/workgroup-edit.component.spec.ts ]
+Error: The service 'BrowserXhr' needs to be compiled using the JIT compiler, but '@angular/compiler' is not available.
+
+The service is part of a library that has been partially compiled.
+However, the Angular Linker has not processed the library such that JIT compilation is used as fallback.
+
+Ideally, the library is processed using the Angular Linker to become fully AOT compiled.
+Alternatively, the JIT compiler should be loaded by bootstrapping using '@angular/platform-browser-dynamic' or '@angular/platform-server',
+or manually provide the compiler with 'import "@angular/compiler";' before bootstrapping.
+ ÔØ» getCompilerFacade ../../k8-fastbuild-ST-fdfa778d11ba/bin/packages/core/src/compiler/compiler_facade.ts:45:10
+ ÔØ» Module.╔Á╔ÁngDeclareFactory ../../k8-fastbuild-ST-fdfa778d11ba/bin/packages/core/src/render3/jit/partial.ts:112:19
+ ÔØ» BrowserXhr.<static_initializer> ../node_modules/@angular/common/fesm2022/_xhr-chunk.mjs:34:20
+ ÔØ» ../node_modules/@angular/common/fesm2022/_xhr-chunk.mjs:1:1
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/56]ÔÄ»
+
+ FAIL  src/app/confirm-reset-password-popup/confirm-reset-password-popup.component.spec.ts [ src/app/confirm-reset-password-popup/confirm-reset-password-popup.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/confirm-reset-password-popup/confirm-reset-password-popup.component.spec.ts:5:1
+      3| import { ConfirmResetPasswordPopupComponent } from './confirm-reset-paÔÇª
+      4|
+      5| describe('ConfirmResetPasswordPopupComponent', () => {
+       | ^
+      6|  let component: ConfirmResetPasswordPopupComponent;
+      7|  let fixture: ComponentFixture<ConfirmResetPasswordPopupComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/56]ÔÄ»
+
+ FAIL  src/app/editable/editable.component.spec.ts [ src/app/editable/editable.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/editable/editable.component.spec.ts:5:1
+      3| import { NO_ERRORS_SCHEMA, TemplateRef } from '@angular/core';
+      4|
+      5| describe('EditableComponent', () => {
+       | ^
+      6|
+      7|  beforeEach(async () => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/56]ÔÄ»
+
+ FAIL  src/app/base-editor/base-editor.component.spec.ts [ src/app/base-editor/base-editor.component.spec.ts ]
+Error: Cannot find package 'src/app/Services/api.service' imported from C:/SeedTest/frontend/src/app/base-editor/base-editor.component.ts
+ ÔØ» src/app/base-editor/base-editor.component.ts:1:2
+
+ ÔØ» src/app/base-editor/base-editor.component.spec.ts:7:1
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[5/56]ÔÄ»
+
+ FAIL  src/app/example-table/example-table.component.spec.ts [ src/app/example-table/example-table.component.spec.ts ]
+Error: Cannot find package 'src/app/Services/example.service' imported from C:/SeedTest/frontend/src/app/modals/new-example/new-example.component.ts
+ ÔØ» src/app/modals/new-example/new-example.component.ts:6:1
+      4| import { Component, ChangeDetectionStrategy, inject, viewChild } from ÔÇª
+      5| import { UntypedFormGroup, UntypedFormControl, FormsModule, ReactiveFoÔÇª
+      6| import { ExampleService } from 'src/app/Services/example.service';
+       | ^
+      7| import { LayoutModalComponent } from '../layout-modal/layout-modal.comÔÇª
+      8|
+ ÔØ» src/app/example-table/example-table.component.ts:22:1
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[6/56]ÔÄ»
+
+ FAIL  src/app/file-manager/file-manager.component.spec.ts [ src/app/file-manager/file-manager.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/file-manager/file-manager.component.spec.ts:11:1
+      9| import { ProjectService } from '../Services/project.service';
+     10|
+     11| describe('FileManagerComponent', () => {
+       | ^
+     12|  let component: FileManagerComponent;
+     13|  let fixture: ComponentFixture<FileManagerComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[7/56]ÔÄ»
+
+ FAIL  src/app/login/login.component.spec.ts [ src/app/login/login.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/login/login.component.spec.ts:24:1
+     22| }
+     23|
+     24| describe('LoginComponent', () => {
+       | ^
+     25|  let component: LoginComponent;
+     26|  let fixture: ComponentFixture<LoginComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[8/56]ÔÄ»
+
+ FAIL  src/app/scenario-editor/scenario-editor.component.spec.ts [ src/app/scenario-editor/scenario-editor.component.spec.ts ]
+Error: The service '_CdkPrivateStyleLoader' needs to be compiled using the JIT compiler, but '@angular/compiler' is not available.
+
+The service is part of a library that has been partially compiled.
+However, the Angular Linker has not processed the library such that JIT compilation is used as fallback.
+
+Ideally, the library is processed using the Angular Linker to become fully AOT compiled.
+Alternatively, the JIT compiler should be loaded by bootstrapping using '@angular/platform-browser-dynamic' or '@angular/platform-server',
+or manually provide the compiler with 'import "@angular/compiler";' before bootstrapping.
+ ÔØ» getCompilerFacade ../../k8-fastbuild-ST-fdfa778d11ba/bin/packages/core/src/compiler/compiler_facade.ts:45:10
+ ÔØ» Module.╔Á╔ÁngDeclareFactory ../../k8-fastbuild-ST-fdfa778d11ba/bin/packages/core/src/render3/jit/partial.ts:112:19
+ ÔØ» _CdkPrivateStyleLoader.<static_initializer> ../node_modules/@angular/cdk/fesm2022/_style-loader-chunk.mjs:30:20
+ ÔØ» ../../darwin_arm64-fastbuild-ST-fdfa778d11ba/bin/src/cdk/private/style-loader.ts:21:24
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[9/56]ÔÄ»
+
+ FAIL  src/app/Services/api.service.spec.ts [ src/app/Services/api.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/api.service.spec.ts:8:1
+      6|
+      7|
+      8| describe('ApiService', () => {
+       | ^
+      9|
+     10|  let httpMock: HttpTestingController;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[10/56]ÔÄ»
+
+ FAIL  src/app/Services/background.service.spec.ts [ src/app/Services/background.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/background.service.spec.ts:6:1
+      4| import { BackgroundService } from './background.service';
+      5|
+      6| describe('BackgroundService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[11/56]ÔÄ»
+
+ FAIL  src/app/Services/block.service.spec.ts [ src/app/Services/block.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/block.service.spec.ts:6:1
+      4| import { BlockService } from './block.service';
+      5|
+      6| describe('BlockService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[12/56]ÔÄ»
+
+ FAIL  src/app/Services/example.service.spec.ts [ src/app/Services/example.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/example.service.spec.ts:6:1
+      4| import { ExampleService } from './example.service';
+      5|
+      6| describe('ExampleService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[13/56]ÔÄ»
+
+ FAIL  src/app/Services/group.service.spec.ts [ src/app/Services/group.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/group.service.spec.ts:6:1
+      4| import { GroupService } from './group.service';
+      5|
+      6| describe('GroupService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[14/56]ÔÄ»
+
+ FAIL  src/app/Services/highlight-input.service.spec.ts [ src/app/Services/highlight-input.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/highlight-input.service.spec.ts:7:1
+      5| import { HighlightInputService } from './highlight-input.service';
+      6|
+      7| describe('HighlightInputService', () => {
+       | ^
+      8|  let service: HighlightInputService;
+      9|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[15/56]ÔÄ»
+
+ FAIL  src/app/Services/http-logger.interceptor.spec.ts [ src/app/Services/http-logger.interceptor.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/http-logger.interceptor.spec.ts:18:1
+     16|  *   - missing/expired session ÔåÆ { error: 'Unauthorized: Please log inÔÇª
+     17|  */
+     18| describe('HttpLoggerInterceptor', () => {
+       | ^
+     19|  let interceptor: HttpLoggerInterceptor;
+     20|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[16/56]ÔÄ»
+
+ FAIL  src/app/Services/login.service.spec.ts [ src/app/Services/login.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/login.service.spec.ts:6:1
+      4| import { LoginService } from './login.service';
+      5|
+      6| describe('LoginService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[17/56]ÔÄ»
+
+ FAIL  src/app/Services/management.service.spec.ts [ src/app/Services/management.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/management.service.spec.ts:6:1
+      4| import { ManagementService } from '../Services/management.service';
+      5|
+      6| describe('ManagementService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[18/56]ÔÄ»
+
+ FAIL  src/app/Services/project.service.spec.ts [ src/app/Services/project.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/project.service.spec.ts:7:1
+      5|
+      6|
+      7| describe('ProjectService', () => {
+       | ^
+      8|
+      9|  let service: ProjectService;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[19/56]ÔÄ»
+
+ FAIL  src/app/Services/report.service.spec.ts [ src/app/Services/report.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/report.service.spec.ts:6:1
+      4| import { ReportService } from './report.service';
+      5|
+      6| describe('ReportService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[20/56]ÔÄ»
+
+ FAIL  src/app/Services/scenario.service.spec.ts [ src/app/Services/scenario.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/scenario.service.spec.ts:6:1
+      4| import { ScenarioService } from './scenario.service';
+      5|
+      6| describe('ScenarioService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[21/56]ÔÄ»
+
+ FAIL  src/app/Services/step-validation.service.spec.ts [ src/app/Services/step-validation.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/step-validation.service.spec.ts:7:1
+      5| import { StepValidationService } from './step-validation.service';
+      6|
+      7| describe('StepValidationService', () => {
+       | ^
+      8|  let service: StepValidationService;
+      9|  let toastr: NotificationService;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[22/56]ÔÄ»
+
+ FAIL  src/app/Services/story.service.spec.ts [ src/app/Services/story.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/story.service.spec.ts:6:1
+      4| import { StoryService } from './story.service';
+      5|
+      6| describe('StoryService', () => {
+       | ^
+      7|
+      8|  beforeEach(() => {
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[23/56]ÔÄ»
+
+ FAIL  src/app/Services/theming.service.spec.ts [ src/app/Services/theming.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/theming.service.spec.ts:5:1
+      3| import { ThemingService } from './theming.service';
+      4|
+      5| describe('ThemingService', () => {
+       | ^
+      6|  let service: ThemingService;
+      7|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[24/56]ÔÄ»
+
+ FAIL  src/app/Services/xray.service.spec.ts [ src/app/Services/xray.service.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/Services/xray.service.spec.ts:7:1
+      5| import { XrayService } from './xray.service';
+      6|
+      7| describe('XrayService', () => {
+       | ^
+      8|  let service: XrayService;
+      9|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[25/56]ÔÄ»
+
+ FAIL  src/app/stories-bar/stories-bar.component.spec.ts [ src/app/stories-bar/stories-bar.component.spec.ts ]
+Error: Cannot find package 'src/app/Services/group.service' imported from C:/SeedTest/frontend/src/app/modals/create-new-group/create-new-group.component.ts
+ ÔØ» src/app/modals/create-new-group/create-new-group.component.ts:8:1
+      6| import { RepositoryContainer } from '@seed-test/shared/models/RepositoÔÇª
+      7| import { Story } from '@seed-test/shared/models/Story';
+      8| import { GroupService } from 'src/app/Services/group.service';
+       | ^
+      9| import { StoryService } from 'src/app/Services/story.service';
+     10| import { LayoutModalComponent } from '../layout-modal/layout-modal.comÔÇª
+ ÔØ» src/app/stories-bar/stories-bar.component.ts:13:1
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[26/56]ÔÄ»
+
+ FAIL  src/app/terms/terms.component.spec.ts [ src/app/terms/terms.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/terms/terms.component.spec.ts:6:1
+      4| import { TermsComponent } from './terms.component';
+      5|
+      6| describe('TermsComponent', () => {
+       | ^
+      7|  let component: TermsComponent;
+      8|  let fixture: ComponentFixture<TermsComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[27/56]ÔÄ»
+
+ FAIL  src/app/modals/create-new-story/create-new-story.component.spec.ts [ src/app/modals/create-new-story/create-new-story.component.spec.ts ]
+Error: Cannot find package 'src/app/Services/story.service' imported from C:/SeedTest/frontend/src/app/modals/create-new-story/create-new-story.component.ts
+ ÔØ» src/app/modals/create-new-story/create-new-story.component.ts:8:1
+      6| import { Story } from '@seed-test/shared/models/Story';
+      7| import { UntypedFormGroup, UntypedFormControl, Validators, FormsModuleÔÇª
+      8| import { StoryService } from 'src/app/Services/story.service';
+       | ^
+      9| import { LayoutModalComponent } from '../layout-modal/layout-modal.comÔÇª
+     10|
+ ÔØ» src/app/modals/create-new-story/create-new-story.component.spec.ts:5:1
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[28/56]ÔÄ»
+
+ FAIL  src/app/modals/edit-block/edit-block.component.spec.ts [ src/app/modals/edit-block/edit-block.component.spec.ts ]
+Error: Cannot find package 'src/app/Services/block.service' imported from C:/SeedTest/frontend/src/app/modals/edit-block/edit-block.component.ts
+ ÔØ» src/app/modals/edit-block/edit-block.component.ts:4:1
+      2| import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+      3| import { Block } from '@seed-test/shared/models/Block';
+      4| import { BlockService } from 'src/app/Services/block.service';
+       | ^
+      5| import { StepType } from '@seed-test/shared/models/StepType';
+      6| import { ThemingService } from '../../Services/theming.service';
+ ÔØ» src/app/modals/edit-block/edit-block.component.spec.ts:6:1
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[29/56]ÔÄ»
+
+ FAIL  src/app/modals/execution-list/execution-list.component.spec.ts [ src/app/modals/execution-list/execution-list.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/modals/execution-list/execution-list.component.spec.ts:9:1
+      7| import { ExecutionListComponent } from './execution-list.component';
+      8|
+      9| describe('ExecutionListComponent', () => {
+       | ^
+     10|  let component: ExecutionListComponent;
+     11|  let fixture: ComponentFixture<ExecutionListComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[30/56]ÔÄ»
+
+ FAIL  src/app/modals/file-explorer-modal/file-explorer-modal.component.spec.ts [ src/app/modals/file-explorer-modal/file-explorer-modal.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/modals/file-explorer-modal/file-explorer-modal.component.spec.ts:10:1
+      8| import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+      9|
+     10| describe('FileExplorerModalComponent', () => {
+       | ^
+     11|  let component: FileExplorerModalComponent;
+     12|  let fixture: ComponentFixture<FileExplorerModalComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[31/56]ÔÄ»
+
+ FAIL  src/app/modals/import-modal/import-modal.component.spec.ts [ src/app/modals/import-modal/import-modal.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/modals/import-modal/import-modal.component.spec.ts:12:1
+     10| import { ImportModalComponent } from './import-modal.component';
+     11|
+     12| describe('ImportModalComponent', () => {
+       | ^
+     13|  let component: ImportModalComponent;
+     14|  let fixture: ComponentFixture<ImportModalComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[32/56]ÔÄ»
+
+ FAIL  src/app/modals/window-size/window-size.component.spec.ts [ src/app/modals/window-size/window-size.component.spec.ts ]
+ReferenceError: describe is not defined
+ ÔØ» src/app/modals/window-size/window-size.component.spec.ts:12:1
+     10| import { WindowSizeComponent } from './window-size.component';
+     11|
+     12| describe('WindowSizeComponent', () => {
+       | ^
+     13|  let component: WindowSizeComponent;
+     14|  let fixture: ComponentFixture<WindowSizeComponent>;
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[33/56]ÔÄ»
+
+
+ Test Files  56 failed (56)
+      Tests  no tests
+   Start at  12:15:46
+   Duration  9.48s (transform 32.90s, setup 0ms, import 0ms, tests 0ms, environment 9ms)
+

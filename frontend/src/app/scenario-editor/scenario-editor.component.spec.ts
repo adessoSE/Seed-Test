@@ -54,8 +54,8 @@ describe('ScenarioEditorComponent', () => {
 		});
 
 		it('should set selectedScenario via linkedSignal from selectedScenarioInput', () => {
-			expect(component.selectedScenario()).toBe(scenarios[0]);
-			expect(component.selectedScenario().scenario_id).toBe(2);
+			expect(component.selectedScenario()!).toBe(scenarios[0]);
+			expect(component.selectedScenario()!.scenario_id).toBe(2);
 		});
 
 		it('should react to selectedScenarioInput changes', () => {
@@ -133,19 +133,19 @@ describe('ScenarioEditorComponent', () => {
 
 		it('should return true for scenarioSaved when saved is undefined', () => {
 			component.testRunning = false;
-			component.selectedScenario().saved = undefined;
+			component.selectedScenario()!.saved = undefined;
 			expect(component.scenarioSaved()).toBe(true);
 		});
 
 		it('should return true for scenarioSaved when saved is true', () => {
 			component.testRunning = false;
-			component.selectedScenario().saved = true;
+			component.selectedScenario()!.saved = true;
 			expect(component.scenarioSaved()).toBe(true);
 		});
 
 		it('should return true for scenarioUnSaved when saved is false', () => {
 			component.testRunning = false;
-			component.selectedScenario().saved = false;
+			component.selectedScenario()!.saved = false;
 			expect(component.scenarioUnSaved()).toBe(true);
 		});
 	});
@@ -153,22 +153,22 @@ describe('ScenarioEditorComponent', () => {
 	describe('behavioral: comment changes', () => {
 		it('should update comment and mark scenario unsaved', () => {
 			component.commentChange('new comment text');
-			expect(component.selectedScenario().comment).toBe('new comment text');
-			expect(component.selectedScenario().saved).toBe(false);
+			expect(component.selectedScenario()!.comment).toBe('new comment text');
+			expect(component.selectedScenario()!.saved).toBe(false);
 		});
 	});
 
 	describe('behavioral: rename scenario', () => {
 		it('should rename scenario with valid title', () => {
 			component.renameScenario('Updated Title');
-			expect(component.selectedScenario().name).toBe('Updated Title');
-			expect(component.selectedScenario().saved).toBe(false);
+			expect(component.selectedScenario()!.name).toBe('Updated Title');
+			expect(component.selectedScenario()!.saved).toBe(false);
 		});
 
 		it('should not rename scenario with empty title', () => {
-			component.selectedScenario().name = 'Original';
+			component.selectedScenario()!.name = 'Original';
 			component.renameScenario('   ');
-			expect(component.selectedScenario().name).toBe('Original');
+			expect(component.selectedScenario()!.name).toBe('Original');
 		});
 	});
 

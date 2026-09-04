@@ -43,7 +43,7 @@
           <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
         </button>
       }
-      @if (this.selectedScenario().saved !== false) {
+      @if (this.selectedScenario()?.saved !== false) {
         <button name="saveScenario" id="saveButton" [class.disabled]="isReviewing() || this.scenarioSaved()" [disabled]="isReviewing() || this.scenarioSaved()" class="scenarioTitle" matTooltip="Without changes">
           <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
         </button>

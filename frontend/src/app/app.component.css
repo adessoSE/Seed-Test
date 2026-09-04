@@ -164,10 +164,14 @@
   font-size: 15px;
   border: none;
   cursor: pointer;
-  transition: 0.3s;
   outline: none;
   vertical-align: middle;
   margin: 13px;
+}
+
+/* Remove transition from help button — causes flicker during rapid mouse movement */
+.help-button {
+  transition: none !important;
 }
 
 .rightButton:hover, .menuButton:hover {

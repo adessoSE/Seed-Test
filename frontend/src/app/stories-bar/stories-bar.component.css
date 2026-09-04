@@ -300,6 +300,17 @@ a.storyListLink:hover{
   color: white;
 }
 
+/* Visual indicator for the currently selected scenario in the sidebar */
+.scenarioListItem.selected-scenario {
+  background-color: #e3f2fd;
+  font-weight: 600;
+}
+
+.darkTheme .scenarioListItem.selected-scenario {
+  background-color: #1565C0;
+  color: white;
+}
+
 .stories-accordion ::ng-deep .mat-expansion-panel-header,
 .groups-accordion ::ng-deep .mat-expansion-panel-header {
   height: auto !important;

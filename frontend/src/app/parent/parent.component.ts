@@ -186,20 +186,32 @@ export class ParentComponent implements OnInit {
 	}
 
 	/**
-   * Sets the currently selected story
-   * @param story
-   */
+    * Sets the currently selected story
+    * @param story
+    */
 	setSelectedStory(story: Story) {
 		// A scenario only makes sense within its owning story. When switching to a
-		// different story, the previously selected scenario is stale and must be
-		// cleared: if we left parent.selectedScenario untouched, story-editor's
-		// newScenario effect would re-apply the OLD story's scenario in the flush
-		// that follows the story change, overwriting the new story's first scenario
-		// and making the editor appear to need a second click (zoneless race).
+		// different story, clear the previously selected scenario ONLY if it doesn't
+		// belong to the new story. This prevents losing the user's selection when
+		// clicking a scenario in a different story (the scenario IS valid for the new story).
 		// Compare by ID (not object identity) so a re-fetched/re-filtered story
 		// object does not spuriously reset the scenario.
-		if (!this.sameStory(this.selectedStory(), story))
-			this.selectedScenario.set(undefined);
+		const oldStory = this.selectedStory();
+		const sameStory = oldStory && this.sameStory(oldStory, story);
+		if (!sameStory) {
+			const currentScenario = this.selectedScenario();
+			if (currentScenario) {
+				// Check if the current scenario belongs to the new story
+				const belongsToNewStory = story.scenarios.some(
+					sc => sc.scenario_id === currentScenario.scenario_id
+				);
+				if (!belongsToNewStory)
+					this.selectedScenario.set(undefined);
+				// If belongsToNewStory is true, keep the scenario — user explicitly selected it
+			} else {
+				this.selectedScenario.set(undefined);
+			}
+		}
 		this.selectedStory.set(story);
 	}
 

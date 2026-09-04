@@ -2,6 +2,7 @@
   <div class="storiesBar">
     <app-stories-bar [isDark] ="isDark()"
       [newSelectedStory]="selectedStory()"
+      [parentSelectedScenario]="selectedScenario()"
       [isReviewing]="isReviewing"
       #storiesBar
       (storyChosen)="setSelectedStory($event);"

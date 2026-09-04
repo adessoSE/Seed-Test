@@ -107,9 +107,14 @@ export class StoriesBarComponent implements OnChanges {
 	readonly storyChosen = output<Story>();
 
 	/**
-     * Emits a new chosen scenario
-     */
+      * Emits a new chosen scenario
+      */
 	readonly scenarioChosen = output<Scenario>();
+
+	/**
+      * Emits when a scenario was chosen and its story needs to be expanded
+      */
+	readonly storyExpansionRequested = output<Story>();
 
 	/**
      * Emits a new chosen scenario
@@ -131,6 +136,9 @@ export class StoriesBarComponent implements OnChanges {
 	readonly isDark = input.required<boolean>();
 
 	readonly newSelectedStory = input.required<Story>();
+
+	/** Currently selected scenario from parent — used for sidebar highlighting */
+	readonly parentSelectedScenario = input<Scenario | undefined>(undefined);
 
 	readonly isReviewing = input<boolean>(false);
 
@@ -607,10 +615,27 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	/**
-     * Selects a new scenario
-     * @param scenario
-     */
+      * Selects a new scenario
+      * @param scenario
+      */
 	selectScenario(scenario: Scenario) {
+		// Find which story this scenario belongs to
+		const targetStory = this.stories().find(s => 
+			s.scenarios.some(sc => sc.scenario_id === scenario.scenario_id)
+		);
+		if (targetStory) {
+			const currentStory = this.selectedStory();
+			// If selecting a scenario from a different story, expand that story's panel
+			if (targetStory !== currentStory) {
+				const prev = new Map(this.storyExpansion());
+				prev.set(targetStory, true);
+				this.storyExpansion.set(prev);
+				// Select the story first (this also calls selectStory internally)
+				this.selectedStory.set(targetStory);
+				this.storyChosen.emit(targetStory);
+			}
+		}
+		// Always emit scenario choice — parent handles selection
 		this.scenarioChosen.emit(scenario);
 	}
 
