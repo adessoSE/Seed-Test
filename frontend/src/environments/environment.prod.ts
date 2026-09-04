@@ -3,6 +3,6 @@
  */
 export const environment = {
 	production: true,
-	version: '1.8.1',
-	env: 'demo'
+	version: '2.0.0',
+	env: ''
 };
