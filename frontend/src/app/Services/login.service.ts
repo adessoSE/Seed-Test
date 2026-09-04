@@ -14,6 +14,11 @@ interface GithubCallbackResponse {
 	id: number;
 }
 
+/** Response from the merge-initiate endpoint */
+interface MergeInitiateResponse {
+	mergeToken: string;
+}
+
 /** Credentials payload for login endpoints */
 interface LoginCredentials {
 	email: string;
@@ -70,20 +75,35 @@ export class LoginService {
 	}
 
 	/**
-   * Merges Seed-Test account and github account
-   * @param userId
-   * @param login
-   * @param id
-   * @returns
-   */
-	mergeAccountGithub(userId: string, login: string, id: number) {
+    * Initiates a GitHub account merge. Proves ownership of the target Seed account
+    * by making the server verify that the current session user is the target account.
+    * Returns a server-signed token that is passed through the OAuth state parameter
+    * to survive the GitHub redirect.
+    * @param userId — the target Seed account ID (must be the current session user)
+    * @returns observable with mergeToken
+    */
+	initiateMergeGithub(userId: string) {
+		const str = this.apiService.apiServer + '/user/mergeGithub/initiate';
+		const body = { userId };
+
+		return this.http.post<MergeInitiateResponse>(str, body, ApiService.getOptions()).pipe(
+			tap((_) => {}),
+			catchError(this.apiService.handleError)
+		);
+	}
+	/**
+    * Merges Seed-Test account and github account.
+    * The mergeToken (from initiateMergeGithub) is now required — it is the server-signed
+    * proof of ownership that replaced the old client-controlled userId field.
+    * @param mergeToken
+    * @returns
+    */
+	mergeAccountGithub(mergeToken: string) {
 		const str = this.apiService.apiServer + '/user/mergeGithub';
-		const body = { userId, login, id };
+		const body = { mergeToken };
 
 		return this.http.post<User>(str, body, ApiService.getOptions()).pipe(
-			tap((_) => {
-				//
-			}),
+			tap((_) => {}),
 			catchError(this.apiService.handleError)
 		);
 	}

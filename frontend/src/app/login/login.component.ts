@@ -123,13 +123,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
 					this.error.set(this.defaultErrorMessage);
 			else {
 				localStorage.setItem('login', 'true');
-				const userId = localStorage.getItem('userId');
-				localStorage.removeItem('userId');
-				if (userId) {
+				const mergeToken = localStorage.getItem('mergeToken');
+				localStorage.removeItem('mergeToken');
+				if (mergeToken) {
 					// The callback logged in as the fresh GitHub-only account G. Merge its
-					// verified identity into the pre-existing Seed account (userId) so the
-					// user ends up operating as their Seed account with GitHub attached.
-					this.loginService.mergeAccountGithub(userId, resp.login, resp.id).subscribe({
+					// verified identity into the Seed account that was authorized during
+					// the initiate step (token proves ownership — no client-controlled userId).
+					this.loginService.mergeAccountGithub(mergeToken).subscribe({
 						next: () => this.getRepositories(),
 						error: () => this.getRepositories()
 					});

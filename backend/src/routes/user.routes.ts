@@ -69,8 +69,15 @@ router.patch('/reset', authLimiter, validate(resetPasswordSchema), userControlle
 router.get('/callback', userController.githubCallback);
 
 /**
+ * @route   POST /api/user/mergeGithub/initiate
+ * @desc    Initiate GitHub merge — proves ownership of target Seed account
+ * @access  Private
+ */
+router.post('/mergeGithub/initiate', isAuthenticated, userController.initiateMergeGithub);
+
+/**
  * @route   POST /api/user/mergeGithub
- * @desc    Merges a GitHub account with the logged-in user
+ * @desc    Complete GitHub merge — verifies merge-intent token and merges verified GitHub identity
  * @access  Private
  */
 router.post('/mergeGithub', isAuthenticated, validate(mergeGithubSchema), userController.mergeGithub);

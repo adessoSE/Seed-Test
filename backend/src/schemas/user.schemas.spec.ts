@@ -79,19 +79,23 @@ describe('resetPasswordSchema', () => {
 });
 
 describe('mergeGithubSchema', () => {
-	it('accepts valid merge data', () => {
-		const result = mergeGithubSchema.safeParse({ userId: 'abc123', login: 'ghuser', id: 12345 });
+	it('accepts valid merge token', () => {
+		const result = mergeGithubSchema.safeParse({ mergeToken: 'abc123' });
 		expect(result.success).toBe(true);
 	});
 
-	it('rejects non-integer id', () => {
-		const result = mergeGithubSchema.safeParse({ userId: 'abc123', login: 'ghuser', id: 1.5 });
+	it('rejects empty merge token', () => {
+		const result = mergeGithubSchema.safeParse({ mergeToken: '' });
 		expect(result.success).toBe(false);
 	});
 
-	it('rejects missing fields', () => {
-		expect(mergeGithubSchema.safeParse({ userId: 'abc' }).success).toBe(false);
+	it('rejects missing merge token', () => {
 		expect(mergeGithubSchema.safeParse({}).success).toBe(false);
+	});
+
+	it('rejects old userId-based format (userId field is no longer accepted)', () => {
+		const result = mergeGithubSchema.safeParse({ userId: 'abc123', login: 'ghuser', id: 12345 });
+		expect(result.success).toBe(false);
 	});
 });
 

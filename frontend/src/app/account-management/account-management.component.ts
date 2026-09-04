@@ -207,11 +207,29 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	/**
-     * Loggs in the user to Github
-     */
+      * Logs in the user to Github.
+      * First calls the backend initiate endpoint to prove ownership of this Seed account,
+      * then redirects to GitHub OAuth with the server-signed token in the state parameter.
+      * The token survives the OAuth redirect and is verified during the merge step.
+      */
 	login() {
-		localStorage.setItem('userId', this.id);
-		this.loginService.githubLogin();
+		this.loginService.initiateMergeGithub(this.id).subscribe({
+			next: (resp) => {
+				// Persist the server-signed merge token so the OAuth callback can
+				// use it to complete the merge after the GitHub redirect.
+				localStorage.setItem('mergeToken', resp.mergeToken);
+				const scope = 'repo';
+				const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
+				const clientId = localStorage.getItem('clientId');
+				const state = resp.mergeToken;
+				const url = `${AUTHORIZE_URL}?scope=${scope}&client_id=${clientId}&state=${state}`;
+				window.location.href = url;
+			},
+			error: (err) => {
+				console.error('Failed to initiate GitHub merge:', err);
+				this.notify.error('Could not initiate GitHub login. Please try again.');
+			}
+		});
 	}
 
 	/**

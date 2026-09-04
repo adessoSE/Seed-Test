@@ -23,19 +23,29 @@ function collectRoutes(): Array<{ methods: string[]; path: string }> {
 	return routes;
 }
 
-describe('user router — GitHub auth hardening', () => {
-	it('does not expose the insecure POST /githubLogin route', () => {
-		const paths = collectRoutes();
-		expect(paths.some(r => r.methods.includes('post') && r.path === '/githubLogin')).toBe(false);
-	});
+	describe('user router — GitHub auth hardening', () => {
+		it('does not expose the insecure POST /githubLogin route', () => {
+			const paths = collectRoutes();
+			expect(paths.some(r => r.methods.includes('post') && r.path === '/githubLogin')).toBe(false);
+		});
 
-	it('does not expose the insecure POST /githubRegister route', () => {
-		const paths = collectRoutes();
-		expect(paths.some(r => r.methods.includes('post') && r.path === '/githubRegister')).toBe(false);
-	});
+		it('does not expose the insecure POST /githubRegister route', () => {
+			const paths = collectRoutes();
+			expect(paths.some(r => r.methods.includes('post') && r.path === '/githubRegister')).toBe(false);
+		});
 
-	it('still exposes the server-verified GitHub OAuth callback route', () => {
-		const paths = collectRoutes();
-		expect(paths.some(r => r.methods.includes('get') && r.path === '/callback')).toBe(true);
+		it('still exposes the server-verified GitHub OAuth callback route', () => {
+			const paths = collectRoutes();
+			expect(paths.some(r => r.methods.includes('get') && r.path === '/callback')).toBe(true);
+		});
+
+		it('exposes the POST /mergeGithub/initiate route for proving merge ownership', () => {
+			const paths = collectRoutes();
+			expect(paths.some(r => r.methods.includes('post') && r.path === '/mergeGithub/initiate')).toBe(true);
+		});
+
+		it('exposes the POST /mergeGithub route for completing the merge', () => {
+			const paths = collectRoutes();
+			expect(paths.some(r => r.methods.includes('post') && r.path === '/mergeGithub')).toBe(true);
+		});
 	});
-});

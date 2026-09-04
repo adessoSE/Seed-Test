@@ -45,7 +45,7 @@ vi.mock('bcrypt', () => ({
 }));
 
 vi.mock('node:crypto', () => ({
-	randomUUID: vi.fn().mockReturnValue('test-uuid-1234-5678')
+	randomUUID: vi.fn().mockReturnValue('test-uuid-merge-token')
 }));
 
 vi.mock('../helpers/userSanitize', () => ({
@@ -72,6 +72,9 @@ import * as nodeMail from '../nodemailer.js';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
 import { AppError } from '../helpers/AppError.js';
+
+// Access the merge-intent store for test setup
+const { mergeIntents } = userController;
 
 // --- 3. Test helpers ---
 
@@ -125,6 +128,7 @@ describe('UserController', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mergeIntents.clear();
 	});
 
 	// ========== forgotPassword ==========
@@ -144,9 +148,9 @@ describe('UserController', () => {
 			// Email should be lowercased before lookup
 			expect(userService.getUserByEmail).toHaveBeenCalledWith('test@example.com');
 			expect(userService.createResetRequest).toHaveBeenCalledWith(
-				expect.objectContaining({ uuid: 'test-uuid-1234-5678', email: fakeUser.email })
+				expect.objectContaining({ uuid: 'test-uuid-merge-token', email: fakeUser.email })
 			);
-			expect(nodeMail.sendResetLink).toHaveBeenCalledWith(fakeUser.email, 'test-uuid-1234-5678');
+			expect(nodeMail.sendResetLink).toHaveBeenCalledWith(fakeUser.email, 'test-uuid-merge-token');
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith({ message: 'Reset link sent' });
 			expect(next).not.toHaveBeenCalled();
@@ -495,22 +499,83 @@ describe('UserController', () => {
 		});
 	});
 
-	// ========== mergeGithub (mergeAccounts) ==========
+	// ========== initiateMergeGithub ==========
 
-	describe('mergeGithub', () => {
-		it('should merge the session-verified GitHub identity into the Seed account and respond 200', async () => {
-			const mergedUser = { ...fakeUser, github: { login: 'ghuser', id: 42, githubToken: 'tok' } };
-			vi.mocked(userService.mergeGithub).mockResolvedValue(mergedUser);
+	describe('initiateMergeGithub', () => {
+		it('should return a merge token when the session user owns the target account', async () => {
+			const { req, res, next } = mockReqResNext({
+				user: { ...fakeUser },
+				body: { userId: fakeUserId }
+			});
+
+			await userController.initiateMergeGithub(req, res, next);
+
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ mergeToken: 'test-uuid-merge-token' }));
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it('should call next with 401 when user is not authenticated', async () => {
+			const { req, res, next } = mockReqResNext({
+				user: null
+			});
+
+			await userController.initiateMergeGithub(req, res, next);
+
+			expect(next).toHaveBeenCalledTimes(1);
+			const error = next.mock.calls[0][0];
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(401);
+		});
+
+		it('should call next with 403 when the session user does not own the target account', async () => {
+			const differentUserId = new ObjectId().toHexString();
 
 			const { req, res, next } = mockReqResNext({
-				// Stale/mismatched client-supplied login/id must be IGNORED — the verified
-				// identity always comes from the session user's github payload.
-				body: { userId: fakeUserId, login: 'clientLogin', id: 999 },
-				user: { ...fakeUser }
+				user: { ...fakeUser },
+				body: { userId: differentUserId }
+			});
+
+			await userController.initiateMergeGithub(req, res, next);
+
+			expect(next).toHaveBeenCalledTimes(1);
+			const error = next.mock.calls[0][0];
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(403);
+		});
+	});
+
+	// ========== mergeGithub ==========
+
+	describe('mergeGithub', () => {
+		/** GitHub-only account G — the session user after OAuth callback */
+		const githubOnlyUser = {
+			_id: new ObjectId().toHexString(),
+			email: undefined,
+			password: undefined,
+			github: { login: 'ghuser', id: 42, githubToken: 'gh-token' }
+		};
+
+		it('should merge the session-verified GitHub identity into the Seed account (S) and respond 200 — simulates S→initiate→GitHub callback (G)→merge', async () => {
+			// Session user is the GitHub-only account G (from OAuth callback)
+			const mergedUser = { ...fakeUser, github: { login: 'ghuser', id: 42 } };
+			vi.mocked(userService.mergeGithub).mockResolvedValue(mergedUser);
+
+			// Token was created during initiateMergeGithub by Seed account S —
+			// intent.userId = S (fakeUserId), NOT G (githubOnlyUser._id).
+			// This is the correct flow: the session user (G) is DIFFERENT from the
+			// merge target (S). The token is the ownership proof.
+			const token = 'test-uuid-merge-token';
+			mergeIntents.set(token, { userId: fakeUserId, expiresAt: Date.now() + 60000 });
+
+			const { req, res, next } = mockReqResNext({
+				body: { mergeToken: token },
+				user: githubOnlyUser
 			});
 
 			await userController.mergeGithub(req, res, next);
 
+			// Merge target is intent.userId (S), not session user (G)
 			expect(userService.mergeGithub).toHaveBeenCalledWith(fakeUserId, 'ghuser', 42);
 			expect(req.session.regenerate).toHaveBeenCalled();
 			expect(req.logIn).toHaveBeenCalledWith(mergedUser, expect.any(Function));
@@ -519,10 +584,87 @@ describe('UserController', () => {
 			expect(next).not.toHaveBeenCalled();
 		});
 
-		it('should call next with 403 AppError when the session user has no verified GitHub identity', async () => {
+		it('should reject second use of the same token (single-use enforcement)', async () => {
+			const token = 'test-uuid-merge-token';
+			mergeIntents.set(token, { userId: fakeUserId, expiresAt: Date.now() + 60000 });
+
 			const { req, res, next } = mockReqResNext({
-				body: { userId: fakeUserId, login: 'ghuser', id: 99 },
-				// Authenticated Seed user without any github payload — nothing verified to merge
+				body: { mergeToken: token },
+				user: githubOnlyUser
+			});
+
+			// First use succeeds — token is consumed
+			vi.mocked(userService.mergeGithub).mockResolvedValue({ ...fakeUser });
+			await userController.mergeGithub(req, res, next);
+			expect(res.status).toHaveBeenCalledWith(200);
+
+			// Token is deleted — second use should fail
+			const { req: req2, res: res2, next: next2 } = mockReqResNext({
+				body: { mergeToken: token },
+				user: githubOnlyUser
+			});
+			await userController.mergeGithub(req2, res2, next2);
+
+			expect(next2).toHaveBeenCalledTimes(1);
+			const error = next2.mock.calls[0][0];
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(403);
+			expect(error.message).toBe('Invalid or expired merge token. Please re-initiate.');
+		});
+
+		it('should call next with 400 when the merge token is missing', async () => {
+			const { req, res, next } = mockReqResNext({
+				body: {},
+				user: githubOnlyUser
+			});
+
+			await userController.mergeGithub(req, res, next);
+
+			expect(next).toHaveBeenCalledTimes(1);
+			const error = next.mock.calls[0][0];
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(400);
+		});
+
+		it('should call next with 403 when the merge token does not exist', async () => {
+			const { req, res, next } = mockReqResNext({
+				body: { mergeToken: 'nonexistent-token' },
+				user: githubOnlyUser
+			});
+
+			await userController.mergeGithub(req, res, next);
+
+			expect(next).toHaveBeenCalledTimes(1);
+			const error = next.mock.calls[0][0];
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(403);
+		});
+
+		it('should call next with 403 when the merge token has expired', async () => {
+			const token = 'expired-token';
+			mergeIntents.set(token, { userId: fakeUserId, expiresAt: Date.now() - 1000 });
+
+			const { req, res, next } = mockReqResNext({
+				body: { mergeToken: token },
+				user: githubOnlyUser
+			});
+
+			await userController.mergeGithub(req, res, next);
+
+			expect(next).toHaveBeenCalledTimes(1);
+			const error = next.mock.calls[0][0];
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(403);
+			expect(error.message).toBe('Merge token expired. Please re-initiate.');
+		});
+
+		it('should call next with 403 when the session user has no verified GitHub identity', async () => {
+			const token = 'test-uuid-merge-token';
+			mergeIntents.set(token, { userId: fakeUserId, expiresAt: Date.now() + 60000 });
+
+			const { req, res, next } = mockReqResNext({
+				body: { mergeToken: token },
+				// Authenticated user without any github payload — nothing verified to merge
 				user: { ...fakeUser, github: undefined }
 			});
 
@@ -534,9 +676,9 @@ describe('UserController', () => {
 			expect(error.statusCode).toBe(403);
 		});
 
-		it('should call next with 403 AppError when user is not authenticated', async () => {
+		it('should call next with 403 when user is not authenticated', async () => {
 			const { req, res, next } = mockReqResNext({
-				body: { userId: fakeUserId, login: 'ghuser', id: 99 },
+				body: { mergeToken: 'some-token' },
 				user: null
 			});
 
