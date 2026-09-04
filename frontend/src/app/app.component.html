@@ -8,13 +8,13 @@
       }
       <div class="vertical-container">
         <div id="version" class="Largecaption">
-          Version 1.8.1 {{version === '' ? " (demo)" : ""}}
+          Version {{ version }} @if (env) { ({{ env }}) }
         </div>
-        @if (this.version === '') {
+        @if (env) {
           <dfn id="defaultVersionWarning" class="def">
             <mat-icon>warning</mat-icon>
             <span rel="def" style="font-weight: normal">
-              This is a demo version of Seed-Test.
+              This is a {{ env }} version of Seed-Test.
               Please note that to use it in production, you need to make some configurations to ensure it's fully
               functional.
               Certain features may not work until you complete the installation process.
@@ -105,7 +105,7 @@
             }
             @if (showTerms) {
               <div id="termsContent" class="termsContent">
-                <p>This is only a demo version of an open source application</p>
+                <p>This is only a {{ env || 'demo' }} version of an open source application</p>
                 <p>The maker of this service is not liable for the user and its data</p>
                 <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/blob/master/LICENSE" target="_blank">It
                 is licenced under the MIT Licence</a>

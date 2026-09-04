@@ -13,6 +13,7 @@ import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
+import { environment } from '../environments/environment';
 
 
 /**
@@ -65,6 +66,8 @@ export class AppComponent implements OnInit{
 	private closeHelpTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	readonly isDark = computed(() => this.themeService.isDark());
+
+	env!: string;
 
 	toggleControl = new UntypedFormControl(false);
 
@@ -121,7 +124,8 @@ export class AppComponent implements OnInit{
    */
 
 	constructor() {
-		this.version = localStorage.getItem('version')!;
+		this.version = environment.version;
+		this.env = environment.env;
 	}
 
 	/**

@@ -1,0 +1,57 @@
+services:
+  db:
+    image: mongo:latest
+    container_name: "Seed-db"
+    restart: on-failure
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: SeedAdmin
+      MONGO_INITDB_ROOT_PASSWORD: SeedTest
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    container_name: "Seed-backend"
+    restart: on-failure
+    environment:
+      DATABASE_URI: mongodb://SeedAdmin:SeedTest@db:27017
+      SESSION_SECRET: secretSessionKey
+      JIRA_SECRET: secretJiraKey
+      JIRA_SALT: BJ1yJTJ7AFql
+      FRONTEND_URL: http://localhost:4200
+      PORT: 8080
+      ENCRYPTION_SECRET: ${ENCRYPTION_SECRET:?set ENCRYPTION_SECRET in .env}
+      PASSPORT_GITHUB_LOCAL_PW_FIELD: id
+      MAX_SAVED_REPORTS: 3
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    container_name: "Seed-frontend"
+    restart: on-failure
+    environment:
+      API_SERVER: http://localhost:8080/api
+    depends_on:
+      backend:
+        condition: service_healthy
