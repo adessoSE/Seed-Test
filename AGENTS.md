@@ -198,6 +198,13 @@ await db.collection(storiesCollection).updateOne(...);
 ## Files/gitignore
 Always gitignore: `.feature`, `reporting_*`, `dist/`, `node_modules/`, `.env`, `tsconfig.tsbuildinfo`, `coverage/`, `logs/`, `*.bat`, `*.sh`
 
+### Ephemeral agent output → `workers/scratch/` (git-ignored, never committed)
+Agents and subagents MUST keep every throwaway file out of the repo tree and out of git:
+- Build/typecheck/dev-server logs (`build-output.txt`, `tsc-output.txt`, `*.log`), scratch scripts (`*.mjs`, `.py`, `.ps1`), screenshots (`*.png`), temp dumps, and in-progress notes all go under **`workers/scratch/`** (already ignored via `workers/` in `.gitignore`).
+- Never `git add -f` a log/scratch/temp file; never commit ephemeral output as part of a fix.
+- Clean up your own scratch files when done, and a periodic sweep of `workers/scratch/` is expected (it is disposable — git has no history of it).
+- Commits contain ONLY real source + tests + docs. If a report is a genuine deliverable (e.g. an audit result the user wants to keep), place it under `docs/`, not as repo-root scratch.
+
 ## SonarCloud
 Frontend-only: project key `adessoAG_Seed-Test`, test inclusions `**/*.spec.ts`, report at `frontend/coverage/lcov.info`.
 
