@@ -47,8 +47,7 @@ import * as aiService from './services/ai.service.js';
 initializePassport(
 	passport,
 	userService.getUserByEmail,
-	userService.getUserById,
-	userService.getUserByGithub
+	userService.getUserById
 );
 
 const app: Application = express();

@@ -1,0 +1,2 @@
+npm notice run npx
+npm notice run tsc --noEmit

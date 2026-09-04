@@ -73,7 +73,13 @@ export async function registerUser(user: Partial<User>): Promise<InsertOneResult
 export function updateUser(userId: string | ObjectId | undefined, updatedUser: User) {
 	const db = dbConnection.getConnection();
 	const filter = { _id: oid(userId!) };
-	return db.collection<UserDoc>(userCollection).findOneAndReplace(filter, updatedUser).then(v => v as unknown as User | null);
+	const updateFields: Record<string, unknown> = { ...updatedUser };
+	delete updateFields._id;
+	return db.collection<UserDoc>(userCollection).findOneAndUpdate(
+		filter,
+		{ $set: updateFields },
+		{ returnDocument: 'after' }
+	).then(v => v as unknown as User | null);
 }
 
 /**

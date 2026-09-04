@@ -10,9 +10,14 @@ import * as blockService from './block.service.js';
 import { type Story } from '@seed-test/shared/models/Story.js';
 import { type Block } from '@seed-test/shared/models/Block.js';
 import { type Scenario } from '@seed-test/shared/models/Scenario.js';
+// Type-only reference for the mocked story.service module (erased at runtime, so the value mock is unaffected)
+import type * as StoryService from './story.service.js';
 
 // --- 1. Mock Dependencies ---
-vi.mock('./story.service', () => ({
+// Spread the real module so non-overridden helpers (e.g. backgroundOrEmpty) stay available,
+// overriding only the DB-coupled getOneStory.
+vi.mock('./story.service', async (importOriginal) => ({
+	...(await importOriginal<typeof StoryService>()),
 	getOneStory: vi.fn()
 }));
 vi.mock('./block.service', () => ({

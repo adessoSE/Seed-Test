@@ -190,7 +190,35 @@ export class ParentComponent implements OnInit {
    * @param story
    */
 	setSelectedStory(story: Story) {
+		// A scenario only makes sense within its owning story. When switching to a
+		// different story, the previously selected scenario is stale and must be
+		// cleared: if we left parent.selectedScenario untouched, story-editor's
+		// newScenario effect would re-apply the OLD story's scenario in the flush
+		// that follows the story change, overwriting the new story's first scenario
+		// and making the editor appear to need a second click (zoneless race).
+		// Compare by ID (not object identity) so a re-fetched/re-filtered story
+		// object does not spuriously reset the scenario.
+		if (!this.sameStory(this.selectedStory(), story))
+			this.selectedScenario.set(undefined);
 		this.selectedStory.set(story);
+	}
+
+	/**
+	 * Compares two story objects by their normalized ID (string or MongoDB ObjectId).
+	 * @param a The first story, or undefined
+	 * @param b The second story, or undefined
+	 * @returns True when both are nullish or when both IDs resolve to the same string
+	 */
+	private sameStory(a: Story | undefined, b: Story | undefined): boolean {
+		if (a === b)
+			return true;
+		if (!a || !b)
+			return false;
+		const normalize = (id: unknown): string =>
+			typeof id === 'object' && id !== null
+				? (id as { toHexString: () => string }).toHexString()
+				: String(id ?? '');
+		return normalize(a._id) !== '' && normalize(a._id) === normalize(b._id);
 	}
 
 	/**

@@ -4,6 +4,7 @@ import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import type { User } from '@seed-test/shared/models/User';
+import { sha256Hex } from './crypto';
 
 /** Response from the GitHub OAuth callback endpoint */
 interface GithubCallbackResponse {
@@ -11,13 +12,6 @@ interface GithubCallbackResponse {
 	status?: number;
 	login: string;
 	id: number;
-}
-
-/** Response from the GitHub token login endpoint */
-interface GithubLoginResponse {
-	status: string;
-	message?: string;
-	repository?: string;
 }
 
 /** Credentials payload for login endpoints */
@@ -76,23 +70,6 @@ export class LoginService {
 	}
 
 	/**
-   * Loggs in the user with a github token
-   * @param login
-   * @param id
-   * @returns
-   */
-	loginGithubToken(login: string, id: number): Observable<GithubLoginResponse> {
-		const str = this.apiService.apiServer + '/user/githubLogin';
-		const user = { login, id };
-
-		return this.http.post<GithubLoginResponse>(str, user, ApiService.getOptions()).pipe(
-			tap((_) => {
-				//
-			}),
-			catchError(this.apiService.handleError)
-		);
-	}
-	/**
    * Merges Seed-Test account and github account
    * @param userId
    * @param login
@@ -134,7 +111,7 @@ export class LoginService {
 	loginUser(user: LoginCredentials): Observable<User | null> {
 		const str = this.apiService.apiServer + '/user/login';
 		if (!window.isSecureContext) return this.loginUserLegacy(user);
-		return from(this.sha256(user.password)).pipe(
+		return from(sha256Hex(user.password)).pipe(
 			switchMap(hash => {
 				console.log('hashed', hash);
 				const req1: Observable<User> = this.http.post<User>(str, { ...user, password: hash }, ApiService.getOptions());
@@ -151,21 +128,13 @@ export class LoginService {
 		);
 	}
 
-	sha256 = async (data: string) => {
-		const textAsBuffer = new TextEncoder().encode(data);
-		const hashBuffer = await window.crypto.subtle.digest('SHA-256', textAsBuffer);
-		const hashArray = Array.from(new Uint8Array(hashBuffer));
-		const digest = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-		return digest;
-	};
-
 	/**
-   * Loggs in the user into jira
-   * @param jiraName
-   * @param jiraPassword
-   * @param jiraServer
-   * @returns
-   */
+	 * Loggs in the user into jira
+    * @param jiraName
+    * @param jiraPassword
+    * @param jiraServer
+    * @returns
+    */
 	jiraLogin(jiraName: string, jiraPassword: string, jiraServer: string) {
 		const body = {
 			jiraAccountName: jiraName,
@@ -207,7 +176,7 @@ export class LoginService {
    * @returns
    */
 	confirmReset(uuid: string, password: string): Observable<ResetResponse> {
-		return from(this.sha256(password)).pipe(
+		return from(sha256Hex(password)).pipe(
 			switchMap(hash => {
 				console.log('hashed', hash);
 				const req1: Observable<ResetResponse> = this.http.patch<ResetResponse>(this.apiService.apiServer + '/user/reset', { uuid: uuid, password: hash });
@@ -260,8 +229,11 @@ export class LoginService {
    * @returns
    */
 	registerUser(email: string, password: string, userId: string | null): Observable<User> {
-		const user = { email, password, userId };
-		return from(this.sha256(user.password)).pipe(
+		const user: Record<string, unknown> = { email, password };
+		if (userId) 
+			user.userId = userId;
+
+		return from(sha256Hex(user.password as string)).pipe(
 			switchMap(hash => {
 				console.log('hashed', hash);
 				const req1: Observable<User> = this.http.post<User>(this.apiService.apiServer + '/user/register', { ...user, password: hash }, ApiService.getOptions());

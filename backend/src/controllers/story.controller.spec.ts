@@ -19,7 +19,8 @@ vi.mock('../services/story.service', () => ({
 	deleteScenario: vi.fn(),
 	updateScenarioList: vi.fn(),
 	updateOneDriver: vi.fn(),
-	getOneStoryByIssueKey: vi.fn()
+	getOneStoryByIssueKey: vi.fn(),
+	renumberCustomStories: vi.fn()
 }));
 
 vi.mock('../services/feature-file.service', () => ({
@@ -480,10 +481,14 @@ describe('StoryController', () => {
 			req.body = { storyIds };
 
 			vi.mocked(repositoryService.updateStoriesArrayInRepo).mockResolvedValue(null);
+			// Renumber is idempotent for the test — controller just forwards the new order
+			vi.mocked(storyService.renumberCustomStories).mockResolvedValue(undefined);
 
 			await controller.updateStoryOrder(req, res, next);
 
 			expect(repositoryService.updateStoriesArrayInRepo).toHaveBeenCalledWith(VALID_REPO_ID, storyIds);
+			// Custom stories are renumbered after the order is persisted
+			expect(storyService.renumberCustomStories).toHaveBeenCalledWith(VALID_REPO_ID, storyIds);
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith({ message: 'Story order updated' });
 		});

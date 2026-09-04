@@ -286,7 +286,7 @@
                           </div>
                         </mat-expansion-panel-header>
                         @if (showBackground()) {
-                          <app-base-editor [templateName]="TEMPLATE_NAME" [newlySelectedScenario]="selectedScenario"
+                          <app-base-editor [templateName]="TEMPLATE_NAME" [newlySelectedScenario]="selectedScenario()"
                             [newlySelectedStory]="selectedStory()" [testRunning]="testRunning()" [originalStepTypes]="originalStepTypes()"
                           [uncheckBackgroundCheckboxes]="showBackground()" />
                         }
@@ -294,7 +294,7 @@
                     </mat-accordion>
                     <br>
                       <!--storyEditorContainer - contains Head bar of Story-Editor, Scenario-Editor, Footer of Story-Editor-->
-                      @if (this.selectedScenario) {
+                            @if (this.selectedScenario()) {
                         <div id="storyEditorContainer">
                           <!--AI Review Bar-->
                           @if (!isReviewingAi() && aiSuggestions.has(selectedStory()?._id)) {
@@ -345,7 +345,7 @@
                               <div class="scenario-list">
                                 @for (scenario of aiSuggestions.get(selectedStory()?._id)?.scenarios; track scenario) {
                                   <button
-                                    class="scenario-selector-button" [class.active]="scenario.scenario_id === selectedScenario?.scenario_id"
+                                    class="scenario-selector-button" [class.active]="scenario.scenario_id === selectedScenario()?.scenario_id"
                                     (click)="selectScenario(scenario)">
                                     {{ scenario.name }}
                                   </button>
@@ -375,13 +375,13 @@
                                 </dfn>
                               </div>
                             </div>
-                            @if (this.selectedScenario) {
+                      @if (this.selectedScenario()) {
                               <div class="storyInfoCenter">
                                 @if (!this.globalSettingsActivated()) {
                                   <div>
                                     <label class="selectLabel SmallIcontext" for="defaultWaitTimeInput">Wait between steps (ms):</label>
                                     <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200
-                                      value="{{this.selectedScenario.stepWaitTime || 0}}"
+                                      value="{{this.selectedScenario().stepWaitTime || 0}}"
                                       (change)="setStepWaitTime($event.target.valueAsNumber)">
                                       <label class="selectLabel SmallIcontext" for="testRunnerSelect">Test Runner:</label>
                                       <select name="testRunner" class="select" id="testRunnerSelect"
@@ -395,19 +395,19 @@
                                       <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
                                         @if (this.chromium_enabled) {
                                           <option id="chrome_browser" value="chromium"
-                                          [selected]="this.selectedScenario.browser === 'chromium'">Chrome</option>
+                                          [selected]="this.selectedScenario().browser === 'chromium'">Chrome</option>
                                         }
                                         @if (this.gecko_enabled) {
                                           <option id="firefox_browser" value="firefox"
-                                          [selected]="this.selectedScenario.browser === 'firefox'">Firefox</option>
+                                          [selected]="this.selectedScenario().browser === 'firefox'">Firefox</option>
                                         }
                                         @if (this.edge_enabled) {
                                           <option id="MicrosoftEdge_browser" value="MicrosoftEdge"
-                                          [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
+                                          [selected]="this.selectedScenario().browser === 'MicrosoftEdge'">Edge</option>
                                         }
                                         @if (this.webkit_enabled && this.testRunner() === 'playwright') {
                                           <option id="webkit_browser" value="webkit"
-                                          [selected]="this.selectedScenario.browser === 'webkit'">Webkit</option>
+                                          [selected]="this.selectedScenario().browser === 'webkit'">Webkit</option>
                                         }
                                       </select>
                                       <!-- EMULATOR -->
@@ -434,13 +434,13 @@
                                             (change)="setEmulator($event.target.value)">
                                             @if (this.getAvaiableEmulators().length === 0) {
                                               <option value="{{ undefined }}"
-                                                [selected]="this.selectedScenario.emulator === emulator">
+[selected]="this.selectedScenario().emulator === emulator">
                                                 No emulator avaiable
                                               </option>
                                             }
                                             @for (emulator of this.getAvaiableEmulators(); track emulator) {
                                               <option value="{{ emulator }}"
-                                                id="{{emulator}}_option" [selected]="this.selectedScenario.emulator === emulator">
+                                                id="{{emulator}}_option" [selected]="this.selectedScenario().emulator === emulator">
                                                 {{ emulator }}
                                               </option>
                                             }
@@ -453,8 +453,8 @@
                                           </span>
                                         </dfn>
 <!-- Window Size -->
-<app-window-size #windoSizeModal [width]="this.selectedScenario.width"
-                                          [height]="this.selectedScenario.height" [emulator]="emulator_enabled"
+<app-window-size #windoSizeModal [width]="this.selectedScenario().width"
+                                          [height]="this.selectedScenario().height" [emulator]="emulator_enabled"
                                           (sizeChange)="handleSizeChange($event)" />
                                       </div>
                                     }
@@ -518,7 +518,7 @@
                                   (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);"
                                   (navigateLeft)="navigateScenarioLeft()" (navigateRight)="navigateScenarioRight()"
                                   [originalStepTypes]="originalStepTypes()" [testRunning]="testRunning()" [selectedStory]="selectedStory()"
-                                  [selectedScenario]="selectedScenario"
+                                  [selectedScenario]="selectedScenario()"
                                   [scenarios]="isReviewingAi() ? $safeNavigationMigration(aiSuggestions.get(selectedStory()?._id)?.scenarios) : selectedStory()?.scenarios" />
                               </div>
                               <app-rename-story #renameStoryModal />
@@ -558,7 +558,7 @@
                                             }
                                             <button id="run_scenario" class="button" matTooltip="Runs this scenario test"
                                               [class.disabledButton]="testRunning()" [disabled]="testRunning()" type="button"
-                                              (click)="evaluateAndRunScenario(this.selectedScenario.scenario_id, this.testRunner());">
+                                              (click)="evaluateAndRunScenario(this.selectedScenario().scenario_id, this.testRunner());">
                                             Run Scenario</button>
                                           </div>
                                         </div>

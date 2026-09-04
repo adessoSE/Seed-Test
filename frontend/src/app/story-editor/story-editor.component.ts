@@ -139,9 +139,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	readonly selectedStory = signal<Story | undefined>(undefined);
 
 	/**
-   * Currently selected scenario
-   */
-	selectedScenario!: Scenario;
+    * Currently selected scenario (signal for zoneless ChangeDetection reactivity)
+    */
+	selectedScenario = signal<Scenario | null>(null);
 
 	/**
    * Currently selected repository
@@ -387,8 +387,10 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		if (xrayEnabled === null) return;
 		const story = this.selectedStory();
 		if (!story) return;
+		const scenario = this.selectedScenario();
+		if (!scenario) return;
 		untracked(() => {
-			this.deleteScenario(this.selectedScenario, xrayEnabled);
+			this.deleteScenario(scenario, xrayEnabled);
 		});
 	});
 
@@ -490,14 +492,16 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 
 	/** Unpacks block from scenario and checks remaining references */
 	private async handleUnpackBlock(obj: { block: Block; stepReference: StepType }) {
+		const scenario = this.selectedScenario();
+		if (!scenario) return;
 		this.blockService.unpackScenarioWithBlock(
 			obj.block,
-			this.selectedScenario,
+			scenario,
 			obj.stepReference
 		);
 		const blocks = await this.reloadBlocks();
 		this.blockService.checkBlockOnReference(blocks, this.stories(), obj.block);
-		this.selectedScenario.saved = false;
+		scenario.saved = false;
 	}
 
 	/** Effect 13: React to reference block name update */
@@ -534,67 +538,81 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		const story = this.selectedStory();
 		if (!story) return;
 		untracked(() => {
-			this.blockService.convertSelectedStepsToRef(
-				block,
-				this.selectedScenario
-			);
+			const scenario = this.selectedScenario();
+			if (scenario)
+				this.blockService.convertSelectedStepsToRef(
+					block,
+					scenario
+				);
 		});
 	});
 
-	/** Effect 16: React to new selected scenario input */
+	/** Effect 16: React to new selected scenario input
+	 * Handles scenario selection when the input changes.
+	 * Also handles auto-selection after story switch — if newSelectedScenario
+	 * is null/undefined (cleared by setSelectedStory in parent), auto-select
+	 * the first scenario from the currently selected story.
+	 */
 	private readonly newSelectedScenarioEffect = effect(() => {
 		const scenario = this.newSelectedScenario();
-		if (!scenario) return;
-		const story = this.selectedStory();
-		if (!story) return;
-		untracked(() => {
+		// Don't return early — when scenario is null/undefined after a story
+		// switch, we auto-select the first scenario of the new story below.
+		if (scenario) {
 			if (this.isReviewingAi())
 				this.exitAiReviewMode();
 
 			this.selectScenario(scenario);
-		});
+		} else {
+			// CASE: newSelectedScenario is null/undefined after story switch.
+			// Auto-select the first scenario of the new story.
+			const story = this.selectedStory();
+			if (story && story.scenarios && story.scenarios.length > 0)
+				this.selectScenario(story.scenarios[0]);
+			else if (story)
+				this.selectScenario(null);
+		}
 	}, { allowSignalWrites: true });
 
 	/** Effect 17: React to new stories input */
 	private readonly newStoriesEffect = effect(() => {
 		const stories = this.newStories();
 		if (!stories) return;
-		untracked(() => {
-			this.stories.set(stories);
-		});
+		this.stories.set(stories);
 	}, { allowSignalWrites: true });
 
-	/** Effect 18: React to new selected story input */
+	/** Effect 18: React to new selected story input
+	 * When parent changes newSelectedStory, this effect syncs to local selectedStory signal
+	 * and auto-selects the first scenario of the new story.
+	 * NOTE: untracked() was removed — all signal reads inside must be tracked for zoneless CD.
+	 */
 	private readonly newSelectedStoryEffect = effect(() => {
 		const story = this.newSelectedStory();
 		if (!story) return;
-		untracked(() => {
-			console.log('Setting selectedStory via effect:', story._id);
-			this.selectedStory.set(story);
-			this.initializeIsExampleForStory(this.selectedStory());
-			this.isReviewingAi.set(false);
+		console.log('Setting selectedStory via effect:', story._id);
+		this.selectedStory.set(story);
+		this.initializeIsExampleForStory(this.selectedStory());
+		this.isReviewingAi.set(false);
 
-			const storyForAi = this.selectedStory();
-if (storyForAi && storyForAi.aiSuggestion)
-				this.aiSuggestions.set(storyForAi._id!, storyForAi.aiSuggestion as { scenarios: Scenario[] });
-			else if (storyForAi)
-				this.aiSuggestions.delete(storyForAi._id!);
+		const storyForAi = this.selectedStory();
+		if (storyForAi && storyForAi.aiSuggestion)
+			this.aiSuggestions.set(storyForAi._id!, storyForAi.aiSuggestion as { scenarios: Scenario[] });
+		else if (storyForAi)
+			this.aiSuggestions.delete(storyForAi._id!);
 
-			const _stories = this.selectedStory();
-			if (_stories !== undefined && _stories.preConditions)
-				this.preConditionResults = this.xrayService.getPreconditionStories(
-					_stories.preConditions
-				);
+		const _stories = this.selectedStory();
+		if (_stories !== undefined && _stories.preConditions)
+			this.preConditionResults = this.xrayService.getPreconditionStories(
+				_stories.preConditions
+			);
 
-			if (this.selectedStory() &&
-				this.selectedStory()!.scenarios &&
-				this.selectedStory()!.scenarios.length > 0
-			)
-				this.selectScenario(this.selectedStory()!.scenarios[0]);
-			else if (this.selectedStory())
-				// Editor hiding is happening in selectScenario
-				this.selectScenario(null);
-		});
+		if (this.selectedStory() &&
+			this.selectedStory()!.scenarios &&
+			this.selectedStory()!.scenarios.length > 0
+		)
+			this.selectScenario(this.selectedStory()!.scenarios[0]);
+		else if (this.selectedStory())
+			// Editor hiding is happening in selectScenario
+			this.selectScenario(null);
 	}, { allowSignalWrites: true });
 
 	/** Effect 19: React to test running for group input */
@@ -667,14 +685,17 @@ if (storyForAi && storyForAi.aiSuggestion)
 		this.checkGlobalSettings();
 	}
 
-handleSizeChange(event: { width: number; height: number }) {
+	handleSizeChange(event: { width: number; height: number }) {
 		const story = this.selectedStory();
 		if (!story) return;
-		if (this.selectedScenario && (this.width !== event.width || this.height !== event.height)) 
-			this.selectedScenario.saved = false;
-      
-		this.selectedScenario.width = event.width;
-		this.selectedScenario.height = event.height;
+		const scenario = this.selectedScenario();
+		if (scenario && (this.width !== event.width || this.height !== event.height)) 
+			scenario.saved = false;
+		
+		if (scenario) {
+			scenario.width = event.width;
+			scenario.height = event.height;
+		}
 	}
 
 	ngAfterViewChecked() {
@@ -761,7 +782,8 @@ handleSizeChange(event: { width: number; height: number }) {
    * @param scenario The scenario to select.
    */
 	selectNewScenario(scenario: Scenario) {
-		this.selectedScenario = scenario;
+		// Use signal.set() for zoneless ChangeDetection reactivity
+		this.selectedScenario.set(scenario);
 	}
 
 /**
@@ -770,13 +792,15 @@ handleSizeChange(event: { width: number; height: number }) {
 	navigateScenarioLeft() {
 		const story = this.selectedStory();
 		if (!story) return;
+		const scenario = this.selectedScenario();
+		if (!scenario) return;
 		const currentList = this.isReviewingAi()
 			? this.aiSuggestions.get(story._id!)?.scenarios
 			: story.scenarios;
 		if (!currentList) return;
 
 		const currentIndex = currentList.findIndex(
-			(s: Scenario) => s.scenario_id === this.selectedScenario.scenario_id
+			(s: Scenario) => s.scenario_id === scenario.scenario_id
 		);
 		if (currentIndex > 0)
 			this.selectNewScenario(currentList[currentIndex - 1]);
@@ -789,13 +813,15 @@ handleSizeChange(event: { width: number; height: number }) {
 	navigateScenarioRight() {
 		const story = this.selectedStory();
 		if (!story) return;
+		const scenario = this.selectedScenario();
+		if (!scenario) return;
 		const currentList = this.isReviewingAi()
 			? this.aiSuggestions.get(story._id!)?.scenarios
 			: story.scenarios;
 		if (!currentList) return;
 
 		const currentIndex = currentList.findIndex(
-			(s: Scenario) => s.scenario_id === this.selectedScenario.scenario_id
+			(s: Scenario) => s.scenario_id === scenario.scenario_id
 		);
 		if (currentIndex < currentList.length - 1)
 			this.selectNewScenario(currentList[currentIndex + 1]);
@@ -889,8 +915,10 @@ handleSizeChange(event: { width: number; height: number }) {
 	scenarioDeleted() {
 		const story = this.selectedStory();
 		if (!story) return;
+		const scenario = this.selectedScenario();
+		if (!scenario) return;
 		const indexScenario: number = story.scenarios.indexOf(
-			this.selectedScenario
+			scenario
 		);
 		if (indexScenario !== -1) 
 			story.scenarios.splice(indexScenario, 1);
@@ -1076,7 +1104,8 @@ handleSizeChange(event: { width: number; height: number }) {
    */
 
 	selectScenario(scenario: Scenario | null) {
-		this.selectedScenario = scenario as Scenario;
+		// Use signal.set() so zoneless ChangeDetection picks up the change (OnPush)
+		this.selectedScenario.set(scenario);
 		this.showResults.set(false);
 		if (scenario) {
 			this.showEditor.set(true);
@@ -1085,23 +1114,22 @@ handleSizeChange(event: { width: number; height: number }) {
 				scenario.emulator ?? this.repoSettings?.emulator ?? false;
       
 			if (this.emulator_enabled) 
-				this.selectedScenario.emulator =
+				scenario.emulator =
 					scenario.emulator ?? this.repoSettings?.emulator ?? 'No emulator';
       
-
-			this.selectedScenario.stepWaitTime =
+			scenario.stepWaitTime =
 				scenario.stepWaitTime ?? this.repoSettings?.stepWaitTime ?? 0;
-			this.selectedScenario.browser =
+			scenario.browser =
 				scenario.browser ?? this.repoSettings?.browser ?? 'chromium';
-			this.selectedScenario.width =
+			scenario.width =
 				scenario.width ?? this.repoSettings?.width ?? 1920;
-			this.selectedScenario.height =
+			scenario.height =
 				scenario.height ?? this.repoSettings?.height ?? 1080;
-    
+     
 		} else {
 			// This is the path for when scenario is null
 			this.showEditor.set(false);
-      
+       
 			// Default to repo settings if no scenario is selected
 			this.emulator_enabled = this.repoSettings?.emulator ?? false;
 		}
@@ -1233,12 +1261,15 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
 							const testStatus = val ? 'PASS' : 'FAIL';
 
 							// If user selected Xray test executions, update their status
-							if (selectedExecutions) 
-								this.xrayService.updateXrayStatus(
-									this.selectedScenario,
-									selectedExecutions,
-									testStatus
-								);
+							if (selectedExecutions) {
+								const scenario = this.selectedScenario();
+								if (scenario)
+									this.xrayService.updateXrayStatus(
+										scenario,
+										selectedExecutions,
+										testStatus
+									);
+							}
                
 						},
 						error: (err) => {
@@ -1448,12 +1479,13 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
 			this.testRunner()
 		);
 		const story = this.selectedStory();
+		const scenario = this.selectedScenario();
 		return {
 			browser: browserSelectValue,
 			emulator: emulatorSelectValue,
-			width: this.selectedScenario.width || undefined,
-			height: this.selectedScenario.height || undefined,
-			stepWaitTime: this.selectedScenario.stepWaitTime ?? undefined,
+			width: scenario?.width,
+			height: scenario?.height,
+			stepWaitTime: scenario?.stepWaitTime,
 			// Coerce localStorage's `null` to `undefined` to match TestExecutionParams' optional string fields
 			repository: localStorage.getItem('repository') ?? undefined,
 			repositoryId: localStorage.getItem('id') ?? undefined,
@@ -1486,14 +1518,15 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
    * Evaluates whether to open xray execution list modal in run scenario.
    * @param scenario_id
    */
-	evaluateAndRunScenario(scenario_id: number) {
+  evaluateAndRunScenario(scenario_id: number) {
+		const scenario = this.selectedScenario();
 		if (
-			this.selectedScenario &&
-      this.selectedScenario.testKey &&
-      this.selectedScenario.testRunSteps!.length > 0
-		) 
-		// Open the modal if there are test execution steps
-			this.executionListModal().openExecutionListModal(this.selectedScenario);
+			scenario &&
+       scenario.testKey &&
+       scenario.testRunSteps!.length > 0
+  	) 
+  	// Open the modal if there are test execution steps
+  		this.executionListModal().openExecutionListModal(scenario);
 		else 
 		// Run tests directly if there are no test execution steps
 			this.runTests(scenario_id);
@@ -1550,20 +1583,23 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
    * @param newTime
    */
 	setStepWaitTime(newTime: number) {
-		if (this.selectedScenario) {
-			this.selectedScenario.stepWaitTime = newTime;
-			this.selectedScenario.saved = false;
+		const scenario = this.selectedScenario();
+		if (scenario) {
+			scenario.stepWaitTime = newTime;
+			scenario.saved = false;
 		}
 	}
 
 	/**
-   * Set the browser
-   * @param newBrowser
-   */
-	setBrowser(newBrowser: string) {
-		this.selectedScenario.browser = newBrowser;
+    * Set the browser
+    * @param newBrowser
+    */
+  setBrowser(newBrowser: string) {
+		const scenario = this.selectedScenario();
+		if (!scenario) return;
+		scenario.browser = newBrowser;
 		this.setEmulatorEnabled(false);
-		this.selectedScenario.saved = false;
+		scenario.saved = false;
 	}
 
 	/**
@@ -1664,19 +1700,22 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
    * Set if an emulator should be used
    * @param enabled Boolean
    */
-	setEmulatorEnabled(enabled: boolean) {
+  setEmulatorEnabled(enabled: boolean) {
 		this.emulator_enabled = enabled;
 		this.setEmulator(enabled ? this.getAvaiableEmulators()[0] : undefined);
-		this.selectedScenario.saved = false;
+		const scenario = this.selectedScenario();
+		if (scenario) scenario.saved = false;
 	}
 
 	/**
-   * Set the emulator
-   * @param newEmultaor
-   */
+    * Set the emulator
+    * @param newEmultaor
+    */
 	setEmulator(newEmulator: string | undefined) {
-		this.selectedScenario.emulator = newEmulator;
-		this.selectedScenario.saved = false;
+		const scenario = this.selectedScenario();
+		if (!scenario) return;
+		scenario.emulator = newEmulator;
+		scenario.saved = false;
 	}
 
 	/**
@@ -1685,10 +1724,13 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
 	getAvaiableEmulators() {
 		if (this.testRunner() === 'playwright')
 			return this.playwright_emulators;
-    
+		
+
+		const scenario = this.selectedScenario();
+		if (!scenario) return [];
 
 		// Bestehende Logik für Selenium
-		switch (this.selectedScenario.browser) {
+		switch (scenario.browser) {
 			case 'chromium':
 				return this.chromium_emulators;
 			case 'firefox':

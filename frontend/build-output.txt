@@ -1,0 +1,275 @@
+npm notice run npx
+npm notice run ng build --configuration production
+> Building...
+ÔêÜ Building...
+Application bundle generation failed. [9.706 seconds] - 2026-09-04T00:24:38.724Z
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    node_modules/uikit/src/scss/components/_import.scss:2:8:
+      2 Ôöé @import "variables.scss";
+        ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    node_modules/uikit/src/scss/uikit-theme.scss:6:8:
+      6 Ôöé @import "components/_import.scss";
+        ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:50:8:
+      50 Ôöé @import "../node_modules/uikit/src/scss/variables-theme.scss";
+         ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:51:8:
+      51 Ôöé @import "../node_modules/uikit/src/scss/mixins-theme.scss";
+         ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:52:8:
+      52 Ôöé @import "../node_modules/uikit/src/scss/uikit-theme.scss";
+         ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:872:20:
+      872 Ôöé   background-color: map-get(mat.$m2-blue-grey-palette, 800);
+          ÔòÁ                     ^
+
+
+  Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+  Use map.get instead.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:948:14:
+      948 Ôöé   background: map-get(mat.$m2-brown-palette, 200);
+          ÔòÁ               ^
+
+
+  Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+  Use map.get instead.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:957:14:
+      957 Ôöé   background: map-get(mat.$m2-blue-gray-palette, 200) !important;
+          ÔòÁ               ^
+
+
+  Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+  Use map.get instead.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:964:14:
+      964 Ôöé   background: map-get(mat.$m2-blue-grey-palette, 700);
+          ÔòÁ               ^
+
+
+  Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+  Use map.get instead.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] 75 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings. [plugin angular-sass]
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+  null
+
+
+X [ERROR] TS2345: Argument of type 'Scenario | null' is not assignable to parameter of type 'Scenario'.
+  Type 'null' is not assignable to type 'Scenario'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1252:9:
+      1252 Ôöé                   this.selectedScenario(),
+           ÔòÁ                   ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1468:10:
+      1468 Ôöé       width: this.selectedScenario().width || undefined,
+           ÔòÁ              ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1469:11:
+      1469 Ôöé       height: this.selectedScenario().height || undefined,
+           ÔòÁ               ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1470:17:
+      1470 Ôöé       stepWaitTime: this.selectedScenario().stepWaitTime ?? unde...
+           ÔòÁ                     ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1506:7:
+      1506 Ôöé        this.selectedScenario().testKey &&
+           ÔòÁ        ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1507:7:
+      1507 Ôöé        this.selectedScenario().testRunSteps!.length > 0
+           ÔòÁ        ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2345: Argument of type 'Scenario | null' is not assignable to parameter of type 'Scenario | Story | Group'.
+  Type 'null' is not assignable to type 'Scenario | Story | Group'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1510:53:
+      1510 Ôöé ...tionListModal().openExecutionListModal(this.selectedScenario());
+           ÔòÁ                                           ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1579:2:
+      1579 Ôöé     this.selectedScenario().browser = newBrowser;
+           ÔòÁ     ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1581:2:
+      1581 Ôöé     this.selectedScenario().saved = false;
+           ÔòÁ     ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1685:2:
+      1685 Ôöé     this.selectedScenario().saved = false;
+           ÔòÁ     ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1693:2:
+      1693 Ôöé     this.selectedScenario().emulator = newEmulator;
+           ÔòÁ     ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1694:2:
+      1694 Ôöé     this.selectedScenario().saved = false;
+           ÔòÁ     ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2531: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/story-editor/story-editor.component.ts:1706:10:
+      1706 Ôöé     switch (this.selectedScenario().browser) {
+           ÔòÁ             ~~~~~~~~~~~~~~~~~~~~~~~
+
+

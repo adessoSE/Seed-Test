@@ -53,10 +53,14 @@ export class RegistrationComponent implements OnInit {
 			this.notify.success('successfully registered', 'Registration');
 			const user = {email: form.value.email, password: form.value.password};
 			this.loginService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']));
-		}  catch(_err) {
-           
-			this.notify.error('User with this email alredy exist. Please enter another email', 'Email alredy exist');
-           
+		} catch(err: unknown) {
+			const errDetail = (err as { error?: { details?: Array<{ path?: string; message?: string }> } })?.error?.details?.[0];
+			const message = errDetail?.path === 'userId'
+				? 'Registration failed — please refresh the page and try again.'
+				: errDetail?.path === 'email'
+					? 'Invalid email format.'
+					: 'User with this email already exists. Please enter another email.';
+			this.notify.error(message, 'Registration failed');
 		} 
 	}
 

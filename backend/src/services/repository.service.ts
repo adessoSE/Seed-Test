@@ -20,6 +20,17 @@ const repositoriesCollection = 'Repositories';
 const userCollection = 'User';
 const customBlocksCollection = 'CustomBlocks';
 
+/**
+ * Returns a group's member_stories, defaulting to [] for inbound data. TypeScript declares
+ * member_stories as required on Group, but frontend payloads and legacy docs can omit it, so
+ * the runtime default is still load-bearing. The param is typed member_stories-optional so the
+ * null-check stays meaningful to the compiler while inbound data is normalised safely.
+ * @param group - A group whose member_stories may be absent at runtime.
+ * @returns The group's member_stories, or an empty array when the payload omits it.
+ */
+function memberStoriesOrEmpty(group: { member_stories?: string[] }): string[] {
+	return group.member_stories ?? [];
+}
 
 // --- Repository Functions ---
 
@@ -288,11 +299,11 @@ export async function getAllStoryGroups(repoId: string): Promise<Group[]> {
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }, { projection: { groups: 1 } });
 	// Convert ObjectId fields to proper types — MongoDB returns _id as ObjectId and member_stories as ObjectId[]
 	// but shared Group model expects _id: string and member_stories: string[]
-	return ((repo?.groups ?? []) as unknown as GroupDoc[]).map(g => ({
+	return (repo?.groups ?? []).map(g => ({
 		...g,
 		_id: g._id?.toString() ?? '',
-		member_stories: (g.member_stories ?? []).map(m => m?.toString?.() ?? '')
-	})) as unknown as Group[];
+		member_stories: (g.member_stories ?? []).map(m => m.toString())
+	}));
 }
 
 export async function getOneStoryGroup(repoId: string, groupId: string): Promise<Group | undefined> {
@@ -328,7 +339,7 @@ export async function updateStoryGroup(repoId: string, groupId: string, updatedG
 	// Group model uses string for _id, but MongoDB stores ObjectId — cast preserves runtime behaviour
 	updatedGroup._id = oid(groupId) as unknown as string;
 	// Convert member_stories strings to ObjectIds — frontend sends string[] but MongoDB GroupDoc expects ObjectId[]
-	(updatedGroup as unknown as GroupDoc).member_stories = ((updatedGroup.member_stories ?? []) as string[]).filter(Boolean).map(id => oid(id));
+	(updatedGroup as unknown as GroupDoc).member_stories = memberStoriesOrEmpty(updatedGroup).filter(Boolean).map(id => oid(id));
 	const collection = db.collection<RepositoryDoc>(repositoriesCollection);
 	const repo = await collection.findOne({ _id: oid(repoId) }, { session });
 
@@ -377,7 +388,7 @@ export async function updateStoryGroupsArray(repoId: string, groupsArray: Group[
 	const syncedGroups = groupsArray.map(group => ({
 		...group,
 		_id: group._id ? oid(group._id) as unknown as string : undefined,
-		member_stories: (group.member_stories ?? []).map(id => (id ? oid(id) : undefined))
+		member_stories: memberStoriesOrEmpty(group).map(id => (id ? oid(id) : undefined))
 	})) as unknown as GroupDoc[];
 	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },

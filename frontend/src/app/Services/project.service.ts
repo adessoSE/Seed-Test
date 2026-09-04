@@ -2,7 +2,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, of, throwError, ReplaySubject } from 'rxjs';
 import { ApiService } from '../Services/api.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { FileElement } from '@seed-test/shared/models/FileElement';
 
@@ -172,8 +172,10 @@ export class ProjectService {
 	/**
     * Retrieves the repositories, caching the last HTTP response so all concurrent
     * callers share a single request. Call refreshRepositories() to force a new fetch.
-    * On HTTP error, logs the error and emits the sessionStorage fallback (if any) so the UI
-    * never hangs on a broken ReplaySubject. The next caller triggers a new fetch.
+    * On HTTP error the UI never hangs on a broken ReplaySubject — but the failure
+    * is classified: auth/authorization errors (401/403) clear the list to empty,
+    * while any other transient error (500, 429, network) retains the last good
+    * cached list instead of silently replacing it with [].
     * @returns
     */
 	getRepositories(): Observable<RepositoryContainer[]> {
@@ -191,18 +193,27 @@ export class ProjectService {
 				)
 				.subscribe({
 					next: resp => this.repositoriesCache$.next(resp),
-					error: () => {
-						// Instead of killing the ReplaySubject (which would break all future subscribers),
-						// fall back to sessionStorage and reset the cache for next caller.
-						const cached = sessionStorage.getItem('repositories');
-						if (cached) {
-							try {
-								this.repositoriesCache$.next(JSON.parse(cached));
-							} catch {
-								this.repositoriesCache$.next([]);
-							}
-						} else {
+					error: (err) => {
+						// CASE 1: Auth/authorization failure (401/403) — legitimately no
+						// projects for this session. Clear to empty so the UI shows an
+						// empty project list instead of a hung spinner.
+						const status = (err as HttpErrorResponse)?.status;
+						if (status === HttpStatusCode.Unauthorized || status === HttpStatusCode.Forbidden)
 							this.repositoriesCache$.next([]);
+						else {
+							// CASE 2: Transient/other failure (500, 429, network) — retain the
+							// last good cached list so the error does NOT masquerade as an
+							// empty project, and surface the error in the console.
+							console.error('Failed to fetch repositories:', err);
+							const cached = sessionStorage.getItem('repositories');
+							if (cached)
+								try {
+									this.repositoriesCache$.next(JSON.parse(cached));
+								} catch {
+									this.repositoriesCache$.next([]);
+								}
+							else
+								this.repositoriesCache$.next([]);
 						}
 						// Allow next caller to retry the HTTP fetch
 						this.repositoriesFetchInFlight = false;
@@ -221,10 +232,34 @@ export class ProjectService {
 	refreshRepositories(): void {
 		this.repositoriesFetchInFlight = false;
 		this.repositoriesCache$ = new ReplaySubject<RepositoryContainer[]>(1);
-		// Reset the in-flight flag so the next call triggers a real HTTP fetch
-		this.repositoriesFetchInFlight = false;
 		// Immediately kick off a new fetch so subscribers don't wait
 		this.getRepositories();
+	}
+
+	/**
+   * Inserts a freshly-created repository into the repositories cache and the
+   * sessionStorage snapshot so the UI shows it immediately after create.
+   *
+   * WHY: The create flow triggers an async HTTP refresh (refreshRepositories) but
+   * also synchronously re-reads sessionStorage (updateRepos / updateRepositories).
+   * Reading sessionStorage before the new fetch writes back yields a stale list that
+   * hides the just-created project until a later refresh — a create/refresh race.
+   * Writing the new entry synchronously here closes that gap: every downstream
+   * sessionStorage reader now sees the fresh list, and the eventual server response
+   * still overwrites it with the authoritative list.
+   * @param repo The repository just created by the backend.
+   */
+	public addRepositoryToCache(repo: RepositoryContainer): void {
+		// Read the current snapshot so we append to the latest list rather than overwriting with [].
+		const currentStr = sessionStorage.getItem('repositories');
+		const current = currentStr ? (JSON.parse(currentStr) as RepositoryContainer[]) : [];
+		// Deduplicate by _id — a subsequent server refresh may carry the same entry.
+		const updated = current.filter(r => r._id !== repo._id).concat(repo);
+		sessionStorage.setItem('repositories', JSON.stringify(updated));
+
+		// Feed the shared ReplaySubject so reactive consumers that already subscribed
+		// (e.g. app.component getRepositories) also observe the fresh list.
+		this.repositoriesCache$.next(updated);
 	}
 
 	/**

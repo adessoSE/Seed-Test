@@ -14,8 +14,7 @@ const router = express.Router();
 initializePassport(
 	passport,
 	userService.getUserByEmail,
-	userService.getUserById,
-	userService.getUserByGithub
+	userService.getUserById
 );
 
 // --- Route Definition with Specific Authentication ---

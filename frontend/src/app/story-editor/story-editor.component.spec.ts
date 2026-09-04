@@ -102,7 +102,7 @@ describe('StoryEditorComponent', () => {
 			fixture.componentRef.setInput('newSelectedScenario', story.scenarios[1]);
 			// Flush effects without full change detection to avoid NG0100
 			TestBed.flushEffects();
-			expect(component.selectedScenario).toBe(story.scenarios[1]);
+			expect(component.selectedScenario()).toBe(story.scenarios[1]);
 			expect(component.selectScenario).toHaveBeenCalledWith(story.scenarios[1]);
 		});
 
@@ -112,7 +112,7 @@ describe('StoryEditorComponent', () => {
 			fixture.componentRef.setInput('newSelectedScenario', scenario);
 			// Flush effects without full change detection to avoid NG0100
 			TestBed.flushEffects();
-			expect(component.selectedScenario).toBe(scenario);
+			expect(component.selectedScenario()).toBe(scenario);
 			expect(component.selectScenario).toHaveBeenCalled();
 		});
 	});
@@ -175,9 +175,9 @@ describe('StoryEditorComponent', () => {
 		it('should delete the Scenario', () => {
 			component.stories.set(stories);
 			component.selectedStory.set(stories[0]);
-			component.selectedScenario = stories[0].scenarios[0];
+			component.selectedScenario.set(stories[0].scenarios[0]);
 			const story = component.selectedStory()!;
-			const indexScenario: number = story.scenarios.indexOf(component.selectedScenario);
+			const indexScenario: number = story.scenarios.indexOf(component.selectedScenario()!);
 			const deletedScenario = story.scenarios[indexScenario];
 
 			component.scenarioDeleted();
@@ -239,7 +239,7 @@ describe('StoryEditorComponent', () => {
 	describe('selectScenario', () => {
 		it('should select the Scenario', () => {
 			component.selectScenario(scenario);
-			expect(component.selectedScenario).toBe(scenario);
+			expect(component.selectedScenario()).toBe(scenario);
 			expect(component.showResults()).toBeFalsy();
 			expect(component.showEditor()).toBeTruthy();
 			expect(component.testDone()).toBeFalsy();
@@ -305,14 +305,14 @@ describe('StoryEditorComponent', () => {
 			component.selectedStory()!.scenarios.push(newScenario);
 
 			expect(component.selectedStory()?.scenarios.length).toBe(initialLen + 1);
-			expect(component.selectedScenario).toBe(newScenario);
+			expect(component.selectedScenario()).toBe(newScenario);
 			expect(component.showEditor()).toBeTruthy();
 		});
 
 		it('should remove scenario from list via scenarioDeleted', () => {
 			component.selectedStory.set(stories[0]);
 			component.stories.set(stories);
-			component.selectedScenario = stories[0].scenarios[0];
+			component.selectedScenario.set(stories[0].scenarios[0]);
 			const initialLen = stories[0].scenarios.length;
 
 			component.scenarioDeleted();
@@ -331,7 +331,7 @@ describe('StoryEditorComponent', () => {
 
 			component.selectScenario(testScenario);
 
-			expect(component.selectedScenario).toBe(testScenario);
+			expect(component.selectedScenario()).toBe(testScenario);
 			expect(component.showEditor()).toBeTruthy();
 			expect(component.showResults()).toBeFalsy();
 			expect(component.testDone()).toBeFalsy();
@@ -340,7 +340,7 @@ describe('StoryEditorComponent', () => {
 		it('should hide editor when scenario is null', () => {
 			component.selectScenario(null);
 
-			expect(component.selectedScenario).toBeNull();
+			expect(component.selectedScenario()).toBeNull();
 			expect(component.showEditor()).toBeFalsy();
 			expect(component.showResults()).toBeFalsy();
 		});
@@ -376,7 +376,7 @@ describe('StoryEditorComponent', () => {
 			component.stories.set(stories);
 			component.selectedStory.set(stories[0]);
 			component.showEditor.set(true);
-			component.selectedScenario = stories[0].scenarios[0];
+			component.selectedScenario.set(stories[0].scenarios[0]);
 			TestBed.flushEffects();
 
 			// The editor section should be visible
@@ -423,7 +423,7 @@ describe('StoryEditorComponent', () => {
 				scenarios: [{ ...story.scenarios[0], scenario_id: 100 }]
 			};
 			component.selectedStory.set(singleScenarioStory);
-			component.selectedScenario = singleScenarioStory.scenarios[0];
+			component.selectedScenario.set(singleScenarioStory.scenarios[0]);
 			component.stories.set([singleScenarioStory]);
 
 			component.scenarioDeleted();
@@ -447,7 +447,7 @@ describe('StoryEditorComponent', () => {
 			const s1 = stories[0];
 			const fakeScenario = { scenario_id: -999, name: 'fake' } as Scenario;
 			component.selectedStory.set(s1);
-			component.selectedScenario = fakeScenario;
+			component.selectedScenario.set(fakeScenario);
 
 			expect(() => component.scenarioDeleted()).not.toThrow();
 		});

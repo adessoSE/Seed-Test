@@ -1,4 +1,4 @@
-﻿import { type ObjectId, type Filter, type ClientSession, type MongoClient, type WithId, type UpdateResult, type UpdateFilter } from 'mongodb';
+﻿import { type ObjectId, type Filter, type ClientSession, type MongoClient, type WithId, type UpdateResult, type UpdateFilter, type AnyBulkWriteOperation, type Document } from 'mongodb';
 import { logger } from '../logging.js';
 import * as dbConnection from '../database/DbConnector.js';
 import { type Story } from '@seed-test/shared/models/Story.js';
@@ -13,6 +13,18 @@ import { AppError } from '../helpers/AppError.js';
 
 const storiesCollection = 'Stories';
 const repositoriesCollection = 'Repositories';
+
+/**
+ * Normalises a story's background for output. TypeScript declares background as required on
+ * Story, but legacy (or hand-edited) DB documents can genuinely lack the field, so a runtime
+ * fallback is still load-bearing. The param is typed background-optional so the guard's
+ * null-check stays meaningful to the compiler while legacy data is preserved.
+ * @param story - A story whose background may be absent at runtime.
+ * @returns The story's background, or a fresh empty background when the document lacks one.
+ */
+export function backgroundOrEmpty(story: { background?: Background }): Background {
+	return story.background ?? emptyBackground();
+}
 
 // --- Story Functions ---
 
@@ -35,7 +47,7 @@ export async function getOneStory(storyId: string | number | ObjectId): Promise<
 	if (!story) return null;
 	return {
 		...story,
-		background: story.background ?? emptyBackground()
+		background: backgroundOrEmpty(story)
 	};
 }
 
@@ -54,8 +66,55 @@ export async function getAllStoriesOfRepo(repoId: string): Promise<Story[]> {
 	const stories = await db.collection<StoryDoc>(storiesCollection).find({ _id: { $in: storyIds } }).toArray() as unknown as Story[];
 	return stories.map((story: Story) => ({
 		...story,
-		background: story.background ?? emptyBackground()
+		background: backgroundOrEmpty(story)
 	}));
+}
+
+/**
+ * Re-assigns issue_number = 1..N to the custom (db) stories of a repository so the
+ * persisted numbers match a newly saved story order. Linked (jira/github) stories
+ * keep their external key and are excluded from numbering, so the running count
+ * only advances for db stories.
+ * @param repoId - ObjectId (as string) of the repository whose stories were reordered.
+ * @param orderedStoryIds - Story ObjectIds (as strings) in the new (persisted) order.
+ * @returns A Promise that resolves when the renumber write completes.
+ */
+export async function renumberCustomStories(repoId: string, orderedStoryIds: string[]): Promise<void> {
+	const db = dbConnection.getConnection();
+	const collection = db.collection(storiesCollection);
+
+	// Load only the source flag for every story in scope so we can tell custom (db)
+	// stories apart from linked (jira/github) ones without pulling full documents.
+	const orderedObjectIds = orderedStoryIds.map(id => oid(id));
+	const stories = await collection.find(
+		{ _id: { $in: orderedObjectIds } },
+		{ projection: { storySource: 1 } }
+	).toArray();
+
+	// Map storyId -> storySource for O(1) lookup while walking the new order.
+	const sourceByStoryId = new Map(stories.map(s => [s._id.toString(), s.storySource]));
+
+	// Custom stories are numbered 1..N by their position among db stories in the new
+	// order; the counter skips linked stories entirely (their key must stay untouched).
+	let nextNumber = 1;
+	const updates: AnyBulkWriteOperation<Document>[] = [];
+	for (const storyId of orderedObjectIds) 
+		if (sourceByStoryId.get(storyId.toString()) === 'db') {
+			updates.push({
+				updateOne: {
+					filter: { _id: storyId },
+					update: { $set: { issue_number: nextNumber } }
+				}
+			});
+			nextNumber++;
+		}
+	
+
+	// A repository with no custom stories needs no renumber write at all.
+	if (updates.length === 0) return;
+
+	// Single batched write keeps the renumber durable in one round-trip.
+	await collection.bulkWrite(updates);
 }
 
 /**
@@ -121,16 +180,17 @@ export async function deleteStory(repoId: string, storyId: string): Promise<With
 	const storyCollection = db.collection<StoryDoc>(storiesCollection);
 
 	// Remove the story's ObjectId from any groups it might be a member of.
-	// MongoDB driver types (v7 PullOperator/NotAcceptedFields) reject computed paths on Document collections
-	await (repoCollection.updateMany as (filter: Filter<Document>, update: UpdateFilter<Document>) => Promise<UpdateResult>)(
+	// MongoDB driver types (v7 PullOperator/NotAcceptedFields) reject computed paths on Document
+	// collections, so route the update object through unknown before casting to UpdateFilter.
+	await repoCollection.updateMany(
 		{ _id: oid(repoId) },
-		{ $pull: { 'groups.$[].member_stories': oid(storyId) } }
+		{ $pull: { 'groups.$[].member_stories': oid(storyId) } } as unknown as UpdateFilter<Document>
 	);
 
 	// Remove the story's ObjectId from the main stories array of the repository.
-	await (repoCollection.updateOne as (filter: Filter<Document>, update: UpdateFilter<Document>) => Promise<UpdateResult>)(
+	await repoCollection.updateOne(
 		{ _id: oid(repoId) },
-		{ $pull: { stories: oid(storyId) } }
+		{ $pull: { stories: oid(storyId) } } as unknown as UpdateFilter<Document>
 	);
 
 	// Find and delete all associated test reports for this story.
@@ -348,6 +408,6 @@ export async function getOneStoryByIssueKey(issueKey: string): Promise<Story | n
 	if (!story) return null;
 	return {
 		...story,
-		background: story.background ?? emptyBackground()
+		background: backgroundOrEmpty(story)
 	};
 }

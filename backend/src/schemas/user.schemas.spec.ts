@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, githubLoginSchema, githubRegisterSchema } from '@seed-test/shared/schemas/user.schemas.js';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema } from '@seed-test/shared/schemas/user.schemas.js';
 
 describe('loginSchema', () => {
 	it('accepts valid login', () => {
@@ -95,43 +95,28 @@ describe('mergeGithubSchema', () => {
 	});
 });
 
-describe('githubLoginSchema', () => {
-	it('accepts valid github login credentials', () => {
-		const result = githubLoginSchema.safeParse({ login: 'octocat', id: 583234 });
+describe('updateUserSchema', () => {
+	it('accepts currentPassword and newPassword', () => {
+		const result = updateUserSchema.safeParse({ currentPassword: 'old-password', newPassword: 'new-password' });
 		expect(result.success).toBe(true);
 	});
 
-	it('coerces string id to integer', () => {
-		const result = githubLoginSchema.safeParse({ login: 'octocat', id: '583234' });
-		expect(result.success).toBe(true);
-		if (result.success) 
-			expect(result.data.id).toBe(583234);
-	});
-
-	it('rejects empty login', () => {
-		const result = githubLoginSchema.safeParse({ login: '', id: 123 });
+	it('rejects missing currentPassword', () => {
+		const result = updateUserSchema.safeParse({ newPassword: 'new-password' });
 		expect(result.success).toBe(false);
 	});
 
-	it('rejects missing id', () => {
-		const result = githubLoginSchema.safeParse({ login: 'octocat' });
+	it('rejects too-short newPassword', () => {
+		const result = updateUserSchema.safeParse({ currentPassword: 'old-password', newPassword: '12345' });
 		expect(result.success).toBe(false);
 	});
-});
 
-describe('githubRegisterSchema', () => {
-	it('accepts valid github registration payload', () => {
-		const result = githubRegisterSchema.safeParse({
-			login: 'octocat',
-			id: 583234,
-			avatar_url: 'https://github.com/images/error/octocat_happy.gif',
-			email: 'octocat@github.com'
-		});
-		expect(result.success).toBe(true);
-	});
-
-	it('rejects missing login or id', () => {
-		expect(githubRegisterSchema.safeParse({ email: 'test@test.de' }).success).toBe(false);
+	it('rejects unknown fields (no silent drop)', () => {
+		// Email is not part of the schema — it must fail rather than be silently stripped
+		const result = updateUserSchema.safeParse({ currentPassword: 'old-password', newPassword: 'new-password', email: 'x@x.com' });
+		expect(result.success).toBe(false);
+		// strict() flags the unrecognized key
+		expect(result.error?.issues.some(i => i.code === 'unrecognized_keys' && i.message.toLowerCase().includes('email'))).toBe(true);
 	});
 });
 

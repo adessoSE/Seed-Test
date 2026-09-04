@@ -140,7 +140,7 @@ export class AppComponent implements OnInit{
 	private readonly toggleEffect = effect(() => {
 		const val = this.toggleValue();
 		if (val === undefined) return;
-		untracked(() => this.setModeOnToggle(val));
+		this.setModeOnToggle(val);
 	});
 
 

@@ -33,7 +33,7 @@ describe('LoginComponent', () => {
 			loginUser: vi.fn(),
 			githubLogin: vi.fn(),
 			githubCallback: vi.fn(),
-			loginGithubToken: vi.fn()
+			mergeAccountGithub: vi.fn()
 		};
 		projectService = {
 			getRepositories: vi.fn()

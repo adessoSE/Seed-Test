@@ -140,12 +140,17 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
 
 /**
  * Handles updating the order of stories within a repository.
+ * After persisting the new _id order, custom (db) stories are renumbered 1..N to
+ * match the reordered array and made durable on the drop (see ADR-0001). Linked
+ * (jira/github) stories keep their external key and are skipped by the renumber.
  */
 export async function updateStoryOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
 		const { storyIds: storiesList } = req.body as { storyIds: string[] }; // Erwartet ein Array von Story-IDs
+		// Persist the new _id order first, then renumber custom stories in that order.
 		await repositoryService.updateStoriesArrayInRepo(repo_id, storiesList);
+		await storyService.renumberCustomStories(repo_id, storiesList);
 		res.status(200).json({ message: 'Story order updated' });
 	} catch (error) {
 		next(error);

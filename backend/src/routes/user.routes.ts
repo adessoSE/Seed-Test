@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import * as userController from '../controllers/user.controller.js';
 import { isAuthenticated } from '../middleware/authenticate.js';
 import { validate } from '../middleware/validate.js';
-import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema, githubLoginSchema, githubRegisterSchema } from '@seed-test/shared/schemas/user.schemas.js';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema } from '@seed-test/shared/schemas/user.schemas.js';
 
 const router = express.Router();
 
@@ -67,20 +67,6 @@ router.patch('/reset', authLimiter, validate(resetPasswordSchema), userControlle
  * @access  Public
  */
 router.get('/callback', userController.githubCallback);
-
-/**
- * @route   POST /api/user/githubLogin
- * @desc    Logs in a user with a GitHub account
- * @access  Public
- */
-router.post('/githubLogin', authLimiter, validate(githubLoginSchema), userController.githubLogin);
-
-/**
- * @route   POST /api/user/githubRegister
- * @desc    Registers a user with a GitHub account
- * @access  Public
- */
-router.post('/githubRegister', authLimiter, validate(githubRegisterSchema), userController.githubRegister);
 
 /**
  * @route   POST /api/user/mergeGithub

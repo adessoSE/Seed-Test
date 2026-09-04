@@ -39,7 +39,8 @@ vi.mock('passport', () => ({
 
 vi.mock('bcrypt', () => ({
 	default: {
-		hash: vi.fn().mockResolvedValue('hashed_password_mock')
+		hash: vi.fn().mockResolvedValue('hashed_password_mock'),
+		compare: vi.fn().mockResolvedValue(true)
 	}
 }));
 
@@ -497,18 +498,20 @@ describe('UserController', () => {
 	// ========== mergeGithub (mergeAccounts) ==========
 
 	describe('mergeGithub', () => {
-		it('should merge accounts, regenerate session, and respond 200 when the user owns the account', async () => {
-			const mergedUser = { ...fakeUser, github: { login: 'newgh', id: 99, githubToken: 'tok' } };
+		it('should merge the session-verified GitHub identity into the Seed account and respond 200', async () => {
+			const mergedUser = { ...fakeUser, github: { login: 'ghuser', id: 42, githubToken: 'tok' } };
 			vi.mocked(userService.mergeGithub).mockResolvedValue(mergedUser);
 
 			const { req, res, next } = mockReqResNext({
-				body: { userId: fakeUserId, login: 'newgh', id: 99 },
+				// Stale/mismatched client-supplied login/id must be IGNORED — the verified
+				// identity always comes from the session user's github payload.
+				body: { userId: fakeUserId, login: 'clientLogin', id: 999 },
 				user: { ...fakeUser }
 			});
 
 			await userController.mergeGithub(req, res, next);
 
-			expect(userService.mergeGithub).toHaveBeenCalledWith(fakeUserId, 'newgh', 99);
+			expect(userService.mergeGithub).toHaveBeenCalledWith(fakeUserId, 'ghuser', 42);
 			expect(req.session.regenerate).toHaveBeenCalled();
 			expect(req.logIn).toHaveBeenCalledWith(mergedUser, expect.any(Function));
 			expect(res.status).toHaveBeenCalledWith(200);
@@ -516,12 +519,11 @@ describe('UserController', () => {
 			expect(next).not.toHaveBeenCalled();
 		});
 
-		it('should call next with 403 AppError when userId does not match logged-in user', async () => {
-			const otherUserId = new ObjectId().toHexString();
-
+		it('should call next with 403 AppError when the session user has no verified GitHub identity', async () => {
 			const { req, res, next } = mockReqResNext({
-				body: { userId: otherUserId, login: 'ghuser', id: 99 },
-				user: { ...fakeUser }
+				body: { userId: fakeUserId, login: 'ghuser', id: 99 },
+				// Authenticated Seed user without any github payload — nothing verified to merge
+				user: { ...fakeUser, github: undefined }
 			});
 
 			await userController.mergeGithub(req, res, next);
@@ -577,70 +579,60 @@ describe('UserController', () => {
 	// ========== updateUser ==========
 
 	describe('updateUser', () => {
-		it('should update user data and return sanitized updated user', async () => {
-			const updatedResult = { ...fakeUser };
-			vi.mocked(userService.updateUser).mockResolvedValue(updatedResult);
+		it('should verify current password and hash+persist the new one', async () => {
+			// compare resolves true by default — current password matches
+			vi.mocked(userService.updateUser).mockResolvedValue({ ...fakeUser });
 
 			const { req, res, next } = mockReqResNext({
 				params: { userID: fakeUserId },
-				body: { email: 'ignored@new.com', password: 'existing_hashed_pw' },
+				body: { currentPassword: 'current_pw', newPassword: 'brand_new_password' },
 				user: { ...fakeUser }
 			});
 
 			await userController.updateUser(req, res, next);
 
-			// Email, github, jira must be preserved from the authenticated user
+			// Current password must be checked against the stored hash before anything changes
+			expect(bcrypt.compare).toHaveBeenCalledWith('current_pw', fakeUser.password);
+			expect(bcrypt.hash).toHaveBeenCalledWith('brand_new_password', 10);
+			// Sensitive fields (email, github) preserved from the session user
 			expect(userService.updateUser).toHaveBeenCalledWith(
 				fakeUserId,
 				expect.objectContaining({
 					_id: fakeUser._id,
 					email: fakeUser.email,
-					github: fakeUser.github
+					github: fakeUser.github,
+					password: 'hashed_password_mock'
 				})
 			);
 			expect(res.status).toHaveBeenCalledWith(200);
-			// Response should be sanitized — no password or githubToken
+			// Response is sanitized — no password or githubToken
 			expect(res.json).toHaveBeenCalledWith(
 				expect.not.objectContaining({ password: expect.anything() })
 			);
 			expect(next).not.toHaveBeenCalled();
 		});
 
-		it('should hash the password when it differs from the current one', async () => {
+		it('should not hash or persist the new password when the current password is wrong', async () => {
+			vi.mocked(bcrypt.compare).mockResolvedValue(false);
 			vi.mocked(userService.updateUser).mockResolvedValue({ ...fakeUser });
 
 			const { req, res, next } = mockReqResNext({
 				params: { userID: fakeUserId },
-				body: { email: 'x@x.com', password: 'brand_new_password' },
+				body: { currentPassword: 'wrong_current', newPassword: 'brand_new_password' },
 				user: { ...fakeUser }
 			});
 
 			await userController.updateUser(req, res, next);
 
-			expect(bcrypt.hash).toHaveBeenCalledWith('brand_new_password', 10);
-			expect(userService.updateUser).toHaveBeenCalledWith(
-				fakeUserId,
-				expect.objectContaining({ password: 'hashed_password_mock', transitioned: true })
-			);
-		});
-
-		it('should keep the old password when the submitted password matches', async () => {
-			vi.mocked(userService.updateUser).mockResolvedValue({ ...fakeUser });
-
-			const { req, res, next } = mockReqResNext({
-				params: { userID: fakeUserId },
-				// Same password as fakeUser.password — no rehash needed
-				body: { email: 'x@x.com', password: 'existing_hashed_pw' },
-				user: { ...fakeUser }
-			});
-
-			await userController.updateUser(req, res, next);
-
+			expect(bcrypt.compare).toHaveBeenCalledWith('wrong_current', fakeUser.password);
+			// Rejected before hashing or persisting — stored password stays unchanged
 			expect(bcrypt.hash).not.toHaveBeenCalled();
-			expect(userService.updateUser).toHaveBeenCalledWith(
-				fakeUserId,
-				expect.objectContaining({ password: 'existing_hashed_pw' })
-			);
+			expect(userService.updateUser).not.toHaveBeenCalled();
+			expect(res.status).not.toHaveBeenCalled();
+			expect(next).toHaveBeenCalledTimes(1);
+			const error = next.mock.calls[0][0];
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(401);
 		});
 
 		it('should call next with 403 AppError when userID does not match logged-in user', async () => {
@@ -648,7 +640,7 @@ describe('UserController', () => {
 
 			const { req, res, next } = mockReqResNext({
 				params: { userID: otherUserId },
-				body: { email: 'x@x.com' },
+				body: { currentPassword: 'current_pw', newPassword: 'brand_new_password' },
 				user: { ...fakeUser }
 			});
 
@@ -663,7 +655,7 @@ describe('UserController', () => {
 		it('should call next with 403 AppError when user is not authenticated', async () => {
 			const { req, res, next } = mockReqResNext({
 				params: { userID: fakeUserId },
-				body: { email: 'x@x.com' },
+				body: { currentPassword: 'current_pw', newPassword: 'brand_new_password' },
 				user: null
 			});
 

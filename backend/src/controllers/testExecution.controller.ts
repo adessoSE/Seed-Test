@@ -21,11 +21,19 @@ import { AppError } from '../helpers/AppError.js';
 // Helper function to extract common parameters
 function extractRunParams(req: Request): { repoId: string, repositoryName: string } {
 	const body = req.body as Record<string, unknown>;
-	const repoId = param(req, 'repoID') || body.id as string || body.repoId as string || body.repositoryId as string;
-	const repositoryName = body.repository as string; // Assuming this comes in the body for groups/temps
+	let repoId: string | undefined;
+
+	// Try route param first, then body fields — treat empty strings as absent
+	const routeParam = param(req, 'repoID');
+	if (typeof routeParam === 'string' && routeParam) repoId = routeParam;
+	if (!repoId && typeof body.id === 'string' && body.id) repoId = body.id;
+	if (!repoId && typeof body.repoId === 'string' && body.repoId) repoId = body.repoId;
+	if (!repoId && typeof body.repositoryId === 'string' && body.repositoryId) repoId = body.repositoryId;
+
 	requireValidId(repoId, 'repository ID');
-    
-	return { repoId, repositoryName };
+	const repositoryName = body.repository as string; // Assuming this comes in the body for groups/temps
+
+	return { repoId: repoId!, repositoryName };
 }
 
 /**
@@ -142,11 +150,11 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 		const memberStoryIds = group.member_stories.map((id: unknown) => {
 			const rawType = typeof id;
 			let hexString: string | undefined;
-			if (rawType === 'object' && id !== null) {
+			if (rawType === 'object' && id !== null) 
 				try {
 					hexString = (id as { toHexString?: () => string }).toHexString?.();
 				} catch { /* ignore */ }
-			}
+			
 			return { raw: id, type: rawType, string: String(id), hex: hexString };
 		});
 		logger.info(`runGroup: Group '${group.name}' has ${group.member_stories.length} member_stories: ${JSON.stringify(memberStoryIds)}`);
@@ -158,27 +166,27 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 				const rawType = typeof id;
 
 				// Handle ObjectId instances from MongoDB
-				if (rawType === 'object' && id !== null) {
+				if (rawType === 'object' && id !== null) 
 					try {
 						const oid = id as { toHexString?: () => string; toString?: () => string };
 						// Try toHexString() first (MongoDB ObjectId), fallback to toString()
-						storyIdStr = oid.toHexString?.() ?? oid.toString?.() ?? String(id);
+						storyIdStr = oid.toHexString?.() ?? oid.toString?.() ?? (id as string);
 					} catch {
-						storyIdStr = String(id);
+						storyIdStr = id as string;
 					}
-				} else {
-					storyIdStr = String(id);
-				}
+				else 
+					storyIdStr = id as string;
+				
 
 				logger.debug(`runGroup: Looking up story by ID '${storyIdStr}' (raw type: ${rawType})`);
 				const story = await storyService.getOneStory(storyIdStr);
-				if (!story) {
+				if (!story) 
 					logger.warn(`runGroup: Story ID '${storyIdStr}' not found in database`);
-				}
+				
 				return story;
 			})
 		);
-		const validStories = stories.filter(s => s !== null) as Story[];
+		const validStories = stories.filter(s => s !== null);
 		logger.info(`runGroup: Found ${validStories.length} valid story(es) for group '${group.name}'`);
 		if (validStories.length === 0) {
 			logger.error(`runGroup: No valid stories for group '${group.name}' (member_stories: ${JSON.stringify(group.member_stories.map(id => ({ type: typeof id, value: String(id) })))})`);

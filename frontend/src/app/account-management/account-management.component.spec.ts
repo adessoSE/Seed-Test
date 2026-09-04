@@ -7,6 +7,9 @@ import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContaine
 import { provideRouter, Router } from '@angular/router';
 import { ROUTES } from '../routes/routes';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import type { User } from '@seed-test/shared/models/User';
 
 const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
 	{_id: '2', repoName: 'next repo', source: 'db', canEdit: true},
@@ -53,4 +56,106 @@ describe('AccountManagementComponent', () => {
 		expect(component.login).toHaveBeenCalled();
 	}));
 
+	describe('changePassword', () => {
+		beforeEach(() => {
+			component.id = 'user123';
+			component.email.set('test@example.com');
+		});
+
+		it('should call updateUser and clear form on success', async () => {
+			vi.spyOn(component.apiService, 'updateUser').mockReturnValue(of({ _id: 'user123', email: 'test@example.com' } as User));
+			component.currentPassword.set('oldPassword');
+			component.newPassword.set('newPass123');
+			component.confirmNewPassword.set('newPass123');
+
+			await component.changePassword();
+
+			expect(component.apiService.updateUser).toHaveBeenCalledWith('user123', {
+				currentPassword: 'oldPassword',
+				newPassword: 'newPass123'
+			});
+			expect(component.currentPassword()).toBe('');
+			expect(component.newPassword()).toBe('');
+			expect(component.confirmNewPassword()).toBe('');
+			expect(component.passwordError()).toBeNull();
+			expect(component.loadingPassword()).toBe(false);
+		});
+
+		it('should show error when current password is wrong (401)', async () => {
+			const errorResponse = new HttpErrorResponse({
+				status: 401,
+				error: { message: 'Invalid credentials' }
+			});
+			vi.spyOn(component.apiService, 'updateUser').mockReturnValue(throwError(() => errorResponse));
+			component.currentPassword.set('wrongPass');
+			component.newPassword.set('newPass123');
+			component.confirmNewPassword.set('newPass123');
+
+			await component.changePassword();
+
+			expect(component.passwordError()).toBe('Current password is incorrect.');
+			expect(component.loadingPassword()).toBe(false);
+		});
+
+		it('should reject when new passwords do not match', async () => {
+			vi.spyOn(component.apiService, 'updateUser').mockReturnValue(of({} as User));
+			component.currentPassword.set('oldPassword');
+			component.newPassword.set('newPass123');
+			component.confirmNewPassword.set('different');
+
+			await component.changePassword();
+
+			expect(component.apiService.updateUser).not.toHaveBeenCalled();
+			expect(component.passwordError()).toBe('New passwords do not match.');
+		});
+
+		it('should reject when new password is shorter than 8 characters', async () => {
+			vi.spyOn(component.apiService, 'updateUser').mockReturnValue(of({} as User));
+			component.currentPassword.set('oldPass1');
+			component.newPassword.set('short');
+			component.confirmNewPassword.set('short');
+
+			await component.changePassword();
+
+			expect(component.apiService.updateUser).not.toHaveBeenCalled();
+			expect(component.passwordError()).toBe('New password must be at least 8 characters.');
+		});
+
+		it('should keep validation feedback visible after the clear-error effect runs (regression: error must not be auto-erased)', async () => {
+			vi.spyOn(component.apiService, 'updateUser').mockReturnValue(of({} as User));
+			component.currentPassword.set('oldPass1');
+			component.newPassword.set('short');
+			component.confirmNewPassword.set('short');
+
+			// Flush the typing-driven clear-error effect BEFORE clicking, exactly
+			// like the real UI (each keystroke settles before the button click).
+			fixture.detectChanges();
+			await fixture.whenStable();
+
+			await component.changePassword();
+
+			// Flush again so the clear-error effect gets a chance to (wrongly)
+			// erase the just-set message.
+			fixture.detectChanges();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect(component.passwordError()).toBe('New password must be at least 8 characters.');
+			const errorEl = fixture.nativeElement.querySelector('p.password-error');
+			expect(errorEl).toBeTruthy();
+			expect(errorEl.textContent).toContain('New password must be at least 8 characters.');
+		});
+
+		it('should reject when current password is shorter than 8 characters', async () => {
+			vi.spyOn(component.apiService, 'updateUser').mockReturnValue(of({} as User));
+			component.currentPassword.set('short');
+			component.newPassword.set('newPass123');
+			component.confirmNewPassword.set('newPass123');
+
+			await component.changePassword();
+
+			expect(component.apiService.updateUser).not.toHaveBeenCalled();
+			expect(component.passwordError()).toBe('Current password must be at least 8 characters.');
+		});
+	});
 });

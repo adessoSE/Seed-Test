@@ -68,15 +68,12 @@ export class StoriesBarComponent implements OnChanges {
 
 	/**
      * Stories in the project — derived from service, writable for local mutations.
-     * Normalizes issue_number to sequential integers (1-based) in array order,
-     * fixing the bug where all DB stories show "1" due to duplicate issue_number values.
+     * Preserves the raw issue_number from the service so source-aware display
+     * (getIssueNumber/storyNumbering) can distinguish custom from linked stories.
      */
 	readonly stories = linkedSignal<Story[]>(() => {
 		const raw = this.storyService.stories();
-		return raw.filter(s => s != null).map((s, idx) => ({
-			...s,
-			issue_number: idx + 1
-		}));
+		return raw.filter(s => s != null);
 	});
 
 	/**
@@ -147,15 +144,13 @@ export class StoriesBarComponent implements OnChanges {
      */
 	groupString!: string;
 	/**
-     * Stories filtered for searchterm — derived from service, writable for local search filtering.
-     * Normalizes issue_number the same way as the stories signal above.
+     * Stories filtered for searchterm — derived from service for search filtering.
+     * Preserves the raw issue_number (no mapping) so source-aware methods
+     * can distinguish custom from linked stories after filtering.
      */
 	readonly filteredStories = linkedSignal<Story[]>(() => {
 		const raw = this.storyService.stories();
-		return raw.filter(s => s != null).map((s, idx) => ({
-			...s,
-			issue_number: idx + 1
-		}));
+		return raw.filter(s => s != null);
 	});
 
 	/**
@@ -174,42 +169,80 @@ export class StoriesBarComponent implements OnChanges {
 	readonly storyExpansion = signal<Map<Story, boolean>>(new Map());
 
 	/**
-     * Computes sequential numbering for stories. Falls back to position-based when issue_number is missing, null, or zero.
-     * @returns Stories array with a computed numbering property for display
+     * Resolves the display issue number for a single story, source-aware.
+     * Linked (jira/github) stories always show their real external number/key (or
+     * undefined when none is valid — never a position fake). Custom (db) or legacy
+     * stories show the persisted issue_number, else the given position fallback.
+     * @param story The story to resolve the number for
+     * @param positionFallback 1-based position used when a custom story has no valid persisted number
+     * @returns The display issue number, or undefined for a linked story with no valid external key
+     */
+	private resolveIssueNumber(story: Story, positionFallback: number | undefined): number | undefined {
+		const source = story.storySource;
+		// CASE: Linked (jira/github) — show the real external number, never a position fake
+		if (source === 'jira' || source === 'github') {
+			const num = story.issue_number;
+			if (typeof num === 'number' && num > 0)
+				return num;
+			// CASE: Jira-style key (e.g. 'JRA-42') — extract trailing digits
+			if (typeof num === 'string') {
+				const match = num.match(/\d+/);
+				if (match) {
+					const extracted = parseInt(match[0], 10);
+					if (extracted > 0)
+						return extracted;
+				}
+			}
+			return undefined;
+		}
+		// CASE: Custom (db) or legacy — persisted value if set, else position fallback
+		const storedNum = story.issue_number;
+		const storedVal = typeof storedNum === 'string' ? parseInt(storedNum, 10) : storedNum;
+		if (typeof storedVal === 'number' && storedVal > 0)
+			return storedVal;
+		return positionFallback;
+	}
+
+	/**
+     * Computes source-aware numbering for stories.
+     * Custom stories (storySource==='db' or missing) show position-based index.
+     * Linked stories (storySource==='jira'|'github') show their real external number.
+     * For Jira-style keys (e.g. 'JRA-7') extracts the trailing number.
+     * @returns Stories array with a computed numbering Map for display
      */
 	storyNumbering() {
 		const stories = this.getSortedStories();
 		const numbering = new Map<Story, number>();
 		stories.forEach((s, index) => {
-			const num = s.issue_number;
-			const numVal = typeof num === 'string' ? parseInt(num, 10) : num;
-			if (typeof numVal === 'number' && numVal > 0)
-				numbering.set(s, numVal);
-			else
-				// Issue: issue_number is null/missing/0/invalid — assign position-based number for display
-				numbering.set(s, index + 1);
+			// Align with getIssueNumber: skip linked stories that yield no valid external number
+			const resolved = this.resolveIssueNumber(s, index + 1);
+			if (resolved !== undefined)
+				numbering.set(s, resolved);
 		});
 		return { stories, numbering };
 	}
 
 	/**
-     * Returns the display issue number for a story (uses stored issue_number or falls back to position).
+     * Returns the display issue number for a story, source-aware.
+     * Custom stories (storySource==='db' or missing) show a position-based index.
+     * Linked stories (storySource==='jira'|'github') show their real external key/number.
+     * For Jira-style keys (e.g. 'JRA-42') extracts the trailing number.
      * @param story The story to get the number for
      * @returns The issue number to display
      */
 	getIssueNumber(story: Story): number | undefined {
-		const num = story.issue_number;
-		const numVal = typeof num === 'string' ? parseInt(num, 10) : num;
-		if (typeof numVal === 'number' && numVal > 0)
-			return numVal;
 		const stories = this.getSortedStories();
-		return stories.indexOf(story) + 1;
+		const index = stories.indexOf(story);
+		// A custom story not present in the sorted list has no position fallback — resolve as undefined
+		const positionFallback = index === -1 ? undefined : index + 1;
+		return this.resolveIssueNumber(story, positionFallback);
 	}
 
 	/**
-     * Toggles story expansion in accordion
-     * @param story The story to expand/collapse
-     */
+      * Toggles story expansion in accordion — only toggles expansion state, NOT selection.
+      * Selection is handled separately by clicking the panel-title.
+      * @param story The story to expand/collapse
+      */
 	toggleStoryExpansion(story: Story) {
 		const prev = new Map(this.storyExpansion());
 		if (prev.has(story))
@@ -217,7 +250,7 @@ export class StoriesBarComponent implements OnChanges {
 		else
 			prev.set(story, true);
 		this.storyExpansion.set(prev);
-		this.selectStory(story);
+		// NOTE: selectStory() is NOT called here — only the panel-title click selects
 	}
 
 	/**
@@ -291,7 +324,7 @@ export class StoriesBarComponent implements OnChanges {
 			this.filteredStories.set(filtered);
 			this.storyTermChange();
 			this.selectStory((resp as Story[])[(resp as Story[]).length - 1]);
-		} catch (error) {
+		} catch {
 			this.notify.error('Failed to create story. Please try again.');
 		}
 	}
@@ -411,8 +444,8 @@ export class StoriesBarComponent implements OnChanges {
 
 	/**
      * Sorts the stories after issue_number
-     * Displays filterd stories if searchterm was given
-     * @returns
+     * Displays filtered stories if searchterm or filter was given
+     * @returns Filtered or unfiltered stories array based on active filters
      */
 	getSortedStories() {
 		if (this.storyString || this.isFilterActive)
@@ -606,11 +639,14 @@ export class StoriesBarComponent implements OnChanges {
 		const story = this.selectedStory();
 		if (this.storyElements() && story)
 			setTimeout(() => {
-				const selectedElementRef = this.storyElements().find(element => element.nativeElement.id === `story${story.issue_number}`);
-				if (selectedElementRef) {
-					console.log('Found selected element', selectedElementRef.nativeElement);
+				// Template ids story elements as 'story' + (index + 1) over the currently
+				// rendered (sorted/filtered) list — match on array position, not issue_number,
+				// since linked stories carry external keys (e.g. 'JRA-42') that never match.
+				const index = this.getSortedStories().indexOf(story);
+				const targetId = `story${index + 1}`;
+				const selectedElementRef = this.storyElements().find(element => element.nativeElement.id === targetId);
+				if (selectedElementRef)
 					selectedElementRef.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-				}
 			}, 0);
 
 	}
@@ -676,11 +712,31 @@ export class StoriesBarComponent implements OnChanges {
 		this.createNewScenario().openCreateScenarioModal(this.selectedStory()!);
 	}
 
+	/**
+	 * Mirrors the backend renumber for custom stories after a drop (ADR-0001).
+	 * Walks the new order and assigns issue_number = 1..N to non-linked (db / legacy)
+	 * stories so the in-session display reflects the persisted order immediately,
+	 * without a reload. Linked (jira/github) stories keep their external key untouched.
+	 * @param arr The reordered stories array (already moved into final position)
+	 */
+	private renumberCustomLocal(arr: Story[]) {
+		// Counter advances only for custom stories, mirroring renumberCustomStories
+		let nextNumber = 1;
+		for (const s of arr) {
+			// CASE: Linked (jira/github) — preserve the external key, never a position number
+			if (s.storySource === 'jira' || s.storySource === 'github') continue;
+			// CASE: Custom (db) or legacy — renumber to its position among custom stories
+			s.issue_number = nextNumber;
+			nextNumber++;
+		}
+	}
+
 	dropStory(event: CdkDragDrop<Story[]>) {
 		const repo_id = localStorage.getItem('id');
 		if (!repo_id) return;
 		const arr = [...this.getSortedStories()];
 		moveItemInArray(arr, event.previousIndex, event.currentIndex);
+		this.renumberCustomLocal(arr);
 		this.stories.set(arr);
 		this.storyService.updateStoryList(repo_id, arr.map((s: Story) => s._id)).subscribe(_ => { });
 	}

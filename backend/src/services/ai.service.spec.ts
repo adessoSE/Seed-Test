@@ -79,7 +79,7 @@ describe('AiService', () => {
 		assignee: '',
 		assignee_avatar_url: '',
 		storySource: 'db',
-		background: undefined as any
+		background: undefined
 	};
 
 	const parsedResult = {

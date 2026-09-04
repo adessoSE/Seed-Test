@@ -230,77 +230,31 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 }
 
 /**
- * Handles GitHub user login via passport github-local strategy.
- */
-export function githubLogin(req: Request, res: Response, next: NextFunction): void {
-	const authenticateMiddleware = passport.authenticate('github-local', {}, (error: unknown, user: User | false, info: { message?: string } | undefined) => {
-		if (error) return next(error);
-		if (!user)
-			return next(AppError.unauthorized(info?.message ?? 'GitHub authentication failed'));
-
-		(req as RequestWithSession).session.regenerate((regenerateErr) => {
-			if (regenerateErr) return next(regenerateErr);
-
-			req.logIn(user, (loginErr) => {
-				if (loginErr) return next(loginErr);
-				res.status(200).json({
-					...sanitizeUser(user),
-					login: user.github?.login,
-					id: user.github?.id
-				});
-			});
-		});
-	}) as (req: Request, res: Response, next: NextFunction) => void;
-	authenticateMiddleware(req, res, next);
-}
-
-/**
- * Handles GitHub user registration.
- */
-export async function githubRegister(req: Request, res: Response, next: NextFunction): Promise<void> {
-	try {
-		const body = req.body as { login: string; id: number; avatar_url?: string; email?: string; name?: string; githubToken?: string };
-		const profile = {
-			...body,
-			githubToken: body.githubToken ?? ''
-		};
-		const user = await userService.findOrRegisterGithub(profile);
-		if (!user)
-			throw AppError.badRequest('Could not register GitHub user');
-
-		(req as RequestWithSession).session.regenerate((regenerateErr) => {
-			if (regenerateErr) return next(regenerateErr);
-
-			req.logIn(user, (loginErr) => {
-				if (loginErr) return next(loginErr);
-				res.status(200).json({
-					...sanitizeUser(user),
-					login: user.github?.login,
-					id: user.github?.id
-				});
-			});
-		});
-	} catch (error) {
-		next(error);
-	}
-}
-
-/**
- * Merges a GitHub-only account with a Seed-Test account.
+ * Merges a finished GitHub-only account with a pre-existing Seed-Test account.
+ *
+ * The user initiates this from account-management (logged in as their Seed account),
+ * which triggers the OAuth callback. The callback creates/logs into the GitHub-only
+ * account G whose `github` payload comes from the server-side verified OAuth exchange.
+ * The frontend then posts the Seed account id so we attach G's verified GitHub identity
+ * to it and end logged in as the Seed account.
+ *
+ * Identity source: ONLY the session user's verified `github` payload (from the OAuth
+ * callback) is trusted — client-supplied login/id are ignored, so the old
+ * login+id-only account-takeover hole cannot be reintroduced.
  */
 export async function mergeGithub(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const body = req.body as Record<string, unknown>;
 		const userId = body.userId as string;
-		const login = body.login as string;
-		const id = body.id as number;
 		const user = req.user as User | undefined;
 
-		// Ensure the logged-in user is the one making the request
-		if (user?._id!.toString() !== userId)
-			throw AppError.forbidden('Forbidden: You can only merge your own account');
+		// The current session must hold a verified GitHub identity to merge —
+		// otherwise there is nothing proven by OAuth to attach to the Seed account.
+		const github = user?.github;
+		if (!github?.id || !github?.login)
+			throw AppError.forbidden('No verified GitHub identity in session to merge');
 
-		const mergedUser = await userService.mergeGithub(userId, login, id);
+		const mergedUser = await userService.mergeGithub(userId, github.login, github.id);
         
 		// Session fixation prevention — regenerate before establishing new identity
 		(req as RequestWithSession).session.regenerate((regenerateErr) => {
@@ -349,9 +303,9 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
 }
 
 /**
- * Updates user data (e.g., password change from profile).
- * Only the password field is mutable via this endpoint — sensitive fields
- * (email, github, jira) are always taken from the authenticated session user.
+ * Updates the authenticated user's password while logged in.
+ * Requires a matching currentPassword before applying newPassword. Sensitive
+ * fields (email, github, jira) are always taken from the session user.
  */
 export async function updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
@@ -361,17 +315,25 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 		if (user?._id!.toString() !== userID)
 			throw AppError.forbidden('Forbidden: You can only update your own profile');
         
-		const updateData = req.body as Partial<User>;
+		// currentPassword/newPassword arrive pre-validated by updateUserSchema via validate()
+		const { currentPassword, newPassword } = req.body as {
+			currentPassword: string;
+			newPassword: string;
+		};
 
-		// Only re-hash when the submitted password actually differs from the stored one
-		if (updateData.password && updateData.password !== user!.password) 
-			updateData.password = await bcrypt.hash(updateData.password, saltRounds);
-		else
-			// Keep the existing password when unchanged or absent
-			updateData.password = user!.password;
-        
-		// Merge update into authenticated user — sensitive fields from session take precedence
-		const updatedUser: User = { ...user!, password: updateData.password };
+		// GitHub-only accounts may have no stored hash — nothing to verify against
+		if (!user.password)
+			throw AppError.unauthorized('No password is set on this account');
+
+		// Security: never apply the new password unless the current one is verified
+		// against the stored hash — protects against blind password overwrites
+		if (!(await bcrypt.compare(currentPassword, user.password)))
+			throw AppError.unauthorized('Current password is incorrect');
+
+		const hashed = await bcrypt.hash(newPassword, saltRounds);
+
+		// Merge into authenticated user — sensitive fields from session take precedence
+		const updatedUser: User = { ...user, password: hashed };
 		await userService.updateUser(userID, updatedUser);
 		res.status(200).json(sanitizeUser(updatedUser));
 	} catch (error) {

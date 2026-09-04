@@ -36,8 +36,21 @@
 }
 
 .grid_eraseAccount {
+    grid-row: 6 / 7;
+    grid-column: 1 / 2;
+}
+
+.grid_changePassword {
     grid-row: 5 / 6;
     grid-column: 1 / 2;
+    text-align: center;
+    margin-top: 10px;
+    margin-left: 20px;
+    background: white;
+}
+
+.darkTheme .grid_changePassword {
+    background: #455A64;
 }
 
 .grid_github{
@@ -332,6 +345,51 @@ h2, h1{
     text-align: center;
     color:white;
     opacity: 1;
+}
+
+.password-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 260px;
+}
+
+.form-field label {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.password-input {
+    padding: 8px;
+    border: 1px solid var(--brown-grey);
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.darkTheme .password-input {
+    border-color: #60767b;
+    background: #37474F;
+    color: white;
+}
+
+.password-error {
+    color: var(--grape);
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+    min-height: 20px;
 }
 
 .mat-mdc-option{

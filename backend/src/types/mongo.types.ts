@@ -50,7 +50,7 @@ export interface FileDoc extends Omit<FileElement, '_id'> {
 
 export interface GroupDoc extends Omit<Group, '_id' | 'member_stories'> {
 	_id?: ObjectId;
-	member_stories: ObjectId[];
+	member_stories?: ObjectId[];
 }
 
 export interface RepositoryDoc extends Omit<Repository, '_id' | 'owner' | 'stories' | 'customBlocks' | 'groups'> {

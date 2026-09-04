@@ -1,9 +1,10 @@
 ﻿import { Injectable, inject, signal } from '@angular/core';
-import { catchError, retryWhen, tap, delayWhen } from 'rxjs/operators';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError, timer } from 'rxjs';
+import { Observable, of, throwError, from } from 'rxjs';
 import { User } from '@seed-test/shared/models/User';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { sha256Hex } from './crypto';
 
 /** Backend info response from /backendInfo endpoint */
 interface BackendInfo {
@@ -33,6 +34,12 @@ interface GitHubIssueResponse {
 	id: number;
 	number: number;
 	html_url: string;
+}
+
+/** Payload for changing the user's own password while logged in */
+export interface ChangePasswordPayload {
+	currentPassword: string;
+	newPassword: string;
 }
 
 /**
@@ -69,28 +76,6 @@ export class ApiService {
    * Gets api headers
    * @returns
    */
-	/**
-	 * Retries an HTTP request with exponential backoff on 429 (rate-limit) or network errors.
-	 * @param maxRetries Maximum number of retry attempts (default 3)
-	 * @returns An RxJS pipeable operator for retryWhen
-	 */
-	public static retryWithBackoff(maxRetries = 3) {
-		return retryWhen((errors: Observable<HttpErrorResponse>) =>
-			errors.pipe(
-				delayWhen((error, index) => {
-					const shouldRetry = index < maxRetries && (
-						error.status === 429 ||
-						error.status === 0 ||
-						error.status === 503
-					);
-					if (!shouldRetry) throw error;
-					const delayMs = Math.min(1000 * Math.pow(2, index), 4000);
-					return timer(delayMs);
-				})
-			)
-		);
-	}
-
 	public static getOptions() {
 		return { withCredentials: true };
 	}
@@ -227,28 +212,48 @@ export class ApiService {
 				});
 
 	}
+
 	/**
-   * Updates a user
-   * @param userID
-   * @param user
-   * @returns
-   */
-	updateUser(userID: string, user: User): Observable<User> {
-		//not used
+    * Updates the logged-in user's password.
+    * Sends { currentPassword, newPassword } to the backend;
+    * backend rejects unknown fields and returns 401 on wrong currentPassword.
+    * CRITICAL: both values are SHA-256-hashed before sending, matching how
+    * login.service.ts hashes register/login. The stored hash is
+    * bcrypt(SHA-256(pw)), so the controller's bcrypt.compare only matches a
+    * hashed value — sending raw passwords made change-password never verify
+    * and silently return 401.
+    * @param userID - MongoDB ObjectId of the user
+    * @param payload - current and new password values
+    * @returns Observable of the updated User
+    */
+	updateUser(userID: string, payload: ChangePasswordPayload): Observable<User> {
 		this.apiServer = localStorage.getItem('url_backend')!;
-		return this.http
-			.post<User>(this.apiServer + '/user/update/' + userID, user)
-			.pipe(
-				tap((_) => {
-					//
-				}),
-				catchError(this.handleStoryError)
-			);
+		// Hash both passwords the same way the login service hashes credentials,
+		// otherwise bcrypt.compare inside the controller never matches the stored
+		// hash (which is bcrypt(SHA-256(password))) and the change returns 401.
+		return from(sha256Hex(payload.currentPassword)).pipe(
+			switchMap(currentHash => from(sha256Hex(payload.newPassword)).pipe(
+				switchMap(newHash => this.http
+					// withCredentials is required: the SPA (port 4200) and backend
+					// (port 8080) are cross-origin, so without it the session cookie
+					// is never sent and isAuthenticated 401s before the controller runs
+					.post<User>(this.apiServer + '/user/update/' + userID, {
+						currentPassword: currentHash,
+						newPassword: newHash
+					}, ApiService.getOptions())
+					// NOTE: deliberately NOT piping through handleStoryError here. That
+					// helper swallows errors into an empty success result, which would
+					// mask the 401 "wrong current password" and turn it into apparent
+					// success. The change-password 401 must propagate so the
+					// account-management component can render the inline form error.
+				)
+			))
+		);
 	}
 
 	/**
-   * Sets the available emulation devices of playwright
-   */
+    * Sets the available emulation devices of playwright
+    */
 	getPlaywrightEmulators(): Observable<string[]> {
 		this.apiServer = localStorage.getItem('url_backend')!;
 		return this.http.get<string[]>(

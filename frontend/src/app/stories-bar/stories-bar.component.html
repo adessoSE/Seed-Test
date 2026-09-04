@@ -83,80 +83,97 @@
             <hr>
 <div [class.itemListDiv]="stories().length !== 0 && isCustomStory()"
                  [class.storyListDivNotCustom]="stories().length !== 0 && !isCustomStory()"
-                 [class.storyListDivWithFilter]="showFilter">
-<div cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="dropStory($event)" class="stories-drop-container">
+                  [class.storyListDivWithFilter]="showFilter">
+                <!-- CASE: project has stories — render the draggable story list -->
+                @if (stories().length !== 0) {
+                  <div cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="dropStory($event)" class="stories-drop-container">
                   <mat-accordion displayMode="flat" class="stories-accordion">
                     @for (s of storyNumbering().stories; track s; let i = $index) {
-                      <mat-expansion-panel [cdkDrag] class="story-expansion-panel cdk-drag"
-                         [class.cdk-drag-dragging]="selectedStory() === s"
-                        [expanded]="storyExpansion().has(s)"
-                        (opened)="toggleStoryExpansion(s)" (closed)="toggleStoryExpansion(s)">
-                        <mat-expansion-panel-header>
-                          <mat-panel-title id="storyList" tabindex="0" role="button"
-                             [class.selected]="selectedStory() === s"
-                            style="cursor:pointer">
-                            @if (!isCustomStory()) {
-                              <span class="jiraGithubStoryIcons">
-                                <button class="toTicket" (click)="toTicket(getIssueNumber(s));$event.stopPropagation();">
-                                 <mat-icon class="toTicket">launch</mat-icon>
-                               </button>
-                               @if (s.assignee_avatar_url === null) {
-                                 <img src="assets/unassigned_avatar.png"
-                                   alt="assignee github avatar" width="20px" height="20px" matTooltip="Unassigned"
-                                   title="Unassigned">
-                               }
-                               @if (s.assignee_avatar_url !== null) {
-                                 <img [src]=s.assignee_avatar_url alt="assignee github avatar"
-                                   width="20px" height="20px" matTooltip="{{s.assignee}}" title="{{s.assignee}}">
-                               }
-                             </span>
-                           }
-<em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                             <a class="storyListLink" maxlength="10" id="{{'story' + (i + 1)}}"
-                               matTooltip="{{s.title}}" title="{{s.title}}">
-                                {{getIssueNumber(s)}}. {{s.title}}
-                           </a>
-                         </mat-panel-title>
-                       </mat-expansion-panel-header>
-                       <ul class="scenario-drop-list" (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
-                         @for (scen of s.scenarios; track scen; let c = $index) {
-                           <li>
-                             <a class="Largecaption scenarioListItem"
-                               [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed !== undefined"
-                               [class.passed]="scen.lastTestPassed && scen.lastTestPassed !== undefined" [class.notTested]=""
-                               tabindex="0" role="button" (click)="selectScenario(scen);" (keydown.enter)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
-<em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                                  #{{getIssueNumber(s)}}.{{c+1}} {{scen.name | titlecase}}
-                               @if (scen.lastTestPassed && scen.lastTestPassed !== undefined) {
-                                 <mat-icon class="icon passed"
-                                 >check_circle_outline</mat-icon>
-                               }
-                               @if (!scen.lastTestPassed && (scen.lastTestPassed !== undefined)) {
-                                 <mat-icon class="icon notPassed"
-                                 >report</mat-icon>
-                               }
-                               @if (scen.lastTestPassed === undefined) {
-                                 <mat-icon class="icon undefined">watch_later</mat-icon>
-                               }
-                             </a>
-                           </li>
+                      <div cdkDrag class="story-drag-wrapper" [class.cdk-drag-dragging]="selectedStory() === s">
+                      <mat-expansion-panel class="story-expansion-panel"
+                         [expanded]="storyExpansion().has(s)"
+                         (opened)="toggleStoryExpansion(s)" (closed)="toggleStoryExpansion(s)">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title id="storyList" tabindex="0" role="button"
+                           [class.selected]="selectedStory() === s"
+                          style="cursor:pointer"
+                          (click)="$event.stopPropagation(); selectStory(s);">
+                          @if (!isCustomStory()) {
+                            <span class="jiraGithubStoryIcons">
+                              <button class="toTicket" (click)="toTicket(getIssueNumber(s));$event.stopPropagation();">
+                               <mat-icon class="toTicket">launch</mat-icon>
+                             </button>
+                             @if (s.assignee_avatar_url === null) {
+                               <img src="assets/unassigned_avatar.png"
+                                 alt="assignee github avatar" width="20px" height="20px" matTooltip="Unassigned"
+                                 title="Unassigned">
+                             }
+                             @if (s.assignee_avatar_url !== null) {
+                               <img [src]=s.assignee_avatar_url alt="assignee github avatar"
+                                 width="20px" height="20px" matTooltip="{{s.assignee}}" title="{{s.assignee}}">
+                             }
+                           </span>
                          }
-                       </ul>
-                       @if (!(s.scenarios.length > 0)) {
-                         <button id="add_first_scenario" class="SmallButton"
-                           (click)="openCreateScenario()">
-                           <em class="material-icons">add</em>
-                         Create First Scenario</button>
+                       <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                         <a class="storyListLink" maxlength="10" id="{{'story' + (i + 1)}}"
+                           #storyElement
+                           matTooltip="{{s.title}}" title="{{s.title}}">
+                            {{getIssueNumber(s)}}. {{s.title}}
+                       </a>
+                     </mat-panel-title>
+                   </mat-expansion-panel-header>
+                   <ul class="scenario-drop-list" (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
+                     @for (scen of s.scenarios; track scen; let c = $index) {
+                       <li>
+                         <a class="Largecaption scenarioListItem"
+                           [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed !== undefined"
+                           [class.passed]="scen.lastTestPassed && scen.lastTestPassed !== undefined" [class.notTested]=""
+                           tabindex="0" role="button" (click)="selectScenario(scen);" (keydown.enter)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
+                       <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                          #{{getIssueNumber(s)}}.{{c+1}} {{scen.name | titlecase}}
+                       @if (scen.lastTestPassed && scen.lastTestPassed !== undefined) {
+                         <mat-icon class="icon passed"
+                         >check_circle_outline</mat-icon>
                        }
-                       @if (s.scenarios.length > 0) {
-                         <button id="add_scenario" class="material-icons"
-                         matTooltip="Add New Scenario" (click)="openCreateScenario()">add</button>
+                       @if (!scen.lastTestPassed && (scen.lastTestPassed !== undefined)) {
+                         <mat-icon class="icon notPassed"
+                         >report</mat-icon>
                        }
-                     </mat-expansion-panel>
-                   }
-                 </mat-accordion>
-               </div>
-               </div>
+                       @if (scen.lastTestPassed === undefined) {
+                         <mat-icon class="icon undefined">watch_later</mat-icon>
+                       }
+                     </a>
+                   </li>
+                 }
+               </ul>
+               @if (!(s.scenarios.length > 0)) {
+                 <button id="add_first_scenario" class="SmallButton"
+                   (click)="openCreateScenario()">
+                   <em class="material-icons">add</em>
+                 Create First Scenario</button>
+               }
+               @if (s.scenarios.length > 0) {
+                 <button id="add_scenario" class="material-icons"
+                 matTooltip="Add New Scenario" (click)="openCreateScenario()">add</button>
+               }
+             </mat-expansion-panel>
+             </div>
+           }
+           </mat-accordion>
+          </div>
+        }
+                <!-- Empty project: a custom project with no stories yet gets a dedicated CTA
+                     so users are not left with a blank list and unknown way to begin. -->
+                @if (isCustomStory() && stories().length === 0) {
+                  <div id="emptyStoryListDiv" [class.darkTheme]="isDark()">
+                    <p class="emptyStoryText">No stories yet in this project.</p>
+                    <button id="createFirstStory" class="normalButton" (click)="openCreateNewStoryModal()">
+                      <em class="material-icons">add</em>
+                      Create First Story
+                    </button>
+                  </div>
+                }
+                </div>
               @if (isCustomStory()) {
                 <div id="createNewStoryDiv">
                   <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>

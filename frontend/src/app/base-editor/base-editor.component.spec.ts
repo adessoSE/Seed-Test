@@ -352,6 +352,25 @@ describe('buildID', () => {
 		});
 	});
 
+	describe('behavioral: newlySelectedStory input triggers story update', () => {
+		it('should update selectedStory when newlySelectedStory input changes', () => {
+			fixture.componentRef.setInput('newlySelectedStory', stories[1]);
+			TestBed.flushEffects();
+
+			expect(component.selectedStory).toBe(stories[1]);
+		});
+
+		it('should leave selectedStory untouched when input is not set', () => {
+			const prev = component.selectedStory;
+			fixture.componentRef.setInput('newlySelectedStory', undefined);
+			TestBed.flushEffects();
+
+			// The effect early-returns on an undefined story input; the old
+			// selection must not be cleared by an empty input.
+			expect(component.selectedStory).toBe(prev);
+		});
+	});
+
 	describe('behavioral: checkAllSteps toggles all steps', () => {
 		beforeEach(() => {
 			fixture.componentRef.setInput('templateName', 'scenario');

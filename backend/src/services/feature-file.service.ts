@@ -10,7 +10,6 @@ import * as storyService from './story.service.js';
 import * as blockService from './block.service.js';
 import { AppError } from '../helpers/AppError.js';
 
-
 // --- Feature File Generation ---
 
 // adds content of each values to output
@@ -104,7 +103,7 @@ export function getFeatureContent(story: Story): string {
 	const body = story.body ? story.body.replace(/#|(\/)/g, '') : '';
 	let data = `Feature: ${story.title}\n\n${body}\n\n`;
 
-	data += getBackgroundContent(story.background);
+	data += getBackgroundContent(storyService.backgroundOrEmpty(story));
 	data += getScenarioContent(story.scenarios, story._id);
 	return data;
 }

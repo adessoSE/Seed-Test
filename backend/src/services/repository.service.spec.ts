@@ -503,7 +503,7 @@ describe('RepositoryService', () => {
 
 	describe('getAllStoryGroups', () => {
 		it('should return groups from repo', async () => {
-			const groupId = new ObjectId();
+			const _groupId = new ObjectId();
 			const groups = [{ _id: new ObjectId(), name: 'Group 1', member_stories: [] }];
 			mockRepoCollection.findOne.mockResolvedValue({ groups });
 

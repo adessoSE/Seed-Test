@@ -7,13 +7,11 @@ import { type User } from '@seed-test/shared/models/User.js';
 
 type GetUserByEmail = (email: string) => Promise<User | null>;
 type GetUserById = (id: string | ObjectId) => Promise<User | null>;
-type GetUserByGithub = (login: string, id: number) => Promise<User | null>;
 
 export default function initialize(
 	passport: PassportStatic,
 	getUserByEmail: GetUserByEmail,
-	getUserById: GetUserById,
-	getUserByGithub: GetUserByGithub
+	getUserById: GetUserById
 ): void {
 	const authenticateUser = async (email: string, password: string, done: (error: unknown, user?: Express.User | false, options?: { message: string }) => void) => {
 		try {
@@ -34,25 +32,9 @@ export default function initialize(
 		}
 	};
 
-	const authenticateUserGithub = async (login: string, id: string, done: (error: unknown, user?: Express.User | false, options?: { message: string }) => void) => {
-		try {
-			const githubId = parseInt(id, 10);
-			const user = await getUserByGithub(login, githubId);
-			if (!user) 
-				return done(null, false, { message: 'No user with this Github Account' });
-            
-			return done(null, user);
-		} catch(e) {
-			return done(e);
-		}
-	};
-
 	// Passport verify callbacks use done() for flow control — void the async return to satisfy no-misused-promises
 	passport.use('normal-local', new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
 		void authenticateUser(email, password, done);
-	}));
-	passport.use('github-local', new LocalStrategy({ usernameField: 'login', passwordField: process.env.PASSPORT_GITHUB_LOCAL_PW_FIELD || 'id' }, (login, id, done) => {
-		void authenticateUserGithub(login, id, done);
 	}));
 
 	passport.serializeUser((user, done) => {

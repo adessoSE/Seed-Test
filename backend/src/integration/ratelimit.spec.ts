@@ -91,19 +91,13 @@ afterAll(async () => {
 });
 
 // ----------------------------------------------------------
-function hit429Loop(url: string, count: number): Promise<boolean> {
-	return new Promise((resolve) => {
-		let found = false;
-		(async () => {
-			for (let i = 0; i < count && !found; i++) {
-				const res = await fetch(url, { method: 'POST' });
-				if (res.status === 429) {
-					found = true;
-				}
-			}
-			resolve(found);
-		})();
-	});
+async function _hit429Loop(url: string, count: number): Promise<boolean> {
+	let found = false;
+	for (let i = 0; i < count && !found; i++) {
+		const res = await fetch(url, { method: 'POST' });
+		if (res.status === 429) found = true;
+	}
+	return found;
 }
 
 // ----------------------------------------------------------
@@ -136,7 +130,7 @@ describe('GET /api/story — limiter (100/min)', () => {
 	// Test-standalone limiter is 100/min — story routes use global limiter (500/min)
 	it('returns 429 after exceeding 100 requests', async () => {
 		let found429 = false;
-		for (let b = 0; b < 2 && !found429; b++) {
+		for (let b = 0; b < 2 && !found429; b++) 
 			for (let i = 0; i < 60 && !found429; i++) {
 				const res = await fetch(`${storyUrl}/api/story/b${b}_${i}`);
 				if (res.status === 429) {
@@ -144,7 +138,7 @@ describe('GET /api/story — limiter (100/min)', () => {
 					found429 = true;
 				}
 			}
-		}
+		
 		expect(found429, 'Expected 429 after 100 requests/min').toBe(true);
 	});
 });
@@ -157,7 +151,7 @@ describe('GET /api/report — limiter (100/min)', () => {
 
 	it('returns 429 after exceeding 100 requests', async () => {
 		let found429 = false;
-		for (let b = 0; b < 2 && !found429; b++) {
+		for (let b = 0; b < 2 && !found429; b++) 
 			for (let i = 0; i < 60 && !found429; i++) {
 				const res = await fetch(`${reportUrl}/api/report/b${b}_${i}`);
 				if (res.status === 429) {
@@ -165,7 +159,7 @@ describe('GET /api/report — limiter (100/min)', () => {
 					found429 = true;
 				}
 			}
-		}
+		
 		expect(found429, 'Expected 429 after 100 requests/min').toBe(true);
 	});
 });
@@ -178,7 +172,7 @@ describe('POST /api/repository — limiter (100/min)', () => {
 
 	it('returns 429 after exceeding 100 requests', async () => {
 		let found429 = false;
-		for (let b = 0; b < 2 && !found429; b++) {
+		for (let b = 0; b < 2 && !found429; b++) 
 			for (let i = 0; i < 60 && !found429; i++) {
 				const res = await fetch(`${repoUrl}/api/repository`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: `https://gh.com/${b}_${i}` }) });
 				if (res.status === 429) {
@@ -186,7 +180,7 @@ describe('POST /api/repository — limiter (100/min)', () => {
 					found429 = true;
 				}
 			}
-		}
+		
 		expect(found429, 'Expected 429 after 100 requests/min').toBe(true);
 	});
 });

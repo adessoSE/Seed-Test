@@ -37,7 +37,8 @@ const mockStoriesCollection = {
 	insertOne: vi.fn(),
 	updateOne: vi.fn(),
 	findOneAndDelete: vi.fn(),
-	findOneAndReplace: vi.fn()
+	findOneAndReplace: vi.fn(),
+	bulkWrite: vi.fn()
 };
 const mockRepoCollection = {
 	findOne: vi.fn(),
@@ -313,6 +314,68 @@ describe('StoryService', () => {
 
 			// 5. Check story was deleted
 			expect(mockStoriesCollection.findOneAndDelete).toHaveBeenCalledWith({ _id: new ObjectId(storyId) });
+		});
+	});
+
+	// --- Tests for renumberCustomStories (issue_number persistence on reorder) ---
+
+	describe('renumberCustomStories', () => {
+		// Helper: returns the updateOne operations passed to bulkWrite in call order
+		function bulkWriteUpdates() {
+			const arg = vi.mocked(mockStoriesCollection.bulkWrite).mock.calls[0][0] as any[];
+			return arg;
+		}
+
+		it('should renumber custom (db) stories 1..N in the new order and skip linked stories', async () => {
+			// A. Arrange — a repo ordered [db, linked(jira), db, linked(github), db]
+			const custom1 = new ObjectId().toHexString();
+			const linkedJira = new ObjectId().toHexString();
+			const custom2 = new ObjectId().toHexString();
+			const linkedGithub = new ObjectId().toHexString();
+			const custom3 = new ObjectId().toHexString();
+			const orderedStoryIds = [custom1, linkedJira, custom2, linkedGithub, custom3];
+
+			const dbStories = [
+				{ _id: new ObjectId(custom1), storySource: 'db' },
+				{ _id: new ObjectId(linkedJira), storySource: 'jira' },
+				{ _id: new ObjectId(custom2), storySource: 'db' },
+				{ _id: new ObjectId(linkedGithub), storySource: 'github' },
+				{ _id: new ObjectId(custom3), storySource: 'db' }
+			];
+			mockStoriesCollection.find.mockReturnValue({
+				toArray: vi.fn().mockResolvedValue(dbStories)
+			} as any);
+			mockStoriesCollection.bulkWrite.mockResolvedValue({} as any);
+
+			// B. Act
+			await storyService.renumberCustomStories('repo123', orderedStoryIds);
+
+			// C. Assert — only the 3 custom stories are written, numbered 1,2,3 in order
+			const writes = bulkWriteUpdates();
+			expect(writes).toEqual([
+				{ updateOne: { filter: { _id: new ObjectId(custom1) }, update: { $set: { issue_number: 1 } } } },
+				{ updateOne: { filter: { _id: new ObjectId(custom2) }, update: { $set: { issue_number: 2 } } } },
+				{ updateOne: { filter: { _id: new ObjectId(custom3) }, update: { $set: { issue_number: 3 } } } }
+			]);
+			expect(mockStoriesCollection.bulkWrite).toHaveBeenCalledTimes(1);
+		});
+
+		it('should skip renumbering entirely when the repository has no custom stories', async () => {
+			// A. Arrange — only linked stories present
+			const linkedJira = new ObjectId().toHexString();
+			const linkedGithub = new ObjectId().toHexString();
+			mockStoriesCollection.find.mockReturnValue({
+				toArray: vi.fn().mockResolvedValue([
+					{ _id: new ObjectId(linkedJira), storySource: 'jira' },
+					{ _id: new ObjectId(linkedGithub), storySource: 'github' }
+				])
+			} as any);
+
+			// B. Act
+			await storyService.renumberCustomStories('repo456', [linkedJira, linkedGithub]);
+
+			// C. Assert — no write is fired for an all-linked repository
+			expect(mockStoriesCollection.bulkWrite).not.toHaveBeenCalled();
 		});
 	});
 

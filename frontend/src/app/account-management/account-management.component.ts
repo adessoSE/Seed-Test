@@ -1,4 +1,5 @@
 ﻿import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
+import { firstValueFrom, interval } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
@@ -6,7 +7,6 @@ import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change
 import { Subscription } from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
-import { interval } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateCustomProjectComponent } from '../modals/create-custom-project/create-custom-project.component';
@@ -105,9 +105,21 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	readonly clientId = signal<string | undefined>(undefined);
 
+	/** Current password input for password change form */
+	readonly currentPassword = signal('');
+	/** New password input for password change form */
+	readonly newPassword = signal('');
+	/** Confirmation of new password input */
+	readonly confirmNewPassword = signal('');
+
+	/** Error message from password change endpoint (e.g. wrong current password) */
+	readonly passwordError = signal<string | null>(null);
+	/** Whether a password change request is in flight */
+	readonly loadingPassword = signal(false);
+
 	/**
-     * Subscribtions for all EventEmitter
-     */
+      * Subscribtions for all EventEmitter
+      */
 	routeSub: Subscription;
 
 	/** Reacts to the updateRepository signal from ProjectService */
@@ -122,6 +134,20 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		const proj = this.projectService.renameProjectValue();
 		if (!proj) return;
 		untracked(() => this.updateRepository(proj));
+	});
+
+	/** Clears password error when the user starts typing any password field */
+	private clearPasswordErrorEffect = effect(() => {
+		this.currentPassword();
+		this.newPassword();
+		this.confirmNewPassword();
+		// Reset the error whenever the user edits a password field. Deliberately
+		// do NOT read passwordError here (and set unconditionally): reading it
+		// would make passwordError a dependency, so setting a fresh error from
+		// changePassword() would re-fire this effect and instantly erase it —
+		// the user would never see feedback. Effects in zoneless Angular run
+		// reactively only when read signals change, so this fires on edits only.
+		this.passwordError.set(null);
 	});
 
 	/**
@@ -169,8 +195,15 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	seperateRepos(repos: RepositoryContainer[]) {
+		const current = this.repositories();
+		if (current === repos || (Array.isArray(current) && current.length === repos.length && current.every((r, i) => r._id === repos[i]?._id))) {
+			return;
+		}
 		this.repositories.set(repos);
-		this.searchList.set((!this.searchList()) ? repos : this.searchList());
+		const oldList = this.searchList();
+		if (!oldList || oldList.length === 0 || oldList.some((o, i) => o._id !== repos[i]?._id)) {
+			this.searchList.set(repos);
+		}
 	}
 
 	/**
@@ -363,9 +396,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	/**
-   * Opens the 'dumb' import modal and waits for the result.
-   * This component is now responsible for calling the service.
-   */
+      * Opens the 'dumb' import modal and waits for the result.
+      * This component is now responsible for calling the service.
+      */
 	openImportProjectModal() {
 		const dialogRef = this.modalService.open(ImportModalComponent, {
 			width: '800px',
@@ -401,5 +434,62 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 				console.log('Modal dismissed (Cancel clicked)');
         
 		});
+	}
+
+	/**
+      * Changes the user's own password.
+      * Validates inputs, sends { currentPassword, newPassword } to the backend,
+      * and clears the form on success or shows error on 401/other failure.
+      */
+	async changePassword() {
+		const cur = this.currentPassword();
+		const nw = this.newPassword();
+		const cnf = this.confirmNewPassword();
+
+		// Reject if current password is too short (must match registration minimum)
+		if (!cur || cur.length < 8) {
+			this.passwordError.set('Current password must be at least 8 characters.');
+			return;
+		}
+		// Reject if new passwords do not match
+		if (nw !== cnf) {
+			this.passwordError.set('New passwords do not match.');
+			return;
+		}
+		// Enforce minimum length so the user sees it before hitting the backend
+		if (nw.length < 8) {
+			this.passwordError.set('New password must be at least 8 characters.');
+			return;
+		}
+
+		// Guard: user id must be loaded before making the API call
+		if (!this.id) {
+			this.passwordError.set('User ID not available. Please refresh.');
+			return;
+		}
+
+		this.loadingPassword.set(true);
+		this.passwordError.set(null);
+
+		try {
+			await firstValueFrom(
+				this.apiService.updateUser(this.id, { currentPassword: cur, newPassword: nw })
+			);
+			// Success — clear form and notify
+			this.currentPassword.set('');
+			this.newPassword.set('');
+			this.confirmNewPassword.set('');
+			this.passwordError.set(null);
+			this.notify.success('Password changed successfully.');
+		} catch (err: unknown) {
+			// Backend returns 401 when currentPassword is incorrect
+			const httpErr = err as { status?: number; error?: { message?: string } };
+			if (httpErr.status === 401)
+				this.passwordError.set('Current password is incorrect.');
+			else
+				this.passwordError.set(httpErr?.error?.message ?? 'Password change failed.');
+		} finally {
+			this.loadingPassword.set(false);
+		}
 	}
 }

@@ -1,0 +1,305 @@
+npm notice run npx
+npm notice run ng build --configuration production
+> Building...
+ÔêÜ Building...
+Initial chunk files   | Names         |  Raw size | Estimated transfer size
+main-6KYDUBC5.js      | main          |   2.43 MB |               488.06 kB
+styles-YUZYSW7N.css   | styles        | 531.74 kB |                40.02 kB
+scripts-SDBPPDH4.js   | scripts       | 223.82 kB |                65.05 kB
+polyfills-J6YSSV77.js | polyfills     | 422 bytes |               422 bytes
+
+                      | Initial total |   3.19 MB |               593.55 kB
+
+Lazy chunk files      | Names         |  Raw size | Estimated transfer size
+chunk-BlalVnZz.js     | index-es      | 159.03 kB |                46.94 kB
+chunk-CqFg6kYG.js     | purify-es     |  28.95 kB |                 9.71 kB
+chunk-CoTvRKLF.js     | html2canvas   | 114 bytes |               114 bytes
+
+Application bundle generation complete. [19.970 seconds] - 2026-09-04T00:26:18.106Z
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    node_modules/uikit/src/scss/components/_import.scss:2:8:
+      2 Ôöé @import "variables.scss";
+        ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    node_modules/uikit/src/scss/uikit-theme.scss:6:8:
+      6 Ôöé @import "components/_import.scss";
+        ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:50:8:
+      50 Ôöé @import "../node_modules/uikit/src/scss/variables-theme.scss";
+         ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:51:8:
+      51 Ôöé @import "../node_modules/uikit/src/scss/mixins-theme.scss";
+         ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:52:8:
+      52 Ôöé @import "../node_modules/uikit/src/scss/uikit-theme.scss";
+         ÔòÁ         ^
+
+
+  Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:872:20:
+      872 Ôöé   background-color: map-get(mat.$m2-blue-grey-palette, 800);
+          ÔòÁ                     ^
+
+
+  Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+  Use map.get instead.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:948:14:
+      948 Ôöé   background: map-get(mat.$m2-brown-palette, 200);
+          ÔòÁ               ^
+
+
+  Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+  Use map.get instead.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:957:14:
+      957 Ôöé   background: map-get(mat.$m2-blue-gray-palette, 200) !important;
+          ÔòÁ               ^
+
+
+  Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+  Use map.get instead.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] Deprecation [plugin angular-sass]
+
+    src/styles.scss:964:14:
+      964 Ôöé   background: map-get(mat.$m2-blue-grey-palette, 700);
+          ÔòÁ               ^
+
+
+  Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+  Use map.get instead.
+  
+  More info and automated migrator: https://sass-lang.com/d/import
+
+  The plugin "angular-sass" was triggered by this import
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] 75 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings. [plugin angular-sass]
+
+    angular:styles/global:styles:1:8:
+      1 Ôöé @import 'src/styles.scss';
+        ÔòÁ         ~~~~~~~~~~~~~~~~~
+
+  null
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.promise.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.string.match.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.string.replace.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.string.starts-with.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.array.iterator.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/web.dom-collections.iterator.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.array.reduce.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.string.ends-with.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.string.split.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'raf' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.string.trim.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'rgbcolor' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.array.index-of.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.string.includes.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.array.reverse.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'core-js/modules/es.regexp.to-string.js' used by '../node_modules/canvg/lib/index.es.js' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'file-saver' used by 'src/app/story-editor/story-editor.component.ts' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Ôû▓ [WARNING] Module 'html2canvas' used by 'src/app/report/report.component.ts' is not ESM
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: https://angular.dev/tools/cli/build#configuring-commonjs-dependencies
+
+
+Output location: C:\SeedTest\frontend\dist\cucumber-frontend
+

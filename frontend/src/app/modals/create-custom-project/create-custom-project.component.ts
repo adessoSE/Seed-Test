@@ -49,12 +49,22 @@ export class CreateCustomProjectComponent {
 		const title = form.value.title;
 		const id = form.value._id;
 		if (!this.isEmptyOrSpaces(title)) 
-			this.projectService.createRepository(title, id).subscribe(_resp => {
-				this.notify.info('', 'Project created');
-				this.projectService.getRepositoriesEmitter();
-				this.projectService.updateRepositoryEmitter();
+			this.projectService.createRepository(title, id).subscribe({
+				next: _resp => {
+					this.notify.info('', 'Project created');
+					this.projectService.addRepositoryToCache({ _id: id, repoName: title, source: 'db' });
+					this.projectService.createRepositoryEvent({
+						repositoryContainer: { _id: id, repoName: title, source: 'db' },
+						name: title
+					});
+					this.projectService.getRepositoriesEmitter();
+					this.projectService.updateRepositoryEmitter();
+				},
+				error: err => {
+					this.notify.error(err?.error?.error || 'Failed to create project', 'Error');
+				}
 			});
-    
+     
 		this.modalReference.close();
 	}
 	projectUnique(form: NgForm){

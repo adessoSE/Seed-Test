@@ -112,6 +112,35 @@
           </div>
         </div>
       }
+      <!-----------------Change Password-------------->
+      @if (loginService.isLoggedIn()) {
+        <div class="grid_changePassword uk-card uk-card-default">
+          <h2 class="LargeHeadline3">Change Password</h2>
+          <div class="password-form">
+            <div class="form-field">
+              <label for="currentPassword">Current Password</label>
+              <input id="currentPassword" type="password" class="password-input" minlength="8" required
+                [(ngModel)]="currentPassword" placeholder="Current password (min. 8 characters)" />
+            </div>
+            <div class="form-field">
+              <label for="newPassword">New Password</label>
+              <input id="newPassword" type="password" class="password-input" minlength="8"
+                [(ngModel)]="newPassword" placeholder="New password (min. 8 characters)" />
+            </div>
+            <div class="form-field">
+              <label for="confirmNewPassword">Confirm New Password</label>
+              <input id="confirmNewPassword" type="password" class="password-input" minlength="8"
+                [(ngModel)]="confirmNewPassword" placeholder="Confirm new password" />
+            </div>
+            @if (passwordError()) {
+              <p class="password-error">{{passwordError()}}</p>
+            }
+            <button class="normalButton" (click)="changePassword()" [disabled]="loadingPassword()">
+              {{loadingPassword() ? 'Changing...' : 'Change Password'}}
+            </button>
+          </div>
+        </div>
+      }
     </div>
     <!------------------------------------->
     <div class="grid_github uk-card uk-card-default">

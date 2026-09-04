@@ -62,6 +62,32 @@ describe('ParentComponent', () => {
 		expect(component.selectedStory()).toEqual(story);
 	});
 
+	it('should clear selectedScenario when switching to a different story', () => {
+		// regression: a stale scenario from the previous story must not leak into
+		// the new story selection (was the cause of the "second click" switch lag)
+		component.selectedScenario.set(scenario);
+		component.selectedStory.set(story);
+
+		const otherStory: Story = { ...story, _id: '2', title: 'other story' };
+		component.setSelectedStory(otherStory);
+
+		expect(component.selectedStory()).toEqual(otherStory);
+		expect(component.selectedScenario()).toBeUndefined();
+	});
+
+	it('should keep selectedScenario when selecting the same story again', () => {
+		component.selectedScenario.set(scenario);
+		component.selectedStory.set(story);
+
+		// Same underlying story (same ID) — scenario must survive, e.g. when a
+		// stories-bar expansion toggle re-emits the already selected story.
+		const sameStory = { ...story, title: 'renamed title' };
+		component.setSelectedStory(sameStory);
+
+		expect(component.selectedStory()).toEqual(sameStory);
+		expect(component.selectedScenario()).toEqual(scenario);
+	});
+
 	it ('should render app-report-history when activeView is reportHistoryView', () => {
 		component.activeView.set('reportHistoryView');
 		fixture.detectChanges();

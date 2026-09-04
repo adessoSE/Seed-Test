@@ -123,13 +123,19 @@ export class LoginComponent implements OnInit, AfterViewInit {
 					this.error.set(this.defaultErrorMessage);
 			else {
 				localStorage.setItem('login', 'true');
-				this.getRepositories();
 				const userId = localStorage.getItem('userId');
 				localStorage.removeItem('userId');
-				if (userId)
-					this.loginService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((_) => {
-						this.loginGithubToken(resp.login, resp.id);
+				if (userId) {
+					// The callback logged in as the fresh GitHub-only account G. Merge its
+					// verified identity into the pre-existing Seed account (userId) so the
+					// user ends up operating as their Seed account with GitHub attached.
+					this.loginService.mergeAccountGithub(userId, resp.login, resp.id).subscribe({
+						next: () => this.getRepositories(),
+						error: () => this.getRepositories()
 					});
+				} else {
+					this.getRepositories();
+				}
 			}
 		},
 		(error) => {
@@ -166,27 +172,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 			this.getRepositories();
 	}
 
-
-	/**
-     * Loggs in the user with github after retrieving the github token
-     * @param login
-     * @param id
-     */
-	loginGithubToken(login: string, id: number) {
-		this.loginService.loginGithubToken(login, id).subscribe((resp) => {
-			if (resp.status === 'error') 
-				this.error.set(this.defaultErrorMessage);
-			else if (resp.message === 'repository') {
-				const repository = resp.repository;
-				localStorage.setItem('repositoryType', 'github');
-				localStorage.setItem('repository', repository!);
-				this.isLoadingRepositories.set(false);
-				this.router.navigate(['/']);
-			} else 
-				this.getRepositories();
-            
-		});
-	}
 
 	/**
      * Loggs in the user with a Seed-Test account

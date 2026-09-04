@@ -16,8 +16,7 @@ const router = express.Router();
 initializePassport(
 	passport,
 	userService.getUserByEmail,
-	userService.getUserById,
-	userService.getUserByGithub
+	userService.getUserById
 );
 
 // Define a type combining Request with Session properties

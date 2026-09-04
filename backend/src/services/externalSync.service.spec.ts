@@ -1,4 +1,4 @@
-﻿// src/services/externalSync.service.spec.ts
+// src/services/externalSync.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
@@ -137,7 +137,7 @@ describe('ExternalSyncService', () => {
 					}
 				],
 				body: '', repo_type: 'jira', state: 'open', assignee: '', assignee_avatar_url: '', storySource: 'jira',
-				background: undefined as any 
+				background: undefined 
 			};
 			mockedStoryService.getOneStory.mockResolvedValue(dbStory);
 
@@ -210,7 +210,7 @@ describe('ExternalSyncService', () => {
 					}
 				],
 				body: '', repo_type: 'jira', state: 'open', assignee: '', assignee_avatar_url: '', storySource: 'jira',
-				background: undefined as any 
+				background: undefined 
 			};
 			mockedStoryService.getOneStory.mockResolvedValue(dbStory);
 

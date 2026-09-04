@@ -10,7 +10,7 @@ export const loginSchema = z.object({
 /** POST /api/user/register — userId is sent by frontend for GitHub account merge flow */
 export const registerSchema = z.object({
 	email: z.string().email(),
-	password: z.string().min(6, 'Password must be at least 6 characters'),
+	password: z.string().min(8, 'Password must be at least 8 characters'),
 	userId: z.string().optional()
 });
 
@@ -22,7 +22,7 @@ export const forgotPasswordSchema = z.object({
 /** PATCH /api/user/reset */
 export const resetPasswordSchema = z.object({
 	uuid: z.string().uuid(),
-	password: z.string().min(6, 'Password must be at least 6 characters')
+	password: z.string().min(8, 'Password must be at least 8 characters')
 });
 
 /** POST /api/user/mergeGithub */
@@ -32,24 +32,17 @@ export const mergeGithubSchema = z.object({
 	id: z.coerce.number().int()
 });
 
-/** POST /api/user/update/:userID — only validates password field if present */
-export const updateUserSchema = z.object({
-	password: z.string().min(6, 'Password must be at least 6 characters').optional()
-});
-
-/** POST /api/user/githubLogin */
-export const githubLoginSchema = z.object({
-	login: z.string().min(1, 'GitHub login is required'),
-	id: z.coerce.number().int('GitHub ID must be an integer')
-});
-
-/** POST /api/user/githubRegister */
-export const githubRegisterSchema = z.object({
-	login: z.string().min(1, 'GitHub login is required'),
-	id: z.coerce.number().int('GitHub ID must be an integer'),
-	avatar_url: z.string().optional(),
-	email: z.string().email().optional(),
-	name: z.string().optional(),
-	githubToken: z.string().optional()
-});
+/**
+ * PUT /api/user/update/:userID — change-password-while-logged-in flow.
+ * Requires the current password (verified against the stored hash) before a new
+ * one is applied. Unknown keys (e.g. email) are rejected with a 400 by .strict().
+ */
+export const updateUserSchema = z
+	.object({
+		currentPassword: z.string().min(8, 'Current password must be at least 8 characters'),
+		newPassword: z.string().min(8, 'Password must be at least 8 characters')
+	})
+	// Strict: reject unknown keys (e.g. email) instead of silently stripping them —
+	// sensitive fields may only come from the session user, not the request body
+	.strict();
 

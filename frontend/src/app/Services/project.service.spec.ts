@@ -134,6 +134,40 @@ describe('ProjectService', () => {
 		});
 	});
 
+	describe('addRepositoryToCache', () => {
+
+		it('should insert a new repository into sessionStorage so the list is fresh before any async refresh', () => {
+			// Seed sessionStorage with the pre-create list, as getRepositories would have done
+			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'Existing' }]));
+
+			service.addRepositoryToCache({ _id: '2', repoName: 'NewProject', source: 'db' });
+
+			const stored = JSON.parse(sessionStorage.getItem('repositories')!) as Array<{ _id: string }>;
+			expect(stored).toEqual([
+				{ _id: '1', repoName: 'Existing' },
+				{ _id: '2', repoName: 'NewProject', source: 'db' }
+			]);
+		});
+
+		it('should not duplicate a repository that is already present (by _id)', () => {
+			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'Existing' }]));
+
+			service.addRepositoryToCache({ _id: '1', repoName: 'Existing', source: 'db' });
+
+			const stored = JSON.parse(sessionStorage.getItem('repositories')!) as Array<{ _id: string }>;
+			expect(stored).toEqual([{ _id: '1', repoName: 'Existing', source: 'db' }]);
+		});
+
+		it('should create a fresh list when sessionStorage is empty', () => {
+			sessionStorage.removeItem('repositories');
+
+			service.addRepositoryToCache({ _id: '9', repoName: 'FirstProject', source: 'db' });
+
+			const stored = JSON.parse(sessionStorage.getItem('repositories')!) as Array<{ _id: string }>;
+			expect(stored).toEqual([{ _id: '9', repoName: 'FirstProject', source: 'db' }]);
+		});
+	});
+
 	describe('effect cycle prevention', () => {
 
 		it('should NOT call updateRepositoryEmitter from within getRepositories response tap', () => {
@@ -193,6 +227,98 @@ describe('ProjectService', () => {
 
 	});
 
+	// ----------------------------------------------------------------
+	// Error classification: 401/403 cleared vs transient error retained
+	// ----------------------------------------------------------------
+	describe('getRepositories error classification', () => {
+
+		it('should clear to empty on 401/403 (auth failure, no spinner hang)', () => {
+			// Prior good data exists so we can prove it is NOT retained on auth failure
+			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'CachedRepo' }]));
+
+			const results: unknown[] = [];
+
+			service.getRepositories().subscribe({
+				next: r => results.push(r),
+				error: () => results.push('ERROR')
+			});
+
+			const req = httpController.expectOne('http://localhost:8080/api/repository/');
+			req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+			// 401/403 are treated as legitimately empty — the stale cache must NOT be served
+			expect(results).toEqual([[]]);
+		});
+
+		it('should clear to empty on 403 (auth failure)', () => {
+			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'CachedRepo' }]));
+
+			const results: unknown[] = [];
+
+			service.getRepositories().subscribe({
+				next: r => results.push(r),
+				error: () => results.push('ERROR')
+			});
+
+			const req = httpController.expectOne('http://localhost:8080/api/repository/');
+			req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+
+			expect(results).toEqual([[]]);
+		});
+
+		it('should retain the last good cached list on a transient 500 and not emit an error', () => {
+			const cachedRepos = [{ _id: 'cached-1', repoName: 'CachedRepo' }];
+			sessionStorage.setItem('repositories', JSON.stringify(cachedRepos));
+
+			const results: unknown[] = [];
+
+			service.getRepositories().subscribe({
+				next: r => results.push(r),
+				error: () => results.push('ERROR')
+			});
+
+			const req = httpController.expectOne('http://localhost:8080/api/repository/');
+			req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+
+			// Transient errors must NOT masquerade as an empty project — the last good list is retained
+			expect(results).toEqual([cachedRepos]);
+		});
+
+		it('should retain the last good cached list on a network error (status 0)', () => {
+			const cachedRepos = [{ _id: 'cached-1', repoName: 'CachedRepo' }];
+			sessionStorage.setItem('repositories', JSON.stringify(cachedRepos));
+
+			const results: unknown[] = [];
+
+			service.getRepositories().subscribe({
+				next: r => results.push(r),
+				error: () => results.push('ERROR')
+			});
+
+			const req = httpController.expectOne('http://localhost:8080/api/repository/');
+			req.error(new ProgressEvent('network error'));
+
+			// Network failures (status 0) are transient — the cached list is retained
+			expect(results).toEqual([cachedRepos]);
+		});
+
+		it('should emit the fresh list on success (unchanged behavior)', () => {
+			const fresh = [{ _id: '2', repoName: 'FreshRepo' }];
+			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'Stale' }]));
+
+			const results: unknown[] = [];
+
+			service.getRepositories().subscribe(r => results.push(r));
+
+			const req = httpController.expectOne('http://localhost:8080/api/repository/');
+			req.flush(fresh);
+
+			// A successful response overwrites any cached value
+			expect(results).toEqual([fresh]);
+			expect(JSON.parse(sessionStorage.getItem('repositories')!)).toEqual(fresh);
+		});
+
+	});
 
 
 });
