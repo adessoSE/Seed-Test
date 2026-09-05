@@ -32,6 +32,10 @@
       <div id="firstStoryText">
         <p>... create your first story!</p>
       </div>
+      <button class="button" (click)="openCreateNewStoryModal()">
+        <em class="material-icons">add</em>
+        Create First Story
+      </button>
     </div>
   }
 </div>
@@ -599,5 +603,6 @@
                                 </div>
                               }
                               <app-create-scenario #createNewScenario (createScenarioEvent)="addScenario($event)" />
+                              <app-create-new-story #createNewStory />
                               <app-workgroup-edit #workgroupEditModal (globalSettingsChanged)="updateGlobalSettings($event)" />
                               <app-execution-list #executionListModal (selectedExecutions)="executeTests($event)" />

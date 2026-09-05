@@ -11,6 +11,7 @@ import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { firstValueFrom } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
+import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
 import { RenameBackgroundComponent } from '../modals/rename-background/rename-background.component';
 import { BackgroundService } from '../Services/background.service';
 import { StoryService } from '../Services/story.service';
@@ -73,7 +74,7 @@ interface TestReport {
 		'./story-editor.component.css'
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [CdkScrollable, MatFabButton, MatIconButton, MatMenuTrigger, MatIcon, MatProgressSpinner, MatMenu, MatFormField, MatLabel, MatInput, FormsModule, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatTooltip, BaseEditorComponent, NgStyle, WindowSizeComponent, CdkCopyToClipboard, ScenarioEditorComponent, RenameStoryComponent, RenameBackgroundComponent, SaveBlockFormComponent, CreateScenarioComponent, WorkgroupEditComponent, ExecutionListComponent, TitleCasePipe, DatePipe]
+	imports: [CdkScrollable, MatFabButton, MatIconButton, MatMenuTrigger, MatIcon, MatProgressSpinner, MatMenu, MatFormField, MatLabel, MatInput, FormsModule, MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatTooltip, BaseEditorComponent, NgStyle, WindowSizeComponent, CdkCopyToClipboard, ScenarioEditorComponent, RenameStoryComponent, RenameBackgroundComponent, SaveBlockFormComponent, CreateScenarioComponent, CreateNewStoryComponent, WorkgroupEditComponent, ExecutionListComponent, TitleCasePipe, DatePipe]
 })
 export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	apiService = inject(ApiService);
@@ -636,6 +637,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * View child of the modals component
    */
 	readonly renameStoryModal = viewChild.required<RenameStoryComponent>('renameStoryModal');
+	readonly createNewStoryModal = viewChild.required<CreateNewStoryComponent>('createNewStory');
 	readonly createScenarioModal = viewChild.required<CreateScenarioComponent>('createNewScenario');
 	readonly renameBackgroundModal = viewChild.required<RenameBackgroundComponent>('renameBackgroundModal');
 	readonly workgroupEditModal = viewChild.required<WorkgroupEditComponent>('workgroupEditModal');
@@ -784,6 +786,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	selectNewScenario(scenario: Scenario) {
 		// Use signal.set() for zoneless ChangeDetection reactivity
 		this.selectedScenario.set(scenario);
+	}
+
+	/**
+    * Opens the create new story modal from the empty-state CTA.
+    */
+	openCreateNewStoryModal() {
+		this.createNewStoryModal().openCreateNewStoryModal(this.stories());
 	}
 
 /**
