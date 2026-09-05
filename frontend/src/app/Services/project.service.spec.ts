@@ -18,13 +18,23 @@ describe('ProjectService', () => {
 		sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
 	});
 	afterEach(() => {
+		// Reset in-flight flag so subsequent tests can trigger new HTTP requests.
+		(service as any).repositoriesFetchInFlight = false;
 		sessionStorage.removeItem('url_backend');
 		httpController.verify();
 	});
 
-	function fetchAndFlush(repos: unknown[]): void {
+	/**
+     * Helper that kicks off the fetch and flushes the HTTP response,
+     * returning the signal's final value.
+     */
+	function fetchAndFlush(repos: unknown[]): { signalValue: unknown[] } {
 		service.getRepositories().subscribe();
-		httpController.expectOne('http://localhost:8080/api/repository/').flush(repos);
+		const req = httpController.expectOne('http://localhost:8080/api/repository/');
+		req.flush(repos);
+		// Reset in-flight flag so subsequent getRepositories() calls in the test body can fire new requests
+		(service as any).repositoriesFetchInFlight = false;
+		return { signalValue: service.repositoriesSignal() };
 	}
 
 	describe('create', () => {
@@ -48,11 +58,15 @@ describe('ProjectService', () => {
 			const mockRepos = [{ _id: '1', repoName: 'RepoA' }];
 			req.flush(mockRepos);
 
-			expect(results1).toEqual([mockRepos]);
-			expect(results2).toEqual([mockRepos]);
+			// BehaviorSubject emits current value immediately (empty array),
+			// then emits the HTTP response when it arrives.
+			expect(results1.length).toBe(2);
+			expect(results2.length).toBe(2);
+			expect(results1[1]).toEqual(mockRepos);
+			expect(results2[1]).toEqual(mockRepos);
 		});
 
-		it('should return cached data to late subscribers without a second HTTP request', () => {
+		it('should return signal value to late subscribers without a second HTTP request', () => {
 			const earlyResults: unknown[] = [];
 
 			service.getRepositories().subscribe(r => earlyResults.push(r));
@@ -61,10 +75,12 @@ describe('ProjectService', () => {
 			const mockRepos = [{ _id: '1', repoName: 'RepoA' }];
 			req.flush(mockRepos);
 
+			// The BehaviorSubject now has the response — late subscriber gets it immediately.
 			const lateResults: unknown[] = [];
 			service.getRepositories().subscribe(r => lateResults.push(r));
 
 			httpController.expectNone('http://localhost:8080/api/repository/');
+			// BehaviorSubject already has the response, so only one emission.
 			expect(lateResults).toEqual([mockRepos]);
 		});
 
@@ -82,30 +98,31 @@ describe('ProjectService', () => {
 	describe('refreshRepositories', () => {
 
 		it('should fire a new HTTP request after refresh', () => {
-			fetchAndFlush([{ _id: '1', repoName: 'Old' }]);
+			const initial = fetchAndFlush([{ _id: '1', repoName: 'Old' }]);
+			expect(initial.signalValue).toEqual([{ _id: '1', repoName: 'Old' }]);
 
 			service.refreshRepositories();
 
-			service.getRepositories().subscribe();
+			service.getRepositories();
 			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
 			expect(req2.request.method).toBe('GET');
 			req2.flush([{ _id: '2', repoName: 'New' }]);
 		});
 
 		it('should return fresh data to subscribers after refresh', () => {
-			const initialResults: unknown[] = [];
-			service.getRepositories().subscribe(r => initialResults.push(r));
-			const req1 = httpController.expectOne('http://localhost:8080/api/repository/');
-			req1.flush([{ _id: '1', repoName: 'Old' }]);
-			expect(initialResults).toEqual([[{ _id: '1', repoName: 'Old' }]]);
+			const initialValues = fetchAndFlush([{ _id: '1', repoName: 'Old' }]);
+			expect(initialValues.signalValue).toEqual([{ _id: '1', repoName: 'Old' }]);
 
 			service.refreshRepositories();
 
+			service.getRepositories();
 			const freshResults: unknown[] = [];
 			service.getRepositories().subscribe(r => freshResults.push(r));
 			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
 			req2.flush([{ _id: '2', repoName: 'New' }]);
-			expect(freshResults).toEqual([[{ _id: '2', repoName: 'New' }]]);
+			// First emission is [] from refresh (BehaviorSubject), second is the fresh response.
+			expect(freshResults.length).toBe(2);
+			expect(freshResults[1]).toEqual([{ _id: '2', repoName: 'New' }]);
 		});
 	});
 
@@ -114,8 +131,9 @@ describe('ProjectService', () => {
 		it('should invalidate cache when getRepositoriesEmitter is called', () => {
 			fetchAndFlush([{ _id: '1', repoName: 'A' }]);
 
-			// Emit triggers refreshRepositories internally — flush the auto-triggered fetch
+			// Emit triggers refreshRepositories internally — then call getRepositories manually
 			service.getRepositoriesEmitter();
+			service.getRepositories();
 			httpController.expectOne('http://localhost:8080/api/repository/').flush([{ _id: '2', repoName: 'B' }]);
 
 			service.getRepositories().subscribe();
@@ -125,8 +143,9 @@ describe('ProjectService', () => {
 		it('should invalidate cache when updateRepositoryEmitter is called', () => {
 			fetchAndFlush([{ _id: '1', repoName: 'A' }]);
 
-			// Emit triggers refreshRepositories internally — flush the auto-triggered fetch
+			// Emit triggers refreshRepositories internally — then call getRepositories manually
 			service.updateRepositoryEmitter();
+			service.getRepositories();
 			httpController.expectOne('http://localhost:8080/api/repository/').flush([{ _id: '2', repoName: 'B' }]);
 
 			service.getRepositories().subscribe();
@@ -136,9 +155,35 @@ describe('ProjectService', () => {
 
 	describe('addRepositoryToCache', () => {
 
-		it('should insert a new repository into sessionStorage so the list is fresh before any async refresh', () => {
-			// Seed sessionStorage with the pre-create list, as getRepositories would have done
-			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'Existing' }]));
+		it('should insert a new repository into the signal so the list is fresh before any async refresh', () => {
+			// Seed the signal via the HTTP response (the real way repos enter the signal)
+			fetchAndFlush([{ _id: '1', repoName: 'Existing' }]);
+
+			service.addRepositoryToCache({ _id: '2', repoName: 'NewProject', source: 'db' });
+
+			expect(service.repositoriesSignal()).toEqual([
+				{ _id: '1', repoName: 'Existing' },
+				{ _id: '2', repoName: 'NewProject', source: 'db' }
+			]);
+		});
+
+		it('should not duplicate a repository that is already present (by _id)', () => {
+			fetchAndFlush([{ _id: '1', repoName: 'Existing' }]);
+
+			service.addRepositoryToCache({ _id: '1', repoName: 'Existing', source: 'db' });
+
+			expect(service.repositoriesSignal()).toEqual([{ _id: '1', repoName: 'Existing', source: 'db' }]);
+		});
+
+		it('should create a fresh list when signal is empty', () => {
+			// Signal defaults to [] — just call addRepositoryToCache directly
+			service.addRepositoryToCache({ _id: '9', repoName: 'FirstProject', source: 'db' });
+
+			expect(service.repositoriesSignal()).toEqual([{ _id: '9', repoName: 'FirstProject', source: 'db' }]);
+		});
+
+		it('should keep sessionStorage in sync with the signal', () => {
+			fetchAndFlush([{ _id: '1', repoName: 'Existing' }]);
 
 			service.addRepositoryToCache({ _id: '2', repoName: 'NewProject', source: 'db' });
 
@@ -147,24 +192,6 @@ describe('ProjectService', () => {
 				{ _id: '1', repoName: 'Existing' },
 				{ _id: '2', repoName: 'NewProject', source: 'db' }
 			]);
-		});
-
-		it('should not duplicate a repository that is already present (by _id)', () => {
-			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'Existing' }]));
-
-			service.addRepositoryToCache({ _id: '1', repoName: 'Existing', source: 'db' });
-
-			const stored = JSON.parse(sessionStorage.getItem('repositories')!) as Array<{ _id: string }>;
-			expect(stored).toEqual([{ _id: '1', repoName: 'Existing', source: 'db' }]);
-		});
-
-		it('should create a fresh list when sessionStorage is empty', () => {
-			sessionStorage.removeItem('repositories');
-
-			service.addRepositoryToCache({ _id: '9', repoName: 'FirstProject', source: 'db' });
-
-			const stored = JSON.parse(sessionStorage.getItem('repositories')!) as Array<{ _id: string }>;
-			expect(stored).toEqual([{ _id: '9', repoName: 'FirstProject', source: 'db' }]);
 		});
 	});
 
@@ -182,18 +209,34 @@ describe('ProjectService', () => {
 	});
 
 	// ----------------------------------------------------------------
-	// sessionStorage fallback on HTTP error
+	// Signal-based error retention (no more sessionStorage fallback)
 	// ----------------------------------------------------------------
-	describe('sessionStorage fallback on HTTP error', () => {
+	describe('signal retains last good value on HTTP error', () => {
 
-		beforeEach(() => {
+		it('should retain signal value when getRepositories HTTP call fails (500)', () => {
+			// Seed the signal with good data via a successful fetch
+			service.getRepositories().subscribe();
+			const req1 = httpController.expectOne('http://localhost:8080/api/repository/');
+			req1.flush([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
+
+			// Now trigger a refresh — this clears the signal and starts a new fetch
 			service.refreshRepositories();
+
+			const results: unknown[] = [];
+			service.getRepositories().subscribe({
+				next: r => results.push(r),
+				error: () => results.push('ERROR')
+			});
+
+			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
+			req2.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+
+			// Error — but signal should retain the last good value from the first fetch
+			expect(service.repositoriesSignal()).toEqual([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
 		});
 
-		it('should fall back to sessionStorage when getRepositories HTTP call fails', () => {
-			const cachedRepos = [{ _id: 'cached-1', repoName: 'CachedRepo' }];
-			sessionStorage.setItem('repositories', JSON.stringify(cachedRepos));
-
+		it('should emit empty array when signal is empty and HTTP call fails', () => {
+			// Signal is [] by default (no prior fetch)
 			const results: unknown[] = [];
 
 			service.getRepositories().subscribe({
@@ -204,25 +247,8 @@ describe('ProjectService', () => {
 			const req = httpController.expectOne('http://localhost:8080/api/repository/');
 			req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
 
-			// The error handler reads from sessionStorage and emits the cached value
-			expect(results).toEqual([cachedRepos]);
-		});
-
-		it('should emit empty array when sessionStorage is empty and HTTP call fails', () => {
-			sessionStorage.removeItem('repositories');
-
-			const results: unknown[] = [];
-
-			service.getRepositories().subscribe({
-				next: r => results.push(r),
-				error: () => results.push('ERROR')
-			});
-
-			const req = httpController.expectOne('http://localhost:8080/api/repository/');
-			req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
-
-			// The error handler falls back to sessionStorage (empty) and emits []
-			expect(results).toEqual([[]]);
+			// Signal is empty (was never populated)
+			expect(service.repositoriesSignal()).toEqual([]);
 		});
 
 	});
@@ -233,9 +259,6 @@ describe('ProjectService', () => {
 	describe('getRepositories error classification', () => {
 
 		it('should clear to empty on 401/403 (auth failure, no spinner hang)', () => {
-			// Prior good data exists so we can prove it is NOT retained on auth failure
-			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'CachedRepo' }]));
-
 			const results: unknown[] = [];
 
 			service.getRepositories().subscribe({
@@ -246,13 +269,11 @@ describe('ProjectService', () => {
 			const req = httpController.expectOne('http://localhost:8080/api/repository/');
 			req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
-			// 401/403 are treated as legitimately empty — the stale cache must NOT be served
-			expect(results).toEqual([[]]);
+			// Signal was never populated, stays empty
+			expect(service.repositoriesSignal()).toEqual([]);
 		});
 
 		it('should clear to empty on 403 (auth failure)', () => {
-			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'CachedRepo' }]));
-
 			const results: unknown[] = [];
 
 			service.getRepositories().subscribe({
@@ -263,58 +284,75 @@ describe('ProjectService', () => {
 			const req = httpController.expectOne('http://localhost:8080/api/repository/');
 			req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
 
-			expect(results).toEqual([[]]);
+			expect(service.repositoriesSignal()).toEqual([]);
 		});
 
-		it('should retain the last good cached list on a transient 500 and not emit an error', () => {
-			const cachedRepos = [{ _id: 'cached-1', repoName: 'CachedRepo' }];
-			sessionStorage.setItem('repositories', JSON.stringify(cachedRepos));
+		it('should retain the last good value on a transient 500 and not emit an error', () => {
+			// Seed the signal with good data first
+			service.getRepositories().subscribe();
+			const req1 = httpController.expectOne('http://localhost:8080/api/repository/');
+			req1.flush([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
+			expect(service.repositoriesSignal()).toEqual([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
+
+			// Refresh resets the flag so the second getRepositories() can fire
+			service.refreshRepositories();
 
 			const results: unknown[] = [];
-
 			service.getRepositories().subscribe({
 				next: r => results.push(r),
 				error: () => results.push('ERROR')
 			});
 
-			const req = httpController.expectOne('http://localhost:8080/api/repository/');
-			req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
+			req2.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
 
-			// Transient errors must NOT masquerade as an empty project — the last good list is retained
-			expect(results).toEqual([cachedRepos]);
+			// Transient errors must NOT masquerade as an empty project — the signal retains the last good list
+			expect(service.repositoriesSignal()).toEqual([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
 		});
 
-		it('should retain the last good cached list on a network error (status 0)', () => {
-			const cachedRepos = [{ _id: 'cached-1', repoName: 'CachedRepo' }];
-			sessionStorage.setItem('repositories', JSON.stringify(cachedRepos));
+		it('should retain the last good value on a network error (status 0)', () => {
+			// Seed the signal with good data first
+			service.getRepositories().subscribe();
+			const req1 = httpController.expectOne('http://localhost:8080/api/repository/');
+			req1.flush([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
+			expect(service.repositoriesSignal()).toEqual([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
+
+			// Refresh resets the flag so the second getRepositories() can fire
+			service.refreshRepositories();
 
 			const results: unknown[] = [];
-
 			service.getRepositories().subscribe({
 				next: r => results.push(r),
 				error: () => results.push('ERROR')
 			});
 
-			const req = httpController.expectOne('http://localhost:8080/api/repository/');
-			req.error(new ProgressEvent('network error'));
+			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
+			req2.error(new ProgressEvent('network error'));
 
-			// Network failures (status 0) are transient — the cached list is retained
-			expect(results).toEqual([cachedRepos]);
+			// Network failures (status 0) are transient — the signal retains the last good list
+			expect(service.repositoriesSignal()).toEqual([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
 		});
 
 		it('should emit the fresh list on success (unchanged behavior)', () => {
 			const fresh = [{ _id: '2', repoName: 'FreshRepo' }];
-			sessionStorage.setItem('repositories', JSON.stringify([{ _id: '1', repoName: 'Stale' }]));
+			const old = [{ _id: '1', repoName: 'Stale' }];
+			// Seed with old data
+			service.getRepositories().subscribe();
+			const req1 = httpController.expectOne('http://localhost:8080/api/repository/');
+			req1.flush(old);
+			expect(service.repositoriesSignal()).toEqual(old);
+
+			// Refresh resets the flag so the second getRepositories() can fire
+			service.refreshRepositories();
 
 			const results: unknown[] = [];
-
 			service.getRepositories().subscribe(r => results.push(r));
 
-			const req = httpController.expectOne('http://localhost:8080/api/repository/');
-			req.flush(fresh);
+			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
+			req2.flush(fresh);
 
-			// A successful response overwrites any cached value
-			expect(results).toEqual([fresh]);
+			// A successful response overwrites the signal
+			expect(service.repositoriesSignal()).toEqual(fresh);
 			expect(JSON.parse(sessionStorage.getItem('repositories')!)).toEqual(fresh);
 		});
 
@@ -322,4 +360,3 @@ describe('ProjectService', () => {
 
 
 });
-

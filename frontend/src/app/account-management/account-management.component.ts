@@ -395,12 +395,15 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	/**
-     * Update Repositories after change
-     */
+      * Update Repositories after change
+      *
+      * WHY: Reads directly from the project service's repositoriesSignal (the
+      * single source of truth) instead of sessionStorage. This eliminates the
+      * create/refresh race where sessionStorage would still hold stale data
+      * before the HTTP response overwrites it.
+      */
 	updateRepos() {
-		const value = sessionStorage.getItem('repositories');
-		const repository: RepositoryContainer[] = JSON.parse(value!);
-		this.seperateRepos(repository);
+		this.seperateRepos(this.projectService.repositoriesSignal());
 
 		// update repo download list
 		this.searchRepos();

@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal, effect } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked } from '@angular/core';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -31,15 +31,21 @@ export class RepoSwichComponent {
 
 	/** Reacts to repository update trigger — refreshes repos list */
 	private updateReposEffect = effect(() => {
-		const trigger = this.projectService.updateRepositoryTrigger();
+		// untracked() because repos()/filteredRepos() reads inside updateRepos()
+		// are side-effects of the trigger, not intended effect dependencies.
+		const trigger = untracked(() => this.projectService.updateRepositoryTrigger());
 		if (trigger === 0) return; // skip initial value
-		this.updateRepos();
+		untracked(() => this.updateRepos());
 	});
 
 	constructor() {
 		this.currentRepo = localStorage.getItem('repository');
-		const value = sessionStorage.getItem('repositories');
-		const repositories: RepositoryContainer[] = value ? JSON.parse(value) : [];
+		// repositoriesSignal is the single source of truth — read from the signal
+		// so repo-switch always reflects the authoritative list. sessionStorage
+		// is unreliable: the key may be absent right after a refresh (before the
+		// backend fetch writes it), causing the !-asserted read in updateRepos()
+		// to throw "Cannot read properties of null" on JSON.parse(null).
+		const repositories = this.projectService.repositoriesSignal();
 		const filtered = repositories.filter(repo => repo.repoName != this.currentRepo);
 		this.repos.set(filtered);
 		this.filteredRepos.set(new MatTableDataSource(filtered));
@@ -75,8 +81,10 @@ export class RepoSwichComponent {
      * Update Repositories after change
      */
 	updateRepos() {
-		const value = sessionStorage.getItem('repositories')!;
-		const repositories: RepositoryContainer[] = JSON.parse(value);
+		// Read from the signal (single source of truth) instead of sessionStorage.
+		// sessionStorage.getItem() returns null when the key is missing, and the
+		// ! non-null assertion on the old code caused JSON.parse(null) → crash.
+		const repositories = this.projectService.repositoriesSignal();
 		this.repos.set(repositories.filter(repo => repo.repoName != this.currentRepo));
 		this.filteredRepos.set(new MatTableDataSource(this.repos()));
 	}
