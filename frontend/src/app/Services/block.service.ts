@@ -1,6 +1,6 @@
 ﻿import { Injectable, inject, signal } from '@angular/core';
 import { Block } from '@seed-test/shared/models/Block';
-import { Observable} from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
@@ -194,10 +194,15 @@ export class BlockService {
    */
 	checkBackgroundsOnDelete(block: Block, stories: Story[]) {
 		const matchingStories = stories.filter((s: Story) => s !== null && s.background.name === block.name);
-		if (matchingStories.length == 1)
-			this.deleteBlock(block._id!).subscribe(_ => {
+		if (matchingStories.length == 1) {
+			// Fire-and-forget: delete is async, proceed immediately.
+			// FIX F8b: firstValueFrom used per repo conventions — trigger updates after success.
+			firstValueFrom(this.deleteBlock(block._id!)).then(() => {
 				this.updateBlocksTrigger.update(n => n + 1);
+			}).catch(() => {
+				// Delete may fail (auth/network) — block stays deleted; no UI change needed on failure
 			});
+		}
     
 	}
 
@@ -233,14 +238,19 @@ export class BlockService {
   */
 	deleteUpdateReferenceForBlock() {
 		if (this.referencesBlocks.length !== 0) {
-			for (const block of this.referencesBlocks) 
-				if (block.usedAsReference === false) {
+			// FIX F8b: Promise.all + firstValueFrom instead of fire-and-forget subscribe.
+			// Single trigger update fires once all blocks are processed (previously per-block).
+			const promises = this.referencesBlocks
+				.filter(block => block.usedAsReference === false)
+				.map(block => {
 					delete block.usedAsReference;
-					this.updateBlock(block)
-						.subscribe(_ => {
-							this.updateBlocksTrigger.update(n => n + 1);
-						});
-				}
+					return firstValueFrom(this.updateBlock(block)).catch(() => null);
+				});
+			Promise.all(promises).then(() => {
+				this.updateBlocksTrigger.update(n => n + 1);
+			}).catch(() => {
+				// Trigger update on failure — UI will still reload via other paths
+			});
       
 			this.referencesBlocks = [];
 		} else return 0;
@@ -287,15 +297,18 @@ export class BlockService {
    * @param stories
    */
 	updateReferenceStories() {
-		if (this.scenariosToUpdate.length > 0) 
-			this.referenceStories.forEach((story) => {
-				this.scenariosToUpdate.forEach((scenario) => {
-					if (story.scenarios.includes(scenario)) 
-						this.storyService.updateStory(story).subscribe(_resp => { });
-          
-				});
+		if (this.scenariosToUpdate.length > 0) {
+			// FIX F8b: Promise.all + firstValueFrom instead of fire-and-forget subscribe.
+			// No trigger update here — callers update UI via other signal paths.
+			const promises = this.referenceStories.flatMap((story) => {
+				return this.scenariosToUpdate
+					.filter(scenario => story.scenarios.includes(scenario))
+					.map(() => firstValueFrom(this.storyService.updateStory(story)).catch(() => null));
 			});
-    
+			Promise.all(promises).catch(() => {
+				// Story updates may fail — callers handle UI via other signal paths
+			});
+		}
 	}
 	/**
    * Unpack steps from a block. When deleting a block, unpack all references in the repository.

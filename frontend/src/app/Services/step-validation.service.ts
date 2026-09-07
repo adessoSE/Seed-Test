@@ -1,18 +1,21 @@
-import { Injectable, OnDestroy, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NotificationService } from './notification.service';
 
+/**
+ * Service for validating step definitions (e.g., quote escaping).
+ *
+ * WHY: providedIn:'root' singletons are never destroyed during the app lifetime,
+ * so ngOnDestroy() would never fire — the old clearTimeout call there was dead code.
+ * The debounce timer is harmless: its callback fires once and is then GC'd.
+ */
 @Injectable({
 	providedIn: 'root'
 })
-export class StepValidationService implements OnDestroy {
+export class StepValidationService {
 	private notify = inject(NotificationService);
 
 
 	private warningTimeout: ReturnType<typeof setTimeout> | undefined;
-
-	ngOnDestroy(): void {
-		clearTimeout(this.warningTimeout);
-	}
 
 	/**
    * Validates quotes and handles visual feedback for HTML elements
