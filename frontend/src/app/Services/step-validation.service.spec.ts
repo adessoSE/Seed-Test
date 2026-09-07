@@ -66,6 +66,20 @@ describe('StepValidationService', () => {
 	});
 
 	describe('validateAndShowQuoteWarning', () => {
+		// Fake timers for this block: validateAndShowQuoteWarning schedules a real 1000ms
+		// debounce that, if left pending, fires AFTER TestBed teardown destroys the injector
+		// and MatSnackBar.open on the destroyed injector throws NG0205 as an unhandled error.
+		// fakeAsync() is unavailable here (zoneless app — zone.js/testing not loaded).
+		beforeEach(() => {
+			vi.useFakeTimers();
+		});
+
+		// Cancel any debounce still pending so no timer leaks past this block.
+		afterEach(() => {
+			vi.clearAllTimers();
+			vi.useRealTimers();
+		});
+
 		it('should add quote-warning class when text has issues', () => {
 			const element = document.createElement('input');
 			service.validateAndShowQuoteWarning("It's broken", element);
@@ -78,6 +92,20 @@ describe('StepValidationService', () => {
 			element.classList.add('quote-warning');
 			service.validateAndShowQuoteWarning('No issues here', element);
 			expect(element.classList.contains('quote-warning')).toBe(false);
+		});
+
+		it('should open the SnackBar after the debounce fires', () => {
+			const notify = TestBed.inject(NotificationService);
+			const warningSpy = vi.spyOn(notify, 'warning').mockImplementation(() => {});
+			const element = document.createElement('input');
+
+			service.validateAndShowQuoteWarning("It's broken", element);
+
+			// Advance past the 1000ms debounce so the SnackBar opens inside the test,
+			// rather than leaking past teardown and hitting the destroyed injector.
+			vi.advanceTimersByTime(1000);
+
+			expect(warningSpy).toHaveBeenCalled();
 		});
 	});
 });
