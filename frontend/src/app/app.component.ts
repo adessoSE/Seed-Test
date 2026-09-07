@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, inject, signal, computed, effect, untracked } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, effect, untracked } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
@@ -36,9 +36,13 @@ export class AppComponent implements OnInit{
 
 
 	/**
-   * Currently retrieved projects
-   */
-	readonly repositories = signal<RepositoryContainer[] | undefined>(undefined);
+	 * Computed repository list derived from the project service signal.
+	 *
+	 * WHY: Eliminates the third copy of the repository list (F2). The service's
+	 * repositoriesSignal is the single source of truth; this computed ensures
+	 * the template always reflects the latest data without double-sync or lag.
+	 */
+	readonly repositories = computed(() => this.projectService.repositoriesSignal());
 
 	/**
    * If the impressum is shown
@@ -51,14 +55,9 @@ export class AppComponent implements OnInit{
 	showTerms: boolean = false;
 
 	/**
-   * Version 
-   */
+    * Version 
+    */
 	version : string;
-
-	/**
-   * Error during retrieving the projects
-   */
-	error!: string;
 
 	closed: boolean = false;
 	helpPosition!: number;
@@ -79,20 +78,6 @@ export class AppComponent implements OnInit{
 		const trigger = this.loginService.logoutTrigger();
 		if (trigger === 0) return;
 		untracked(() => this.logout());
-	});
-
-	/** Refreshes repositories when service triggers */
-	private getReposEffect = effect(() => {
-		const trigger = this.projectService.getRepositoriesTrigger();
-		if (trigger === 0) return;
-		untracked(() => this.getRepositories());
-	});
-
-	/** Updates repositories when service triggers */
-	private updateReposEffect = effect(() => {
-		const trigger = this.projectService.updateRepositoryTrigger();
-		if (trigger === 0) return;
-		untracked(() => this.updateRepositories());
 	});
 
 	/** Creates repository when service emits creation data */
@@ -138,6 +123,8 @@ export class AppComponent implements OnInit{
 		if (this.isDark())
 			this.toggleControl.setValue(true);
 
+		// Load the repository list on initial navigation to the app
+		this.getRepositories();
 	}
 
 	/** Switches theme when toggle value changes */
@@ -173,34 +160,27 @@ export class AppComponent implements OnInit{
 	}
 
 	/**
-   * Gets the repositories
-   */
-	getRepositories() {
-		if (this.loginService.isLoggedIn()) 
-			this.projectService.getRepositories().subscribe((resp) => {
-				this.repositories.set(resp);
-			}, (err) => {
-				this.error = err.error;
-			});
-    
+	 * Fetches repositories from the server using async/await (one-shot read).
+	 *
+	 * WHY: Replaces the .subscribe() → signal.set() pattern (F2) with a single
+	 * await firstValueFrom call. The service internally updates its
+	 * repositoriesSignal on success, which cascades to the computed repositories()
+	 * and all consumers. Errors are handled by the service (signal retains the
+	 * last good value on transient failures; 401/403 clears it).
+	 */
+	async getRepositories() {
+		if (!this.loginService.isLoggedIn()) return;
+		try {
+			await firstValueFrom(this.projectService.getRepositories());
+		} catch {
+			// Error handled by service internally — signal retains last good value.
+		}
 	}
 
 	/**
-      * Update Repositories after change
-      *
-      * WHY: Reads directly from the project service's repositoriesSignal (the
-      * single source of truth) instead of sessionStorage. This eliminates the
-      * create/refresh race where sessionStorage would still hold stale data
-      * before the HTTP response overwrites it.
-      */
-	updateRepositories() {
-		this.repositories.set(this.projectService.repositoriesSignal());
-	}
-
-	/**
-   * Selects a project from the project list
-   * @param userRepository
-   */
+    * Selects a project from the project list
+    * @param userRepository
+    */
 	selectRepository(userRepository: RepositoryContainer) {
 		const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
 		ref.href = 'https://github.com/' + userRepository.repoName;
@@ -215,10 +195,10 @@ export class AppComponent implements OnInit{
 	}
 
 	/**
-   * Loggs out the user and redirects it to the login page
-   */
+    * Loggs out the user and redirects it to the login page
+    */
 	logout() {
-		this.repositories.set(undefined);
+		this.projectService.repositoriesSignal.set([]);
 		this.loginService.logoutUser().subscribe(_ => {
 			//
 		});

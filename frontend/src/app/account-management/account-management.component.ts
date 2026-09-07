@@ -1,5 +1,5 @@
 ﻿import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
-import { firstValueFrom, interval } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
@@ -7,7 +7,6 @@ import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change
 import { Subscription } from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
-import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateCustomProjectComponent } from '../modals/create-custom-project/create-custom-project.component';
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
@@ -65,9 +64,14 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 
 	/**
-     * Repositories or projects of this user
+     * Computed repository list derived from the project service signal.
+     *
+     * WHY: Eliminates the local copy of repositories (F3). The service's
+     * repositoriesSignal is the single source of truth. Reading it here as a
+     * computed keeps every consumer (template, searchList, download/export)
+     * in sync without double-sync or lag.
      */
-	readonly repositories = signal<RepositoryContainer[] | undefined>(undefined);
+	readonly repositories = computed(() => this.projectService.repositoriesSignal());
 
 	/**
      * Email of the user
@@ -127,6 +131,23 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		const trigger = this.projectService.updateRepositoryTrigger();
 		if (trigger === 0) return;
 		this.updateRepos();
+	});
+
+	/**
+	 * Re-syncs searchList whenever the repository signal changes.
+	 *
+	 * WHY: Replaces the imperative subscription chain that used to populate the
+	 * local repositories/searchList copies (F3). Reading repositories() here
+	 * establishes a dependency on the service signal (the single source of
+	 * truth); when it changes, seperateRepos (dedup) + searchRepos (re-filter)
+	 * refresh the searchList without redundant work.
+	 */
+	private reposChangeEffect = effect(() => {
+		const repos = this.repositories();
+		untracked(() => {
+			this.seperateRepos(repos);
+			this.searchRepos();
+		});
 	});
 
 	/** Reacts to the renameProject signal from ProjectService */
@@ -195,11 +216,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	seperateRepos(repos: RepositoryContainer[]) {
-		const current = this.repositories();
-		if (current === repos || (Array.isArray(current) && current.length === repos.length && current.every((r, i) => r._id === repos[i]?._id))) 
-			return;
-		
-		this.repositories.set(repos);
+		// repositories is now a computed derived from the service signal (F3) —
+		// only the searchList needs the dedup guard to avoid redundant re-filters.
 		const oldList = this.searchList();
 		if (!oldList || oldList.length === 0 || oldList.some((o, i) => o._id !== repos[i]?._id)) 
 			this.searchList.set(repos);
@@ -269,27 +287,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	/**
-     * gets repositories from Session storage if available
-     * if not available, it requests them from backend in 500 ms interval
-     * finally: sets this.repositories
-     */
-	getSessionStorage() {
-		const seSto = sessionStorage.getItem('repositories');
-		if (!seSto) {
-			const repositories = interval(500)
-				.pipe(map(() => sessionStorage.getItem('repositories')))
-				.subscribe(data => {
-					if (data) {
-						this.repositories.set(JSON.parse(data));
-						repositories.unsubscribe();
-					}
-				});
-		} else
-			this.repositories.set(JSON.parse(seSto));
-        
-	}
-
-	/**
      * Fills the Account data
      * @param report
      */
@@ -310,7 +307,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 				}
 				this.clientId.set(localStorage.getItem('clientId') ?? '');
 			});
-			this.getSessionStorage();
 		}
 	}
 
@@ -418,9 +414,14 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	/**
       * Opens the 'dumb' import modal and waits for the result.
-      * This component is now responsible for calling the service.
+      *
+      * WHY: Replaces the nested subscribe chain (F3) with async/await +
+      * firstValueFrom. After a successful import, getRepositories() refreshes the
+      * service's repositoriesSignal, which cascades to the computed repositories()
+      * and is picked up by reposChangeEffect (which re-syncs searchList). No local
+      * subscription chain or manual state copy is needed.
       */
-	openImportProjectModal() {
+	async openImportProjectModal() {
 		const dialogRef = this.modalService.open(ImportModalComponent, {
 			width: '800px',
 			data: {
@@ -428,33 +429,27 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 			} 
 		});
 
-		dialogRef.afterClosed().subscribe(data => {
+		try {
+			const data = await firstValueFrom(dialogRef.afterClosed());
 			if (data) {
 				// *** Case 1: User clicked "Import" ***
 				console.log('Modal closed with data, starting import:', data);
 
-				this.managmentService.importProject(data.file, data.repoId, data.projectName, data.importMode)
-					.subscribe({
-						next: (ret) => {
-							console.log(ret);
-							this.notify.success('Project imported successfully!');
-							// Refresh the repository list
-							this.projectService.getRepositories().subscribe(resp => {
-								this.seperateRepos(resp);
-								this.searchRepos();
-							});
-						},
-						error: (err) => {
-							console.error('Import failed:', err);
-							this.notify.error(err.error?.error || 'Import failed.');
-						}
-					});
-			} else 
-			// *** Case 2: User clicked "Cancel" ***
-			// Do nothing.
+				await firstValueFrom(
+					this.managmentService.importProject(data.file, data.repoId, data.projectName, data.importMode)
+				);
+				this.notify.success('Project imported successfully!');
+				// Refresh the repository list — service signal update drives reposChangeEffect
+				this.projectService.getRepositories();
+			} else {
+				// *** Case 2: User clicked "Cancel" ***
+				// Do nothing.
 				console.log('Modal dismissed (Cancel clicked)');
-        
-		});
+			}
+		} catch (err) {
+			console.error('Import failed:', err);
+			this.notify.error((err as { error?: { error?: string } })?.error?.error || 'Import failed.');
+		}
 	}
 
 	/**

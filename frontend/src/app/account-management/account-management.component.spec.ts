@@ -9,6 +9,7 @@ import { ROUTES } from '../routes/routes';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ProjectService } from '../Services/project.service';
 import type { User } from '@seed-test/shared/models/User';
 
 const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
@@ -20,6 +21,7 @@ describe('AccountManagementComponent', () => {
 	let component: AccountManagementComponent;
 	let fixture: ComponentFixture<AccountManagementComponent>;
 	let router: Router;
+	let projectService: ProjectService;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
@@ -32,11 +34,13 @@ describe('AccountManagementComponent', () => {
 
 	beforeEach(() => {
 		router = TestBed.inject(Router);
+		projectService = TestBed.inject(ProjectService);
 		fixture = TestBed.createComponent(AccountManagementComponent);
 		component = fixture.componentInstance;
 		vi.spyOn(component.loginService, 'isLoggedIn').mockReturnValue(true);
 		component.loginService.isLoggedIn();
-		component.repositories.set(repositories);
+		// repositories is now a computed — seed the service signal it derives from
+		projectService.repositoriesSignal.set(repositories);
 		component.searchInput = '';
 		// No GitHub account connected — the template then renders the login link, not the disconnect link
 		component.github.set(undefined);

@@ -81,13 +81,13 @@ describe('AppComponent', () => {
 
 		it('should clear repositories and navigate on logout', () => {
 			localStorage.setItem('login', 'test-token');
-			component.repositories.set([{ repoName: 'test' } as any]);
+			projectService.repositoriesSignal.set([{ repoName: 'test' } as any]);
 			vi.spyOn(loginService, 'logoutUser').mockReturnValue(of([] as any));
 			vi.spyOn(component.router, 'navigate').mockImplementation(() => Promise.resolve(true));
 
 			component.logout();
 
-			expect(component.repositories()).toBeUndefined();
+			expect(component.repositories()).toEqual([]);
 			expect(loginService.logoutUser).toHaveBeenCalled();
 			expect(component.router.navigate).toHaveBeenCalledWith(['/login']);
 		});
@@ -97,7 +97,10 @@ describe('AppComponent', () => {
 		it('should load repositories when logged in', () => {
 			localStorage.setItem('login', 'test-token');
 			vi.spyOn(projectService, 'getRepositories').mockReturnValue(of([{ repoName: 'Repo1' } as any]));
+			// repositories is now a computed — seed the service signal it derives from
+			projectService.repositoriesSignal.set([{ repoName: 'Repo1' } as any]);
 			component.getRepositories();
+			expect(projectService.getRepositories).toHaveBeenCalled();
 			expect(component.repositories()?.length).toBe(1);
 			expect(component.repositories()![0].repoName).toBe('Repo1');
 		});
@@ -108,14 +111,6 @@ describe('AppComponent', () => {
 			component.getRepositories();
 			expect(projectService.getRepositories).not.toHaveBeenCalled();
 		});
-
-		it('should set error on repository load failure', () => {
-			localStorage.setItem('login', 'test-token');
-			vi.spyOn(projectService, 'getRepositories').mockReturnValue(of([] as any));
-			component.getRepositories();
-			// Component sets error via subscribe error handler
-			expect(component.repositories()?.length).toBe(0);
-		});
 	});
 
 	describe('behavioral: signal-driven effects', () => {
@@ -124,13 +119,6 @@ describe('AppComponent', () => {
 			loginService.logoutEmitter();
 			TestBed.flushEffects();
 			expect(component.logout).toHaveBeenCalled();
-		});
-
-		it('should call getRepositories when getRepositoriesTrigger fires', () => {
-			vi.spyOn(component, 'getRepositories');
-			projectService.getRepositoriesEmitter();
-			TestBed.flushEffects();
-			expect(component.getRepositories).toHaveBeenCalled();
 		});
 	});
 
