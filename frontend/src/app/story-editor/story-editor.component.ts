@@ -142,7 +142,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	/**
     * Currently selected scenario (signal for zoneless ChangeDetection reactivity)
     */
-	selectedScenario = signal<Scenario | null>(null);
+	readonly selectedScenario = signal<Scenario | null>(null);
 
 	/**
    * Currently selected repository
@@ -526,9 +526,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 					'Please enter a new Background name to save your changes'
 				);
 				this.changeBackgroundTitle();
-			} else if (option == 'centrally') {
+			} else if (option == 'centrally') 
 				this.applyChangesToBackgrounds(story.background);
-			}
+			
 		});
 	});
 
@@ -712,13 +712,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		}
 		if (storedStory && this.stories().length && this.blocks().length) {
 			// CASE: Story has no background — replace via signal update so consumers are notified
-			if (!storedStory.background) {
+			if (!storedStory.background) 
 				this.selectedStory.update((s) =>
 					s ? { ...s, background: { name: '', stepDefinitions: { when: [] }, saved: true } } : s
 				);
-			} else {
+			else 
 				this.storeCurrentBackground(storedStory.background);
-			}
+			
 			this.storeCurrentBackground(this.selectedStory()!.background);
 			this.backgrounds = this.stories()
 				.filter((s) => s !== null)
@@ -755,7 +755,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		});
 	}
 
-/**
+	/**
     * Runs the test without saving it
     */
 	runOption() {
@@ -795,7 +795,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		this.createNewStoryModal().openCreateNewStoryModal(this.stories());
 	}
 
-/**
+	/**
     * Navigates to the previous scenario in the currently active list (original or AI).
     */
 	navigateScenarioLeft() {
@@ -816,7 +816,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
     
 	}
 
-/**
+	/**
     * Navigates to the next scenario in the currently active list (original or AI).
     */
 	navigateScenarioRight() {
@@ -918,7 +918,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			});
 	}
 
-/**
+	/**
     * Removes scenario from the selected story
     */
 	scenarioDeleted() {
@@ -940,7 +940,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
     
 	}
 
-/**
+	/**
     * Adds a scenario to story
     */
 	addScenario(event: string) {
@@ -955,7 +955,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				this.notify.info('', 'Scenario added');
 			});
 	}
-/**
+	/**
     * updates the background
     */
 	updateBackground() {
@@ -996,7 +996,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				});
 		}
 	}
-/**
+	/**
     * Check: if the same background is used in different stories
     */
 	checkStoriesForBack() {
@@ -1012,7 +1012,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		return usingBackground;
 	}
 
-/**
+	/**
     * Change Block if background
     */
 	changeBackgroundBlock() {
@@ -1083,7 +1083,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		this.notify.success('successfully saved', 'Backgrounds');
 	}
 
-/**
+	/**
     * deletes the background
     */
 	deleteBackground() {
@@ -1144,7 +1144,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		}
 	}
 
-/**
+	/**
     * Sort the backgrounds of stories in a list
     * @returns
     */
@@ -1184,7 +1184,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			JSON.stringify(originalBackground)
 		);
 	}
-/**
+	/**
     * Select another background to replace
     */
 	replaceBackground(background: Background) {
@@ -1240,7 +1240,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * @param scenario_id
    * @param selectedExecutions - optional parameter to update xray status
    */
-async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
+	async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
 		const story = this.selectedStory();
 		if (!story) return;
 		if (this.storySaved()) {
@@ -1466,7 +1466,7 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
 		return member_stories;
 	}
 
-/*
+	/*
     * Prepare parameters for test run
     */
 	testRunParams() {
@@ -1527,15 +1527,15 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
    * Evaluates whether to open xray execution list modal in run scenario.
    * @param scenario_id
    */
-  evaluateAndRunScenario(scenario_id: number) {
+	evaluateAndRunScenario(scenario_id: number) {
 		const scenario = this.selectedScenario();
 		if (
 			scenario &&
        scenario.testKey &&
        scenario.testRunSteps!.length > 0
-  	) 
-  	// Open the modal if there are test execution steps
-  		this.executionListModal().openExecutionListModal(scenario);
+		) 
+		// Open the modal if there are test execution steps
+			this.executionListModal().openExecutionListModal(scenario);
 		else 
 		// Run tests directly if there are no test execution steps
 			this.runTests(scenario_id);
@@ -1576,7 +1576,7 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
     
 	}
 
-/**
+	/**
     * Download the test report
     */
 	downloadFile() {
@@ -1603,7 +1603,7 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
     * Set the browser
     * @param newBrowser
     */
-  setBrowser(newBrowser: string) {
+	setBrowser(newBrowser: string) {
 		const scenario = this.selectedScenario();
 		if (!scenario) return;
 		scenario.browser = newBrowser;
@@ -1709,7 +1709,7 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
    * Set if an emulator should be used
    * @param enabled Boolean
    */
-  setEmulatorEnabled(enabled: boolean) {
+	setEmulatorEnabled(enabled: boolean) {
 		this.emulator_enabled = enabled;
 		this.setEmulator(enabled ? this.getAvaiableEmulators()[0] : undefined);
 		const scenario = this.selectedScenario();
@@ -1764,7 +1764,7 @@ async runTests(scenario_id: number | null, selectedExecutions?: number[]) {
    * @returns
    */
 
-storySaved() {
+	storySaved() {
 		const story = this.selectedStory();
 		return (
 			this.runUnsaved ||
@@ -1805,7 +1805,7 @@ storySaved() {
 		});
 	}
 
-/**
+	/**
     * Opens the Modal to rename the story
     * @param newStoryTitle
     */
@@ -1818,7 +1818,7 @@ storySaved() {
 		);
 	}
 
-/**
+	/**
     * Renames the story
     * @param newStoryTitle
     * @param newStoryDescription
@@ -1856,7 +1856,7 @@ storySaved() {
 		});
 	}
 
-storyLink() {
+	storyLink() {
 		const story = this.selectedStory();
 		if (!story) return '';
 		return (
@@ -1916,7 +1916,7 @@ storyLink() {
 		this.deleteStoryEvent.emit(story);
 	}
 
-/**
+	/**
     * Removes the selected story
     */
 	storyDeleted() {
@@ -1926,7 +1926,7 @@ storyLink() {
 
 	}
 
-/**
+	/**
     * Opens modal to rename background
     */
 	changeBackgroundTitle() {
@@ -1960,7 +1960,7 @@ storyLink() {
 		window.open(url, '_blank');
 	}
 
-/**
+	/**
     * Selects a new Story and with it a new scenario
     * @param story
     */
@@ -2223,7 +2223,7 @@ storyLink() {
    * Can optionally update the story with new data.
    * @param updatedStory - The updated story object from the server, if available.
    */
-exitAiReviewMode(updatedStory?: Story) {
+	exitAiReviewMode(updatedStory?: Story) {
 		this.isReviewingAi.set(false);
 		this.reviewModeChanged.emit(false);
 
@@ -2253,7 +2253,7 @@ exitAiReviewMode(updatedStory?: Story) {
     
 	}
 
-/**
+	/**
     * Discards the current AI suggestion.
     */
 	discardAiSuggestion() {
@@ -2267,7 +2267,7 @@ exitAiReviewMode(updatedStory?: Story) {
 		});
 	}
 
-/**
+	/**
     * Merges the AI suggestion with the existing scenarios.
     * @param overwrite If true, replaces existing scenarios. If false, appends them.
     */

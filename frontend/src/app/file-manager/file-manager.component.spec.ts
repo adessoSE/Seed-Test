@@ -11,7 +11,6 @@ import { ProjectService } from '../Services/project.service';
 describe('FileManagerComponent', () => {
 	let component: FileManagerComponent;
 	let fixture: ComponentFixture<FileManagerComponent>;
-	let projectServiceSpy: Partial<ProjectService>;
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({

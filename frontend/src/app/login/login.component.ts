@@ -125,7 +125,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 				localStorage.setItem('login', 'true');
 				const mergeToken = localStorage.getItem('mergeToken');
 				localStorage.removeItem('mergeToken');
-				if (mergeToken) {
+				if (mergeToken) 
 					// The callback logged in as the fresh GitHub-only account G. Merge its
 					// verified identity into the Seed account that was authorized during
 					// the initiate step (token proves ownership — no client-controlled userId).
@@ -133,9 +133,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
 						next: () => this.getRepositories(),
 						error: () => this.getRepositories()
 					});
-				} else {
+				else 
 					this.getRepositories();
-				}
+				
 			}
 		},
 		(error) => {

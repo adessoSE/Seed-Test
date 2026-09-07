@@ -89,8 +89,11 @@
                   <div cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="dropStory($event)" class="stories-drop-container">
                   <mat-accordion displayMode="flat" class="stories-accordion">
                     @for (s of storyNumbering().stories; track s; let i = $index) {
-                          <div cdkDrag class="story-drag-wrapper" [class.cdk-drag-dragging]="selectedStory() === s"
-                        (click)="selectStory(s); $event.stopPropagation();">
+		  <div cdkDrag class="story-drag-wrapper" [class.cdk-drag-dragging]="selectedStory() === s"
+			tabindex="0"
+			(keydown.enter)="selectStory(s); $event.stopPropagation();"
+			(keydown.space)="$event.preventDefault(); selectStory(s); $event.stopPropagation();"
+			(click)="selectStory(s); $event.stopPropagation();">
                       <mat-expansion-panel class="story-expansion-panel"
                          [expanded]="storyExpansion().has(s)"
                          (opened)="toggleStoryExpansion(s)" (closed)="toggleStoryExpansion(s)">

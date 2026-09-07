@@ -104,9 +104,9 @@ export class CreateNewGroupComponent {
      * @param story
      */
 	selectStory(story: Story) {
-		if (this.selectedStories === undefined) {
+		if (this.selectedStories === undefined) 
 			this.selectedStories = [];
-		}
+		
 		const storyId = typeof story._id === 'object' && story._id !== null ? (story._id as { toHexString: () => string }).toHexString() : String(story._id ?? '');
 		if (this.isStoryChecked(story))
 			this.selectedStories = this.selectedStories!.filter(item => item !== storyId);

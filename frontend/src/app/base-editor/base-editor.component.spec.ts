@@ -196,7 +196,7 @@ describe('BaseEditorComponent', () => {
 		});
 	});
 
-describe('buildID', () => {
+	describe('buildID', () => {
 		it('should return 0', () => {
 			const stepType: StepType[] = [];
 			const id = component.buildID(stepType);

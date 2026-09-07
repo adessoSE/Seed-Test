@@ -148,7 +148,6 @@ export class AppComponent implements OnInit{
 	});
 
 
-
 	/**
    * Opens the terms section
    */

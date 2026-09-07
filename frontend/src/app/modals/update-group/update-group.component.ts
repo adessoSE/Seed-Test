@@ -118,7 +118,7 @@ export class UpdateGroupComponent {
      * Fuctionality for adding and removing Stories from a Group with a Checklist
      * @param story
      */
-selectStory(story: Story) {
+	selectStory(story: Story) {
 		const storyId = typeof story._id === 'object' && story._id !== null ? (story._id as { toHexString: () => string }).toHexString() : String(story._id ?? '');
 		if (this.isStoryChecked(story)) 
 			this.selectedStories = this.selectedStories.filter(item => item !== storyId);

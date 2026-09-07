@@ -134,10 +134,10 @@ export class ParentComponent implements OnInit {
 							this.stories.set([]);
 						}
 					});
-				else {
+				else 
 					// Repository from localStorage not found in server response — user may lack access
 					this.stories.set([]);
-				}
+				
 			},
 			error: () => {
 				// API failure — clear stories so UI doesn't hang on spinner
@@ -167,9 +167,9 @@ export class ParentComponent implements OnInit {
 			const story_id = params.get('story_id');
 			const story = (this.stories() ?? []).find(o => o._id === story_id);
 			console.log('routing() found story:', story?._id, 'route param:', story_id);
-			if (!story) {
+			if (!story) 
 				console.warn('routing() - Story NOT found for ID:', story_id, 'Available IDs:', (this.stories() ?? []).map(s => s._id).join(', '));
-			}
+			
 			this.selectedStory.set(story);
 			if (story && params.has('scenario_id')) {
 				const scenario_id = params.get('scenario_id');
@@ -179,9 +179,9 @@ export class ParentComponent implements OnInit {
 					this.setSelectedScenario(scenario);
 				else
 					this.setSelectedScenario(story.scenarios[0]);
-			} else if (story) {
+			} else if (story) 
 				this.setSelectedScenario(story.scenarios[0]);
-			}
+			
 		}
 	}
 
@@ -209,9 +209,9 @@ export class ParentComponent implements OnInit {
 				if (!belongsToNewStory)
 					this.selectedScenario.set(undefined);
 				// If belongsToNewStory is true, keep the scenario — user explicitly selected it
-			} else {
+			} else 
 				this.selectedScenario.set(undefined);
-			}
+			
 		}
 		this.selectedStory.set(story);
 	}

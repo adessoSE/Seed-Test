@@ -170,7 +170,7 @@ export class StoryService {
 			.pipe(
 				tap(resp => {
 					this.stories.set(resp);
-			}), catchError(this.apiService.handleStoryError));
+				}), catchError(this.apiService.handleStoryError));
 	}
 	/**
    * Updating story list (only affects repo)

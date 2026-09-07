@@ -196,14 +196,14 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	seperateRepos(repos: RepositoryContainer[]) {
 		const current = this.repositories();
-		if (current === repos || (Array.isArray(current) && current.length === repos.length && current.every((r, i) => r._id === repos[i]?._id))) {
+		if (current === repos || (Array.isArray(current) && current.length === repos.length && current.every((r, i) => r._id === repos[i]?._id))) 
 			return;
-		}
+		
 		this.repositories.set(repos);
 		const oldList = this.searchList();
-		if (!oldList || oldList.length === 0 || oldList.some((o, i) => o._id !== repos[i]?._id)) {
+		if (!oldList || oldList.length === 0 || oldList.some((o, i) => o._id !== repos[i]?._id)) 
 			this.searchList.set(repos);
-		}
+		
 	}
 
 	/**
