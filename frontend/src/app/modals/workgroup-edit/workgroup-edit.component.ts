@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild, signal, effect } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild, signal, effect, untracked } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -134,11 +134,18 @@ export class WorkgroupEditComponent {
 		this.transferedOwnership(this.selectedOwner);
 	});
 
-	constructor() {
-		this.projectService.getRepositories().subscribe((repos) => {
+	/** FIX F6: Sync repos plain property with projectService.repositoriesSignal() so it stays reactive
+	 * for OnPush change detection. Replaces the old constructor .subscribe() that set a
+	 * non-reactive plain property and never unsubscribed — now reacts to signal updates
+	 * and the effect auto-cleans when the component is destroyed. */
+	private reposSyncEffect = effect(() => {
+		const repos = this.projectService.repositoriesSignal();
+		untracked(() => {
 			this.repos = repos;
 		});
+	});
 
+	constructor() {
 		this.gecko_enabled = localStorage.getItem('gecko_enabled');
 		this.chromium_enabled = localStorage.getItem('chromium_enabled');
 		this.edge_enabled = localStorage.getItem('edge_enabled');
