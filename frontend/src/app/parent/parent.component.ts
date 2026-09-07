@@ -6,6 +6,7 @@ import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContaine
 import { Group } from '@seed-test/shared/models/Group';
 import { ActivatedRoute } from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
+import { firstValueFrom } from 'rxjs';
 
 import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
@@ -102,8 +103,10 @@ export class ParentComponent implements OnInit {
 
 	/**
     * Leads the stories of the current selected repository
+    * FIX F5: Replaced nested subscribe chains with await firstValueFrom() sequences.
+    * The signal .set() is called once per data source, eliminating duplicate state writes.
     */
-	loadStories() {
+	async loadStories(): Promise<void> {
 		// Bail early if no repository is selected — prevents endless "Loading Stories ..." spinner
 		// when navigating to the root route without a selected repo (e.g., pressing back after login).
 		const repoId = localStorage.getItem('id');
@@ -114,49 +117,43 @@ export class ParentComponent implements OnInit {
 		}
 
 		// 1. Fetch the complete list of repositories
-		this.projectService.getRepositories().subscribe({
-			next: (allRepos: RepositoryContainer[]) => {
-				this.repositories = allRepos;
+		let allRepos: RepositoryContainer[] = [];
+		try {
+			allRepos = await firstValueFrom(this.projectService.getRepositories());
+			this.repositories = allRepos;
+		} catch {
+			// API failure — clear stories so UI doesn't hang on spinner
+			this.stories.set([]);
+			this.groups = [];
+			return;
+		}
 
-				// 2. Find the full, currently selected repository object from the list
-				const selectedRepo = this.repositories.find(repo => repo._id === repoId);
-				this.selectedRepository.set(selectedRepo);
+		// 2. Find the full, currently selected repository object from the list
+		const selectedRepo = allRepos.find(repo => repo._id === repoId);
+		this.selectedRepository.set(selectedRepo);
 
-				// 3. If the full repository object is found, load its stories
-				if (selectedRepo)
-					this.storyService.getStories(selectedRepo).subscribe({
-						next: (resp: Story[]) => {
-							this.stories.set(resp);
-							this.routing(); // Handle routing after stories are loaded
-						},
-						error: () => {
-							// Prevent "Loading Stories ..." spinner from hanging on API failure
-							this.stories.set([]);
-						}
-					});
-				else 
-					// Repository from localStorage not found in server response — user may lack access
-					this.stories.set([]);
-				
-			},
-			error: () => {
-				// API failure — clear stories so UI doesn't hang on spinner
+		// 3. If the full repository object is found, load its stories
+		if (selectedRepo) {
+			try {
+				const resp = await firstValueFrom(this.storyService.getStories(selectedRepo));
+				this.stories.set(resp);
+				this.routing(); // Handle routing after stories are loaded
+			} catch {
+				// Prevent "Loading Stories ..." spinner from hanging on API failure
 				this.stories.set([]);
 			}
-		});
+		} else {
+			// Repository from localStorage not found in server response — user may lack access
+			this.stories.set([]);
+		}
 
-		// Also load the groups for the current repository
-		this.groupService
-			.getGroups(repoId)
-			.subscribe({
-				next: (resp: Group[]) => {
-					this.groups = resp;
-				},
-				error: () => {
-					// Prevent spinner hang on group load failure
-					this.groups = [];
-				}
-			});
+		// Also load the groups for the current repository (independent of stories — always fires)
+		try {
+			this.groups = await firstValueFrom(this.groupService.getGroups(repoId));
+		} catch {
+			// Prevent spinner hang on group load failure
+			this.groups = [];
+		}
 	}
 
 	/** Reads current route params and selects the matching story/scenario */
