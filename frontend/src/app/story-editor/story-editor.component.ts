@@ -502,7 +502,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		);
 		const blocks = await this.reloadBlocks();
 		this.blockService.checkBlockOnReference(blocks, this.stories(), obj.block);
-		scenario.saved = false;
+		// FIX F7: Update scenario through signal instead of in-place mutation
+		// to trigger OnPush change detection after modifying a signal-held object
+		this.selectedScenario.set({ ...scenario, saved: false });
 	}
 
 	/** Effect 13: React to reference block name update */
@@ -691,16 +693,32 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		const story = this.selectedStory();
 		if (!story) return;
 		const scenario = this.selectedScenario();
-		if (scenario && (this.width !== event.width || this.height !== event.height)) 
-			scenario.saved = false;
-		
+		// FIX F7: Update scenario through signal instead of in-place mutation
+		// to trigger OnPush change detection after modifying width/height/saved
 		if (scenario) {
-			scenario.width = event.width;
-			scenario.height = event.height;
+			const newScenario: Scenario = {
+				...scenario,
+				width: event.width,
+				height: event.height,
+				...(this.width !== event.width || this.height !== event.height
+					? { saved: false }
+					: {})
+			};
+			this.selectedScenario.set(newScenario);
 		}
 	}
 
 	ngAfterViewChecked() {
+		// WHY: Left as ngAfterViewChecked (not moved to computed/effect) because it performs
+		// imperative side effects — scrolling the loading screen into view and resetting
+		// openBlockModal — that cannot be expressed declaratively. The heavy reconciliation
+		// (backgrounds/blockAsBackground arrays) is guarded by a triple condition
+		// (storedStory + stories.length + blocks.length) so it only runs once after first
+		// load. Converting to a computed would require wrapping these DOM ops in effects
+		// and risking reentrancy — not worth the complexity for a ~1x-per-load path.
+		// NOTE: No in-place mutations of signal-held objects here; background is initialized
+		// via signal.update() at line 722 (FIX F7 above) and storeCurrentBackground reads
+		// (does not mutate) the background reference.
 		this.openBlockModal = undefined;
 		const storedStory = this.selectedStory();
 		/**
@@ -765,10 +783,17 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		const tmpScenarioSaved = child?.scenarioSaved;
 		const tmpBackgroundSaved = story.background.saved;
 		if (child) child.scenarioSaved = true;
-		story.background.saved = true;
+		// FIX F7: Update background through signal instead of in-place mutation
+		// to trigger OnPush change detection after modifying nested signal-held object
+		this.selectedStory.update((s) =>
+			s ? { ...s, background: { ...s.background, saved: true } } : s
+		);
 		this.runTests(this.currentTestScenarioId);
 		if (child) child.scenarioSaved = tmpScenarioSaved;
-		story.background.saved = tmpBackgroundSaved;
+		// FIX F7: Restore background.saved through signal update (not in-place)
+		this.selectedStory.update((s) =>
+			s ? { ...s, background: { ...s.background, saved: tmpBackgroundSaved } } : s
+		);
 	}
 
 	/**
@@ -926,11 +951,17 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		if (!story) return;
 		const scenario = this.selectedScenario();
 		if (!scenario) return;
-		const indexScenario: number = story.scenarios.indexOf(
-			scenario
+		const indexScenario: number = story.scenarios.findIndex(
+			(s: Scenario) => s.scenario_id === scenario.scenario_id
 		);
-		if (indexScenario !== -1) 
-			story.scenarios.splice(indexScenario, 1);
+		if (indexScenario !== -1) {
+			// FIX F7: Create new scenarios array instead of mutating signal-held object
+			// to trigger OnPush change detection
+			const newScenarios = story.scenarios.filter((_, i) => i !== indexScenario);
+			this.selectedStory.update((s) =>
+				s ? { ...s, scenarios: newScenarios } : s
+			);
+		}
     
 
 		if (story.scenarios.length > 0)
@@ -951,7 +982,11 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			.addScenario(story._id!, scenarioName)
 			.subscribe((resp: Scenario) => {
 				this.selectScenario(resp);
-				story.scenarios.push(resp);
+				// FIX F7: Update scenarios through signal instead of in-place push
+				// to trigger OnPush change detection
+				this.selectedStory.update((s) =>
+					s ? { ...s, scenarios: [...s.scenarios, resp] } : s
+				);
 				this.notify.info('', 'Scenario added');
 			});
 	}
@@ -983,7 +1018,10 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			this.backgroundChecks();
 		else {
 			this.changeBackgroundBlock();
-			delete story.background.saved;
+			// FIX F7: Update background through signal instead of delete-in-place
+			this.selectedStory.update((s) =>
+				s ? { ...s, background: { ...s.background, saved: undefined } } : s
+			);
 			this.backgroundService
 				.updateBackground(story._id!, story.background)
 				.subscribe((_) => {
@@ -1018,20 +1056,21 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	changeBackgroundBlock() {
 		const story = this.selectedStory();
 		if (!story) return;
-		this.blocks().forEach((block) => {
-			if (
+		// FIX F7: Collect blocks that need updating (avoid mutating signal-held objects in forEach)
+		const blocksToUpdate = this.blocks().filter(
+			(block) =>
 				block.isBackground &&
         this.backgroundService.backgroundReplaced == undefined &&
         block.name == story.background.name &&
         block.stepDefinitions != story.background.stepDefinitions
-			) {
-				block.stepDefinitions.when =
-					story.background.stepDefinitions.when;
-				this.blockService
-					.updateBlock(block)
-					.subscribe((_) => this.blockService.updateBlocksEmitter());
-			}
-		});
+		);
+		for (const block of blocksToUpdate) {
+			// FIX F7: Create new block object with updated stepDefinitions (new reference for OnPush)
+			const updatedBlock = { ...block, stepDefinitions: { ...block.stepDefinitions, when: story.background.stepDefinitions.when } };
+			this.blockService
+				.updateBlock(updatedBlock)
+				.subscribe((_) => this.blockService.updateBlocksEmitter());
+		}
 	}
 	/**
    * Toastr: background changes in multiple Stories or in current background
@@ -1058,14 +1097,24 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	applyChangesToBackgrounds(background: Background) {
 		const story = this.selectedStory();
 		if (!story) return;
-		delete story.background.saved;
+		// FIX F7: Update background.saved through signal instead of delete-in-place
+		this.selectedStory.update((s) =>
+			s ? { ...s, background: { ...s.background, saved: undefined } } : s
+		);
 		const storyId: (string | undefined)[] = [];
-		this.stories().forEach((s) => {
+		// FIX F7: Create new story objects with new background references instead of mutating
+		// signal-held stories in-place — OnPush needs new references to detect changes
+		const updatedStories = this.stories().map((s) => {
 			if (s.background.name === background.name) {
-				s.background.stepDefinitions = background.stepDefinitions;
 				storyId.push(s._id);
+				return {
+					...s,
+					background: { ...s.background, stepDefinitions: background.stepDefinitions }
+				};
 			}
+			return s;
 		});
+		this.stories.set(updatedStories);
 		this.changeBackgroundBlock();
 		storyId.forEach((_id) => {
 			// Stories in this.stories() are persisted and always carry an _id
@@ -1190,10 +1239,17 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	replaceBackground(background: Background) {
 		const story = this.selectedStory();
 		if (!story) return;
-		story.background.stepDefinitions.when = JSON.parse(
-			JSON.stringify(background.stepDefinitions.when)
+		// FIX F7: Update story background through signal instead of in-place mutations
+		this.selectedStory.update((s) =>
+			s ? {
+				...s,
+				background: {
+					...s.background,
+					stepDefinitions: { ...s.background.stepDefinitions, when: JSON.parse(JSON.stringify(background.stepDefinitions.when)) },
+					name: background.name
+				}
+			} : s
 		);
-		story.background.name = background.name;
 		this.backgroundService.backgroundReplaced = true;
 		const currentStepsLength =
 			this.backgroundService.currentBackground.stepDefinitions.when.length;
@@ -1594,8 +1650,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	setStepWaitTime(newTime: number) {
 		const scenario = this.selectedScenario();
 		if (scenario) {
-			scenario.stepWaitTime = newTime;
-			scenario.saved = false;
+			// FIX F7: Update scenario through signal instead of in-place mutation
+			// to trigger OnPush change detection after modifying a signal-held object
+			this.selectedScenario.set({ ...scenario, stepWaitTime: newTime, saved: false });
 		}
 	}
 
@@ -1606,9 +1663,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	setBrowser(newBrowser: string) {
 		const scenario = this.selectedScenario();
 		if (!scenario) return;
-		scenario.browser = newBrowser;
+		// FIX F7: Update scenario through signal instead of in-place mutation
 		this.setEmulatorEnabled(false);
-		scenario.saved = false;
+		this.selectedScenario.set({ ...scenario, browser: newBrowser, saved: false });
 	}
 
 	/**
@@ -1713,7 +1770,17 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		this.emulator_enabled = enabled;
 		this.setEmulator(enabled ? this.getAvaiableEmulators()[0] : undefined);
 		const scenario = this.selectedScenario();
-		if (scenario) scenario.saved = false;
+		if (scenario) {
+			// FIX F7: Update scenario through signal instead of in-place mutation
+			const newScen: Scenario = { ...scenario, saved: false };
+			if (enabled) {
+				const av = this.getAvaiableEmulators();
+				if (av.length > 0) newScen.emulator = av[0];
+			} else {
+				newScen.emulator = undefined;
+			}
+			this.selectedScenario.set(newScen);
+		}
 	}
 
 	/**
@@ -1723,8 +1790,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	setEmulator(newEmulator: string | undefined) {
 		const scenario = this.selectedScenario();
 		if (!scenario) return;
-		scenario.emulator = newEmulator;
-		scenario.saved = false;
+		// FIX F7: Update scenario through signal instead of in-place mutation
+		this.selectedScenario.set({ ...scenario, emulator: newEmulator, saved: false });
 	}
 
 	/**
@@ -1826,22 +1893,27 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	renameStory(newStoryTitle: string, newStoryDescription: string) {
 		const story = this.selectedStory();
 		if (!story) return;
-		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) 
-			story.title = newStoryTitle;
-    
-		if (
-			newStoryDescription &&
-       newStoryDescription.replace(/\s/g, '').length > 0
-		) 
-			story.body = newStoryDescription;
-    
+		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+			// FIX F7: Update story through signal instead of in-place mutation
+			this.selectedStory.update((s) =>
+				s ? { ...s, title: newStoryTitle, body: newStoryDescription } : s
+			);
+		} else if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) {
+			// FIX F7: Update story through signal for body change
+			this.selectedStory.update((s) =>
+				s ? { ...s, body: newStoryDescription } : s
+			);
+		}
 		this.updateStory();
 	}
 
 	renameBackground(newBackgroundName: string) {
 		const story = this.selectedStory();
 		if (!story) return;
-		story.background.name = newBackgroundName;
+		// FIX F7: Update background through signal instead of in-place mutation
+		this.selectedStory.update((s) =>
+			s ? { ...s, background: { ...s.background, name: newBackgroundName } } : s
+		);
 	}
 
 	/**
@@ -2259,7 +2331,10 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	discardAiSuggestion() {
 		const story = this.selectedStory();
 		if (!story) return;
-		story.aiSuggestion = undefined;
+		// FIX F7: Update story through signal instead of in-place mutation
+		this.selectedStory.update((s) =>
+			s ? { ...s, aiSuggestion: undefined as Story['aiSuggestion'] } : s
+		);
 
 		this.storyService.updateStory(story).subscribe(updatedStory => {
 			this.notify.info('AI suggestion discarded.');
@@ -2284,13 +2359,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		else 
 			combinedScenarios = [...story.scenarios, ...suggestion.scenarios];
     
-
 		combinedScenarios.forEach((scenario, index) => {
 			scenario.scenario_id = index + 1;
 		});
 
-		story.scenarios = combinedScenarios;
-		story.aiSuggestion = undefined; // Also clear it on the object
+		// FIX F7: Update story through signal instead of in-place mutation
+		this.selectedStory.update((s) =>
+			s ? { ...s, scenarios: combinedScenarios, aiSuggestion: undefined as Story['aiSuggestion'] } : s
+		);
 
 		// Save the updated story
 		this.storyService

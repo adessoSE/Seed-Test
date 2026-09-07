@@ -185,7 +185,9 @@ describe('StoryEditorComponent', () => {
 			// After deleting one of two scenarios, selectScenario is called on the remaining one, setting showEditor = true
 			expect(component.showEditor()).toBeTruthy();
 
-			expect(component.stories()[component.stories().indexOf(component.selectedStory()!)].scenarios).not.toContain(deletedScenario);
+			// FIX F7: Check selectedStory signal directly (not via stories array) since scenarioDeleted
+			// now uses selectedStory.update() creating a new story reference
+			expect(component.selectedStory()!.scenarios).not.toContain(deletedScenario);
 			expect(indexScenario).not.toBe(-1);
 
 		});
@@ -306,7 +308,8 @@ describe('StoryEditorComponent', () => {
 
 			vi.spyOn(component, 'selectScenario');
 			component.selectScenario(newScenario);
-			component.selectedStory()!.scenarios.push(newScenario);
+			// FIX F7: Use signal update instead of direct mutation to trigger OnPush CD
+			component.selectedStory.update(s => s ? { ...s, scenarios: [...s.scenarios, newScenario] } : s);
 
 			expect(component.selectedStory()?.scenarios.length).toBe(initialLen + 1);
 			expect(component.selectedScenario()).toBe(newScenario);
@@ -321,7 +324,9 @@ describe('StoryEditorComponent', () => {
 
 			component.scenarioDeleted();
 
-			expect(stories[0].scenarios.length).toBe(initialLen - 1);
+			// FIX F7: Check updated signal value (not the original object) since scenarioDeleted now
+			// uses selectedStory.update() instead of in-place splice to trigger OnPush CD
+			expect(component.selectedStory()!.scenarios.length).toBe(initialLen - 1);
 			// After deletion, should select remaining scenario or hide editor
 			if (stories[0].scenarios.length > 0)
 				expect(component.showEditor()).toBeTruthy();
@@ -432,7 +437,13 @@ describe('StoryEditorComponent', () => {
 
 			component.scenarioDeleted();
 
-			expect(singleScenarioStory.scenarios.length).toBe(0);
+			// FIX F7: Flush effects since scenarioDeleted now uses selectedStory.update()
+			// which triggers the newSelectedStoryEffect to re-run and call selectScenario(null)
+			TestBed.flushEffects();
+
+			// Check updated signal value (not the original object) since scenarioDeleted now
+			// uses selectedStory.update() instead of in-place splice
+			expect(component.selectedStory()!.scenarios.length).toBe(0);
 			expect(component.showEditor()).toBeFalsy();
 		});
 
