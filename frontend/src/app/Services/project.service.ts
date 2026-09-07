@@ -1,9 +1,8 @@
-﻿import { AiConfig, RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { AiConfig, RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
-import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map, tap } from 'rxjs/operators';
+import { EMPTY, catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { ApiService } from '../Services/api.service';
 import { FileElement } from '@seed-test/shared/models/FileElement';
 
 /** Workgroup member with email and edit permission */
@@ -64,9 +63,9 @@ export class ProjectService {
 		this.renameProjectValue.set(proj);
 	}
 	/**
-   * Sets the create repository value
-   * @param repository
-   */
+    * Sets the create repository value
+    * @param repository
+    */
 	createRepositoryEvent(repository: CreateRepositoryPayload) {
 		this.createRepositoryValue.set(repository);
 	}
@@ -81,10 +80,7 @@ export class ProjectService {
 		const url = this.apiService.apiServer + '/repository/owner/' + repoId;
 		return this.http
 			.put<RepositoryContainer>(url, { email: email }, ApiService.getOptions())
-			.pipe(tap(_ => {
-				//
-			}),
-			catchError(this.apiService.handleError));
+			.pipe(catchError(this.apiService.handleError));
 
 	}
 
@@ -95,7 +91,9 @@ export class ProjectService {
 	public updateRepositoryEmitter() {
 		this.updateRepositoryTrigger.update(n => n + 1);
 		this.refreshRepositories();
-		this.getRepositories();
+		// Fire-and-forget fetch — subscribes so the cold Observable actually issues the HTTP request
+		// and updates repositoriesSignal. The in-flight guard prevents duplicate requests.
+		this.getRepositories().subscribe();
 	}
 	/**
     * Triggers repositories reload signal and invalidates the getRepositories cache
@@ -104,7 +102,9 @@ export class ProjectService {
 	public getRepositoriesEmitter() {
 		this.getRepositoriesTrigger.update(n => n + 1);
 		this.refreshRepositories();
-		this.getRepositories();
+		// Fire-and-forget fetch — subscribes so the cold Observable actually issues the HTTP request
+		// and updates repositoriesSignal. The in-flight guard prevents duplicate requests.
+		this.getRepositories().subscribe();
 	}
 
 
@@ -117,10 +117,7 @@ export class ProjectService {
 	createRepository(name: string, _id: string): Observable<RepositoryContainer> {
 		const body = { 'name': name, '_id': _id };
 		return this.http
-			.post<RepositoryContainer>(this.apiService.apiServer + '/repository/', body, ApiService.getOptions())
-			.pipe(tap(_ => {
-				//
-			}));
+			.post<RepositoryContainer>(this.apiService.apiServer + '/repository/', body, ApiService.getOptions());
 	}
 	/**
     * Updates repo
@@ -159,68 +156,70 @@ export class ProjectService {
 		console.log('Final update payload:', logData);
 
 		return this.http
-			.put<RepositoryContainer>(this.apiService.apiServer + '/repository/settings/' + repoID + '/', updateData, ApiService.getOptions())
-			.pipe(tap(_ => {
-				//
-			}));
+			.put<RepositoryContainer>(this.apiService.apiServer + '/repository/settings/' + repoID + '/', updateData, ApiService.getOptions());
 	}
-
-	/**
-	 * BehaviorSubject holding the authoritative repository list.
-	 * Provides both synchronous reads (via .value) and reactive subscribers (via .asObservable()).
-	 *
-	 * WHY: Replaces the old ReplaySubject + sessionStorage pattern. The BehaviorSubject
-	 * ensures every subscriber immediately receives the latest value, eliminating the
-	 * create/refresh race where effects would read stale sessionStorage instead of the
-	 * most recent server response.
-	 */
-	private repositoriesSubject = new BehaviorSubject<RepositoryContainer[]>([]);
 
 	/** Guards against concurrent HTTP fetch */
 	private repositoriesFetchInFlight = false;
 
 	/**
-    * Retrieves the repositories from the BehaviorSubject.
-    * Subscribers immediately receive the current value, and subsequent updates
-    * (from HTTP responses or addRepositoryToCache) are pushed to all subscribers.
+	 * Single source of truth for the repository list.
+	 *
+	 * WHY: Replaces the old BehaviorSubject hybrid pattern. The signal is the
+	 * only state holder — all consumers read directly from it (effects, computed
+	 * signals). The HTTP fetch path updates the signal on success; on error the
+	 * signal retains its last good value so transient failures never masquerade
+	 * as an empty project list.
+	 */
+	readonly repositoriesSignal = signal<RepositoryContainer[]>([]);
+
+	/**
+    * Retrieves repositories from the server and updates `repositoriesSignal`.
     *
-    * WHY: Calling getRepositories() also kicks off a fresh HTTP fetch if one is not
-    * already in flight, ensuring the BehaviorSubject stays up-to-date with the server.
-    * @returns
+    * Returns an Observable that emits the HTTP response once on success.
+    * Callers can subscribe to react to the response; the signal is always
+    * the authoritative value for downstream effects and computed reads.
+    *
+    * WHY: Only one HTTP request fires at a time (in-flight guard). After
+    * refreshRepositories() the next call starts a fresh fetch. The signal is
+    * read independently by callers that need the current cached value
+    * (they read repositoriesSignal() directly — no Observable needed).
+    * @returns Observable emitting the fetched repository list on success.
     */
 	getRepositories(): Observable<RepositoryContainer[]> {
-		// Lazy fetch — only runs HTTP once; subsequent subscribers get the BehaviorSubject value
-		if (!this.repositoriesFetchInFlight) {
-			this.repositoriesFetchInFlight = true;
-			const str = this.apiService.apiServer + '/repository/';
-
-			this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
-				.pipe(
-					tap(resp => {
-						// Keep sessionStorage in sync for non-signal consumers (e.g. old fallback code).
-						sessionStorage.setItem('repositories', JSON.stringify(resp));
-					}),
-					catchError(this.apiService.handleError)
-				)
-				.subscribe({
-					next: resp => {
-						// Update the signal (source of truth for direct reads) and the
-						// BehaviorSubject (for reactive subscribers) simultaneously.
-						this.repositoriesSignal.set(resp);
-						this.repositoriesSubject.next(resp);
-					},
-					error: (err) => {
-						// Always retain the signal's last good value on error — the signal
-						// is the single source of truth, so transient failures (500, 429,
-						// network) never masquerade as an empty project list.
-						console.error('Failed to fetch repositories:', err);
-						// Allow next caller to retry the HTTP fetch
-						this.repositoriesFetchInFlight = false;
-					}
-				});
+		if (this.repositoriesFetchInFlight) {
+			// A fetch is already in progress — don't start another HTTP call.
+			// The signal already holds the current value for direct readers.
+			return EMPTY;
 		}
+		this.repositoriesFetchInFlight = true;
+		const url = this.apiService.apiServer + '/repository/';
 
-		return this.repositoriesSubject.asObservable();
+		// Fire-and-forget HTTP — the signal is updated inside switchMap
+		// but is NOT part of the Observable chain, so signal updates
+		// don't trigger additional HTTP requests (no feedback loop).
+		return this.http.get<RepositoryContainer[]>(url, ApiService.getOptions()).pipe(
+			switchMap(resp => {
+				// Update the signal with the fresh server response.
+				sessionStorage.setItem('repositories', JSON.stringify(resp));
+				this.repositoriesSignal.set(resp);
+				return of(resp);
+			}),
+			catchError((err: { status?: number }) => {
+				// 401/403 → auth failure, clear signal so stale data doesn't linger
+				if (err.status === 401 || err.status === 403) {
+					this.repositoriesSignal.set([]);
+					console.error('Auth error fetching repositories:', err);
+					this.repositoriesFetchInFlight = false;
+					return throwError(() => err);
+				}
+				// Transient error (500, network, 429, etc.) → retain signal value
+				// because the signal is the single source of truth.
+				console.error('Failed to fetch repositories:', err);
+				this.repositoriesFetchInFlight = false;
+				return throwError(() => err);
+			})
+		);
 	}
 
 	/**
@@ -228,16 +227,13 @@ export class ProjectService {
     * Call after create / delete / rename operations so the next getRepositories()
     * subscriber receives up-to-date data.
     *
-    * WHY: We do NOT clear the signal here. The BehaviorSubject already holds the
-    * last good value, and effects reading from the signal will see it unchanged.
-    * When the HTTP response arrives, the signal updates and effects propagate
-    * the fresh data. If the HTTP fails, the signal retains its last good value.
+    * WHY: Resets the in-flight flag so the next getRepositories() call can
+    * start a new HTTP request. Does NOT modify repositoriesSignal — the signal
+    * retains the last good value until the fresh response arrives (or fails).
     */
 	refreshRepositories(): void {
 		// Reset in-flight flag so the next getRepositories() call can start fresh.
-		// Emit [] to the BehaviorSubject to clear UI immediately while the next fetch loads.
 		this.repositoriesFetchInFlight = false;
-		this.repositoriesSubject.next([]);
 	}
 
 	/**
@@ -259,19 +255,10 @@ export class ProjectService {
 		// Deduplicate by _id — a subsequent server refresh may carry the same entry.
 		const updated = current.filter(r => r._id !== repo._id).concat(repo);
 		this.repositoriesSignal.set(updated);
-		// Push to BehaviorSubject for reactive subscribers (e.g. effects in components).
-		this.repositoriesSubject.next(updated);
 
 		// Keep sessionStorage in sync for non-signal consumers (e.g. old fallback code).
 		sessionStorage.setItem('repositories', JSON.stringify(updated));
 	}
-
-	/**
-     * Read-only access to the repositories signal — the single source of truth.
-     * Components read this directly in their effects instead of sessionStorage,
-     * eliminating the create/refresh race condition.
-     */
-	readonly repositoriesSignal = signal<RepositoryContainer[]>([]);
 
 	/**
 	 * Retrieves the global settings from the repository
@@ -282,9 +269,6 @@ export class ProjectService {
 
 		return this.http.get<RepositoryContainer['settings']>(str, ApiService.getOptions())
 			.pipe(
-				tap(settings => {
-					console.log('received settings:', settings);
-				}),
 				catchError(this.apiService.handleError)
 			);
 	}
@@ -298,9 +282,6 @@ export class ProjectService {
 		const str = this.apiService.apiServer + '/repository/aiconfig/' + repoId;
 		return this.http.get<AiConfig>(str, ApiService.getOptions())
 			.pipe(
-				tap(aiConfig => {
-					console.log('received AI configuration:', aiConfig);
-				}),
 				catchError(this.apiService.handleError)
 			);
 	}
@@ -322,10 +303,7 @@ export class ProjectService {
 	deleteRepository(repo: RepositoryContainer, _user: unknown) {
 		const str = this.apiService.apiServer + '/repository/' + repo._id;
 		return this.http.delete<RepositoryContainer>(str, ApiService.getOptions())
-			.pipe(tap(() => {
-				//
-			}),
-			catchError(this.apiService.handleError));
+			.pipe(catchError(this.apiService.handleError));
 	}
 	/**
     * Adds a user to a workgroup
@@ -335,10 +313,7 @@ export class ProjectService {
    */
 	addToWorkgroup(_id: string, user: WorkgroupMember) {
 		return this.http
-			.post<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
-			.pipe(tap(_ => {
-				//
-			}));
+			.post<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions());
 	}
 
 	/**
@@ -349,10 +324,7 @@ export class ProjectService {
     */
 	updateWorkgroupUser(_id: string, user: WorkgroupMember) {
 		return this.http
-			.put<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions())
-			.pipe(tap(_ => {
-				//
-			}));
+			.put<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, user, ApiService.getOptions());
 	}
 	/**
     * Retrieves a workgroup
@@ -361,10 +333,7 @@ export class ProjectService {
    */
 	getWorkgroup(_id: string) {
 		return this.http
-			.get<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, ApiService.getOptions())
-			.pipe(tap(_ => {
-				//
-			}));
+			.get<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, ApiService.getOptions());
 	}
 
 	/**
@@ -372,19 +341,16 @@ export class ProjectService {
     * @param _id
     * @param email
     * @returns
-   */
+    */
 	removeFromWorkgroup(_id: string, email: string) {
 		const user = { email: email.toLowerCase() };
 		const options = { 
 			...ApiService.getOptions(),
 			body: user // Add the user object to the 'body' property within options
 		};
-     
+       
 		return this.http
-			.delete<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, options)
-			.pipe(tap(_ => {
-				//
-			}));
+			.delete<WorkgroupResponse>(this.apiService.apiServer + `/workgroup/${_id}/members`, options);
 	}
 
 
@@ -394,10 +360,9 @@ export class ProjectService {
 	public getUploadedFiles(repoId: string): Observable<FileElement[]> {
 		return this.http.get<FileElement[]>(this.apiService.apiServer + '/files/' + repoId, ApiService.getOptions())
 			.pipe(
-				tap(files => console.log(files)),
 				catchError(error => {
 					console.error('Error fetching uploaded files:', error);
-					return throwError(error);
+					return throwError(() => error);
 				})
 			);
 	}
@@ -405,12 +370,9 @@ export class ProjectService {
 	/** Fetches files from backend and updates the fileElements signal */
 	public queryFiles(repoId: string): Observable<FileElement[]> {
 		return this.getUploadedFiles(repoId).pipe(
-			tap(response => {
-				this.fileElements.set(response);
-			}),
 			catchError(error => {
 				console.error('Error fetching uploaded files:', error);
-				return of([] as FileElement[]);
+				return [];
 			})
 		);
 	}
@@ -421,9 +383,12 @@ export class ProjectService {
 	public deleteUploadedFile(repoId: string, fileId: string) {
 		return this.http
 			.delete(this.apiService.apiServer + '/files/' + repoId + '/' + fileId, ApiService.getOptions())
-			.pipe(tap(_ => {
-				this.fileElements.update(files => files.filter((item) => item._id != fileId));
-			}));
+			.pipe(
+				switchMap(() => {
+					this.fileElements.update(files => files.filter((item) => item._id != fileId));
+					return [];
+				})
+			);
 	}
 
 	/**
@@ -434,12 +399,14 @@ export class ProjectService {
 		formData.append('file', file, file.name);
 		return this.http
 			.post(`${this.apiService.apiServer}/files/${repoId}`, formData, ApiService.getOptions())
-			.pipe(tap((result: FileElement) => {
-				const currentDate = new Date();
-				const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
-				result.uploadDate = formattedDate;
-				this.fileElements.update(files => [...files, result]);
-				return result;
-			}));
+			.pipe(
+				switchMap((result: FileElement) => {
+					const currentDate = new Date();
+					const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${(currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()} ${currentDate.getHours().toString().padStart(2, '0')}:${currentDate.getMinutes().toString().padStart(2, '0')}`;
+					result.uploadDate = formattedDate;
+					this.fileElements.update(files => [...files, result]);
+					return [result];
+				})
+			);
 	}
 }

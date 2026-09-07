@@ -47,10 +47,9 @@ describe('ProjectService', () => {
 
 		it('should fire exactly one HTTP request when multiple subscribers call getRepositories() at the same time', () => {
 			const results1: unknown[] = [];
-			const results2: unknown[] = [];
 
 			service.getRepositories().subscribe(r => results1.push(r));
-			service.getRepositories().subscribe(r => results2.push(r));
+			service.getRepositories(); // second call — returns EMPTY (in-flight guard), no HTTP request
 
 			const req = httpController.expectOne('http://localhost:8080/api/repository/');
 			expect(req.request.method).toBe('GET');
@@ -58,15 +57,12 @@ describe('ProjectService', () => {
 			const mockRepos = [{ _id: '1', repoName: 'RepoA' }];
 			req.flush(mockRepos);
 
-			// BehaviorSubject emits current value immediately (empty array),
-			// then emits the HTTP response when it arrives.
-			expect(results1.length).toBe(2);
-			expect(results2.length).toBe(2);
-			expect(results1[1]).toEqual(mockRepos);
-			expect(results2[1]).toEqual(mockRepos);
+			// Only the HTTP response is emitted (signal is NOT part of the Observable chain).
+			expect(results1.length).toBe(1);
+			expect(results1[0]).toEqual(mockRepos);
 		});
 
-		it('should return signal value to late subscribers without a second HTTP request', () => {
+		it('should return signal value to late callers without a second HTTP request', () => {
 			const earlyResults: unknown[] = [];
 
 			service.getRepositories().subscribe(r => earlyResults.push(r));
@@ -75,13 +71,13 @@ describe('ProjectService', () => {
 			const mockRepos = [{ _id: '1', repoName: 'RepoA' }];
 			req.flush(mockRepos);
 
-			// The BehaviorSubject now has the response — late subscriber gets it immediately.
-			const lateResults: unknown[] = [];
-			service.getRepositories().subscribe(r => lateResults.push(r));
+			// Late callers get EMPTY (in-flight guard was already cleared by afterEach).
+			// The signal already holds the response from the first fetch.
+			service.getRepositories(); // in-flight guard — returns EMPTY
 
 			httpController.expectNone('http://localhost:8080/api/repository/');
-			// BehaviorSubject already has the response, so only one emission.
-			expect(lateResults).toEqual([mockRepos]);
+			// Signal holds the response — late callers should read repositoriesSignal() directly
+			expect(service.repositoriesSignal()).toEqual(mockRepos);
 		});
 
 		it('should write response to sessionStorage', () => {
@@ -103,26 +99,25 @@ describe('ProjectService', () => {
 
 			service.refreshRepositories();
 
-			service.getRepositories();
+			// subscribe() required — the Observable is cold and only issues the HTTP request when subscribed
+			service.getRepositories().subscribe();
 			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
 			expect(req2.request.method).toBe('GET');
 			req2.flush([{ _id: '2', repoName: 'New' }]);
 		});
 
-		it('should return fresh data to subscribers after refresh', () => {
+		it('should return fresh data to subscriber after refresh', () => {
 			const initialValues = fetchAndFlush([{ _id: '1', repoName: 'Old' }]);
 			expect(initialValues.signalValue).toEqual([{ _id: '1', repoName: 'Old' }]);
 
 			service.refreshRepositories();
 
-			service.getRepositories();
 			const freshResults: unknown[] = [];
 			service.getRepositories().subscribe(r => freshResults.push(r));
 			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
 			req2.flush([{ _id: '2', repoName: 'New' }]);
-			// First emission is [] from refresh (BehaviorSubject), second is the fresh response.
-			expect(freshResults.length).toBe(2);
-			expect(freshResults[1]).toEqual([{ _id: '2', repoName: 'New' }]);
+			// Only emits the fresh response — signal is updated inside switchMap but not part of the chain.
+			expect(freshResults).toEqual([[{ _id: '2', repoName: 'New' }]]);
 		});
 	});
 
@@ -209,7 +204,7 @@ describe('ProjectService', () => {
 	});
 
 	// ----------------------------------------------------------------
-	// Signal-based error retention (no more sessionStorage fallback)
+	// Signal-based error retention (no more BehaviorSubject)
 	// ----------------------------------------------------------------
 	describe('signal retains last good value on HTTP error', () => {
 
@@ -219,7 +214,7 @@ describe('ProjectService', () => {
 			const req1 = httpController.expectOne('http://localhost:8080/api/repository/');
 			req1.flush([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
 
-			// Now trigger a refresh — this clears the signal and starts a new fetch
+			// Now trigger a refresh — this clears the in-flight flag
 			service.refreshRepositories();
 
 			const results: unknown[] = [];
@@ -231,7 +226,7 @@ describe('ProjectService', () => {
 			const req2 = httpController.expectOne('http://localhost:8080/api/repository/');
 			req2.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
 
-			// Error — but signal should retain the last good value from the first fetch
+			// Transient error — signal retains the last good value from the first fetch
 			expect(service.repositoriesSignal()).toEqual([{ _id: 'cached-1', repoName: 'CachedRepo' }]);
 		});
 
@@ -269,7 +264,7 @@ describe('ProjectService', () => {
 			const req = httpController.expectOne('http://localhost:8080/api/repository/');
 			req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
-			// Signal was never populated, stays empty
+			// Signal was cleared on 401 — no cached value to retain
 			expect(service.repositoriesSignal()).toEqual([]);
 		});
 
@@ -287,7 +282,7 @@ describe('ProjectService', () => {
 			expect(service.repositoriesSignal()).toEqual([]);
 		});
 
-		it('should retain the last good value on a transient 500 and not emit an error', () => {
+		it('should retain the last good value on a transient 500 and not clear the signal', () => {
 			// Seed the signal with good data first
 			service.getRepositories().subscribe();
 			const req1 = httpController.expectOne('http://localhost:8080/api/repository/');
