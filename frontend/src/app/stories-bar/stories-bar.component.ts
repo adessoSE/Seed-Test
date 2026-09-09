@@ -479,14 +479,21 @@ export class StoriesBarComponent implements OnChanges {
      * @returns New groups array with invalid story IDs removed
      */
 	mergeById(groups: Group[], stories: Story[]): Group[] {
-		// Build a Set of all valid, existing story IDs — handle ObjectId at runtime
+		// Build a Set of all valid, existing story IDs — normalize all IDs to hex strings
 		const validIds = new Set<string>();
 		if (stories)
 			for (const story of stories) {
 				if (story && story._id) {
-					const storyId = typeof story._id === 'object' && story._id !== null
-						? (story._id as { toHexString: () => string }).toHexString()
-						: String(story._id);
+					let storyId: string;
+					if (typeof story._id === 'object' && story._id !== null) {
+						// MongoDB ObjectId object — extract hex string
+						storyId = 'toHexString' in story._id
+							? (story._id as { toHexString: () => string }).toHexString()
+							: String(story._id);
+					} else {
+						// Already a string — ensure it's a plain hex string, not "ObjectId(...)" wrapper
+						storyId = story._id.startsWith('ObjectId(') ? story._id.slice(12, -2) : String(story._id);
+					}
 					validIds.add(storyId);
 				}
 			}
@@ -502,7 +509,10 @@ export class StoriesBarComponent implements OnChanges {
 			if (!group.member_stories) return { ...group };
 			const filtered = group.member_stories.filter(id => {
 				if (!id) return false;
-				const strId = String(id);
+				// Normalize group member_stories ID the same way — handle ObjectId wrapper
+				let strId = String(id);
+				if (strId.startsWith('ObjectId('))
+					strId = strId.slice(12, -2);
 				if (!validIds.has(strId)) {
 					console.warn(`Story ID ${strId} in group '${group.name}' not found. Skipping.`);
 					return false;

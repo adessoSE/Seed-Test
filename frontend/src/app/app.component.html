@@ -69,17 +69,17 @@
               [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark()}" title="Switch to dark/light mode" />
               <mat-icon>bedtime</mat-icon>
             </div>
-            <button class="rightButton help-button" [matMenuTriggerFor]="helpMenu" #helpTrigger="matMenuTrigger"
-              (mouseenter)="onHelpHover(helpTrigger)"
-              (mouseleave)="onHelpLeave(helpTrigger)">Help</button>
-            <mat-menu #helpMenu="matMenu" class="help-menu-panel">
-              <a mat-menu-item rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
-              target="_blank">Tutorial (german)</a>
-              <a mat-menu-item rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
-              target="_blank">Tutorial (english)</a>
-              <a mat-menu-item rel="noopener noreferrer" href="../assets/documentation/index.html"
-              target="_blank">Dokumentation (german)</a>
-            </mat-menu>
+            <div class="help-hover-wrapper">
+              <button type="button" class="rightButton help-button">Help</button>
+              <div class="help-menu-panel" tabindex="0">
+                <a class="help-menu-item" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
+                target="_blank">Tutorial (german)</a>
+                <a class="help-menu-item" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"
+                target="_blank">Tutorial (english)</a>
+                <a class="help-menu-item" rel="noopener noreferrer" href="../assets/documentation/index.html"
+                target="_blank">Dokumentation (german)</a>
+              </div>
+            </div>
           </div>
         </div>
 

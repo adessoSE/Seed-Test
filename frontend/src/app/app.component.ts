@@ -34,7 +34,6 @@ export class AppComponent implements OnInit{
 	projectService = inject(ProjectService);
 	storyService = inject(StoryService);
 
-
 	/**
 	 * Computed repository list derived from the project service signal.
 	 *
@@ -45,13 +44,13 @@ export class AppComponent implements OnInit{
 	readonly repositories = computed(() => this.projectService.repositoriesSignal());
 
 	/**
-   * If the impressum is shown
-   */
+    * If the impressum is shown
+    */
 	showImpressum: boolean = false;
 
 	/**
-   * If the terms are shown
-   */
+    * If the terms are shown
+    */
 	showTerms: boolean = false;
 
 	/**
@@ -62,7 +61,6 @@ export class AppComponent implements OnInit{
 	closed: boolean = false;
 	helpPosition!: number;
 	menuPosition!: number;
-	private closeHelpTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	readonly isDark = computed(() => this.themeService.isDark());
 
@@ -207,28 +205,5 @@ export class AppComponent implements OnInit{
 
 	setModeOnToggle(isDark: boolean) {
 		this.themeService.setNewTheme(isDark);
-	}
-
-	/**
-	 * Opens the help menu on hover. Cancels any pending close timer so rapid
-	 * mouse movement back over the button keeps the menu open.
-	 */
-	onHelpHover(trigger: { openMenu: () => void }) {
-		if (this.closeHelpTimeout) {
-			clearTimeout(this.closeHelpTimeout);
-			this.closeHelpTimeout = null;
-		}
-		trigger.openMenu();
-	}
-
-	/**
-	 * Starts a delayed close timer on mouse leave (300ms). Gives the user time
-	 * to move from the button to the menu panel before it closes. If the mouse
-	 * re-enters the button during this window, onHelpHover cancels the timer.
-	 */
-	onHelpLeave(trigger: { closeMenu: () => void }) {
-		this.closeHelpTimeout = setTimeout(() => {
-			trigger.closeMenu();
-		}, 300);
 	}
 }

@@ -112,11 +112,10 @@ export class ApiService {
    * @param caught
    * @returns
    */
-	handleStoryError = <T>(_error: HttpErrorResponse, _caught: Observable<T>): Observable<T> => {
+	handleStoryError = <T>(error: HttpErrorResponse, _caught: Observable<T>): Observable<T> => {
+		console.error('Story fetch failed:', error.status, error.statusText, error.error);
 		this.storiesErrorTrigger.update(n => n + 1);
-		// Cast the fallback empty array to the caller's expected type — callers vary
-		// between Story[] and User, but on error we always fall back to an empty result
-		return of([] as unknown as T);
+		return throwError(() => error);
 	};
 
 	/**

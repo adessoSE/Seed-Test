@@ -138,8 +138,9 @@ export class ParentComponent implements OnInit {
 				const resp = await firstValueFrom(this.storyService.getStories(selectedRepo));
 				this.stories.set(resp);
 				this.routing(); // Handle routing after stories are loaded
-			} catch {
-				// Prevent "Loading Stories ..." spinner from hanging on API failure
+			} catch (err) {
+				// API failure — log the actual error so empty stories are debuggable
+				console.error('Failed to load stories:', err);
 				this.stories.set([]);
 			}
 		} else {
