@@ -494,7 +494,7 @@ describe('StoryController', () => {
 			expect(res.json).toHaveBeenCalledWith({ message: 'Story order updated' });
 		});
 
-		// Regression (audit H4-style injection): a reordered ID from another repo must not reach any write
+		// Invariant: a story ID from another repository never reaches a write, wherever it sits in the request
 		it('should reject with 400 and write nothing when a story belongs to another repository', async () => {
 			const storyIds = [new ObjectId().toHexString()];
 			req.params = { repo_id: VALID_REPO_ID };

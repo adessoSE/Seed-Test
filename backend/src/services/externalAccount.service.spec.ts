@@ -6,9 +6,11 @@ import type * as ExtAccountServiceModule from './externalAccount.service.js';
 process.env.JIRA_SECRET = 'test-jira-secret';
 process.env.JIRA_SALT = 'test-jira-salt';
 
+// Disconnects must $unset the field; updateUser($set) cannot remove a key, so they go through userService.unsetUserFields.
 const mockedUserService = {
 	getUserById: vi.fn(),
-	updateUser: vi.fn()
+	updateUser: vi.fn(),
+	unsetUserFields: vi.fn()
 };
 vi.mock('./user.service', () => mockedUserService);
 
@@ -113,10 +115,42 @@ describe('ExternalAccountService', () => {
 				externalAccountService.updateJiraCredential(userId, 'user', 'pass', 'host', 'basic')
 			).rejects.toThrow('User not found');
 		});
+
+		// Regression: spreading the full user re-wrote the password field and could revert a concurrent password change.
+		it('should pass only the jira key to updateUser, never the password or other user fields', async () => {
+			mockedUserService.getUserById.mockResolvedValue({ ...mockUser, password: 'hashed-password' });
+
+			await externalAccountService.updateJiraCredential(userId, 'jira-user', 'clearpass', 'jira.host.com', 'basic');
+
+			const payload = mockedUserService.updateUser.mock.calls[0][1] as Record<string, unknown>;
+			expect(Object.keys(payload)).toEqual(['jira']);
+		});
+	});
+
+	describe('updateGithubToken', () => {
+		// Regression: spreading the full user re-wrote the password field and could revert a concurrent password change.
+		it('should pass only the github key to updateUser, never the password or other user fields', async () => {
+			mockedUserService.getUserById.mockResolvedValue({ ...mockUser, password: 'hashed-password' });
+
+			await externalAccountService.updateGithubToken(userId, 'ghp_token', { login: 'octocat', id: 1 });
+
+			expect(mockedUserService.updateUser).toHaveBeenCalledTimes(1);
+			const [calledId, payload] = mockedUserService.updateUser.mock.calls[0] as [string, Record<string, unknown>];
+			expect(calledId).toBe(userId);
+			expect(Object.keys(payload)).toEqual(['github']);
+			expect(payload.github).toEqual({ githubToken: 'ghp_token', login: 'octocat', id: 1 });
+		});
+
+		it('should throw if user not found', async () => {
+			mockedUserService.getUserById.mockResolvedValue(null);
+			await expect(
+				externalAccountService.updateGithubToken(userId, 'ghp_token', { login: 'octocat', id: 1 })
+			).rejects.toThrow('User not found');
+		});
 	});
 
 	describe('disconnectJira', () => {
-		it('should remove jira property from user', async () => {
+		it('should $unset the jira field on the user document', async () => {
 			mockedUserService.getUserById.mockResolvedValue({
 				...mockUser,
 				jira: { AccountName: 'test', Host: 'host' }
@@ -124,19 +158,31 @@ describe('ExternalAccountService', () => {
 
 			await externalAccountService.disconnectJira(userId);
 
-			const updatedUser = mockedUserService.updateUser.mock.calls[0][1] as User;
-			expect(updatedUser.jira).toBeUndefined();
-			expect(updatedUser.email).toBe('test@test.com');
+			expect(mockedUserService.unsetUserFields).toHaveBeenCalledWith(userId, ['jira']);
+		});
+
+		// Regression: a snapshot write via updateUser could not remove jira, and disconnect was a no-op.
+		it('should not write the user snapshot (no password or other fields) via updateUser', async () => {
+			mockedUserService.getUserById.mockResolvedValue({
+				...mockUser,
+				password: 'hashed-password',
+				jira: { AccountName: 'test', Host: 'host' }
+			});
+
+			await externalAccountService.disconnectJira(userId);
+
+			expect(mockedUserService.updateUser).not.toHaveBeenCalled();
 		});
 
 		it('should throw if user not found', async () => {
 			mockedUserService.getUserById.mockResolvedValue(null);
 			await expect(externalAccountService.disconnectJira(userId)).rejects.toThrow('User not found');
+			expect(mockedUserService.unsetUserFields).not.toHaveBeenCalled();
 		});
 	});
 
 	describe('disconnectGithub', () => {
-		it('should remove github property from user', async () => {
+		it('should $unset the github field on the user document', async () => {
 			mockedUserService.getUserById.mockResolvedValue({
 				...mockUser,
 				github: { githubToken: 'token', login: 'user', id: 123 }
@@ -144,9 +190,26 @@ describe('ExternalAccountService', () => {
 
 			await externalAccountService.disconnectGithub(userId);
 
-			const updatedUser = mockedUserService.updateUser.mock.calls[0][1] as User;
-			expect(updatedUser.github).toBeUndefined();
-			expect(updatedUser.email).toBe('test@test.com');
+			expect(mockedUserService.unsetUserFields).toHaveBeenCalledWith(userId, ['github']);
+		});
+
+		// Regression: a snapshot write via updateUser could not remove github, and disconnect was a no-op.
+		it('should not write the user snapshot (no password or other fields) via updateUser', async () => {
+			mockedUserService.getUserById.mockResolvedValue({
+				...mockUser,
+				password: 'hashed-password',
+				github: { githubToken: 'token', login: 'user', id: 123 }
+			});
+
+			await externalAccountService.disconnectGithub(userId);
+
+			expect(mockedUserService.updateUser).not.toHaveBeenCalled();
+		});
+
+		it('should throw if user not found', async () => {
+			mockedUserService.getUserById.mockResolvedValue(null);
+			await expect(externalAccountService.disconnectGithub(userId)).rejects.toThrow('User not found');
+			expect(mockedUserService.unsetUserFields).not.toHaveBeenCalled();
 		});
 	});
 });

@@ -21,7 +21,8 @@ vi.mock('../services/user.service', () => ({
 	createMergeIntent: vi.fn(() => 'test-uuid-merge-token'),
 	consumeMergeIntent: vi.fn(() => null),
 	isGithubOnlyStub: vi.fn(() => false),
-	attachCredentialsToGithubStub: vi.fn()
+	attachCredentialsToGithubStub: vi.fn(),
+	deleteUserSessions: vi.fn()
 }));
 
 // GitHub OAuth is configured for the callback tests; requireGithub is a no-op here
@@ -233,11 +234,31 @@ describe('UserController', () => {
 				fakeUser._id,
 				expect.objectContaining({ password: 'hashed_password_mock', transitioned: true })
 			);
+			// Existing sessions of the user must end with the old password, so they are invalidated
+			expect(userService.deleteUserSessions).toHaveBeenCalledWith(fakeUser._id);
 			// Reset request should be cleaned up after successful password change
 			expect(userService.deleteRequest).toHaveBeenCalledWith(fakeUser.email);
 			expect(res.status).toHaveBeenCalledWith(204);
 			expect(res.send).toHaveBeenCalled();
 			expect(next).not.toHaveBeenCalled();
+		});
+
+		// Retry safety: the reset request is removed last, so a failure while invalidating sessions leaves the link usable
+		it('keeps the reset request when invalidating sessions fails, so the reset can be retried', async () => {
+			vi.mocked(userService.getResetRequest).mockResolvedValue({ uuid: 'valid-uuid', email: fakeUser.email, createdAt: new Date() });
+			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser });
+			vi.mocked(userService.updateUser).mockResolvedValue({ modifiedCount: 1 });
+			vi.mocked(userService.deleteUserSessions).mockRejectedValueOnce(new Error('db down'));
+
+			const { req, res, next } = mockReqResNext({
+				body: { uuid: 'valid-uuid', password: 'newSecurePassword' }
+			});
+
+			await userController.resetPassword(req, res, next);
+
+			expect(userService.deleteRequest).not.toHaveBeenCalled();
+			expect(res.status).not.toHaveBeenCalledWith(204);
+			expect(next).toHaveBeenCalledWith(expect.any(Error));
 		});
 
 		it('should call next with 401 AppError for an invalid or expired UUID', async () => {

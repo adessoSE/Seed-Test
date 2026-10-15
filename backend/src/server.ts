@@ -77,7 +77,7 @@ const sessionConfig: session.SessionOptions = {
 	store: MongoStore.create({
 		mongoUrl: requireDatabaseUri(),
 		dbName: 'Seed',
-		collectionName: 'Sessions'
+		collectionName: userService.SESSION_COLLECTION
 	}),
 	secret: validatedConfig.value?.SESSION_SECRET ?? 'dev-only-secret-not-for-production',
 	resave: false,

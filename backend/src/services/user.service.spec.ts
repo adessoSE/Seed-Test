@@ -8,6 +8,7 @@ import * as userService from './user.service.js';
 import * as dbConnection from '../database/DbConnector.js';
 import * as repositoryService from './repository.service.js';
 import * as workgroupService from './workgroup.service.js';
+import { logger } from '../logging.js';
 
 // --- 1. Mock all external dependencies ---
 
@@ -52,6 +53,9 @@ const mockRepoCollection = {
 const mockWorkgroupCollection = {
 	updateMany: vi.fn()
 };
+const mockSessionCollection = {
+	deleteMany: vi.fn()
+};
 
 const SEED_ID = '605c72ef1f1d4b001f8e8e8e';
 const GITHUB_ONLY_ID = '605c72ef1f1d4b001f8e8e8f';
@@ -80,6 +84,7 @@ describe('UserService', () => {
 			if (name === 'User') return mockUserCollection;
 			if (name === 'Repositories') return mockRepoCollection;
 			if (name === 'Workgroups') return mockWorkgroupCollection;
+			if (name === 'Sessions') return mockSessionCollection;
 			// Return a default mock if another collection is unexpectedly called
 			return { findOne: vi.fn(), insertOne: vi.fn(), deleteOne: vi.fn() };
 		});
@@ -87,9 +92,10 @@ describe('UserService', () => {
 		// Reset individual mock functions inside the collections
 		mockUserCollection.findOne.mockReset();
 		mockUserCollection.insertOne.mockReset();
-		mockUserCollection.deleteOne.mockReset();
+		mockUserCollection.deleteOne.mockReset().mockResolvedValue({ deletedCount: 1 });
 		mockUserCollection.findOneAndUpdate.mockReset().mockResolvedValue(null);
-		mockUserCollection.updateOne.mockReset().mockResolvedValue({ modifiedCount: 1 });
+		mockUserCollection.updateOne.mockReset().mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
+		mockSessionCollection.deleteMany.mockReset().mockResolvedValue({ deletedCount: 0 });
 		mockRepoCollection.find.mockReset();
 		mockRepoCollection.updateMany.mockReset().mockResolvedValue({ modifiedCount: 0 });
 		mockWorkgroupCollection.updateMany.mockReset().mockResolvedValue({ modifiedCount: 0 });
@@ -376,7 +382,7 @@ describe('UserService', () => {
 			expect(mockUserCollection.findOneAndUpdate).not.toHaveBeenCalled();
 		});
 
-		// Regression: the source used to be deleted even when it carried a password or owned data
+		// Invariant: a merge source that has its own password or owned data is never deleted
 		it('refuses (409) to delete a source account that has its own Seed-Test password, and writes nothing', async () => {
 			mockAccounts({ ...githubOnly, password: 'existing-hash' }, seed);
 
@@ -395,22 +401,81 @@ describe('UserService', () => {
 			expect(mockUserCollection.findOneAndUpdate).not.toHaveBeenCalled();
 		});
 
-		// Order: repositories move first (nothing is left on a source that is about to be deleted), then the
-		// GitHub link is detached from the source, attached to the Seed account, and the source is deleted last.
-		it('moves repositories, detaches the link from the source, attaches it to the Seed account, then deletes the source', async () => {
+		// Order: the guarded unset runs first and acts as a lock. A source that gained a password or e-mail
+		// after the pre-check is rejected before anything moves. Then repositories move, the Seed account is
+		// written, and the source is deleted last, again guarded by the stub condition.
+		it('detaches the link from the source (guarded), moves repositories, attaches it to the Seed account, then deletes the source (guarded)', async () => {
 			mockAccounts(githubOnly, seed);
 
 			await userService.mergeGithub(SEED_ID, 'ghuser', 42);
 
-			const repoMoveOrder = mockRepoCollection.updateMany.mock.invocationCallOrder[0];
 			const unsetOrder = mockUserCollection.updateOne.mock.invocationCallOrder[0];
+			const repoMoveOrder = mockRepoCollection.updateMany.mock.invocationCallOrder[0];
 			const attachOrder = mockUserCollection.findOneAndUpdate.mock.invocationCallOrder[0];
 			const deleteOrder = mockUserCollection.deleteOne.mock.invocationCallOrder[0];
-			expect(repoMoveOrder).toBeLessThan(unsetOrder);
-			expect(unsetOrder).toBeLessThan(attachOrder);
+			expect(unsetOrder).toBeLessThan(repoMoveOrder);
+			expect(repoMoveOrder).toBeLessThan(attachOrder);
 			expect(attachOrder).toBeLessThan(deleteOrder);
-			expect(mockUserCollection.updateOne).toHaveBeenCalledWith({ _id: new ObjectId(GITHUB_ONLY_ID) }, { $unset: { github: '' } });
-			expect(mockUserCollection.deleteOne).toHaveBeenCalledWith({ _id: new ObjectId(GITHUB_ONLY_ID) });
+			expect(mockUserCollection.updateOne).toHaveBeenCalledWith(
+				{ _id: new ObjectId(GITHUB_ONLY_ID), email: null, password: null },
+				{ $unset: { github: '' } }
+			);
+			expect(mockUserCollection.deleteOne).toHaveBeenCalledWith({ _id: new ObjectId(GITHUB_ONLY_ID), email: null, password: null });
+		});
+
+		// Race: the source got its own credentials between the pre-check and the guarded unset
+		it('refuses (409) when the source gained credentials before the guarded unset, and moves nothing', async () => {
+			mockAccounts(githubOnly, seed);
+			mockUserCollection.updateOne.mockResolvedValueOnce({ matchedCount: 0, modifiedCount: 0 });
+
+			await expect(userService.mergeGithub(SEED_ID, 'ghuser', 42)).rejects.toMatchObject({ statusCode: 409 });
+			expect(mockRepoCollection.updateMany).not.toHaveBeenCalled();
+			expect(mockUserCollection.findOneAndUpdate).not.toHaveBeenCalled();
+			expect(mockUserCollection.deleteOne).not.toHaveBeenCalled();
+		});
+
+		// Race: the source gained credentials after the unset, so the guarded delete must not remove it.
+		// The identity and repositories already sit on the Seed account, so the merge completes and only the leftover is logged.
+		it('completes the merge with a warning when the guarded delete matches nothing, so a source with credentials is never deleted', async () => {
+			mockAccounts(githubOnly, seed);
+			mockUserCollection.deleteOne.mockResolvedValueOnce({ deletedCount: 0 });
+			const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => logger);
+
+			const merged = await userService.mergeGithub(SEED_ID, 'ghuser', 42);
+
+			expect(mockUserCollection.deleteOne).toHaveBeenCalledWith({ _id: new ObjectId(GITHUB_ONLY_ID), email: null, password: null });
+			expect(merged.github).toEqual(githubOnly.github);
+			expect(warnSpy).toHaveBeenCalledTimes(1);
+			warnSpy.mockRestore();
+		});
+
+		// Compensation: B failed after A removed G's link. Without the restore, G would be a login-less stub with
+		// no GitHub link (unreachable) and its repositories would stay stranded on it.
+		it('restores the GitHub link on the source and rethrows when moving repositories fails (B)', async () => {
+			mockAccounts(githubOnly, seed);
+			mockRepoCollection.updateMany.mockRejectedValueOnce(new Error('repo move failed'));
+
+			await expect(userService.mergeGithub(SEED_ID, 'ghuser', 42)).rejects.toThrow('repo move failed');
+			expect(mockUserCollection.findOneAndUpdate).toHaveBeenCalledTimes(1);
+			expect(mockUserCollection.findOneAndUpdate).toHaveBeenCalledWith(
+				{ _id: new ObjectId(GITHUB_ONLY_ID) },
+				expect.objectContaining({ $set: expect.objectContaining({ github: expect.objectContaining({ login: 'ghuser', id: 42 }) }) }),
+				expect.anything()
+			);
+			expect(mockUserCollection.deleteOne).not.toHaveBeenCalled();
+		});
+
+		it('restores the GitHub link on the source and rethrows when attaching the link to the Seed account fails (C)', async () => {
+			mockAccounts(githubOnly, seed);
+			mockUserCollection.findOneAndUpdate.mockRejectedValueOnce(new Error('connection lost'));
+
+			await expect(userService.mergeGithub(SEED_ID, 'ghuser', 42)).rejects.toThrow('connection lost');
+			expect(mockUserCollection.findOneAndUpdate).toHaveBeenLastCalledWith(
+				{ _id: new ObjectId(GITHUB_ONLY_ID) },
+				expect.objectContaining({ $set: expect.objectContaining({ github: expect.objectContaining({ login: 'ghuser' }) }) }),
+				expect.anything()
+			);
+			expect(mockUserCollection.deleteOne).not.toHaveBeenCalled();
 		});
 
 		it('transfers repository ownership from the GitHub-only account to the Seed account', async () => {
@@ -460,6 +525,65 @@ describe('UserService', () => {
 			expect(mockUserCollection.updateOne).not.toHaveBeenCalled();
 			expect(mockUserCollection.deleteOne).not.toHaveBeenCalled();
 			expect(mockRepoCollection.updateMany).not.toHaveBeenCalled();
+		});
+	});
+
+	// --- Session invalidation on password reset ---
+
+	describe('deleteUserSessions', () => {
+		it('deletes from the Sessions collection only sessions whose passport user matches the id', async () => {
+			await userService.deleteUserSessions(SEED_ID);
+
+			expect(mockDb.collection).toHaveBeenCalledWith('Sessions');
+			expect(mockSessionCollection.deleteMany).toHaveBeenCalledTimes(1);
+			const filter = mockSessionCollection.deleteMany.mock.calls[0][0];
+			const pattern = new RegExp(filter.session.$regex);
+			// connect-mongo stores the session as a JSON string; the passport user is the Seed account id
+			expect(pattern.test(JSON.stringify({ cookie: {}, passport: { user: SEED_ID } }))).toBe(true);
+			expect(pattern.test(JSON.stringify({ cookie: {}, passport: { user: GITHUB_ONLY_ID } }))).toBe(false);
+		});
+
+		it('accepts an ObjectId and filters on its hex form', async () => {
+			await userService.deleteUserSessions(new ObjectId(SEED_ID));
+
+			const filter = mockSessionCollection.deleteMany.mock.calls[0][0];
+			expect(filter.session.$regex).toContain(SEED_ID);
+		});
+	});
+
+	describe('SESSION_COLLECTION', () => {
+		it('is the collection name server.ts passes to the connect-mongo session store', () => {
+			expect(userService.SESSION_COLLECTION).toBe('Sessions');
+		});
+	});
+
+	// --- Raw $unset of whole external-account fields (used by the disconnect flows) ---
+
+	describe('unsetUserFields', () => {
+		it('$unsets the given top-level fields on the User document', async () => {
+			await userService.unsetUserFields(SEED_ID, ['jira']);
+
+			expect(mockDb.collection).toHaveBeenCalledWith('User');
+			expect(mockUserCollection.updateOne).toHaveBeenCalledWith(
+				{ _id: new ObjectId(SEED_ID) },
+				{ $unset: { jira: '' } }
+			);
+		});
+
+		it('removes several fields in one write and accepts an ObjectId', async () => {
+			await userService.unsetUserFields(new ObjectId(SEED_ID), ['jira', 'github']);
+
+			expect(mockUserCollection.updateOne).toHaveBeenCalledWith(
+				{ _id: new ObjectId(SEED_ID) },
+				{ $unset: { jira: '', github: '' } }
+			);
+		});
+
+		// Regression: updateUser only $sets, so a snapshot without the field left it in place and disconnect was a no-op.
+		it('does not write through updateUser', async () => {
+			await userService.unsetUserFields(SEED_ID, ['github']);
+
+			expect(mockUserCollection.findOneAndUpdate).not.toHaveBeenCalled();
 		});
 	});
 
@@ -515,14 +639,23 @@ describe('UserService', () => {
 	// --- Reset-token lifetime ---
 
 	describe('isResetRequestExpired', () => {
-		const DAY_MS = 24 * 60 * 60 * 1000;
+		const HOUR_MS = 60 * 60 * 1000;
 
 		it('is false for a request created just now', () => {
 			expect(userService.isResetRequestExpired(new Date())).toBe(false);
 		});
 
-		it('is true for a request older than 24 hours', () => {
-			expect(userService.isResetRequestExpired(new Date(Date.now() - DAY_MS - 60_000))).toBe(true);
+		// Regression: the lifetime was 24 hours; a reset link must now expire after 1 hour
+		it('is true for a request older than 1 hour', () => {
+			expect(userService.isResetRequestExpired(new Date(Date.now() - HOUR_MS - 60_000))).toBe(true);
+		});
+
+		it('is false for a request 59 minutes old', () => {
+			expect(userService.isResetRequestExpired(new Date(Date.now() - 59 * 60_000))).toBe(false);
+		});
+
+		it('is true for a request 24 hours old (the former TTL no longer applies)', () => {
+			expect(userService.isResetRequestExpired(new Date(Date.now() - 24 * HOUR_MS))).toBe(true);
 		});
 
 		// A missing createdAt gives NaN, which must count as expired rather than valid
@@ -553,7 +686,7 @@ describe('UserService', () => {
 			expect(userService.consumeMergeIntent('never-issued')).toBeNull();
 		});
 
-		// Regression: a global cap let one user fill the store; now a re-initiate replaces the account's own token
+		// Invariant: at most one live merge intent exists per account; re-initiating replaces that account's previous token
 		it('replaces the previous live intent of the same account', () => {
 			const first = userService.createMergeIntent(ACCOUNT_B);
 			const second = userService.createMergeIntent(ACCOUNT_B);

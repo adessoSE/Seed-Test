@@ -237,6 +237,22 @@ export async function updateLatestTestStatus(uploadedReport: ReportDoc, mode: Ex
 	}
 }
 
+/**
+ * Persists the latest test status without letting a failed write fail the caller.
+ * Controllers call this before sending the report response: the frontend reloads the story list
+ * on response and would otherwise show the previous lastTestPassed. A failed write is logged
+ * instead of thrown, so the already generated report is still delivered to the user.
+ * @param report The report object from the completed test run.
+ * @param mode The mode in which the test was run.
+ */
+export async function persistLatestTestStatusSafely(report: ReportDoc, mode: ExecutionMode): Promise<void> {
+	try {
+		await updateLatestTestStatus(report, mode);
+	} catch (statusErr: unknown) {
+		logger.error(`Error updating latest test status: ${statusErr instanceof Error ? statusErr.message : String(statusErr)}`);
+	}
+}
+
 
 // --- Helper Functions ---
 

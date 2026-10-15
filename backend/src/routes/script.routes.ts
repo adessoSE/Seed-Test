@@ -3,7 +3,6 @@ import passport from 'passport';
 import initializePassport from '../passport-config.js';
 import * as userService from '../services/user.service.js';
 import * as scriptController from '../controllers/script.controller.js';
-import { type Session, type SessionData } from 'express-session';
 import { validate } from '../middleware/validate.js';
 import { scriptGroupSchema, scriptFeatureSchema } from '@seed-test/shared/schemas/script.schemas.js';
 import { AppError } from '../helpers/AppError.js';
@@ -18,9 +17,6 @@ initializePassport(
 	userService.getUserByEmail,
 	userService.getUserById
 );
-
-// Define a type combining Request with Session properties
-type RequestWithSession = Request & { session: Session & Partial<SessionData> };
 
 // --- Custom Authentication Middleware for Script Routes ---
 // This middleware handles the specific passport login flow for these routes.
@@ -39,12 +35,12 @@ const authenticateAndProceed = (controllerFunction: (req: Request, res: Response
 				return next(AppError.unauthorized(info?.message ?? 'Authentication failed'));
 
 			// Session fixation prevention — regenerate before establishing new identity
-			(req as RequestWithSession).session.regenerate((regenerateErr) => {
+			req.session.regenerate((regenerateErr) => {
 				if (regenerateErr) return next(regenerateErr);
 
 				// Set extended session lifetime after regeneration so the new session inherits it
 				if ((req.body as Record<string, unknown>).stayLoggedIn)
-					(req as RequestWithSession).session.cookie.maxAge = 86400000; // 10 days
+					req.session.cookie.maxAge = 86400000; // 10 days
 
 				req.logIn(user, (loginErr) => {
 					if (loginErr)

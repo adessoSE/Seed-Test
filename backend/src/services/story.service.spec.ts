@@ -318,7 +318,7 @@ describe('StoryService', () => {
 			expect(mockStoriesCollection.findOneAndDelete).toHaveBeenCalledWith({ _id: new ObjectId(storyId) });
 		});
 
-		// Regression (audit V2, IDOR): repo_id is authorized by the route, the story ID is not tied to it.
+		// Invariant: the route authorizes repo_id but not the story ID, so the service only touches stories that belong to that repo.
 		it('should reject with 404 and delete nothing when the story belongs to another repository', async () => {
 			const repoId = new ObjectId().toHexString();
 			const storyId = new ObjectId().toHexString();

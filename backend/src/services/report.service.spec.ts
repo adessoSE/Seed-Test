@@ -95,6 +95,7 @@ vi.mock('mongodb', async (importOriginal) => {
 import * as reportService from './report.service.js';
 import { ExecutionMode, PassedCount, type StoryReport, type GroupReport } from '../models/models.js';
 import fs from 'node:fs';
+import { logger } from '../logging.js';
 
 // --- Helpers ---
 
@@ -340,6 +341,32 @@ describe('report.service', () => {
 
 			// Scenario 1 passed but scenario 2 still failing → story still fails
 			expect(mockStoryService.updateStoryStatus).toHaveBeenCalledWith(VALID_ID, false);
+		});
+	});
+
+	// --- Safe status persistence (used by the sanity and test execution controllers) ---
+
+	describe('persistLatestTestStatusSafely', () => {
+		const storyReport = {
+			reportName: 'test', reportTime: 123, reportOptions: {},
+			mode: ExecutionMode.STORY, status: true, storiesTested: undefined, smallReport: '',
+			scenariosTested: new PassedCount(),
+			featureTestResults: { passedSteps: 0, failedSteps: 0, skippedSteps: 0 },
+			scenarioStatuses: [],
+			featureId: VALID_ID
+		} as unknown as Parameters<typeof reportService.updateLatestTestStatus>[0];
+
+		it('writes the latest test status before resolving', async () => {
+			await reportService.persistLatestTestStatusSafely(storyReport, ExecutionMode.STORY);
+
+			expect(mockStoryService.updateStoryStatus).toHaveBeenCalledWith(VALID_ID, true);
+		});
+
+		it('logs and resolves instead of throwing when the status write fails', async () => {
+			mockStoryService.updateStoryStatus.mockRejectedValueOnce(new Error('DB down'));
+
+			await expect(reportService.persistLatestTestStatusSafely(storyReport, ExecutionMode.STORY)).resolves.toBeUndefined();
+			expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('DB down'));
 		});
 	});
 

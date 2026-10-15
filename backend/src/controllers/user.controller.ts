@@ -79,6 +79,8 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 
 		const hashed = await bcrypt.hash(password, saltRounds);
 		await userService.updateUser(user._id, { password: hashed, transitioned: true }); // Mark as new hash
+		// Stolen sessions must not survive a reset. If this throws, the reset request is kept so the user can retry the link.
+		await userService.deleteUserSessions(user._id!);
 		await userService.deleteRequest(user.email);
 
 		res.status(204).send(); // 204 No Content

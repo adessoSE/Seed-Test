@@ -103,22 +103,21 @@ export async function updateJiraCredential(
 	};
 
 	const user = await userService.getUserById(userId);
-	if (!user) 
+	if (!user)
 		throw AppError.notFound('User not found for updating Jira credentials.');
-    
 
-	const updatedUser: User = { ...user, jira: jiraCredentials as unknown as User['jira'] }; // Cast needed due to Buffer/Binary discrepancy
-	await userService.updateUser(userId, updatedUser);
+
+	// Only the jira key is sent: spreading the full user would re-write the password and could revert a concurrent password change.
+	const updatedFields: Partial<User> = { jira: jiraCredentials as unknown as User['jira'] }; // Cast needed due to Buffer/Binary discrepancy
+	await userService.updateUser(userId, updatedFields);
 }
 
 export async function disconnectJira(userId: string | ObjectId): Promise<void> {
 	const user = await userService.getUserById(userId);
-	if (!user) 
+	if (!user)
 		throw AppError.notFound('User not found for disconnecting Jira.');
-    
-	// Create a new object without the jira property
-	const { jira: _jira, ...userWithoutJira } = user;
-	await userService.updateUser(userId, userWithoutJira);
+
+	await userService.unsetUserFields(userId, ['jira']);
 }
 
 // --- GitHub Account Linking ---
@@ -130,26 +129,24 @@ export async function updateGithubToken(userId: string | ObjectId, token: string
 	if (!user) 
 		throw AppError.notFound('User not found for updating GitHub token.');
     
-	const updatedUser: User = {
-		...user,
+	// Only the github key is sent: spreading the full user would re-write the password and could revert a concurrent password change.
+	const updatedFields: Partial<User> = {
 		github: {
 			githubToken: token,
 			login: githubProfile.login,
 			id: githubProfile.id
 		}
 	};
-	await userService.updateUser(userId, updatedUser);
+	await userService.updateUser(userId, updatedFields);
 }
 
 
 export async function disconnectGithub(userId: string | ObjectId): Promise<void> {
 	const user = await userService.getUserById(userId);
-	if (!user) 
+	if (!user)
 		throw AppError.notFound('User not found for disconnecting GitHub.');
-    
-	const { github: _github, ...userWithoutGithub } = user;
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- narrowed type lacks github which is optional per interface but required per broader context
-	await userService.updateUser(userId, userWithoutGithub as User);
+
+	await userService.unsetUserFields(userId, ['github']);
 }
 
 // --- GitHub Validation (Helper - could also be in a general 'validation' helper) ---

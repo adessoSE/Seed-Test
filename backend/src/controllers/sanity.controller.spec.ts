@@ -20,7 +20,7 @@ vi.mock('../testing/test-runner.service', () => ({
 
 vi.mock('../services/report.service', () => ({
 	resolveAndSaveReport: vi.fn(),
-	updateLatestTestStatus: vi.fn(),
+	persistLatestTestStatusSafely: vi.fn(),
 	scheduleReportDeletion: vi.fn()
 }));
 
@@ -173,7 +173,7 @@ describe('sanity.controller', () => {
 			vi.mocked(storyService.getOneStory).mockResolvedValue(story as any);
 			vi.mocked(testRunnerService.executeTest).mockResolvedValue(reportResult);
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue(finalReport);
-			vi.mocked(reportService.updateLatestTestStatus).mockResolvedValue(undefined);
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 
 			const req = createReq();
 			const res = createRes();
@@ -200,7 +200,7 @@ describe('sanity.controller', () => {
 			vi.mocked(storyService.getOneStory).mockResolvedValue(story as any);
 			vi.mocked(testRunnerService.executeTest).mockResolvedValue(reportResult);
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue(finalReport);
-			vi.mocked(reportService.updateLatestTestStatus).mockResolvedValue(undefined);
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 
 			const req = createReq();
 			const res = createRes();
@@ -228,7 +228,7 @@ describe('sanity.controller', () => {
 			vi.mocked(storyService.getOneStory).mockResolvedValue(story as any);
 			vi.mocked(testRunnerService.executeTest).mockResolvedValue(reportResult);
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue(finalReport);
-			vi.mocked(reportService.updateLatestTestStatus).mockResolvedValue(undefined);
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 
 			const req = createReq();
 			const res = createRes();
@@ -260,7 +260,7 @@ describe('sanity.controller', () => {
 				.mockResolvedValueOnce(story2 as any);
 			vi.mocked(testRunnerService.executeTest).mockResolvedValue(reportResult);
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue(finalReport);
-			vi.mocked(reportService.updateLatestTestStatus).mockResolvedValue(undefined);
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 
 			const req = createReq();
 			const res = createRes();
@@ -335,7 +335,7 @@ describe('sanity.controller', () => {
 			vi.mocked(storyService.getOneStory).mockResolvedValue(story as any);
 			vi.mocked(testRunnerService.executeTest).mockResolvedValue(reportResult);
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue(finalReport);
-			vi.mocked(reportService.updateLatestTestStatus).mockResolvedValue(undefined);
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 
 			const req = createReq();
 			const res = createRes();
@@ -349,7 +349,7 @@ describe('sanity.controller', () => {
 			);
 		});
 
-		it('should not crash when post-response cleanup fails', async () => {
+		it('should persist the latest test status before sending the response', async () => {
 			const group = mockGroup();
 			const story = mockStory();
 			const reportResult = { reportName: 'test_report', reportTime: 123, success: true };
@@ -363,16 +363,17 @@ describe('sanity.controller', () => {
 			vi.mocked(storyService.getOneStory).mockResolvedValue(story as any);
 			vi.mocked(testRunnerService.executeTest).mockResolvedValue(reportResult);
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue(finalReport);
-			vi.mocked(reportService.updateLatestTestStatus).mockRejectedValue(new Error('DB down'));
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 
 			const req = createReq();
 			const res = createRes();
 
 			await controller.runSanityTest(req, res, next);
 
-			// Response was already sent before cleanup failed
-			expect(res.status).toHaveBeenCalledWith(200);
-			expect(next).not.toHaveBeenCalled();
+			// A frontend list reload triggered by the response must already see the new lastTestPassed
+			const statusWrite = vi.mocked(reportService.persistLatestTestStatusSafely).mock.invocationCallOrder[0];
+			const responseSend = vi.mocked(res.send).mock.invocationCallOrder[0];
+			expect(statusWrite).toBeLessThan(responseSend);
 		});
 	});
 });

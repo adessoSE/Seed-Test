@@ -55,6 +55,10 @@ export async function handleReportResult(res: Response, reportResult: TestExecut
 	const htmlPath = path.join(process.cwd(), 'features', mode === ExecutionMode.GROUP ? `${String(report.reportName)}/${String(report.reportName)}.html` : `${String(report.reportName)}.html`);
 	try {
 		const htmlContent = await fs.promises.readFile(htmlPath, 'utf8');
+		// Status is persisted before the response: the frontend reloads the story list on response
+		// and would otherwise show the previous lastTestPassed. A failed write is logged, not thrown,
+		// so the report itself is still delivered.
+		await reportService.persistLatestTestStatusSafely(report as unknown as ReportDoc, mode);
 		res.json({ htmlFile: htmlContent, reportId: report._id, report });
 	} catch (readError: unknown) {
 		logger.error(`Error reading HTML report: ${readError instanceof Error ? readError.message : String(readError)}`);
@@ -68,7 +72,6 @@ export async function handleReportResult(res: Response, reportResult: TestExecut
 	// Post-response tasks: run after response is sent, errors must not propagate
 	// (calling next(error) after res.json() causes "headers already sent" and can drop the response)
 	try {
-		await reportService.updateLatestTestStatus(report as unknown as ReportDoc, mode);
 		await postCommentsToTrackers(report, (parameters.stories ?? [reportResult.story]) as Story[], mode, user, parameters);
 	} catch (postResponseError: unknown) {
 		logger.error(`Post-response processing error (response already sent): ${postResponseError instanceof Error ? postResponseError.message : String(postResponseError)}`);

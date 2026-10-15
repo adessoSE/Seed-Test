@@ -1,12 +1,8 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
-import { type Session, type SessionData } from 'express-session';
 import * as userService from '../services/user.service.js';
 import { type User } from '@seed-test/shared/models/User.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
-
-// Define a type combining Request with Session properties for cleaner casting
-type RequestWithSession = Request & { session: Session & Partial<SessionData> };
 
 /**
  * Handles submitting a new StepType request as a GitHub issue.
@@ -73,13 +69,12 @@ export async function disconnectGithub(req: Request, res: Response, next: NextFu
 		await userService.disconnectGithub(user._id);
 
 		// Clear the github property from the session user object if present
-		const reqWithSession = req as RequestWithSession; // Cast to access session
 		// Session github property exists — remove it, save session, then respond
 		// Runtime guard — req.user.github may be absent from session
 		if ((req.user as User).github) {
 			Reflect.deleteProperty(req.user as User, 'github');
 			// Use callback for session saving as it might be async
-			reqWithSession.session.save(err => {
+			req.session.save(err => {
 				if (err) {
 					logger.error(`Session save error: ${err}`);
 					// Decide how to handle session save errors, maybe still send success?

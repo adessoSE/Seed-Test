@@ -44,7 +44,7 @@ describe('registerSchema', () => {
 		expect(result.success).toBe(false);
 	});
 
-	// Regression: a client-supplied userId used to be remapped to _id and $set onto an existing account
+	// Invariant: a client-supplied userId is stripped, so it can never be mapped to _id or $set onto an existing account
 	it('strips a client-supplied userId instead of accepting it', () => {
 		const result = registerSchema.safeParse({ email: 'new@example.com', password: 'secure123', userId: '605c72ef1f1d4b001f8e8e8e' });
 		expect(result.success).toBe(true);

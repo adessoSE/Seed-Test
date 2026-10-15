@@ -1,9 +1,8 @@
 // src/routes/user.routes.spec.ts
 //
-// Regression guard for the GitHub auth-bypass fix: the insecure public
-// POST /user/githubLogin and POST /user/githubRegister routes (which minted a
-// full authenticated session from just login+id with no GitHub verification)
-// must never be registered on the router again.
+// Invariant: the unauthenticated POST /user/githubLogin and POST /user/githubRegister routes,
+// which minted a full authenticated session from login+id without GitHub verification,
+// are never registered on the router.
 
 import { describe, it, expect } from 'vitest';
 import router from './user.routes.js';

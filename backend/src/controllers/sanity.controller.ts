@@ -76,11 +76,13 @@ export async function runSanityTest(req: Request, res: Response, next: NextFunct
 
 		// Format the specific notification string
 		const notificationText = formatSanityNotification(finalReport as GroupReport);
+		// Persist the status before sending: the frontend reloads the story list on response and would
+		// otherwise show the previous lastTestPassed. A failed write is logged, not thrown, so the report is still delivered.
+		await reportService.persistLatestTestStatusSafely(finalReport, ExecutionMode.GROUP);
 		res.status(200).send(notificationText);
 
 		// Post-response cleanup — errors here must not crash the process or trigger the error handler
 		try {
-			await reportService.updateLatestTestStatus(finalReport, ExecutionMode.GROUP);
 			const deletionTime = parseInt(process.env.REPORT_DELETION_TIME ?? '5') * 60000;
 			reportService.scheduleReportDeletion(finalReport.reportName, true, deletionTime);
 		} catch (postErr) {

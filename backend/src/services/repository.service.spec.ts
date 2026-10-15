@@ -549,7 +549,7 @@ describe('RepositoryService', () => {
 			expect(result).toBeUndefined();
 		});
 
-		// Regression (audit 2e): the group execute path must receive the real member story IDs as strings
+		// Invariant: the group execute path receives the stored member story IDs as hex strings
 		it('should return member_stories as hex strings matching the stored story IDs', async () => {
 			const groupId = new ObjectId();
 			const storyA = new ObjectId();
@@ -589,7 +589,7 @@ describe('RepositoryService', () => {
 		});
 	});
 
-	// Regression (audit 2a/2e): creating a group with real member stories must persist them as ObjectIds
+	// Invariant: member stories passed on group creation are persisted as ObjectIds, not strings
 	describe('createStoryGroup with members', () => {
 		it('should store non-empty member_stories as ObjectIds', async () => {
 			const storyA = new ObjectId().toHexString();

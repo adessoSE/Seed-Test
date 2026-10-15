@@ -23,7 +23,7 @@ vi.mock('../services/repository.service', () => ({
 vi.mock('../services/report.service', () => ({
 	resolveAndSaveReport: vi.fn(),
 	scheduleReportDeletion: vi.fn(),
-	updateLatestTestStatus: vi.fn()
+	persistLatestTestStatusSafely: vi.fn()
 }));
 
 vi.mock('../services/feature-file.service', () => ({
@@ -117,7 +117,7 @@ function setupReportMocks(reportName = 'test-report') {
 	});
 	vi.mocked(fs.promises.readFile).mockResolvedValue('<html>report</html>');
 	vi.mocked(reportService.scheduleReportDeletion).mockImplementation(() => {});
-	vi.mocked(reportService.updateLatestTestStatus).mockResolvedValue(undefined);
+	vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 	return story;
 }
 
@@ -417,7 +417,7 @@ describe('TestExecutionController', () => {
 			});
 			vi.mocked(fs.promises.readFile).mockResolvedValue('<html>report</html>');
 			vi.mocked(reportService.scheduleReportDeletion).mockImplementation(() => {});
-			vi.mocked(reportService.updateLatestTestStatus).mockResolvedValue(undefined);
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 
 			const reportResult = { reportName: 'test-report', story: mockStory() };
 			const parameters = { stories: [mockStory()] };
@@ -433,6 +433,26 @@ describe('TestExecutionController', () => {
 			expect(reportService.scheduleReportDeletion).toHaveBeenCalled();
 		});
 
+		it('should persist the latest test status before sending the response', async () => {
+			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue({
+				_id: 'reportId',
+				reportName: 'test-report'
+			});
+			vi.mocked(fs.promises.readFile).mockResolvedValue('<html>report</html>');
+			vi.mocked(reportService.scheduleReportDeletion).mockImplementation(() => {});
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
+
+			const reportResult = { reportName: 'test-report', story: mockStory() };
+			const parameters = { stories: [mockStory()] };
+
+			await controller.handleReportResult(res, reportResult, 'feature' as any, parameters);
+
+			// A frontend list reload triggered by the response must already see the new lastTestPassed
+			const statusWrite = vi.mocked(reportService.persistLatestTestStatusSafely).mock.invocationCallOrder[0];
+			const responseSend = vi.mocked(res.json).mock.invocationCallOrder[0];
+			expect(statusWrite).toBeLessThan(responseSend);
+		});
+
 		it('should throw AppError when reading the HTML file fails', async () => {
 			vi.mocked(reportService.resolveAndSaveReport).mockResolvedValue({
 				_id: 'reportId',
@@ -440,7 +460,7 @@ describe('TestExecutionController', () => {
 			});
 			vi.mocked(fs.promises.readFile).mockRejectedValue(new Error('ENOENT'));
 			vi.mocked(reportService.scheduleReportDeletion).mockImplementation(() => {});
-			vi.mocked(reportService.updateLatestTestStatus).mockResolvedValue(undefined);
+			vi.mocked(reportService.persistLatestTestStatusSafely).mockResolvedValue(undefined);
 
 			const reportResult = { reportName: 'test-report', story: mockStory() };
 			const parameters = { stories: [mockStory()] };

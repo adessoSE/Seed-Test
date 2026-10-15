@@ -4,7 +4,7 @@ import path from 'node:path';
 import * as storyController from '../controllers/story.controller.js';
 import { authorizeRepo, authorizeByStory, authorizeByIssueKey } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema, updateStoryOrderSchema } from '@seed-test/shared/schemas/story.schemas.js';
+import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema, updateStoryOrderSchema, scenarioSchema, updateScenarioListSchema, updateStorySchema } from '@seed-test/shared/schemas/story.schemas.js';
 import { AppError } from '../helpers/AppError.js';
 
 const router = express.Router();
@@ -68,9 +68,9 @@ router.get('/:story_id/generate-scenarios/status', canEditByStory, storyControll
 // --- Scenario Routes (More specific than base Story routes) ---
 router.delete('/scenario/:story_id/:_id', canEditByStory, storyController.deleteScenario);
 router.get('/:story_id/:_id', canEditByStory, storyController.getScenario);
-router.put('/:story_id/:_id', canEditByStory, storyController.updateScenario);
+router.put('/:story_id/:_id', canEditByStory, validate(scenarioSchema), storyController.updateScenario);
 router.post('/:story_id', canEditByStory, validate(createScenarioSchema), storyController.createScenario);
-router.patch('/:story_id', canEditByStory, storyController.updateScenarioList);
+router.patch('/:story_id', canEditByStory, validate(updateScenarioListSchema), storyController.updateScenarioList);
 
 // --- Base Story Routes (Most general routes last) ---
 /**
@@ -82,7 +82,7 @@ router.get('/', canReadRepoByQuery, storyController.getStories);
 router.post('/', canEditRepoByBody, validate(createStorySchema), storyController.createStory);
 router.put('/list/:repo_id', canEditRepo, validate(updateStoryOrderSchema), storyController.updateStoryOrder);
 router.get('/:_id', canReadById, storyController.getStoryById);
-router.put('/:_id', canEditById, storyController.updateStory);
+router.put('/:_id', canEditById, validate(updateStorySchema), storyController.updateStory);
 router.delete('/:repo_id/:_id', canEditRepo, storyController.deleteStory);
 
 export default router;

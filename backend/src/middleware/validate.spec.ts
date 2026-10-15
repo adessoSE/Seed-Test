@@ -97,4 +97,14 @@ describe('validate middleware', () => {
 		expect(next).toHaveBeenCalled();
 		expect(req.body.age).toBe(25);
 	});
+
+	// PATCH /story/:story_id sends a bare array; the middleware must not assume an object body.
+	it('accepts a bare array body and replaces it with the parsed array', () => {
+		const { req, res, next } = mockReqResNext([{ email: 'a@b.com', extra: 'dropped' }]);
+		validate(z.array(z.object({ email: z.string().email() })))(req, res, next);
+
+		expect(next).toHaveBeenCalledWith();
+		expect(res.status).not.toHaveBeenCalled();
+		expect(req.body).toEqual([{ email: 'a@b.com' }]);
+	});
 });
