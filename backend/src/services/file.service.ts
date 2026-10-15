@@ -1,11 +1,6 @@
 ﻿import { ObjectId, GridFSBucket } from 'mongodb';
-import { logger } from '../logging.js';
 import * as dbConnection from '../database/DbConnector.js';
 import { Readable } from 'node:stream';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
-import crypto from 'node:crypto';
 import { type FileElement } from '@seed-test/shared/models/FileElement.js';
 import { oid } from '../types/mongo.types.js';
 import { AppError } from '../helpers/AppError.js';
@@ -95,46 +90,4 @@ export async function getFileList(repoId: string): Promise<FileElement[]> {
 	const files = await db.collection('GridFS.files').find({ 'metadata.repoId': oid(repoId) }).toArray();
 	// MongoDB returns ObjectId for _id, cast to shared interface (string _id)
 	return files as unknown as FileElement[];
-}
-
-/**
- * Downloads files from GridFS and stores them temporarily in the local file system.
- * @param fileTitles - An array of filenames to download.
- * @param repoId - The ObjectId of the repository where the files are stored.
- */
-export async function getFiles(fileTitles: string[], repoId: string): Promise<void> {
-	const db = dbConnection.getConnection();
-	const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
-
-	const uniqueDir = crypto.randomUUID();
-	const destinationDirectory = path.join(os.tmpdir(), 'SeedTmp', repoId, uniqueDir) + path.sep;
-
-	fs.mkdirSync(destinationDirectory, { recursive: true });
-
-	for (const fileTitle of fileTitles) {
-		const fileInfo = await db.collection('GridFS.files').findOne({ 'metadata.repoId': oid(repoId), filename: fileTitle });
-		if (!fileInfo) {
-			logger.warn(`File not found in GridFS: ${fileTitle}`);
-			continue;
-		}
-
-		const downloadStream = bucket.openDownloadStream(fileInfo._id);
-		const destinationPath = `${destinationDirectory}${fileInfo.filename}`;
-		const fileWriteStream = fs.createWriteStream(destinationPath);
-
-		// Set a timeout to delete the temporary file after 5 hours
-		setTimeout(() => {
-			fs.unlink(destinationPath, (err) => {
-				if (err) logger.error(`Error deleting temp file ${destinationPath}: ${err}`);
-				else logger.info(`Temp file ${fileInfo.filename} deleted.`);
-			});
-		}, 18000000); // 5 hours in milliseconds
-
-		await new Promise<void>((resolve, reject) => {
-			downloadStream.pipe(fileWriteStream);
-			downloadStream.on('error', reject);
-			fileWriteStream.on('finish', resolve);
-			fileWriteStream.on('error', reject);
-		});
-	}
 }

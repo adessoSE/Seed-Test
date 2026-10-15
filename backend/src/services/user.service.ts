@@ -220,7 +220,7 @@ export async function deleteUser(userId: string | ObjectId): Promise<DeleteResul
  * Finds the account that carries a given GitHub identity (login + numeric id). The token is returned decrypted.
  * @returns The account, or null when no account is linked to this GitHub identity.
  */
-export function getUserByGithub(login: string, id: number) {
+function getUserByGithub(login: string, id: number) {
 	const db = dbConnection.getConnection();
 	const query = { 'github.id': id, 'github.login': login };
 	return db.collection<UserDoc>(userCollection).findOne(query).then(v => withReadableGithubToken(v as unknown as User | null));
@@ -439,15 +439,4 @@ export async function mergeGithub(seedUserId: string, githubLogin: string, githu
 	if (seedChanges.jira)
 		seedAccount.jira = seedChanges.jira;
 	return seedAccount;
-}
-
-/**
- * Removes the GitHub link from an account ($unset of the github sub-document). The account itself is kept.
- */
-export async function disconnectGithub(userId: string | ObjectId): Promise<UpdateResult> {
-	const db = dbConnection.getConnection();
-	return db.collection<UserDoc>(userCollection).updateOne(
-		{ _id: oid(userId) },
-		{ $unset: { github: '' } }
-	);
 }

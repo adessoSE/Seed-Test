@@ -11,7 +11,7 @@ export interface XrayIssue {
 	fields: XrayIssueFields;
 }
 
-export interface XrayIssueFields {
+interface XrayIssueFields {
 	issuetype: { name: string };
 	summary: string;
 	description?: string;
@@ -24,7 +24,7 @@ export interface XrayIssueFields {
 	issuelinks?: XrayIssueLink[];
 }
 
-export interface XrayIssueLink {
+interface XrayIssueLink {
 	inwardIssue?: { key: string };
 	type: { inward: string };
 }

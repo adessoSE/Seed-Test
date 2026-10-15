@@ -37,7 +37,7 @@ export function _resetParserStateForTesting(): void {
 }
 
 // Create a single queue and emitter for the AI service
-export const aiJobQueue = new JobQueue();
+const aiJobQueue = new JobQueue();
 export const aiJobEmitter = new EventEmitter();
 
 /**

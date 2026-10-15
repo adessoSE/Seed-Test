@@ -4,7 +4,7 @@
  * Safe subset of a User object, with sensitive fields removed.
  * Uses an allowlist approach — only explicitly listed fields are included.
  */
-export interface SanitizedUser {
+interface SanitizedUser {
 	_id?: string;
 	email: string;
 	github?: {

@@ -47,7 +47,7 @@ export const COLLECTIONS = {
  * Throws on failure — caller should use tryCreateClient() for safe skips.
  * Timeout is high (120 s) to allow for the initial Docker image pull.
  */
-export async function createClient(): Promise<{
+async function createClient(): Promise<{
 	client: MongoClient;
 	db: Db;
 	container: StartedMongoDBContainer;
@@ -264,17 +264,4 @@ export async function seedReport(
 	};
 	const result = await db.collection<ReportDoc>(COLLECTIONS.ReportData).insertOne(doc);
 	return { ...doc, _id: result.insertedId };
-}
-
-/**
- * Seeds the border group if not already set up — this sets up the
- * `border` collection if needed (some tests use it).
- * Returns the number of seeded items.
- */
-export async function getCollectionCounts(db: Db): Promise<Record<string, number>> {
-	const counts: Record<string, number> = {};
-	for (const [key, name] of Object.entries(COLLECTIONS))
-		counts[key] = await db.collection(name).countDocuments();
-
-	return counts;
 }

@@ -45,7 +45,7 @@ export async function getTestReports(storyId: string): Promise<ReportDoc[]> {
  * @param storyId The ObjectId of the story.
  * @returns A promise that resolves to an array of group report metadata objects.
  */
-export async function getGroupTestReports(storyId: string): Promise<ReportDoc[]> {
+async function getGroupTestReports(storyId: string): Promise<ReportDoc[]> {
 	const db = dbConnection.getConnection();
 	const query = { storyStatuses: { $elemMatch: { storyId: new ObjectId(storyId) as unknown as string } } };
 	return db.collection<ReportDoc>(ReportDataCollection)

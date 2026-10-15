@@ -628,7 +628,7 @@ function mergeTestRunSteps(dbTestRunSteps: Scenario['testRunSteps'], jiraTestRun
  * @param testSets Array of test set objects from Jira.
  * @param repo_id Repository ID to update.
  */
-export async function updateTestSets(testSets: JiraTestSet[], repo_id: string): Promise<void> {
+async function updateTestSets(testSets: JiraTestSet[], repo_id: string): Promise<void> {
 	const repository = await repositoryService.getOneRepositoryById(repo_id);
 	if (!repository) {
 		logger.warn(`Repository ${repo_id} not found. Skipping all Test Set updates.`);

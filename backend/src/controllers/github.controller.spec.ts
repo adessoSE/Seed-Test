@@ -7,10 +7,10 @@ import { AppError } from '../helpers/AppError.js';
 
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
-	mockedUserService,
+	mockedExternalAccountService,
 	mockedLogger
 } = vi.hoisted(() => ({
-	mockedUserService: {
+	mockedExternalAccountService: {
 		disconnectGithub: vi.fn()
 	},
 	mockedLogger: {
@@ -21,7 +21,7 @@ const {
 	}
 }));
 
-vi.mock('../services/user.service', () => mockedUserService);
+vi.mock('../services/externalAccount.service', () => mockedExternalAccountService);
 vi.mock('../logging', () => ({ logger: mockedLogger }));
 
 // Import the module under test after mocks are registered
@@ -210,7 +210,7 @@ describe('GithubController', () => {
 	// ---------------------------------------------------------------
 	describe('disconnectGithub', () => {
 		it('disconnects GitHub and returns 200 when no session github property', async () => {
-			mockedUserService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
+			mockedExternalAccountService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
 
 			// User without github property — takes the else branch (no session save)
 			const req = createReq({
@@ -219,14 +219,14 @@ describe('GithubController', () => {
 			});
 			await controller.disconnectGithub(req, res, next);
 
-			expect(mockedUserService.disconnectGithub).toHaveBeenCalledWith(new ObjectId(VALID_ID));
+			expect(mockedExternalAccountService.disconnectGithub).toHaveBeenCalledWith(new ObjectId(VALID_ID));
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith({ message: 'GitHub account disconnected successfully.' });
 			expect(next).not.toHaveBeenCalled();
 		});
 
 		it('saves session after removing github property and returns 200', async () => {
-			mockedUserService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
+			mockedExternalAccountService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
 
 			// User with github property — triggers session save branch
 			const saveMock = vi.fn((cb: (err: any) => void) => cb(null));
@@ -240,14 +240,14 @@ describe('GithubController', () => {
 			});
 			await controller.disconnectGithub(req, res, next);
 
-			expect(mockedUserService.disconnectGithub).toHaveBeenCalledWith(new ObjectId(VALID_ID));
+			expect(mockedExternalAccountService.disconnectGithub).toHaveBeenCalledWith(new ObjectId(VALID_ID));
 			expect(saveMock).toHaveBeenCalled();
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith({ message: 'GitHub account disconnected successfully.' });
 		});
 
 		it('calls next when session save fails', async () => {
-			mockedUserService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
+			mockedExternalAccountService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
 			const saveError = new Error('Session save failed');
 			const saveMock = vi.fn((cb: (err: any) => void) => cb(saveError));
 
@@ -277,7 +277,7 @@ describe('GithubController', () => {
 
 		it('forwards service errors to next()', async () => {
 			const serviceError = new Error('DB failure');
-			mockedUserService.disconnectGithub.mockRejectedValue(serviceError);
+			mockedExternalAccountService.disconnectGithub.mockRejectedValue(serviceError);
 
 			const req = createReq();
 			await controller.disconnectGithub(req, res, next);

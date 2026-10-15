@@ -1,5 +1,5 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
-import * as userService from '../services/user.service.js';
+import * as externalAccountService from '../services/externalAccount.service.js';
 import { type User } from '@seed-test/shared/models/User.js';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
@@ -65,8 +65,8 @@ export async function disconnectGithub(req: Request, res: Response, next: NextFu
 		if (!user?._id)
 			throw AppError.unauthorized('User not authenticated');
 
-		// Call the user service to handle the actual database update
-		await userService.disconnectGithub(user._id);
+		// Goes through externalAccount.service so the $unset path and not-found check are shared with the Jira/GitHub linking code
+		await externalAccountService.disconnectGithub(user._id);
 
 		// Clear the github property from the session user object if present
 		// Session github property exists — remove it, save session, then respond

@@ -19,7 +19,6 @@ import { type Story } from '@seed-test/shared/models/Story.js';
 import { type Repository } from '@seed-test/shared/models/Repository.js';
 import { type Group } from '@seed-test/shared/models/Group.js';
 import { type User } from '@seed-test/shared/models/User.js';
-import { type FileElement } from '@seed-test/shared/models/FileElement.js';
 
 // --- Conversion Helpers ---
 
@@ -41,10 +40,6 @@ export interface BlockDoc extends Omit<Block, '_id' | 'owner' | 'repositoryId'> 
 }
 
 export interface UserDoc extends Omit<User, '_id'> {
-	_id?: ObjectId;
-}
-
-export interface FileDoc extends Omit<FileElement, '_id'> {
 	_id?: ObjectId;
 }
 
