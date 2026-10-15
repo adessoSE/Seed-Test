@@ -10,7 +10,7 @@ GitHub: `adessoSE/Seed-Test` (wiki/docs at `adessoAG/Seed-Test`). Open-source BD
 **Playwright MCP testing**: `docs/testing.md#playwright-mcp--browser-based-e2e-testing-via-agent` (agent-driven browser tests)
 
 ## Agent Tooling
-- **Codebase Memory**: Use the `SeedTest` knowledge-graph index before non-trivial cross-file work. Start with `index_status` (or index when stale), then use `search_graph`/`trace_path` for definitions, callers, data flow, and impact analysis. Prefer it over broad text searches.
+- **Codebase Memory (required first step for code discovery)**: Finding a definition, its callers, data flow, or the impact of a change MUST start with the `codebase-memory-mcp` graph (project `SeedTest`): `search_graph` → `trace_path` / `get_code_snippet`. Grep/Glob are for literal text, configs, and non-code files only — grepping for a symbol misses callers across `backend`/`frontend`/`shared`. If the tools appear only as deferred names, load them via ToolSearch (`+codebase-memory`) rather than falling back to Grep. Pass this instruction on to subagents you spawn.
 - **Angular CLI MCP**: For Angular work, call `list_projects` first, `get_best_practices` before implementation, and use `search_documentation` for Angular APIs. Verify with the Angular build/test target when available.
 - **Context7**: Use for current third-party library documentation and APIs.
 
