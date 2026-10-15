@@ -15,6 +15,7 @@ Monorepo (npm workspaces): `backend/` (Express 5, TypeScript, raw MongoDB driver
 
 ## Find code with the graph first
 - Definitions, callers, data flow, change impact: codebase-memory-mcp, project `SeedTest`. Run `search_graph`, then `trace_path` or `get_code_snippet`. Load deferred tools with ToolSearch query `+codebase-memory`. Grep for a symbol misses callers across `backend`, `frontend`, and `shared`.
+- Before deleting "dead" code, also grep the symbol name: `trace_path` does not resolve namespace-import calls (`userService.fn()`, `this.apiService.fn()`) or HTTP routes, so zero graph callers is not proof.
 - Literal text, config, and non-code files: Grep and Glob.
 - Angular work: angular-cli MCP. Run `list_projects`, then `get_best_practices`, then `search_documentation`.
 - Third-party library APIs: Context7 (`resolve-library-id`, then `query-docs`).
@@ -31,7 +32,7 @@ Monorepo (npm workspaces): `backend/` (Express 5, TypeScript, raw MongoDB driver
 | Build shared (before tsc, start, or frontend build) | `cd shared && npm run build` |
 | Backend unit tests | `cd backend && npm test` |
 | One backend spec | `cd backend && npx vitest run src/services/repository.service.spec.ts` |
-| Backend integration (Docker must run) | `cd backend && npm run test:integration` |
+| Backend integration (container runtime must run, see Environment) | `cd backend && npm run test:integration` |
 | Backend lint / typecheck | `cd backend && npm run lint` / `npm run tsc` |
 | Create collections and stepTypes (needs backend/.env) | `cd backend && npm run database` |
 | Run backend | `cd backend && npm start` |
@@ -51,6 +52,7 @@ Gotchas:
 - `backend/.env` (gitignored; template `backend/.env.example`). Validated by `backend/src/config.ts`. Required: `DATABASE_URI`, `ENCRYPTION_SECRET` (64 hex chars), `JIRA_SECRET`, `JIRA_SALT`. `SESSION_SECRET` is required when `NODE_ENV=production`.
 - `frontend/.env` (gitignored; template `frontend/.env.example`). Key: `API_SERVER`, default `http://localhost:8080/api`.
 - `docker-compose.yml` starts MongoDB under host `seedmongodb`, which resolves only inside the compose network. Its secrets are demo values; never reuse them. The backend service needs `ENCRYPTION_SECRET`, which compose reads from the root `.env`.
+- Container runtime: integration tests and `docker compose` need a Docker-API-compatible runtime. The team uses Podman: run `podman machine start`. `docker` and `docker compose` commands also work through Podman (`podman` and `podman compose`). Gotcha: if `podman machine start` reports that API forwarding failed (win-sshproxy), run `podman machine stop`, delete `%TEMP%\podman\podman-machine-default-api.sock`, then start the machine again.
 - Dev ports: frontend 4200, backend 8080.
 
 ## Code comments (required)

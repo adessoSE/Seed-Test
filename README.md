@@ -22,7 +22,7 @@ Seed-Test offers a handy demo version that's ready for you to dive into. If you'
 
 #### Prerequisites
 
-Before you begin, make sure you have [Docker](https://www.docker.com/products/docker-desktop/) installed.
+Before you begin, make sure you have [Docker](https://www.docker.com/products/docker-desktop/) installed. A Docker-API-compatible runtime such as Podman (`podman machine start`) also works.
 
 #### Installation
 
@@ -60,7 +60,7 @@ It will download NodeJs and the browsers with their correct driver on it's own.
 
 #### Prerequisites
 
-For this [docker](https://www.docker.com/products/docker-desktop/) needs to be installed.
+For this [docker](https://www.docker.com/products/docker-desktop/) needs to be installed. A Docker-API-compatible runtime such as Podman (`podman machine start`) also works.
 
 #### Installation of Seed
 
