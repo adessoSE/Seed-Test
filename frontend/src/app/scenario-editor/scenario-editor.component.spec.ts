@@ -12,7 +12,6 @@ import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { Scenario } from '@seed-test/shared/models/Scenario';
 import { Story } from '@seed-test/shared/models/Story';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { BlockService } from '../Services/block.service';
 
 
 const scenarios:Scenario[] = [{scenario_id: 2, name: 'my first scenario', stepDefinitions: {'when':[{'_id':'5dce728851e70f2894a170b4','id': 6, 'stepType':'when', 'type' :'HoverOverAndSelect', 'pre':'I hover over the element', 'mid':'and select the option','values':['',''], 'post':'', 'isExample':[]}], 'given':[{'_id':'5dce728851e70f2894a170b4','id': 6, 'stepType':'when', 'type' :'HoverOverAndSelect', 'pre':'I hover over the element', 'mid':'and select the option','values':['',''], 'post':'', 'isExample':[]}],'then':[], 'example': []},
@@ -257,31 +256,6 @@ describe('ScenarioEditorComponent', () => {
 			TestBed.inject(ScenarioService).renameScenarioEmit('Same name');
 			TestBed.flushEffects();
 			expect(renameScenario).toHaveBeenCalledTimes(2);
-		});
-
-		it('does not re-PATCH a stale scenario reference when a new editor is created', () => {
-			// Prototype spy: the freshly created editor must reach the same method as the first one
-			const updateScenario = vi.spyOn(ScenarioEditorComponent.prototype, 'updateScenario').mockReturnValue(undefined as never);
-			try {
-				const stale = structuredClone(scenarios[0]);
-				TestBed.inject(BlockService).updateScenariosRefEmitt(stale, 'story-1');
-				TestBed.flushEffects();
-				expect(updateScenario).toHaveBeenCalledTimes(1);
-
-				// Regression: the editor is re-created under @if; the old payload replayed the reference update on construction
-				const later = TestBed.createComponent(ScenarioEditorComponent);
-				later.componentRef.setInput('selectedScenario', scenarios[0]);
-				later.componentRef.setInput('selectedStory', { story_id: 1, title: 'Test Story', body: '', storySource: 'github', background: { name: '', stepDefinitions: { when: [] } }, scenarios, state: 'open', assignee: '', assignee_avatar_url: '', repo_type: 'github' } as Story);
-				TestBed.flushEffects();
-				expect(updateScenario).toHaveBeenCalledTimes(1);
-
-				// Positive control: the new editor does react to references updated after its creation
-				TestBed.inject(BlockService).updateScenariosRefEmitt(stale, 'story-1');
-				TestBed.flushEffects();
-				expect(updateScenario).toHaveBeenCalledTimes(3);
-			} finally {
-				updateScenario.mockRestore();
-			}
 		});
 	});
 });

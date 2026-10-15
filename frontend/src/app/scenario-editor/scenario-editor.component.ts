@@ -162,14 +162,6 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	}
 
 	/**
-	 * Reacts to scenario reference updates -- updates the affected scenario.
-	 * Action channel: a re-created editor is only connected to emissions made after its creation, so it never re-PATCHes a stale scenario.
-	 */
-	private updateScenariosRefEffect = onActionTrigger(this.blockService.updateScenariosRefTrigger, element => {
-		this.updateScenario(element[0], element[1]);
-	});
-
-	/**
      * Event emitter to delete the scenario
      */
 	readonly deleteScenarioEvent = output<Scenario>();

@@ -22,4 +22,4 @@ The frontend runs **zoneless**: `provideZonelessChangeDetection()` in `app.modul
 - Directives use the `app` prefix
 
 ## SonarCloud
-Config: `.sonarcloud.properties` at the repo root (project key `adessoAG_Seed-Test`, test inclusions `**/*.spec.ts`, report `frontend/coverage/lcov.info`). The workflow `.github/workflows/SonarCloud-PR.yaml` runs no tests, so the lcov report exists only when `npm run test-coverage` ran locally before the scan.
+Config: `.sonarcloud.properties` at the repo root. The workflow `.github/workflows/SonarCloud-PR.yaml` runs no tests, so the lcov report exists only when `npm run test-coverage` ran locally before the scan.

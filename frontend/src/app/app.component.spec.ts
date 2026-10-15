@@ -331,5 +331,18 @@ describe('AppComponent', () => {
 			fixture.detectChanges();
 			expect(expanded()).toBe('true');
 		});
+
+		it('closes a hover-opened menu on Escape pressed while focus is elsewhere in the document', () => {
+			// Regression: the wrapper-level keydown only fired while focus was inside the menu, so a hover-opened panel ignored Escape
+			const focusSpy = vi.spyOn(helpTrigger(), 'focus');
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			fixture.detectChanges();
+			expect(expanded()).toBe('true');
+			document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+			fixture.detectChanges();
+			expect(expanded()).toBe('false');
+			// Focus was never in the menu, so it must not be pulled onto the trigger
+			expect(focusSpy).not.toHaveBeenCalled();
+		});
 	});
 });

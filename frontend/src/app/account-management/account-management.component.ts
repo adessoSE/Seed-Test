@@ -67,7 +67,7 @@ export class AccountManagementComponent {
 	/**
      * Computed repository list derived from the project service signal.
      *
-     * WHY: Eliminates the local copy of repositories (F3). The service's
+     * WHY: Keeps a single copy of repositories. The service's
      * repositoriesSignal is the single source of truth. Reading it here as a
      * computed keeps every consumer (template, searchList, download/export)
      * in sync without double-sync or lag.
@@ -130,8 +130,8 @@ export class AccountManagementComponent {
 	/**
 	 * Re-syncs searchList whenever the repository signal changes.
 	 *
-	 * WHY: Replaces the imperative subscription chain that used to populate the
-	 * local repositories/searchList copies (F3). Reading repositories() here
+	 * WHY: The searchList is derived from the service signal instead of being copied.
+	 * Reading repositories() here
 	 * establishes a dependency on the service signal (the single source of
 	 * truth); when it changes, seperateRepos (dedup) + searchRepos (re-filter)
 	 * refresh the searchList without redundant work.
@@ -187,7 +187,7 @@ export class AccountManagementComponent {
 	/**
 	 * Redirects logged-out users to /login. It does not fetch repositories: the list comes from the
 	 * project service signal and reposChangeEffect re-filters it on creation and on every change.
-	 * WHY: Calling searchRepos here as well ran a second filter pass for the same entry.
+	 * WHY: searchRepos is not called here, because it would run a second filter pass for the same entry.
 	 */
 	private loadAccountView() {
 		if (!this.loginService.isLoggedIn())
@@ -207,7 +207,7 @@ export class AccountManagementComponent {
 	}
 
 	seperateRepos(repos: RepositoryContainer[]) {
-		// repositories is now a computed derived from the service signal (F3) —
+		// repositories is a computed derived from the service signal —
 		// only the searchList needs the dedup guard to avoid redundant re-filters.
 		const oldList = this.searchList();
 		if (!oldList || oldList.length === 0 || oldList.some((o, i) => o._id !== repos[i]?._id)) 
@@ -425,8 +425,8 @@ export class AccountManagementComponent {
 	/**
       * Opens the 'dumb' import modal and waits for the result.
       *
-      * WHY: Replaces the nested subscribe chain (F3) with async/await +
-      * firstValueFrom. After a successful import, getRepositories() refreshes the
+      * WHY: async/await keeps the import flow linear, instead of
+      * nested subscribes. After a successful import, getRepositories() refreshes the
       * service's repositoriesSignal, which cascades to the computed repositories()
       * and is picked up by reposChangeEffect (which re-syncs searchList). No local
       * subscription chain or manual state copy is needed.

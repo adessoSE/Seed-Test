@@ -134,9 +134,9 @@ export class WorkgroupEditComponent {
 		this.transferedOwnership(this.selectedOwner);
 	});
 
-	/** FIX F6: Sync repos plain property with projectService.repositoriesSignal() so it stays reactive
-	 * for OnPush change detection. Replaces the old constructor .subscribe() that set a
-	 * non-reactive plain property and never unsubscribed — now reacts to signal updates
+	/** Syncs the repos plain property with projectService.repositoriesSignal() so it stays reactive
+	 * for OnPush change detection. Reacting to signal updates avoids a manual subscription that would set a
+	 * non-reactive plain property and never unsubscribe
 	 * and the effect auto-cleans when the component is destroyed. */
 	private reposSyncEffect = effect(() => {
 		const repos = this.projectService.repositoriesSignal();

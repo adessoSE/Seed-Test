@@ -4,7 +4,7 @@ import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator, ValidatorF
 /** 
  * A user's password has to match the user's confirmed password 
 */
-export const passwordConfirmedValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+const passwordConfirmedValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
 	const password = control.get('password');
 	const confirmPassword = control.get('confirmPassword');
 	return password && confirmPassword && password.value !== confirmPassword.value ? { 'passwordConfirmed': true } : null;

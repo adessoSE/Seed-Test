@@ -184,6 +184,20 @@ describe('StoryEditorComponent', () => {
 			expect(component.notify.error).toHaveBeenCalled();
 			expect(component.scenarioDeleted).not.toHaveBeenCalled();
 		});
+
+		it('shows a success toast, not an error toast, when the scenario was deleted', () => {
+			component.stories.set(stories);
+			component.selectedStory.set(stories[0]);
+			vi.spyOn(component.scenarioService, 'deleteScenario').mockReturnValue(of(stories[0]));
+			vi.spyOn(component.notify, 'success').mockImplementation(() => undefined);
+			vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+
+			component.deleteScenario(stories[0].scenarios[0], false);
+
+			// An error toast after a successful delete reads as a failed delete, so success must use the success toast.
+			expect(component.notify.success).toHaveBeenCalledWith('', 'Scenario deleted');
+			expect(component.notify.error).not.toHaveBeenCalled();
+		});
 	});
 
 
@@ -214,7 +228,7 @@ describe('StoryEditorComponent', () => {
 			// After deleting one of two scenarios, selectScenario is called on the remaining one, setting showEditor = true
 			expect(component.showEditor()).toBeTruthy();
 
-			// FIX F7: Check selectedStory signal directly (not via stories array) since scenarioDeleted
+			// Check selectedStory signal directly (not via stories array) since scenarioDeleted
 			// now uses selectedStory.update() creating a new story reference
 			expect(component.selectedStory()!.scenarios).not.toContain(deletedScenario);
 			expect(indexScenario).not.toBe(-1);
@@ -337,7 +351,7 @@ describe('StoryEditorComponent', () => {
 
 			vi.spyOn(component, 'selectScenario');
 			component.selectScenario(newScenario);
-			// FIX F7: Use signal update instead of direct mutation to trigger OnPush CD
+			// Use signal update instead of direct mutation to trigger OnPush CD
 			component.selectedStory.update(s => s ? { ...s, scenarios: [...s.scenarios, newScenario] } : s);
 
 			expect(component.selectedStory()?.scenarios.length).toBe(initialLen + 1);
@@ -353,7 +367,7 @@ describe('StoryEditorComponent', () => {
 
 			component.scenarioDeleted(stories[0].scenarios[0].scenario_id);
 
-			// FIX F7: Check updated signal value (not the original object) since scenarioDeleted now
+			// Check updated signal value (not the original object) since scenarioDeleted now
 			// uses selectedStory.update() instead of in-place splice to trigger OnPush CD
 			expect(component.selectedStory()!.scenarios.length).toBe(initialLen - 1);
 			// After deletion, should select remaining scenario or hide editor
@@ -466,7 +480,7 @@ describe('StoryEditorComponent', () => {
 
 			component.scenarioDeleted(100);
 
-			// FIX F7: Flush effects since scenarioDeleted now uses selectedStory.update()
+			// Flush effects since scenarioDeleted now uses selectedStory.update()
 			// which triggers the newSelectedStoryEffect to re-run and call selectScenario(null)
 			TestBed.flushEffects();
 

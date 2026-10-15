@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, DestroyRef, inject, computed, effect, untracked, signal } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, DestroyRef, ElementRef, inject, computed, effect, untracked, signal, viewChild } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
@@ -26,7 +26,10 @@ import { environment } from '../environments/environment';
 	templateUrl: './app.component.html',
 	styleUrls: ['./app.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [RouterLink, RouterOutlet, MatIcon, MatSlideToggle, ReactiveFormsModule, NgClass, MatMenuModule]
+	imports: [RouterLink, RouterOutlet, MatIcon, MatSlideToggle, ReactiveFormsModule, NgClass, MatMenuModule],
+	host: {
+		'(document:keydown.escape)': 'onDocumentEscape($event)'
+	}
 })
 export class AppComponent implements OnInit{
 	apiService = inject(ApiService);
@@ -40,7 +43,7 @@ export class AppComponent implements OnInit{
 	/**
 	 * Computed repository list derived from the project service signal.
 	 *
-	 * WHY: Eliminates the third copy of the repository list (F2). The service's
+	 * WHY: The service's
 	 * repositoriesSignal is the single source of truth; this computed ensures
 	 * the template always reflects the latest data without double-sync or lag.
 	 */
@@ -73,8 +76,8 @@ export class AppComponent implements OnInit{
 	 * State of the Help menu. The panel is shown only while helpMenuOpen is true (the template binds
 	 * the help-open class), so aria-expanded always matches what is on screen.
 	 *
-	 * WHY: The old CSS :hover / :focus-within rules could show the panel while aria-expanded said
-	 * false, and Escape could not close a hover-opened panel. Hover is tracked here via
+	 * WHY: Showing the panel from CSS :hover / :focus-within alone would let it open while aria-expanded
+	 * reports false, and Escape could not close a hover-opened panel. Hover is tracked here via
 	 * mouseenter/mouseleave; keyboard focus is tracked via :focus-visible, because Chrome focuses a
 	 * button on mouse click and a plain focus would pin the menu open after the pointer leaves.
 	 */
@@ -84,6 +87,8 @@ export class AppComponent implements OnInit{
 	readonly helpMenuOpen = computed(() => (this.helpHovered() || this.helpKeyboardFocus()) && !this.helpDismissed());
 	/** Pending hover-close timer, see onHelpPointerLeave */
 	private helpCloseTimer?: ReturnType<typeof setTimeout>;
+	/** Help menu container; lets the document-level Escape handler tell whether focus is inside the menu */
+	private readonly helpMenuWrapper = viewChild.required<ElementRef<HTMLElement>>('helpWrapper');
 
 	toggleControl = new UntypedFormControl(false);
 
@@ -173,9 +178,8 @@ export class AppComponent implements OnInit{
 	/**
 	 * Fetches repositories from the server using async/await (one-shot read).
 	 *
-	 * WHY: Replaces the .subscribe() → signal.set() pattern (F2) with a single
-	 * await firstValueFrom call. The service internally updates its
-	 * repositoriesSignal on success, which cascades to the computed repositories()
+	 * WHY: A single await firstValueFrom call keeps the flow linear and leaves state updates to the service.
+	 * The service internally updates its repositoriesSignal on success, which cascades to the computed repositories()
 	 * and all consumers. Errors are handled by the service (signal retains the
 	 * last good value on transient failures; 401/403 clears it).
 	 */
@@ -242,6 +246,20 @@ export class AppComponent implements OnInit{
 	}
 
 	/**
+	 * Closes the Help menu on Escape pressed anywhere in the document. Escape with focus inside the menu
+	 * is handled by the wrapper's (keydown.escape) binding, so events from inside are skipped here to
+	 * avoid a second dismissal.
+	 * WHY: A hover-opened panel has no keyboard focus, so the wrapper binding never sees its Escape.
+	 * Focus is not moved here: the caller's focus stays where it is, unlike dismissHelpMenu.
+	 * @param event The document keydown event
+	 */
+	onDocumentEscape(event: KeyboardEvent) {
+		if (!this.helpMenuOpen()) return;
+		if (this.helpMenuWrapper().nativeElement.contains(event.target as Node)) return;
+		this.helpDismissed.set(true);
+	}
+
+	/**
 	 * Clears the Help menu focus state once focus leaves the whole menu, so the next Tab into it
 	 * opens the panel again. Focus moving between the trigger and the panel links keeps it open.
 	 * @param event The focusout event from the Help menu container
@@ -280,7 +298,7 @@ export class AppComponent implements OnInit{
 		clearTimeout(this.helpCloseTimer);
 		this.helpCloseTimer = setTimeout(() => {
 			this.helpHovered.set(false);
-			// CASE 1: Keyboard focus still in the menu — the Escape dismissal stays in place
+			// Keyboard focus still in the menu keeps the Escape dismissal in place
 			if (!this.helpKeyboardFocus()) this.helpDismissed.set(false);
 		}, 200);
 	}

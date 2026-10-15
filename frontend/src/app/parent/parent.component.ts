@@ -103,8 +103,8 @@ export class ParentComponent implements OnInit {
 
 	/**
     * Leads the stories of the current selected repository
-    * FIX F5: Replaced nested subscribe chains with await firstValueFrom() sequences.
-    * The signal .set() is called once per data source, eliminating duplicate state writes.
+    * Uses await firstValueFrom() sequences instead of nested subscribes.
+    * The signal .set() is called once per data source, so state is not written twice.
     */
 	async loadStories(): Promise<void> {
 		// Bail early if no repository is selected — prevents endless "Loading Stories ..." spinner

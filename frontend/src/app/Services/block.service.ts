@@ -13,9 +13,6 @@ import { ActionTrigger } from './action-trigger';
 /** Payload for adding a block to a scenario — [component, block, stepType, asSingleSteps] */
 type AddBlockPayload = [string, Block, string, boolean];
 
-/** Payload for scenario reference updates — [scenario, storyId] */
-type UpdateScenariosRefPayload = [Scenario, string];
-
 /** Payload for unpacking a block — the block and the step reference it is unpacked from */
 export interface UnpackBlockPayload {
 	block: Block;
@@ -56,8 +53,6 @@ export class BlockService {
 	readonly unpackBlockTrigger = new ActionTrigger<UnpackBlockPayload>();
 	/** Action channel to update reference block name — carries the block */
 	readonly updateNameRefTrigger = new ActionTrigger<Block>();
-	/** Action channel for scenario reference updates — carries [scenario, storyId] */
-	readonly updateScenariosRefTrigger = new ActionTrigger<UpdateScenariosRefPayload>();
 	/**
   * Stores an array of references blocks, before the reference is deleted
   */
@@ -105,13 +100,6 @@ export class BlockService {
   */
 	public deleteBlockEmitter() {
 		this.deleteBlockTrigger.update(n => n + 1);
-	}
-	/**
-  * Emits the scenario reference update action
-  */
-	public updateScenariosRefEmitt(scenario: Scenario, storyId: string) {
-		const val: UpdateScenariosRefPayload = [scenario, storyId];
-		this.updateScenariosRefTrigger.emit(val);
 	}
 	/**
   * Emits the unpack block action
@@ -202,7 +190,7 @@ export class BlockService {
 	checkBackgroundsOnDelete(block: Block, stories: Story[]) {
 		const matchingStories = stories.filter((s: Story) => s !== null && s.background.name === block.name);
 		// Fire-and-forget: delete is async, proceed immediately.
-		// FIX F8b: firstValueFrom used per repo conventions — trigger updates after success.
+		// firstValueFrom: the trigger update must run only after the delete succeeds.
 		if (matchingStories.length == 1)
 			firstValueFrom(this.deleteBlock(block._id!)).then(() => {
 				this.updateBlocksTrigger.update(n => n + 1);
@@ -244,8 +232,8 @@ export class BlockService {
   */
 	deleteUpdateReferenceForBlock() {
 		if (this.referencesBlocks.length !== 0) {
-			// FIX F8b: Promise.all + firstValueFrom instead of fire-and-forget subscribe.
-			// Single trigger update fires once all blocks are processed (previously per-block).
+			// Promise.all + firstValueFrom: every update is awaited before continuing.
+			// One trigger update after all blocks finish avoids a UI refresh per block.
 			const promises = this.referencesBlocks
 				.filter(block => block.usedAsReference === false)
 				.map(block => {
@@ -304,7 +292,7 @@ export class BlockService {
    */
 	updateReferenceStories() {
 		if (this.scenariosToUpdate.length > 0) {
-			// FIX F8b: Promise.all + firstValueFrom instead of fire-and-forget subscribe.
+			// Promise.all + firstValueFrom: every update is awaited before continuing.
 			// No trigger update here — callers update UI via other signal paths.
 			const promises = this.referenceStories.flatMap((story) => {
 				return this.scenariosToUpdate
@@ -523,42 +511,5 @@ export class BlockService {
 			(scenario.stepDefinitions as unknown as Record<string, StepType[]>)[pushStepDef].splice(indexToPush, 0, JSON.parse(JSON.stringify(blockReference)));
 			scenario.saved = false;
 		}
-	}
-
-	//CURRENTLY NOT ACTIVATED
-	convertStepsInAllStories(block: Block, stories: Story[]){
-		let foundScenarios: Scenario[] = [];
-		let foundStories: Story[] = [];
-		const blockStepsToCompare = block.stepDefinitions.when;
-
-		stories.forEach((story) => story !== null && story.scenarios.forEach((scenario) => {
-			for (let i = scenario.stepDefinitions.when.length - 1; i >= 0; i--) {
-				const value = scenario.stepDefinitions.when[i];
-				if (blockStepsToCompare.some((blockStep) =>
-					blockStep.pre === value.pre &&
-          blockStep.mid === value.mid &&
-          JSON.stringify(blockStep.values) === JSON.stringify(value.values))
-				) {
-					scenario.stepDefinitions.when.splice(i, 1);
-					foundScenarios.push(scenario);
-					foundStories.push(story);
-				}
-			}
-		}));
-		const uniqueSetScenarios = new Set(foundScenarios);
-		const uniqueSetStories = new Set(foundStories);
-		foundScenarios = Array.from(uniqueSetScenarios);
-		foundStories = Array.from(uniqueSetStories);
-		foundStories.forEach((story: Story)=> story.scenarios.forEach((scenario) =>{
-			foundScenarios.forEach((scen)=>{
-				if (scenario == scen){
-					const blockReference: StepType = {_blockReferenceId: block._id, id: 0, type: block.name!, stepType: 'when',
-						pre: '', mid: '', post: '', values: []};
-					scenario.stepDefinitions.when.push(JSON.parse(JSON.stringify(blockReference)));
-					this.updateScenariosRefEmitt(scen,  story._id!);
-				};
-			});
-		})
-		);
 	}
 }

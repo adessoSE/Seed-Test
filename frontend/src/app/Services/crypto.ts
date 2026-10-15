@@ -9,7 +9,7 @@
  *
  * Uses WebCrypto when available. On non-secure http origins `window.crypto.subtle` is
  * undefined, so the pure-TypeScript fallback below produces the same digest instead of
- * throwing (which previously broke change-password on http).
+ * throwing, which would break change-password on http.
  *
  * WHY: Over plain http the digest is password-equivalent. The backend accepts it as the
  * credential, so anyone who sees it on the wire can log in without the password. Hashing
