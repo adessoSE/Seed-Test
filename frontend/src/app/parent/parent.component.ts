@@ -117,7 +117,7 @@ export class ParentComponent implements OnInit {
 		}
 
 		// 1. Fetch the complete list of repositories
-		let allRepos: RepositoryContainer[] = [];
+		let allRepos: RepositoryContainer[];
 		try {
 			allRepos = await firstValueFrom(this.projectService.getRepositories());
 			this.repositories = allRepos;
@@ -133,20 +133,12 @@ export class ParentComponent implements OnInit {
 		this.selectedRepository.set(selectedRepo);
 
 		// 3. If the full repository object is found, load its stories
-		if (selectedRepo) {
-			try {
-				const resp = await firstValueFrom(this.storyService.getStories(selectedRepo));
-				this.stories.set(resp);
-				this.routing(); // Handle routing after stories are loaded
-			} catch (err) {
-				// API failure — log the actual error so empty stories are debuggable
-				console.error('Failed to load stories:', err);
-				this.stories.set([]);
-			}
-		} else {
-			// Repository from localStorage not found in server response — user may lack access
+		// Stories and groups load independently; a missing or failed story load must not block the group load below
+		if (selectedRepo)
+			await this.fetchStoriesOf(selectedRepo);
+		// Repository from localStorage not found in server response — user may lack access
+		else
 			this.stories.set([]);
-		}
 
 		// Also load the groups for the current repository (independent of stories — always fires)
 		try {
@@ -154,6 +146,22 @@ export class ParentComponent implements OnInit {
 		} catch {
 			// Prevent spinner hang on group load failure
 			this.groups = [];
+		}
+	}
+
+	/**
+	 * Loads the stories of the selected repository and routes to the requested story.
+	 * A failed load leaves the list empty so the UI does not spin forever.
+	 */
+	private async fetchStoriesOf(repo: RepositoryContainer): Promise<void> {
+		try {
+			const resp = await firstValueFrom(this.storyService.getStories(repo));
+			this.stories.set(resp);
+			this.routing(); // Handle routing after stories are loaded
+		} catch (err) {
+			// API failure — log the actual error so empty stories are debuggable
+			console.error('Failed to load stories:', err);
+			this.stories.set([]);
 		}
 	}
 

@@ -45,17 +45,16 @@ export class ResetPasswordComponent implements OnInit {
 		this.error.set(undefined);
 		this.success.set(undefined);
 		this.loginService.requestReset(form.value.email).subscribe({
-			next: (_value) => {
+			// The backend answers the same way for registered and unknown e-mails (no account enumeration),
+			// so the success text is the server's generic message and must not claim a mail was sent
+			next: (resp) => {
 				this.error.set(undefined);
-				this.success.set(this.defaultSuccessMessage);
+				this.success.set(resp.message || this.defaultSuccessMessage);
 			},
-			error: (error) => {
+			// Only real failures reach here (network or server errors); unknown e-mails return 200
+			error: () => {
 				this.success.set(undefined);
-				if (error !== 'No user found with the given email adress!') {
-					this.error.set("Email couldn't be send.");
-					return;
-				}
-				this.error.set(error.error);
+				this.error.set("Email couldn't be send.");
 			}
 		});
 	}

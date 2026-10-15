@@ -6,6 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Story } from '@seed-test/shared/models/Story';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { of } from 'rxjs';
+import { GroupService } from '../Services/group.service';
 
 describe('StoriesBarComponent', () => {
 	let component: StoriesBarComponent;
@@ -446,6 +447,83 @@ describe('StoriesBarComponent', () => {
 			await new Promise(resolve => setTimeout(resolve, 0));
 			// The lookup must resolve the selected story to its index-based element id
 			expect(scrollSpy).toHaveBeenCalled();
+		});
+	});
+
+	/**
+	 * Regression: the status-change payload stayed set and the effect tracked the story list,
+	 * so every later list change re-applied the old lastTestPassed value to the new objects.
+	 */
+	describe('regression: scenario status change must not be re-applied', () => {
+		it('applies a status change once, not again when the story list is replaced', () => {
+			const before = { _id: 'a', story_id: 1, scenarios: [{ scenario_id: 1, name: 'x', lastTestPassed: undefined }] } as unknown as Story;
+			component.stories.set([before]);
+			component.scenarioService.scenarioStatusChangeEmit('a', 1, true);
+			TestBed.flushEffects();
+			expect(before.scenarios[0].lastTestPassed).toBe(true);
+
+			const reloaded = { _id: 'a', story_id: 1, scenarios: [{ scenario_id: 1, name: 'x', lastTestPassed: false }] } as unknown as Story;
+			component.stories.set([reloaded]);
+			TestBed.flushEffects();
+			expect(reloaded.scenarios[0].lastTestPassed).toBe(false);
+		});
+
+		it('applies every status change of one run, even when they are emitted in one tick', () => {
+			const story = {
+				_id: 'a', story_id: 1,
+				scenarios: [{ scenario_id: 1, name: 'x', lastTestPassed: undefined }, { scenario_id: 2, name: 'y', lastTestPassed: undefined }]
+			} as unknown as Story;
+			component.stories.set([story]);
+
+			// A run reports one status per scenario in a loop; a single payload slot kept only the last one
+			component.scenarioService.scenarioStatusChangeEmit('a', 1, true);
+			component.scenarioService.scenarioStatusChangeEmit('a', 2, false);
+			TestBed.flushEffects();
+
+			expect(story.scenarios[0].lastTestPassed).toBe(true);
+			expect(story.scenarios[1].lastTestPassed).toBe(false);
+		});
+	});
+
+	/**
+	 * Regression: create/update/delete requests were payload signals reset by the handler only after
+	 * a race with re-initialisation, so a repeated identical request was dropped or re-run on construction.
+	 */
+	describe('regression: group requests run once per request', () => {
+		it('runs a repeated identical group creation once per request', () => {
+			const create = vi.spyOn(StoriesBarComponent.prototype as unknown as { handleCreateGroup: (p: unknown) => Promise<void> }, 'handleCreateGroup').mockResolvedValue(undefined);
+			try {
+				const payload = { repositoryContainer: { _id: 'r1', repoName: 'repo', source: 'db' }, group: { title: 'G', member_stories: [], isSequential: false } } as unknown as Parameters<GroupService['createGroupEvent']>[0];
+				TestBed.inject(GroupService).createGroupEvent(payload);
+				TestBed.flushEffects();
+				TestBed.inject(GroupService).createGroupEvent(payload);
+				TestBed.flushEffects();
+				expect(create).toHaveBeenCalledTimes(2);
+			} finally {
+				create.mockRestore();
+			}
+		});
+
+		it('does not replay an earlier group creation in a newly created list', () => {
+			const create = vi.spyOn(StoriesBarComponent.prototype as unknown as { handleCreateGroup: (p: unknown) => Promise<void> }, 'handleCreateGroup').mockResolvedValue(undefined);
+			try {
+				const payload = { repositoryContainer: { _id: 'r1', repoName: 'repo', source: 'db' }, group: { title: 'G', member_stories: [], isSequential: false } } as unknown as Parameters<GroupService['createGroupEvent']>[0];
+				TestBed.inject(GroupService).createGroupEvent(payload);
+				TestBed.flushEffects();
+				expect(create).toHaveBeenCalledTimes(1);
+
+				const fresh = TestBed.createComponent(StoriesBarComponent);
+				fresh.componentRef.setInput('isDark', false);
+				TestBed.flushEffects();
+				expect(create).toHaveBeenCalledTimes(1);
+
+				// Positive control: the new list does react to requests made after its creation
+				TestBed.inject(GroupService).createGroupEvent(payload);
+				TestBed.flushEffects();
+				expect(create).toHaveBeenCalledTimes(3);
+			} finally {
+				create.mockRestore();
+			}
 		});
 	});
 });

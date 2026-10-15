@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { NotificationService } from './notification.service';
+import { ActionTrigger } from './action-trigger';
 
 /**
  * Service for communication between example component and the backend
@@ -14,10 +15,10 @@ export class ExampleService {
 
 	/** Signal for delete example trigger */
 	readonly deleteExampleTrigger = signal(0);
-	/** Signal for new example action — carries the example name */
-	readonly newExampleValue = signal<string | null>(null);
-	/** Signal for rename example action — carries name and column index */
-	readonly renameExampleValue = signal<{ name: string; column: number } | null>(null);
+	/** Action channel for new example — carries the example name */
+	readonly newExampleTrigger = new ActionTrigger<string>();
+	/** Action channel for rename example — carries name and column index */
+	readonly renameExampleTrigger = new ActionTrigger<{ name: string; column: number }>();
 	/** Signal for update example table trigger */
 	readonly updateExampleTableTrigger = signal(0);
 	/** Triggers the delete example signal */
@@ -29,15 +30,15 @@ export class ExampleService {
   * @param name example name
   */
 	newExampleEmit(name: string) {
-		this.newExampleValue.set(name);
+		this.newExampleTrigger.emit(name);
 	}
 	/**
-  * Sets the rename example value
+  * Emits the rename example action
   * @param name example name
   * @param column column index
   */
 	renameExampleEmit(name: string, column: number) {
-		this.renameExampleValue.set({ name, column });
+		this.renameExampleTrigger.emit({ name, column });
 	}
 	/**
    * Triggers the update example table signal

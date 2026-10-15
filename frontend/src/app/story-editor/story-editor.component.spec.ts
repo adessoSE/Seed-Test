@@ -1,9 +1,10 @@
-﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
+﻿import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { StoryEditorComponent } from './story-editor.component';
 import { Story } from '@seed-test/shared/models/Story';
 import { Scenario } from '@seed-test/shared/models/Scenario';
@@ -181,7 +182,7 @@ describe('StoryEditorComponent', () => {
 			const indexScenario: number = story.scenarios.indexOf(component.selectedScenario()!);
 			const deletedScenario = story.scenarios[indexScenario];
 
-			component.scenarioDeleted();
+			component.scenarioDeleted(deletedScenario.scenario_id);
 			// After deleting one of two scenarios, selectScenario is called on the remaining one, setting showEditor = true
 			expect(component.showEditor()).toBeTruthy();
 
@@ -265,14 +266,14 @@ describe('StoryEditorComponent', () => {
 	});
 
 	describe('renameStoryEmit', () => {
-		it('should set signal value', () => {
+		it('hands the new title and description to renameStory', () => {
+			const renameStory = vi.spyOn(component, 'renameStory').mockImplementation(() => undefined);
 			const newStoryTitle = 'This is my new story title';
 			const newStoryDescription = 'I let here a brief description';
 			component.storyService.renameStoryEmit(newStoryTitle, newStoryDescription);
-			expect(component.storyService.renameStoryValue()).toEqual({
-				newStoryTitle,
-				newStoryDescription
-			});
+			TestBed.flushEffects();
+			expect(renameStory).toHaveBeenCalledTimes(1);
+			expect(renameStory).toHaveBeenCalledWith(newStoryTitle, newStoryDescription);
 		});
 	});
 
@@ -322,7 +323,7 @@ describe('StoryEditorComponent', () => {
 			component.selectedScenario.set(stories[0].scenarios[0]);
 			const initialLen = stories[0].scenarios.length;
 
-			component.scenarioDeleted();
+			component.scenarioDeleted(stories[0].scenarios[0].scenario_id);
 
 			// FIX F7: Check updated signal value (not the original object) since scenarioDeleted now
 			// uses selectedStory.update() instead of in-place splice to trigger OnPush CD
@@ -435,7 +436,7 @@ describe('StoryEditorComponent', () => {
 			component.selectedScenario.set(singleScenarioStory.scenarios[0]);
 			component.stories.set([singleScenarioStory]);
 
-			component.scenarioDeleted();
+			component.scenarioDeleted(100);
 
 			// FIX F7: Flush effects since scenarioDeleted now uses selectedStory.update()
 			// which triggers the newSelectedStoryEffect to re-run and call selectScenario(null)
@@ -464,7 +465,171 @@ describe('StoryEditorComponent', () => {
 			component.selectedStory.set(s1);
 			component.selectedScenario.set(fakeScenario);
 
-			expect(() => component.scenarioDeleted()).not.toThrow();
+			expect(() => component.scenarioDeleted(fakeScenario.scenario_id)).not.toThrow();
+		});
+	});
+
+	/**
+	 * Regression: action triggers were payload signals that were never reset, and the
+	 * effects consuming them also tracked selectedStory/selectedScenario. Every selection
+	 * change therefore replayed the last action (cascading scenario deletes, repeated runs).
+	 */
+	describe('regression: action signals must not replay on selection changes', () => {
+		/** Makes the confirm dialog answer "delete" (or any other result) */
+		function answerDialogWith(result: string) {
+			vi.spyOn(component.dialog, 'open').mockReturnValue({
+				afterClosed: () => of(result)
+			} as unknown as ReturnType<MatDialog['open']>);
+		}
+
+		it('deletes exactly one scenario per delete request, even after the selection moves on', () => {
+			const http = TestBed.inject(HttpTestingController);
+			const editable = structuredClone(story);
+			editable.scenarios.push({ ...structuredClone(story.scenarios[0]), scenario_id: 5, name: 'third scenario' });
+			component.selectedStory.set(editable);
+			component.selectScenario(editable.scenarios[0]);
+			answerDialogWith('delete');
+
+			component.showDeleteScenarioToast(editable.scenarios[0]);
+			TestBed.flushEffects();
+
+			const deletes = http.match(req => req.method === 'DELETE');
+			expect(deletes).toHaveLength(1);
+			expect(deletes[0].request.url).toContain('/story/scenario/a/1');
+			deletes[0].flush({ ...editable, scenarios: editable.scenarios.slice(1) });
+			TestBed.flushEffects();
+
+			// Selection has moved (scenarioDeleted selects the last remaining scenario); a later
+			// selection change must not trigger another delete either
+			component.selectScenario(component.selectedStory()!.scenarios[0]);
+			TestBed.flushEffects();
+			expect(http.match(req => req.method === 'DELETE')).toHaveLength(0);
+		});
+
+		it('handles a run request once and does not replay it when the selected story changes', () => {
+			const runOption = vi.spyOn(component, 'runOption').mockImplementation(() => undefined);
+			component.selectedStory.set(structuredClone(story));
+			component.apiService.runSaveOption('run');
+			TestBed.flushEffects();
+			expect(runOption).toHaveBeenCalledTimes(1);
+
+			component.selectedStory.set(structuredClone(stories[0]));
+			TestBed.flushEffects();
+			expect(runOption).toHaveBeenCalledTimes(1);
+		});
+
+		it('does not replay an earlier rename when a new editor is created', () => {
+			// Prototype spy: the freshly created editor must reach the same method as the first one
+			const renameStory = vi.spyOn(StoryEditorComponent.prototype, 'renameStory').mockImplementation(() => undefined);
+			try {
+				component.storyService.renameStoryEmit('Old title', 'Old description');
+				TestBed.flushEffects();
+				expect(renameStory).toHaveBeenCalledTimes(1);
+
+				// Regression: the payload signal was never reset, so a freshly created editor re-applied the old rename on construction
+				const fresh = TestBed.createComponent(StoryEditorComponent);
+				fresh.componentRef.setInput('isDark', false);
+				fresh.detectChanges();
+				TestBed.flushEffects();
+				expect(renameStory).toHaveBeenCalledTimes(1);
+
+				// Positive control: the new editor does react to requests made after its creation
+				component.storyService.renameStoryEmit('New title', 'New description');
+				TestBed.flushEffects();
+				expect(renameStory).toHaveBeenCalledTimes(3);
+			} finally {
+				renameStory.mockRestore();
+			}
+		});
+
+		it('applies every run request of a repeated identical option', () => {
+			const runOption = vi.spyOn(component, 'runOption').mockImplementation(() => undefined);
+			component.selectedStory.set(structuredClone(story));
+			component.apiService.runSaveOption('run');
+			TestBed.flushEffects();
+			component.apiService.runSaveOption('run');
+			TestBed.flushEffects();
+			expect(runOption).toHaveBeenCalledTimes(2);
+		});
+
+		it('removes the deleted scenario even when another scenario is selected', () => {
+			const [first] = story.scenarios;
+			const twoScenarios: Story = {
+				...structuredClone(story),
+				scenarios: [{ ...structuredClone(first), scenario_id: 1 }, { ...structuredClone(first), scenario_id: 2 }]
+			};
+			component.selectedStory.set(twoScenarios);
+			// The user moved to scenario 2 while the delete request for scenario 1 was in flight
+			component.selectedScenario.set(twoScenarios.scenarios[1]);
+
+			component.scenarioDeleted(1);
+
+			expect(component.selectedStory()!.scenarios.map(s => s.scenario_id)).toEqual([2]);
+			expect(component.selectedScenario()?.scenario_id).toBe(2);
+			expect(component.showEditor()).toBeTruthy();
+		});
+
+		it('does not reselect the deleted scenario when it was the only one', () => {
+			const [first] = story.scenarios;
+			const onlyScenario: Story = { ...structuredClone(story), scenarios: [{ ...structuredClone(first), scenario_id: 7 }] };
+			component.selectedStory.set(onlyScenario);
+			component.selectedScenario.set(onlyScenario.scenarios[0]);
+
+			component.scenarioDeleted(7);
+
+			// Regression: the pre-update list still held the deleted scenario, so it was selected again
+			expect(component.selectedStory()!.scenarios).toEqual([]);
+			expect(component.selectedScenario()).toBeNull();
+			expect(component.showEditor()).toBeFalsy();
+		});
+
+		it('asks before running when the selected scenario has unsaved edits', () => {
+			component.selectedStory.set({ ...structuredClone(story), background: { ...story.background, saved: true } });
+			// The scenario editor child owns the scenario's saved flag
+			Object.defineProperty(component, 'scenarioChild', { value: () => ({ selectedScenario: () => ({ saved: false }) }) });
+			const open = vi.spyOn(component.dialog, 'open').mockReturnValue({ afterClosed: () => of(undefined) } as unknown as ReturnType<MatDialog['open']>);
+			const runTests = vi.spyOn(component.storyService, 'runTests');
+
+			component.runTests(1);
+
+			// The dialog must come first: the backend runs the stored scenario, not the unsaved edits
+			expect(open).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+				data: expect.objectContaining({ title: 'Scenario was not saved' })
+			}));
+			expect(runTests).not.toHaveBeenCalled();
+		});
+
+		it('ends the one-run unsaved allowance when the run fails', async () => {
+			component.selectedStory.set(structuredClone(story));
+			component.runUnsaved = true;
+			// The run path scrolls the loading element into view; reuse the rendered one if present
+			const existing = document.getElementById('loading');
+			const loading = existing ?? document.body.appendChild(Object.assign(document.createElement('div'), { id: 'loading' }));
+			loading.scrollIntoView = vi.fn();
+			vi.spyOn(component, 'testRunParams').mockReturnValue({ browser: null, emulator: null, width: undefined, height: undefined, stepWaitTime: undefined, repository: undefined, repositoryId: undefined, source: undefined, oneDriver: undefined, testRunner: '' });
+			vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+			const runTests = vi.spyOn(component.storyService, 'runTests').mockReturnValue(throwError(() => new Error('run failed')));
+
+			try {
+				await component.runTests(1);
+			} finally {
+				if (!existing) loading.remove();
+			}
+
+			expect(runTests).toHaveBeenCalled();
+			// Regression: runUnsaved was only cleared on report completion, so after a failed run every later
+			// Run of an unsaved scenario skipped the dialog
+			expect(component.runUnsaved).toBe(false);
+		});
+
+		it('keeps local story edits when the newSelectedStory input has not changed', () => {
+			fixture.componentRef.setInput('newSelectedStory', structuredClone(stories[0]));
+			TestBed.flushEffects();
+
+			const edited = { ...component.selectedStory()!, title: 'edited locally' };
+			component.selectedStory.set(edited);
+			TestBed.flushEffects();
+			expect(component.selectedStory()).toBe(edited);
 		});
 	});
 });

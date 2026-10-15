@@ -106,7 +106,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	private readonly githubCallbackEffect = effect(() => {
 		const params = this.queryParams();
 		if (!params?.['code']) return;
-		untracked(() => this.handleGithubCallback(params['code']));
+		// GitHub echoes back the state we sent; the backend rejects the callback when it is missing
+		untracked(() => this.handleGithubCallback(params['code'], String(params['state'] ?? '')));
 	});
 
 	constructor() {
@@ -114,35 +115,38 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	}
 
 	/** Processes GitHub OAuth callback — authenticates and optionally merges accounts */
-	private handleGithubCallback(code: string) {
-		this.loginService.githubCallback(code).subscribe((resp) => {
-			if (resp.error)
-				if (resp.status === 501)
+	private handleGithubCallback(code: string, state: string) {
+		// Consume the merge intent before the request, so a failed callback cannot leave it behind.
+		// A leftover token would make a later plain GitHub login merge into the old Seed account.
+		const mergeToken = localStorage.getItem('mergeToken');
+		localStorage.removeItem('mergeToken');
+		this.loginService.githubCallback(code, state).subscribe({
+			next: (resp) => {
+				if (resp.error)
+					if (resp.status === 501)
+						this.error.set('GitHub Integration has not been set up yet.');
+					else
+						this.error.set(this.defaultErrorMessage);
+				else {
+					localStorage.setItem('login', 'true');
+					if (mergeToken)
+						// The callback logged in as the fresh GitHub-only account G. Merge its
+						// verified identity into the Seed account that was authorized during
+						// the initiate step (token proves ownership — no client-controlled userId).
+						this.loginService.mergeAccountGithub(mergeToken).subscribe({
+							next: () => this.getRepositories(),
+							error: () => this.getRepositories()
+						});
+					else
+						this.getRepositories();
+				}
+			},
+			error: (error) => {
+				if (error.status === 501)
 					this.error.set('GitHub Integration has not been set up yet.');
 				else
 					this.error.set(this.defaultErrorMessage);
-			else {
-				localStorage.setItem('login', 'true');
-				const mergeToken = localStorage.getItem('mergeToken');
-				localStorage.removeItem('mergeToken');
-				if (mergeToken) 
-					// The callback logged in as the fresh GitHub-only account G. Merge its
-					// verified identity into the Seed account that was authorized during
-					// the initiate step (token proves ownership — no client-controlled userId).
-					this.loginService.mergeAccountGithub(mergeToken).subscribe({
-						next: () => this.getRepositories(),
-						error: () => this.getRepositories()
-					});
-				else 
-					this.getRepositories();
-				
 			}
-		},
-		(error) => {
-			if (error.status === 501)
-				this.error.set('GitHub Integration has not been set up yet.');
-			else
-				this.error.set(this.defaultErrorMessage);
 		});
 	}
 
@@ -191,15 +195,22 @@ export class LoginComponent implements OnInit, AfterViewInit {
 		// returns of(null)), so we must NOT set login=true. Doing so would make the app enter
 		// the logged-in shell without a valid session and loop 401 requests until the backend
 		// rate limiter blocks everything (see bootstrap effects in app.component/parent).
-		this.loginService.loginUser(user).subscribe((loggedInUser) => {
-			if (!loggedInUser) {
+		this.loginService.loginUser(user).subscribe({
+			next: (loggedInUser) => {
+				if (!loggedInUser) {
+					this.error.set(this.defaultErrorMessage);
+					this.isLoadingRepositories.set(false);
+					return;
+				}
+				localStorage.setItem('login', 'true');
+				this.isLoadingRepositories.set(false);
+				this.getRepositories();
+			},
+			error: (err) => {
+				console.error('Login request failed:', err);
 				this.error.set(this.defaultErrorMessage);
 				this.isLoadingRepositories.set(false);
-				return;
 			}
-			localStorage.setItem('login', 'true');
-			this.isLoadingRepositories.set(false);
-			this.getRepositories();
 		});
 	}
 	/**
@@ -217,10 +228,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
 			loadingSpinner.scrollIntoView();
         
 		this.projectServise.getRepositories().subscribe((resp: RepositoryContainer[]) => {
-			if (resp.length <= 0) {
-				console.log('repositories empty');
+			if (resp.length <= 0)
 				this.router.navigate(['/accountManagement']);
-			}
 			resp.forEach((elem) => {
 				if (elem.repoName == repository.repoName && elem.source == repository.source && elem._id == repository._id) {
 					this.router.navigate(['']);
@@ -248,8 +257,17 @@ export class LoginComponent implements OnInit, AfterViewInit {
 			this.error.set('GitHub Integration has not been set up yet.');
 			return;
 		}
+		// A plain GitHub login must never inherit a merge intent from an earlier, abandoned merge flow
+		localStorage.removeItem('mergeToken');
 		this.isLoadingRepositories.set(true);
-		this.loginService.githubLogin();
+		// On success the browser leaves this page, so only the failure needs handling here
+		this.loginService.githubLogin().subscribe({
+			error: (err) => {
+				console.error('Could not start GitHub login:', err);
+				this.error.set('GitHub login could not be started. Please try again.');
+				this.isLoadingRepositories.set(false);
+			}
+		});
 	}
 
 	onDark(): boolean {

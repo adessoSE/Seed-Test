@@ -1,4 +1,4 @@
-﻿import { Injectable, inject, signal } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NotificationService } from './notification.service';
 import { Group } from '@seed-test/shared/models/Group';
 import type { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { ActionTrigger } from './action-trigger';
 
 /** Payload for creating a custom group via the signal */
 interface CreateGroupPayload {
@@ -51,31 +52,31 @@ export class GroupService {
 	private http = inject(HttpClient);
 	notify = inject(NotificationService);
 
-	/** Signal for create custom group action — carries the group object */
-	readonly createCustomGroupValue = signal<CreateGroupPayload | null>(null);
-	/** Signal for update group action — carries the group object */
-	readonly updateGroupValue = signal<UpdateGroupPayload | null>(null);
-	/** Signal for delete group action — carries the values */
-	readonly deleteGroupValue = signal<DeleteGroupPayload | null>(null);
+	/** Action channel for create custom group — carries the group object */
+	readonly createCustomGroupTrigger = new ActionTrigger<CreateGroupPayload>();
+	/** Action channel for update group — carries the group object */
+	readonly updateGroupTrigger = new ActionTrigger<UpdateGroupPayload>();
+	/** Action channel for delete group — carries the values */
+	readonly deleteGroupTrigger = new ActionTrigger<DeleteGroupPayload>();
 	/**
-    * Sets the create group value
+    * Emits the create group action
     * @param group
   */
 	createGroupEvent(group: CreateGroupPayload) {
-		this.createCustomGroupValue.set(group);
+		this.createCustomGroupTrigger.emit(group);
 	}
 	/**
-   * Sets the update group value
+   * Emits the update group action
    * @param group
   */
 	updateGroupEvent(group: UpdateGroupPayload) {
-		this.updateGroupValue.set(group);
+		this.updateGroupTrigger.emit(group);
 	}
 	/**
-    * Sets the delete group value
+    * Emits the delete group action
   */
 	public deleteGroupEvent(values: DeleteGroupPayload) {
-		this.deleteGroupValue.set(values);
+		this.deleteGroupTrigger.emit(values);
 	}
 	/**
     * Get groups

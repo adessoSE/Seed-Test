@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { config, firstValueFrom } from 'rxjs';
+import { vi } from 'vitest';
 import { ProjectService } from './project.service';
 
 
@@ -18,8 +20,6 @@ describe('ProjectService', () => {
 		sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
 	});
 	afterEach(() => {
-		// Reset in-flight flag so subsequent tests can trigger new HTTP requests.
-		(service as any).repositoriesFetchInFlight = false;
 		sessionStorage.removeItem('url_backend');
 		httpController.verify();
 	});
@@ -32,8 +32,6 @@ describe('ProjectService', () => {
 		service.getRepositories().subscribe();
 		const req = httpController.expectOne('http://localhost:8080/api/repository/');
 		req.flush(repos);
-		// Reset in-flight flag so subsequent getRepositories() calls in the test body can fire new requests
-		(service as any).repositoriesFetchInFlight = false;
 		return { signalValue: service.repositoriesSignal() };
 	}
 
@@ -47,9 +45,10 @@ describe('ProjectService', () => {
 
 		it('should fire exactly one HTTP request when multiple subscribers call getRepositories() at the same time', () => {
 			const results1: unknown[] = [];
+			const results2: unknown[] = [];
 
 			service.getRepositories().subscribe(r => results1.push(r));
-			service.getRepositories(); // second call — returns EMPTY (in-flight guard), no HTTP request
+			service.getRepositories().subscribe(r => results2.push(r)); // shares the in-flight request
 
 			const req = httpController.expectOne('http://localhost:8080/api/repository/');
 			expect(req.request.method).toBe('GET');
@@ -57,27 +56,22 @@ describe('ProjectService', () => {
 			const mockRepos = [{ _id: '1', repoName: 'RepoA' }];
 			req.flush(mockRepos);
 
-			// Only the HTTP response is emitted (signal is NOT part of the Observable chain).
-			expect(results1.length).toBe(1);
-			expect(results1[0]).toEqual(mockRepos);
+			// Regression: the second caller used to receive EMPTY and never saw the list.
+			expect(results1).toEqual([mockRepos]);
+			expect(results2).toEqual([mockRepos]);
 		});
 
-		it('should return signal value to late callers without a second HTTP request', () => {
-			const earlyResults: unknown[] = [];
-
-			service.getRepositories().subscribe(r => earlyResults.push(r));
-
-			const req = httpController.expectOne('http://localhost:8080/api/repository/');
+		it('should give a late caller the cached list via firstValueFrom without a second HTTP request', async () => {
 			const mockRepos = [{ _id: '1', repoName: 'RepoA' }];
-			req.flush(mockRepos);
+			service.getRepositories().subscribe();
+			httpController.expectOne('http://localhost:8080/api/repository/').flush(mockRepos);
 
-			// Late callers get EMPTY (in-flight guard was already cleared by afterEach).
-			// The signal already holds the response from the first fetch.
-			service.getRepositories(); // in-flight guard — returns EMPTY
+			// Regression: after a successful fetch, firstValueFrom(getRepositories()) threw EmptyError,
+			// which made parent.component.ts clear stories and groups.
+			const late = await firstValueFrom(service.getRepositories());
 
+			expect(late).toEqual(mockRepos);
 			httpController.expectNone('http://localhost:8080/api/repository/');
-			// Signal holds the response — late callers should read repositoriesSignal() directly
-			expect(service.repositoriesSignal()).toEqual(mockRepos);
 		});
 
 		it('should write response to sessionStorage', () => {
@@ -118,6 +112,29 @@ describe('ProjectService', () => {
 			req2.flush([{ _id: '2', repoName: 'New' }]);
 			// Only emits the fresh response — signal is updated inside switchMap but not part of the chain.
 			expect(freshResults).toEqual([[{ _id: '2', repoName: 'New' }]]);
+		});
+	});
+
+	describe('out-of-order responses (#049)', () => {
+
+		it('should keep the newer list when an older response arrives after a refresh', () => {
+			const older = [{ _id: '1', repoName: 'Before create' }];
+			const newer = [{ _id: '1', repoName: 'Before create' }, { _id: '2', repoName: 'Just created' }];
+
+			// Request A is started before the refresh (e.g. an in-flight list fetch during create).
+			service.getRepositories().subscribe();
+			const reqOld = httpController.expectOne('http://localhost:8080/api/repository/');
+
+			// The refresh after create starts request B, which must win.
+			service.updateRepositoryEmitter();
+			const reqNew = httpController.expectOne('http://localhost:8080/api/repository/');
+
+			reqNew.flush(newer);
+			// Regression: the stale response used to overwrite repositoriesSignal with the old list.
+			reqOld.flush(older);
+
+			expect(service.repositoriesSignal()).toEqual(newer);
+			expect(JSON.parse(sessionStorage.getItem('repositories')!)).toEqual(newer);
 		});
 	});
 
@@ -353,5 +370,68 @@ describe('ProjectService', () => {
 
 	});
 
+	describe('clearRepositories (logout / account switch in the same tab)', () => {
+		const url = 'http://localhost:8080/api/repository/';
+
+		it('should drop the previous user list so the next login fetches its own repositories', () => {
+			fetchAndFlush([{ _id: '1', repoName: 'UserA' }]);
+
+			service.clearRepositories();
+
+			// Regression: the shareReplay cache survived logout and replayed user A's list to user B.
+			expect(service.repositoriesSignal()).toEqual([]);
+			expect(sessionStorage.getItem('repositories')).toBeNull();
+
+			const results: unknown[][] = [];
+			service.getRepositories().subscribe(r => results.push(r));
+			httpController.expectOne(url).flush([{ _id: '2', repoName: 'UserB' }]);
+
+			expect(results).toEqual([[{ _id: '2', repoName: 'UserB' }]]);
+			expect(service.repositoriesSignal()).toEqual([{ _id: '2', repoName: 'UserB' }]);
+		});
+
+		it('should ignore a response that was still in flight for the previous session', () => {
+			service.getRepositories().subscribe();
+			const req = httpController.expectOne(url);
+
+			service.clearRepositories();
+			req.flush([{ _id: '1', repoName: 'UserA' }]);
+
+			expect(service.repositoriesSignal()).toEqual([]);
+			expect(sessionStorage.getItem('repositories')).toBeNull();
+		});
+	});
+
+	describe('fire-and-forget emitters (background fetch error handling)', () => {
+		const url = 'http://localhost:8080/api/repository/';
+
+		it('should not raise an unhandled RxJS error when the updateRepositoryEmitter fetch fails', async () => {
+			const onUnhandled = vi.fn();
+			const previous = config.onUnhandledError;
+			config.onUnhandledError = onUnhandled;
+			try {
+				service.updateRepositoryEmitter();
+				httpController.expectOne(url).flush('boom', { status: 500, statusText: 'Server Error' });
+				await new Promise(resolve => setTimeout(resolve, 0));
+				expect(onUnhandled).not.toHaveBeenCalled();
+			} finally {
+				config.onUnhandledError = previous;
+			}
+		});
+
+		it('should not raise an unhandled RxJS error when the getRepositoriesEmitter fetch fails', async () => {
+			const onUnhandled = vi.fn();
+			const previous = config.onUnhandledError;
+			config.onUnhandledError = onUnhandled;
+			try {
+				service.getRepositoriesEmitter();
+				httpController.expectOne(url).flush('boom', { status: 500, statusText: 'Server Error' });
+				await new Promise(resolve => setTimeout(resolve, 0));
+				expect(onUnhandled).not.toHaveBeenCalled();
+			} finally {
+				config.onUnhandledError = previous;
+			}
+		});
+	});
 
 });

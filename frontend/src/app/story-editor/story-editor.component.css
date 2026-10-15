@@ -496,7 +496,7 @@ button#background_up {
   padding: 0.5em;
   display: block;
   white-space: pre-line;
-  opacity: 96%;
+  /* No opacity: a translucent hover panel let the text behind it show through (buglist #4) */
   z-index: 2;
   left: -7em;
   top:auto;

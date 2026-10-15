@@ -170,8 +170,20 @@
 }
 
 /* Remove transition from help button — causes flicker during rapid mouse movement */
+/* padding-bottom needs !important to beat .rightButton's `padding: 2px !important`. The extra
+   bottom padding extends the hit area down to the panel so hover does not drop between them.
+   Padding grows by 6px (2px -> 8px), so the margin shrinks by the same 6px (13px -> 7px) and the
+   navbar height stays unchanged. */
 .help-button {
   transition: none !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 7px;
+}
+
+/* .rightButton removes the outline for mouse users; keyboard users still need a visible focus ring */
+.help-button:focus-visible {
+  outline: 2px solid var(--ocean-blue);
+  outline-offset: 2px;
 }
 
 .rightButton:hover, .menuButton:hover {
@@ -288,7 +300,7 @@ a:hover{
   position: relative;
 }
 
-/* 8px transparent bridge — keeps :hover alive when mouse moves from button into the gap */
+/* 8px transparent bridge — keeps the wrapper hovered (mouseenter/mouseleave) when the mouse moves from button into the gap */
 .help-hover-wrapper::before {
   content: '';
   position: absolute;
@@ -312,7 +324,9 @@ a:hover{
   padding: 4px 0;
 }
 
-.help-hover-wrapper:hover .help-menu-panel {
+/* Visibility is decided in AppComponent (helpMenuOpen: hover, keyboard focus, Escape dismissal), not by
+   :hover / :focus-within, so the panel and aria-expanded cannot disagree. */
+.help-hover-wrapper.help-open .help-menu-panel {
   display: block;
 }
 
@@ -325,7 +339,8 @@ a:hover{
   white-space: nowrap;
 }
 
-.help-menu-item:hover {
+.help-menu-item:hover,
+.help-menu-item:focus-visible {
   color: var(--ocean-blue);
   background-color: rgba(255, 255, 255, 0.05);
 }

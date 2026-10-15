@@ -69,9 +69,16 @@
               [ngClass]="{'mat-checked mat-slide-toggle-bar':isDark()}" title="Switch to dark/light mode" />
               <mat-icon>bedtime</mat-icon>
             </div>
-            <div class="help-hover-wrapper">
-              <button type="button" class="rightButton help-button">Help</button>
-              <div class="help-menu-panel" tabindex="0">
+            <!-- tabindex -1: the wrapper is never a tab stop; it only needs focus support for the Escape keydown handler -->
+            <div class="help-hover-wrapper" #helpWrapper [class.help-open]="helpMenuOpen()" tabindex="-1"
+            (mouseenter)="onHelpPointerEnter()" (mouseleave)="onHelpPointerLeave()"
+            (focusin)="onHelpFocusIn($event)" (focusout)="onHelpFocusOut($event, helpWrapper)"
+            (keydown.escape)="dismissHelpMenu(helpWrapper)">
+              <!-- Keyboard users reach the menu via Tab; the help-open class (driven by helpMenuOpen) shows the panel -->
+              <!-- Disclosure pattern: aria-expanded tracks the visible panel; no aria-haspopup, because the panel holds links, not a menu -->
+              <button type="button" class="rightButton help-button"
+              aria-controls="helpMenuPanel" [attr.aria-expanded]="helpMenuOpen()" (click)="helpDismissed.set(false)">Help</button>
+              <div class="help-menu-panel" id="helpMenuPanel">
                 <a class="help-menu-item" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu"
                 target="_blank">Tutorial (german)</a>
                 <a class="help-menu-item" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng"

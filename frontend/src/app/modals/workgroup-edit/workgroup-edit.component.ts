@@ -229,26 +229,32 @@ export class WorkgroupEditComponent {
 		this.workgroupList.set([]);
 		this.workgroupProject = project;
 		// Check AI availability on open so the AI tab can be conditionally hidden
-		this.projectService.checkAiAvailability().subscribe(available => {
-			this.isAiAvailable.set(available);
+		this.projectService.checkAiAvailability().subscribe({
+			next: available => this.isAiAvailable.set(available),
+			// checkAiAvailability already maps HTTP errors to false; this guards against a future change to that
+			error: (err) => this.notifyFailure('Could not check AI availability.', err)
 		});
-		// Deep-check: aiConfig may exist but have missing sub-fields (e.g. empty object from DB)
-		if (!this.workgroupProject.aiConfig?.textPreparation?.name) 
-			this.workgroupProject.aiConfig = {
-				textPreparation: {
-					name: 'local',
-					modelName: 'mistral',
-					provider: 'custom' as const,
-					baseURL: 'http://localhost:11434/v1'
-				},
-				jsonConversion: {
-					name: 'local',
-					modelName: 'codellama',
-					provider: 'custom' as const,
-					baseURL: 'http://localhost:11434/v1'
-				}
-			};
-    
+		// Deep-check per sub-object: aiConfig may exist but have missing sub-fields (e.g. empty object from DB).
+		// Defaults come first so existing values win; replacing the whole aiConfig when only one
+		// sub-object was incomplete would silently drop the other one (e.g. a saved jsonConversion).
+		const aiConfig = this.workgroupProject.aiConfig;
+		this.workgroupProject.aiConfig = {
+			textPreparation: {
+				name: 'local',
+				modelName: 'mistral',
+				provider: 'custom' as const,
+				baseURL: 'http://localhost:11434/v1',
+				...aiConfig?.textPreparation
+			},
+			jsonConversion: {
+				name: 'local',
+				modelName: 'codellama',
+				provider: 'custom' as const,
+				baseURL: 'http://localhost:11434/v1',
+				...aiConfig?.jsonConversion
+			}
+		};
+
 		this.loadGlobalSettings();
 		this.modalReference = this.modalService.open(this.workgroupEditModal(), {
 			ariaLabelledBy: 'modal-basic-titles'
@@ -257,9 +263,12 @@ export class WorkgroupEditComponent {
 		if (project.source === 'db')
 			this.projectService
 				.getWorkgroup(this.workgroupProject._id!)
-				.subscribe((res) => {
-					this.workgroupList.set(res.member);
-					this.workgroupOwner.set(res.owner.email);
+				.subscribe({
+					next: (res) => {
+						this.workgroupList.set(res.member);
+						this.workgroupOwner.set(res.owner.email);
+					},
+					error: (err) => this.notifyFailure('Could not load the workgroup members.', err)
 				});
 	}
 
@@ -267,10 +276,14 @@ export class WorkgroupEditComponent {
 		document
 			.getElementById('changeOwner')!
 			.setAttribute('style', 'display: none');
-		this.projectService.changeOwner(this.workgroupProject._id!, newOwner).subscribe((_) => {
-			this.notify.success('successfully changed', 'New owner');
-			// Invalidate repository cache so the UI reflects the new owner immediately
-			this.projectService.updateRepositoryEmitter();
+		this.projectService.changeOwner(this.workgroupProject._id!, newOwner).subscribe({
+			next: (_) => {
+				this.notify.success('successfully changed', 'New owner');
+				// Invalidate repository cache so the UI reflects the new owner immediately
+				this.projectService.updateRepositoryEmitter();
+			},
+			// The modal is already closed at this point, so the failure is only visible through the toast
+			error: (err) => this.notifyFailure('Could not transfer ownership.', err)
 		});
 		this.modalReference.close();
 	}
@@ -325,8 +338,9 @@ export class WorkgroupEditComponent {
 	removeFromWorkgroup(user: { email: string; canEdit: boolean }) {
 		this.projectService
 			.removeFromWorkgroup(this.workgroupProject._id!, user.email)
-			.subscribe((res) => {
-				this.workgroupList.set(res.member);
+			.subscribe({
+				next: (res) => this.workgroupList.set(res.member),
+				error: (err) => this.notifyFailure('Could not remove the member.', err)
 			});
 	}
 
@@ -339,8 +353,9 @@ export class WorkgroupEditComponent {
 		user.canEdit = !user.canEdit;
 		this.projectService
 			.updateWorkgroupUser(this.workgroupProject._id!, user)
-			.subscribe((res) => {
-				this.workgroupList.set(res.member);
+			.subscribe({
+				next: (res) => this.workgroupList.set(res.member),
+				error: (err) => this.notifyFailure('Could not change the edit permission.', err)
 			});
 	}
 
@@ -351,9 +366,12 @@ export class WorkgroupEditComponent {
 		if (this.userEmail == this.workgroupOwner()) {
 			this.projectService
 				.deleteRepository(this.workgroupProject, this.userId)
-				.subscribe(() => {
-					this.projectService.getRepositoriesEmitter();
-					this.projectService.updateRepositoryEmitter();
+				.subscribe({
+					next: () => {
+						this.projectService.getRepositoriesEmitter();
+						this.projectService.updateRepositoryEmitter();
+					},
+					error: (err) => this.notifyFailure('Could not delete the project.', err)
 				});
 			this.modalReference.close();
 		}
@@ -416,9 +434,13 @@ export class WorkgroupEditComponent {
 				project.settings,
 				project.aiConfig
 			)
-			.subscribe((_resp) => {
-				this.projectService.getRepositories();
-				this.notify.success('successfully saved', 'Repository');
+			.subscribe({
+				next: (_resp) => {
+					// Refetches the list. A bare getRepositories() call is cold and not subscribed, so it sent no request.
+					this.projectService.updateRepositoryEmitter();
+					this.notify.success('successfully saved', 'Repository');
+				},
+				error: (err) => this.notifyFailure('Could not save the project.', err)
 			});
 	}
 
@@ -446,6 +468,18 @@ export class WorkgroupEditComponent {
 
 	showErrorToast() {
 		this.notify.error(this.workgroupError);
+	}
+
+	/**
+	 * Logs a failed workgroup request and tells the user with a toast.
+	 * Without this, a rejected HTTP call would fail silently, since none of these
+	 * subscriptions had an error callback before.
+	 * @param message User-facing text; the raw error is only logged to the console
+	 * @param err The error emitted by the HTTP observable
+	 */
+	private notifyFailure(message: string, err: unknown) {
+		console.error(message, err);
+		this.notify.error(message);
 	}
 
 	/**

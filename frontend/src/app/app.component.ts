@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, effect, untracked } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, effect, untracked, signal } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
@@ -9,6 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { LoginService } from './Services/login.service';
 import { ProjectService } from './Services/project.service';
 import { StoryService } from './Services/story.service';
+import { NotificationService } from './Services/notification.service';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -33,6 +34,7 @@ export class AppComponent implements OnInit{
 	loginService = inject(LoginService);
 	projectService = inject(ProjectService);
 	storyService = inject(StoryService);
+	private notify = inject(NotificationService);
 
 	/**
 	 * Computed repository list derived from the project service signal.
@@ -65,6 +67,22 @@ export class AppComponent implements OnInit{
 	readonly isDark = computed(() => this.themeService.isDark());
 
 	env!: string;
+
+	/**
+	 * State of the Help menu. The panel is shown only while helpMenuOpen is true (the template binds
+	 * the help-open class), so aria-expanded always matches what is on screen.
+	 *
+	 * WHY: The old CSS :hover / :focus-within rules could show the panel while aria-expanded said
+	 * false, and Escape could not close a hover-opened panel. Hover is tracked here via
+	 * mouseenter/mouseleave; keyboard focus is tracked via :focus-visible, because Chrome focuses a
+	 * button on mouse click and a plain focus would pin the menu open after the pointer leaves.
+	 */
+	readonly helpHovered = signal(false);
+	readonly helpKeyboardFocus = signal(false);
+	readonly helpDismissed = signal(false);
+	readonly helpMenuOpen = computed(() => (this.helpHovered() || this.helpKeyboardFocus()) && !this.helpDismissed());
+	/** Pending hover-close timer, see onHelpPointerLeave */
+	private helpCloseTimer?: ReturnType<typeof setTimeout>;
 
 	toggleControl = new UntypedFormControl(false);
 
@@ -196,14 +214,77 @@ export class AppComponent implements OnInit{
     * Loggs out the user and redirects it to the login page
     */
 	logout() {
-		this.projectService.repositoriesSignal.set([]);
-		this.loginService.logoutUser().subscribe(_ => {
-			//
+		// Drops the cached getRepositories() request, the signal and the sessionStorage copy; without the
+		// cache reset the next login replays the previous user's project list
+		this.projectService.clearRepositories();
+		// Local session data is already cleared by logoutUser(); a failed server call only
+		// means the server-side session may still be alive, so the user is told rather than silently ignored.
+		this.loginService.logoutUser().subscribe({
+			next: () => {
+				//
+			},
+			error: (err) => {
+				console.error('Logout request failed:', err);
+				this.notify.error('Logout on the server failed. Your browser session was cleared.');
+			}
 		});
 		this.router.navigate(['/login']);
 	}
 
 	setModeOnToggle(isDark: boolean) {
 		this.themeService.setNewTheme(isDark);
+	}
+
+	/**
+	 * Escape closes the Help menu. helpDismissed hides the panel even while it is hovered or focused;
+	 * focus is moved back to the trigger first so the keyboard user keeps their place instead of
+	 * dropping to the document body when a link inside the panel had focus.
+	 * @param wrapper The Help menu container that owns the trigger and the panel
+	 */
+	dismissHelpMenu(wrapper: HTMLElement) {
+		this.helpDismissed.set(true);
+		wrapper.querySelector<HTMLElement>('.help-button')?.focus();
+	}
+
+	/**
+	 * Clears the Help menu focus state once focus leaves the whole menu, so the next Tab into it
+	 * opens the panel again. Focus moving between the trigger and the panel links keeps it open.
+	 * @param event The focusout event from the Help menu container
+	 * @param wrapper The Help menu container, used to test whether the new focus target is inside it
+	 */
+	onHelpFocusOut(event: FocusEvent, wrapper: HTMLElement) {
+		if (wrapper.contains(event.relatedTarget as Node | null)) return;
+		this.helpKeyboardFocus.set(false);
+		this.helpDismissed.set(false);
+	}
+
+	/**
+	 * Opens the Help menu on keyboard focus only. :focus-visible is false for a button focused by a
+	 * mouse click, so clicking Help does not keep the panel open after the pointer leaves.
+	 * @param event The focusin event from the Help menu container
+	 */
+	onHelpFocusIn(event: FocusEvent) {
+		this.helpKeyboardFocus.set((event.target as HTMLElement).matches(':focus-visible'));
+	}
+
+	/**
+	 * Opens the Help menu while the pointer is over it. Re-entering cancels a pending close.
+	 */
+	onHelpPointerEnter() {
+		clearTimeout(this.helpCloseTimer);
+		this.helpHovered.set(true);
+	}
+
+	/**
+	 * Closes the Help menu 200 ms after the pointer leaves. The delay stops flicker when the pointer
+	 * crosses the gap between trigger and panel. A pending Escape dismissal is cleared together with
+	 * the hover, so the next hover opens the menu again.
+	 */
+	onHelpPointerLeave() {
+		clearTimeout(this.helpCloseTimer);
+		this.helpCloseTimer = setTimeout(() => {
+			this.helpHovered.set(false);
+			this.helpDismissed.set(false);
+		}, 200);
 	}
 }

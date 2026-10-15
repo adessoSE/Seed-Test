@@ -1,7 +1,7 @@
 ﻿import { Injectable, inject, signal } from '@angular/core';
-import { catchError, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError, from } from 'rxjs';
+import { Observable, throwError, from } from 'rxjs';
 import { User } from '@seed-test/shared/models/User';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { sha256Hex } from './crypto';
@@ -68,10 +68,14 @@ export class ApiService {
 	readonly storiesErrorTrigger = signal(0);
 	/** Signal for backend URL ready trigger */
 	readonly backendUrlReadyTrigger = signal(0);
-	/** Signal for run/save option — carries the option string */
+	/** Payload of the run/save option action — the option string */
 	readonly runSaveOptionValue = signal<string | null>(null);
-	/** Signal for copy step with example — carries the option string */
+	/** Trigger of the run/save option action — consumers track this, never the payload */
+	readonly runSaveOptionTrigger = signal(0);
+	/** Payload of the copy-step-with-example action — the option string */
 	readonly copyStepWithExampleValue = signal<string | null>(null);
+	/** Trigger of the copy-step-with-example action — consumers track this, never the payload */
+	readonly copyStepWithExampleTrigger = signal(0);
 	/**
    * Gets api headers
    * @returns
@@ -96,6 +100,7 @@ export class ApiService {
    */
 	public runSaveOption(option: string) {
 		this.runSaveOptionValue.set(option);
+		this.runSaveOptionTrigger.update(n => n + 1);
 	}
 
 	/**
@@ -104,6 +109,7 @@ export class ApiService {
    */
 	public copyStepWithExampleOption(option: string) {
 		this.copyStepWithExampleValue.set(option);
+		this.copyStepWithExampleTrigger.update(n => n + 1);
 	}
 
 	/**
@@ -310,12 +316,19 @@ export class ApiService {
 		return repo.source === 'db';
 	}
 
-	resolveSpecialCommand(command: string) {
+	/**
+	 * Resolves a special command (e.g. @@Day,1@@format:...) on the backend.
+	 * @param command the unescaped command text
+	 * @returns the resolved string; the backend wraps it as { resolved }
+	 */
+	resolveSpecialCommand(command: string): Observable<string> {
 		this.apiServer = localStorage.getItem('url_backend')!;
-		return this.http.post<string>(
+		// WHY: Unwrapped here so callers compare and display a string. Without the map,
+		// the object reached the tooltip as "[object Object]" and never equalled the command.
+		return this.http.post<{ resolved: string }>(
 			this.apiServer + '/story/specialCommands/resolve',
 			{ command: command },
 			ApiService.getOptions()
-		);
+		).pipe(map(res => res.resolved));
 	}
 }

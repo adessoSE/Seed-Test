@@ -6,10 +6,13 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ResizeInputDirective } from '../directives/resize-input.directive';
 import { ScenarioEditorComponent } from './scenario-editor.component';
+import { ScenarioService } from '../Services/scenario.service';
+import { ApiService } from '../Services/api.service';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { Scenario } from '@seed-test/shared/models/Scenario';
 import { Story } from '@seed-test/shared/models/Story';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { BlockService } from '../Services/block.service';
 
 
 const scenarios:Scenario[] = [{scenario_id: 2, name: 'my first scenario', stepDefinitions: {'when':[{'_id':'5dce728851e70f2894a170b4','id': 6, 'stepType':'when', 'type' :'HoverOverAndSelect', 'pre':'I hover over the element', 'mid':'and select the option','values':['',''], 'post':'', 'isExample':[]}], 'given':[{'_id':'5dce728851e70f2894a170b4','id': 6, 'stepType':'when', 'type' :'HoverOverAndSelect', 'pre':'I hover over the element', 'mid':'and select the option','values':['',''], 'post':'', 'isExample':[]}],'then':[], 'example': []},
@@ -208,6 +211,77 @@ describe('ScenarioEditorComponent', () => {
 			// Avoid flushEffects() — the template crashes on null selectedScenario().saved
 			// Instead, verify signal state directly
 			expect(component.scenarios()).toEqual([]);
+		});
+	});
+
+	/**
+	 * Regression: rename and save-and-run requests were payload signals that stayed set.
+	 * Their effects tracked selectedScenario (through renameScenario/saveRunOption), so a
+	 * selection change renamed or saved the wrong scenario, and a re-created editor replayed
+	 * the last request on construction.
+	 */
+	describe('regression: action signals must not replay', () => {
+		afterEach(() => {
+			vi.restoreAllMocks();
+		});
+
+		it('renames only the scenario that was selected when the rename was requested', () => {
+			const other: Scenario = { scenario_id: 7, name: 'other scenario', comment: '', saved: true, stepDefinitions: { given: [], when: [], then: [], example: [] } };
+			TestBed.inject(ScenarioService).renameScenarioEmit('Renamed');
+			TestBed.flushEffects();
+			expect(component.selectedScenario()!.name).toBe('Renamed');
+
+			fixture.componentRef.setInput('selectedScenario', other);
+			TestBed.flushEffects();
+			expect(other.name).toBe('other scenario');
+		});
+
+		it('does not replay a save-and-run request in an editor that is created later', () => {
+			const saveRun = vi.spyOn(ScenarioEditorComponent.prototype, 'saveRunOption').mockResolvedValue(undefined);
+			TestBed.inject(ApiService).runSaveOption('saveScenario');
+			TestBed.flushEffects();
+			expect(saveRun).toHaveBeenCalledTimes(1);
+
+			// The story editor re-creates this child whenever a scenario gets selected again
+			const later = TestBed.createComponent(ScenarioEditorComponent);
+			later.componentRef.setInput('selectedScenario', scenarios[0]);
+			later.componentRef.setInput('selectedStory', { story_id: 1, title: 'Test Story', body: '', storySource: 'github', background: { name: '', stepDefinitions: { when: [] } }, scenarios, state: 'open', assignee: '', assignee_avatar_url: '', repo_type: 'github' } as Story);
+			TestBed.flushEffects();
+			expect(saveRun).toHaveBeenCalledTimes(1);
+		});
+
+		it('handles every rename request, including an identical repeated one', () => {
+			const renameScenario = vi.spyOn(ScenarioEditorComponent.prototype, 'renameScenario').mockImplementation(() => undefined);
+			TestBed.inject(ScenarioService).renameScenarioEmit('Same name');
+			TestBed.flushEffects();
+			TestBed.inject(ScenarioService).renameScenarioEmit('Same name');
+			TestBed.flushEffects();
+			expect(renameScenario).toHaveBeenCalledTimes(2);
+		});
+
+		it('does not re-PATCH a stale scenario reference when a new editor is created', () => {
+			// Prototype spy: the freshly created editor must reach the same method as the first one
+			const updateScenario = vi.spyOn(ScenarioEditorComponent.prototype, 'updateScenario').mockReturnValue(undefined as never);
+			try {
+				const stale = structuredClone(scenarios[0]);
+				TestBed.inject(BlockService).updateScenariosRefEmitt(stale, 'story-1');
+				TestBed.flushEffects();
+				expect(updateScenario).toHaveBeenCalledTimes(1);
+
+				// Regression: the editor is re-created under @if; the old payload replayed the reference update on construction
+				const later = TestBed.createComponent(ScenarioEditorComponent);
+				later.componentRef.setInput('selectedScenario', scenarios[0]);
+				later.componentRef.setInput('selectedStory', { story_id: 1, title: 'Test Story', body: '', storySource: 'github', background: { name: '', stepDefinitions: { when: [] } }, scenarios, state: 'open', assignee: '', assignee_avatar_url: '', repo_type: 'github' } as Story);
+				TestBed.flushEffects();
+				expect(updateScenario).toHaveBeenCalledTimes(1);
+
+				// Positive control: the new editor does react to references updated after its creation
+				TestBed.inject(BlockService).updateScenariosRefEmitt(stale, 'story-1');
+				TestBed.flushEffects();
+				expect(updateScenario).toHaveBeenCalledTimes(3);
+			} finally {
+				updateScenario.mockRestore();
+			}
 		});
 	});
 });

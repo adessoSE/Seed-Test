@@ -1,4 +1,4 @@
-﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
+﻿import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -7,7 +7,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { WorkgroupEditComponent } from './workgroup-edit.component';
 import { ProjectService } from 'src/app/Services/project.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
@@ -219,6 +220,89 @@ describe('WorkgroupEditComponent', () => {
 			component.selectedOwner = 'alice@test.de';
 			component.onModalClosed();
 			expect(component.selectedOwner).toBeUndefined();
+		});
+	});
+
+	describe('behavioral: AI config defaults on open', () => {
+		const savedAi = { name: 'openai', modelName: 'gpt-4o', provider: 'custom' as const, baseURL: 'https://ai.example' };
+
+		beforeEach(() => {
+			vi.spyOn(projectService, 'checkAiAvailability').mockReturnValue(of(false));
+			// The component guards `if (settings)`, so "no saved settings" is undefined, not null
+			vi.spyOn(projectService, 'getRepositorySettings').mockReturnValue(of(undefined));
+		});
+
+		it('keeps a saved jsonConversion when textPreparation is missing', () => {
+			// source 'github' skips the getWorkgroup call that only applies to db-backed projects
+			const project = { ...mockProject, source: 'github', aiConfig: { jsonConversion: savedAi } } as unknown as RepositoryContainer;
+
+			component.openWorkgroupEditModal(project, 'admin@test.de', 'user-1');
+
+			expect(component.workgroupProject.aiConfig?.jsonConversion).toEqual(savedAi);
+			expect(component.workgroupProject.aiConfig?.textPreparation.name).toBe('local');
+		});
+
+		it('keeps a saved textPreparation and fills in a missing jsonConversion', () => {
+			const project = { ...mockProject, source: 'github', aiConfig: { textPreparation: savedAi } } as unknown as RepositoryContainer;
+
+			component.openWorkgroupEditModal(project, 'admin@test.de', 'user-1');
+
+			expect(component.workgroupProject.aiConfig?.textPreparation).toEqual(savedAi);
+			expect(component.workgroupProject.aiConfig?.jsonConversion.name).toBe('local');
+		});
+	});
+
+	describe('behavioral: saving project settings', () => {
+		it('refetches the repository list over HTTP after a successful save', () => {
+			const http = TestBed.inject(HttpTestingController);
+			vi.spyOn(projectService, 'updateRepository').mockReturnValue(of({} as RepositoryContainer));
+
+			component.updateRepository({ ...mockProject });
+
+			// A getRepositories() call that is never subscribed sends no request, so the list stayed stale
+			http.expectOne(req => req.method === 'GET' && req.url.endsWith('/repository/')).flush([]);
+			http.verify();
+		});
+	});
+
+	describe('behavioral: transfer ownership', () => {
+		let changeOwnerButton: HTMLElement;
+
+		beforeEach(() => {
+			// transferedOwnership hides this element by id before calling the service
+			changeOwnerButton = document.createElement('button');
+			changeOwnerButton.id = 'changeOwner';
+			document.body.appendChild(changeOwnerButton);
+			component.modalReference = { close: vi.fn() } as any;
+			component.workgroupProject = mockProject;
+			notificationMock.error.mockClear();
+			notificationMock.success.mockClear();
+		});
+
+		afterEach(() => changeOwnerButton.remove());
+
+		it('shows an error toast and logs the cause when the transfer fails', () => {
+			const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+			vi.spyOn(projectService, 'changeOwner').mockReturnValue(
+				throwError(() => new HttpErrorResponse({ status: 500 }))
+			);
+
+			component.transferedOwnership('bob@test.de');
+
+			expect(projectService.changeOwner).toHaveBeenCalledWith('proj-1', 'bob@test.de');
+			expect(notificationMock.error).toHaveBeenCalledWith('Could not transfer ownership.');
+			expect(notificationMock.success).not.toHaveBeenCalled();
+			expect(consoleSpy).toHaveBeenCalled();
+			consoleSpy.mockRestore();
+		});
+
+		it('shows a success toast when the transfer succeeds', () => {
+			vi.spyOn(projectService, 'changeOwner').mockReturnValue(of({} as any));
+
+			component.transferedOwnership('bob@test.de');
+
+			expect(notificationMock.success).toHaveBeenCalledWith('successfully changed', 'New owner');
+			expect(notificationMock.error).not.toHaveBeenCalled();
 		});
 	});
 });

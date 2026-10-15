@@ -91,6 +91,17 @@ describe('AppComponent', () => {
 			expect(loginService.logoutUser).toHaveBeenCalled();
 			expect(component.router.navigate).toHaveBeenCalledWith(['/login']);
 		});
+
+		it('drops the cached repository request on logout so the next user does not see the previous list', () => {
+			localStorage.setItem('login', 'test-token');
+			vi.spyOn(loginService, 'logoutUser').mockReturnValue(of([] as any));
+			vi.spyOn(component.router, 'navigate').mockImplementation(() => Promise.resolve(true));
+			vi.spyOn(projectService, 'clearRepositories');
+
+			component.logout();
+
+			expect(projectService.clearRepositories).toHaveBeenCalled();
+		});
 	});
 
 	describe('behavioral: repository management', () => {
@@ -168,6 +179,117 @@ describe('AppComponent', () => {
 			const versionEl = fixture.nativeElement.querySelector('#version');
 			expect(versionEl).toBeTruthy();
 			expect(versionEl.textContent).toContain('Version');
+		});
+	});
+
+	describe('behavioral: help menu keyboard access', () => {
+		const helpTrigger = (): HTMLButtonElement => fixture.nativeElement.querySelector('.help-button');
+		const helpWrapper = (): HTMLElement => fixture.nativeElement.querySelector('.help-hover-wrapper');
+
+		const expanded = (): string | null => helpTrigger().getAttribute('aria-expanded');
+		// Hover closes after a 200 ms delay; fake timers make that delay deterministic
+		beforeEach(() => vi.useFakeTimers());
+		afterEach(() => vi.useRealTimers());
+
+		it('renders the Help trigger as a disclosure button (aria-expanded + aria-controls, no menu role)', () => {
+			const trigger = helpTrigger();
+			expect(trigger.tagName).toBe('BUTTON');
+			expect(trigger.type).toBe('button');
+			expect(trigger.hasAttribute('aria-haspopup')).toBe(false);
+			expect(expanded()).toBe('false');
+			expect(trigger.getAttribute('aria-controls')).toBe('helpMenuPanel');
+		});
+
+		it('opens on hover and reports aria-expanded=true while the panel is shown', () => {
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			fixture.detectChanges();
+			expect(expanded()).toBe('true');
+		});
+
+		it('keeps the Help menu open for 200 ms after the pointer leaves', () => {
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			helpWrapper().dispatchEvent(new MouseEvent('mouseleave'));
+			fixture.detectChanges();
+			vi.advanceTimersByTime(199);
+			fixture.detectChanges();
+			expect(expanded()).toBe('true');
+			vi.advanceTimersByTime(1);
+			fixture.detectChanges();
+			expect(expanded()).toBe('false');
+		});
+
+		it('cancels the pending close when the pointer re-enters within 200 ms', () => {
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			helpWrapper().dispatchEvent(new MouseEvent('mouseleave'));
+			vi.advanceTimersByTime(100);
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			vi.advanceTimersByTime(500);
+			fixture.detectChanges();
+			expect(expanded()).toBe('true');
+		});
+
+		/**
+		 * Simulates Tab focus on the trigger. jsdom's :focus-visible heuristic is not reliable, so the
+		 * match is stubbed; the real selector is what browsers evaluate for keyboard focus.
+		 */
+		const keyboardFocusTrigger = () => {
+			vi.spyOn(helpTrigger(), 'matches').mockReturnValue(true);
+			helpTrigger().dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+		};
+
+		it('opens on keyboard focus and closes when focus leaves the menu', () => {
+			keyboardFocusTrigger();
+			fixture.detectChanges();
+			expect(expanded()).toBe('true');
+			helpWrapper().dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+			fixture.detectChanges();
+			expect(expanded()).toBe('false');
+		});
+
+		it('does not stay open after a mouse click focuses the trigger once the pointer leaves', () => {
+			// A mouse click focuses the button without :focus-visible; the focusin must not count as keyboard focus
+			helpTrigger().dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			helpWrapper().dispatchEvent(new MouseEvent('mouseleave'));
+			vi.advanceTimersByTime(200);
+			fixture.detectChanges();
+			expect(expanded()).toBe('false');
+		});
+
+		it('closes a hover-opened menu on Escape and keeps it closed until the pointer leaves', () => {
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			fixture.detectChanges();
+			helpTrigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+			fixture.detectChanges();
+			expect(expanded()).toBe('false');
+			// Pointer still over the menu: :hover must not re-open it
+			vi.advanceTimersByTime(1000);
+			fixture.detectChanges();
+			expect(expanded()).toBe('false');
+			// Leaving clears the dismissal, so the next hover opens the menu again
+			helpWrapper().dispatchEvent(new MouseEvent('mouseleave'));
+			vi.advanceTimersByTime(200);
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			fixture.detectChanges();
+			expect(expanded()).toBe('true');
+		});
+
+		it('collapses the Help menu on Escape and moves focus back to the trigger', () => {
+			// Asserted via a spy: the test DOM does not reliably update document.activeElement
+			const focusSpy = vi.spyOn(helpTrigger(), 'focus');
+			keyboardFocusTrigger();
+			helpTrigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+			fixture.detectChanges();
+			expect(expanded()).toBe('false');
+			expect(focusSpy).toHaveBeenCalled();
+		});
+
+		it('re-opens the Help menu after Escape when the trigger is activated again', () => {
+			keyboardFocusTrigger();
+			helpTrigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+			helpTrigger().click();
+			fixture.detectChanges();
+			expect(expanded()).toBe('true');
 		});
 	});
 });

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { GroupService } from './group.service';
+import { onActionTrigger } from './action-trigger';
 
 describe('GroupService', () => {
 
@@ -18,6 +19,21 @@ describe('GroupService', () => {
 		it('should be created', () => {
 			const service = TestBed.inject(GroupService);
 			expect(service).toBeTruthy();
+		});
+	});
+
+	describe('action channels', () => {
+		it('delivers every repeated delete-group request to its consumer', () => {
+			const service = TestBed.inject(GroupService);
+			const handler = vi.fn();
+			TestBed.runInInjectionContext(() => onActionTrigger(service.deleteGroupTrigger, handler));
+			const values = { repo_id: 'r1', group_id: 'g1' };
+
+			service.deleteGroupEvent(values);
+			service.deleteGroupEvent(values);
+			TestBed.flushEffects();
+
+			expect(handler.mock.calls).toEqual([[values], [values]]);
 		});
 	});
 });

@@ -20,6 +20,7 @@ import { GroupService } from '../Services/group.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ReportService } from '../Services/report.service';
 import { BackgroundService } from '../Services/background.service';
+import { onActionTrigger } from '../Services/action-trigger';
 import { ExecutionListComponent } from '../modals/execution-list/execution-list.component';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatTabGroup, MatTab, MatTabLabel } from '@angular/material/tabs';
@@ -30,13 +31,12 @@ import { TitleCasePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatAccordion, MatExpansionModule, MatExpansionPanel } from '@angular/material/expansion';
 
-// Payload types mirror the private signal payloads declared in StoryService/GroupService.
-// Derived structurally via ReturnType rather than importing (those interfaces aren't exported)
-// so effect handlers below can be typed without touching the shared service files.
-type CreateStoryPayload = NonNullable<ReturnType<StoryService['createCustomStoryValue']>>;
-type CreateGroupPayload = NonNullable<ReturnType<GroupService['createCustomGroupValue']>>;
-type UpdateGroupPayload = NonNullable<ReturnType<GroupService['updateGroupValue']>>;
-type DeleteGroupPayload = NonNullable<ReturnType<GroupService['deleteGroupValue']>>;
+// Payload types are derived from the service action methods that emit them, so the handlers
+// below stay typed without the payload interfaces (which are not exported) being exported.
+type CreateStoryPayload = Parameters<StoryService['createCustomStoryEvent']>[0];
+type CreateGroupPayload = Parameters<GroupService['createGroupEvent']>[0];
+type UpdateGroupPayload = Parameters<GroupService['updateGroupEvent']>[0];
+type DeleteGroupPayload = Parameters<GroupService['deleteGroupEvent']>[0];
 
 /** Response shape of the group execution endpoint (POST /execute/Group/:repoId/:groupId) */
 interface RunGroupResponse {
@@ -314,16 +314,12 @@ export class StoriesBarComponent implements OnChanges {
 	// --- Effects: replace EventEmitter subscribes with signal watches ---
 
 	/** Effect: watch for custom story creation requests */
-	private createStoryEffect = effect(() => {
-		const custom = this.storyService.createCustomStoryValue();
-		if (!custom) return;
-		untracked(() => this.handleCreateStory(custom));
+	private createStoryEffect = onActionTrigger(this.storyService.createCustomStoryTrigger, custom => {
+		this.handleCreateStory(custom);
 	});
 
 	/** Creates a story via API, reloads story list, and selects the new story */
 	private async handleCreateStory(custom: CreateStoryPayload) {
-		// Reset the signal immediately to prevent re-firing on component re-initialization
-		this.storyService.createCustomStoryValue.set(null);
 		try {
 			await firstValueFrom(this.storyService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.repoName, custom.repositoryContainer._id!));
 			const resp = await firstValueFrom(this.storyService.getStories(custom.repositoryContainer));
@@ -338,16 +334,12 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	/** Effect: watch for custom group creation requests */
-	private createGroupEffect = effect(() => {
-		const custom = this.groupService.createCustomGroupValue();
-		if (!custom) return;
-		untracked(() => this.handleCreateGroup(custom));
+	private createGroupEffect = onActionTrigger(this.groupService.createCustomGroupTrigger, custom => {
+		this.handleCreateGroup(custom);
 	});
 
 	/** Creates a group via API, reloads group list, and opens the new group */
 	private async handleCreateGroup(custom: CreateGroupPayload) {
-		// Reset the signal immediately to prevent re-firing on component re-initialization
-		this.groupService.createCustomGroupValue.set(null);
 		await firstValueFrom(this.groupService.createGroup(custom.group.title, custom.repositoryContainer._id!, custom.group.member_stories, custom.group.isSequential));
 		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id!));
 		this.groups.set(resp as Group[]);
@@ -363,32 +355,24 @@ export class StoriesBarComponent implements OnChanges {
 	}
 
 	/** Effect: watch for group update requests */
-	private updateGroupEffect = effect(() => {
-		const custom = this.groupService.updateGroupValue();
-		if (!custom) return;
-		untracked(() => this.handleUpdateGroup(custom));
+	private updateGroupEffect = onActionTrigger(this.groupService.updateGroupTrigger, custom => {
+		this.handleUpdateGroup(custom);
 	});
 
 	/** Updates a group via API and reloads the group list */
 	private async handleUpdateGroup(custom: UpdateGroupPayload) {
-		// Reset the signal immediately to prevent re-firing on component re-initialization
-		this.groupService.updateGroupValue.set(null);
 		await firstValueFrom(this.groupService.updateGroup(custom.repositoryContainer._id!, custom.group._id!, custom.group));
 		const resp = await firstValueFrom(this.groupService.getGroups(custom.repositoryContainer._id!));
 		this.groups.set(resp as Group[]);
 	}
 
 	/** Effect: watch for group deletion requests */
-	private deleteGroupEffect = effect(() => {
-		const custom = this.groupService.deleteGroupValue();
-		if (!custom) return;
-		untracked(() => this.handleDeleteGroup(custom));
+	private deleteGroupEffect = onActionTrigger(this.groupService.deleteGroupTrigger, custom => {
+		this.handleDeleteGroup(custom);
 	});
 
 	/** Deletes a group via API and reloads the group list */
 	private async handleDeleteGroup(custom: DeleteGroupPayload) {
-		// Reset the signal immediately to prevent re-firing on component re-initialization
-		this.groupService.deleteGroupValue.set(null);
 		await firstValueFrom(this.groupService.deleteGroup(custom.repo_id, custom.group_id));
 		const resp = await firstValueFrom(this.groupService.getGroups(custom.repo_id));
 		this.groups.set(resp as Group[]);
@@ -402,9 +386,10 @@ export class StoriesBarComponent implements OnChanges {
 	});
 
 	/** Effect: watch for scenario status changes (e.g. after test runs) */
-	private scenarioStatusChangeEffect = effect(() => {
-		const custom = this.scenarioService.scenarioStatusChange();
-		if (!custom) return;
+	// Action channel: every status change of a run is applied, even when a run emits several in one tick.
+	// The backend persists the status after the run response is sent (testExecution and sanity controllers), so a list
+	// reloaded before that write completes can still show the old status until the next reload.
+	private scenarioStatusChangeEffect = onActionTrigger(this.scenarioService.scenarioStatusChangeTrigger, custom => {
 		const stories = this.stories();
 		// custom.storyId is a string, but story._id is a MongoDB ObjectId at runtime — convert before comparing
 		const storyIndex = stories.findIndex(story => {
@@ -485,15 +470,15 @@ export class StoriesBarComponent implements OnChanges {
 			for (const story of stories) {
 				if (story && story._id) {
 					let storyId: string;
-					if (typeof story._id === 'object' && story._id !== null) {
+					if (typeof story._id === 'object' && story._id !== null) 
 						// MongoDB ObjectId object — extract hex string
 						storyId = 'toHexString' in story._id
 							? (story._id as { toHexString: () => string }).toHexString()
 							: String(story._id);
-					} else {
+					else 
 						// Already a string — ensure it's a plain hex string, not "ObjectId(...)" wrapper
 						storyId = story._id.startsWith('ObjectId(') ? story._id.slice(12, -2) : String(story._id);
-					}
+					
 					validIds.add(storyId);
 				}
 			}

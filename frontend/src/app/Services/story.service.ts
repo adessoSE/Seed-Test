@@ -7,6 +7,7 @@ import { Story } from '@seed-test/shared/models/Story';
 import type { AiConfig, RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { catchError, tap } from 'rxjs/operators';
 import { StepType } from '@seed-test/shared/models/StepType';
+import { ActionTrigger } from './action-trigger';
 
 /** Payload for creating a custom story via the signal */
 interface CreateCustomStoryPayload {
@@ -49,16 +50,16 @@ export class StoryService {
 
 	/** Signal holding the latest stories array */
 	readonly stories = signal<Story[]>([]);
-	/** Signal for rename story action — carries {newStoryTitle, newStoryDescription} */
-	readonly renameStoryValue = signal<{ newStoryTitle: string; newStoryDescription: string } | null>(null);
+	/** Action channel for rename story — carries {newStoryTitle, newStoryDescription} */
+	readonly renameStoryTrigger = new ActionTrigger<{ newStoryTitle: string; newStoryDescription: string }>();
 	/** Signal for delete story trigger */
 	readonly deleteStoryTrigger = signal(0);
-	/** Signal for create custom story action — carries the story object */
-	readonly createCustomStoryValue = signal<CreateCustomStoryPayload | null>(null);
+	/** Action channel for create custom story — carries the story object */
+	readonly createCustomStoryTrigger = new ActionTrigger<CreateCustomStoryPayload>();
 	/** Signal for active story view — carries the view name */
 	readonly activeView = signal<string>('');
-	/** Signal for rename description action */
-	readonly renameDescriptionValue = signal<string | null>(null);
+	/** Action channel for rename description — carries the new description */
+	readonly renameDescriptionTrigger = new ActionTrigger<string>();
 	/** Triggers the delete story signal */
 	public deleteStoryEmitter() {
 		this.deleteStoryTrigger.update(n => n + 1);
@@ -79,14 +80,14 @@ export class StoryService {
   */
 	renameStoryEmit(newStoryTitle: string, newStoryDescription: string) {
 		const val = { newStoryTitle, newStoryDescription };
-		this.renameStoryValue.set(val);
+		this.renameStoryTrigger.emit(val);
 	}
 	/**
-  * Sets the create custom story value
+  * Emits the create custom story action
   * @param story
   */
 	createCustomStoryEvent(story: CreateCustomStoryPayload) {
-		this.createCustomStoryValue.set(story);
+		this.createCustomStoryTrigger.emit(story);
 	}
 	/**
     * Get's single Story by ID

@@ -4,7 +4,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { findComponent } from '../../test_helper';
 import { AccountManagementComponent } from './account-management.component';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
-import { provideRouter, Router } from '@angular/router';
+import { NavigationEnd, NavigationStart, provideRouter, Router } from '@angular/router';
 import { ROUTES } from '../routes/routes';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, throwError } from 'rxjs';
@@ -160,6 +160,103 @@ describe('AccountManagementComponent', () => {
 
 			expect(component.apiService.updateUser).not.toHaveBeenCalled();
 			expect(component.passwordError()).toBe('Current password must be at least 8 characters.');
+		});
+	});
+
+	describe('onNavigationEnd', () => {
+		it('should re-load the repository list when the account route is navigated to', () => {
+			const searchSpy = vi.spyOn(component, 'searchRepos');
+
+			component.onNavigationEnd(new NavigationEnd(1, '/accountManagement', '/accountManagement'));
+
+			expect(searchSpy).toHaveBeenCalledTimes(1);
+		});
+
+		it('should not re-load the repository list on unrelated navigations', () => {
+			const searchSpy = vi.spyOn(component, 'searchRepos');
+
+			component.onNavigationEnd(new NavigationEnd(2, '/storyEditor', '/storyEditor'));
+
+			expect(searchSpy).not.toHaveBeenCalled();
+		});
+
+		it('should ignore non-NavigationEnd router events', () => {
+			const searchSpy = vi.spyOn(component, 'searchRepos');
+
+			component.onNavigationEnd(new NavigationStart(1, '/accountManagement'));
+
+			expect(searchSpy).not.toHaveBeenCalled();
+		});
+	});
+
+	// Merge flow: the merge token is a server-signed intent for /mergeGithub. OAuth state comes from /github/state.
+	describe('login (GitHub merge start)', () => {
+		beforeEach(() => {
+			component.id = 'user123';
+		});
+
+		it('stores the merge token and starts GitHub login through the state flow', () => {
+			vi.spyOn(component.loginService, 'initiateMergeGithub').mockReturnValue(of({ mergeToken: 'merge-token-1' }));
+			const githubLoginSpy = vi.spyOn(component.loginService, 'githubLogin').mockReturnValue(of('state-from-server'));
+
+			component.login();
+
+			expect(component.loginService.initiateMergeGithub).toHaveBeenCalledWith('user123');
+			expect(localStorage.getItem('mergeToken')).toBe('merge-token-1');
+			expect(githubLoginSpy).toHaveBeenCalledTimes(1);
+			localStorage.removeItem('mergeToken');
+		});
+
+		// Regression: the merge token was sent as the OAuth state, so GitHub returned a value the backend rejected (403)
+		it('discards the merge token and reports the failure when the GitHub state cannot be fetched', () => {
+			vi.spyOn(component.loginService, 'initiateMergeGithub').mockReturnValue(of({ mergeToken: 'merge-token-2' }));
+			vi.spyOn(component.loginService, 'githubLogin').mockReturnValue(throwError(() => new Error('down')));
+			const notifySpy = vi.spyOn(component['notify'], 'error');
+			vi.spyOn(console, 'error').mockImplementation(() => {});
+
+			component.login();
+
+			expect(localStorage.getItem('mergeToken')).toBeNull();
+			expect(notifySpy).toHaveBeenCalledWith('Could not initiate GitHub login. Please try again.');
+		});
+	});
+
+	// Regression: the account id was written to localStorage for the registration page and sent on register
+	describe('navToRegistration', () => {
+		it('navigates to registration without storing the account id in localStorage', () => {
+			component.id = 'user123';
+			localStorage.removeItem('userId');
+			const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+			component.navToRegistration();
+
+			expect(localStorage.getItem('userId')).toBeNull();
+			expect(navigateSpy).toHaveBeenCalledWith(['/register']);
+		});
+	});
+
+	// Regression: the rename path never refreshed the shared repository list, so renamed projects stayed stale
+	describe('updateRepository', () => {
+		it('refreshes the shared repository list after a successful rename', () => {
+			component.id = 'user123';
+			vi.spyOn(component.projectService, 'updateRepository').mockReturnValue(of({} as RepositoryContainer));
+			const emitterSpy = vi.spyOn(component.projectService, 'updateRepositoryEmitter').mockImplementation(() => {});
+
+			component.updateRepository({ _id: '1', repoName: 'renamed', source: 'db', canEdit: true });
+
+			expect(emitterSpy).toHaveBeenCalledTimes(1);
+		});
+
+		it('reports a failed rename through the shared failure helper', () => {
+			component.id = 'user123';
+			vi.spyOn(component.projectService, 'updateRepository').mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+			const notifySpy = vi.spyOn(component['notify'], 'error');
+			const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+			component.updateRepository({ _id: '1', repoName: 'renamed', source: 'db', canEdit: true });
+
+			expect(notifySpy).toHaveBeenCalledWith('Could not save the repository.');
+			expect(consoleSpy).toHaveBeenCalledWith('Could not save the repository.', expect.anything());
 		});
 	});
 });

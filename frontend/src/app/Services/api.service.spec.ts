@@ -60,4 +60,17 @@ describe('ApiService', () => {
 		});
 	});
 
+	describe('resolveSpecialCommand', () => {
+		it('should unwrap the backend { resolved } body so callers receive the plain string', async () => {
+			// Regression: the backend answers { resolved: string }; the raw body was typed and used as a string.
+			const promise = firstValueFrom(service.resolveSpecialCommand('@@Day,1@@format:x€€'));
+
+			const req = httpMock.expectOne('http://localhost:8080/api/story/specialCommands/resolve');
+			expect(req.request.body).toEqual({ command: '@@Day,1@@format:x€€' });
+			req.flush({ resolved: 'Monday' });
+
+			await expect(promise).resolves.toBe('Monday');
+		});
+	});
+
 });

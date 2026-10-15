@@ -45,21 +45,17 @@ export class RegistrationComponent implements OnInit {
      */
 	async registerUser(form: NgForm){
 		try {
-			const userId = localStorage.getItem('userId');
-			localStorage.removeItem('userId');
 			this.error = undefined;
-			const _response = await this.loginService.registerUser(form.value.email, form.value.password, userId).toPromise();
+			const _response = await this.loginService.registerUser(form.value.email, form.value.password).toPromise();
 			localStorage.setItem('login', 'true');
 			this.notify.success('successfully registered', 'Registration');
 			const user = {email: form.value.email, password: form.value.password};
 			this.loginService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']));
 		} catch(err: unknown) {
 			const errDetail = (err as { error?: { details?: Array<{ path?: string; message?: string }> } })?.error?.details?.[0];
-			const message = errDetail?.path === 'userId'
-				? 'Registration failed — please refresh the page and try again.'
-				: errDetail?.path === 'email'
-					? 'Invalid email format.'
-					: 'User with this email already exists. Please enter another email.';
+			const message = errDetail?.path === 'email'
+				? 'Invalid email format.'
+				: 'User with this email already exists. Please enter another email.';
 			this.notify.error(message, 'Registration failed');
 		} 
 	}

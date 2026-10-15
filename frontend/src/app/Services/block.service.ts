@@ -8,12 +8,19 @@ import { Story } from '@seed-test/shared/models/Story';
 import { StepType } from '@seed-test/shared/models/StepType';
 import { StoryService } from './story.service';
 import { Scenario } from '@seed-test/shared/models/Scenario';
+import { ActionTrigger } from './action-trigger';
 
 /** Payload for adding a block to a scenario — [component, block, stepType, asSingleSteps] */
 type AddBlockPayload = [string, Block, string, boolean];
 
 /** Payload for scenario reference updates — [scenario, storyId] */
 type UpdateScenariosRefPayload = [Scenario, string];
+
+/** Payload for unpacking a block — the block and the step reference it is unpacked from */
+export interface UnpackBlockPayload {
+	block: Block;
+	stepReference: StepType;
+}
 
 /** Toast notification data */
 interface ToastData {
@@ -33,24 +40,24 @@ export class BlockService {
 	private http = inject(HttpClient);
 	storyService = inject(StoryService);
 
-	/** Signal to add a block to the current scenario — carries [component, block, stepType, asSingleSteps] */
-	readonly addBlockToScenarioValue = signal<AddBlockPayload | null>(null);
+	/** Action channel to add a block to the current scenario — carries [component, block, stepType, asSingleSteps] */
+	readonly addBlockToScenarioTrigger = new ActionTrigger<AddBlockPayload>();
 	/** Signal for block update trigger */
 	readonly updateBlocksTrigger = signal(0);
-	/** Signal to convert steps into reference — carries the block */
-	readonly convertToReferenceValue = signal<Block | null>(null);
-	/** Signal to delete reference — carries the block */
-	readonly deleteReferenceValue = signal<Block | null>(null);
-	/** Signal to check for reference — carries blockReferenceId */
-	readonly checkRefOnRemoveValue = signal<string | null>(null);
+	/** Action channel to convert steps into reference — carries the block */
+	readonly convertToReferenceTrigger = new ActionTrigger<Block>();
+	/** Action channel to delete reference — carries the block */
+	readonly deleteReferenceTrigger = new ActionTrigger<Block>();
+	/** Action channel to check for reference — carries blockReferenceId */
+	readonly checkRefOnRemoveTrigger = new ActionTrigger<string>();
 	/** Signal for delete block trigger */
 	readonly deleteBlockTrigger = signal(0);
-	/** Signal to unpack block — carries the block */
-	readonly unpackBlockValue = signal<Block | null>(null);
-	/** Signal to update reference block name — carries the block */
-	readonly updateNameRefValue = signal<Block | null>(null);
-	/** Signal for scenario reference updates — carries [scenario, storyId] */
-	readonly updateScenariosRefValue = signal<UpdateScenariosRefPayload | null>(null);
+	/** Action channel to unpack block — carries the block and the step reference it was unpacked from */
+	readonly unpackBlockTrigger = new ActionTrigger<UnpackBlockPayload>();
+	/** Action channel to update reference block name — carries the block */
+	readonly updateNameRefTrigger = new ActionTrigger<Block>();
+	/** Action channel for scenario reference updates — carries [scenario, storyId] */
+	readonly updateScenariosRefTrigger = new ActionTrigger<UpdateScenariosRefPayload>();
 	/**
   * Stores an array of references blocks, before the reference is deleted
   */
@@ -71,13 +78,13 @@ export class BlockService {
 		this.toastData.set(data);
 	}
 	/**
-  * Sets the add block to scenario value
+  * Emits the add block to scenario action
   * @param block
   * @param correspondingComponent
   */
 	addBlockToScenario(block: Block, correspondingComponent: string, addBlockToStepType: string, addAsSingleSteps: boolean) {
 		const val: AddBlockPayload = [correspondingComponent, block, addBlockToStepType, addAsSingleSteps];
-		this.addBlockToScenarioValue.set(val);
+		this.addBlockToScenarioTrigger.emit(val);
 	}
 	/**
   * Triggers the update blocks signal
@@ -87,10 +94,10 @@ export class BlockService {
 	}
 
 	/**
-  * Sets the convert to reference value
+  * Emits the convert to reference action
   */
 	convertToReferenceEmitter(block: Block) {
-		this.convertToReferenceValue.set(block);
+		this.convertToReferenceTrigger.emit(block);
 	}
 
 	/**
@@ -100,39 +107,39 @@ export class BlockService {
 		this.deleteBlockTrigger.update(n => n + 1);
 	}
 	/**
-  * Sets the scenario reference update value
+  * Emits the scenario reference update action
   */
 	public updateScenariosRefEmitt(scenario: Scenario, storyId: string) {
 		const val: UpdateScenariosRefPayload = [scenario, storyId];
-		this.updateScenariosRefValue.set(val);
+		this.updateScenariosRefTrigger.emit(val);
 	}
 	/**
-  * Sets the unpack block value
-  * @param block
+  * Emits the unpack block action
+  * @param payload block and the step reference it is unpacked from
   */
-	public unpackBlockEmitter(block: Block) {
-		this.unpackBlockValue.set(block);
+	public unpackBlockEmitter(payload: UnpackBlockPayload) {
+		this.unpackBlockTrigger.emit(payload);
 	}
 	/**
-  * Sets the update reference block name value
+  * Emits the update reference block name action
   * @param block
   */
 	public updateNameRefEmitter(block: Block) {
-		this.updateNameRefValue.set(block);
+		this.updateNameRefTrigger.emit(block);
 	}
 	/**
-  * Sets the check reference on remove value
+  * Emits the check reference on remove action
   * @param blockReferenceId
   */
 	public checkRefOnRemoveEmitter(blockReferenceId: string) {
-		this.checkRefOnRemoveValue.set(blockReferenceId);
+		this.checkRefOnRemoveTrigger.emit(blockReferenceId);
 	}
 	/**
-  * Sets the delete reference value
+  * Emits the delete reference action
   * @param block
   */
 	public deleteReferenceEmitter(block: Block) {
-		this.deleteReferenceValue.set(block);
+		this.deleteReferenceTrigger.emit(block);
 	}
 
 	/**
@@ -194,15 +201,14 @@ export class BlockService {
    */
 	checkBackgroundsOnDelete(block: Block, stories: Story[]) {
 		const matchingStories = stories.filter((s: Story) => s !== null && s.background.name === block.name);
-		if (matchingStories.length == 1) {
-			// Fire-and-forget: delete is async, proceed immediately.
-			// FIX F8b: firstValueFrom used per repo conventions — trigger updates after success.
+		// Fire-and-forget: delete is async, proceed immediately.
+		// FIX F8b: firstValueFrom used per repo conventions — trigger updates after success.
+		if (matchingStories.length == 1)
 			firstValueFrom(this.deleteBlock(block._id!)).then(() => {
 				this.updateBlocksTrigger.update(n => n + 1);
 			}).catch(() => {
 				// Delete may fail (auth/network) — block stays deleted; no UI change needed on failure
 			});
-		}
     
 	}
 

@@ -31,7 +31,7 @@ describe('LoginComponent', () => {
 	beforeEach(async () => {
 		loginService = {
 			loginUser: vi.fn(),
-			githubLogin: vi.fn(),
+			githubLogin: vi.fn(() => of('oauth-state')),
 			githubCallback: vi.fn(),
 			mergeAccountGithub: vi.fn()
 		};
@@ -310,6 +310,75 @@ describe('LoginComponent', () => {
 
 			expect(component.error()).toBeUndefined();
 			localStorage.removeItem('clientId');
+		});
+
+		it('should discard a merge token left over from an abandoned merge flow', () => {
+			localStorage.setItem('clientId', 'valid-id');
+			localStorage.setItem('mergeToken', 'stale-token');
+
+			component.githubLogin();
+
+			expect(localStorage.getItem('mergeToken')).toBeNull();
+			localStorage.removeItem('clientId');
+		});
+	});
+
+	// Regression: the callback never sent the OAuth state, so the backend rejected every GitHub login
+	describe('behavioral: GitHub callback forwards the OAuth state', () => {
+		// A successful callback stores login=true; clear it so later tests do not run the logged-in bootstrap
+		afterEach(() => {
+			localStorage.removeItem('login');
+		});
+
+		it('passes the state from the redirect query to the backend together with the code', () => {
+			const callbackSpy = vi.spyOn(loginService as LoginService, 'githubCallback').mockReturnValue(of({ login: 'ghuser', id: 42 }) as unknown as ReturnType<LoginService['githubCallback']>);
+			vi.spyOn(projectService as ProjectService, 'getRepositories').mockReturnValue(of([]));
+			vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+			component['handleGithubCallback']('oauth-code', 'oauth-state');
+
+			expect(callbackSpy).toHaveBeenCalledWith('oauth-code', 'oauth-state');
+		});
+	});
+
+	describe('behavioral: GitHub login start', () => {
+		it('shows a clear error and stops loading when the state request fails', () => {
+			localStorage.setItem('clientId', 'valid-id');
+			vi.spyOn(loginService as LoginService, 'githubLogin').mockReturnValue(throwError(() => new Error('down')));
+
+			component.githubLogin();
+
+			expect(component.error()).toBe('GitHub login could not be started. Please try again.');
+			expect(component.isLoadingRepositories()).toBe(false);
+			localStorage.removeItem('clientId');
+		});
+	});
+
+	describe('behavioral: GitHub callback consumes the merge token', () => {
+		it('should remove the merge token even when the callback returns an error', () => {
+			localStorage.setItem('mergeToken', 'merge-token');
+			vi.spyOn(loginService as LoginService, 'githubCallback').mockReturnValue(of({ error: 'boom', status: 500 }) as unknown as ReturnType<LoginService['githubCallback']>);
+			const mergeSpy = vi.spyOn(loginService as LoginService, 'mergeAccountGithub');
+
+			component['handleGithubCallback']('oauth-code', 'oauth-state');
+
+			expect(localStorage.getItem('mergeToken')).toBeNull();
+			expect(mergeSpy).not.toHaveBeenCalled();
+			expect(component.error()).toBe('Wrong Username Or Password');
+		});
+
+		it('should merge with the token and remove it on a successful callback', () => {
+			localStorage.setItem('mergeToken', 'merge-token');
+			vi.spyOn(loginService as LoginService, 'githubCallback').mockReturnValue(of({ _id: 'g1' }) as unknown as ReturnType<LoginService['githubCallback']>);
+			const mergeSpy = vi.spyOn(loginService as LoginService, 'mergeAccountGithub').mockReturnValue(of({} as User));
+			vi.spyOn(projectService as ProjectService, 'getRepositories').mockReturnValue(of([]));
+			// The empty repository list navigates to the account page; no route is registered in this test
+			vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+			component['handleGithubCallback']('oauth-code', 'oauth-state');
+
+			expect(mergeSpy).toHaveBeenCalledWith('merge-token');
+			expect(localStorage.getItem('mergeToken')).toBeNull();
 		});
 	});
 });

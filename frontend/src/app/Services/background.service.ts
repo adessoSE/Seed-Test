@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { Background } from '@seed-test/shared/models/Background';
 import { NotificationService } from './notification.service';
+import { ActionTrigger } from './action-trigger';
 /**
  * Service for communication between background of the story and the backend
  */
@@ -16,8 +17,8 @@ export class BackgroundService {
 	private http = inject(HttpClient);
 	notify = inject(NotificationService);
 
-	/** Signal for rename background action — carries the new name */
-	readonly renameBackgroundValue = signal<string | null>(null);
+	/** Action channel for rename background — carries the new name */
+	readonly renameBackgroundTrigger = new ActionTrigger<string>();
 	/** Signal for background changed trigger */
 	readonly backgroundChangedTrigger = signal(0);
 	/**
@@ -25,14 +26,14 @@ export class BackgroundService {
   */
 	public backgroundReplaced = false;
 
-	/** Signal for apply background changes action — carries the option string */
-	readonly applyChangesBackgroundValue = signal<string | null>(null);
+	/** Action channel for apply background changes — carries the option string */
+	readonly applyChangesBackgroundTrigger = new ActionTrigger<string>();
 	/**
-    * Sets the apply background changes value
+    * Emits the apply background changes option
     * @param option
   */
 	public applyBackgroundChanges(option: string) {
-		this.applyChangesBackgroundValue.set(option);
+		this.applyChangesBackgroundTrigger.emit(option);
 	}
 
 	/**
@@ -49,7 +50,7 @@ export class BackgroundService {
   * Sets the background rename value
   */
 	renameBackgroundEmit(newBackgroundName: string) {
-		this.renameBackgroundValue.set(newBackgroundName);
+		this.renameBackgroundTrigger.emit(newBackgroundName);
 	}
 	/**
    * Updates the background

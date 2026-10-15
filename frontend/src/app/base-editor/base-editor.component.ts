@@ -18,6 +18,7 @@ import { BlockService } from '../Services/block.service';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { NewExampleComponent } from '../modals/new-example/new-example.component';
 import { ExampleService } from '../Services/example.service';
+import { onActionTrigger, onCounterAction } from '../Services/action-trigger';
 import { ScenarioService } from '../Services/scenario.service';
 import { BackgroundService } from '../Services/background.service';
 import type { EditBlockComponent } from '../modals/edit-block/edit-block.component';
@@ -263,10 +264,8 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		this.highlightInputOnInit();
 	});
 
-	/** Adds block steps to scenario when block service emits */
-	private addBlockEffect = effect(() => {
-		const blockValue = this.blockService.addBlockToScenarioValue();
-		if (blockValue === null) return;
+	/** Adds block steps to scenario when block service emits — every queued request runs once, even when several arrive in one tick */
+	private addBlockEffect = onActionTrigger(this.blockService.addBlockToScenarioTrigger, blockValue => {
 		if (this.templateName() == 'background' && blockValue[0] == 'background') {
 			if (!this.selectedStory?.background) return;
 			const whenSteps = blockValue[1].stepDefinitions['when'] || [];
@@ -321,16 +320,12 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	});
 
 	/** Adds example value when example service emits new example */
-	private newExampleEffect = effect(() => {
-		const value = this.exampleService.newExampleValue();
-		if (value === null) return;
+	private newExampleEffect = onActionTrigger(this.exampleService.newExampleTrigger, value => {
 		this.addToValues(value, 0, 0, '');
 	});
 
 	/** Renames example when example service emits rename */
-	private renameExampleEffect = effect(() => {
-		const value = this.exampleService.renameExampleValue();
-		if (value === null) return;
+	private renameExampleEffect = onActionTrigger(this.exampleService.renameExampleTrigger, value => {
 		this.renameExample(value.name, value.column);
 	});
 
@@ -368,17 +363,19 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	});
 
 	/** Handles copy/don't-copy option for steps with examples */
-	private copyExampleOptionEffect = effect(() => {
-		const option = this.apiService.copyStepWithExampleValue();
-		if (option === null) return;
-		if (this.clipboardBlock)
-			if (option == 'copy')
-				this.insertStepsWithExamples(this.clipboardBlock);
-			else if (option == 'dontCopy')
-				this.insertStepsWithoutExamples();
-
-
-	});
+	// Counter-based: a re-created editor must not replay an earlier copy request
+	private copyExampleOptionEffect = onCounterAction(
+		this.apiService.copyStepWithExampleTrigger,
+		() => this.apiService.copyStepWithExampleValue(),
+		option => {
+			if (option === null) return;
+			if (this.clipboardBlock)
+				if (option == 'copy')
+					this.insertStepsWithExamples(this.clipboardBlock);
+				else if (option == 'dontCopy')
+					this.insertStepsWithoutExamples();
+		}
+	);
 
 	/** Reloads blocks when block service triggers update */
 	private updateBlocksEffect = effect(() => {
@@ -2229,7 +2226,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		});
 		// Emitter expects Block but subscriber uses { block, stepReference } — legacy type mismatch
 		ref.afterClosed().subscribe(result => {
-			if (result === 'unpack') this.blockService.unpackBlockEmitter(toastData as unknown as Block);
+			if (result === 'unpack') this.blockService.unpackBlockEmitter(toastData);
 		});
 	}
 

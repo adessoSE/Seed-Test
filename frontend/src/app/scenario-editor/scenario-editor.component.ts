@@ -16,6 +16,7 @@ import { TitleCasePipe } from '@angular/common';
 import { ExampleComponent } from '../example-table/example.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { onActionTrigger, onCounterAction } from '../Services/action-trigger';
 
 
 /**
@@ -115,21 +116,23 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	selectedBlock!: Block;
 
 	/**
-	 * Reacts to run-save-option signal -- saves and runs the scenario
+	 * Reacts to run-save-option trigger -- saves and runs the scenario.
+	 * Counter-based, so this editor (re-created on every scenario selection) does not replay an earlier request.
 	 */
-	private runSaveOptionEffect = effect(() => {
-		const option = this.apiService.runSaveOptionValue();
-		if (!option) return;
-		if (option == 'saveScenario')
-			this.saveRunOption();
-
-	});
+	private runSaveOptionEffect = onCounterAction(
+		this.apiService.runSaveOptionTrigger,
+		() => this.apiService.runSaveOptionValue(),
+		option => {
+			if (option == 'saveScenario')
+				this.saveRunOption();
+		}
+	);
 
 	/**
-	 * Reacts to rename-scenario signal -- updates scenario name
+	 * Reacts to rename-scenario trigger -- updates scenario name.
+	 * The handler runs untracked: renameScenario() reads the selection, which would otherwise rename the next selected scenario.
 	 */
-	private renameScenarioEffect = effect(() => {
-		const newName = this.scenarioService.renameScenarioValue();
+	private renameScenarioEffect = onActionTrigger(this.scenarioService.renameScenarioTrigger, newName => {
 		if (!newName) return;
 		this.renameScenario(newName);
 	});
@@ -140,7 +143,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 		// Guard: skip when input is undefined (e.g., initial load or no scenario selected)
 		if (!newScenario) return;
 		untracked(() => this.selectScenario(newScenario));
-	}, { allowSignalWrites: true });
+	});
 
 	/**
 	 * Reacts to block updates -- reloads blocks from backend
@@ -160,11 +163,10 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	}
 
 	/**
-	 * Reacts to scenario reference updates -- updates the affected scenario
+	 * Reacts to scenario reference updates -- updates the affected scenario.
+	 * Action channel: a re-created editor is only connected to emissions made after its creation, so it never re-PATCHes a stale scenario.
 	 */
-	private updateScenariosRefEffect = effect(() => {
-		const element = this.blockService.updateScenariosRefValue();
-		if (!element) return;
+	private updateScenariosRefEffect = onActionTrigger(this.blockService.updateScenariosRefTrigger, element => {
 		this.updateScenario(element[0], element[1]);
 	});
 

@@ -2,6 +2,24 @@ import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from './api.service';
 
+/** Characters that must not reach innerHTML as markup (step text is untrusted) */
+const HTML_ESCAPES: Record<string, string> = {
+	'&': '&amp;',
+	'<': '&lt;',
+	'>': '&gt;',
+	'"': '&quot;',
+	"'": '&#39;'
+};
+
+/** Inverse of HTML_ESCAPES, used to give the backend the original characters */
+const HTML_UNESCAPES: Record<string, string> = {
+	'&amp;': '&',
+	'&lt;': '<',
+	'&gt;': '>',
+	'&quot;': '"',
+	'&#39;': "'"
+};
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -35,7 +53,7 @@ export class HighlightInputService {
 		highlightRegex?: boolean
 	) {
 		const textField = element;
-		const textContent = textField.textContent;
+		const textContent = textField.textContent ?? '';
 		//Get current cursor position
 		const offset = this.getCaretCharacterOffsetWithin(textField);
 		const regexSteps = [
@@ -45,7 +63,10 @@ export class HighlightInputService {
 			"So I can't see text in the textbox:"
 		];
 		let regexDetected = false;
-		let highlightedText = textContent;
+		// Escaped before any markup is added: step text is user content and must never be parsed as HTML.
+		// Escaping keeps textContent (and therefore the caret offsets) identical to the original text.
+		const escapedText = this.escapeHtml(textContent);
+		let highlightedText = escapedText;
 
 		if (!valueIndex || (0 == valueIndex && regexSteps.includes(stepPre!))) {
 			if (highlightRegex)
@@ -57,7 +78,7 @@ export class HighlightInputService {
 			({ highlightedText } =
 				this.highlightSpecialCommands(highlightedText, isDark));
 		}
-		textField.innerHTML = highlightedText ? highlightedText : textContent;
+		textField.innerHTML = highlightedText ? highlightedText : escapedText;
 
 		// Set cursor to correct position
 		if (!initialCall) {
@@ -94,7 +115,7 @@ export class HighlightInputService {
 
 	/**
    * This function takes a html element and highlights the regex inside it if found.
-   * @param element HTML element of contentedible div
+   * @param element text already HTML-escaped by highlightInput (escapeHtml), so the spans added here are the only markup
    * @param isDark theming Service
    * @returns an object containing {regexDetected , highlightedText}
    */
@@ -128,7 +149,7 @@ export class HighlightInputService {
 
 	/**
    * This function takes a html element and highlights the special commands inside it if found.
-   * @param element HTML element of contentedible div
+   * @param element text already HTML-escaped by highlightInput (escapeHtml); the command sent to the backend is unescaped
    * @param isDark theming Service
    * @returns an object containing {regexDetected , highlightedText}
    */
@@ -142,28 +163,24 @@ export class HighlightInputService {
 		// TODO: Hardcoded Styles
 		const highlightedText = textContent.replace(specialCommandsPattern, (match: string) => {
 			specialCommandDetected = true;
+			// The match is escaped markup; the backend must receive the original characters (e.g. '&' in a format string)
+			const command = this.unescapeHtml(match);
 			const identifier = `specialInputId${
 				Date.now().toString(36) + Math.random().toString(36).substr(2)
 			}`;
-			this.apiService.resolveSpecialCommand(match).subscribe({
+			this.apiService.resolveSpecialCommand(command).subscribe({
 				next: (resolvedCommand) => {
-					if (resolvedCommand === match)
-						document
-							.querySelector(`#${identifier}`)!
-							.setAttribute(
-								'uk-tooltip',
-								`title: Unknown command: ${resolvedCommand}`
-							);
+					// CASE 1: backend echoed the command back, so it does not know it
+					if (resolvedCommand === command)
+						this.setTooltip(identifier, `Unknown command: ${resolvedCommand}`);
+					// CASE 2: resolved to a value
 					else
-						document
-							.querySelector(`#${identifier}`)!
-							.setAttribute('uk-tooltip', `title:${resolvedCommand}`);
-          
+						this.setTooltip(identifier, resolvedCommand);
 				},
+				// CASE 3: backend rejected the command and its message echoes user text.
+				// Status 0 (backend down) has no error.error.error, hence the fallback.
 				error: (error: HttpErrorResponse) => {
-					document
-						.querySelector(`#${identifier}`)!
-						.setAttribute('uk-tooltip', `title:Error: ${error.error.error}`);
+					this.setTooltip(identifier, `Error: ${error.error?.error ?? 'Failed to resolve command'}`);
 				}
 			});
 			return `<span uk-tooltip="title:Resolving Command ..." id="${identifier}" style="color: ${
@@ -172,6 +189,40 @@ export class HighlightInputService {
 		});
 
 		return { specialCommandDetected, highlightedText };
+	}
+
+	/**
+	 * Writes the uk-tooltip option of a special-command span. The span is looked up at callback
+	 * time, because the editor may have re-rendered it while the request was pending.
+	 * UIkit interpolates the title into HTML, so the text is escaped. The option is written as
+	 * JSON because escaped entities such as &lt; contain ';', which the plain
+	 * "title: ...; pos: ..." syntax would read as an option separator.
+	 * @param identifier id of the special-command span
+	 * @param text plain text (may contain user content) to show in the tooltip
+	 */
+	private setTooltip(identifier: string, text: string): void {
+		document
+			.querySelector(`#${identifier}`)
+			?.setAttribute('uk-tooltip', JSON.stringify({ title: this.escapeHtml(text) }));
+	}
+
+	/**
+	 * Escapes text so it can be inserted via innerHTML as plain text.
+	 * @param text untrusted user text
+	 * @returns text with &amp; &lt; &gt; &quot; &#39; entities
+	 */
+	escapeHtml(text: string): string {
+		return text.replace(/[&<>"']/g, ch => HTML_ESCAPES[ch]);
+	}
+
+	/**
+	 * Reverses escapeHtml for the five entities it produces.
+	 * Single pass, so '&amp;lt;' decodes to '&lt;' and not to '<'.
+	 * @param text escaped text
+	 * @returns original characters
+	 */
+	unescapeHtml(text: string): string {
+		return text.replace(/&(?:amp|lt|gt|quot|#39);/g, entity => HTML_UNESCAPES[entity]);
 	}
 
 	/**

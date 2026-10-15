@@ -1,7 +1,7 @@
 import { AiConfig, RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { EMPTY, catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { FileElement } from '@seed-test/shared/models/FileElement';
 
@@ -93,7 +93,7 @@ export class ProjectService {
 		this.refreshRepositories();
 		// Fire-and-forget fetch — subscribes so the cold Observable actually issues the HTTP request
 		// and updates repositoriesSignal. The in-flight guard prevents duplicate requests.
-		this.getRepositories().subscribe();
+		this.getRepositories().subscribe({ error: () => { /* already logged by getRepositories() */ } });
 	}
 	/**
     * Triggers repositories reload signal and invalidates the getRepositories cache
@@ -104,7 +104,9 @@ export class ProjectService {
 		this.refreshRepositories();
 		// Fire-and-forget fetch — subscribes so the cold Observable actually issues the HTTP request
 		// and updates repositoriesSignal. The in-flight guard prevents duplicate requests.
-		this.getRepositories().subscribe();
+		// WHY: Without an error handler RxJS rethrows the failure as an unhandled error. The
+		// failure is already logged and the signal keeps its last good value in getRepositories().
+		this.getRepositories().subscribe({ error: () => { /* already logged by getRepositories() */ } });
 	}
 
 
@@ -159,8 +161,19 @@ export class ProjectService {
 			.put<RepositoryContainer>(this.apiService.apiServer + '/repository/settings/' + repoID + '/', updateData, ApiService.getOptions());
 	}
 
-	/** Guards against concurrent HTTP fetch */
-	private repositoriesFetchInFlight = false;
+	/**
+	 * The shared getRepositories() request: in flight, or completed and cached until
+	 * refreshRepositories() drops it. Null when nothing was fetched since the last refresh
+	 * or the last request failed.
+	 */
+	private repositoriesRequest: Observable<RepositoryContainer[]> | null = null;
+
+	/**
+	 * Bumped by refreshRepositories(). A response only writes repositoriesSignal when its
+	 * request started under the current value, so an older response that arrives late
+	 * cannot overwrite a newer list (#049).
+	 */
+	private repositoriesRequestSeq = 0;
 
 	/**
 	 * Single source of truth for the repository list.
@@ -180,46 +193,56 @@ export class ProjectService {
     * Callers can subscribe to react to the response; the signal is always
     * the authoritative value for downstream effects and computed reads.
     *
-    * WHY: Only one HTTP request fires at a time (in-flight guard). After
-    * refreshRepositories() the next call starts a fresh fetch. The signal is
-    * read independently by callers that need the current cached value
+    * WHY: Only one HTTP request fires per refresh cycle. Concurrent callers share
+    * the in-flight request, and callers after a success get the cached list, so
+    * none of them sees an empty stream. A failed request is not cached, so the
+    * next call retries. After refreshRepositories() the next call starts a fresh fetch.
+    * The signal is read independently by callers that need the current cached value
     * (they read repositoriesSignal() directly — no Observable needed).
     * @returns Observable emitting the fetched repository list on success.
     */
 	getRepositories(): Observable<RepositoryContainer[]> {
-		if (this.repositoriesFetchInFlight) {
-			// A fetch is already in progress — don't start another HTTP call.
-			// The signal already holds the current value for direct readers.
-			return EMPTY;
-		}
-		this.repositoriesFetchInFlight = true;
-		const url = this.apiService.apiServer + '/repository/';
+		// CASE 1: a request is in flight or already succeeded since the last refresh — share it.
+		// Returning the same Observable (instead of an empty one) makes every caller receive the list.
+		if (this.repositoriesRequest)
+			return this.repositoriesRequest;
 
-		// Fire-and-forget HTTP — the signal is updated inside switchMap
-		// but is NOT part of the Observable chain, so signal updates
-		// don't trigger additional HTTP requests (no feedback loop).
-		return this.http.get<RepositoryContainer[]>(url, ApiService.getOptions()).pipe(
-			switchMap(resp => {
+		// CASE 2: nothing cached, or the previous request failed or was invalidated — start a new one
+		const url = this.apiService.apiServer + '/repository/';
+		const requestSeq = this.repositoriesRequestSeq;
+
+		// The signal is updated inside tap, not as a new HTTP trigger, so signal writes
+		// cannot cause additional requests (no feedback loop).
+		const request$: Observable<RepositoryContainer[]> = this.http.get<RepositoryContainer[]>(url, ApiService.getOptions()).pipe(
+			tap(resp => {
+				// Stale response: a refresh happened after this request started, so a newer list is coming
+				if (requestSeq !== this.repositoriesRequestSeq)
+					return;
 				// Update the signal with the fresh server response.
 				sessionStorage.setItem('repositories', JSON.stringify(resp));
 				this.repositoriesSignal.set(resp);
-				return of(resp);
 			}),
 			catchError((err: { status?: number }) => {
+				// Drop the failed request from the cache so the next call retries instead of replaying the error
+				if (this.repositoriesRequest === request$)
+					this.repositoriesRequest = null;
 				// 401/403 → auth failure, clear signal so stale data doesn't linger
 				if (err.status === 401 || err.status === 403) {
-					this.repositoriesSignal.set([]);
+					if (requestSeq === this.repositoriesRequestSeq)
+						this.repositoriesSignal.set([]);
 					console.error('Auth error fetching repositories:', err);
-					this.repositoriesFetchInFlight = false;
 					return throwError(() => err);
 				}
 				// Transient error (500, network, 429, etc.) → retain signal value
 				// because the signal is the single source of truth.
 				console.error('Failed to fetch repositories:', err);
-				this.repositoriesFetchInFlight = false;
 				return throwError(() => err);
-			})
+			}),
+			// Cache the successful result so later subscribers replay it instead of issuing a new request
+			shareReplay({ bufferSize: 1, refCount: false })
 		);
+		this.repositoriesRequest = request$;
+		return request$;
 	}
 
 	/**
@@ -227,13 +250,29 @@ export class ProjectService {
     * Call after create / delete / rename operations so the next getRepositories()
     * subscriber receives up-to-date data.
     *
-    * WHY: Resets the in-flight flag so the next getRepositories() call can
-    * start a new HTTP request. Does NOT modify repositoriesSignal — the signal
+    * WHY: Drops the cached request so the next getRepositories() call starts a
+    * new HTTP request, and invalidates any request still in flight so its response
+    * cannot overwrite the newer list. Does NOT modify repositoriesSignal — the signal
     * retains the last good value until the fresh response arrives (or fails).
     */
 	refreshRepositories(): void {
-		// Reset in-flight flag so the next getRepositories() call can start fresh.
-		this.repositoriesFetchInFlight = false;
+		this.repositoriesRequest = null;
+		this.repositoriesRequestSeq++;
+	}
+
+	/**
+	 * Drops all repository state of the current user: the cached request, repositoriesSignal
+	 * and the sessionStorage copy. Call on logout, before another user logs in.
+	 *
+	 * WHY: The shareReplay cache lives as long as the tab, so without this a re-login as
+	 * another user replays the previous user's list. The seq bump in refreshRepositories()
+	 * also discards a response that is still in flight from the old session, so it cannot
+	 * repopulate the signal after logout.
+	 */
+	clearRepositories(): void {
+		this.refreshRepositories();
+		this.repositoriesSignal.set([]);
+		sessionStorage.removeItem('repositories');
 	}
 
 	/**

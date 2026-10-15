@@ -1,7 +1,7 @@
 ﻿import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, switchMap, tap } from 'rxjs';
 import { ApiService } from '../Services/api.service';
-import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, Event as RouterEvent } from '@angular/router';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change-jira-account.component';
 import { Subscription } from 'rxjs/internal/Subscription';
@@ -185,12 +185,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		const themeService = this.themeService;
 
 		this.themeService = themeService;
-		this.navigationSubscription = this.router.events.subscribe((e) => {
-			// If it is a NavigationEnd event re-initalise the component
-			if (e instanceof NavigationEnd) 
-				this.ngOnInit();
-            
-		});
+		this.navigationSubscription = this.router.events.subscribe((e) => this.onNavigationEnd(e));
 		this.routeSub = this.router.events.subscribe(event => {
 			if (event instanceof NavigationEnd && this.router.url === '/accountManagement') 
 				this.updateSite('Successful'); //
@@ -204,6 +199,17 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 		// fill repository list for download
 		this.searchRepos();
+	}
+
+	/**
+	 * Re-loads the repository list when the account route is navigated to.
+	 * WHY: Re-running ngOnInit on every NavigationEnd re-fetched the repository list on
+	 * unrelated navigations as well. Other routes are ignored here.
+	 * @param event Router event; only NavigationEnd for the account route is handled
+	 */
+	onNavigationEnd(event: RouterEvent) {
+		if (event instanceof NavigationEnd && event.urlAfterRedirects.startsWith('/accountManagement'))
+			this.ngOnInit();
 	}
 
 	ngOnDestroy() {
@@ -225,27 +231,21 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	}
 
 	/**
-      * Logs in the user to Github.
-      * First calls the backend initiate endpoint to prove ownership of this Seed account,
-      * then redirects to GitHub OAuth with the server-signed token in the state parameter.
-      * The token survives the OAuth redirect and is verified during the merge step.
+      * Logs in to GitHub and merges that identity into this Seed account.
+      * 1. The initiate endpoint proves that this session owns the account and returns a merge token.
+      * 2. The token is kept in localStorage; the OAuth callback reads it and runs the merge.
+      * 3. The OAuth state comes from the same /github/state flow as a plain login. The merge token is never
+      *    the state: the backend accepts only the state it issued to this session, so a merge token there is rejected.
       */
 	login() {
-		this.loginService.initiateMergeGithub(this.id).subscribe({
-			next: (resp) => {
-				// Persist the server-signed merge token so the OAuth callback can
-				// use it to complete the merge after the GitHub redirect.
-				localStorage.setItem('mergeToken', resp.mergeToken);
-				const scope = 'repo';
-				const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
-				const clientId = localStorage.getItem('clientId');
-				const state = resp.mergeToken;
-				const url = `${AUTHORIZE_URL}?scope=${scope}&client_id=${clientId}&state=${state}`;
-				window.location.href = url;
-			},
+		this.loginService.initiateMergeGithub(this.id).pipe(
+			tap((resp) => localStorage.setItem('mergeToken', resp.mergeToken)),
+			switchMap(() => this.loginService.githubLogin())
+		).subscribe({
 			error: (err) => {
-				console.error('Failed to initiate GitHub merge:', err);
-				this.notify.error('Could not initiate GitHub login. Please try again.');
+				// Without a state the callback cannot complete, so the stored token must not outlive this attempt
+				localStorage.removeItem('mergeToken');
+				this.notifyFailure('Could not initiate GitHub login. Please try again.', err);
 			}
 		});
 	}
@@ -291,39 +291,42 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param report
      */
 	updateSite(report: string) {
-		if (report === 'Successful') {
-			this.managmentService.getUserData().subscribe(user => {
-				this.id = user._id!;
-				if (typeof user['email'] !== 'undefined')
-					this.email.set(user['email'] as string);
+		if (report === 'Successful')
+			this.managmentService.getUserData().subscribe({
+				next: (user) => {
+					this.id = user._id!;
+					if (typeof user['email'] !== 'undefined')
+						this.email.set(user['email'] as string);
 
-				if (typeof user['github'] !== 'undefined')
-					this.github.set(user['github']);
+					if (typeof user['github'] !== 'undefined')
+						this.github.set(user['github']);
 
-				if (typeof user['jira'] !== 'undefined') {
-					this.jira.set(user['jira']);
-					(document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
-					(document.getElementById('disconnect-jira') as HTMLButtonElement).style.removeProperty('display');
-				}
-				this.clientId.set(localStorage.getItem('clientId') ?? '');
+					if (typeof user['jira'] !== 'undefined') {
+						this.jira.set(user['jira']);
+						(document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
+						(document.getElementById('disconnect-jira') as HTMLButtonElement).style.removeProperty('display');
+					}
+					this.clientId.set(localStorage.getItem('clientId') ?? '');
+				},
+				error: (err) => this.notifyFailure('Could not load your account data.', err)
 			});
-		}
 	}
 
 	/**
      * Removes Github connection from Seed-Test Account
      */
 	disconnectGithub() {
-		this.managmentService.disconnectGithub().subscribe((_resp) => {
-			window.location.reload();
+		this.managmentService.disconnectGithub().subscribe({
+			next: (_resp) => window.location.reload(),
+			error: (err) => this.notifyFailure('Could not disconnect GitHub. Please try again.', err)
 		});
 	}
 
 	/**
-     * Redirects user to Register page if the user only used a Github account and now wants to create a Seed-Test account
+     * Redirects user to Register page if the user only used a Github account and now wants to create a Seed-Test account.
+     * The session identifies the account, so the id is not stored or sent: registration from this session adds the login to it.
      */
 	navToRegistration() {
-		localStorage.setItem('userId', this.id);
 		this.router.navigate(['/register']);
 	}
 
@@ -343,14 +346,15 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	downloadProjectFeatures(repo_id: string) {
 		if (repo_id) {
 			const userRepo = this.searchList()?.find(repo => repo._id == repo_id);
-			console.log(userRepo);
 			const id = userRepo!._id!;
-			this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
-				if (this.versionInput)
-					saveAs(ret, userRepo!.repoName + '-v' + this.versionInput + '.zip');
-				else
-					saveAs(ret, userRepo!.repoName + '.zip');
-				
+			this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe({
+				next: ret => {
+					if (this.versionInput)
+						saveAs(ret, userRepo!.repoName + '-v' + this.versionInput + '.zip');
+					else
+						saveAs(ret, userRepo!.repoName + '.zip');
+				},
+				error: (err) => this.notifyFailure('Could not download the project features.', err)
 			});
 		}
 	}
@@ -358,14 +362,15 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	exportProject(repo_id: string) {
 		if (repo_id) {
 			const userRepo = this.searchList()?.find(repo => repo._id == repo_id);
-			console.log(userRepo);
 			const id = userRepo!._id!;
-			this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {
-				if (this.versionInput)
-					saveAs(ret, userRepo!.repoName + '-export' + '-v' + this.versionInput + '.zip');
-				else
-					saveAs(ret, userRepo!.repoName + '-export' + '.zip');
-				
+			this.managmentService.exportProject(id, this.versionInput).subscribe({
+				next: ret => {
+					if (this.versionInput)
+						saveAs(ret, userRepo!.repoName + '-export' + '-v' + this.versionInput + '.zip');
+					else
+						saveAs(ret, userRepo!.repoName + '-export' + '.zip');
+				},
+				error: (err) => this.notifyFailure('Could not export the project.', err)
 			});
 		}
 	}
@@ -405,11 +410,31 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		this.searchRepos();
 	}
 
+	/**
+     * Saves a renamed project and refreshes the shared repository list.
+     *
+     * WHY: updateRepositoryEmitter() both signals the change and re-fetches the list. A bare getRepositories()
+     * call issues no request unless subscribed, so the saved name would never reach the view.
+     * @param project the project with its new name
+     */
 	updateRepository(project: RepositoryContainer) {
-		this.projectService.updateRepository(project._id!, project.repoName, this.id).subscribe(_resp => {
-			this.projectService.getRepositories();
-			this.notify.success('successfully saved', 'Repository');
+		this.projectService.updateRepository(project._id!, project.repoName, this.id).subscribe({
+			next: _resp => {
+				this.projectService.updateRepositoryEmitter();
+				this.notify.success('successfully saved', 'Repository');
+			},
+			error: (err) => this.notifyFailure('Could not save the repository.', err)
 		});
+	}
+
+	/**
+     * Logs the error for operators and shows one short message to the user. Used by every failed request in this component.
+     * @param message text shown to the user
+     * @param err the error, logged but never shown
+     */
+	private notifyFailure(message: string, err: unknown) {
+		console.error(message, err);
+		this.notify.error(message);
 	}
 
 	/**
@@ -433,22 +458,20 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 			const data = await firstValueFrom(dialogRef.afterClosed());
 			if (data) {
 				// *** Case 1: User clicked "Import" ***
-				console.log('Modal closed with data, starting import:', data);
 
 				await firstValueFrom(
 					this.managmentService.importProject(data.file, data.repoId, data.projectName, data.importMode)
 				);
 				this.notify.success('Project imported successfully!');
 				// Refresh the repository list — service signal update drives reposChangeEffect
-				this.projectService.getRepositories();
+				this.projectService.updateRepositoryEmitter();
 			} else {
 				// *** Case 2: User clicked "Cancel" ***
 				// Do nothing.
-				console.log('Modal dismissed (Cancel clicked)');
 			}
 		} catch (err) {
-			console.error('Import failed:', err);
-			this.notify.error((err as { error?: { error?: string } })?.error?.error || 'Import failed.');
+			// The backend's own message is shown when it sent one, since it explains why the import failed
+			this.notifyFailure((err as { error?: { error?: string } })?.error?.error || 'Import failed.', err);
 		}
 	}
 

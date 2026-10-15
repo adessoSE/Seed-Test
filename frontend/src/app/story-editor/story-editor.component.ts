@@ -48,6 +48,7 @@ import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { WindowSizeComponent } from '../modals/window-size/window-size.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
+import { onActionTrigger, onCounterAction } from '../Services/action-trigger';
 
 /** Shape of the raw test execution response from the backend */
 interface TestRunResponse {
@@ -358,7 +359,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			this.setStories(stories);
 			this.db.set(localStorage.getItem('source') === 'db');
 		});
-	}, { allowSignalWrites: true });
+	});
 
 	/** Effect 2: React to a story being deleted */
 	private readonly deleteStoryEffect = effect(() => {
@@ -368,7 +369,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			this.showEditor.set(false);
 			this.storyDeleted();
 		});
-	}, { allowSignalWrites: true });
+	});
 
 	/** Effect 3: React to a stories request error (unauthorized) */
 	private readonly storiesErrorEffect = effect(() => {
@@ -380,28 +381,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			window.localStorage.removeItem('login');
 			this.router.navigate(['/login']);
 		});
-	}, { allowSignalWrites: true });
-
-	/** Effect 4: React to a scenario deletion request */
-	private readonly deleteScenarioEffect = effect(() => {
-		const xrayEnabled = this.scenarioService.deleteScenarioValue();
-		if (xrayEnabled === null) return;
-		const story = this.selectedStory();
-		if (!story) return;
-		const scenario = this.selectedScenario();
-		if (!scenario) return;
-		untracked(() => {
-			this.deleteScenario(scenario, xrayEnabled);
-		});
 	});
 
-	/** Effect 5: React to run/save option selection */
-	private readonly runSaveOptionEffect = effect(() => {
-		const option = this.apiService.runSaveOptionValue();
-		if (option === null) return;
-		const story = this.selectedStory();
-		if (!story) return;
-		untracked(() => {
+	/** Effect 5: React to run/save option selection — counter-based, so a re-created editor does not replay it */
+	private readonly runSaveOptionEffect = onCounterAction(
+		this.apiService.runSaveOptionTrigger,
+		() => this.apiService.runSaveOptionValue(),
+		option => {
+			const story = this.selectedStory();
+			if (option === null || !story) return;
 			if (option === 'run') {
 				this.runUnsaved = true;
 				this.runOption();
@@ -410,19 +398,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				this.saveBackgroundAndRun = true;
 				this.updateBackground();
 			}
-		});
-	});
+		}
+	);
 
 	/** Effect 6: React to story rename */
-	private readonly renameStoryEffect = effect(() => {
-		const changedValues = this.storyService.renameStoryValue();
-		if (changedValues === null) return;
-		untracked(() => {
-			this.renameStory(
-				changedValues.newStoryTitle,
-				changedValues.newStoryDescription
-			);
-		});
+	private readonly renameStoryEffect = onActionTrigger(this.storyService.renameStoryTrigger, changedValues => {
+		this.renameStory(
+			changedValues.newStoryTitle,
+			changedValues.newStoryDescription
+		);
 	});
 
 	/** Effect 7: React to backend URL becoming available */
@@ -432,15 +416,11 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		untracked(() => {
 			this.loadStepTypes();
 		});
-	}, { allowSignalWrites: true });
+	});
 
 	/** Effect 8: React to background rename */
-	private readonly renameBackgroundEffect = effect(() => {
-		const newName = this.backgroundService.renameBackgroundValue();
-		if (newName === null) return;
-		untracked(() => {
-			this.renameBackground(newName);
-		});
+	private readonly renameBackgroundEffect = onActionTrigger(this.backgroundService.renameBackgroundTrigger, newName => {
+		this.renameBackground(newName);
 	});
 
 	/** Effect 9: React to blocks update event — re-fetch blocks from API */
@@ -459,10 +439,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	}
 
 	/** Effect 10: React to block reference removal check */
-	private readonly checkRefOnRemoveEffect = effect(() => {
-		const blockReferenceId = this.blockService.checkRefOnRemoveValue();
-		if (blockReferenceId === null) return;
-		untracked(() => this.handleCheckRefOnRemove(blockReferenceId));
+	private readonly checkRefOnRemoveEffect = onActionTrigger(this.blockService.checkRefOnRemoveTrigger, blockReferenceId => {
+		this.handleCheckRefOnRemove(blockReferenceId);
 	});
 
 	/** Reloads blocks and checks references for the removed block */
@@ -475,20 +453,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	}
 
 	/** Effect 11: React to entire reference block deletion — unpack steps in all relevant stories */
-	private readonly deleteReferenceEffect = effect(() => {
-		const block = this.blockService.deleteReferenceValue();
-		if (block === null) return;
-		untracked(() => {
-			this.blockService.deleteBlockReference(block, this.stories());
-		});
+	private readonly deleteReferenceEffect = onActionTrigger(this.blockService.deleteReferenceTrigger, block => {
+		this.blockService.deleteBlockReference(block, this.stories());
 	});
 
 	/** Effect 12: React to block unpacking */
-	private readonly unpackBlockEffect = effect(() => {
-		// Cast needed: emitter sends { block, stepReference } but signal is typed as Block (legacy mismatch)
-		const obj = this.blockService.unpackBlockValue() as unknown as { block: Block; stepReference: StepType } | null;
-		if (obj === null) return;
-		untracked(() => this.handleUnpackBlock(obj));
+	private readonly unpackBlockEffect = onActionTrigger(this.blockService.unpackBlockTrigger, obj => {
+		this.handleUnpackBlock(obj);
 	});
 
 	/** Unpacks block from scenario and checks remaining references */
@@ -508,46 +479,35 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	}
 
 	/** Effect 13: React to reference block name update */
-	private readonly updateNameRefEffect = effect(() => {
-		const block = this.blockService.updateNameRefValue();
-		if (block === null) return;
-		untracked(() => {
-			this.blockService.updateNameReference(block, this.stories());
-		});
+	private readonly updateNameRefEffect = onActionTrigger(this.blockService.updateNameRefTrigger, block => {
+		this.blockService.updateNameReference(block, this.stories());
 	});
 
 	/** Effect 14: React to background changes being applied (centrally or to current) */
-	private readonly applyChangesBackgroundEffect = effect(() => {
-		const option = this.backgroundService.applyChangesBackgroundValue();
-		if (option === null) return;
+	private readonly applyChangesBackgroundEffect = onActionTrigger(this.backgroundService.applyChangesBackgroundTrigger, option => {
+		// Selection is read inside the handler, which runs untracked: a selection change never re-applies a past option
 		const story = this.selectedStory();
 		if (!story) return;
-		untracked(() => {
-			if (option == 'toCurrentBackground') {
-				this.notify.info(
-					'Please enter a new Background name to save your changes'
-				);
-				this.changeBackgroundTitle();
-			} else if (option == 'centrally') 
-				this.applyChangesToBackgrounds(story.background);
-			
-		});
+		if (option == 'toCurrentBackground') {
+			this.notify.info(
+				'Please enter a new Background name to save your changes'
+			);
+			this.changeBackgroundTitle();
+		} else if (option == 'centrally')
+			this.applyChangesToBackgrounds(story.background);
 	});
 
 	/** Effect 15: React to steps being converted to a block reference */
-	private readonly convertToReferenceEffect = effect(() => {
-		const block = this.blockService.convertToReferenceValue();
-		if (block === null) return;
+	private readonly convertToReferenceEffect = onActionTrigger(this.blockService.convertToReferenceTrigger, block => {
+		// Selection is read inside the handler, which runs untracked: a selection change never converts steps again
 		const story = this.selectedStory();
 		if (!story) return;
-		untracked(() => {
-			const scenario = this.selectedScenario();
-			if (scenario)
-				this.blockService.convertSelectedStepsToRef(
-					block,
-					scenario
-				);
-		});
+		const scenario = this.selectedScenario();
+		if (scenario)
+			this.blockService.convertSelectedStepsToRef(
+				block,
+				scenario
+			);
 	});
 
 	/** Effect 16: React to new selected scenario input
@@ -574,49 +534,47 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			else if (story)
 				this.selectScenario(null);
 		}
-	}, { allowSignalWrites: true });
+	});
 
 	/** Effect 17: React to new stories input */
 	private readonly newStoriesEffect = effect(() => {
 		const stories = this.newStories();
 		if (!stories) return;
 		this.stories.set(stories);
-	}, { allowSignalWrites: true });
+	});
 
 	/** Effect 18: React to new selected story input
 	 * When parent changes newSelectedStory, this effect syncs to local selectedStory signal
 	 * and auto-selects the first scenario of the new story.
-	 * NOTE: untracked() was removed — all signal reads inside must be tracked for zoneless CD.
+	 * Only the input is tracked: if the selection signals were read here, every later
+	 * selectedStory.set() (e.g. an edit) would re-run this effect and revert the story to the input.
 	 */
 	private readonly newSelectedStoryEffect = effect(() => {
 		const story = this.newSelectedStory();
 		if (!story) return;
-		console.log('Setting selectedStory via effect:', story._id);
-		this.selectedStory.set(story);
-		this.initializeIsExampleForStory(this.selectedStory());
-		this.isReviewingAi.set(false);
+		untracked(() => {
+			console.log('Setting selectedStory via effect:', story._id);
+			this.selectedStory.set(story);
+			this.initializeIsExampleForStory(story);
+			this.isReviewingAi.set(false);
 
-		const storyForAi = this.selectedStory();
-		if (storyForAi && storyForAi.aiSuggestion)
-			this.aiSuggestions.set(storyForAi._id!, storyForAi.aiSuggestion as { scenarios: Scenario[] });
-		else if (storyForAi)
-			this.aiSuggestions.delete(storyForAi._id!);
+			if (story.aiSuggestion)
+				this.aiSuggestions.set(story._id!, story.aiSuggestion as { scenarios: Scenario[] });
+			else
+				this.aiSuggestions.delete(story._id!);
 
-		const _stories = this.selectedStory();
-		if (_stories !== undefined && _stories.preConditions)
-			this.preConditionResults = this.xrayService.getPreconditionStories(
-				_stories.preConditions
-			);
+			if (story.preConditions)
+				this.preConditionResults = this.xrayService.getPreconditionStories(
+					story.preConditions
+				);
 
-		if (this.selectedStory() &&
-			this.selectedStory()!.scenarios &&
-			this.selectedStory()!.scenarios.length > 0
-		)
-			this.selectScenario(this.selectedStory()!.scenarios[0]);
-		else if (this.selectedStory())
-			// Editor hiding is happening in selectScenario
-			this.selectScenario(null);
-	}, { allowSignalWrites: true });
+			if (story.scenarios && story.scenarios.length > 0)
+				this.selectScenario(story.scenarios[0]);
+			else
+				// Editor hiding is happening in selectScenario
+				this.selectScenario(null);
+		});
+	});
 
 	/** Effect 19: React to test running for group input */
 	private readonly testRunningForGroupEffect = effect(() => {
@@ -626,15 +584,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			this.testRunningGroup = groupRunning;
 			this.showResults.set(false);
 		});
-	}, { allowSignalWrites: true });
+	});
 
 	readonly isDark = input.required<boolean>();
 
 	/**
    * View child of the scenario editor
    */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- scenarioSaved method is temporarily shadowed as a property at runtime in runOption()
-	readonly scenarioChild = viewChild<any>('scenarioChild');
+	readonly scenarioChild = viewChild<ScenarioEditorComponent>('scenarioChild');
 	/**
    * View child of the modals component
    */
@@ -779,17 +736,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	runOption() {
 		const story = this.selectedStory();
 		if (!story) return;
-		const child = this.scenarioChild();
-		const tmpScenarioSaved = child?.scenarioSaved;
 		const tmpBackgroundSaved = story.background.saved;
-		if (child) child.scenarioSaved = true;
 		// FIX F7: Update background through signal instead of in-place mutation
 		// to trigger OnPush change detection after modifying nested signal-held object
 		this.selectedStory.update((s) =>
 			s ? { ...s, background: { ...s.background, saved: true } } : s
 		);
 		this.runTests(this.currentTestScenarioId);
-		if (child) child.scenarioSaved = tmpScenarioSaved;
 		// FIX F7: Restore background.saved through signal update (not in-place)
 		this.selectedStory.update((s) =>
 			s ? { ...s, background: { ...s.background, saved: tmpBackgroundSaved } } : s
@@ -907,8 +860,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				} as ConfirmDialogData
 			});
 			ref.afterClosed().subscribe(result => {
-				if (result === 'delete') this.scenarioService.deleteScenarioEmitter(false);
-				else if (result === 'delete-xray') this.scenarioService.deleteScenarioEmitter(true);
+				if (result === 'delete') this.deleteSelectedScenario(false);
+				else if (result === 'delete-xray') this.deleteSelectedScenario(true);
 			});
 		} else {
 			// DeleteToast — standard 2-button delete confirmation
@@ -923,9 +876,20 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				} as ConfirmDialogData
 			});
 			ref.afterClosed().subscribe(result => {
-				if (result === 'delete') this.scenarioService.deleteScenarioEmitter(false);
+				if (result === 'delete') this.deleteSelectedScenario(false);
 			});
 		}
+	}
+
+	/**
+   * Deletes the currently selected scenario after the user confirmed the dialog.
+   * Called directly, not through a signal: an effect that tracked the selection cascaded,
+   * because scenarioDeleted() changes the selection and the effect then deleted the next scenario.
+   * @param xrayEnabled also delete the linked xRay test
+   */
+	private deleteSelectedScenario(xrayEnabled: boolean) {
+		const scenario = this.selectedScenario();
+		if (scenario) this.deleteScenario(scenario, xrayEnabled);
 	}
 
 	/**
@@ -937,38 +901,36 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		if (!story) return;
 		this.scenarioService
 			.deleteScenario(story._id!, scenario, xrayEnabled)
+			// Pass the id captured at click time: the selection may have moved while the request was in flight
 			.subscribe((_) => {
-				this.scenarioDeleted();
+				this.scenarioDeleted(scenario.scenario_id);
 				this.notify.error('', 'Scenario deleted');
 			});
 	}
 
 	/**
-    * Removes scenario from the selected story
+    * Removes the deleted scenario from the selected story and selects a remaining one
+    * @param deletedScenarioId id of the scenario the backend deleted
     */
-	scenarioDeleted() {
+	scenarioDeleted(deletedScenarioId: number) {
 		const story = this.selectedStory();
 		if (!story) return;
-		const scenario = this.selectedScenario();
-		if (!scenario) return;
-		const indexScenario: number = story.scenarios.findIndex(
-			(s: Scenario) => s.scenario_id === scenario.scenario_id
+		// Filter out the deleted id, not the current selection; the pre-update list still contains it,
+		// so the selection is taken from the updated list
+		const remaining = story.scenarios.filter((s: Scenario) => s.scenario_id !== deletedScenarioId);
+		// FIX F7: Create new scenarios array instead of mutating signal-held object
+		// to trigger OnPush change detection
+		this.selectedStory.update((s) =>
+			s ? { ...s, scenarios: remaining } : s
 		);
-		if (indexScenario !== -1) {
-			// FIX F7: Create new scenarios array instead of mutating signal-held object
-			// to trigger OnPush change detection
-			const newScenarios = story.scenarios.filter((_, i) => i !== indexScenario);
-			this.selectedStory.update((s) =>
-				s ? { ...s, scenarios: newScenarios } : s
-			);
-		}
-    
 
-		if (story.scenarios.length > 0)
-			this.selectScenario(story.scenarios.slice(-1)[0]);
-		else
+		if (remaining.length > 0)
+			this.selectScenario(remaining[remaining.length - 1]);
+		else {
+			// Clear the selection too: otherwise the deleted scenario stays selected and Run/Save act on it
+			this.selectScenario(null);
 			this.showEditor.set(false);
-    
+		}
 	}
 
 	/**
@@ -1340,6 +1302,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 						error: (err) => {
 							console.error('Test execution failed:', err);
 							this.testRunning.set(false);
+							// Failed runs never reach testRunResponse, so the unsaved-run allowance must end here too
+							this.runUnsaved = false;
 							this.notify.error('', 'Test execution failed');
 						}
 					});
@@ -1376,12 +1340,16 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 							error: (err) => {
 								console.error('Test execution failed:', err);
 								this.testRunning.set(false);
+								// Failed runs never reach testRunResponse, so the unsaved-run allowance must end here too
+								this.runUnsaved = false;
 								this.notify.error('', 'Test execution failed');
 							}
 						});
 					} catch (error) {
 						console.error('Error while creating temp group', error);
 						this.testRunning.set(false);
+						// Failed runs never reach testRunResponse, so the unsaved-run allowance must end here too
+						this.runUnsaved = false;
 					}
 				else 
 				// CASE 3: No pre-conditions — run all scenarios of the story directly
@@ -1417,6 +1385,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 							error: (err) => {
 								console.error('Test execution failed:', err);
 								this.testRunning.set(false);
+								// Failed runs never reach testRunResponse, so the unsaved-run allowance must end here too
+								this.runUnsaved = false;
 								this.notify.error('', 'Test execution failed');
 							}
 						});
@@ -1649,11 +1619,11 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    */
 	setStepWaitTime(newTime: number) {
 		const scenario = this.selectedScenario();
-		if (scenario) {
+		if (scenario) 
 			// FIX F7: Update scenario through signal instead of in-place mutation
 			// to trigger OnPush change detection after modifying a signal-held object
 			this.selectedScenario.set({ ...scenario, stepWaitTime: newTime, saved: false });
-		}
+		
 	}
 
 	/**
@@ -1776,9 +1746,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			if (enabled) {
 				const av = this.getAvaiableEmulators();
 				if (av.length > 0) newScen.emulator = av[0];
-			} else {
+			} else 
 				newScen.emulator = undefined;
-			}
+			
 			this.selectedScenario.set(newScen);
 		}
 	}
@@ -1833,10 +1803,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 
 	storySaved() {
 		const story = this.selectedStory();
+		// The selected scenario's saved flag is checked too: the backend runs the stored version, so
+		// running unsaved scenario edits must go through the "Scenario was not saved" dialog first.
+		// runUnsaved is the one-run exception the user chose in that dialog.
 		return (
 			this.runUnsaved ||
-      ((this.scenarioChild()?.selectedScenario.saved === undefined ||
-        this.scenarioChild()?.selectedScenario.saved) &&
+      ((this.scenarioChild()?.selectedScenario()?.saved === undefined ||
+        this.scenarioChild()?.selectedScenario()?.saved) &&
         (story?.background.saved === undefined ||
           story?.background.saved))
 		);
@@ -1893,17 +1866,17 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	renameStory(newStoryTitle: string, newStoryDescription: string) {
 		const story = this.selectedStory();
 		if (!story) return;
-		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) 
 			// FIX F7: Update story through signal instead of in-place mutation
 			this.selectedStory.update((s) =>
 				s ? { ...s, title: newStoryTitle, body: newStoryDescription } : s
 			);
-		} else if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) {
+		else if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) 
 			// FIX F7: Update story through signal for body change
 			this.selectedStory.update((s) =>
 				s ? { ...s, body: newStoryDescription } : s
 			);
-		}
+		
 		this.updateStory();
 	}
 

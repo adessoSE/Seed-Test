@@ -1,7 +1,7 @@
 ﻿import { Injectable, inject, signal } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { ApiService } from '../Services/api.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import type { User } from '@seed-test/shared/models/User';
 import { sha256Hex } from './crypto';
@@ -12,6 +12,11 @@ interface GithubCallbackResponse {
 	status?: number;
 	login: string;
 	id: number;
+}
+
+/** Response from GET /user/github/state: the OAuth state bound to this browser session */
+interface GithubStateResponse {
+	state: string;
 }
 
 /** Response from the merge-initiate endpoint */
@@ -49,24 +54,59 @@ export class LoginService {
 	}
 
 	/** TODO: Look, if it still needed as it seems callback is doing this now?
-   * Starts the github login
+   * Starts the github login: fetches the OAuth state from the backend, then redirects to GitHub with it.
+   * The state is required because the backend rejects a callback that does not carry the state it issued.
+   * @returns observable that emits the state once the redirect has been triggered
    */
-	public githubLogin() {
+	public githubLogin(): Observable<string> {
+		return this.fetchGithubState().pipe(
+			tap((state) => this.redirectTo(this.buildGithubAuthorizeUrl(state)))
+		);
+	}
+
+	/**
+   * Requests a new OAuth state. The backend stores it in this browser's session, so the request must carry
+   * the session cookie and the callback must come back from the same browser.
+   * @returns observable with the state value
+   */
+	fetchGithubState(): Observable<string> {
+		const url = this.apiService.apiServer + '/user/github/state';
+		return this.http.get<GithubStateResponse>(url, ApiService.getOptions()).pipe(
+			map((resp) => resp.state),
+			catchError(this.apiService.handleError)
+		);
+	}
+
+	/**
+   * Builds the GitHub authorize URL. The state is URL-encoded because it is part of the query string.
+   * @param state the value from fetchGithubState
+   * @returns the authorize URL
+   */
+	buildGithubAuthorizeUrl(state: string): string {
 		const scope = 'repo';
 		const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
-		const s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem(
-			'clientId'
-		)}`;
-		window.location.href = s;
+		const clientId = localStorage.getItem('clientId');
+		return `${AUTHORIZE_URL}?scope=${scope}&client_id=${clientId}&state=${encodeURIComponent(state)}`;
 	}
+
+	/**
+   * Navigates the browser to the given URL. Kept as a method so specs can observe the redirect without leaving the page.
+   * @param url absolute URL to navigate to
+   */
+	protected redirectTo(url: string): void {
+		window.location.href = url;
+	}
+
 	/**
    * Returns the callback from github to the backend
-   * @param code
+   * @param code authorization code from GitHub
+   * @param state the state GitHub echoed back; the backend compares it with the one issued for this session
    * @returns
    */
-	githubCallback(code: string): Observable<GithubCallbackResponse> {
-		const url = this.apiService.apiServer + '/user/callback?code=' + code;
-		return this.http.get<GithubCallbackResponse>(url, { withCredentials: true }).pipe(
+	githubCallback(code: string, state: string): Observable<GithubCallbackResponse> {
+		const url = this.apiService.apiServer + '/user/callback';
+		const params = new HttpParams().set('code', code).set('state', state);
+		return this.http.get<GithubCallbackResponse>(url, { ...ApiService.getOptions(), params }).pipe(
 			tap((_) => {
 				//
 			}),
@@ -161,16 +201,13 @@ export class LoginService {
 			jiraPassword: jiraPassword,
 			jiraServer: jiraServer
 		};
+		// The Jira session stays server-side. Do not persist it in localStorage: any script
+		// running on the page (e.g. via XSS) could read it.
 		return this.http
 			.post(
 				this.apiService.apiServer + '/jira/login',
 				body,
 				ApiService.getOptions()
-			)
-			.pipe(
-				tap((resp) => {
-					localStorage.setItem('JiraSession', resp.toString());
-				})
 			);
 	}
 	/**
@@ -230,6 +267,7 @@ export class LoginService {
 		localStorage.removeItem('source');
 		// Clear all session-specific keys that could leak stale data
 		// across users (Jira session, GitHub repo type, userId, report state).
+		// JiraSession is no longer written; this clears values left behind by older builds
 		localStorage.removeItem('JiraSession');
 		localStorage.removeItem('repositoryType');
 		localStorage.removeItem('userId');
@@ -242,16 +280,14 @@ export class LoginService {
 		);
 	}
 	/**
-   * Registers a user for a seed-test account
+   * Registers a user for a seed-test account. When sent from a logged-in GitHub-only account, the backend
+   * adds the login to that session account, so no account id is sent from the client.
    * @param email
    * @param password
-   * @param userId
    * @returns
    */
-	registerUser(email: string, password: string, userId: string | null): Observable<User> {
+	registerUser(email: string, password: string): Observable<User> {
 		const user: Record<string, unknown> = { email, password };
-		if (userId) 
-			user.userId = userId;
 
 		return from(sha256Hex(user.password as string)).pipe(
 			switchMap(hash => {
