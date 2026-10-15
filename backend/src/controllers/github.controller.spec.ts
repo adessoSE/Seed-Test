@@ -210,7 +210,7 @@ describe('GithubController', () => {
 	// ---------------------------------------------------------------
 	describe('disconnectGithub', () => {
 		it('disconnects GitHub and returns 200 when no session github property', async () => {
-			mockedExternalAccountService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
+			mockedExternalAccountService.disconnectGithub.mockResolvedValue(undefined);
 
 			// User without github property — takes the else branch (no session save)
 			const req = createReq({
@@ -226,7 +226,7 @@ describe('GithubController', () => {
 		});
 
 		it('saves session after removing github property and returns 200', async () => {
-			mockedExternalAccountService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
+			mockedExternalAccountService.disconnectGithub.mockResolvedValue(undefined);
 
 			// User with github property — triggers session save branch
 			const saveMock = vi.fn((cb: (err: any) => void) => cb(null));
@@ -247,7 +247,7 @@ describe('GithubController', () => {
 		});
 
 		it('calls next when session save fails', async () => {
-			mockedExternalAccountService.disconnectGithub.mockResolvedValue({ modifiedCount: 1 });
+			mockedExternalAccountService.disconnectGithub.mockResolvedValue(undefined);
 			const saveError = new Error('Session save failed');
 			const saveMock = vi.fn((cb: (err: any) => void) => cb(saveError));
 

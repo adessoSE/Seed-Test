@@ -11,7 +11,7 @@
  * production database. The container is ephemeral and runs on a random port.
  *
  * Each test file MUST:
- *   1. Call createClient() or tryCreateClient() in its own beforeAll
+ *   1. Call tryCreateClient() in its own beforeAll
  *   2. Register its own beforeEach to clear the collections it touches
  *   3. Call closeClient() in its own afterAll
  * File-level isolation (not module-level singletons) keeps suites order-agnostic.

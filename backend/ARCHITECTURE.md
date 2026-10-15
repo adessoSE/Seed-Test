@@ -196,13 +196,13 @@ Service unit tests mock `DbConnector.getConnection()` to return a pre-configured
 
 Three integration test files in `src/integration/` that run against a real MongoDB instance started by Testcontainers.
 
-**Setup Pattern**: Each test file calls `createClient()` (or `tryCreateClient()` for graceful skip) in its own `beforeAll`, then uses the returned `{client, db, container}` to seed test data and exercise the middleware chain against real databases.
+**Setup Pattern**: Each test file calls `tryCreateClient()` in its own `beforeAll`, then uses the returned `{client, db, container}` to seed test data and exercise the middleware chain against real databases.
 
 The critical redirect trick: `vi.mock('../database/DbConnector.js')` in each test file returns the Testcontainers database handle from `getConnection()`. Since all production services call `getConnection()` internally (never receive a `Db` directly), this single mock redirects the entire application to the test database without touching production code.
 
 **MongoDB Container**: Runs `mongo:8` on a random mapped host port. Configured as ReplicaSet (rs0) to enable transactions. Database name is `'Seed'` — the only concern: if a test accidentally uses `MongoClient.connect()` directly instead of `getConnection()`, it could connect to the real database. However, `createClient()` uses `directConnection=true` with an explicit host:port, making accidental overlap impossible.
 
-**Skip Strategy**: `tryCreateClient()` wraps `createClient()` in try/catch. Returns `null` if Docker is unavailable. Tests check for null and skip early (via `it.skip` or guard clause in `beforeAll`). A clear `SKIP_MESSAGE` explains the requirement.
+**Skip Strategy**: `tryCreateClient()` catches setup errors and returns `null` if Docker is unavailable. Tests check for null and skip early (via `it.skip` or guard clause in `beforeAll`). A clear `SKIP_MESSAGE` explains the requirement.
 
 ### End-to-End Tests (Cucumber)
 

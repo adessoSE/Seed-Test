@@ -56,7 +56,7 @@ Integration tests run against an isolated MongoDB in a container instead of the 
 
 - Files: `backend/src/integration/*.itest.ts`. Shared setup is in `backend/src/integration/setup.ts`. Config: `backend/vitest.integration.config.ts` (`fileParallelism: false`, so each file gets its own container).
 - Each file starts a `mongo:8` container running as a replica set (`rs0`), so MongoDB transactions work. The container uses a random host port and is removed by the Testcontainers Ryuk sidecar. No `docker compose up` is needed.
-- Prerequisite: a Docker-API-compatible runtime. The team uses Podman (`podman machine start`, which serves the Docker API); see the container runtime bullet in the root `AGENTS.md` Environment section for the win-sshproxy gotcha. Without a running daemon the suite skips with a message saying so.
+- Prerequisite: a running Docker-API-compatible runtime; setup is in the root `AGENTS.md` Environment section. Without a running daemon the suite skips with a message saying so.
 - Isolation: `beforeAll` starts the container and client, `afterAll` stops them, and `beforeEach` clears the collections the file touches. `DbConnector.ts` is not changed for this layer; each test file creates its own `MongoClient`.
 - Fixture rule: the owner is never in a workgroup's `Members`. `transferOwnership()` and `promoteNewOwner()` remove the new owner from `Members`, and `addMember()` rejects duplicates. Seed realistic ownership-transfer fixtures with a real second member.
 
@@ -95,7 +95,7 @@ Agents automatically have `browser_navigate`, `browser_click`, `browser_snapshot
 
 ### When Playwright MCP fails
 
-- **Container runtime not running**: Agent needs to check it first (`podman ps`; start it with `podman machine start`).
+- **Container runtime not running**: start it as described in the root `AGENTS.md` Environment section.
 - **App not compiled**: Run `npm run build` in `frontend/` and restart the server, or wait for the Docker rebuild.
 - **MCP not configured**: Must be listed in the `mcp` section of `opencode.jsonc`.
 
