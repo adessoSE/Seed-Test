@@ -187,6 +187,22 @@ describe('AccountManagementComponent', () => {
 
 			expect(searchSpy).not.toHaveBeenCalled();
 		});
+
+		it('stops reacting to router events once the component is destroyed', async () => {
+			const searchSpy = vi.spyOn(component, 'searchRepos');
+
+			// Control: while alive, a real account-route navigation reaches the component
+			await router.navigateByUrl('/accountManagement');
+			expect(searchSpy).toHaveBeenCalled();
+
+			// takeUntilDestroyed() must drop the router subscription on destroy
+			searchSpy.mockClear();
+			fixture.destroy();
+			await router.navigateByUrl('/terms');
+			await router.navigateByUrl('/accountManagement');
+
+			expect(searchSpy).not.toHaveBeenCalled();
+		});
 	});
 
 	// Merge flow: the merge token is a server-signed intent for /mergeGithub. OAuth state comes from /github/state.
@@ -257,6 +273,26 @@ describe('AccountManagementComponent', () => {
 
 			expect(notifySpy).toHaveBeenCalledWith('Could not save the repository.');
 			expect(consoleSpy).toHaveBeenCalledWith('Could not save the repository.', expect.anything());
+		});
+	});
+
+	// Regression: a second rename in the same modal session was dropped because the same mutated object was re-set on a signal
+	describe('rename trigger', () => {
+		it('saves every rename, including a second rename of the same mutated object', () => {
+			component.id = 'user123';
+			const updateSpy = vi.spyOn(projectService, 'updateRepository').mockReturnValue(of({} as RepositoryContainer));
+			vi.spyOn(projectService, 'updateRepositoryEmitter').mockImplementation(() => {});
+			const project: RepositoryContainer = { _id: '1', repoName: 'first', source: 'db', canEdit: true };
+
+			projectService.renameProjectEmitter(project);
+			TestBed.flushEffects();
+			project.repoName = 'second';
+			projectService.renameProjectEmitter(project);
+			TestBed.flushEffects();
+
+			expect(updateSpy).toHaveBeenCalledTimes(2);
+			expect(updateSpy).toHaveBeenNthCalledWith(1, '1', 'first', 'user123');
+			expect(updateSpy).toHaveBeenNthCalledWith(2, '1', 'second', 'user123');
 		});
 	});
 });

@@ -51,8 +51,19 @@ export function onActionTrigger<T>(trigger: ActionTrigger<T>, handler: (payload:
 		// Only the queue counter is tracked; the payloads themselves are read untracked
 		pending();
 		untracked(() => {
-			// splice takes the whole batch first, so a handler that emits again queues for the next pass
-			for (const payload of queue.splice(0)) handler(payload);
+			// Drains one payload at a time: a handler that emits again queues for the next pass, and a
+			// throwing handler must not drop the payloads behind it. The first error is rethrown after the drain
+			// so Angular's error handling still sees it.
+			let failure: unknown;
+			let failed = false;
+			while (queue.length)
+				try {
+					handler(queue.shift()!);
+				} catch (error) {
+					if (!failed) failure = error;
+					failed = true;
+				}
+			if (failed) throw failure;
 		});
 	});
 }

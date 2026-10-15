@@ -379,6 +379,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			this.storiesError.set(true);
 			this.showEditor.set(false);
 			window.localStorage.removeItem('login');
+			// Drops the cached project list; otherwise the next user in this SPA session sees the previous user's repositories
+			this.projectService.clearRepositories();
 			this.router.navigate(['/login']);
 		});
 	});
@@ -905,6 +907,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			.subscribe((_) => {
 				this.scenarioDeleted(scenario.scenario_id);
 				this.notify.error('', 'Scenario deleted');
+			}, () => {
+				// Without this, a failed delete was silent and the scenario stayed listed
+				this.notify.error('', 'Scenario could not be deleted');
 			});
 	}
 

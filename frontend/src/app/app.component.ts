@@ -8,6 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LoginService } from './Services/login.service';
 import { ProjectService } from './Services/project.service';
+import { onActionTrigger } from './Services/action-trigger';
 import { StoryService } from './Services/story.service';
 import { NotificationService } from './Services/notification.service';
 import { NgClass } from '@angular/common';
@@ -96,19 +97,11 @@ export class AppComponent implements OnInit{
 		untracked(() => this.logout());
 	});
 
-	/** Creates repository when service emits creation data */
-	private createRepoEffect = effect(() => {
-		const custom = this.projectService.createRepositoryValue();
-		if (!custom) return;
-		untracked(() => this.handleCreateRepo(custom));
-	});
-
-	/** Creates a repository via API and reloads the repository list */
-	// Payload shape matches ProjectService's CreateRepositoryPayload (not exported — kept inline here)
-	private async handleCreateRepo(custom: { repositoryContainer: RepositoryContainer; name: string }) {
-		await firstValueFrom(this.projectService.createRepository(custom.name, custom.repositoryContainer._id!));
-		this.getRepositories();
-	}
+	/**
+	 * Reloads the repository list after the create modal has saved a repository.
+	 * WHY: the modal already POSTed the repository; posting it again here created duplicates.
+	 */
+	private createRepoTrigger = onActionTrigger(this.projectService.createRepositoryTrigger, () => this.projectService.updateRepositoryEmitter());
 
 	/** Theme toggle value as a signal — drives dark/light mode switching */
 	private readonly toggleValue = toSignal(this.toggleControl.valueChanges);

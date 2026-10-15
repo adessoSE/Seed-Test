@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { FileElement } from '@seed-test/shared/models/FileElement';
+import { ActionTrigger } from './action-trigger';
 
 /** Workgroup member with email and edit permission */
 interface WorkgroupMember {
@@ -41,10 +42,10 @@ export class ProjectService {
 	apiService = inject(ApiService);
 	private http = inject(HttpClient);
 
-	/** Signal for rename project action — carries the RepositoryContainer */
-	readonly renameProjectValue = signal<RepositoryContainer | null>(null);
-	/** Signal for create repository action — carries the repository object */
-	readonly createRepositoryValue = signal<CreateRepositoryPayload | null>(null);
+	/** Action channel for rename project — every emit is a separate request, so repeated renames are never merged */
+	readonly renameProjectTrigger = new ActionTrigger<RepositoryContainer>();
+	/** Action channel for create repository — every emit is a separate request, so back-to-back creations are never merged */
+	readonly createRepositoryTrigger = new ActionTrigger<CreateRepositoryPayload>();
 	/** Signal for update repository trigger */
 	readonly updateRepositoryTrigger = signal(0);
 	/** Signal for delete repository trigger */
@@ -56,18 +57,19 @@ export class ProjectService {
 		this.deleteRepositoryTrigger.update(n => n + 1);
 	}
 	/**
-    * Sets the rename project value
+    * Requests a rename. Emits a copy: the modal mutates its object between requests, and consumers must
+    * receive the values as they were at emit time.
     * @param proj
    */
 	renameProjectEmitter(proj: RepositoryContainer) {
-		this.renameProjectValue.set(proj);
+		this.renameProjectTrigger.emit({ ...proj });
 	}
 	/**
-    * Sets the create repository value
+    * Requests a repository creation
     * @param repository
     */
 	createRepositoryEvent(repository: CreateRepositoryPayload) {
-		this.createRepositoryValue.set(repository);
+		this.createRepositoryTrigger.emit(repository);
 	}
 
 	/** Signal for transfer ownership trigger */

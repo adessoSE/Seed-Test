@@ -122,6 +122,17 @@ describe('AppComponent', () => {
 			component.getRepositories();
 			expect(projectService.getRepositories).not.toHaveBeenCalled();
 		});
+
+		// Regression: the app-level handler POSTed the repository a second time after the modal had already created it
+		it('refreshes the list without posting the repository again when a creation is emitted', () => {
+			const createSpy = vi.spyOn(projectService, 'createRepository');
+			const updateSpy = vi.spyOn(projectService, 'updateRepositoryEmitter').mockImplementation(() => {});
+			projectService.createRepositoryEvent({ repositoryContainer: { _id: 'a', repoName: 'Proj', source: 'db' }, name: 'Proj' });
+			TestBed.flushEffects();
+
+			expect(createSpy).not.toHaveBeenCalled();
+			expect(updateSpy).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	describe('behavioral: signal-driven effects', () => {

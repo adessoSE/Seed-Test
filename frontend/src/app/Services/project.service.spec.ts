@@ -4,6 +4,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { config, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { ProjectService } from './project.service';
+import { onActionTrigger } from './action-trigger';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
 
 describe('ProjectService', () => {
@@ -431,6 +433,38 @@ describe('ProjectService', () => {
 			} finally {
 				config.onUnhandledError = previous;
 			}
+		});
+	});
+
+	// Regression: the rename signal re-set the same mutated object, so a second rename in one modal session was dropped
+	describe('renameProjectTrigger', () => {
+		it('delivers every emit as a copy, so a re-emitted and mutated object is not dropped', () => {
+			const received: RepositoryContainer[] = [];
+			TestBed.runInInjectionContext(() => onActionTrigger(service.renameProjectTrigger, proj => { received.push(proj); }));
+			const project: RepositoryContainer = { _id: '1', repoName: 'first', source: 'db', canEdit: true };
+
+			service.renameProjectEmitter(project);
+			project.repoName = 'second';
+			service.renameProjectEmitter(project);
+			TestBed.flushEffects();
+
+			expect(received.map(p => p.repoName)).toEqual(['first', 'second']);
+			expect(received[0]).not.toBe(project);
+		});
+	});
+
+	// Regression: the create signal collapsed back-to-back creations into one handler run
+	describe('createRepositoryTrigger', () => {
+		it('delivers every creation request to connected consumers', () => {
+			const received: string[] = [];
+			TestBed.runInInjectionContext(() => onActionTrigger(service.createRepositoryTrigger, payload => { received.push(payload.name); }));
+			const payload = { repositoryContainer: { _id: 'a', repoName: 'Proj', source: 'db' as const }, name: 'Proj' };
+
+			service.createRepositoryEvent(payload);
+			service.createRepositoryEvent(payload);
+			TestBed.flushEffects();
+
+			expect(received).toEqual(['Proj', 'Proj']);
 		});
 	});
 

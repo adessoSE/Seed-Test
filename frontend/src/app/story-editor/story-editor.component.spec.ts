@@ -170,8 +170,36 @@ describe('StoryEditorComponent', () => {
 			fixture.detectChanges();
 			expect(component.scenarioService.deleteScenario).toHaveBeenCalled();
 		});
+
+		it('notifies the user and keeps the scenario when the delete request fails', () => {
+			component.stories.set(stories);
+			component.selectedStory.set(stories[0]);
+			vi.spyOn(component.scenarioService, 'deleteScenario').mockReturnValue(throwError(() => new Error('server down')));
+			vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+			vi.spyOn(component, 'scenarioDeleted');
+
+			component.deleteScenario(stories[0].scenarios[0], false);
+
+			// Regression: the subscribe had no error handler, so a failed delete was silent and the scenario stayed listed.
+			expect(component.notify.error).toHaveBeenCalled();
+			expect(component.scenarioDeleted).not.toHaveBeenCalled();
+		});
 	});
 
+
+	describe('stories request unauthorized (401)', () => {
+		it('clears the cached repository list before redirecting to login', () => {
+			const clearSpy = vi.spyOn(component.projectService, 'clearRepositories').mockImplementation(() => undefined);
+			const navigateSpy = vi.spyOn(component.router, 'navigate').mockResolvedValue(true);
+
+			component.apiService.storiesErrorTrigger.update(n => n + 1);
+			TestBed.flushEffects();
+
+			// Regression: without the reset, the next user in the same SPA session saw the previous user's project list.
+			expect(clearSpy).toHaveBeenCalled();
+			expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+		});
+	});
 
 	describe('scenarioDeleted', () => {
 		it('should delete the Scenario', () => {

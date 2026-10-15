@@ -1,8 +1,11 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { CreateCustomProjectComponent } from './create-custom-project.component';
+import { NgForm } from '@angular/forms';
+import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { ProjectService } from 'src/app/Services/project.service';
 
 describe('CreateCustomProjectComponent', () => {
 	let component: CreateCustomProjectComponent;
@@ -23,5 +26,25 @@ describe('CreateCustomProjectComponent', () => {
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+
+	// Regression: the modal posted the repository, then also re-fetched the list and the app-level handler posted it again
+	describe('createNewProject', () => {
+		it('posts the repository once and leaves the list refresh to the app', () => {
+			const http = TestBed.inject(HttpTestingController);
+			const projectService = TestBed.inject(ProjectService);
+			const getSpy = vi.spyOn(projectService, 'getRepositoriesEmitter');
+			const updateSpy = vi.spyOn(projectService, 'updateRepositoryEmitter');
+			component.modalReference = { close: vi.fn() } as unknown as NgbModalRef;
+			const form = { value: { title: 'Proj', _id: 'a' } } as unknown as NgForm;
+
+			component.createNewProject(form);
+			const posts = http.match(req => req.method === 'POST');
+			expect(posts.length).toBe(1);
+			posts[0].flush({ _id: 'a', repoName: 'Proj', source: 'db' });
+
+			expect(getSpy).not.toHaveBeenCalled();
+			expect(updateSpy).not.toHaveBeenCalled();
+		});
 	});
 });

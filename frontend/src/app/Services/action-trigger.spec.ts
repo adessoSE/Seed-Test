@@ -93,6 +93,28 @@ describe('action-trigger', () => {
 		});
 	});
 
+	describe('onActionTrigger error isolation', () => {
+		it('still delivers the rest of a batch when one handler call throws', () => {
+			const trigger = new ActionTrigger<number>();
+			const handler = vi.fn((payload: number) => {
+				if (payload === 1) throw new Error('handler failed');
+			});
+			TestBed.runInInjectionContext(() => onActionTrigger(trigger, handler));
+
+			trigger.emit(1);
+			trigger.emit(2);
+			trigger.emit(3);
+			try {
+				TestBed.flushEffects();
+			} catch {
+				// The failure is surfaced to Angular's error handling; the assertion below checks delivery
+			}
+
+			// Regression: splice(0) took the whole batch first, so a throw dropped payloads 2 and 3.
+			expect(handler.mock.calls.map(call => call[0])).toEqual([1, 2, 3]);
+		});
+	});
+
 	describe('onCounterAction', () => {
 		it('runs the handler once per counter bump with the current payload', () => {
 			const counter = signal(0);

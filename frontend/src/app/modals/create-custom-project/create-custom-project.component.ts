@@ -57,8 +57,6 @@ export class CreateCustomProjectComponent {
 						repositoryContainer: { _id: id, repoName: title, source: 'db' },
 						name: title
 					});
-					this.projectService.getRepositoriesEmitter();
-					this.projectService.updateRepositoryEmitter();
 				},
 				error: err => {
 					this.notify.error(err?.error?.error || 'Failed to create project', 'Error');

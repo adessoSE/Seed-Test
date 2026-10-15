@@ -1,10 +1,10 @@
-﻿import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom, switchMap, tap } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { NavigationEnd, Router, RouterLink, Event as RouterEvent } from '@angular/router';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change-jira-account.component';
-import { Subscription } from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,6 +16,7 @@ import { NotificationService } from '../Services/notification.service';
 import { ProjectService } from '../Services/project.service';
 import { LoginService } from '../Services/login.service';
 import { ManagementService } from '../Services/management.service';
+import { onActionTrigger } from '../Services/action-trigger';
 import { DisconnectJiraAccountComponent } from '../modals/disconnect-jira-account/disconnect-jira-account.component';
 import { ImportModalComponent } from '../modals/import-modal/import-modal.component';
 import { MatIcon } from '@angular/material/icon';
@@ -37,7 +38,7 @@ import type { User } from '@seed-test/shared/models/User';
 })
 
 
-export class AccountManagementComponent implements OnInit, OnDestroy {
+export class AccountManagementComponent implements OnInit {
 	apiService = inject(ApiService);
 	projectService = inject(ProjectService);
 	loginService = inject(LoginService);
@@ -99,8 +100,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
 	readonly searchList = signal<RepositoryContainer[] | undefined>(undefined);
 
-	navigationSubscription: Subscription;
-
 	downloadRepoID!: string;
 
 	readonly isDark = computed(() => this.themeService.isDark());
@@ -120,11 +119,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	readonly passwordError = signal<string | null>(null);
 	/** Whether a password change request is in flight */
 	readonly loadingPassword = signal(false);
-
-	/**
-      * Subscribtions for all EventEmitter
-      */
-	routeSub: Subscription;
 
 	/** Reacts to the updateRepository signal from ProjectService */
 	private updateRepoEffect = effect(() => {
@@ -150,12 +144,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		});
 	});
 
-	/** Reacts to the renameProject signal from ProjectService */
-	private renameProjectEffect = effect(() => {
-		const proj = this.projectService.renameProjectValue();
-		if (!proj) return;
-		untracked(() => this.updateRepository(proj));
-	});
+	/** Saves every rename request from ProjectService; onActionTrigger queues each one, so repeated renames are not merged */
+	private renameProjectEffect = onActionTrigger(this.projectService.renameProjectTrigger, proj => this.updateRepository(proj));
 
 	/** Clears password error when the user starts typing any password field */
 	private clearPasswordErrorEffect = effect(() => {
@@ -185,15 +175,24 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 		const themeService = this.themeService;
 
 		this.themeService = themeService;
-		this.navigationSubscription = this.router.events.subscribe((e) => this.onNavigationEnd(e));
-		this.routeSub = this.router.events.subscribe(event => {
-			if (event instanceof NavigationEnd && this.router.url === '/accountManagement') 
-				this.updateSite('Successful'); //
-                
+		// One subscription replaces the former navigationSubscription + routeSub pair. takeUntilDestroyed()
+		// unsubscribes automatically when the component is destroyed, so no ngOnDestroy cleanup is needed.
+		this.router.events.pipe(takeUntilDestroyed()).subscribe(event => {
+			this.onNavigationEnd(event);
+			if (event instanceof NavigationEnd && this.router.url === '/accountManagement')
+				this.updateSite('Successful');
 		});
 	}
 
 	ngOnInit() {
+		this.loadAccountView();
+	}
+
+	/**
+	 * Checks the login and loads the repository list for the account view.
+	 * WHY: Shared by ngOnInit and onNavigationEnd. onNavigationEnd must not call the lifecycle hook ngOnInit directly.
+	 */
+	private loadAccountView() {
 		if (!this.loginService.isLoggedIn())
 			this.router.navigate(['/login']);
 
@@ -209,16 +208,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 	 */
 	onNavigationEnd(event: RouterEvent) {
 		if (event instanceof NavigationEnd && event.urlAfterRedirects.startsWith('/accountManagement'))
-			this.ngOnInit();
-	}
-
-	ngOnDestroy() {
-		if (this.routeSub && !this.routeSub.closed)
-			this.routeSub.unsubscribe();
-
-		if (this.navigationSubscription)
-			this.navigationSubscription.unsubscribe();
-
+			this.loadAccountView();
 	}
 
 	seperateRepos(repos: RepositoryContainer[]) {
