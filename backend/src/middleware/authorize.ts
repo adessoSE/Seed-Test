@@ -31,8 +31,8 @@ function getIdFromRequest(req: Request, name: string, source: IdSource): string 
 export function authorizeRepo(repoParamName: string, options: { requireEdit?: boolean; ownerOnly?: boolean; source?: IdSource } = {}) {
 	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
-			const user = req.user as User;
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			// req.user is undefined for unauthenticated requests, so the type must admit it (no suppression needed)
+			const user = req.user as User | undefined;
 			if (!user?._id) {
 				res.status(401).json({ error: 'Unauthorized' });
 				return;
@@ -96,8 +96,8 @@ export function authorizeRepo(repoParamName: string, options: { requireEdit?: bo
 export function authorizeByStory(storyParamName: string, options: { requireEdit?: boolean; source?: IdSource } = {}) {
 	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
-			const user = req.user as User;
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			// req.user is undefined for unauthenticated requests, so the type must admit it (no suppression needed)
+			const user = req.user as User | undefined;
 			if (!user?._id) {
 				res.status(401).json({ error: 'Unauthorized' });
 				return;
@@ -179,8 +179,8 @@ export function extractStoryIdFromReport(report: Record<string, unknown>): strin
 export function authorizeByReport(paramName: string, options: { requireEdit?: boolean; lookupBy?: 'id' | 'name' } = {}) {
 	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
-			const user = req.user as User;
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			// req.user is undefined for unauthenticated requests, so the type must admit it (no suppression needed)
+			const user = req.user as User | undefined;
 			if (!user?._id) {
 				res.status(401).json({ error: 'Unauthorized' });
 				return;
@@ -272,8 +272,8 @@ export function authorizeByReport(paramName: string, options: { requireEdit?: bo
 export function authorizeByIssueKey(paramName: string) {
 	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
-			const user = req.user as User;
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			// req.user is undefined for unauthenticated requests, so the type must admit it (no suppression needed)
+			const user = req.user as User | undefined;
 			if (!user?._id) {
 				res.status(401).json({ error: 'Unauthorized' });
 				return;

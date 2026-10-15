@@ -3,13 +3,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { type Request, type Response, type NextFunction } from 'express';
 import { ObjectId } from 'mongodb';
+import { AppError } from '../helpers/AppError.js';
 // --- Mock setup (vi.hoisted ensures availability during vi.mock hoisting) ---
 const {
 	mockedRepositoryService,
+	mockedStoryService,
 	mockedLogger
 } = vi.hoisted(() => ({
+	mockedStoryService: {
+		assertStoriesInRepo: vi.fn()
+	},
 	mockedRepositoryService: {
 		getAllStoryGroups: vi.fn(),
+		getOneStoryGroup: vi.fn(),
 		createStoryGroup: vi.fn(),
 		updateStoryGroup: vi.fn(),
 		deleteStoryGroup: vi.fn(),
@@ -26,6 +32,7 @@ const {
 }));
 
 vi.mock('../services/repository.service', () => mockedRepositoryService);
+vi.mock('../services/story.service', () => mockedStoryService);
 vi.mock('../logging', () => ({ logger: mockedLogger }));
 
 // Import the module under test after mocks are registered
@@ -65,6 +72,12 @@ describe('GroupController', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		// Default: all member stories belong to the repository; rejection tests override this
+		mockedStoryService.assertStoriesInRepo.mockResolvedValue(undefined);
+		// Default: no stored groups yet, so every incoming member counts as newly added.
+		// Set explicitly because clearAllMocks keeps implementations set by earlier tests.
+		mockedRepositoryService.getOneStoryGroup.mockResolvedValue(undefined);
+		mockedRepositoryService.getAllStoryGroups.mockResolvedValue([]);
 		res = createRes();
 		next = vi.fn();
 	});
@@ -357,6 +370,139 @@ describe('GroupController', () => {
 
 			expect(next).toHaveBeenCalledWith(serviceError);
 			expect(res.status).not.toHaveBeenCalled();
+		});
+	});
+
+	// ---------------------------------------------------------------
+	// Cross-repo member validation: member stories must belong to the repo in the URL.
+	// The route only authorizes repo_id, so a foreign story ID would otherwise be injected into the group.
+	// ---------------------------------------------------------------
+	describe('cross-repo member validation', () => {
+		const foreignError = AppError.badRequest('Stories not part of this repository');
+
+		it('createGroup rejects with 400 and creates nothing when a member belongs to another repo', async () => {
+			mockedStoryService.assertStoriesInRepo.mockRejectedValue(foreignError);
+
+			const req = createReq({
+				params: { repo_id: VALID_REPO_ID },
+				body: { name: 'Injected', member_stories: [VALID_STORY_ID] }
+			});
+			await controller.createGroup(req, res, next);
+
+			expect(mockedStoryService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, [VALID_STORY_ID]);
+			expect(mockedRepositoryService.createStoryGroup).not.toHaveBeenCalled();
+			expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+		});
+
+		it('updateGroup rejects with 400 and writes nothing when a member belongs to another repo', async () => {
+			mockedStoryService.assertStoriesInRepo.mockRejectedValue(foreignError);
+
+			const req = createReq({
+				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID },
+				body: { _id: VALID_GROUP_ID, name: 'Injected', member_stories: [VALID_STORY_ID] }
+			});
+			await controller.updateGroup(req, res, next);
+
+			expect(mockedStoryService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, [VALID_STORY_ID]);
+			expect(mockedRepositoryService.updateStoryGroup).not.toHaveBeenCalled();
+			expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+		});
+
+		it('addStoryToGroup rejects with 400 and writes nothing when the story belongs to another repo', async () => {
+			mockedStoryService.assertStoriesInRepo.mockRejectedValue(foreignError);
+
+			const req = createReq({
+				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID, story_id: VALID_STORY_ID }
+			});
+			await controller.addStoryToGroup(req, res, next);
+
+			expect(mockedStoryService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, [VALID_STORY_ID]);
+			expect(mockedRepositoryService.addToStoryGroup).not.toHaveBeenCalled();
+			expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+		});
+
+		it('updateGroupsArray rejects with 400 and writes nothing when any group member belongs to another repo', async () => {
+			mockedStoryService.assertStoriesInRepo.mockRejectedValue(foreignError);
+
+			const req = createReq({
+				params: { repo_id: VALID_REPO_ID },
+				body: [
+					{ _id: VALID_GROUP_ID, name: 'A', member_stories: [] },
+					{ _id: VALID_STORY_ID, name: 'B', member_stories: [VALID_STORY_ID] }
+				]
+			});
+			await controller.updateGroupsArray(req, res, next);
+
+			expect(mockedStoryService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, [VALID_STORY_ID]);
+			expect(mockedRepositoryService.updateStoryGroupsArray).not.toHaveBeenCalled();
+			expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+		});
+	});
+
+	// ---------------------------------------------------------------
+	// Legacy members: a stored member is not re-checked, only IDs that a save newly adds
+	// ---------------------------------------------------------------
+	describe('legacy member handling', () => {
+		const LEGACY_STORY_ID = '507f1f77bcf86cd799439014';
+		const NEW_STORY_ID = '507f1f77bcf86cd799439015';
+
+		it('updateGroup does not re-check a stored member that is no longer in the repo', async () => {
+			mockedRepositoryService.getOneStoryGroup.mockResolvedValue({ _id: VALID_GROUP_ID, name: 'Old', member_stories: [LEGACY_STORY_ID], isSequential: false });
+			mockedRepositoryService.updateStoryGroup.mockResolvedValue(undefined);
+
+			const req = createReq({
+				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID },
+				body: { name: 'Renamed', member_stories: [LEGACY_STORY_ID], isSequential: false }
+			});
+			await controller.updateGroup(req, res, next);
+
+			expect(mockedStoryService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, []);
+			expect(mockedRepositoryService.updateStoryGroup).toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it('updateGroup checks only the members that were newly added', async () => {
+			mockedRepositoryService.getOneStoryGroup.mockResolvedValue({ _id: VALID_GROUP_ID, name: 'Old', member_stories: [LEGACY_STORY_ID], isSequential: false });
+			mockedRepositoryService.updateStoryGroup.mockResolvedValue(undefined);
+
+			const req = createReq({
+				params: { repo_id: VALID_REPO_ID, group_id: VALID_GROUP_ID },
+				body: { name: 'Old', member_stories: [LEGACY_STORY_ID, NEW_STORY_ID], isSequential: false }
+			});
+			await controller.updateGroup(req, res, next);
+
+			expect(mockedStoryService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, [NEW_STORY_ID]);
+		});
+
+		it('updateGroupsArray does not re-check stored members of an unchanged group', async () => {
+			mockedRepositoryService.getAllStoryGroups.mockResolvedValue([{ _id: VALID_GROUP_ID, name: 'A', member_stories: [LEGACY_STORY_ID], isSequential: false }]);
+			mockedRepositoryService.updateStoryGroupsArray.mockResolvedValue(undefined);
+
+			const req = createReq({
+				params: { repo_id: VALID_REPO_ID },
+				body: [{ _id: VALID_GROUP_ID, name: 'A', member_stories: [LEGACY_STORY_ID] }]
+			});
+			await controller.updateGroupsArray(req, res, next);
+
+			expect(mockedStoryService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, []);
+			expect(mockedRepositoryService.updateStoryGroupsArray).toHaveBeenCalled();
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it('updateGroupsArray checks a stored member that is moved into a different group', async () => {
+			mockedRepositoryService.getAllStoryGroups.mockResolvedValue([{ _id: VALID_GROUP_ID, name: 'A', member_stories: [LEGACY_STORY_ID], isSequential: false }]);
+			mockedStoryService.assertStoriesInRepo.mockRejectedValue(AppError.badRequest('Stories not part of this repository'));
+
+			const req = createReq({
+				params: { repo_id: VALID_REPO_ID },
+				body: [{ _id: VALID_STORY_ID, name: 'B', member_stories: [LEGACY_STORY_ID] }]
+			});
+			await controller.updateGroupsArray(req, res, next);
+
+			expect(mockedStoryService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, [LEGACY_STORY_ID]);
+			expect(mockedRepositoryService.updateStoryGroupsArray).not.toHaveBeenCalled();
+			expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
 		});
 	});
 });

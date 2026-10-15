@@ -1,54 +1,46 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+// src/database/DbConnector.spec.ts
 
-const mockClient = vi.hoisted(() => ({
-	db: vi.fn().mockReturnValue('mockDb'),
-	close: vi.fn().mockResolvedValue(undefined)
-}));
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+const { connect } = vi.hoisted(() => ({ connect: vi.fn() }));
 
 vi.mock('mongodb', () => ({
-	MongoClient: {
-		connect: vi.fn().mockResolvedValue(mockClient)
-	}
+	MongoClient: { connect }
 }));
 
-vi.mock('../logging.js', () => ({
-	logger: { warn: vi.fn(), info: vi.fn(), error: vi.fn() }
+vi.mock('../logging', () => ({
+	logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
 }));
 
-import { establishConnection, getConnection, closeConnection } from './DbConnector.js';
+import * as dbConnector from './DbConnector.js';
 
 describe('DbConnector', () => {
-	beforeEach(async () => {
-		vi.clearAllMocks();
-		// Reset module-level state so each test starts with a clean connection
-		await closeConnection();
+	const originalUri = process.env.DATABASE_URI;
+
+	beforeEach(() => {
+		delete process.env.DATABASE_URI;
+		connect.mockReset();
 	});
 
-	it('establishes a connection and returns a MongoClient', async () => {
-		const client = await establishConnection();
-		expect(client).toBe(mockClient);
-		expect(mockClient.db).toHaveBeenCalledWith('Seed');
+	afterEach(() => {
+		if (originalUri === undefined)
+			delete process.env.DATABASE_URI;
+		else
+			process.env.DATABASE_URI = originalUri;
 	});
 
-	it('getConnection returns the Db instance after connection', async () => {
-		await establishConnection();
-		expect(getConnection()).toBe('mockDb');
+	// Regression: a hardcoded fallback URI shipped working admin credentials in the source
+	it('fails closed with a clear error when DATABASE_URI is not set and never connects with a default', async () => {
+		await expect(dbConnector.establishConnection()).rejects.toThrow(/DATABASE_URI is not set/);
+		expect(connect).not.toHaveBeenCalled();
 	});
 
-	it('getConnection throws before establishing a connection', () => {
-		// State is clean after beforeEach — no connection has been established
-		expect(() => getConnection()).toThrow('Database connection has not been established yet.');
-	});
+	it('connects using the URI from the environment', async () => {
+		process.env.DATABASE_URI = 'mongodb://example.test:27017';
+		connect.mockResolvedValue({ db: vi.fn(() => ({})) });
 
-	it('closeConnection closes the MongoClient and nullifies state', async () => {
-		await establishConnection();
-		await closeConnection();
-		expect(mockClient.close).toHaveBeenCalled();
-	});
+		await dbConnector.establishConnection();
 
-	it('closeConnection is safe to call multiple times', async () => {
-		// Both calls should complete without throwing
-		await closeConnection();
-		await closeConnection();
+		expect(connect).toHaveBeenCalledWith('mongodb://example.test:27017', expect.anything());
 	});
 });

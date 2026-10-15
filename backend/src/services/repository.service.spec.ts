@@ -548,6 +548,20 @@ describe('RepositoryService', () => {
 			const result = await repositoryService.getOneStoryGroup(REPO_ID, new ObjectId().toHexString());
 			expect(result).toBeUndefined();
 		});
+
+		// Regression (audit 2e): the group execute path must receive the real member story IDs as strings
+		it('should return member_stories as hex strings matching the stored story IDs', async () => {
+			const groupId = new ObjectId();
+			const storyA = new ObjectId();
+			const storyB = new ObjectId();
+			mockRepoCollection.findOne.mockResolvedValue({
+				groups: [{ _id: groupId, name: 'Run', member_stories: [storyA, storyB] }]
+			});
+
+			const result = await repositoryService.getOneStoryGroup(REPO_ID, groupId.toHexString());
+
+			expect(result?.member_stories).toEqual([storyA.toHexString(), storyB.toHexString()]);
+		});
 	});
 
 	describe('createStoryGroup', () => {
@@ -572,6 +586,24 @@ describe('RepositoryService', () => {
 
 			await expect(repositoryService.createStoryGroup(REPO_ID, 'Group', [], false))
 				.rejects.toThrow('not found');
+		});
+	});
+
+	// Regression (audit 2a/2e): creating a group with real member stories must persist them as ObjectIds
+	describe('createStoryGroup with members', () => {
+		it('should store non-empty member_stories as ObjectIds', async () => {
+			const storyA = new ObjectId().toHexString();
+			const storyB = new ObjectId().toHexString();
+			mockRepoCollection.findOneAndUpdate.mockResolvedValue({
+				groups: [{ _id: new ObjectId(), name: 'Smoke', member_stories: [] }]
+			});
+
+			await repositoryService.createStoryGroup(REPO_ID, 'Smoke', [storyA, storyB], true);
+
+			const update = mockRepoCollection.findOneAndUpdate.mock.calls[0][1] as { $push: { groups: { member_stories: unknown[] } } };
+			const members = update.$push.groups.member_stories;
+			expect(members).toEqual([new ObjectId(storyA), new ObjectId(storyB)]);
+			expect(members.every(m => m instanceof ObjectId)).toBe(true);
 		});
 	});
 

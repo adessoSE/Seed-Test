@@ -5,46 +5,34 @@ import { randomUUID } from 'node:crypto';
 import { type User } from '@seed-test/shared/models/User.js';
 import * as userService from '../services/user.service.js';
 import * as nodeMail from '../nodemailer.js';
-import { type Session, type SessionData } from 'express-session';
 import { logger } from '../logging.js';
 import { AppError } from '../helpers/AppError.js';
 import { sanitizeUser } from '../helpers/userSanitize.js';
+import { stateMatches } from '../helpers/stateMatches.js';
 import { validatedConfig, requireGithub } from '../config.js';
 
 const saltRounds = 10;
 
-// In-memory store for merge-intent tokens created by the initiate endpoint.
-// Each entry is keyed by a UUID and contains the target userId + expiry.
-// Survives the session regeneration in the OAuth callback.
-// Exported for testing — tests use this to pre-populate intents before calling mergeGithub.
-export const mergeIntents = new Map<string, { userId: string; expiresAt: number }>();
-
-// Clean up expired merge-intent entries every 5 minutes
-setInterval(() => {
-	const now = Date.now();
-	for (const [token, intent] of mergeIntents) {
-		if (intent.expiresAt <= now)
-			mergeIntents.delete(token);
-	}
-}, 5 * 60 * 1000);
-
-// Define a type combining Request with Session properties
-type RequestWithSession = Request & { session: Session & Partial<SessionData> };
+// Same body for registered and unknown emails — the endpoint must not reveal which emails have accounts
+const GENERIC_RESET_MESSAGE = 'If an account exists for this email, a reset link has been sent';
 
 // --- Password Reset ---
 
 /**
  * Initiates a password reset request for a user.
+ * Always answers 200 with the same body, whether or not the email is registered. A reset link is
+ * created and mailed only for registered emails, and the mail is not awaited so that SMTP latency
+ * cannot reveal account existence either.
  */
 export async function forgotPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const email = (req.body as Record<string, string>).email.toLowerCase();
-        
+
 		// Delete any existing request
 		const checkRequest = await userService.getResetRequestByEmail(email);
-		if (checkRequest) 
+		if (checkRequest)
 			await userService.deleteRequest(email);
-        
+
 
 		const user = await userService.getUserByEmail(email);
 		if (user) {
@@ -54,12 +42,12 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
 				uuid: id,
 				email: user.email
 			});
-            
-			await nodeMail.sendResetLink(user.email, id);
-			res.status(200).json({ message: 'Reset link sent' });
-		} else
-			throw AppError.notFound('No user found with that email address');
-        
+
+			nodeMail.sendResetLink(user.email, id)
+				.catch((mailError: unknown) => logger.error(`Failed to send password reset link: ${String(mailError)}`));
+		}
+
+		res.status(200).json({ message: GENERIC_RESET_MESSAGE });
 	} catch (error) {
 		next(error);
 	}
@@ -67,6 +55,7 @@ export async function forgotPassword(req: Request, res: Response, next: NextFunc
 
 /**
  * Resets a user's password using a valid UUID.
+ * Tokens past their lifetime (see userService.isResetRequestExpired) are rejected and removed, so a leaked link has a limited lifetime.
  */
 export async function resetPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
@@ -75,21 +64,24 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 		const password = body.password as string;
 		const thisRequest = await userService.getResetRequest(uuid);
 
-		if (thisRequest) {
-			const user = await userService.getUserByEmail(thisRequest.email);
-			if (!user)
-				throw AppError.notFound('User not found');
-
-			user.password = await bcrypt.hash(password, saltRounds);
-			user.transitioned = true; // Mark as new hash
-            
-			await userService.updateUser(user._id, user);
-			await userService.deleteRequest(user.email);
-            
-			res.status(204).send(); // 204 No Content
-		} else
+		if (!thisRequest)
 			throw AppError.unauthorized('Invalid or expired reset token');
-        
+
+		// The TTL decision lives in the service so that it is tested in one place
+		if (userService.isResetRequestExpired(thisRequest.createdAt)) {
+			await userService.deleteRequest(thisRequest.email);
+			throw AppError.unauthorized('Invalid or expired reset token');
+		}
+
+		const user = await userService.getUserByEmail(thisRequest.email);
+		if (!user)
+			throw AppError.notFound('User not found');
+
+		const hashed = await bcrypt.hash(password, saltRounds);
+		await userService.updateUser(user._id, { password: hashed, transitioned: true }); // Mark as new hash
+		await userService.deleteRequest(user.email);
+
+		res.status(204).send(); // 204 No Content
 	} catch (error) {
 		next(error);
 	}
@@ -111,12 +103,12 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 			return next(AppError.unauthorized(info?.message ?? 'Authentication failed'));
 
 		// Session fixation prevention — regenerate before establishing new identity
-		(req as RequestWithSession).session.regenerate((regenerateErr) => {
+		req.session.regenerate((regenerateErr) => {
 			if (regenerateErr) return next(regenerateErr);
 
 			// Set extended session lifetime after regeneration so the new session inherits it
 			if (reqBody.stayLoggedIn)
-				(req as RequestWithSession).session.cookie.maxAge = 864000000; // 10 days
+				req.session.cookie.maxAge = 864000000; // 10 days
 
 			req.logIn(user, (loginErr) => {
 				if (loginErr) return next(loginErr);
@@ -132,7 +124,7 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 						} catch (hashError) {
 							return next(hashError);
 						}
- 
+
 					res.json(sanitizeUser(user));
 				})();
 
@@ -145,6 +137,10 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 
 /**
  * Handles user registration.
+ * CASE 1: An authenticated GitHub-only stub (the session user was created by GitHub login and has no
+ * e-mail or password) gets the e-mail and password added to itself. The target is the session user,
+ * so a userId or _id in the request body is never used, and no second account is created.
+ * CASE 2: Everyone else creates a new account (see userService.registerUser).
  */
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
@@ -158,12 +154,16 @@ export async function register(req: Request, res: Response, next: NextFunction):
 		body.email = (body.email as string).toLowerCase();
 		body.password = await bcrypt.hash(body.password as string, saltRounds);
 		body.transitioned = true;
-		// Remap userId (frontend field name) → _id (service field name) for GitHub account merge
-		if (body.userId) {
-			body._id = body.userId;
-			delete body.userId;
+
+		const sessionUser = req.user as User | undefined;
+		// CASE 1: GitHub-only stub from the session — add the login to it
+		if (req.isAuthenticated() && sessionUser?._id && userService.isGithubOnlyStub(sessionUser)) {
+			await userService.attachCredentialsToGithubStub(sessionUser._id, body.email as string, body.password as string);
+			res.status(201).json({ insertedId: sessionUser._id });
+			return;
 		}
 
+		// CASE 2: Anonymous request, or a session user that already has a login — create a new account
 		const result = await userService.registerUser(req.body as Partial<User>);
 		res.status(201).json({ insertedId: result.insertedId });
 	} catch (error: unknown) {
@@ -179,7 +179,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
  */
 export function logout(req: Request, res: Response, next: NextFunction): void {
 	req.logout((err) => {
-		if (err) return next(err); 
+		if (err) return next(err);
 		res.clearCookie('connect.sid', { path: '/' });
 		res.status(200).json({ message: 'Logged out' });
 	});
@@ -188,8 +188,25 @@ export function logout(req: Request, res: Response, next: NextFunction): void {
 // --- GitHub Authentication ---
 
 /**
+ * Issues the OAuth `state` for a GitHub login. The frontend calls this before redirecting to GitHub
+ * and passes the returned value back as `state`. githubCallback accepts only the value stored here.
+ * The value lives in the session cookie, so the same browser must start and finish the login.
+ */
+export function issueGithubState(req: Request, res: Response): void {
+	const state = randomUUID();
+	// Overwrites a state still pending in this session. That is acceptable: only the most recent login
+	// attempt from this browser may complete, and an abandoned attempt simply stops working.
+	req.session.githubOAuthState = state;
+	res.status(200).json({ state });
+}
+
+/**
  * Handles GitHub login/registration after OAuth redirect.
  * This logic is migrated from userManagement.ts helper.
+ *
+ * The `state` parameter must match the value issued to this session by issueGithubState. Without that
+ * check, an attacker could make a victim's browser complete the attacker's GitHub login (login CSRF).
+ * The stored state is consumed on every attempt, so it cannot be replayed.
  */
 export async function githubCallback(req: Request, res: Response, next: NextFunction): Promise<void> {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
@@ -198,36 +215,50 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
 	// Require GitHub OAuth vars — throws 501 if not configured
 	requireGithub(validatedConfig.value);
 
-	params.append('client_id', validatedConfig.value!.GITHUB_CLIENT_ID!);
-	params.append('client_secret', validatedConfig.value!.GITHUB_CLIENT_SECRET!);
-	params.append('code', req.query.code as string);
-
 	try {
+		const expectedState = req.session.githubOAuthState;
+		delete req.session.githubOAuthState;
+		const receivedState = req.query.state;
+		if (!expectedState || typeof receivedState !== 'string' || !stateMatches(expectedState, receivedState))
+			throw AppError.forbidden('Invalid OAuth state. Please restart the GitHub login.');
+
+		// Without a code there is nothing to exchange — never send GitHub an undefined value
+		const code = req.query.code;
+		if (typeof code !== 'string' || code === '')
+			throw AppError.badRequest('Missing OAuth code');
+
+		params.append('client_id', validatedConfig.value!.GITHUB_CLIENT_ID!);
+		params.append('client_secret', validatedConfig.value!.GITHUB_CLIENT_SECRET!);
+		params.append('code', code);
+
 		const tokenResponse = await fetch(TOKEN_URL, { method: 'POST', body: params });
 		const tokenText = await tokenResponse.text();
 		const tokenData = new URLSearchParams(tokenText);
-        
+
 		const accessToken = tokenData.get('access_token');
-		if (!accessToken)
-			throw AppError.badGateway(tokenData.get('error') ?? 'Failed to get access token');
-        
+		if (!accessToken) {
+			// GitHub's error text is logged for operators but never echoed to the browser
+			logger.warn(`GitHub token exchange failed: ${tokenData.get('error') ?? 'no access_token returned'}`);
+			throw AppError.badGateway('Failed to get access token');
+		}
+
 		// Now get user data from GitHub
 		const userResponse = await fetch('https://api.github.com/user', {
 			headers: { Authorization: `token ${accessToken}` }
 		});
 		if (!userResponse.ok) throw AppError.badGateway('Failed to get user data from GitHub');
-        
+
 		const githubProfile = await userResponse.json() as { login: string; id: number; githubToken?: string; [key: string]: unknown };
 		githubProfile.githubToken = accessToken;
 
 		// Find or register this user in our DB
 		const user = await userService.findOrRegisterGithub(githubProfile as { login: string; id: number; githubToken: string });
-        
+
 		if (!user)
 			throw new AppError('Failed to register or find GitHub user', 500);
 
 		// Session fixation prevention — regenerate before establishing new identity
-		(req as RequestWithSession).session.regenerate((regenerateErr) => {
+		req.session.regenerate((regenerateErr) => {
 			if (regenerateErr) return next(regenerateErr);
 			req.logIn(user, (loginErr) => {
 				if (loginErr) return next(loginErr);
@@ -258,7 +289,7 @@ export async function githubCallback(req: Request, res: Response, next: NextFunc
  *
  * Returns `{ mergeToken }` — a UUID to pass as OAuth `state`.
  */
-export async function initiateMergeGithub(req: Request, res: Response, next: NextFunction): Promise<void> {
+export function initiateMergeGithub(req: Request, res: Response, next: NextFunction): void {
 	try {
 		const { userId } = req.body as { userId: string };
 		const user = req.user as User | undefined;
@@ -271,11 +302,10 @@ export async function initiateMergeGithub(req: Request, res: Response, next: Nex
 		if (user._id.toString() !== userId)
 			throw AppError.forbidden('You can only initiate a merge for your own account');
 
-		const token = randomUUID();
-		const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
-		mergeIntents.set(token, { userId, expiresAt });
+		// The service keeps one live intent per account, so repeated calls replace the earlier token
+		const mergeToken = userService.createMergeIntent(userId);
 
-		res.status(200).json({ mergeToken: token });
+		res.status(200).json({ mergeToken });
 	} catch (error) {
 		next(error);
 	}
@@ -298,6 +328,7 @@ export async function initiateMergeGithub(req: Request, res: Response, next: Nex
  *
  * Identity source: ONLY the session user's verified `github` payload (from the
  * OAuth callback) is trusted — client-supplied login/id are ignored.
+ * Self-merges, overwrites of a different GitHub identity and data loss are refused in userService.mergeGithub.
  */
 export async function mergeGithub(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
@@ -308,7 +339,7 @@ export async function mergeGithub(req: Request, res: Response, next: NextFunctio
 		// The current session must hold a verified GitHub identity to merge —
 		// otherwise there is nothing proven by OAuth to attach to the Seed account.
 		const github = user?.github;
-		if (!github?.id || !github?.login)
+		if (!github?.id || !github.login)
 			throw AppError.forbidden('No verified GitHub identity in session to merge');
 
 		// Require and verify the merge-intent token.
@@ -319,22 +350,15 @@ export async function mergeGithub(req: Request, res: Response, next: NextFunctio
 		if (!token)
 			throw AppError.badRequest('Missing merge token. Call /user/mergeGithub/initiate first.');
 
-		const intent = mergeIntents.get(token);
-		if (!intent)
+		// The service deletes the token on every call, so it cannot be replayed even after a failed merge
+		const targetUserId = userService.consumeMergeIntent(token);
+		if (!targetUserId)
 			throw AppError.forbidden('Invalid or expired merge token. Please re-initiate.');
 
-		if (intent.expiresAt < Date.now()) {
-			mergeIntents.delete(token);
-			throw AppError.forbidden('Merge token expired. Please re-initiate.');
-		}
+		const mergedUser = await userService.mergeGithub(targetUserId, github.login, github.id);
 
-		// Consumed — delete the intent so the token cannot be reused
-		mergeIntents.delete(token);
-
-		const mergedUser = await userService.mergeGithub(intent.userId, github.login, github.id);
-		
 		// Session fixation prevention — regenerate before establishing new identity
-		(req as RequestWithSession).session.regenerate((regenerateErr) => {
+		req.session.regenerate((regenerateErr) => {
 			if (regenerateErr) return next(regenerateErr);
 			req.logIn(mergedUser, (loginErr) => {
 				if (loginErr) return next(loginErr);
@@ -366,9 +390,9 @@ export async function deleteUser(req: Request, res: Response, next: NextFunction
 		const user = req.user as User | undefined;
 		if (!user)
 			throw AppError.unauthorized('Not authenticated');
-        
+
 		await userService.deleteUser(user._id!);
-        
+
 		req.logout((err) => {
 			if (err) logger.error(`Error during logout after user deletion: ${err}`);
 			res.clearCookie('connect.sid', { path: '/' });
@@ -388,10 +412,10 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 	try {
 		const { userID } = req.params;
 		const user = req.user as User | undefined;
-         
+
 		if (user?._id!.toString() !== userID)
 			throw AppError.forbidden('Forbidden: You can only update your own profile');
-        
+
 		// currentPassword/newPassword arrive pre-validated by updateUserSchema via validate()
 		const { currentPassword, newPassword } = req.body as {
 			currentPassword: string;
@@ -409,10 +433,10 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 
 		const hashed = await bcrypt.hash(newPassword, saltRounds);
 
-		// Merge into authenticated user — sensitive fields from session take precedence
-		const updatedUser: User = { ...user, password: hashed };
-		await userService.updateUser(userID, updatedUser);
-		res.status(200).json(sanitizeUser(updatedUser));
+		// Write only the changed field. The session user is a snapshot from the start of the request,
+		// so writing it back would overwrite any concurrent change to other fields (lost update).
+		await userService.updateUser(userID, { password: hashed });
+		res.status(200).json(sanitizeUser({ ...user, password: hashed }));
 	} catch (error) {
 		next(error);
 	}

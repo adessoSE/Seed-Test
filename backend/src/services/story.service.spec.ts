@@ -284,6 +284,8 @@ describe('StoryService', () => {
 			} as any);
 
 			// 2. Mock the DB operations
+			// Membership guard: the story is listed in the repository's stories array
+			mockRepoCollection.findOne.mockResolvedValue({ _id: new ObjectId(repoId), stories: [new ObjectId(storyId)] });
 			mockRepoCollection.updateMany.mockResolvedValue({ modifiedCount: 1 }); // Remove from groups
 			mockRepoCollection.updateOne.mockResolvedValue({ modifiedCount: 1 }); // Remove from stories array
 			mockStoriesCollection.findOneAndDelete.mockResolvedValue({ value: { _id: storyId } }); // Delete story
@@ -314,6 +316,48 @@ describe('StoryService', () => {
 
 			// 5. Check story was deleted
 			expect(mockStoriesCollection.findOneAndDelete).toHaveBeenCalledWith({ _id: new ObjectId(storyId) });
+		});
+
+		// Regression (audit V2, IDOR): repo_id is authorized by the route, the story ID is not tied to it.
+		it('should reject with 404 and delete nothing when the story belongs to another repository', async () => {
+			const repoId = new ObjectId().toHexString();
+			const storyId = new ObjectId().toHexString();
+			// The repository's stories array does not contain the story (it lives in another repo)
+			mockRepoCollection.findOne.mockResolvedValue({ _id: new ObjectId(repoId), stories: [new ObjectId()] });
+
+			await expect(storyService.deleteStory(repoId, storyId)).rejects.toMatchObject({ statusCode: 404 });
+
+			expect(mockRepoCollection.updateMany).not.toHaveBeenCalled();
+			expect(mockRepoCollection.updateOne).not.toHaveBeenCalled();
+			expect(mockReportDataCollection.find).not.toHaveBeenCalled();
+			expect(mockedReportService.deleteReport).not.toHaveBeenCalled();
+			expect(mockStoriesCollection.findOneAndDelete).not.toHaveBeenCalled();
+		});
+	});
+
+	// --- Tests for assertStoriesInRepo (cross-repo reference guard for groups and story order) ---
+
+	describe('assertStoriesInRepo', () => {
+		it('should resolve when every story belongs to the repository', async () => {
+			const repoId = new ObjectId().toHexString();
+			const storyA = new ObjectId().toHexString();
+			const storyB = new ObjectId().toHexString();
+			mockRepoCollection.findOne.mockResolvedValue({ stories: [new ObjectId(storyA), new ObjectId(storyB)] });
+
+			await expect(storyService.assertStoriesInRepo(repoId, [storyA, storyB])).resolves.toBeUndefined();
+		});
+
+		it('should reject with 400 and name the foreign story IDs', async () => {
+			const repoId = new ObjectId().toHexString();
+			const ownStory = new ObjectId().toHexString();
+			const foreignStory = new ObjectId().toHexString();
+			mockRepoCollection.findOne.mockResolvedValue({ stories: [new ObjectId(ownStory)] });
+
+			const error = await storyService.assertStoriesInRepo(repoId, [ownStory, foreignStory]).catch((e: unknown) => e);
+
+			expect(error).toMatchObject({ statusCode: 400 });
+			expect((error as Error).message).toContain(foreignStory);
+			expect((error as Error).message).not.toContain(ownStory);
 		});
 	});
 

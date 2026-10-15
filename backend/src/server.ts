@@ -60,9 +60,22 @@ app.use(helmet());
 // Env vars validated at startup via validateConfig() in startServer().
 // Module-level sessionConfig uses validated values (set during startup init).
 
+/**
+ * Returns the validated DATABASE_URI and fails closed when it is missing.
+ * There is deliberately no built-in fallback connection string: a literal with credentials in source
+ * would silently connect to a hard-coded database whenever the environment is misconfigured.
+ * @throws Error when DATABASE_URI is not set (validateConfig() normally exits the process first).
+ */
+function requireDatabaseUri(): string {
+	const uri = validatedConfig.value?.DATABASE_URI;
+	if (!uri)
+		throw new Error('DATABASE_URI is not set. Refusing to start without a database connection string.');
+	return uri;
+}
+
 const sessionConfig: session.SessionOptions = {
 	store: MongoStore.create({
-		mongoUrl: validatedConfig.value?.DATABASE_URI ?? 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017',
+		mongoUrl: requireDatabaseUri(),
 		dbName: 'Seed',
 		collectionName: 'Sessions'
 	}),
@@ -292,7 +305,7 @@ async function startServer() {
 		await dbConnector.establishConnection();
 		// Log the database connection target to help distinguish local vs Atlas
 		// The DATABASE_URI is masked to show hostname + db name only (credentials stripped)
-		const dbUri = validatedConfig.value?.DATABASE_URI ?? 'mongodb://SeedAdmin:SeedTest@seedmongodb:27017';
+		const dbUri = requireDatabaseUri();
 		const dbHost = dbUri.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@');
 		logger.info(`Database connection established successfully. (${dbHost})`);
         

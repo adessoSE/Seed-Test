@@ -148,7 +148,12 @@ export async function updateStoryOrder(req: Request, res: Response, next: NextFu
 	try {
 		const repo_id = requireValidId(param(req, 'repo_id'), 'repository ID');
 		const { storyIds: storiesList } = req.body as { storyIds: string[] }; // Erwartet ein Array von Story-IDs
+		// Reject foreign story IDs before any write: a reorder must not pull stories of another repo into this one.
+		await storyService.assertStoriesInRepo(repo_id, storiesList);
 		// Persist the new _id order first, then renumber custom stories in that order.
+		// NOT atomic: the order lives in Repositories, the numbers in Stories. A failure between the
+		// two writes leaves them out of sync. Both writes are idempotent $set operations derived from
+		// the same list, so retrying the request converges. No transaction: the default compose MongoDB runs standalone.
 		await repositoryService.updateStoriesArrayInRepo(repo_id, storiesList);
 		await storyService.renumberCustomStories(repo_id, storiesList);
 		res.status(200).json({ message: 'Story order updated' });

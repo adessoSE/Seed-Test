@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema } from '@seed-test/shared/schemas/user.schemas.js';
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, mergeGithubSchema, updateUserSchema, initiateMergeGithubSchema } from '@seed-test/shared/schemas/user.schemas.js';
 
 describe('loginSchema', () => {
 	it('accepts valid login', () => {
@@ -42,6 +42,31 @@ describe('registerSchema', () => {
 	it('rejects invalid email', () => {
 		const result = registerSchema.safeParse({ email: 'bad', password: 'secure123' });
 		expect(result.success).toBe(false);
+	});
+
+	// Regression: a client-supplied userId used to be remapped to _id and $set onto an existing account
+	it('strips a client-supplied userId instead of accepting it', () => {
+		const result = registerSchema.safeParse({ email: 'new@example.com', password: 'secure123', userId: '605c72ef1f1d4b001f8e8e8e' });
+		expect(result.success).toBe(true);
+		expect(result.data).not.toHaveProperty('userId');
+	});
+});
+
+describe('initiateMergeGithubSchema', () => {
+	it('accepts a 24-char hex ObjectId', () => {
+		expect(initiateMergeGithubSchema.safeParse({ userId: '605c72ef1f1d4b001f8e8e8e' }).success).toBe(true);
+	});
+
+	it('rejects a non-ObjectId userId', () => {
+		expect(initiateMergeGithubSchema.safeParse({ userId: 'not-an-id' }).success).toBe(false);
+	});
+
+	it('rejects a missing userId', () => {
+		expect(initiateMergeGithubSchema.safeParse({}).success).toBe(false);
+	});
+
+	it('rejects a non-string userId (e.g. an operator object)', () => {
+		expect(initiateMergeGithubSchema.safeParse({ userId: { $ne: null } }).success).toBe(false);
 	});
 });
 

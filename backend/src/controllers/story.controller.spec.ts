@@ -20,7 +20,8 @@ vi.mock('../services/story.service', () => ({
 	updateScenarioList: vi.fn(),
 	updateOneDriver: vi.fn(),
 	getOneStoryByIssueKey: vi.fn(),
-	renumberCustomStories: vi.fn()
+	renumberCustomStories: vi.fn(),
+	assertStoriesInRepo: vi.fn()
 }));
 
 vi.mock('../services/feature-file.service', () => ({
@@ -491,6 +492,22 @@ describe('StoryController', () => {
 			expect(storyService.renumberCustomStories).toHaveBeenCalledWith(VALID_REPO_ID, storyIds);
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith({ message: 'Story order updated' });
+		});
+
+		// Regression (audit H4-style injection): a reordered ID from another repo must not reach any write
+		it('should reject with 400 and write nothing when a story belongs to another repository', async () => {
+			const storyIds = [new ObjectId().toHexString()];
+			req.params = { repo_id: VALID_REPO_ID };
+			req.body = { storyIds };
+
+			vi.mocked(storyService.assertStoriesInRepo).mockRejectedValue(AppError.badRequest('Stories not part of this repository'));
+
+			await controller.updateStoryOrder(req, res, next);
+
+			expect(storyService.assertStoriesInRepo).toHaveBeenCalledWith(VALID_REPO_ID, storyIds);
+			expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+			expect(repositoryService.updateStoriesArrayInRepo).not.toHaveBeenCalled();
+			expect(storyService.renumberCustomStories).not.toHaveBeenCalled();
 		});
 
 		it('should pass 400 AppError to next for invalid repo ID', async () => {

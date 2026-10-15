@@ -2,7 +2,7 @@ import express from 'express';
 import * as groupController from '../controllers/group.controller.js';
 import { authorizeRepo } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
-import { createGroupSchema } from '@seed-test/shared/schemas/group.schemas.js';
+import { createGroupSchema, updateGroupSchema, updateGroupsArraySchema } from '@seed-test/shared/schemas/group.schemas.js';
 
 const router = express.Router();
 
@@ -33,7 +33,7 @@ router.post('/:repo_id', canEdit, validate(createGroupSchema), groupController.c
  * @desc    Update an existing story group
  * @access  Private (repo editor)
  */
-router.put('/:repo_id/:group_id', canEdit, groupController.updateGroup);
+router.put('/:repo_id/:group_id', canEdit, validate(updateGroupSchema), groupController.updateGroup);
 
 /**
  * @route   DELETE /api/group/:repo_id/:group_id
@@ -61,6 +61,6 @@ router.delete('/:repo_id/:group_id/:story_id', canEdit, groupController.removeSt
  * @desc    Update the entire array of groups (e.g., reorder)
  * @access  Private (repo editor)
  */
-router.put('/:repo_id', canEdit, groupController.updateGroupsArray);
+router.put('/:repo_id', canEdit, validate(updateGroupsArraySchema), groupController.updateGroupsArray);
 
 export default router;

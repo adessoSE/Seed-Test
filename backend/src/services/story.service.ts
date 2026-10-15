@@ -169,12 +169,50 @@ export async function updateStory(updatedStory: Story, client?: MongoClient, ses
 }
 
 /**
+ * Returns the story IDs from the list that are NOT in the repository's stories array.
+ * The route guard only authorizes the repo_id in the URL; story IDs in the path or body are not
+ * otherwise tied to that repository, so every write that accepts them must check membership here.
+ * @param repoId - ObjectId (as string) of the repository.
+ * @param storyIds - Story IDs (as strings) to check. Malformed IDs are never members and are returned.
+ * @returns The IDs that do not belong to the repository; empty when all of them do.
+ */
+export async function getStoryIdsOutsideRepo(repoId: string, storyIds: string[]): Promise<string[]> {
+	const db = dbConnection.getConnection();
+	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }, { projection: { stories: 1 } });
+	// Compare as hex strings: stories may be stored as ObjectId, and the request IDs are strings
+	const memberIds = new Set((repo?.stories ?? []).map(s => s.toString()));
+	return storyIds.filter(id => !memberIds.has(id));
+}
+
+/**
+ * Rejects with 400 when any of the given story IDs does not belong to the repository.
+ * Call before writing group members or the story order so a request cannot attach stories
+ * from another repository to this one.
+ * @param repoId - ObjectId (as string) of the repository.
+ * @param storyIds - Story IDs (as strings) that are about to be referenced by the repository. Defaults to none,
+ *   so a caller with no IDs to check can omit the argument.
+ * @throws AppError (400) naming the foreign story IDs.
+ */
+export async function assertStoriesInRepo(repoId: string, storyIds: string[] = []): Promise<void> {
+	const outside = await getStoryIdsOutsideRepo(repoId, storyIds);
+	if (outside.length > 0)
+		throw AppError.badRequest(`Stories not part of this repository: ${outside.join(', ')}`);
+}
+
+/**
  * Deletes a story and all its references within a repository (stories array, groups) and associated reports.
  * @param repoId - The ObjectId of the repository containing the story.
  * @param storyId - The ObjectId of the story to delete.
  * @returns A Promise that resolves to the result of the deletion operation.
+ * @throws AppError (404) when the story is not part of the repository. Nothing is deleted in that case.
  */
 export async function deleteStory(repoId: string, storyId: string): Promise<WithId<StoryDoc> | null> {
+	// Membership guard (IDOR): without it a user with edit rights on repo A could delete
+	// a story, its groups references and its reports from repo B by passing a foreign story ID.
+	const outside = await getStoryIdsOutsideRepo(repoId, [storyId]);
+	if (outside.length > 0)
+		throw AppError.notFound('Story not found in this repository');
+
 	const db = dbConnection.getConnection();
 	const repoCollection = db.collection(repositoriesCollection);
 	const storyCollection = db.collection<StoryDoc>(storiesCollection);

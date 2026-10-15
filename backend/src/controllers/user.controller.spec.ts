@@ -1,6 +1,7 @@
 // src/controllers/user.controller.spec.ts
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type * as NodeCrypto from 'node:crypto';
 import { ObjectId } from 'mongodb';
 
 // --- 1. Mock all external dependencies before importing the controller ---
@@ -14,7 +15,19 @@ vi.mock('../services/user.service', () => ({
 	registerUser: vi.fn(),
 	updateUser: vi.fn(),
 	deleteUser: vi.fn(),
-	mergeGithub: vi.fn()
+	mergeGithub: vi.fn(),
+	findOrRegisterGithub: vi.fn(),
+	isResetRequestExpired: vi.fn(() => false),
+	createMergeIntent: vi.fn(() => 'test-uuid-merge-token'),
+	consumeMergeIntent: vi.fn(() => null),
+	isGithubOnlyStub: vi.fn(() => false),
+	attachCredentialsToGithubStub: vi.fn()
+}));
+
+// GitHub OAuth is configured for the callback tests; requireGithub is a no-op here
+vi.mock('../config', () => ({
+	validatedConfig: { value: { GITHUB_CLIENT_ID: 'test-client-id', GITHUB_CLIENT_SECRET: 'test-client-secret' } },
+	requireGithub: vi.fn()
 }));
 
 vi.mock('../nodemailer', () => ({
@@ -44,7 +57,9 @@ vi.mock('bcrypt', () => ({
 	}
 }));
 
-vi.mock('node:crypto', () => ({
+vi.mock('node:crypto', async (importOriginal) => ({
+	// Keep the real timingSafeEqual (used by the OAuth state check); only randomUUID is pinned
+	...(await importOriginal<typeof NodeCrypto>()),
 	randomUUID: vi.fn().mockReturnValue('test-uuid-merge-token')
 }));
 
@@ -73,8 +88,9 @@ import passport from 'passport';
 import bcrypt from 'bcrypt';
 import { AppError } from '../helpers/AppError.js';
 
-// Access the merge-intent store for test setup
-const { mergeIntents } = userController;
+// Identical body for existing and unknown emails — the anti-enumeration contract
+const GENERIC_RESET_MESSAGE = 'If an account exists for this email, a reset link has been sent';
+const RESET_TTL_MS = 24 * 60 * 60 * 1000;
 
 // --- 3. Test helpers ---
 
@@ -103,6 +119,7 @@ function mockReqResNext(overrides: {
 		body: { ...(overrides.body ?? {}) },
 		query: overrides.query ?? {},
 		user: overrides.user !== undefined ? overrides.user : null,
+		isAuthenticated: () => !!(overrides.user !== undefined ? overrides.user : null),
 		session: {
 			cookie: { maxAge: null },
 			regenerate: vi.fn((cb: (err: any) => void) => cb(null))
@@ -128,7 +145,10 @@ describe('UserController', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		mergeIntents.clear();
+		// Reset decision mocks to their defaults so one test's mockReturnValueOnce cannot leak into the next
+		vi.mocked(userService.consumeMergeIntent).mockReset().mockReturnValue(null);
+		vi.mocked(userService.isGithubOnlyStub).mockReset().mockReturnValue(false);
+		vi.mocked(userService.isResetRequestExpired).mockReset().mockReturnValue(false);
 	});
 
 	// ========== forgotPassword ==========
@@ -152,7 +172,7 @@ describe('UserController', () => {
 			);
 			expect(nodeMail.sendResetLink).toHaveBeenCalledWith(fakeUser.email, 'test-uuid-merge-token');
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith({ message: 'Reset link sent' });
+			expect(res.json).toHaveBeenCalledWith({ message: GENERIC_RESET_MESSAGE });
 			expect(next).not.toHaveBeenCalled();
 		});
 
@@ -174,7 +194,7 @@ describe('UserController', () => {
 			expect(res.status).toHaveBeenCalledWith(200);
 		});
 
-		it('should call next with a 404 AppError when the user is not found', async () => {
+		it('responds 200 with the same body for an unknown email and sends no mail (no account enumeration)', async () => {
 			vi.mocked(userService.getResetRequestByEmail).mockResolvedValue(null);
 			vi.mocked(userService.getUserByEmail).mockResolvedValue(null);
 
@@ -184,10 +204,11 @@ describe('UserController', () => {
 
 			await userController.forgotPassword(req, res, next);
 
-			expect(next).toHaveBeenCalledTimes(1);
-			const error = next.mock.calls[0][0];
-			expect(error).toBeInstanceOf(AppError);
-			expect(error.statusCode).toBe(404);
+			expect(next).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith({ message: GENERIC_RESET_MESSAGE });
+			expect(userService.createResetRequest).not.toHaveBeenCalled();
+			expect(nodeMail.sendResetLink).not.toHaveBeenCalled();
 		});
 	});
 
@@ -195,7 +216,7 @@ describe('UserController', () => {
 
 	describe('resetPassword', () => {
 		it('should reset the password with a valid UUID', async () => {
-			const resetRequest = { uuid: 'valid-uuid', email: fakeUser.email };
+			const resetRequest = { uuid: 'valid-uuid', email: fakeUser.email, createdAt: new Date() };
 			vi.mocked(userService.getResetRequest).mockResolvedValue(resetRequest);
 			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser });
 			vi.mocked(userService.updateUser).mockResolvedValue({ modifiedCount: 1 });
@@ -238,7 +259,8 @@ describe('UserController', () => {
 		it('should call next with 404 AppError when the user behind the reset request is missing', async () => {
 			vi.mocked(userService.getResetRequest).mockResolvedValue({
 				uuid: 'valid-uuid',
-				email: 'deleted@example.com'
+				email: 'deleted@example.com',
+				createdAt: new Date()
 			});
 			vi.mocked(userService.getUserByEmail).mockResolvedValue(null);
 
@@ -252,6 +274,48 @@ describe('UserController', () => {
 			const error = next.mock.calls[0][0];
 			expect(error).toBeInstanceOf(AppError);
 			expect(error.statusCode).toBe(404);
+		});
+
+		// The TTL decision itself is tested against real timestamps in user.service.spec.ts
+		it('rejects and deletes a reset token the service reports as expired (expiry regression)', async () => {
+			vi.mocked(userService.getResetRequest).mockResolvedValue({
+				uuid: 'old-uuid',
+				email: fakeUser.email,
+				createdAt: new Date(Date.now() - RESET_TTL_MS - 60_000)
+			});
+			vi.mocked(userService.isResetRequestExpired).mockReturnValueOnce(true);
+
+			const { req, res, next } = mockReqResNext({
+				body: { uuid: 'old-uuid', password: 'newPassword' }
+			});
+
+			await userController.resetPassword(req, res, next);
+
+			const error = next.mock.calls[0][0];
+			expect(error.statusCode).toBe(401);
+			expect(userService.deleteRequest).toHaveBeenCalledWith(fakeUser.email);
+			expect(userService.updateUser).not.toHaveBeenCalled();
+			expect(res.status).not.toHaveBeenCalled();
+		});
+
+		it('accepts a reset token the service reports as still valid', async () => {
+			vi.mocked(userService.getResetRequest).mockResolvedValue({
+				uuid: 'fresh-uuid',
+				email: fakeUser.email,
+				createdAt: new Date()
+			});
+			vi.mocked(userService.getUserByEmail).mockResolvedValue({ ...fakeUser });
+			vi.mocked(userService.updateUser).mockResolvedValue({ modifiedCount: 1 });
+			vi.mocked(userService.deleteRequest).mockResolvedValue({ deletedCount: 1 });
+
+			const { req, res, next } = mockReqResNext({
+				body: { uuid: 'fresh-uuid', password: 'newPassword' }
+			});
+
+			await userController.resetPassword(req, res, next);
+
+			expect(userService.isResetRequestExpired).toHaveBeenCalledWith(expect.any(Date));
+			expect(res.status).toHaveBeenCalledWith(204);
 		});
 	});
 
@@ -410,6 +474,88 @@ describe('UserController', () => {
 			expect(res.json).toHaveBeenCalledWith({ insertedId });
 		});
 
+		it('never passes an _id to the service, even when the body carries userId (account-takeover regression)', async () => {
+			vi.mocked(userService.registerUser).mockResolvedValue({ insertedId: new ObjectId() });
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'new@example.com', password: 'securePassword', userId: fakeUserId }
+			});
+
+			await userController.register(req, res, next);
+
+			expect(userService.registerUser).toHaveBeenCalledWith(expect.not.objectContaining({ _id: expect.anything() }));
+			expect(res.status).toHaveBeenCalledWith(201);
+		});
+
+		// CASE: authenticated GitHub-only stub — the login is added to the session's own account
+		it('attaches email and hashed password to the session stub instead of inserting a second account', async () => {
+			const stub = { _id: fakeUserId, github: { login: 'ghuser', id: 42, githubToken: 'gh-token' } };
+			vi.mocked(userService.isGithubOnlyStub).mockReturnValueOnce(true);
+			vi.mocked(userService.attachCredentialsToGithubStub).mockResolvedValue({ matchedCount: 1, modifiedCount: 1 } as any);
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'New@Example.com', password: 'securePassword' },
+				user: stub
+			});
+
+			await userController.register(req, res, next);
+
+			expect(userService.attachCredentialsToGithubStub).toHaveBeenCalledWith(fakeUserId, 'new@example.com', 'hashed_password_mock');
+			expect(userService.registerUser).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(201);
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		// Regression guard: the target is always the session user, never an _id/userId from the request body
+		it('ignores a client-supplied userId and attaches only to the session stub', async () => {
+			const stub = { _id: fakeUserId, github: { login: 'ghuser', id: 42, githubToken: 'gh-token' } };
+			const victimId = new ObjectId().toHexString();
+			vi.mocked(userService.isGithubOnlyStub).mockReturnValueOnce(true);
+			vi.mocked(userService.attachCredentialsToGithubStub).mockResolvedValue({ matchedCount: 1, modifiedCount: 1 } as any);
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'new@example.com', password: 'securePassword', userId: victimId, _id: victimId },
+				user: stub
+			});
+
+			await userController.register(req, res, next);
+
+			expect(userService.attachCredentialsToGithubStub).toHaveBeenCalledWith(fakeUserId, expect.any(String), expect.any(String));
+			expect(userService.attachCredentialsToGithubStub).not.toHaveBeenCalledWith(victimId, expect.anything(), expect.anything());
+		});
+
+		// CASE: unauthenticated — register only ever inserts
+		it('inserts a new account for an anonymous request, even when the email matches a GitHub stub', async () => {
+			vi.mocked(userService.registerUser).mockResolvedValue({ insertedId: new ObjectId() });
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'new@example.com', password: 'securePassword' },
+				user: null
+			});
+
+			await userController.register(req, res, next);
+
+			expect(userService.attachCredentialsToGithubStub).not.toHaveBeenCalled();
+			expect(userService.registerUser).toHaveBeenCalledTimes(1);
+			expect(res.status).toHaveBeenCalledWith(201);
+		});
+
+		// CASE: authenticated but not a stub (already has a login) — a normal new account is created
+		it('inserts a new account when the session user already has a login', async () => {
+			vi.mocked(userService.isGithubOnlyStub).mockReturnValueOnce(false);
+			vi.mocked(userService.registerUser).mockResolvedValue({ insertedId: new ObjectId() });
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'new@example.com', password: 'securePassword' },
+				user: { ...fakeUser }
+			});
+
+			await userController.register(req, res, next);
+
+			expect(userService.attachCredentialsToGithubStub).not.toHaveBeenCalled();
+			expect(userService.registerUser).toHaveBeenCalledTimes(1);
+		});
+
 		it('should throw 409 AppError when email is already registered', async () => {
 			// Service rejects with 'User already exists' — catch block re-throws as AppError.conflict
 			vi.mocked(userService.registerUser).mockRejectedValue(new Error('User already exists'));
@@ -508,7 +654,7 @@ describe('UserController', () => {
 				body: { userId: fakeUserId }
 			});
 
-			await userController.initiateMergeGithub(req, res, next);
+			userController.initiateMergeGithub(req, res, next);
 
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ mergeToken: 'test-uuid-merge-token' }));
@@ -520,12 +666,26 @@ describe('UserController', () => {
 				user: null
 			});
 
-			await userController.initiateMergeGithub(req, res, next);
+			userController.initiateMergeGithub(req, res, next);
 
 			expect(next).toHaveBeenCalledTimes(1);
 			const error = next.mock.calls[0][0];
 			expect(error).toBeInstanceOf(AppError);
 			expect(error.statusCode).toBe(401);
+		});
+
+		// The per-user replacement and expiry rules live in the service (user.service.spec.ts)
+		it('issues the intent for the session user through the service', async () => {
+			const { req, res, next } = mockReqResNext({
+				user: { ...fakeUser },
+				body: { userId: fakeUserId }
+			});
+
+			userController.initiateMergeGithub(req, res, next);
+
+			expect(userService.createMergeIntent).toHaveBeenCalledWith(fakeUserId);
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(next).not.toHaveBeenCalled();
 		});
 
 		it('should call next with 403 when the session user does not own the target account', async () => {
@@ -536,7 +696,7 @@ describe('UserController', () => {
 				body: { userId: differentUserId }
 			});
 
-			await userController.initiateMergeGithub(req, res, next);
+			userController.initiateMergeGithub(req, res, next);
 
 			expect(next).toHaveBeenCalledTimes(1);
 			const error = next.mock.calls[0][0];
@@ -566,7 +726,7 @@ describe('UserController', () => {
 			// This is the correct flow: the session user (G) is DIFFERENT from the
 			// merge target (S). The token is the ownership proof.
 			const token = 'test-uuid-merge-token';
-			mergeIntents.set(token, { userId: fakeUserId, expiresAt: Date.now() + 60000 });
+			vi.mocked(userService.consumeMergeIntent).mockReturnValueOnce(fakeUserId);
 
 			const { req, res, next } = mockReqResNext({
 				body: { mergeToken: token },
@@ -576,6 +736,7 @@ describe('UserController', () => {
 			await userController.mergeGithub(req, res, next);
 
 			// Merge target is intent.userId (S), not session user (G)
+			expect(userService.consumeMergeIntent).toHaveBeenCalledWith(token);
 			expect(userService.mergeGithub).toHaveBeenCalledWith(fakeUserId, 'ghuser', 42);
 			expect(req.session.regenerate).toHaveBeenCalled();
 			expect(req.logIn).toHaveBeenCalledWith(mergedUser, expect.any(Function));
@@ -586,7 +747,7 @@ describe('UserController', () => {
 
 		it('should reject second use of the same token (single-use enforcement)', async () => {
 			const token = 'test-uuid-merge-token';
-			mergeIntents.set(token, { userId: fakeUserId, expiresAt: Date.now() + 60000 });
+			vi.mocked(userService.consumeMergeIntent).mockReturnValueOnce(fakeUserId).mockReturnValueOnce(null);
 
 			const { req, res, next } = mockReqResNext({
 				body: { mergeToken: token },
@@ -626,41 +787,28 @@ describe('UserController', () => {
 			expect(error.statusCode).toBe(400);
 		});
 
-		it('should call next with 403 when the merge token does not exist', async () => {
+		// Unknown and expired tokens look the same to the caller, so the store state cannot be probed
+		it('should call next with 403 when the merge token does not exist or has expired', async () => {
+			vi.mocked(userService.consumeMergeIntent).mockReturnValueOnce(null);
+
 			const { req, res, next } = mockReqResNext({
-				body: { mergeToken: 'nonexistent-token' },
+				body: { mergeToken: 'nonexistent-or-expired-token' },
 				user: githubOnlyUser
 			});
 
 			await userController.mergeGithub(req, res, next);
 
+			expect(userService.mergeGithub).not.toHaveBeenCalled();
 			expect(next).toHaveBeenCalledTimes(1);
 			const error = next.mock.calls[0][0];
 			expect(error).toBeInstanceOf(AppError);
 			expect(error.statusCode).toBe(403);
-		});
-
-		it('should call next with 403 when the merge token has expired', async () => {
-			const token = 'expired-token';
-			mergeIntents.set(token, { userId: fakeUserId, expiresAt: Date.now() - 1000 });
-
-			const { req, res, next } = mockReqResNext({
-				body: { mergeToken: token },
-				user: githubOnlyUser
-			});
-
-			await userController.mergeGithub(req, res, next);
-
-			expect(next).toHaveBeenCalledTimes(1);
-			const error = next.mock.calls[0][0];
-			expect(error).toBeInstanceOf(AppError);
-			expect(error.statusCode).toBe(403);
-			expect(error.message).toBe('Merge token expired. Please re-initiate.');
+			expect(error.message).toBe('Invalid or expired merge token. Please re-initiate.');
 		});
 
 		it('should call next with 403 when the session user has no verified GitHub identity', async () => {
 			const token = 'test-uuid-merge-token';
-			mergeIntents.set(token, { userId: fakeUserId, expiresAt: Date.now() + 60000 });
+			vi.mocked(userService.consumeMergeIntent).mockReturnValueOnce(fakeUserId);
 
 			const { req, res, next } = mockReqResNext({
 				body: { mergeToken: token },
@@ -688,6 +836,126 @@ describe('UserController', () => {
 			const error = next.mock.calls[0][0];
 			expect(error).toBeInstanceOf(AppError);
 			expect(error.statusCode).toBe(403);
+		});
+	});
+
+	// ========== GitHub OAuth state (login CSRF) ==========
+
+	describe('issueGithubState', () => {
+		it('stores a fresh state in the session and returns it to the caller', async () => {
+			const { req, res, next } = mockReqResNext();
+
+			userController.issueGithubState(req, res, next);
+
+			expect(req.session.githubOAuthState).toBe('test-uuid-merge-token');
+			expect(res.json).toHaveBeenCalledWith({ state: 'test-uuid-merge-token' });
+			expect(next).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('githubCallback', () => {
+		const fetchMock = vi.fn();
+
+		beforeEach(() => {
+			vi.stubGlobal('fetch', fetchMock);
+		});
+
+		afterEach(() => {
+			vi.unstubAllGlobals();
+		});
+
+		/** Mimics the GitHub token endpoint's form-encoded plain-text response. */
+		function tokenResponse(body: string) {
+			return { ok: true, text: async () => body };
+		}
+
+		it('rejects a callback without a state parameter and never contacts GitHub (login CSRF regression)', async () => {
+			const { req, res, next } = mockReqResNext({ query: { code: 'abc' } });
+			req.session.githubOAuthState = 'expected-state';
+
+			await userController.githubCallback(req, res, next);
+
+			expect(next.mock.calls[0][0].statusCode).toBe(403);
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(userService.findOrRegisterGithub).not.toHaveBeenCalled();
+		});
+
+		it('rejects a mismatched state and consumes the stored state (single use)', async () => {
+			const { req, res, next } = mockReqResNext({ query: { code: 'abc', state: 'attacker-state' } });
+			req.session.githubOAuthState = 'expected-state';
+
+			await userController.githubCallback(req, res, next);
+
+			expect(next.mock.calls[0][0].statusCode).toBe(403);
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(req.session.githubOAuthState).toBeUndefined();
+		});
+
+		it('rejects a callback when no state was ever issued in this session', async () => {
+			const { req, res, next } = mockReqResNext({ query: { code: 'abc', state: 'any-state' } });
+
+			await userController.githubCallback(req, res, next);
+
+			expect(next.mock.calls[0][0].statusCode).toBe(403);
+			expect(fetchMock).not.toHaveBeenCalled();
+		});
+
+		it('rejects a missing or non-string code before calling GitHub', async () => {
+			const { req, res, next } = mockReqResNext({ query: { state: 'expected-state' } });
+			req.session.githubOAuthState = 'expected-state';
+
+			await userController.githubCallback(req, res, next);
+
+			expect(next.mock.calls[0][0].statusCode).toBe(400);
+			expect(fetchMock).not.toHaveBeenCalled();
+		});
+
+		it('does not echo GitHub error details to the client', async () => {
+			const { req, res, next } = mockReqResNext({ query: { code: 'bad', state: 'expected-state' } });
+			req.session.githubOAuthState = 'expected-state';
+			fetchMock.mockResolvedValueOnce(tokenResponse('error=bad_verification_code&error_description=The+code+passed+is+incorrect'));
+
+			await userController.githubCallback(req, res, next);
+
+			const error = next.mock.calls[0][0];
+			expect(error.statusCode).toBe(502);
+			expect(error.message).toBe('Failed to get access token');
+			expect(error.message).not.toContain('bad_verification_code');
+		});
+
+		it('completes the login when the state matches, and consumes the state', async () => {
+			const { req, res, next } = mockReqResNext({ query: { code: 'good', state: 'expected-state' } });
+			req.session.githubOAuthState = 'expected-state';
+			fetchMock
+				.mockResolvedValueOnce(tokenResponse('access_token=gho_tok&token_type=bearer'))
+				.mockResolvedValueOnce({ ok: true, json: async () => ({ login: 'ghuser', id: 42 }) });
+			vi.mocked(userService.findOrRegisterGithub).mockResolvedValue({ _id: fakeUserId, github: { login: 'ghuser', id: 42 } } as any);
+
+			await userController.githubCallback(req, res, next);
+
+			expect(next).not.toHaveBeenCalled();
+			expect(userService.findOrRegisterGithub).toHaveBeenCalledWith(expect.objectContaining({ login: 'ghuser', id: 42, githubToken: 'gho_tok' }));
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(req.session.githubOAuthState).toBeUndefined();
+		});
+
+		// Contract with the frontend: the state from GET /user/github/state, sent back unchanged in the callback, must log in
+		it('accepts the state returned by GET /user/github/state when the same session sends it back', async () => {
+			const issue = mockReqResNext();
+			userController.issueGithubState(issue.req, issue.res, issue.next);
+			const { state } = (issue.res.json as ReturnType<typeof vi.fn>).mock.calls[0][0] as { state: string };
+
+			const { req, res, next } = mockReqResNext({ query: { code: 'good', state } });
+			req.session.githubOAuthState = state;
+			fetchMock
+				.mockResolvedValueOnce(tokenResponse('access_token=gho_tok&token_type=bearer'))
+				.mockResolvedValueOnce({ ok: true, json: async () => ({ login: 'ghuser', id: 42 }) });
+			vi.mocked(userService.findOrRegisterGithub).mockResolvedValue({ _id: fakeUserId, github: { login: 'ghuser', id: 42 } } as any);
+
+			await userController.githubCallback(req, res, next);
+
+			expect(next).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(200);
 		});
 	});
 
@@ -736,16 +1004,8 @@ describe('UserController', () => {
 			// Current password must be checked against the stored hash before anything changes
 			expect(bcrypt.compare).toHaveBeenCalledWith('current_pw', fakeUser.password);
 			expect(bcrypt.hash).toHaveBeenCalledWith('brand_new_password', 10);
-			// Sensitive fields (email, github) preserved from the session user
-			expect(userService.updateUser).toHaveBeenCalledWith(
-				fakeUserId,
-				expect.objectContaining({
-					_id: fakeUser._id,
-					email: fakeUser.email,
-					github: fakeUser.github,
-					password: 'hashed_password_mock'
-				})
-			);
+			// Only the changed field is written — the stale session snapshot must not be $set back (lost-update regression)
+			expect(userService.updateUser).toHaveBeenCalledWith(fakeUserId, { password: 'hashed_password_mock' });
 			expect(res.status).toHaveBeenCalledWith(200);
 			// Response is sanitized — no password or githubToken
 			expect(res.json).toHaveBeenCalledWith(

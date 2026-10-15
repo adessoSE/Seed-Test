@@ -1,4 +1,4 @@
-﻿// https://github.com/WebDevSimplified/Nodejs-Passport-Login/blob/master/passport-config.js
+// https://github.com/WebDevSimplified/Nodejs-Passport-Login/blob/master/passport-config.js
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
 import { type PassportStatic } from 'passport';

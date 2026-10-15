@@ -159,9 +159,8 @@ export async function runGroup(req: Request, res: Response, next: NextFunction):
 				} catch {
 					safeString = '[object]';
 				}
-			else {
+			else
 				safeString = String(id);
-			}
 			
 			return { raw: id, type: rawType, string: safeString, hex: hexString };
 		});

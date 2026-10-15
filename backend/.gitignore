@@ -35,7 +35,7 @@ testem.log
 /typings
 
 /features/*
-!./features/step_definitions/*
+!/features/step_definitions/
 
 # System Files
 .DS_Store
@@ -49,7 +49,7 @@ webdriver/*
 !/webdriver/webdriver_updater.js
 
 # logs
-.log
+*.log
 
 # local data
 .env

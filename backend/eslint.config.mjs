@@ -4,6 +4,10 @@ import tseslint from 'typescript-eslint';
 import stylistic from '@stylistic/eslint-plugin';
 
 export default defineConfig([
+	// Build output is compiled JS, not source; linting it reports errors for rules the TS config does not define.
+	{
+		ignores: ['dist/**']
+	},
 	{
 		files: ['src/**/*.ts'],
 		extends: [
