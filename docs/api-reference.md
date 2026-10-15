@@ -1,6 +1,6 @@
 # API Endpoints Overview
 
-All endpoints are routed under `/api/`. Routes with `isAuthenticated` middleware require login. Public routes (`/api/user`, `/api/playwright`, `/api/log`) are auth-free.
+All endpoints are routed under `/api/`. `backend/src/server.ts` mounts every router behind `isAuthenticated` except the public ones: `/api/health`, `/api/ai/available`, `/api` (HTML), `/api/log`, `/api/playwright/*`, and under `/api/user` only `login`, `register`, `logout`, `resetpassword`, `reset`, and `callback`. Each table below marks auth per endpoint.
 
 ## Authentication
 
@@ -15,6 +15,7 @@ All endpoints are routed under `/api/`. Routes with `isAuthenticated` middleware
 | POST | `/api/user/update/:userID` | `User` (partial) | `User` | Require |
 | DELETE | `/api/user/` | — | `{message}` | Require |
 | GET | `/api/user/callback`?code= | — | `User` | Public |
+| POST | `/api/user/mergeGithub/initiate` | — | `{mergeToken}` | Require |
 | POST | `/api/user/mergeGithub` | `{userId, login, id}` | `{status}` | Require |
 
 ## Repositories
@@ -50,7 +51,6 @@ All endpoints are routed under `/api/`. Routes with `isAuthenticated` middleware
 | GET | `/api/story/download/project/:repo_id` | query: `version_id` | Binary `.zip` | Require |
 | GET | `/api/story/download/export/:repo_id` | — | Binary `.zip` | Require |
 | POST/PUT | `/api/story/upload/import/` | multer file + query: `repo_id, projectName, importMode` | `{message}` | Require |
-| POST | `/api/story/specialCommands/resolve` | `{command}` | `{resolved}` | Require |
 | POST | `/api/story/oneDriver/:storyID` | `{oneDriver}` | `Result` | Require |
 | GET | `/api/story/issueKey/:issue_key` | — | `Story` | Require |
 | POST | `/api/story/:story_id/generate-scenarios` | `{aiConfig: AiConfig}` | `{message: 'queued'}` | Require |
@@ -119,7 +119,6 @@ All endpoints are routed under `/api/`. Routes with `isAuthenticated` middleware
 ## Test Execution
 
 | | Endpoint | Body | Response | Auth |
-
 |---|---------|------|----------|------|
 | POST | `/api/execute/Feature/:issueID` | `{repositoryId}` | `{htmlFile, reportId, report}` | Require |
 | POST | `/api/execute/Scenario/:issueID/:scenarioId` | `{repositoryId}` | `{htmlFile, reportId, report}` | Require |
@@ -150,17 +149,16 @@ interface ExecuteTestRequest {
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
-| POST | `/api/script/Group` | `{repoID, groupID, repository?, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Passport+Body |
-| POST | `/api/script/Feature/:issueID` | `{issueID, repositoryId, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Passport+Body |
+| POST | `/api/script/Group` | `{repoID, groupID, repository?, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Session + body |
+| POST | `/api/script/Feature/:issueID` | `{issueID, repositoryId, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Session + body |
 
-> `script` route uses its own auth middleware (`authenticateAndProceed`) — body contains login credentials directly.
+> The `script` router is mounted behind `isAuthenticated` (`server.ts`), so a session is required. Its routes also pass the body credentials to `authenticateAndProceed` (`script.routes.ts`).
 
 ## External Integrations
 
 ### Jira
 
 | | Endpoint | Body | Response | Auth |
-
 |---|---------|------|----------|------|
 | POST | `/api/jira/link` | `{jiraAccountName, jiraPassword, jiraHost, jiraAuthMethod?}` | `{message}` | Require |
 | DELETE | `/api/jira/disconnect` | — | `{message}` | Require |
@@ -170,7 +168,6 @@ interface ExecuteTestRequest {
 ### GitHub
 
 | | Endpoint | Body | Response | Auth |
-
 |---|---------|------|----------|------|
 | POST | `/api/github/submitIssue` | `{title, body, ...}` | GitHub Issue JSON | Require |
 | DELETE | `/api/github/disconnectGithub` | — | `{message}` | Require |
@@ -178,14 +175,12 @@ interface ExecuteTestRequest {
 ## AI
 
 | | Endpoint | Body | Response | Auth |
-
 |---|---------|------|----------|------|
 | GET | `/api/ai/available` | — | `{ available: boolean }` | Public |
 
 ## System
 
 | | Endpoint | Body | Response | Auth |
-
 |---|---------|------|----------|------|
 | GET | `/api/health` | — | `OK` | Public |
 | GET | `/api` | — | HTML page | Public |

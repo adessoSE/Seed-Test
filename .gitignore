@@ -23,6 +23,10 @@
 frontend/.idea
 backend/.idea
 .vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # misc
 /.sass-cache
@@ -34,42 +38,50 @@ yarn-error.log
 testem.log
 /typings
 
-# Documentation Styling
+# Documentation styling (tracked despite this rule; delete the rule or `git rm --cached` if unwanted)
 frontend/src/assets/documentation/styles/site.css
 
-# environment variables
+# environment variables: secrets must never be tracked
+# Covers .env, .env.local, .env.production, .env.<anything>; templates stay tracked
 .env
-environment.prod.ts
-envrionment.ts
+.env.*
+!.env.example
+!.env.*.example
+*.local
+# Tracked environment modules (version/env only, no secrets); rules kept as a no-op marker
 frontend/src/environments/environment.ts
+environment.prod.ts
 
-# System Files
+# System files
 .DS_Store
 Thumbs.db
 
 # Lints
 tslint.json
 
-# Coerage & Code Analysis
+# Coverage & code analysis
 frontend/src/coverage/
 sonar-project.properties
 .scannerwork
 frontend/documentation
 frontend/coverage
-frontend/\.editorconfig
-frontend/.angular
+frontend/.angular/
+.angular/
+.nyc_output/
 
-# Cucumber & Reports
+# Cucumber & reports
 **/*.feature
 backend/features/reporting_*.json
 backend/features/reporting_html*.html
+test-results/
+playwright-report/
 
-# Batches for install, update and start
+# Batches for install, update and start (no tracked files match today; scripts/ would need a negation)
 *.bat
 *.sh
 *.ps1
 
-# Website Deployment with IIS
+# Website deployment with IIS
 **/web.config
 /website
 
@@ -83,9 +95,11 @@ backend/features/step_definitions/testing.js
 /act
 mongo-rs/rs_keyfile
 backend/tsconfig.tsbuildinfo
+*.tsbuildinfo
 opencode.jsonc
 
-# AI tool config — commit project-level config, ignore ephemeral data
+# Claude Code: track shared config, ignore local overrides and worktrees
+.claude/settings.local.json
 .claude/worktrees/
 
 # Agent working files (local tracking only, never committed)
@@ -94,8 +108,13 @@ tasks/
 **/VORGEHENSWEISE.md
 
 # Ephemeral artifacts from Playwright E2E testing and debugging
+# Screenshots are ignored everywhere except tracked app/doc assets
 *.png
+*.PNG
+!frontend/src/assets/**/*.png
+!frontend/src/assets/**/*.PNG
 *.mjs
+!**/eslint.config.mjs
 *.log
 *.log.*
 cookies.txt
@@ -106,6 +125,18 @@ backend-err.log
 frontend/ng-test-output.txt
 frontend/test-output.txt
 frontend/vitest-output.txt
+
+# Editor and merge leftovers
+*.orig
+*.bak
+*.rej
+*.swp
+*~
+
+# Database dumps
+dbbackups/
+*.bson
+*.dump
 
 # Ephemeral agent tooling data (indexes, traces, browser panel state)
 .codebase-memory/

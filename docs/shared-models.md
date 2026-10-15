@@ -1,6 +1,6 @@
 # Shared Models (TypeScript)
 
-Models in `shared/src/models/` are used by both backend and frontend via `import { Foo } from '@shared/models/Foo'`.
+Models in `shared/src/models/*.ts` are used by backend and frontend. Import them as `@seed-test/shared/models/<Name>`, for example `import type { User } from '@seed-test/shared/models/User'`. Zod schemas that validate request bodies live in `shared/src/schemas/` (see the last section). The `@shared/...` alias does not exist.
 
 ## Core Domain Models
 
@@ -134,7 +134,7 @@ class FileElement {
 }
 ```
 
-### `MultipleScenario`
+### `MultipleScenario` (file `shared/src/models/MuiltipleScenario.ts`, spelling as in the file name)
 ```typescript
 interface MultipleScenario {
     values: string[];
@@ -182,7 +182,7 @@ interface RepositoryContainer {
 }
 ```
 
-### `AiConfig`
+### `AiConfig` (defined in `RepositoryContainer.ts`, imported by `Repository.ts`)
 ```typescript
 interface AiConfig {
     textPreparation: AiProviderConfig;
@@ -205,7 +205,7 @@ interface User {
     email: string;
     password?: string;
     transitioned?: boolean;
-    github: { githubToken: string; login: string; id: number; githubRepo?: string };
+    github?: { githubToken: string; login: string; id: number; githubRepo?: string };
     jira?: { AccountName: string; Password: { $binary: { base64: string; subType: string } }; Password_Nonce: { $binary: { base64: string; subType: string } }; Password_Tag: { $binary: { base64: string; subType: string } }; Host: string; AuthMethod: string };
 }
 ```
@@ -299,4 +299,27 @@ interface StoryStatus {
 
 ## Frontend-local models
 
-The frontend (`frontend/src/app/model/`) has **the same models** as local copies (not referentially identical to `shared/`). They are used directly in template types. The fields match the shared models.
+`frontend/src/app/model/` holds one local copy, `Group.ts`, which duplicates the shared `Group` model. All other frontend code imports from `@seed-test/shared/models/*`. Prefer the shared import; delete the copy when touching it.
+
+## Zod schemas (`shared/src/schemas/`)
+
+The request validation schemas are exported through the package root, `import { ... } from '@seed-test/shared'`. The backend applies them with `validate()`. One file per feature:
+
+| File | Exports (examples) | Used for |
+|---|---|---|
+| `shared.schemas.ts` | `stepTypeSchema`, `stepDefinitionSchema`, `stepDefinitionBackgroundSchema`, `multipleScenarioSchema` | Domain shapes reused by other schemas |
+| `background.schemas.ts` | `updateBackgroundSchema` | Background PUT |
+| `block.schemas.ts` | `saveBlockSchema`, `updateBlockSchema` | Block create and update |
+| `github.schemas.ts` | `submitIssueSchema` | GitHub issue submission |
+| `group.schemas.ts` | `createGroupSchema` | Group create |
+| `jira.schemas.ts` | `linkJiraSchema`, `jiraLoginSchema`, `updateXrayStatusSchema` | Jira link, login, Xray status |
+| `logging.schemas.ts` | `logMessageSchema` | Frontend log endpoint |
+| `repository.schemas.ts` | `createRepositorySchema`, `updateSettingsSchema`, `transferOwnerSchema` | Repository create, settings, owner transfer |
+| `sanity.schemas.ts` | `sanityTestSchema` | Sanity test route |
+| `script.schemas.ts` | `scriptGroupSchema`, `scriptFeatureSchema` | Script runs |
+| `story.schemas.ts` | `createStorySchema`, `createScenarioSchema`, `setOneDriverSchema`, `updateStoryOrderSchema`, `resolveCommandSchema` | Story and scenario routes |
+| `testExecution.schemas.ts` | `runTestSchema`, `runTempGroupSchema` | Test execution routes |
+| `user.schemas.ts` | `loginSchema`, `registerSchema`, `forgotPasswordSchema`, `resetPasswordSchema`, `mergeGithubSchema`, `initiateMergeGithubSchema`, `updateUserSchema` | User routes |
+| `workgroup.schemas.ts` | `addMemberSchema`, `updateMemberSchema`, `removeMemberSchema` | Workgroup member routes |
+
+The directory listing is the source of truth for the exact set of files.

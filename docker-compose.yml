@@ -26,6 +26,8 @@ services:
     environment:
       FRONTEND_URL: "http://localhost:4200"
       DATABASE_URI: mongodb://SeedAdmin:SeedTest@seedmongodb:27017
+      # Required by backend/src/config.ts (64-char hex). Read from the root .env; compose refuses to start without it.
+      ENCRYPTION_SECRET: ${ENCRYPTION_SECRET:?set ENCRYPTION_SECRET in .env}
       REPORT_DELETION_TIME: 5
       TESTACCOUNT_NAME:
       TESTACCOUNT_REPO:

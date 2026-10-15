@@ -31,8 +31,8 @@ Provide concrete line references. Suggest fixes. Explain WHY something is a prob
 ### Architecture & layers
 - Strict layer separation: Routes → Controllers → Services. No business logic in controllers or routes.
 - Controller functions are async with signature `(req, res, next)`. Always forward errors via `next(error)`.
-- Services are pure functions that access MongoDB via `dbConnection.getConnection()`.
-- Shared interfaces (`@shared/*`) are used end-to-end — no separate DTOs needed, but `req.body` must be validated.
+- Services access MongoDB via `DbConnector.getConnection()` (`backend/src/database/DbConnector.ts`).
+- Shared models (`@seed-test/shared/models/*`) and Zod schemas (`@seed-test/shared`) are used end-to-end — no separate DTOs needed, but `req.body` must be validated.
 
 ### Authentication & security
 - Protected routes must sit behind `isAuthenticated` middleware.
@@ -64,8 +64,8 @@ Provide concrete line references. Suggest fixes. Explain WHY something is a prob
 ## Frontend rules (Angular)
 
 ### TypeScript
-- `strict` and `strictNullChecks` are currently disabled — still avoid `any` where possible.
-- Use types from `@shared/*` instead of creating local duplicates.
+- TypeScript `strict` mode is on (`frontend/tsconfig.json`). Do not introduce `any`.
+- Use types from `@seed-test/shared/models/*` instead of creating local duplicates.
 
 ### Services & API calls
 - All API calls through injectable services with `HttpClient`. No direct `fetch` in components.
@@ -74,10 +74,7 @@ Provide concrete line references. Suggest fixes. Explain WHY something is a prob
 
 ### Components
 - No nested ternary operators.
-- State management via Angular Signals (`signal()`, `computed()`, `linkedSignal()`).
-- No EventEmitters or BehaviorSubjects — use Signals instead.
-- No manual Subscriptions or ngOnDestroy cleanup needed — Signals auto-clean on destroy.
-- `effect()` for side effects, `untracked()` for async work inside effects.
+- Signal rules (state, derived state, effects, triggers, cleanup) are in `frontend/AGENTS.md`; check the diff against them.
 
 ### Code quality (frontend)
 - No `console.log` in production code — only `console.warn` or `console.error`.
