@@ -110,4 +110,5 @@ frontend/vitest-output.txt
 # Ephemeral agent tooling data (indexes, traces, browser panel state)
 .codebase-memory/
 .openchamber/
+*.openchamber.backup
 .playwright-mcp/
