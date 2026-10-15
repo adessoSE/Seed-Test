@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild, computed, signal, effect, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom, switchMap, tap } from 'rxjs';
 import { ApiService } from '../Services/api.service';
@@ -38,7 +38,7 @@ import type { User } from '@seed-test/shared/models/User';
 })
 
 
-export class AccountManagementComponent implements OnInit {
+export class AccountManagementComponent {
 	apiService = inject(ApiService);
 	projectService = inject(ProjectService);
 	loginService = inject(LoginService);
@@ -184,26 +184,21 @@ export class AccountManagementComponent implements OnInit {
 		});
 	}
 
-	ngOnInit() {
-		this.loadAccountView();
-	}
-
 	/**
-	 * Checks the login and loads the repository list for the account view.
-	 * WHY: Shared by ngOnInit and onNavigationEnd. onNavigationEnd must not call the lifecycle hook ngOnInit directly.
+	 * Redirects logged-out users to /login. It does not fetch repositories: the list comes from the
+	 * project service signal and reposChangeEffect re-filters it on creation and on every change.
+	 * WHY: Calling searchRepos here as well ran a second filter pass for the same entry.
 	 */
 	private loadAccountView() {
 		if (!this.loginService.isLoggedIn())
 			this.router.navigate(['/login']);
-
-		// fill repository list for download
-		this.searchRepos();
 	}
 
 	/**
-	 * Re-loads the repository list when the account route is navigated to.
-	 * WHY: Re-running ngOnInit on every NavigationEnd re-fetched the repository list on
-	 * unrelated navigations as well. Other routes are ignored here.
+	 * Runs the account view check on each entry into the account route.
+	 * WHY: NavigationEnd fires after the component is created on every entry, including a direct page
+	 * load, so it is the single trigger. ngOnInit must not also call this, or each entry runs it twice.
+	 * Other routes are ignored here.
 	 * @param event Router event; only NavigationEnd for the account route is handled
 	 */
 	onNavigationEnd(event: RouterEvent) {

@@ -16,7 +16,7 @@ import { TitleCasePipe } from '@angular/common';
 import { ExampleComponent } from '../example-table/example.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { onActionTrigger, onCounterAction } from '../Services/action-trigger';
+import { onActionTrigger } from '../Services/action-trigger';
 
 
 /**
@@ -117,11 +117,10 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 
 	/**
 	 * Reacts to run-save-option trigger -- saves and runs the scenario.
-	 * Counter-based, so this editor (re-created on every scenario selection) does not replay an earlier request.
+	 * Queued per request, so this editor (re-created on every scenario selection) does not replay an earlier request.
 	 */
-	private runSaveOptionEffect = onCounterAction(
+	private runSaveOptionEffect = onActionTrigger(
 		this.apiService.runSaveOptionTrigger,
-		() => this.apiService.runSaveOptionValue(),
 		option => {
 			if (option == 'saveScenario')
 				this.saveRunOption();

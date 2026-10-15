@@ -285,6 +285,35 @@ describe('AppComponent', () => {
 			expect(expanded()).toBe('true');
 		});
 
+		it('keeps Escape dismissal while focus stays on the trigger, even after a hover leave', () => {
+			// Regression: the 200 ms hover-close used to clear helpDismissed, so the still-focused trigger re-opened the menu
+			keyboardFocusTrigger();
+			helpTrigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			helpWrapper().dispatchEvent(new MouseEvent('mouseleave'));
+			vi.advanceTimersByTime(200);
+			fixture.detectChanges();
+			expect(expanded()).toBe('false');
+		});
+
+		it('re-opens on hover once keyboard focus has left the menu after an Escape dismissal', () => {
+			keyboardFocusTrigger();
+			helpTrigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+			helpWrapper().dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			fixture.detectChanges();
+			expect(expanded()).toBe('true');
+		});
+
+		it('clears the pending hover-close timer when the component is destroyed', () => {
+			helpWrapper().dispatchEvent(new MouseEvent('mouseenter'));
+			const timersBefore = vi.getTimerCount();
+			helpWrapper().dispatchEvent(new MouseEvent('mouseleave'));
+			expect(vi.getTimerCount()).toBe(timersBefore + 1);
+			fixture.destroy();
+			expect(vi.getTimerCount()).toBe(timersBefore);
+		});
+
 		it('collapses the Help menu on Escape and moves focus back to the trigger', () => {
 			// Asserted via a spy: the test DOM does not reliably update document.activeElement
 			const focusSpy = vi.spyOn(helpTrigger(), 'focus');

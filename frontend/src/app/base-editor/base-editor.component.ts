@@ -18,7 +18,7 @@ import { BlockService } from '../Services/block.service';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { NewExampleComponent } from '../modals/new-example/new-example.component';
 import { ExampleService } from '../Services/example.service';
-import { onActionTrigger, onCounterAction } from '../Services/action-trigger';
+import { onActionTrigger } from '../Services/action-trigger';
 import { ScenarioService } from '../Services/scenario.service';
 import { BackgroundService } from '../Services/background.service';
 import type { EditBlockComponent } from '../modals/edit-block/edit-block.component';
@@ -363,12 +363,10 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	});
 
 	/** Handles copy/don't-copy option for steps with examples */
-	// Counter-based: a re-created editor must not replay an earlier copy request
-	private copyExampleOptionEffect = onCounterAction(
+	// Queued per request: a re-created editor must not replay an earlier copy request
+	private copyExampleOptionEffect = onActionTrigger(
 		this.apiService.copyStepWithExampleTrigger,
-		() => this.apiService.copyStepWithExampleValue(),
 		option => {
-			if (option === null) return;
 			if (this.clipboardBlock)
 				if (option == 'copy')
 					this.insertStepsWithExamples(this.clipboardBlock);

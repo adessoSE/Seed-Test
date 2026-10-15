@@ -48,7 +48,7 @@ import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { WindowSizeComponent } from '../modals/window-size/window-size.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
-import { onActionTrigger, onCounterAction } from '../Services/action-trigger';
+import { onActionTrigger } from '../Services/action-trigger';
 
 /** Shape of the raw test execution response from the backend */
 interface TestRunResponse {
@@ -385,13 +385,12 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		});
 	});
 
-	/** Effect 5: React to run/save option selection — counter-based, so a re-created editor does not replay it */
-	private readonly runSaveOptionEffect = onCounterAction(
+	/** Effect 5: React to run/save option selection — queued per request, so a re-created editor does not replay it */
+	private readonly runSaveOptionEffect = onActionTrigger(
 		this.apiService.runSaveOptionTrigger,
-		() => this.apiService.runSaveOptionValue(),
 		option => {
 			const story = this.selectedStory();
-			if (option === null || !story) return;
+			if (!story) return;
 			if (option === 'run') {
 				this.runUnsaved = true;
 				this.runOption();

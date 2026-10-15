@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from './api.service';
+import { onActionTrigger } from './action-trigger';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
@@ -70,6 +71,31 @@ describe('ApiService', () => {
 			req.flush({ resolved: 'Monday' });
 
 			await expect(promise).resolves.toBe('Monday');
+		});
+	});
+
+	describe('action triggers', () => {
+		it('handles each runSaveOption request once, even when two identical requests arrive back-to-back', () => {
+			const handler = vi.fn();
+			TestBed.runInInjectionContext(() => onActionTrigger(service.runSaveOptionTrigger, handler));
+
+			// Regression: the signal(0) counter merged requests emitted within one change-detection pass
+			service.runSaveOption('run');
+			service.runSaveOption('run');
+			TestBed.flushEffects();
+
+			expect(handler.mock.calls).toEqual([['run'], ['run']]);
+		});
+
+		it('handles each copyStepWithExampleOption request once, in emission order', () => {
+			const handler = vi.fn();
+			TestBed.runInInjectionContext(() => onActionTrigger(service.copyStepWithExampleTrigger, handler));
+
+			service.copyStepWithExampleOption('copy');
+			service.copyStepWithExampleOption('dontCopy');
+			TestBed.flushEffects();
+
+			expect(handler.mock.calls).toEqual([['copy'], ['dontCopy']]);
 		});
 	});
 

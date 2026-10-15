@@ -10,6 +10,8 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProjectService } from '../Services/project.service';
+import { LoginService } from '../Services/login.service';
+import { RouterTestingHarness } from '@angular/router/testing';
 import type { User } from '@seed-test/shared/models/User';
 
 const repositories: RepositoryContainer[] = [{_id: '1', repoName: 'myFirstRepo', source: 'db', canEdit: true},
@@ -164,12 +166,14 @@ describe('AccountManagementComponent', () => {
 	});
 
 	describe('onNavigationEnd', () => {
-		it('should re-load the repository list when the account route is navigated to', () => {
-			const searchSpy = vi.spyOn(component, 'searchRepos');
+		it('should run the login check when the account route is navigated to', () => {
+			const loginSpy = vi.spyOn(component.loginService, 'isLoggedIn');
+			// beforeEach already calls isLoggedIn during setup; count only the navigation itself
+			loginSpy.mockClear();
 
 			component.onNavigationEnd(new NavigationEnd(1, '/accountManagement', '/accountManagement'));
 
-			expect(searchSpy).toHaveBeenCalledTimes(1);
+			expect(loginSpy).toHaveBeenCalledTimes(1);
 		});
 
 		it('should not re-load the repository list on unrelated navigations', () => {
@@ -189,19 +193,57 @@ describe('AccountManagementComponent', () => {
 		});
 
 		it('stops reacting to router events once the component is destroyed', async () => {
-			const searchSpy = vi.spyOn(component, 'searchRepos');
+			// The login check runs on every account-route NavigationEnd, so it is a reliable probe for the router subscription
+			const loginSpy = vi.spyOn(component.loginService, 'isLoggedIn');
 
 			// Control: while alive, a real account-route navigation reaches the component
 			await router.navigateByUrl('/accountManagement');
-			expect(searchSpy).toHaveBeenCalled();
+			expect(loginSpy).toHaveBeenCalled();
 
 			// takeUntilDestroyed() must drop the router subscription on destroy
-			searchSpy.mockClear();
+			loginSpy.mockClear();
 			fixture.destroy();
 			await router.navigateByUrl('/terms');
 			await router.navigateByUrl('/accountManagement');
 
-			expect(searchSpy).not.toHaveBeenCalled();
+			expect(loginSpy).not.toHaveBeenCalled();
+		});
+	});
+
+	/**
+	 * Real route entry through RouterTestingHarness, so the component is created by the navigation
+	 * itself (ngOnInit and NavigationEnd both fire for the same entry). The outer fixture is destroyed
+	 * first because it is still subscribed to router events and would count its own reload.
+	 */
+	describe('entering the account route', () => {
+		let harness: RouterTestingHarness;
+		let loginService: LoginService;
+
+		beforeEach(async () => {
+			fixture.destroy();
+			harness = await RouterTestingHarness.create();
+			loginService = TestBed.inject(LoginService);
+		});
+
+		afterEach(() => vi.restoreAllMocks());
+
+		it('filters the repository list once per entry', async () => {
+			vi.spyOn(loginService, 'isLoggedIn').mockReturnValue(true);
+			const searchSpy = vi.spyOn(AccountManagementComponent.prototype, 'searchRepos');
+
+			await harness.navigateByUrl('/accountManagement');
+
+			expect(searchSpy).toHaveBeenCalledTimes(1);
+		});
+
+		it('navigates to /login once when entered while logged out', async () => {
+			vi.spyOn(loginService, 'isLoggedIn').mockReturnValue(false);
+			const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+			await harness.navigateByUrl('/accountManagement');
+
+			expect(navigateSpy).toHaveBeenCalledTimes(1);
+			expect(navigateSpy).toHaveBeenCalledWith(['/login']);
 		});
 	});
 

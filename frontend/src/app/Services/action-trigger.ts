@@ -1,4 +1,4 @@
-import { DestroyRef, EffectRef, Signal, effect, inject, signal, untracked } from '@angular/core';
+import { DestroyRef, EffectRef, effect, inject, signal, untracked } from '@angular/core';
 
 /**
  * Typed action channel from a service to its consumers.
@@ -17,7 +17,7 @@ export class ActionTrigger<T> {
 
 	/**
 	 * Connects a queue callback. Returns the disconnect function.
-	 * Consumers call this through onActionTrigger; the callback is not meant to be used directly.
+	 * @internal Consumers call this through onActionTrigger; the callback is not meant to be used directly.
 	 */
 	connect(enqueue: (payload: T) => void): () => void {
 		this.consumers.add(enqueue);
@@ -65,28 +65,5 @@ export function onActionTrigger<T>(trigger: ActionTrigger<T>, handler: (payload:
 				}
 			if (failed) throw failure;
 		});
-	});
-}
-
-/**
- * Runs `handler` once per bump of a legacy `signal(0)` counter, with the payload read from a
- * companion signal. Used for ApiService's run/save and copy-step actions, which are not yet
- * ActionTrigger instances.
- *
- * Unlike onActionTrigger, emissions made within one change-detection pass collapse into a single
- * call with the latest payload. Only use it where each user action emits once.
- * @param counter the action's trigger counter
- * @param readPayload reads the action's payload signal (called untracked)
- * @param handler called with the latest payload on each new counter value
- * @returns the underlying effect reference
- */
-export function onCounterAction<T>(counter: Signal<number>, readPayload: () => T, handler: (payload: T) => void): EffectRef {
-	// Baseline at registration: a counter value that existed before this consumer is never replayed
-	let handled = untracked(() => counter());
-	return effect(() => {
-		const count = counter();
-		if (count === handled) return;
-		handled = count;
-		untracked(() => handler(readPayload()));
 	});
 }

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { createEnvironmentInjector, EnvironmentInjector, signal } from '@angular/core';
-import { ActionTrigger, onActionTrigger, onCounterAction } from './action-trigger';
+import { ActionTrigger, onActionTrigger } from './action-trigger';
 
 describe('action-trigger', () => {
 
@@ -112,44 +112,6 @@ describe('action-trigger', () => {
 
 			// Regression: splice(0) took the whole batch first, so a throw dropped payloads 2 and 3.
 			expect(handler.mock.calls.map(call => call[0])).toEqual([1, 2, 3]);
-		});
-	});
-
-	describe('onCounterAction', () => {
-		it('runs the handler once per counter bump with the current payload', () => {
-			const counter = signal(0);
-			const payload = signal<string | null>(null);
-			const handler = vi.fn();
-			TestBed.runInInjectionContext(() => onCounterAction(counter, () => payload(), handler));
-
-			payload.set('saveScenario');
-			counter.update(n => n + 1);
-			TestBed.flushEffects();
-
-			expect(handler).toHaveBeenCalledTimes(1);
-			expect(handler).toHaveBeenCalledWith('saveScenario');
-		});
-
-		it('does not replay a counter bump that happened before registration', () => {
-			const counter = signal(3);
-			const payload = signal<string | null>('stale');
-			const handler = vi.fn();
-			TestBed.runInInjectionContext(() => onCounterAction(counter, () => payload(), handler));
-			TestBed.flushEffects();
-
-			expect(handler).not.toHaveBeenCalled();
-		});
-
-		it('does not run the handler when only the payload changes without a counter bump', () => {
-			const counter = signal(0);
-			const payload = signal<string | null>(null);
-			const handler = vi.fn();
-			TestBed.runInInjectionContext(() => onCounterAction(counter, () => payload(), handler));
-
-			payload.set('changed');
-			TestBed.flushEffects();
-
-			expect(handler).not.toHaveBeenCalled();
 		});
 	});
 });

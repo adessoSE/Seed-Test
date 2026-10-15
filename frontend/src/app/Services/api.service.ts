@@ -5,6 +5,7 @@ import { Observable, throwError, from } from 'rxjs';
 import { User } from '@seed-test/shared/models/User';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { sha256Hex } from './crypto';
+import { ActionTrigger } from './action-trigger';
 
 /** Backend info response from /backendInfo endpoint */
 interface BackendInfo {
@@ -68,14 +69,10 @@ export class ApiService {
 	readonly storiesErrorTrigger = signal(0);
 	/** Signal for backend URL ready trigger */
 	readonly backendUrlReadyTrigger = signal(0);
-	/** Payload of the run/save option action — the option string */
-	readonly runSaveOptionValue = signal<string | null>(null);
-	/** Trigger of the run/save option action — consumers track this, never the payload */
-	readonly runSaveOptionTrigger = signal(0);
-	/** Payload of the copy-step-with-example action — the option string */
-	readonly copyStepWithExampleValue = signal<string | null>(null);
-	/** Trigger of the copy-step-with-example action — consumers track this, never the payload */
-	readonly copyStepWithExampleTrigger = signal(0);
+	/** Run/save option action — the payload is the option string; every request is delivered, none merged */
+	readonly runSaveOptionTrigger = new ActionTrigger<string>();
+	/** Copy-step-with-example action — the payload is the option string; every request is delivered, none merged */
+	readonly copyStepWithExampleTrigger = new ActionTrigger<string>();
 	/**
    * Gets api headers
    * @returns
@@ -99,8 +96,7 @@ export class ApiService {
    * @param option
    */
 	public runSaveOption(option: string) {
-		this.runSaveOptionValue.set(option);
-		this.runSaveOptionTrigger.update(n => n + 1);
+		this.runSaveOptionTrigger.emit(option);
 	}
 
 	/**
@@ -108,8 +104,7 @@ export class ApiService {
    * @param option
    */
 	public copyStepWithExampleOption(option: string) {
-		this.copyStepWithExampleValue.set(option);
-		this.copyStepWithExampleTrigger.update(n => n + 1);
+		this.copyStepWithExampleTrigger.emit(option);
 	}
 
 	/**

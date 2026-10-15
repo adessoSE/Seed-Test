@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, effect, untracked, signal } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, DestroyRef, inject, computed, effect, untracked, signal } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
@@ -120,6 +120,8 @@ export class AppComponent implements OnInit{
 	constructor() {
 		this.version = environment.version;
 		this.env = environment.env;
+		// The hover-close timer must not fire after the component is destroyed
+		inject(DestroyRef).onDestroy(() => clearTimeout(this.helpCloseTimer));
 	}
 
 	/**
@@ -270,14 +272,16 @@ export class AppComponent implements OnInit{
 
 	/**
 	 * Closes the Help menu 200 ms after the pointer leaves. The delay stops flicker when the pointer
-	 * crosses the gap between trigger and panel. A pending Escape dismissal is cleared together with
-	 * the hover, so the next hover opens the menu again.
+	 * crosses the gap between trigger and panel. An Escape dismissal is kept while keyboard focus is
+	 * still in the menu; onHelpFocusOut clears it when focus leaves, so the menu cannot re-open
+	 * on the still-focused trigger without a new hover or focus.
 	 */
 	onHelpPointerLeave() {
 		clearTimeout(this.helpCloseTimer);
 		this.helpCloseTimer = setTimeout(() => {
 			this.helpHovered.set(false);
-			this.helpDismissed.set(false);
+			// CASE 1: Keyboard focus still in the menu — the Escape dismissal stays in place
+			if (!this.helpKeyboardFocus()) this.helpDismissed.set(false);
 		}, 200);
 	}
 }
