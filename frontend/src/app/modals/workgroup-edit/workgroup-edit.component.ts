@@ -404,9 +404,15 @@ export class WorkgroupEditComponent {
 			testRunner: this.testRunner,
 			emulator: this.emulator,
 			activated: this.applyGlobalSettings,
-			width: this.repoWidth,
-			height: this.repoHeight
+			// Undefined while the settings are not loaded yet: the stored size is kept instead of being overwritten with undefined
+			width: this.repoWidth ?? project.settings?.width,
+			height: this.repoHeight ?? project.settings?.height
 		};
+		// CASE 1: window size set (> 0) — sent as is
+		// CASE 2: no window size (0) — the key is removed, not sent as 0, because the backend rejects 0 with 400 (its schema accepts only positive integers)
+		// This also drops a stored 0 that the spread above carried over from the old settings
+		if (project.settings.width === 0) delete project.settings.width;
+		if (project.settings.height === 0) delete project.settings.height;
 
 		project.aiConfig = {
 			textPreparation: {

@@ -265,6 +265,50 @@ describe('WorkgroupEditComponent', () => {
 		});
 	});
 
+	describe('behavioral: save payload window size', () => {
+		it('omits width and height from the save payload when no window size is set', () => {
+			const http = TestBed.inject(HttpTestingController);
+			component.repoWidth = 0;
+			component.repoHeight = 0;
+
+			// A stored 0 must not survive the settings spread either
+			component.updateRepository({ ...mockProject, settings: { width: 0, height: 0 } });
+
+			// The backend schema accepts only positive integers, so a 0 "no size" value made every save fail with 400
+			const req = http.expectOne(r => r.method === 'PUT');
+			expect(req.request.body.settings).not.toHaveProperty('width');
+			expect(req.request.body.settings).not.toHaveProperty('height');
+			req.flush({});
+		});
+
+		it('sends width and height when a window size is set', () => {
+			const http = TestBed.inject(HttpTestingController);
+			component.repoWidth = 800;
+			component.repoHeight = 600;
+
+			component.updateRepository({ ...mockProject, settings: {} });
+
+			const req = http.expectOne(r => r.method === 'PUT');
+			expect(req.request.body.settings.width).toBe(800);
+			expect(req.request.body.settings.height).toBe(600);
+			req.flush({});
+		});
+
+		it('keeps the stored window size while the settings are not loaded yet (repoWidth undefined)', () => {
+			const http = TestBed.inject(HttpTestingController);
+			component.repoWidth = undefined as unknown as number;
+			component.repoHeight = undefined as unknown as number;
+
+			// Regression: undefined was treated like "no size", so saving before the settings loaded dropped the stored 800x600
+			component.updateRepository({ ...mockProject, settings: { width: 800, height: 600 } });
+
+			const req = http.expectOne(r => r.method === 'PUT');
+			expect(req.request.body.settings.width).toBe(800);
+			expect(req.request.body.settings.height).toBe(600);
+			req.flush({});
+		});
+	});
+
 	describe('behavioral: transfer ownership', () => {
 		let changeOwnerButton: HTMLElement;
 
