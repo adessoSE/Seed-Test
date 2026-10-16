@@ -1,4 +1,4 @@
-﻿import { ObjectId, GridFSBucket, type DeleteResult, type UpdateResult } from 'mongodb';
+﻿import { ObjectId, GridFSBucket, MongoRuntimeError, type DeleteResult, type UpdateResult } from 'mongodb';
 import { logger } from '../logging.js';
 import * as dbConnection from '../database/DbConnector.js';
 import { Readable } from 'node:stream';
@@ -138,11 +138,21 @@ export async function deleteReport(reportId: string): Promise<DeleteResult> {
 		throw AppError.notFound('Report to delete not found');
 
 
+	// Child blobs are deleted first and the ReportData metadata last. The metadata is the only
+	// handle left to retry from, so deleting it first would orphan the blob with no way to clean it up.
 	if (reportData.smallReport)
 		await db.collection(ReportsCollection).deleteOne({ _id: new ObjectId(reportData.smallReport) });
 	else if (reportData.bigReport) {
 		const bucket = new GridFSBucket(db, { bucketName: 'GridFS' });
-		await bucket.delete(new ObjectId(reportData.bigReport));
+		try {
+			await bucket.delete(new ObjectId(reportData.bigReport));
+		} catch (error) {
+			// CASE 1: the blob is already gone because an earlier attempt deleted it and then failed on the metadata.
+			// The driver reports a missing file as a MongoRuntimeError (no dedicated class), so only that message is tolerated;
+			// any other GridFS error must still abort before the metadata is removed.
+			const isMissingFile = error instanceof MongoRuntimeError && error.message.startsWith('File not found');
+			if (!isMissingFile) throw error;
+		}
 	}
 
 	return collection.deleteOne({ _id: new ObjectId(reportId) });

@@ -1,7 +1,7 @@
 // src/services/report.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ObjectId } from 'mongodb';
+import { ObjectId, MongoRuntimeError } from 'mongodb';
 
 // --- Hoisted mocks (available before vi.mock factories run) ---
 
@@ -228,6 +228,26 @@ describe('report.service', () => {
 
 			expect(mockGridFSBucket.delete).toHaveBeenCalledWith(expect.any(ObjectId));
 			expect(mockReportDataCol.deleteOne).toHaveBeenCalled();
+		});
+
+		it('should still delete the metadata when the GridFS blob is already gone (retry after partial failure)', async () => {
+			const bigId = new ObjectId();
+			mockReportDataCol.findOne.mockResolvedValue({ _id: new ObjectId(VALID_ID), bigReport: bigId });
+			mockGridFSBucket.delete.mockRejectedValueOnce(new MongoRuntimeError(`File not found for id ${bigId.toString()}`));
+
+			await expect(reportService.deleteReport(VALID_ID)).resolves.toEqual({ deletedCount: 1 });
+
+			expect(mockReportDataCol.deleteOne).toHaveBeenCalledWith({ _id: new ObjectId(VALID_ID) });
+		});
+
+		it('should propagate GridFS errors other than a missing file and keep the metadata', async () => {
+			const bigId = new ObjectId();
+			mockReportDataCol.findOne.mockResolvedValue({ _id: new ObjectId(VALID_ID), bigReport: bigId });
+			mockGridFSBucket.delete.mockRejectedValueOnce(new MongoRuntimeError('Chunk write failed'));
+
+			await expect(reportService.deleteReport(VALID_ID)).rejects.toThrow('Chunk write failed');
+
+			expect(mockReportDataCol.deleteOne).not.toHaveBeenCalled();
 		});
 	});
 

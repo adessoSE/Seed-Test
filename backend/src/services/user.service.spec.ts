@@ -1,7 +1,7 @@
 // src/services/user.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ObjectId } from 'mongodb';
+import { ObjectId, MongoServerError } from 'mongodb';
 
 // Import the services we are testing or mocking
 import * as userService from './user.service.js';
@@ -193,6 +193,22 @@ describe('UserService', () => {
 			expect(mockUserCollection.insertOne).toHaveBeenCalledWith(newUser);
 		});
 
+		it('maps a duplicate e-mail that wins the insert race against the unique index to 409', async () => {
+			// The findOne check above can pass for two concurrent registrations; the unique index rejects the loser
+			mockUserCollection.findOne.mockResolvedValue(null);
+			mockUserCollection.insertOne.mockRejectedValue(new MongoServerError({ message: 'E11000 duplicate key error', code: 11000 }));
+
+			await expect(userService.registerUser({ email: 'race@test.com', password: 'pw' }))
+				.rejects.toMatchObject({ statusCode: 409, message: 'User already exists' });
+		});
+
+		it('propagates non-duplicate insert errors unchanged', async () => {
+			mockUserCollection.findOne.mockResolvedValue(null);
+			mockUserCollection.insertOne.mockRejectedValue(new Error('connection lost'));
+
+			await expect(userService.registerUser({ email: 'new@test.com', password: 'pw' })).rejects.toThrow('connection lost');
+		});
+
 		it('never updates an existing account, even when the input carries an _id (account-takeover regression)', async () => {
 			// Attacker-supplied _id pointing at a victim account must not turn registration into an update
 			const victimId = new ObjectId(SEED_ID);
@@ -237,6 +253,19 @@ describe('UserService', () => {
 			expect(fakeCrypto.encrypt).not.toHaveBeenCalled();
 			const update = mockUserCollection.findOneAndUpdate.mock.calls[0][1] as { $set: { github: { githubToken: string } } };
 			expect(update.$set.github.githubToken).toBe(alreadyEncrypted);
+		});
+
+		it('maps an e-mail change that collides with the unique index to 409', async () => {
+			mockUserCollection.findOneAndUpdate.mockRejectedValue(new MongoServerError({ message: 'E11000 duplicate key error', code: 11000 }));
+
+			await expect(userService.updateUser(SEED_ID, { email: 'taken@test.com' }))
+				.rejects.toMatchObject({ statusCode: 409, message: 'User already exists' });
+		});
+
+		it('propagates non-duplicate update errors unchanged', async () => {
+			mockUserCollection.findOneAndUpdate.mockRejectedValue(new Error('connection lost'));
+
+			await expect(userService.updateUser(SEED_ID, { password: 'new-hash' })).rejects.toThrow('connection lost');
 		});
 	});
 
@@ -626,6 +655,14 @@ describe('UserService', () => {
 
 			await expect(userService.attachCredentialsToGithubStub(GITHUB_ONLY_ID, 'new@test.com', 'hashed')).rejects.toMatchObject({ statusCode: 409 });
 			expect(mockUserCollection.updateOne).not.toHaveBeenCalled();
+		});
+
+		it('maps an e-mail that wins the unique-index race during the write to 409', async () => {
+			mockUserCollection.findOne.mockResolvedValue(null);
+			mockUserCollection.updateOne.mockRejectedValue(new MongoServerError({ message: 'E11000 duplicate key error', code: 11000 }));
+
+			await expect(userService.attachCredentialsToGithubStub(GITHUB_ONLY_ID, 'race@test.com', 'hashed'))
+				.rejects.toMatchObject({ statusCode: 409, message: 'User already exists' });
 		});
 
 		it('refuses (409) when the stub already has a login by the time the write runs', async () => {

@@ -2,6 +2,7 @@ import { type MongoClient, type Db, type Document } from 'mongodb';
 import { exit } from 'process';
 import * as dbConnector from './DbConnector.js';
 import { stepDefs } from './stepTypes.js';
+import { ensureIndexes } from './indexes.js';
 
 /**
  * Creates a collection if it doesn't exist.
@@ -40,48 +41,6 @@ async function makeCollection(dbo: Db, name: string): Promise<void> {
 		// Decide if script should exit on error
 		// throw error; 
 	}
-}
-
-/**
- * Creates indexes for common query patterns.
- * createIndex() is idempotent — safe to call on every setup run.
- */
-async function ensureIndexes(dbo: Db): Promise<void> {
-	console.log('\nCreating indexes...');
-
-	// Stories — looked up by external story_id (numeric) and Jira issue_number
-	await dbo.collection('Stories').createIndex({ story_id: 1 });
-	await dbo.collection('Stories').createIndex({ issue_number: 1 });
-
-	// Repositories — filtered by owner on every repo-list load; compound for name+type lookups
-	await dbo.collection('Repositories').createIndex({ owner: 1 });
-	await dbo.collection('Repositories').createIndex({ repoName: 1, repoType: 1 });
-
-	// Workgroups — looked up by linked repo; Members.email for membership checks
-	await dbo.collection('Workgroups').createIndex({ Repo: 1 });
-	await dbo.collection('Workgroups').createIndex({ 'Members.email': 1 });
-
-	// ReportData — filtered by storyId on report loading; reportName for named lookups
-	await dbo.collection('ReportData').createIndex({ storyId: 1 });
-	await dbo.collection('ReportData').createIndex({ reportName: 1 });
-
-	// CustomBlocks — filtered by repositoryId on block loading + cascade deletes
-	await dbo.collection('CustomBlocks').createIndex({ repositoryId: 1 });
-
-	// User — email lookups on every login, register, password reset
-	// Non-unique: legacy data has duplicates; app validates uniqueness at registration time
-	// Drop stale unique index from previous runs if options changed
-	try { await dbo.collection('User').dropIndex('email_1'); } catch { /* doesn't exist — fine */ }
-	await dbo.collection('User').createIndex({ email: 1 });
-
-	// PwResetRequests — looked up by uuid (reset link) and email (cleanup)
-	await dbo.collection('PwResetRequests').createIndex({ uuid: 1 });
-	await dbo.collection('PwResetRequests').createIndex({ email: 1 });
-
-	// GridFS.files — file listing filtered by metadata.repoId
-	await dbo.collection('GridFS.files').createIndex({ 'metadata.repoId': 1 });
-
-	console.log('\x1b[32m Indexes ensured! \x1b[0m');
 }
 
 /**

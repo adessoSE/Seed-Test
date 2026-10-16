@@ -9,6 +9,7 @@ import { AppError } from '../helpers/AppError.js';
 import { mongoSanitize } from '../utils/mongo-sanitize.js';
 import { encrypt, decrypt } from '../helpers/cryptoHelper.js';
 import { logger } from '../logging.js';
+import { isDuplicateKeyError } from '../utils/mongo-errors.js';
 
 const userCollection = 'User';
 const PwResetReqCollection = 'PwResetRequests';
@@ -151,7 +152,14 @@ export async function registerUser(user: Partial<User>): Promise<InsertOneResult
 		throw AppError.conflict('User already exists');
 
 	const { _id: _ignoredId, ...newUser } = user;
-	return collection.insertOne(newUser as unknown as UserDoc);
+	try {
+		return await collection.insertOne(newUser as unknown as UserDoc);
+	} catch (error) {
+		// CASE 1: a concurrent registration with the same e-mail passed the check above and won the unique-index race.
+		if (isDuplicateKeyError(error))
+			throw AppError.conflict('User already exists');
+		throw error;
+	}
 }
 
 /**
@@ -159,19 +167,29 @@ export async function registerUser(user: Partial<User>): Promise<InsertOneResult
  * untouched. Callers must pass just the fields they change, never a snapshot of the whole user, or a
  * concurrent change to another field can be overwritten.
  * A GitHub token in the update is encrypted before it is written.
+ * @throws AppError 409 when the update sets an e-mail that another account already has.
  */
-export function updateUser(userId: string | ObjectId | undefined, updatedUser: Partial<User>) {
+export async function updateUser(userId: string | ObjectId | undefined, updatedUser: Partial<User>) {
 	const db = dbConnection.getConnection();
 	const filter = { _id: oid(userId!) };
 	const updateFields: Record<string, unknown> = { ...updatedUser };
 	delete updateFields._id;
 	if (updatedUser.github?.githubToken)
 		updateFields.github = { ...updatedUser.github, githubToken: toStoredToken(updatedUser.github.githubToken) };
-	return db.collection<UserDoc>(userCollection).findOneAndUpdate(
-		filter,
-		{ $set: updateFields },
-		{ returnDocument: 'after' }
-	).then(v => v as unknown as User | null);
+	try {
+		const v = await db.collection<UserDoc>(userCollection).findOneAndUpdate(
+			filter,
+			{ $set: updateFields },
+			{ returnDocument: 'after' }
+		);
+		return v as unknown as User | null;
+	} catch (error) {
+		// CASE 1: the $set carries an e-mail that another account already has. The only unique index on User is
+		// email, so a duplicate-key error here always means the e-mail is taken.
+		if (isDuplicateKeyError(error))
+			throw AppError.conflict('User already exists');
+		throw error;
+	}
 }
 
 /**
@@ -293,10 +311,18 @@ export async function attachCredentialsToGithubStub(userId: string | ObjectId, e
 
 	// The filter repeats the "no login yet" check, so two concurrent registrations on one stub cannot both succeed.
 	// Untyped collection: the typed filter does not accept null, and null is the point of this match
-	const result = await db.collection(userCollection).updateOne(
-		passwordlessStubFilter(userId),
-		{ $set: { email, password: hashedPassword, transitioned: true, hashVersion: 2 } }
-	);
+	let result: UpdateResult;
+	try {
+		result = await db.collection(userCollection).updateOne(
+			passwordlessStubFilter(userId),
+			{ $set: { email, password: hashedPassword, transitioned: true, hashVersion: 2 } }
+		);
+	} catch (error) {
+		// CASE 1: the e-mail check above passed, but another registration took this e-mail before the write.
+		if (isDuplicateKeyError(error))
+			throw AppError.conflict('User already exists');
+		throw error;
+	}
 	if (result.matchedCount === 0)
 		throw AppError.conflict('This GitHub account already has a Seed-Test login.');
 	return result;
