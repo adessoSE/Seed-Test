@@ -1,7 +1,7 @@
 ﻿// src/services/repository.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ObjectId, type ClientSession } from 'mongodb';
+import { ObjectId, MongoServerError, type ClientSession } from 'mongodb';
 
 // --- 1. Import types and the module under test ---
 import type { AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
@@ -138,6 +138,16 @@ describe('RepositoryService', () => {
 				.rejects.toThrow('You already own a repository with this name!');
 			expect(mockRepoCollection.insertOne).not.toHaveBeenCalled();
 		});
+
+		it('should map a duplicate-key error from a concurrent insert to the same 409', async () => {
+			// The pre-check passes, then a parallel request inserts the same name first and the unique index rejects this insert
+			const ownerId = new ObjectId().toHexString();
+			mockRepoCollection.findOne.mockResolvedValue(null);
+			mockRepoCollection.insertOne.mockRejectedValue(new MongoServerError({ message: 'E11000 duplicate key error', code: 11000 }));
+
+			await expect(repositoryService.createRepo(ownerId, 'Racing Repo'))
+				.rejects.toMatchObject({ statusCode: 409, message: 'You already own a repository with this name!' });
+		});
 	});
 
 	// --- Tests for updateRepository (AI Key Encryption) ---
@@ -208,6 +218,24 @@ describe('RepositoryService', () => {
 			// B. Act + C. Assert
 			await expect(repositoryService.updateRepository(repoId, 'New Name', undefined, undefined, undefined, session)).rejects.toThrow(/client/);
 			expect(mockRepoCollection.findOneAndUpdate).not.toHaveBeenCalled();
+		});
+
+		it('should map a duplicate name on rename to 409', async () => {
+			const repoId = new ObjectId().toHexString();
+			mockRepoCollection.findOneAndUpdate.mockRejectedValue(new MongoServerError({ message: 'E11000 duplicate key error', code: 11000 }));
+
+			await expect(repositoryService.updateRepository(repoId, 'Taken Name'))
+				.rejects.toMatchObject({ statusCode: 409, message: 'You already own a repository with this name!' });
+		});
+
+		it('should rethrow a duplicate-key error unchanged when no new name is set', async () => {
+			// Only a rename can violate the {owner, repoName} unique index, so other writes keep the raw driver error
+			const repoId = new ObjectId().toHexString();
+			const duplicateError = new MongoServerError({ message: 'E11000 duplicate key error', code: 11000 });
+			mockRepoCollection.findOneAndUpdate.mockRejectedValue(duplicateError);
+
+			await expect(repositoryService.updateRepository(repoId, undefined, {}))
+				.rejects.toBe(duplicateError);
 		});
 	});
 
@@ -479,7 +507,7 @@ describe('RepositoryService', () => {
 	// --- Story Array Operations ---
 
 	describe('insertStoryIdIntoRepo', () => {
-		it('should push story id into repo', async () => {
+		it('should add story id to repo with $addToSet so a retried insert does not duplicate it', async () => {
 			const storyId = new ObjectId().toHexString();
 			mockRepoCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
 
@@ -487,25 +515,40 @@ describe('RepositoryService', () => {
 
 			expect(mockRepoCollection.updateOne).toHaveBeenCalledWith(
 				{ _id: new ObjectId(REPO_ID) },
-				{ $push: { stories: new ObjectId(storyId) } },
+				{ $addToSet: { stories: new ObjectId(storyId) } },
 				expect.anything()
 			);
 		});
 	});
 
 	describe('updateStoriesArrayInRepo', () => {
-		it('should replace stories array', async () => {
+		it('should reorder with an aggregation pipeline that keeps only current stories and never drops concurrent inserts', async () => {
 			const ids = [new ObjectId().toHexString(), new ObjectId().toHexString()];
-			mockRepoCollection.findOneAndUpdate.mockResolvedValue({ stories: ids.map(id => new ObjectId(id)) });
+			const oids = ids.map(id => new ObjectId(id));
+			mockRepoCollection.findOneAndUpdate.mockResolvedValue({ stories: oids });
 
 			const result = await repositoryService.updateStoriesArrayInRepo(REPO_ID, ids);
 
 			expect(result).toBeDefined();
+			// Client order first (only ids still in the stored array), then stored ids the client did not send
 			expect(mockRepoCollection.findOneAndUpdate).toHaveBeenCalledWith(
 				{ _id: new ObjectId(REPO_ID) },
-				expect.objectContaining({ $set: expect.objectContaining({ stories: expect.any(Array) }) }),
+				[{ $set: { stories: { $concatArrays: [
+					{ $filter: { input: { $literal: oids }, as: 'id', cond: { $in: ['$$id', '$stories'] } } },
+					{ $filter: { input: '$stories', as: 'id', cond: { $not: [{ $in: ['$$id', { $literal: oids }] }] } } }
+				] } } }],
 				expect.objectContaining({ returnDocument: 'after' })
 			);
+		});
+
+		it('should drop repeated ids from the client list so a story is never listed twice', async () => {
+			const id = new ObjectId().toHexString();
+			mockRepoCollection.findOneAndUpdate.mockResolvedValue({ stories: [new ObjectId(id)] });
+
+			await repositoryService.updateStoriesArrayInRepo(REPO_ID, [id, id]);
+
+			const [, pipeline] = mockRepoCollection.findOneAndUpdate.mock.calls[0] as [unknown, [{ $set: { stories: { $concatArrays: [{ $filter: { input: { $literal: ObjectId[] } } }] } } }]];
+			expect(pipeline[0].$set.stories.$concatArrays[0].$filter.input.$literal).toEqual([new ObjectId(id)]);
 		});
 	});
 
@@ -618,33 +661,29 @@ describe('RepositoryService', () => {
 	});
 
 	describe('updateStoryGroup', () => {
-		it('should update group at correct index', async () => {
+		it('should replace only the target group with a positional $set', async () => {
 			const groupId = new ObjectId();
-			const repo = {
-				groups: [{ _id: groupId, name: 'Old Name', member_stories: [] }]
-			};
-			mockRepoCollection.findOne.mockResolvedValue(repo);
-			mockRepoCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+			const memberId = new ObjectId().toHexString();
+			mockRepoCollection.updateOne.mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
 
-			const updated = { name: 'New Name', member_stories: [], isSequential: true };
+			const updated = { name: 'New Name', member_stories: [memberId], isSequential: true };
 			const result = await repositoryService.updateStoryGroup(REPO_ID, groupId.toHexString(), updated);
 
+			// A whole-array read/replace would let a concurrent group change be lost, so the repo is not read first
+			expect(mockRepoCollection.findOne).not.toHaveBeenCalled();
+			expect(mockRepoCollection.updateOne).toHaveBeenCalledWith(
+				{ _id: new ObjectId(REPO_ID), 'groups._id': groupId },
+				{ $set: { 'groups.$': { _id: groupId, name: 'New Name', member_stories: [new ObjectId(memberId)], isSequential: true } } },
+				expect.anything()
+			);
 			expect(result.name).toBe('New Name');
-			expect(mockRepoCollection.updateOne).toHaveBeenCalled();
 		});
 
-		it('should throw when repo not found', async () => {
-			mockRepoCollection.findOne.mockResolvedValue(null);
+		it('should throw 404 when no repo holds the group (matchedCount 0)', async () => {
+			mockRepoCollection.updateOne.mockResolvedValue({ matchedCount: 0, modifiedCount: 0 });
 
 			await expect(repositoryService.updateStoryGroup(REPO_ID, new ObjectId().toHexString(), {} as any))
-				.rejects.toThrow('Repository not found');
-		});
-
-		it('should throw when group not found in repo', async () => {
-			mockRepoCollection.findOne.mockResolvedValue({ groups: [] });
-
-			await expect(repositoryService.updateStoryGroup(REPO_ID, new ObjectId().toHexString(), {} as any))
-				.rejects.toThrow('Group not found');
+				.rejects.toMatchObject({ statusCode: 404, message: 'Group not found in repository' });
 		});
 	});
 
@@ -663,7 +702,7 @@ describe('RepositoryService', () => {
 	});
 
 	describe('addToStoryGroup', () => {
-		it('should push story into group', async () => {
+		it('should add story to group with $addToSet so the same story is not listed twice', async () => {
 			const groupId = new ObjectId().toHexString();
 			const storyId = new ObjectId().toHexString();
 			mockRepoCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
@@ -672,7 +711,7 @@ describe('RepositoryService', () => {
 
 			expect(mockRepoCollection.updateOne).toHaveBeenCalledWith(
 				{ _id: new ObjectId(REPO_ID), 'groups._id': new ObjectId(groupId) },
-				{ $push: { 'groups.$.member_stories': new ObjectId(storyId) } }
+				{ $addToSet: { 'groups.$.member_stories': new ObjectId(storyId) } }
 			);
 		});
 	});

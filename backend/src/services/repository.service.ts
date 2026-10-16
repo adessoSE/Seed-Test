@@ -9,6 +9,7 @@ import { getUserById } from './user.service.js';
 import * as workgroupService from './workgroup.service.js';
 import { encrypt } from '../helpers/cryptoHelper.js';
 import { AppError } from '../helpers/AppError.js';
+import { isDuplicateKeyError } from '../utils/mongo-errors.js';
 
 // Note: ObjectId casts needed — shared models use string, MongoDB uses ObjectId
 const ENCRYPTED_FORMAT = /^[0-9a-f]{24}:[0-9a-f]+:[0-9a-f]{32}$/;
@@ -156,8 +157,16 @@ export async function createRepo(ownerId: string, name: string, session?: Client
 		customBlocks: []
 	};
 
-	const result = await db.collection<RepositoryDoc>(repositoriesCollection).insertOne(emptyRepo, { session });
-	return result.insertedId;
+	// CASE 1: a parallel request inserted the same name after the check above. The unique index rejects this insert,
+	// and it is mapped to the same 409 the check returns, so the race is not reported as a 500.
+	try {
+		const result = await db.collection<RepositoryDoc>(repositoriesCollection).insertOne(emptyRepo, { session });
+		return result.insertedId;
+	} catch (error) {
+		if (isDuplicateKeyError(error))
+			throw AppError.conflict('You already own a repository with this name!');
+		throw error;
+	}
 }
 
 /**
@@ -205,12 +214,20 @@ export async function updateRepository(repoId: string, newName?: string, globalS
 		updateFields.aiConfig = configToSave as AiConfig;
 	}
 
-	const result = await db.collection<RepositoryDoc>(repositoriesCollection).findOneAndUpdate(
-		{ _id: oid(repoId) },
-		{ $set: updateFields } as unknown as UpdateFilter<RepositoryDoc>,
-		{ returnDocument: 'after', session }
-	);
-	return result;
+	// CASE 1: renaming onto a name another repository of the same owner already uses. The unique index rejects it; mapped to the 409 used by createRepo.
+	// CASE 2: no rename (settings or AI config only). A duplicate-key error cannot come from these fields, so it is rethrown unchanged.
+	try {
+		const result = await db.collection<RepositoryDoc>(repositoriesCollection).findOneAndUpdate(
+			{ _id: oid(repoId) },
+			{ $set: updateFields } as unknown as UpdateFilter<RepositoryDoc>,
+			{ returnDocument: 'after', session }
+		);
+		return result;
+	} catch (error) {
+		if (newName !== undefined && isDuplicateKeyError(error))
+			throw AppError.conflict('You already own a repository with this name!');
+		throw error;
+	}
 }
 
 export async function updateOwnerInRepo(repoId: string, newOwnerId: string, oldOwnerId: string): Promise<string> {
@@ -287,23 +304,47 @@ export async function deleteRepository(repoId: string, ownerId: string): Promise
 	return { status: 'deleted', message: 'Repository and all associated data have been deleted.' };
 }
 
+/**
+ * Appends a story id to the repository's stories array, unless it is already there.
+ * @param storyId The story to add.
+ * @param repoId The repository to add it to.
+ * @param client Required together with `session`; the MongoClient the session belongs to.
+ * @param session Optional transaction session.
+ * @returns The raw update result.
+ */
 export async function insertStoryIdIntoRepo(storyId: string, repoId: string, client?: MongoClient, session?: ClientSession): Promise<UpdateResult> {
 	const db = session ? client!.db('Seed', session) : dbConnection.getConnection();
-    
+
+	// $addToSet instead of $push: a retried insert (e.g. after a dropped response) must not list the story twice
 	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId) },
-		{ $push: { stories: oid(storyId) } },
+		{ $addToSet: { stories: oid(storyId) } },
 		{ session }
 	);
 }
 
+/**
+ * Reorders the repository's stories to the given order. Reorder only: it never adds or removes stories.
+ * Stories inserted or deleted concurrently keep their state: a story not yet in the stored array is not added,
+ * and a stored story the client did not send is kept after the reordered ones.
+ * @param repoId The repository to reorder.
+ * @param storiesArray Story ids in the desired order.
+ * @returns The repository after the update, or null when no repository matched.
+ */
 export async function updateStoriesArrayInRepo(repoId: string, storiesArray: string[]): Promise<Repository | null> {
 	const db = dbConnection.getConnection();
-	const sortedStoriesArray = storiesArray.map(s => oid(s));
+	// Deduplicated: a repeated id in the client list would otherwise list that story twice
+	const sortedStoriesArray = [...new Set(storiesArray)].map(s => oid(s));
 
+	// CASE 1: the client list is applied in client order, but only ids still stored. A story deleted in the meantime is not revived as a dangling id.
+	// CASE 2: stored ids the client did not send are appended in stored order. A story created in the meantime is kept instead of dropped.
+	// An aggregation pipeline reads and writes '$stories' in one atomic update, so no concurrent insert is overwritten.
 	const result = await db.collection<RepositoryDoc>(repositoriesCollection).findOneAndUpdate(
 		{ _id: oid(repoId) },
-		{ $set: { stories: sortedStoriesArray } },
+		[{ $set: { stories: { $concatArrays: [
+			{ $filter: { input: { $literal: sortedStoriesArray }, as: 'id', cond: { $in: ['$$id', '$stories'] } } },
+			{ $filter: { input: '$stories', as: 'id', cond: { $not: [{ $in: ['$$id', { $literal: sortedStoriesArray }] }] } } }
+		] } } }],
 		{ returnDocument: 'after' }
 	);
 
@@ -359,21 +400,18 @@ export async function updateStoryGroup(repoId: string, groupId: string, updatedG
 	updatedGroup._id = oid(groupId) as unknown as string;
 	// Convert member_stories strings to ObjectIds — frontend sends string[] but MongoDB GroupDoc expects ObjectId[]
 	(updatedGroup as unknown as GroupDoc).member_stories = memberStoriesOrEmpty(updatedGroup).filter(Boolean).map(id => oid(id));
-	const collection = db.collection<RepositoryDoc>(repositoriesCollection);
-	const repo = await collection.findOne({ _id: oid(repoId) }, { session });
+	// CASE 1: group not in this repo (or repo missing) → 404. The filter matches only when both hold, so matchedCount 0 covers both.
+	// CASE 2: group found. The positional $set replaces just this element; a read-modify-write of the whole groups array would
+	// silently drop a group added or removed by a concurrent request between the read and the write.
+	const result = await db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
+		{ _id: oid(repoId), 'groups._id': oid(groupId) },
+		{ $set: { 'groups.$': updatedGroup as unknown as GroupDoc } },
+		{ session }
+	);
 
-	if (!repo)
-		throw AppError.notFound('Repository not found');
-
-
-	const index = repo.groups.findIndex((g) => g._id?.toString() === groupId);
-	if (index === -1) 
+	if (result.matchedCount === 0)
 		throw AppError.notFound('Group not found in repository');
-     
 
-	repo.groups[index] = updatedGroup as unknown as GroupDoc;
-
-	await collection.updateOne({ _id: oid(repoId) }, { $set: { groups: repo.groups } }, { session });
 	return updatedGroup;
 }
 
@@ -389,7 +427,8 @@ export async function addToStoryGroup(repoId: string, groupId: string, storyId: 
 	const db = dbConnection.getConnection();
 	return db.collection<RepositoryDoc>(repositoriesCollection).updateOne(
 		{ _id: oid(repoId), 'groups._id': oid(groupId) },
-		{ $push: { 'groups.$.member_stories': oid(storyId) } }
+		// $addToSet: a story already in the group stays listed once, so retried or repeated adds are harmless
+		{ $addToSet: { 'groups.$.member_stories': oid(storyId) } }
 	);
 }
 

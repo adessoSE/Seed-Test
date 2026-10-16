@@ -22,7 +22,8 @@ vi.mock('../database/DbConnector', () => ({
 const mockedRepoService = {
 	getOneJiraRepository: vi.fn(),
 	getOneRepositoryById: vi.fn(),
-	updateStoriesArrayInRepo: vi.fn()
+	updateStoriesArrayInRepo: vi.fn(),
+	insertStoryIdIntoRepo: vi.fn()
 };
 vi.mock('./repository.service', () => mockedRepoService);
 
@@ -100,6 +101,7 @@ describe('ExternalSyncService', () => {
 		mockedRepoService.getOneJiraRepository.mockResolvedValue(mockRepo);
 		mockedRepoService.getOneRepositoryById.mockResolvedValue(mockRepo);
 		mockedRepoService.updateStoriesArrayInRepo.mockResolvedValue(null as any);
+		mockedRepoService.insertStoryIdIntoRepo.mockResolvedValue({ modifiedCount: 1 } as any);
 		mockedFeatureFileService.writeFile.mockResolvedValue(undefined);
 	});
 
@@ -250,6 +252,45 @@ describe('ExternalSyncService', () => {
 
 			expect(mergedWhen).toHaveLength(1); // (stepB)
 			expect(mergedWhen[0].pre).toBe('Step B (DB Only)'); // Appended from DB
+		});
+	});
+
+	describe('matchStoryOrder (new stories)', () => {
+		it('should add new stories one at a time with insertStoryIdIntoRepo, in fetched order, instead of rewriting the array', async () => {
+			const existing = new ObjectId();
+			const newA = new ObjectId();
+			const newB = new ObjectId();
+			const storiesMap = new Map<string, Story>([
+				[existing.toString(), { _id: existing } as Story],
+				[newA.toString(), { _id: newA } as Story],
+				[newB.toString(), { _id: newB } as Story]
+			]);
+			const repoDoc = { ...mockRepo, _id: new ObjectId(), stories: [existing] } as Repository;
+
+			const result = await externalSyncService.matchStoryOrder([existing, newA, newB], storiesMap, repoDoc);
+
+			// Whole-array $set could drop stories created concurrently, so new ids go in with $addToSet inserts
+			expect(mockedRepoService.updateStoriesArrayInRepo).not.toHaveBeenCalled();
+			await vi.waitFor(() => expect(mockedRepoService.insertStoryIdIntoRepo).toHaveBeenCalledTimes(2));
+			expect(mockedRepoService.insertStoryIdIntoRepo).toHaveBeenNthCalledWith(1, newA.toString(), repoDoc._id!.toString());
+			expect(mockedRepoService.insertStoryIdIntoRepo).toHaveBeenNthCalledWith(2, newB.toString(), repoDoc._id!.toString());
+			expect(result.map(s => s._id)).toEqual([existing, newA, newB]);
+		});
+
+		it('should still add the remaining new stories when one insert fails', async () => {
+			const newA = new ObjectId();
+			const newB = new ObjectId();
+			const storiesMap = new Map<string, Story>([
+				[newA.toString(), { _id: newA } as Story],
+				[newB.toString(), { _id: newB } as Story]
+			]);
+			const repoDoc = { ...mockRepo, _id: new ObjectId(), stories: [] } as unknown as Repository;
+			mockedRepoService.insertStoryIdIntoRepo.mockRejectedValueOnce(new Error('network'));
+
+			await externalSyncService.matchStoryOrder([newA, newB], storiesMap, repoDoc);
+
+			await vi.waitFor(() => expect(mockedRepoService.insertStoryIdIntoRepo).toHaveBeenCalledTimes(2));
+			expect(mockedRepoService.insertStoryIdIntoRepo).toHaveBeenNthCalledWith(2, newB.toString(), repoDoc._id!.toString());
 		});
 	});
 

@@ -415,14 +415,21 @@ export async function matchStoryOrder(
 	// The final order: all stories that were in the repo, plus new ones
 	const finalStoryIdList = [...dbStoryIds, ...newStoryIds];
 
-	// 4. Update the repo's story array if new stories were added
+	// 4. Add the new stories to the repo if there are any
+	// updateStoriesArrayInRepo only reorders, so new ids are appended one by one with $addToSet inserts.
+	// Sequential, because the appends keep their order only when each one completes before the next starts.
 	if (newStoryIds.length > 0 && repoDoc._id) {
-		// Filter final list to only include stories that actually exist
-		const validFinalIdList = finalStoryIdList.filter(id => storiesMap.has(id));
-         
-		// Update the repo in the background, don't await
-		repositoryService.updateStoriesArrayInRepo(repoDoc._id.toString(), validFinalIdList)
-			.catch(err => logger.error(`Failed to update story order in repo: ${err}`));
+		// Only add stories that actually exist
+		const validNewStoryIds = newStoryIds.filter(id => storiesMap.has(id));
+		const repoId = repoDoc._id.toString();
+
+		// Add them in the background, don't await
+		// Each failure is logged per story, so one failed insert does not leave the later stories out of the repo
+		void (async () => {
+			for (const id of validNewStoryIds)
+				await repositoryService.insertStoryIdIntoRepo(id, repoId)
+					.catch(err => logger.error(`Failed to add story ${id} to repo ${repoId}: ${err}`));
+		})();
 	}
 
 	// 5. Return the complete list, mapped from the now-complete storiesMap
