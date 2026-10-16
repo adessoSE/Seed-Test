@@ -36,6 +36,18 @@ export const updateSettingsSchema = z.object({
 	aiConfig: aiConfigSchema.optional()
 });
 
+// Older projects and exports store a flat aiConfig ({ provider, ollamaUrl, defaultTextModel, defaultJsonModel, apiKey });
+// the AI job needs the nested providers and crashed with a TypeError on the flat shape.
+const NESTED_AI_CONFIG_MESSAGE = 'aiConfig must contain textPreparation and jsonConversion; the legacy flat format is not supported';
+
+/** POST /api/story/:story_id/generate-scenarios */
+export const generateAiScenariosSchema = z.object({
+	aiConfig: z.object({
+		textPreparation: z.object(aiProviderConfigSchema.shape, { error: NESTED_AI_CONFIG_MESSAGE }),
+		jsonConversion: z.object(aiProviderConfigSchema.shape, { error: NESTED_AI_CONFIG_MESSAGE })
+	}, { error: 'AI configuration is missing.' })
+});
+
 /** PUT /api/repository/owner/:repo_id */
 export const transferOwnerSchema = z.object({
 	email: z.string().email()

@@ -80,10 +80,15 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: AiConfig, 
 			const project = await repositoryService.getOneRepositoryById(repoId);
 			if (!project?.aiConfig) 
 				throw AppError.badRequest('Cloud provider is configured, but no AI config was found for this project.');
-            
-            
-			const encryptedTextApiKey = project.aiConfig.textPreparation.apiKey;
-			const encryptedJsonApiKey = project.aiConfig.jsonConversion.apiKey;
+
+			// Older projects and imports store a flat aiConfig ({ provider, ollamaUrl, defaultTextModel, ... })
+			// without the nested providers; the type does not reflect that, hence the Partial cast.
+			const storedConfig = project.aiConfig as Partial<AiConfig>;
+			if (!storedConfig.textPreparation || !storedConfig.jsonConversion)
+				throw AppError.badRequest('The stored AI config of this project uses the legacy flat format. Save the AI settings of the project again.');
+
+			const encryptedTextApiKey = storedConfig.textPreparation.apiKey;
+			const encryptedJsonApiKey = storedConfig.jsonConversion.apiKey;
             
 			// Decrypt text key
 			if (aiConfig.textPreparation.name === 'cloud') {

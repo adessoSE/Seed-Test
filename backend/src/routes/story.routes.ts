@@ -5,6 +5,7 @@ import * as storyController from '../controllers/story.controller.js';
 import { authorizeRepo, authorizeByStory, authorizeByIssueKey } from '../middleware/authorize.js';
 import { validate } from '../middleware/validate.js';
 import { createStorySchema, createScenarioSchema, setOneDriverSchema, resolveCommandSchema, updateStoryOrderSchema, scenarioSchema, updateScenarioListSchema, updateStorySchema } from '@seed-test/shared/schemas/story.schemas.js';
+import { generateAiScenariosSchema } from '@seed-test/shared/schemas/repository.schemas.js';
 import { AppError } from '../helpers/AppError.js';
 
 const router = express.Router();
@@ -62,7 +63,7 @@ router.post('/oneDriver/:storyID', canEditByStoryAlt, validate(setOneDriverSchem
 router.get('/issueKey/:issue_key', canReadByIssueKey, storyController.getStoryByIssueKey);
 
 // --- AI Routes (Specific prefixes) ---
-router.post('/:story_id/generate-scenarios', canEditByStory, storyController.generateAiScenarios);
+router.post('/:story_id/generate-scenarios', canEditByStory, validate(generateAiScenariosSchema), storyController.generateAiScenarios);
 router.get('/:story_id/generate-scenarios/status', canEditByStory, storyController.getAiGenerationStatus);
 
 // --- Scenario Routes (More specific than base Story routes) ---
