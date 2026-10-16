@@ -47,14 +47,18 @@ export class CreateCustomProjectComponent {
    */
 	createNewProject(form: NgForm) {
 		const title = form.value.title;
-		const id = form.value._id;
 		if (!this.isEmptyOrSpaces(title)) 
-			this.projectService.createRepository(title, id).subscribe({
-				next: _resp => {
+			this.projectService.createRepository(title).subscribe({
+				next: resp => {
+					// The id is assigned by the backend; the form has no _id field to read it from
+					const id = resp.insertedId;
+					const repo: RepositoryContainer = { _id: id, repoName: title, source: 'db' };
 					this.notify.info('', 'Project created');
-					this.projectService.addRepositoryToCache({ _id: id, repoName: title, source: 'db' });
+					this.projectService.addRepositoryToCache(repo);
+					// Selected right away so the next story is created in this project, not with repo null
+					this.projectService.selectRepository(repo);
 					this.projectService.createRepositoryEvent({
-						repositoryContainer: { _id: id, repoName: title, source: 'db' },
+						repositoryContainer: repo,
 						name: title
 					});
 				},

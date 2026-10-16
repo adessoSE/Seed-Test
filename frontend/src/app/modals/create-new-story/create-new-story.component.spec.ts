@@ -6,6 +6,8 @@ import { CreateNewStoryComponent } from './create-new-story.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
+import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { NotificationService } from 'src/app/Services/notification.service';
 
 describe('CreateNewStoryComponent', () => {
 	let fixture: ComponentFixture<CreateNewStoryComponent>;
@@ -28,6 +30,22 @@ describe('CreateNewStoryComponent', () => {
 		const vcRef = fixture.debugElement.injector.get(ViewContainerRef);
 		vcRef.createEmbeddedView(component.createNewStoryModal());
 		fixture.detectChanges();
+	});
+
+	// Regression: without a selected project the story was sent with repo null and the backend answered 400
+	describe('createNewStory without a selected project', () => {
+		it('does not create the story and reports the problem when no repository is selected', () => {
+			localStorage.removeItem('id');
+			const createSpy = vi.spyOn(component.storyService, 'createCustomStoryEvent');
+			const errorSpy = vi.spyOn(TestBed.inject(NotificationService), 'error');
+			component.modalReference = { close: vi.fn(), dismiss: vi.fn() } as unknown as NgbModalRef;
+			component.storyForm.setValue({ storyTitle: 'new story', storyDescription: '' });
+
+			component.createNewStory();
+
+			expect(createSpy).not.toHaveBeenCalled();
+			expect(errorSpy).toHaveBeenCalled();
+		});
 	});
 
 	it('create the app', (() => {

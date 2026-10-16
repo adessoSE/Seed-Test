@@ -501,4 +501,32 @@ describe('ProjectService', () => {
 		});
 	});
 
+	describe('selectRepository', () => {
+		afterEach(() => {
+			localStorage.removeItem('repository');
+			localStorage.removeItem('source');
+			localStorage.removeItem('id');
+			document.getElementById('githubHref')?.remove();
+		});
+
+		it('stores the repository in localStorage and points the GitHub link at it', () => {
+			const link = document.createElement('a');
+			link.id = 'githubHref';
+			document.body.appendChild(link);
+
+			service.selectRepository({ _id: 'repo-1', repoName: 'Proj', source: 'db' });
+
+			expect(localStorage.getItem('repository')).toBe('Proj');
+			expect(localStorage.getItem('source')).toBe('db');
+			expect(localStorage.getItem('id')).toBe('repo-1');
+			expect(link.href).toBe('https://github.com/Proj');
+		});
+
+		it('stores the selection even when the GitHub link is not on the page', () => {
+			service.selectRepository({ _id: 'repo-2', repoName: 'Other', source: 'db' });
+
+			expect(localStorage.getItem('id')).toBe('repo-2');
+		});
+	});
+
 });

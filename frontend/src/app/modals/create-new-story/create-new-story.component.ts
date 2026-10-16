@@ -6,6 +6,7 @@ import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContaine
 import { Story } from '@seed-test/shared/models/Story';
 import { UntypedFormGroup, UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoryService } from 'src/app/Services/story.service';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 
 
@@ -19,6 +20,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 export class CreateNewStoryComponent {
 	private modalService = inject(NgbModal);
 	storyService = inject(StoryService);
+	private notify = inject(NotificationService);
 
 
 	readonly createNewStoryModal = viewChild.required<TemplateRef<CreateNewStoryComponent>>('createNewStoryModal');
@@ -61,11 +63,17 @@ export class CreateNewStoryComponent {
    * Creates a new custom story
    */
 	createNewStory() {
+		const _id = localStorage.getItem('id');
+		// CASE 1: no project selected — sending the story would post repo null and the backend answers 400.
+		// Returns before the form is reset or the modal closed, so the user can pick a project and retry.
+		if (_id === null) {
+			this.notify.error('Select a project before creating a story');
+			return;
+		}
 		const title = this.storyForm.value.storyTitle;
 		if (title.trim() !== '') {
 			const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
 			const repoName = localStorage.getItem('repository')!;
-			const _id = localStorage.getItem('id')!;
 			const source = 'db';    
 			const repositoryContainer: RepositoryContainer = {repoName, source, _id};
 			const story = {title, description};

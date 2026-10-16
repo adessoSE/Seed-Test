@@ -337,4 +337,45 @@ describe('AccountManagementComponent', () => {
 			expect(updateSpy).toHaveBeenNthCalledWith(2, '1', 'second', 'user123');
 		});
 	});
+
+	describe('repository update trigger (regression: UI freeze after create or rename)', () => {
+		it('runs the list refresh once per trigger bump and does not re-trigger itself', () => {
+			fixture.detectChanges();
+			// Stops the loop after 50 calls, so a regression fails the assertion instead of hanging the test runner
+			const original = component.updateRepos.bind(component);
+			let calls = 0;
+			vi.spyOn(component, 'updateRepos').mockImplementation(() => {
+				if (++calls > 50) throw new Error('updateRepos loop');
+				original();
+			});
+
+			projectService.updateRepositoryTrigger.update(n => n + 1);
+			TestBed.flushEffects();
+			expect(calls).toBe(1);
+
+			projectService.updateRepositoryTrigger.update(n => n + 1);
+			TestBed.flushEffects();
+			expect(calls).toBe(2);
+		});
+	});
+
+	// Regression: an appended project was not detected, because the comparison only walked the length of the old list
+	describe('seperateRepos', () => {
+		const appended: RepositoryContainer = { _id: '4', repoName: 'new repo', source: 'db', canEdit: true };
+
+		it('replaces searchList when a repository is appended to the list', () => {
+			component.searchList.set(repositories);
+
+			component.seperateRepos([...repositories, appended]);
+
+			expect(component.searchList()).toEqual([...repositories, appended]);
+		});
+
+		it('shows a project appended to the shared repository list in searchList', () => {
+			projectService.repositoriesSignal.set([...repositories, appended]);
+			TestBed.flushEffects();
+
+			expect(component.searchList()).toContainEqual(appended);
+		});
+	});
 });

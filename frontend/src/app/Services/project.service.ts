@@ -116,15 +116,32 @@ export class ProjectService {
 
 
 	/**
-    * Creates a new repository / project
+    * Creates a new repository / project. The backend assigns the _id and answers with it as `insertedId`.
     * @param name
-    * @param _id
     * @returns
    */
-	createRepository(name: string, _id: string): Observable<RepositoryContainer> {
-		const body = { 'name': name, '_id': _id };
+	createRepository(name: string): Observable<{ insertedId: string }> {
+		const body = { 'name': name };
 		return this.http
-			.post<RepositoryContainer>(this.apiService.apiServer + '/repository/', body, ApiService.getOptions());
+			.post<{ insertedId: string }>(this.apiService.apiServer + '/repository/', body, ApiService.getOptions());
+	}
+
+	/**
+    * Makes a repository the current one: the id and name are stored in localStorage, where story
+    * creation reads the current project from. Does not navigate or reload; callers decide that.
+    *
+    * WHY: A project that was created but not selected leaves localStorage 'id' unset, so the next
+    * story is sent with repo null and the backend answers 400.
+    * @param repo Repository to select; its _id must be set.
+    */
+	selectRepository(repo: RepositoryContainer): void {
+		localStorage.setItem('repository', repo.repoName);
+		localStorage.setItem('source', repo.source);
+		localStorage.setItem('id', repo._id!);
+		// The GitHub link lives in the app shell; it is absent when a modal is tested or rendered alone
+		const ref = document.getElementById('githubHref') as HTMLLinkElement | null;
+		if (ref)
+			ref.href = 'https://github.com/' + repo.repoName;
 	}
 	/**
     * Updates repo

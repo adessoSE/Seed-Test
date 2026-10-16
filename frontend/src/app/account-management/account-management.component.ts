@@ -124,7 +124,10 @@ export class AccountManagementComponent {
 	private updateRepoEffect = effect(() => {
 		const trigger = this.projectService.updateRepositoryTrigger();
 		if (trigger === 0) return;
-		this.updateRepos();
+		// WHY: updateRepos() reads and writes searchList (via seperateRepos and searchRepos). Calling it tracked
+		// makes searchList a dependency of this effect, so each write re-runs the effect in an endless loop that
+		// freezes the page after a create or rename. Only the trigger may drive this effect.
+		untracked(() => this.updateRepos());
 	});
 
 	/**
@@ -209,10 +212,12 @@ export class AccountManagementComponent {
 	seperateRepos(repos: RepositoryContainer[]) {
 		// repositories is a computed derived from the service signal —
 		// only the searchList needs the dedup guard to avoid redundant re-filters.
+		// WHY: The lengths are compared first. Walking only the old list misses an appended project, because every
+		// old entry still matches its position in the new list.
 		const oldList = this.searchList();
-		if (!oldList || oldList.length === 0 || oldList.some((o, i) => o._id !== repos[i]?._id)) 
+		if (!oldList || oldList.length !== repos.length || oldList.some((o, i) => o._id !== repos[i]._id))
 			this.searchList.set(repos);
-		
+
 	}
 
 	/**
@@ -320,11 +325,7 @@ export class AccountManagementComponent {
      * @param userRepository
      */
 	selectRepository(userRepository: RepositoryContainer) {
-		const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-		ref.href = 'https://github.com/' + userRepository.repoName;
-		localStorage.setItem('repository', userRepository.repoName);
-		localStorage.setItem('source', userRepository.source);
-		localStorage.setItem('id', userRepository._id!);
+		this.projectService.selectRepository(userRepository);
 		this.router.navigate(['']);
 	}
 

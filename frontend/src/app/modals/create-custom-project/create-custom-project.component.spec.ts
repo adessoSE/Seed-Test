@@ -41,10 +41,24 @@ describe('CreateCustomProjectComponent', () => {
 			component.createNewProject(form);
 			const posts = http.match(req => req.method === 'POST');
 			expect(posts.length).toBe(1);
-			posts[0].flush({ _id: 'a', repoName: 'Proj', source: 'db' });
+			posts[0].flush({ insertedId: 'new-id' });
 
 			expect(getSpy).not.toHaveBeenCalled();
 			expect(updateSpy).not.toHaveBeenCalled();
+		});
+
+		// Regression: the form has no _id field, so the created project was never selected and the next story was sent with repo null
+		it('selects the created repository using the insertedId from the POST response', () => {
+			localStorage.removeItem('id');
+			const http = TestBed.inject(HttpTestingController);
+			component.modalReference = { close: vi.fn() } as unknown as NgbModalRef;
+
+			component.createNewProject({ value: { title: 'Proj' } } as unknown as NgForm);
+			http.match(req => req.method === 'POST')[0].flush({ insertedId: 'new-id' });
+
+			expect(localStorage.getItem('id')).toBe('new-id');
+			expect(localStorage.getItem('repository')).toBe('Proj');
+			expect(localStorage.getItem('source')).toBe('db');
 		});
 	});
 });
