@@ -4,7 +4,9 @@ import { z } from 'zod';
 export const loginSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(1),
-	stayLoggedIn: z.boolean().optional()
+	stayLoggedIn: z.boolean().optional(),
+	// Set only on the retry after a LEGACY_PASSWORD answer: the password field then carries plaintext, not a digest
+	legacyPassword: z.boolean().optional()
 });
 
 /**

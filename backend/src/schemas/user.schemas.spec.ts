@@ -12,6 +12,25 @@ describe('loginSchema', () => {
 		expect(result.success).toBe(true);
 	});
 
+	// The plaintext retry flag travels in the login body; the server only acts on a literal true
+	it('accepts a boolean legacyPassword flag and keeps it', () => {
+		const result = loginSchema.safeParse({ email: 'test@example.com', password: 'pw', legacyPassword: true });
+		expect(result.success).toBe(true);
+		expect(result.success && result.data.legacyPassword).toBe(true);
+	});
+
+	it('rejects a non-boolean legacyPassword flag', () => {
+		const result = loginSchema.safeParse({ email: 'test@example.com', password: 'pw', legacyPassword: 'yes' });
+		expect(result.success).toBe(false);
+	});
+
+	// Invariant: a client cannot set hashVersion through the login body
+	it('strips a client-supplied hashVersion', () => {
+		const result = loginSchema.safeParse({ email: 'test@example.com', password: 'pw', hashVersion: 1 });
+		expect(result.success).toBe(true);
+		expect(result.success && 'hashVersion' in result.data).toBe(false);
+	});
+
 	it('rejects invalid email', () => {
 		const result = loginSchema.safeParse({ email: 'not-email', password: 'secret' });
 		expect(result.success).toBe(false);

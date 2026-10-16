@@ -2,6 +2,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type * as NodeCrypto from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { ObjectId } from 'mongodb';
 
 // --- 1. Mock all external dependencies before importing the controller ---
@@ -140,6 +141,7 @@ describe('UserController', () => {
 		email: 'test@example.com',
 		password: 'existing_hashed_pw',
 		transitioned: true,
+		hashVersion: 2,
 		github: { githubToken: 'gh-token', login: 'ghuser', id: 42 },
 		jira: undefined
 	};
@@ -232,7 +234,7 @@ describe('UserController', () => {
 			expect(bcrypt.hash).toHaveBeenCalledWith('newSecurePassword', 10);
 			expect(userService.updateUser).toHaveBeenCalledWith(
 				fakeUser._id,
-				expect.objectContaining({ password: 'hashed_password_mock', transitioned: true })
+				expect.objectContaining({ password: 'hashed_password_mock', transitioned: true, hashVersion: 2 })
 			);
 			// Existing sessions of the user must end with the old password, so they are invalidated
 			expect(userService.deleteUserSessions).toHaveBeenCalledWith(fakeUser._id);
@@ -419,13 +421,14 @@ describe('UserController', () => {
 			expect(req.session.cookie.maxAge).toBe(864000000);
 		});
 
-		it('should rehash the password for legacy users (transitioned === false)', async () => {
-			const legacyUser = { ...fakeUser, transitioned: false };
+		it('should rehash the password when the client sends the plaintext retry (legacyPassword)', async () => {
+			// Legacy account: no hashVersion, stored hash is bcrypt(plaintext)
+			const legacyUser = { ...fakeUser, transitioned: false, hashVersion: undefined };
 			stubPassport(null, legacyUser, null);
 			vi.mocked(userService.updateUser).mockResolvedValue({ modifiedCount: 1 });
 
 			const { req, res, next } = mockReqResNext({
-				body: { email: 'test@example.com', password: 'legacyPw' }
+				body: { email: 'test@example.com', password: 'legacyPw', legacyPassword: true }
 			});
 
 			userController.login(req, res, next);
@@ -433,10 +436,97 @@ describe('UserController', () => {
 			// The logIn callback is async — wait for hash + updateUser promises to settle
 			await flushPromises();
 
-			expect(bcrypt.hash).toHaveBeenCalledWith('legacyPw', 10);
-			expect(userService.updateUser).toHaveBeenCalled();
+			// Regression: the plaintext was hashed as-is, so the new digest-based login could never match afterwards
+			// and the account stayed on the plaintext fallback. The stored format must be bcrypt(SHA-256 hex digest).
+			expect(bcrypt.hash).toHaveBeenCalledWith(createHash('sha256').update('legacyPw').digest('hex'), 10);
+			// Partial update: only the changed keys are written, never the whole session snapshot
+			expect(userService.updateUser).toHaveBeenCalledWith(fakeUserId, {
+				password: 'hashed_password_mock',
+				transitioned: true,
+				hashVersion: 2
+			});
 			// After transition, sanitized user data should still be sent back
 			expect(res.json).toHaveBeenCalled();
+		});
+
+		it('does not rehash a SHA-256 digest sent with legacyPassword on a no-version account', async () => {
+			// Regression: a no-version account stored as bcrypt(digest) matches the digest in passport. Rehashing
+			// sha256(digest) on top of that locked the real user out of the digest login.
+			const digest = createHash('sha256').update('legacyPw').digest('hex');
+			stubPassport(null, { ...fakeUser, transitioned: false, hashVersion: undefined }, null);
+			vi.mocked(userService.updateUser).mockResolvedValue({ modifiedCount: 1 });
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'test@example.com', password: digest, legacyPassword: true }
+			});
+
+			userController.login(req, res, next);
+			await flushPromises();
+
+			expect(bcrypt.hash).not.toHaveBeenCalled();
+			expect(userService.updateUser).toHaveBeenCalledWith(fakeUserId, { hashVersion: 2 });
+			expect(res.json).toHaveBeenCalled();
+		});
+
+		// Old-migrated: transitioned true from the old login code, but no hashVersion. The digest matched, so the
+		// stored hash is already bcrypt(digest) and must not be rehashed; only the version marker is set.
+		it('sets hashVersion 2 without rehashing when the digest matched and no version is recorded', async () => {
+			stubPassport(null, { ...fakeUser, hashVersion: undefined }, null);
+			vi.mocked(userService.updateUser).mockResolvedValue({ modifiedCount: 1 });
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'test@example.com', password: 'digest-of-the-password' }
+			});
+
+			userController.login(req, res, next);
+			await flushPromises();
+
+			expect(bcrypt.hash).not.toHaveBeenCalled();
+			expect(userService.updateUser).toHaveBeenCalledWith(fakeUserId, { hashVersion: 2 });
+			expect(res.json).toHaveBeenCalled();
+		});
+
+		it('does not write to the user document for an account already on hashVersion 2', async () => {
+			stubPassport(null, { ...fakeUser }, null);
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'test@example.com', password: 'digest-of-the-password' }
+			});
+
+			userController.login(req, res, next);
+			await flushPromises();
+
+			expect(userService.updateUser).not.toHaveBeenCalled();
+			expect(res.json).toHaveBeenCalled();
+		});
+
+		it('answers 401 with the LEGACY_PASSWORD code when the account still has a legacy password', () => {
+			stubPassport(null, false, { message: 'Password incorrect', code: 'LEGACY_PASSWORD' });
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'test@example.com', password: 'digest-of-the-password' }
+			});
+
+			userController.login(req, res, next);
+
+			const error = next.mock.calls[0][0] as AppError;
+			expect(error).toBeInstanceOf(AppError);
+			expect(error.statusCode).toBe(401);
+			expect(error.data).toEqual({ code: 'LEGACY_PASSWORD' });
+		});
+
+		it('answers 401 without a code for an account that already uses the new hash', () => {
+			stubPassport(null, false, { message: 'Password incorrect' });
+
+			const { req, res, next } = mockReqResNext({
+				body: { email: 'test@example.com', password: 'wrong-digest' }
+			});
+
+			userController.login(req, res, next);
+
+			const error = next.mock.calls[0][0] as AppError;
+			expect(error.statusCode).toBe(401);
+			expect(error.data).toBeUndefined();
 		});
 
 		it('should call next when req.logIn fails', () => {
@@ -490,6 +580,8 @@ describe('UserController', () => {
 			expect(bcrypt.hash).toHaveBeenCalledWith('securePassword', 10);
 			expect(req.body.password).toBe('hashed_password_mock');
 			expect(req.body.transitioned).toBe(true);
+			// The new hash is a digest-format hash, so the account is marked hashVersion 2
+			expect(req.body.hashVersion).toBe(2);
 			expect(userService.registerUser).toHaveBeenCalledWith(req.body);
 			expect(res.status).toHaveBeenCalledWith(201);
 			expect(res.json).toHaveBeenCalledWith({ insertedId });
@@ -1026,7 +1118,7 @@ describe('UserController', () => {
 			expect(bcrypt.compare).toHaveBeenCalledWith('current_pw', fakeUser.password);
 			expect(bcrypt.hash).toHaveBeenCalledWith('brand_new_password', 10);
 			// Only the changed field is written — the stale session snapshot must not be $set back (lost-update regression)
-			expect(userService.updateUser).toHaveBeenCalledWith(fakeUserId, { password: 'hashed_password_mock' });
+			expect(userService.updateUser).toHaveBeenCalledWith(fakeUserId, { password: 'hashed_password_mock', hashVersion: 2 });
 			expect(res.status).toHaveBeenCalledWith(200);
 			// Response is sanitized — no password or githubToken
 			expect(res.json).toHaveBeenCalledWith(

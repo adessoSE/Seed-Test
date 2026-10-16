@@ -295,7 +295,7 @@ export async function attachCredentialsToGithubStub(userId: string | ObjectId, e
 	// Untyped collection: the typed filter does not accept null, and null is the point of this match
 	const result = await db.collection(userCollection).updateOne(
 		passwordlessStubFilter(userId),
-		{ $set: { email, password: hashedPassword, transitioned: true } }
+		{ $set: { email, password: hashedPassword, transitioned: true, hashVersion: 2 } }
 	);
 	if (result.matchedCount === 0)
 		throw AppError.conflict('This GitHub account already has a Seed-Test login.');

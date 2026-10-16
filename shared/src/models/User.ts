@@ -23,6 +23,12 @@ export interface User {
     transitioned?: boolean;
 
     /**
+     * Version of the stored password hash. 2 = the stored hash is bcrypt(SHA-256 hex digest) of the password,
+     * which is the format the client sends. Absent on legacy accounts, whose hash is bcrypt(plaintext).
+     */
+    hashVersion?: number;
+
+    /**
      * Github object of the user if it is connected to github
      */
     github?: {

@@ -1,7 +1,7 @@
 ﻿import { type Request, type Response, type NextFunction } from 'express';
 import passport from 'passport';
 import bcrypt from 'bcrypt';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { type User } from '@seed-test/shared/models/User.js';
 import * as userService from '../services/user.service.js';
 import * as nodeMail from '../nodemailer.js';
@@ -78,7 +78,7 @@ export async function resetPassword(req: Request, res: Response, next: NextFunct
 			throw AppError.notFound('User not found');
 
 		const hashed = await bcrypt.hash(password, saltRounds);
-		await userService.updateUser(user._id, { password: hashed, transitioned: true }); // Mark as new hash
+		await userService.updateUser(user._id, { password: hashed, transitioned: true, hashVersion: 2 }); // Mark as new hash
 		// Stolen sessions must not survive a reset. If this throws, the reset request is kept so the user can retry the link.
 		await userService.deleteUserSessions(user._id!);
 		await userService.deleteRequest(user.email);
@@ -99,10 +99,12 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 	reqBody.email = (reqBody.email as string).toLowerCase();
 
 	// Cast return of passport.authenticate to avoid unsafe call error
-	const authenticateMiddleware = passport.authenticate('normal-local', {}, (error: unknown, user: User | false, info: { message?: string } | undefined) => {
+	const authenticateMiddleware = passport.authenticate('normal-local', {}, (error: unknown, user: User | false, info: { message?: string; code?: string } | undefined) => {
 		if (error) return next(error);
 		if (!user)
-			return next(AppError.unauthorized(info?.message ?? 'Authentication failed'));
+			// CASE: legacy account — the code lets the frontend retry once with the plaintext password. It travels in
+			// AppError data because the error middleware forwards only error and data. Other failures carry no code.
+			return next(AppError.unauthorized(info?.message ?? 'Authentication failed', info?.code ? { data: { code: info.code } } : undefined));
 
 		// Session fixation prevention — regenerate before establishing new identity
 		req.session.regenerate((regenerateErr) => {
@@ -117,12 +119,22 @@ export function login(req: Request, res: Response, next: NextFunction): void {
 
 				// Handle password hash transition if needed
 				void (async () => {
-					if (user.transitioned === false)
+					// Same test as passport-config (hashVersion !== 2), so both sides agree on what counts as legacy
+					if (user.hashVersion !== 2)
 						try {
-							const hashedPass = await bcrypt.hash(reqBody.password as string, saltRounds);
-							user.password = hashedPass;
-							user.transitioned = true;
-							await userService.updateUser(user._id, user);
+							// A 64-hex submission is a digest, never plaintext. bcrypt alone cannot tell whether a no-version hash came from
+							// plaintext or digest, so a real plaintext of exactly 64 hex chars must use password reset (accepted trade-off).
+							const looksLikeDigest = /^[0-9a-f]{64}$/i.test(reqBody.password as string);
+							// CASE 1: plaintext legacy retry — passport verified bcrypt(plaintext), so store bcrypt(SHA-256 hex)
+							// like register and reset do. bcrypt(plaintext) would make every later digest-based login fail.
+							// CASE 2: the digest matched, so the stored hash already is bcrypt(digest) — only record the version
+							if (reqBody.legacyPassword === true && !looksLikeDigest) {
+								const digest = createHash('sha256').update(reqBody.password as string, 'utf8').digest('hex');
+								const hashedPass = await bcrypt.hash(digest, saltRounds);
+								// Partial update: only the changed keys, never the session snapshot (lost-update regression)
+								await userService.updateUser(user._id, { password: hashedPass, transitioned: true, hashVersion: 2 });
+							} else
+								await userService.updateUser(user._id, { hashVersion: 2 });
 						} catch (hashError) {
 							return next(hashError);
 						}
@@ -156,6 +168,8 @@ export async function register(req: Request, res: Response, next: NextFunction):
 		body.email = (body.email as string).toLowerCase();
 		body.password = await bcrypt.hash(body.password as string, saltRounds);
 		body.transitioned = true;
+		// The client sends a digest, so the stored hash is bcrypt(digest) — hashVersion 2
+		body.hashVersion = 2;
 
 		const sessionUser = req.user as User | undefined;
 		// CASE 1: GitHub-only stub from the session — add the login to it
@@ -437,7 +451,7 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
 
 		// Write only the changed field. The session user is a snapshot from the start of the request,
 		// so writing it back would overwrite any concurrent change to other fields (lost update).
-		await userService.updateUser(userID, { password: hashed });
+		await userService.updateUser(userID, { password: hashed, hashVersion: 2 });
 		res.status(200).json(sanitizeUser({ ...user, password: hashed }));
 	} catch (error) {
 		next(error);

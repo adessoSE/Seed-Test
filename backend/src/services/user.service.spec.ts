@@ -608,7 +608,7 @@ describe('UserService', () => {
 	});
 
 	describe('attachCredentialsToGithubStub', () => {
-		it('adds the e-mail, the hashed password and the transitioned flag to a stub that has neither', async () => {
+		it('adds the e-mail, the hashed password, the transitioned flag and hashVersion 2 to a stub that has neither', async () => {
 			mockUserCollection.findOne.mockResolvedValue(null);
 			mockUserCollection.updateOne.mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
 
@@ -617,7 +617,7 @@ describe('UserService', () => {
 			// The filter re-checks "no login yet" atomically, so two concurrent registrations cannot both succeed
 			expect(mockUserCollection.updateOne).toHaveBeenCalledWith(
 				{ _id: new ObjectId(GITHUB_ONLY_ID), email: null, password: null },
-				{ $set: { email: 'new@test.com', password: 'hashed', transitioned: true } }
+				{ $set: { email: 'new@test.com', password: 'hashed', transitioned: true, hashVersion: 2 } }
 			);
 		});
 
