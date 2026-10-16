@@ -1,6 +1,18 @@
 import { z } from 'zod';
 import { stepTypeSchema, stepDefinitionSchema, multipleScenarioSchema } from './shared.schemas.js';
 
+/**
+ * Optional field that accepts null from legacy stored documents and replaces it with `fallback`.
+ * Absent stays absent because `.optional()` short-circuits undefined, so a PUT that omits the field
+ * does not gain it with an empty value.
+ * @param schema Schema for the non-null value
+ * @param fallback Value used when the stored field is null
+ * @returns Optional schema whose output is never null
+ */
+function nullAs<T extends z.ZodType>(schema: T, fallback: z.output<T>) {
+	return schema.nullable().transform(v => v ?? fallback).optional();
+}
+
 /** POST /api/story/ — create a new story */
 export const createStorySchema = z.object({
 	title: z.string().min(1, 'Story title is required'),
@@ -31,13 +43,15 @@ export const resolveCommandSchema = z.object({
 // Passthrough is required on every stored level: the controllers write these objects back unchanged
 // (findOneAndReplace / $set), so a key the schema does not list would be deleted from the database.
 /**
- * Step inside a stored scenario. Legacy stored steps may lack `id` or hold null `pre`/`mid`, so those
- * fields are lenient here. stepTypeSchema stays strict because the block routes rely on it.
+ * Step inside a stored scenario. Legacy stored steps may lack `id`, hold null `pre`/`mid`, or hold
+ * null entries in `isExample`, so those fields are lenient here. stepTypeSchema stays strict because
+ * the block routes rely on it.
  */
 const storedStepSchema = stepTypeSchema.extend({
 	id: z.number().optional(),
 	pre: z.string().nullish(),
-	mid: z.string().nullish()
+	mid: z.string().nullish(),
+	isExample: z.array(z.boolean().nullable().transform(v => v ?? false)).optional()
 }).passthrough();
 
 /** Step definitions of a stored scenario — the shared shape with the lenient step schema for every list. */
@@ -57,7 +71,8 @@ const storedStepDefinitionSchema = stepDefinitionSchema.extend({
 export const scenarioSchema = z.object({
 	scenario_id: z.number(),
 	name: z.string(),
-	comment: z.string().optional(),
+	// Legacy scenarios store comment null; the Scenario model requires a string, so null becomes ''.
+	comment: nullAs(z.string(), ''),
 	stepDefinitions: storedStepDefinitionSchema,
 	multipleScenarios: z.array(multipleScenarioSchema.passthrough().nullable()).optional()
 }).passthrough();
@@ -70,6 +85,9 @@ export const scenarioSchema = z.object({
  */
 export const updateStorySchema = z.object({
 	title: z.string(),
+	// Legacy stored stories hold body and assignee_avatar_url null; the Story model requires strings.
+	body: nullAs(z.string(), ''),
+	assignee_avatar_url: nullAs(z.string(), ''),
 	scenarios: z.array(scenarioSchema)
 }).passthrough();
 
