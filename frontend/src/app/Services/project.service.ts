@@ -5,6 +5,7 @@ import { catchError, map, Observable, of, shareReplay, switchMap, tap, throwErro
 import { ApiService } from '../Services/api.service';
 import { FileElement } from '@seed-test/shared/models/FileElement';
 import { ActionTrigger } from './action-trigger';
+import { NotificationService } from './notification.service';
 
 /** Workgroup member with email and edit permission */
 interface WorkgroupMember {
@@ -41,6 +42,8 @@ interface RepositoryUpdateData {
 export class ProjectService {
 	apiService = inject(ApiService);
 	private http = inject(HttpClient);
+	// Background loads (updateRepositoryEmitter/getRepositoriesEmitter) have no caller to report to; getRepositories() only logs
+	private notify = inject(NotificationService);
 
 	/** Action channel for rename project — every emit is a separate request, so repeated renames are never merged */
 	readonly renameProjectTrigger = new ActionTrigger<RepositoryContainer>();
@@ -95,7 +98,7 @@ export class ProjectService {
 		this.refreshRepositories();
 		// Fire-and-forget fetch — subscribes so the cold Observable actually issues the HTTP request
 		// and updates repositoriesSignal. The in-flight guard prevents duplicate requests.
-		this.getRepositories().subscribe({ error: () => { /* already logged by getRepositories() */ } });
+		this.getRepositories().subscribe({ error: () => this.notify.error('Could not load projects') });
 	}
 	/**
     * Triggers repositories reload signal and invalidates the getRepositories cache
@@ -108,7 +111,7 @@ export class ProjectService {
 		// and updates repositoriesSignal. The in-flight guard prevents duplicate requests.
 		// WHY: Without an error handler RxJS rethrows the failure as an unhandled error. The
 		// failure is already logged and the signal keeps its last good value in getRepositories().
-		this.getRepositories().subscribe({ error: () => { /* already logged by getRepositories() */ } });
+		this.getRepositories().subscribe({ error: () => this.notify.error('Could not load projects') });
 	}
 
 
@@ -145,19 +148,7 @@ export class ProjectService {
 		// 3. Conditionally add 'aiConfig' if it has a value.
 		if (aiConfig) 
 			updateData.aiConfig = aiConfig;
-    
 
-		const logData = structuredClone(updateData);
-
-		if (logData.aiConfig?.textPreparation?.apiKey) 
-			logData.aiConfig.textPreparation.apiKey = '*** HIDDEN ***';
-    
-
-		if (logData.aiConfig?.jsonConversion?.apiKey) 
-			logData.aiConfig.jsonConversion.apiKey = '*** HIDDEN ***';
-    
-
-		console.log('Final update payload:', logData);
 
 		return this.http
 			.put<RepositoryContainer>(this.apiService.apiServer + '/repository/settings/' + repoID + '/', updateData, ApiService.getOptions());
@@ -450,4 +441,4 @@ export class ProjectService {
 				})
 			);
 	}
-}
+}

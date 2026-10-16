@@ -143,6 +143,33 @@ describe('StoryEditorComponent', () => {
 			expect(component.showBackground()).toBeFalsy();
 			expect(component.selectedStory()?.background).toEqual(emptyBackgroundAfterDelete);
 		});
+		it('notifies the user and keeps the background when the delete request fails', () => {
+			component.stories.set(stories);
+			component.selectedStory.set(stories[0]);
+			const backgroundBefore = component.selectedStory()?.background;
+			vi.spyOn(component.backgroundService, 'deleteBackground').mockReturnValue(throwError(() => new Error('server down')));
+			vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+
+			component.deleteBackground();
+
+			// Regression: the subscribe had no error handler, so a failed delete was silent and the background looked deleted
+			expect(component.notify.error).toHaveBeenCalledWith('Could not delete background.');
+			expect(component.selectedStory()?.background).toEqual(backgroundBefore);
+		});
+	});
+
+	describe('checkAiAvailability', () => {
+		it('treats a failed availability check as unavailable without an error toast', () => {
+			vi.spyOn(component.projectService, 'checkAiAvailability').mockReturnValue(throwError(() => new Error('server down')));
+			vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+			component.isAiAvailable.set(true);
+
+			component.ngOnInit();
+
+			// AI is optional, so a failing check must not show an error toast; it only hides the AI features
+			expect(component.isAiAvailable()).toBe(false);
+			expect(component.notify.error).not.toHaveBeenCalled();
+		});
 	});
 
 	describe('hideResults', () => {
@@ -200,6 +227,19 @@ describe('StoryEditorComponent', () => {
 		});
 	});
 
+
+	describe('saveReport / unsaveReport error handling', () => {
+		// Regression: the error branch only showed a toast and never settled the promise, so any caller
+		// awaiting it would hang forever. The promise must settle on failure too.
+		it('settles the saveReport promise when the request fails', async () => {
+			vi.spyOn(component.reportService, 'saveReport').mockReturnValue(throwError(() => new Error('server down')));
+			vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+
+			await component.saveReport('rep-1');
+
+			expect(component.notify.error).toHaveBeenCalledWith('Could not update report.');
+		});
+	});
 
 	describe('stories request unauthorized (401)', () => {
 		it('clears the cached repository list before redirecting to login', () => {
@@ -420,6 +460,38 @@ describe('StoryEditorComponent', () => {
 
 			expect(component.selectedStory()).toBe(story);
 			expect(component.selectScenario).toHaveBeenCalledWith(story.scenarios[0]);
+		});
+
+		it('should keep the requested scenario when newSelectedScenario is set alongside newSelectedStory', () => {
+			// Deep link /story/<id>/2: both inputs change in the same CD pass
+			const twoScenarioStory: Story = {
+				...structuredClone(story),
+				scenarios: [
+					{ ...structuredClone(story.scenarios[0]), scenario_id: 1 },
+					{ ...structuredClone(story.scenarios[0]), scenario_id: 2 }
+				]
+			};
+			fixture.componentRef.setInput('newSelectedScenario', twoScenarioStory.scenarios[1]);
+			fixture.componentRef.setInput('newSelectedStory', twoScenarioStory);
+			TestBed.flushEffects();
+
+			expect(component.selectedScenario()?.scenario_id).toBe(2);
+		});
+
+		it('should fall back to the first scenario when newSelectedScenario belongs to another story', () => {
+			const twoScenarioStory: Story = {
+				...structuredClone(story),
+				scenarios: [
+					{ ...structuredClone(story.scenarios[0]), scenario_id: 1 },
+					{ ...structuredClone(story.scenarios[0]), scenario_id: 2 }
+				]
+			};
+			const foreignScenario = { ...structuredClone(story.scenarios[0]), scenario_id: 99 };
+			fixture.componentRef.setInput('newSelectedScenario', foreignScenario);
+			fixture.componentRef.setInput('newSelectedStory', twoScenarioStory);
+			TestBed.flushEffects();
+
+			expect(component.selectedScenario()?.scenario_id).toBe(1);
 		});
 	});
 

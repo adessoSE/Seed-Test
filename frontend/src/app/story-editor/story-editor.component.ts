@@ -554,7 +554,6 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		const story = this.newSelectedStory();
 		if (!story) return;
 		untracked(() => {
-			console.log('Setting selectedStory via effect:', story._id);
 			this.selectedStory.set(story);
 			this.initializeIsExampleForStory(story);
 			this.isReviewingAi.set(false);
@@ -569,9 +568,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 					story.preConditions
 				);
 
-			if (story.scenarios && story.scenarios.length > 0)
-				this.selectScenario(story.scenarios[0]);
-			else
+			if (story.scenarios && story.scenarios.length > 0) {
+				// CASE 1: Deep link (/story/<id>/<scenarioId>) — parent passes the requested scenario too.
+				// Effect 16 already selected it in this same CD pass; scenarios[0] here would overwrite it.
+				// CASE 2: No requested scenario, or it is not part of this story — first scenario.
+				const requested = this.newSelectedScenario();
+				const match = requested ? story.scenarios.find(s => s.scenario_id === requested.scenario_id) : undefined;
+				this.selectScenario(match ?? story.scenarios[0]);
+			} else
 				// Editor hiding is happening in selectScenario
 				this.selectScenario(null);
 		});
@@ -715,8 +719,12 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Initializes HTTP subscribes (EventEmitter subscribes replaced by class-level effects)
    */
 	ngOnInit() {
-		this.projectService.checkAiAvailability().subscribe(available => {
-			this.isAiAvailable.set(available);
+		this.projectService.checkAiAvailability().subscribe({
+			next: (available) => {
+				this.isAiAvailable.set(available);
+			},
+			// AI is optional: a failed availability check must stay silent and only mean "unavailable"
+			error: () => this.isAiAvailable.set(false)
 		});
 
 		// in event that stories are already loaded
@@ -726,8 +734,11 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		// get blocks
 		const id = localStorage.getItem('id');
 		if (!id) return;
-		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks.set(resp);
+		this.blockService.getBlocks(id).subscribe({
+			next: (resp) => {
+				this.blocks.set(resp);
+			},
+			error: () => this.notify.error('Could not load blocks.')
 		});
 	}
 
@@ -827,8 +838,11 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * load the step types
    */
 	loadStepTypes() {
-		this.storyService.getStepTypes().subscribe((resp: StepType[]) => {
-			this.originalStepTypes.set(resp);
+		this.storyService.getStepTypes().subscribe({
+			next: (resp: StepType[]) => {
+				this.originalStepTypes.set(resp);
+			},
+			error: () => this.notify.error('Could not load step types.')
 		});
 	}
 
@@ -837,8 +851,11 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		if (!story) return;
 		this.storyService
 			.changeOneDriver(story.oneDriver!, story._id!)
-			.subscribe((resp) => {
-				this.selectedStory.set(resp as Story);
+			.subscribe({
+				next: (resp) => {
+					this.selectedStory.set(resp as Story);
+				},
+				error: () => this.notify.error('Could not change OneDriver setting.')
 			});
 	}
 
@@ -946,14 +963,17 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		if (!story) return;
 		this.scenarioService
 			.addScenario(story._id!, scenarioName)
-			.subscribe((resp: Scenario) => {
-				this.selectScenario(resp);
-				// Update scenarios through signal instead of in-place push
-				// to trigger OnPush change detection
-				this.selectedStory.update((s) =>
-					s ? { ...s, scenarios: [...s.scenarios, resp] } : s
-				);
-				this.notify.info('', 'Scenario added');
+			.subscribe({
+				next: (resp: Scenario) => {
+					this.selectScenario(resp);
+					// Update scenarios through signal instead of in-place push
+					// to trigger OnPush change detection
+					this.selectedStory.update((s) =>
+						s ? { ...s, scenarios: [...s.scenarios, resp] } : s
+					);
+					this.notify.info('', 'Scenario added');
+				},
+				error: () => this.notify.error('Could not add scenario.')
 			});
 	}
 	/**
@@ -990,13 +1010,16 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			);
 			this.backgroundService
 				.updateBackground(story._id!, story.background)
-				.subscribe((_) => {
-					this.backgroundService.backgroundChangedEmitter();
-					this.notify.success('successfully saved', 'Background');
-					if (this.saveBackgroundAndRun) {
-						this.apiService.runSaveOption('saveScenario');
-						this.saveBackgroundAndRun = false;
-					}
+				.subscribe({
+					next: (_) => {
+						this.backgroundService.backgroundChangedEmitter();
+						this.notify.success('successfully saved', 'Background');
+						if (this.saveBackgroundAndRun) {
+							this.apiService.runSaveOption('saveScenario');
+							this.saveBackgroundAndRun = false;
+						}
+					},
+					error: () => this.notify.error('Could not save background.')
 				});
 		}
 	}
@@ -1035,7 +1058,10 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			const updatedBlock = { ...block, stepDefinitions: { ...block.stepDefinitions, when: story.background.stepDefinitions.when } };
 			this.blockService
 				.updateBlock(updatedBlock)
-				.subscribe((_) => this.blockService.updateBlocksEmitter());
+				.subscribe({
+					next: (_) => this.blockService.updateBlocksEmitter(),
+					error: () => this.notify.error('Could not save block.')
+				});
 		}
 	}
 	/**
@@ -1087,12 +1113,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			if (!_id) return;
 			this.backgroundService
 				.updateBackground(_id, story.background)
-				.subscribe((_) => {
-					this.backgroundService.backgroundChangedEmitter();
-					if (this.saveBackgroundAndRun) {
-						this.apiService.runSaveOption('saveScenario');
-						this.saveBackgroundAndRun = false;
-					}
+				.subscribe({
+					next: (_) => {
+						this.backgroundService.backgroundChangedEmitter();
+						if (this.saveBackgroundAndRun) {
+							this.apiService.runSaveOption('saveScenario');
+							this.saveBackgroundAndRun = false;
+						}
+					},
+					error: () => this.notify.error('Could not save background.')
 				});
 		});
 		this.notify.success('successfully saved', 'Backgrounds');
@@ -1107,18 +1136,21 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		const oldName = story.background.name;
 		this.backgroundService
 			.deleteBackground(story._id!)
-			.subscribe((_) => {
-				this.showBackground.set(false);
-				const blockBackgrounds = this.blocks().filter((b) => b.isBackground);
-				if (blockBackgrounds)
-					for (const block of this.blocks())
-						if (block.name == oldName) 
-							this.blockService.checkBackgroundsOnDelete(block, this.stories());
+			.subscribe({
+				next: (_) => {
+					this.showBackground.set(false);
+					const blockBackgrounds = this.blocks().filter((b) => b.isBackground);
+					if (blockBackgrounds)
+						for (const block of this.blocks())
+							if (block.name == oldName) 
+								this.blockService.checkBackgroundsOnDelete(block, this.stories());
          
-				// Replace the background via signal update to notify consumers of the new reference
-				this.selectedStory.update((s) =>
-					s ? { ...s, background: { name: '', stepDefinitions: { when: [] }, saved: true } } : s
-				);
+					// Replace the background via signal update to notify consumers of the new reference
+					this.selectedStory.update((s) =>
+						s ? { ...s, background: { name: '', stepDefinitions: { when: [] }, saved: true } } : s
+					);
+				},
+				error: () => this.notify.error('Could not delete background.')
 			});
 	}
 
@@ -1285,7 +1317,6 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 					.subscribe({
 						next: (resp) => {
 							this.testRunResponse(resp as TestRunResponse);
-							console.log('Test Report:', this.testReport);
 
 							// Determine test status for Xray synchronization
 							const val = this.testReport.status;
@@ -1437,10 +1468,6 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 
 		member_stories.push(story);
 
-		for (const s of member_stories) 
-			console.log('Temp group story:', s.issue_number);
-    
-
 		const temp_group = {
 			_id: -1,
 			name: story.title,
@@ -1455,7 +1482,6 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Collects all pre-stories for a given story recursively
    */
 	async collectPreStories(story: Story, seenStories: Set<string | number>, member_stories: Story[]) {
-		console.log('Collecting pre-conditions for story:', story.issue_number);
 		// do pre-conditions exist?
 		if (story.preConditions && story.preConditions.length > 0) 
 			for (const precondition of story.preConditions) 
@@ -1513,10 +1539,6 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			browserSelectValue = browserSelect ? browserSelect.value : null;
 			emulatorSelectValue = emulatorSelect ? emulatorSelect.value : null;
 		}
-		console.log(
-			'We are giving the following testRunner to the Backend: ',
-			this.testRunner()
-		);
 		const story = this.selectedStory();
 		const scenario = this.selectedScenario();
 		return {
@@ -1647,7 +1669,6 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * @param newTestRunnner
    */
 	setTestRunner(newTestRunnner: string) {
-		console.log('Setting Test Runner to ' + newTestRunnner);
 		this.setEmulatorEnabled(false);
 		this.testRunner.set(newTestRunnner);
 	}
@@ -1672,7 +1693,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
         
 			},
 			error: (err) => {
-				console.error('Fehler beim Abrufen der Repository Settings:', err);
+				console.error('Failed to load repository settings:', err);
 				this.globalSettingsActivated.set(false);
 			}
 		});
@@ -1694,11 +1715,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Fills user data to change global settings
    */
 	setUserData() {
-		this.managmentService.getUserData().subscribe((user) => {
-			this.id = user._id!;
-			if (typeof user['email'] !== 'undefined') 
-				this.email = user['email'];
+		this.managmentService.getUserData().subscribe({
+			next: (user) => {
+				this.id = user._id!;
+				if (typeof user['email'] !== 'undefined') 
+					this.email = user['email'];
       
+			},
+			error: () => this.notify.error('Could not load user data.')
 		});
 	}
 
@@ -1828,8 +1852,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	unsaveReport(reportId: string) {
 		this.reportIsSaved.set(false);
 		return new Promise<void>((resolve, _reject) => {
-			this.reportService.unsaveReport(reportId).subscribe((_resp) => {
-				resolve();
+			this.reportService.unsaveReport(reportId).subscribe({
+				next: (_resp) => {
+					resolve();
+				},
+				// Resolve after the toast: the promise must settle on failure too, or awaiting callers hang
+				error: () => {
+					this.notify.error('Could not update report.');
+					resolve();
+				}
 			});
 		});
 	}
@@ -1843,8 +1874,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	saveReport(reportId: string) {
 		this.reportIsSaved.set(true);
 		return new Promise<void>((resolve, _reject) => {
-			this.reportService.saveReport(reportId).subscribe((_resp) => {
-				resolve();
+			this.reportService.saveReport(reportId).subscribe({
+				next: (_resp) => {
+					resolve();
+				},
+				// Resolve after the toast: the promise must settle on failure too, or awaiting callers hang
+				error: () => {
+					this.notify.error('Could not update report.');
+					resolve();
+				}
 			});
 		});
 	}
@@ -1900,8 +1938,11 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 	updateStory() {
 		const story = this.selectedStory();
 		if (!story) return;
-		this.storyService.updateStory(story).subscribe((_resp) => {
-			this.notify.success('successfully saved', 'Story');
+		this.storyService.updateStory(story).subscribe({
+			next: (_resp) => {
+				this.notify.success('successfully saved', 'Story');
+			},
+			error: () => this.notify.error('Could not save story.')
 		});
 	}
 
@@ -1947,11 +1988,14 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		const story = this.selectedStory();
 		if (!story) return;
 		const id = story._id!;
-		this.storyService.downloadStoryFeatureFile(id).subscribe((ret) => {
-			saveAs(
-				ret,
-				story.title + story._id + '.feature'
-			);
+		this.storyService.downloadStoryFeatureFile(id).subscribe({
+			next: (ret) => {
+				saveAs(
+					ret,
+					story.title + story._id + '.feature'
+				);
+			},
+			error: () => this.notify.error('Could not download feature file.')
 		});
 	}
 
@@ -2147,8 +2191,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 
 				// Step 3: Now, make the call to start the AI job in the backend.
 				this.storyService.generateScenariosFromAI(storyId, finalAiConfig, repoId).subscribe({
-					next: (response) => {
-						console.log('AI job successfully queued:', response.message);
+					next: () => {
 						this.snackBar.open(
 							`AI generation for '${storyTitle}' has started... You will be notified upon completion.`,
 							'OK',
@@ -2175,38 +2218,41 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 								// one form that is valid on every branch.
 								this.storyService
 									.getStory(storyId)
-									.subscribe((updatedStoryWithSuggestion) => {
-										this.updateLocalStoryState(
-											storyId,
-											updatedStoryWithSuggestion
-										);
-										this.aiSuggestions.set(
-											storyId,
-											updatedStoryWithSuggestion.aiSuggestion as { scenarios: Scenario[] }
-										);
+									.subscribe({
+										next: (updatedStoryWithSuggestion) => {
+											this.updateLocalStoryState(
+												storyId,
+												updatedStoryWithSuggestion
+											);
+											this.aiSuggestions.set(
+												storyId,
+												updatedStoryWithSuggestion.aiSuggestion as { scenarios: Scenario[] }
+											);
 
-										// Notify the user that the suggestions are ready
-										this.snackBar
-											.open(
-												`🤖 AI suggestions for '${storyTitle}' are ready for review.`,
-												'Show',
-												{ duration: 10000 }
-											)
-											.onAction()
-											.subscribe(() => {
-												const current = this.selectedStory();
-												if (current && current._id !== storyId) {
-													const storyToReview = this.stories().find(
-														(s) => s._id === storyId
-													);
-													if (storyToReview) {
-														this.storyChosen.emit(storyToReview);
-														setTimeout(() => this.enterAiReviewMode(), 50);
-													}
-												} else 
-													this.enterAiReviewMode();
+											// Notify the user that the suggestions are ready
+											this.snackBar
+												.open(
+													`🤖 AI suggestions for '${storyTitle}' are ready for review.`,
+													'Show',
+													{ duration: 10000 }
+												)
+												.onAction()
+												.subscribe(() => {
+													const current = this.selectedStory();
+													if (current && current._id !== storyId) {
+														const storyToReview = this.stories().find(
+															(s) => s._id === storyId
+														);
+														if (storyToReview) {
+															this.storyChosen.emit(storyToReview);
+															setTimeout(() => this.enterAiReviewMode(), 50);
+														}
+													} else 
+														this.enterAiReviewMode();
                       
-											});
+												});
+										},
+										error: () => this.notify.error('Could not load the AI suggestion.')
 									});
 							},
 							error: (err) => {
@@ -2250,20 +2296,23 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		// Fetch the full suggestion from the backend
 		this.storyService
 			.getStory(story._id!)
-			.subscribe((fullStory) => {
-				const suggestion = fullStory.aiSuggestion as { scenarios: Scenario[] } | undefined;
-				this.initializeIsExampleForStory(suggestion);
+			.subscribe({
+				next: (fullStory) => {
+					const suggestion = fullStory.aiSuggestion as { scenarios: Scenario[] } | undefined;
+					this.initializeIsExampleForStory(suggestion);
 
-				this.aiSuggestions.set(story._id!, suggestion!);
-				this.isReviewingAi.set(true);
-				this.reviewModeChanged.emit(true);
+					this.aiSuggestions.set(story._id!, suggestion!);
+					this.isReviewingAi.set(true);
+					this.reviewModeChanged.emit(true);
 
-				const suggestionScenarios = suggestion?.scenarios;
-				if (suggestionScenarios && suggestionScenarios.length > 0) 
-					this.selectScenario(suggestionScenarios[0]);
-				else 
-					this.selectScenario(null);
+					const suggestionScenarios = suggestion?.scenarios;
+					if (suggestionScenarios && suggestionScenarios.length > 0) 
+						this.selectScenario(suggestionScenarios[0]);
+					else 
+						this.selectScenario(null);
         
+				},
+				error: () => this.notify.error('Could not load the AI suggestion.')
 			});
 	}
 
@@ -2313,9 +2362,12 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 			s ? { ...s, aiSuggestion: undefined as Story['aiSuggestion'] } : s
 		);
 
-		this.storyService.updateStory(story).subscribe(updatedStory => {
-			this.notify.info('AI suggestion discarded.');
-			this.exitAiReviewMode(updatedStory);
+		this.storyService.updateStory(story).subscribe({
+			next: (updatedStory) => {
+				this.notify.info('AI suggestion discarded.');
+				this.exitAiReviewMode(updatedStory);
+			},
+			error: () => this.notify.error('Could not discard AI suggestion.')
 		});
 	}
 
@@ -2348,12 +2400,15 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		// Save the updated story
 		this.storyService
 			.updateStory(story)
-			.subscribe((updatedStory) => {
-				this.notify.success(
-					'AI scenarios have been saved to the story!',
-					'Saved'
-				);
-				this.exitAiReviewMode(updatedStory);
+			.subscribe({
+				next: (updatedStory) => {
+					this.notify.success(
+						'AI scenarios have been saved to the story!',
+						'Saved'
+					);
+					this.exitAiReviewMode(updatedStory);
+				},
+				error: () => this.notify.error('Could not save AI scenarios.')
 			});
 	}
 

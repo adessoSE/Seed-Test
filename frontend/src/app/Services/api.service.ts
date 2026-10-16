@@ -6,6 +6,7 @@ import { User } from '@seed-test/shared/models/User';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { sha256Hex } from './crypto';
 import { ActionTrigger } from './action-trigger';
+import { NotificationService } from './notification.service';
 
 /** Backend info response from /backendInfo endpoint */
 interface BackendInfo {
@@ -20,6 +21,12 @@ interface BackendInfo {
 	chromium_emulators: string;
 	edge_emulators: string;
 }
+
+/**
+ * Backend URL used when /backendInfo cannot be read. Equals the default in frontend/server.js.
+ * Needed because `ng serve` has no server.js, so GET /backendInfo answers index.html there.
+ */
+const DEFAULT_API_SERVER = 'http://localhost:8080/api';
 
 /** GitHub issue submission payload */
 interface GitHubIssueRequest {
@@ -51,12 +58,15 @@ export interface ChangePasswordPayload {
 })
 export class ApiService {
 	private http = inject(HttpClient);
+	private notify = inject(NotificationService);
 
 
 	/**
-    * url of the backend
+    * url of the backend. In-memory source of truth for all request URLs: set from localStorage at
+    * construction, from /backendInfo on success, or to the default on fallback. Methods must not re-read
+    * localStorage, because a fallback deliberately leaves url_backend unset.
     */
-	public apiServer: string = localStorage.getItem('url_backend') || 'http://localhost:8080/api';
+	public apiServer: string = localStorage.getItem('url_backend') || DEFAULT_API_SERVER;
 
 	/**
    * If the backend url was received
@@ -87,7 +97,7 @@ export class ApiService {
     * @returns
     */
 	public handleError(error: HttpErrorResponse) {
-		console.log(JSON.stringify(error));
+		console.error(JSON.stringify(error));
 		return throwError(() => error);
 	}
 
@@ -187,7 +197,12 @@ export class ApiService {
 				)
 				.toPromise()
 				.then((backendInfo) => {
+					// Validate before caching: a non-JSON body (index.html) would otherwise store "undefined" as the URL
+					if (typeof backendInfo !== 'object' || typeof backendInfo.url !== 'string')
+						throw new TypeError('/backendInfo did not return backend info JSON');
 					localStorage.setItem('url_backend', backendInfo!.url);
+					// In-memory copy is what the request methods use; keep it in sync with the stored URL
+					this.apiServer = backendInfo!.url;
 					localStorage.setItem('clientId', backendInfo!.clientId);
 					localStorage.setItem('version', backendInfo!.version);
 					localStorage.setItem('gecko_enabled', backendInfo!.gecko_enabled);
@@ -203,12 +218,29 @@ export class ApiService {
 						backendInfo!.chromium_emulators
 					);
 					localStorage.setItem('edge_emulators', backendInfo!.edge_emulators);
-					this.getPlaywrightEmulators().subscribe();
+					// Fire-and-forget: the emulator list is only cached for the playwright
+					// dropdowns. A failure is reported to the user; the backend URL is still usable.
+					this.getPlaywrightEmulators().subscribe({
+						error: () => this.notify.error('Could not load Playwright emulators')
+					});
 
 					this.urlReceived = true;
 					this.backendUrlReadyTrigger.update(n => n + 1);
 
 					return backendInfo!.url;
+				})
+				.catch((err: unknown) => {
+					// CASE: /backendInfo unavailable (ng serve answers index.html, or the server is down).
+					// Use the server.js default so APP_INITIALIZER resolves and the app still boots.
+					// Consequence: the playwright/browser emulator lists stay empty, they only come from /backendInfo.
+					// WHY in-memory only: persisting url_backend or setting urlReceived would make every later load
+					// skip /backendInfo, so one transient proxy error or HTML catch-all would pin the browser to the
+					// default URL forever. Leaving both unset makes the next load and the next initializeBackendInfo()
+					// call fetch /backendInfo again.
+					console.warn('Could not load /backendInfo, using default backend URL:', err);
+					this.apiServer = DEFAULT_API_SERVER;
+					this.backendUrlReadyTrigger.update(n => n + 1);
+					return DEFAULT_API_SERVER;
 				});
 
 	}
@@ -227,7 +259,6 @@ export class ApiService {
     * @returns Observable of the updated User
     */
 	updateUser(userID: string, payload: ChangePasswordPayload): Observable<User> {
-		this.apiServer = localStorage.getItem('url_backend')!;
 		// Hash both passwords the same way the login service hashes credentials,
 		// otherwise bcrypt.compare inside the controller never matches the stored
 		// hash (which is bcrypt(SHA-256(password))) and the change returns 401.
@@ -255,7 +286,6 @@ export class ApiService {
     * Sets the available emulation devices of playwright
     */
 	getPlaywrightEmulators(): Observable<string[]> {
-		this.apiServer = localStorage.getItem('url_backend')!;
 		return this.http.get<string[]>(
 			this.apiServer + '/playwright/device-names',
 			ApiService.getOptions()
@@ -264,7 +294,7 @@ export class ApiService {
 				localStorage.setItem('playwright_emulators', emulators.join(','));
 			}),
 			catchError(error => {
-				console.error('Fehler beim Abrufen der Playwright-Geräte:', error);
+				console.error('Failed to load Playwright devices:', error);
 				return throwError(() => error);
 			})
 		);
@@ -277,7 +307,6 @@ export class ApiService {
    * @returns
    */
 	submitGithub(obj: GitHubIssueRequest) {
-		this.apiServer = localStorage.getItem('url_backend')!;
 		return this.http.post<GitHubIssueResponse>(
 			this.apiServer + '/github/submitIssue/',
 			obj,
@@ -317,7 +346,6 @@ export class ApiService {
 	 * @returns the resolved string; the backend wraps it as { resolved }
 	 */
 	resolveSpecialCommand(command: string): Observable<string> {
-		this.apiServer = localStorage.getItem('url_backend')!;
 		// WHY: Unwrapped here so callers compare and display a string. Without the map,
 		// the object reached the tooltip as "[object Object]" and never equalled the command.
 		return this.http.post<{ resolved: string }>(

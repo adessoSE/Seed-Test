@@ -1,7 +1,8 @@
 ﻿import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { Block } from '@seed-test/shared/models/Block';
 import { AddBlockFormComponent } from './add-block-form.component';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
@@ -25,6 +26,20 @@ describe('AddBlockFormComponent', () => {
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+	describe('error handling', () => {
+		it('shows an error toast when the block list cannot be loaded', () => {
+			const notify = TestBed.inject(NotificationService);
+			const error = vi.spyOn(notify, 'error');
+			vi.spyOn(component.blockService, 'getBlocks').mockReturnValue(throwError(() => new Error('network down')));
+			localStorage.setItem('id', 'repo-1');
+			try {
+				component.ngOnInit();
+			} finally {
+				localStorage.removeItem('id');
+			}
+			expect(error).toHaveBeenCalledWith('Could not load blocks');
+		});
 	});
 	describe('updateBlock', () => {
 		it('should update the block', () => {

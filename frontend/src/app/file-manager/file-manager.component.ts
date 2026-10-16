@@ -161,6 +161,6 @@ export class FileManagerComponent implements OnInit {
    * To pass the sonarCloud check?
    */
 	onKeyDown(_event: KeyboardEvent, _row: FileElement): void {
-		console.log('KeyDown event');
+		// Intentionally empty: the row template binds (keydown) here, so the handler stays until the bindings change
 	}
 }

@@ -7,6 +7,7 @@ import { Story } from '@seed-test/shared/models/Story';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { of } from 'rxjs';
 import { GroupService } from '../Services/group.service';
+import { NotificationService } from '../Services/notification.service';
 
 describe('StoriesBarComponent', () => {
 	let component: StoriesBarComponent;
@@ -489,6 +490,24 @@ describe('StoriesBarComponent', () => {
 	 * Regression: create/update/delete requests were payload signals reset by the handler only after
 	 * a race with re-initialisation, so a repeated identical request was dropped or re-run on construction.
 	 */
+	describe('story deletion feedback', () => {
+		it('shows a success toast, not an error toast, after a story is deleted', () => {
+			const story = makeDbStory('7', 1);
+			component.stories.set([story]);
+			component.selectedStory.set(story);
+			const notify = TestBed.inject(NotificationService);
+			const success = vi.spyOn(notify, 'success');
+			const error = vi.spyOn(notify, 'error');
+			vi.spyOn(component.storyService, 'deleteStory').mockReturnValue(of({} as any));
+			vi.spyOn(component.groupService, 'getGroups').mockReturnValue(of([]));
+
+			component.deleteStory();
+
+			expect(success).toHaveBeenCalledWith('', 'Story deleted');
+			expect(error).not.toHaveBeenCalled();
+		});
+	});
+
 	describe('regression: group requests run once per request', () => {
 		it('runs a repeated identical group creation once per request', () => {
 			const create = vi.spyOn(StoriesBarComponent.prototype as unknown as { handleCreateGroup: (p: unknown) => Promise<void> }, 'handleCreateGroup').mockResolvedValue(undefined);

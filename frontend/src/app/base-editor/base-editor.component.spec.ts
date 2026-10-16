@@ -7,6 +7,11 @@ import { Story } from '@seed-test/shared/models/Story';
 import { BaseEditorComponent } from './base-editor.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { StepDefinition } from '@seed-test/shared/models/StepDefinition';
+import { vi } from 'vitest';
+import { throwError } from 'rxjs';
+import { BlockService } from '../Services/block.service';
+import { NotificationService } from '../Services/notification.service';
+import { MultipleScenario } from '@seed-test/shared/models/MuiltipleScenario';
 
 
 const stepBackgroundDefinitions: StepDefinition = {'given': [], 'when':[{'_id':'5dce728851e70f2894a170b4','id': 6, 'stepType':'when', 'type' :'HoverOverAndSelect', 'pre':'I hover over the element', 'mid':'and select the option','values':['',''], 'post':'', 'isExample':[]}], 'then': [], 'example':[]};
@@ -90,6 +95,44 @@ describe('BaseEditorComponent', () => {
 			expect(component.selectedStory.background.stepDefinitions.when).toContainEqual(newStep);
 			expect(component.addStep).toHaveBeenCalled();
 		}));
+
+		it('should add a when step to the background story and leave the scenario steps untouched', async () => {
+			const step: StepType = {'_id':'5dce728851e70f2894a170b1','id': 0,'stepType':'when','type':'Button','pre':'I click the button:','mid':'', 'post': '','values':[''], 'isExample':[]};
+			// Cloned fixture: the shared stories array must stay unchanged for the removeStep spec
+			const story: Story = JSON.parse(JSON.stringify(stories[0]));
+			const scenario = story.scenarios[0];
+			const backgroundBefore = story.background.stepDefinitions.when.length;
+			const scenarioBefore = scenario.stepDefinitions.when.length;
+			await component.addStep(step, story, 'background');
+
+			expect(story.background.stepDefinitions.when.length).toBe(backgroundBefore + 1);
+			expect(scenario.stepDefinitions.when.length).toBe(scenarioBefore);
+		});
+
+		it('should add a then step to the scenario and leave the background untouched', async () => {
+			const step: StepType = {'_id':'5dce728851e70f2894a170b2','id': 0,'stepType':'then','type':'Text','pre':'So I can see the text','mid':'in the textbox:', 'post': '','values':[''], 'isExample':[]};
+			const story: Story = JSON.parse(JSON.stringify(stories[0]));
+			const scenario = story.scenarios[0];
+			const thenBefore = scenario.stepDefinitions.then.length;
+			const backgroundBefore = story.background.stepDefinitions.when.length;
+			await component.addStep(step, scenario, 'scenario');
+
+			expect(scenario.stepDefinitions.then.length).toBe(thenBefore + 1);
+			expect(story.background.stepDefinitions.when.length).toBe(backgroundBefore);
+		});
+	});
+
+	describe('checkOnIteration', () => {
+		it('should call checkStep once per example row, skipping the header row', () => {
+			fixture.componentRef.setInput('templateName', 'example');
+			const checkStepSpy = vi.spyOn(component, 'checkStep').mockImplementation(() => undefined);
+			const rows = [{}, {}, {}] as MultipleScenario[];
+			component.checkOnIteration(rows, true);
+
+			expect(checkStepSpy).toHaveBeenCalledTimes(2);
+			expect(checkStepSpy).toHaveBeenCalledWith(rows[1], true);
+			expect(checkStepSpy).toHaveBeenCalledWith(rows[2], true);
+		});
 	});
 
 	describe('removeStep', () => {
@@ -465,6 +508,19 @@ describe('BaseEditorComponent', () => {
 
 			expect(component.selectedScenario.stepDefinitions.then.length).toBe(thenLen + 1);
 			expect(component.selectedScenario.stepDefinitions.when.length).toBe(whenLen);
+		});
+	});
+
+	describe('getBlocks error handling', () => {
+		it('should notify the user when blocks cannot be loaded', () => {
+			const blockService = TestBed.inject(BlockService);
+			const notify = TestBed.inject(NotificationService);
+			vi.spyOn(blockService, 'getBlocks').mockReturnValue(throwError(() => new Error('backend down')));
+			const errorSpy = vi.spyOn(notify, 'error');
+
+			component.ngOnInit();
+
+			expect(errorSpy).toHaveBeenCalledWith('Could not load blocks');
 		});
 	});
 });

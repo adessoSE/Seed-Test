@@ -4,6 +4,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { config, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { ProjectService } from './project.service';
+import { NotificationService } from './notification.service';
 import { onActionTrigger } from './action-trigger';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
@@ -465,6 +466,38 @@ describe('ProjectService', () => {
 			TestBed.flushEffects();
 
 			expect(received).toEqual(['Proj', 'Proj']);
+		});
+	});
+
+	describe('fire-and-forget repository loads', () => {
+		it('notifies the user when updateRepositoryEmitter cannot load the projects', () => {
+			// Regression: the background fetch had an empty error handler, so a failed reload
+			// (e.g. after a create/rename) left the project list stale without any feedback.
+			const notify = TestBed.inject(NotificationService);
+			const notifyErrorSpy = vi.spyOn(notify, 'error');
+			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+			service.updateRepositoryEmitter();
+			httpController.expectOne('http://localhost:8080/api/repository/')
+				.flush('boom', { status: 500, statusText: 'Internal Server Error' });
+
+			expect(notifyErrorSpy).toHaveBeenCalledTimes(1);
+			expect(notifyErrorSpy).toHaveBeenCalledWith('Could not load projects');
+			consoleErrorSpy.mockRestore();
+		});
+
+		it('notifies the user when getRepositoriesEmitter cannot load the projects', () => {
+			const notify = TestBed.inject(NotificationService);
+			const notifyErrorSpy = vi.spyOn(notify, 'error');
+			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+			service.getRepositoriesEmitter();
+			httpController.expectOne('http://localhost:8080/api/repository/')
+				.flush('boom', { status: 500, statusText: 'Internal Server Error' });
+
+			expect(notifyErrorSpy).toHaveBeenCalledTimes(1);
+			expect(notifyErrorSpy).toHaveBeenCalledWith('Could not load projects');
+			consoleErrorSpy.mockRestore();
 		});
 	});
 

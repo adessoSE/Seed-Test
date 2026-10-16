@@ -3,7 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { NotificationService } from '../Services/notification.service';
 
 import { ReportHistoryComponent } from './report-history.component';
 import { ReportService } from '../Services/report.service';
@@ -103,6 +104,16 @@ describe('ReportHistoryComponent', () => {
 	});
 
 	describe('behavioral: error handling', () => {
+		it('shows an error toast when the report history cannot be loaded', () => {
+			const notify = TestBed.inject(NotificationService);
+			const error = vi.spyOn(notify, 'error');
+			vi.spyOn(reportService, 'getReportHistory').mockReturnValue(throwError(() => new Error('server error')));
+
+			component.getReports();
+
+			expect(error).toHaveBeenCalledWith('Could not load the report history.');
+		});
+
 		it('should not throw synchronously on getReports when service fails', () => {
 			expect(() => component.getReports()).not.toThrow();
 		});

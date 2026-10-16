@@ -12,6 +12,7 @@ import { ProjectService } from '../Services/project.service';
 import { Observable, of, throwError } from 'rxjs';
 import { User } from '@seed-test/shared/models/User';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { NotificationService } from '../Services/notification.service';
 
 class MockedApiService {
 	authenticated = false;
@@ -292,6 +293,33 @@ describe('LoginComponent', () => {
 		});
 	});
 
+	describe('behavioral: loginUser error shows message and does not log in', () => {
+		afterEach(() => {
+			localStorage.clear();
+		});
+
+		it('should show the default error, keep login unset and not navigate when loginUser errors', () => {
+			localStorage.removeItem('login');
+			(loginService as any).loginUser.mockReturnValue(throwError(() => new Error('Unauthorized')));
+			(projectService as any).getRepositories.mockReturnValue(of([]));
+			vi.spyOn(router, 'navigate');
+			// login() logs the failure via console.error; silence it so the test output stays clean
+			const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+			component.login({ value: { email: 'a@b.de', password: 'wrong', stayLoggedIn: false } } as any);
+
+			expect(component.error()).toBe(component.defaultErrorMessage);
+			expect(component.isLoadingRepositories()).toBe(false);
+			expect(localStorage.getItem('login')).toBeNull();
+			expect(router.navigate).not.toHaveBeenCalled();
+
+			TestBed.flushEffects();
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('.alert-danger')?.textContent).toContain(component.defaultErrorMessage);
+			consoleSpy.mockRestore();
+		});
+	});
+
 	describe('behavioral: githubLogin edge cases', () => {
 		it('should set error and return early when clientId in localStorage is "undefined"', () => {
 			localStorage.setItem('clientId', 'undefined');
@@ -355,6 +383,12 @@ describe('LoginComponent', () => {
 	});
 
 	describe('behavioral: GitHub callback consumes the merge token', () => {
+		// A successful callback stores login=true; clear it so the next test's beforeEach does not
+		// run ngOnInit -> getRepositories() against a fresh mock that returns undefined
+		afterEach(() => {
+			localStorage.clear();
+		});
+
 		it('should remove the merge token even when the callback returns an error', () => {
 			localStorage.setItem('mergeToken', 'merge-token');
 			vi.spyOn(loginService as LoginService, 'githubCallback').mockReturnValue(of({ error: 'boom', status: 500 }) as unknown as ReturnType<LoginService['githubCallback']>);
@@ -379,6 +413,35 @@ describe('LoginComponent', () => {
 
 			expect(mergeSpy).toHaveBeenCalledWith('merge-token');
 			expect(localStorage.getItem('mergeToken')).toBeNull();
+		});
+	});
+
+	describe('behavioral: failed GitHub account merge is reported', () => {
+		// Regression: a failed mergeAccountGithub fell through to getRepositories() without a word,
+		// so the user never learned that the GitHub account was not linked. The merge is optional,
+		// so the user must still be taken into the app.
+		it('should show an error and still continue to the app when the merge fails', () => {
+			localStorage.setItem('mergeToken', 'merge-token');
+			vi.spyOn(loginService as LoginService, 'githubCallback').mockReturnValue(of({ _id: 'g1' }) as unknown as ReturnType<LoginService['githubCallback']>);
+			vi.spyOn(loginService as LoginService, 'mergeAccountGithub').mockReturnValue(throwError(() => new Error('merge failed')));
+			vi.spyOn(projectService as ProjectService, 'getRepositories').mockReturnValue(of([]));
+			vi.spyOn(router, 'navigate').mockResolvedValue(true);
+			const notifySpy = vi.spyOn(TestBed.inject(NotificationService), 'error');
+			const repositoriesSpy = vi.spyOn(component, 'getRepositories');
+
+			component['handleGithubCallback']('oauth-code', 'oauth-state');
+
+			expect(notifySpy).toHaveBeenCalledWith('Could not link your GitHub account');
+			expect(repositoriesSpy).toHaveBeenCalled();
+			localStorage.clear();
+		});
+	});
+
+	// Regression: slide URLs were built as '/assets//slideNN.png', which the server answers with 404
+	describe('tutorial slide image URLs', () => {
+		it('should use a single slash after /assets and a file name that matches the asset naming', () => {
+			for (const slide of component.slides)
+				expect(slide.image).toMatch(/^\/assets\/slide\d+\.(png|PNG)$/);
 		});
 	});
 });

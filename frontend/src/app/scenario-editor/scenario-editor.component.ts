@@ -194,8 +194,11 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	ngOnInit() {
 		const id = localStorage.getItem('id');
 		if (!id) return;
-		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks.set(resp);
+		this.blockService.getBlocks(id).subscribe({
+			next: (resp) => {
+				this.blocks.set(resp);
+			},
+			error: () => this.notify.error('Could not load blocks', 'Blocks')
 		});
 	}
 
@@ -228,31 +231,11 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      * update a scenario
      * @returns
      */
-	updateScenario(scenario?: Scenario, storyId?: string) {
-		let storyIdUpdate;
-		let updatingWithReferences: boolean;
-		if (scenario && storyId){
-			this.scenarioToUpdate = scenario;
-			storyIdUpdate = storyId;
-			updatingWithReferences = true;
-		} else {
-			this.scenarioToUpdate = this.selectedScenario()!;
-			storyIdUpdate = this.selectedStory()._id;
-			updatingWithReferences = false;
-		}
-		delete this.scenarioToUpdate.hasRefBlock; 
+	updateScenario() {
+		this.scenarioToUpdate = this.selectedScenario()!;
+		const storyIdUpdate = this.selectedStory()._id;
+		delete this.scenarioToUpdate.hasRefBlock;
 		delete this.scenarioToUpdate.saved;
-		let steps = this.scenarioToUpdate.stepDefinitions.given;
-		steps = steps.concat(this.scenarioToUpdate.stepDefinitions.when);
-		steps = steps.concat(this.scenarioToUpdate.stepDefinitions.then);
-		steps = steps.concat(this.scenarioToUpdate.stepDefinitions.example || []);
-
-		let undefined_steps: StepType[] = [];
-		for (const element of steps) 
-			if (element !== undefined) 
-				if (String(element['type']).includes('Undefined Step')) 
-					undefined_steps = undefined_steps.concat(element);
-        
 
 		Object.keys(this.scenarioToUpdate.stepDefinitions).forEach((key, _) => {
 			(this.scenarioToUpdate.stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach((step: StepType) => {
@@ -262,23 +245,23 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
                 
 			});
 		});
-		if (undefined_steps.length != 0) 
-			console.log('There are undefined steps here');
-        
 
 		this.scenarioToUpdate.lastTestPassed = undefined;
 		this.checkOnReferences(this.scenarioToUpdate);
 		return new Promise<void>((resolve, _reject) => {
 			this.scenarioService
-				// storyIdUpdate is always assigned above from storyId or selectedStory()._id
+				// storyIdUpdate comes from selectedStory()._id above
 				.updateScenario(storyIdUpdate!, this.scenarioToUpdate)
-				.subscribe(_resp => {
-					this.updateReferences(this.scenarioToUpdate);
-					this.scenarioService.scenarioChangedEmitter();
-					if (!updatingWithReferences)
+				.subscribe({
+					next: _resp => {
+						this.updateReferences(this.scenarioToUpdate);
+						this.scenarioService.scenarioChangedEmitter();
 						this.notify.success('successfully saved', 'Scenario');
-                
-					resolve();
+
+						resolve();
+					},
+					// Not resolved on failure: saveRunOption awaits this promise, so no run starts against an unsaved scenario
+					error: () => this.notify.error('Could not save scenario', 'Scenario')
 				});
 		});
 	}
@@ -297,8 +280,11 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 						stepsReferences.push(step);
 						block.usedAsReference = true;
 						this.blockService.updateBlock(block)
-							.subscribe(_ => {
-								this.blockService.updateBlocksEmitter();
+							.subscribe({
+								next: _ => {
+									this.blockService.updateBlocksEmitter();
+								},
+								error: () => this.notify.error('Could not update block reference', 'Block')
 							});
 					}
           

@@ -1,7 +1,7 @@
 ﻿import { Injectable, inject, signal } from '@angular/core';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from, throwError } from 'rxjs';
 import { ApiService } from '../Services/api.service';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import type { User } from '@seed-test/shared/models/User';
 import { sha256Hex } from './crypto';
@@ -22,6 +22,18 @@ interface GithubStateResponse {
 /** Response from the merge-initiate endpoint */
 interface MergeInitiateResponse {
 	mergeToken: string;
+}
+
+/**
+ * True when the backend rejected the hashed login because the account still has a legacy password
+ * (401 with data.code LEGACY_PASSWORD, see user.controller login). Only this response may trigger the plaintext fallback.
+ * @param err error from the hashed login request
+ * @returns true for a legacy-account rejection
+ */
+function isLegacyPasswordRejection(err: unknown): boolean {
+	if (!(err instanceof HttpErrorResponse) || err.status !== 401) return false;
+	const body = err.error as { data?: { code?: unknown } } | null;
+	return body?.data?.code === 'LEGACY_PASSWORD';
 }
 
 /** Credentials payload for login endpoints */
@@ -153,14 +165,12 @@ export class LoginService {
    * @returns
    */
 	loginUserLegacy(user: LoginCredentials): Observable<User | null> {
-		console.log('legacy Login');
 		const str = this.apiService.apiServer + '/user/login';
 
-		const req1: Observable<User> = this.http.post<User>(str, user, ApiService.getOptions());
-		req1.pipe(
-			map(response=>JSON.parse(response as unknown as string)),
-			catchError(this.apiService.handleError)
-		);
+		// HttpClient already parses the JSON body. The former pipe was discarded (a no-op), and
+		// running JSON.parse on the parsed object would throw, so the raw request is returned.
+		// legacyPassword: true marks this as the plaintext retry; the backend only accepts plaintext with this flag.
+		const req1: Observable<User> = this.http.post<User>(str, { ...user, legacyPassword: true }, ApiService.getOptions());
 		return req1;
 	}
 	/**
@@ -170,20 +180,24 @@ export class LoginService {
    */
 	loginUser(user: LoginCredentials): Observable<User | null> {
 		const str = this.apiService.apiServer + '/user/login';
-		if (!window.isSecureContext) return this.loginUserLegacy(user);
+		// Digest is sent in every context: sha256Hex falls back to pure TS without crypto.subtle (plain http),
+		// so digest-stored accounts can log in over http too. Plaintext is only sent by the legacy retry below.
 		return from(sha256Hex(user.password)).pipe(
 			switchMap(hash => {
-				console.log('hashed', hash);
 				const req1: Observable<User> = this.http.post<User>(str, { ...user, password: hash }, ApiService.getOptions());
 				return req1.pipe(
 					tap(ab=> {if (ab._id) return ab; else throw Error('unsuccessfull');}),
-					catchError((err, _caught)=> {console.log('err', err); return this.loginUserLegacy(user);})
+					// Only a legacy-account rejection (data.code LEGACY_PASSWORD) retries with the plaintext password.
+					// Wrong password, 429 and 500 are rethrown, so the plaintext is never sent for them.
+					catchError((err: unknown) => isLegacyPasswordRejection(err) ? this.loginUserLegacy(user) : throwError(() => err))
 				);
 			}),
 			catchError(error => {
-				console.log('error in login process', error);
-				// handle error when login fails
-				return of(null);
+				console.error('error in login process', error);
+				// Outer catch: hashing failures and rejections the legacy fallback did not handle
+				// Rethrow instead of of(null): a null result looked like an empty success to the callers,
+				// so a rejected login navigated silently. The caller's error handler reports the failure.
+				return throwError(() => error);
 			})
 		);
 	}
@@ -235,7 +249,6 @@ export class LoginService {
 	confirmReset(uuid: string, password: string): Observable<ResetResponse> {
 		return from(sha256Hex(password)).pipe(
 			switchMap(hash => {
-				console.log('hashed', hash);
 				const req1: Observable<ResetResponse> = this.http.patch<ResetResponse>(this.apiService.apiServer + '/user/reset', { uuid: uuid, password: hash });
 				return req1.pipe(
 					tap((_) => {
@@ -291,7 +304,6 @@ export class LoginService {
 
 		return from(sha256Hex(user.password as string)).pipe(
 			switchMap(hash => {
-				console.log('hashed', hash);
 				const req1: Observable<User> = this.http.post<User>(this.apiService.apiServer + '/user/register', { ...user, password: hash }, ApiService.getOptions());
 				return req1.pipe(
 					tap((_) => {

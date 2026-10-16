@@ -7,6 +7,7 @@ import { ThemingService } from '../Services/theming.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ReportService } from '../Services/report.service';
+import { NotificationService } from '../Services/notification.service';
 import type { StoryReport } from '@seed-test/shared/models/StoryReport';
 import type { ScenarioReport } from '@seed-test/shared/models/ScenarioReport';
 import type { GroupReport } from '@seed-test/shared/models/GroupReport';
@@ -38,6 +39,7 @@ export class ReportComponent implements OnChanges {
 	route = inject(ActivatedRoute);
 	reportService = inject(ReportService);
 	private themeService = inject(ThemingService);
+	private notify = inject(NotificationService);
 
 
 	/**
@@ -113,9 +115,16 @@ export class ReportComponent implements OnChanges {
 			return new Promise<void>((resolve, _reject) => {
 				this.reportService
 					.getReportData(this.reportId()!)
-					.subscribe(resp => {
-						this.reportComponent.set(resp);
-						resolve();
+					.subscribe({
+						next: resp => {
+							this.reportComponent.set(resp);
+							resolve();
+						},
+						// Resolve anyway so the returned promise does not stay pending after a failed load
+						error: () => {
+							this.notify.error('Could not load the report data.');
+							resolve();
+						}
 					});
 			});
 
@@ -153,8 +162,12 @@ export class ReportComponent implements OnChanges {
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService
 				.unsaveReport(reportId)
-				.subscribe(_resp => {
-					resolve();
+				.subscribe({
+					next: _resp => resolve(),
+					error: () => {
+						this.notify.error('Could not unsave the report.');
+						resolve();
+					}
 				});
 		});
 	}
@@ -172,8 +185,12 @@ export class ReportComponent implements OnChanges {
 		return new Promise<void>((resolve, _reject) => {
 			this.reportService
 				.saveReport(reportId)
-				.subscribe(_resp => {
-					resolve();
+				.subscribe({
+					next: _resp => resolve(),
+					error: () => {
+						this.notify.error('Could not save the report.');
+						resolve();
+					}
 				});
 		});
 	}
@@ -187,13 +204,15 @@ export class ReportComponent implements OnChanges {
 	}
 
 	getReport(reportName: string) {
-		this.reportService.getReport(reportName).subscribe(resp => {
-			console.log('report', resp);
-			// getReport() returns a loosely-typed Record; cast to the shape this component expects
-			this.report.set(resp as unknown as ReportViewData);
-			this.ngOnChanges();
-			// const iframe: HTMLIFrameElement = document.getElementById('reportFrame') as HTMLIFrameElement;
-			// iframe.srcdoc = resp
+		this.reportService.getReport(reportName).subscribe({
+			next: resp => {
+				// getReport() returns a loosely-typed Record; cast to the shape this component expects
+				this.report.set(resp as unknown as ReportViewData);
+				this.ngOnChanges();
+				// const iframe: HTMLIFrameElement = document.getElementById('reportFrame') as HTMLIFrameElement;
+				// iframe.srcdoc = resp
+			},
+			error: () => this.notify.error('Could not load the report.')
 		});
 	}
 

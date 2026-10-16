@@ -112,8 +112,9 @@ export class SaveBlockFormComponent implements OnInit {
 	ngOnInit() {
 		const id = localStorage.getItem('id');
 		if (!id) return;
-		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks.set(resp);
+		this.blockService.getBlocks(id).subscribe({
+			next: (resp) => this.blocks.set(resp),
+			error: () => this.notify.error('Could not load blocks')
 		});
 	}
 
@@ -209,18 +210,20 @@ export class SaveBlockFormComponent implements OnInit {
 			this.block.source = localStorage.getItem('source') ?? undefined;
 			this.block.repositoryId = localStorage.getItem('id') ?? undefined;
 			this.filterResavedReferences(this.block);
-			this.blockService.saveBlock(this.block).subscribe((resp) => {
-				console.log(resp);
-				if (!this.saveAsSingleSteps){
-					// Backend's insert response returns { insertedId }, not a full Block — block.service's
-					// return type doesn't reflect this, so we cast locally rather than weaken it to `any`
-					this.block._id = (resp as unknown as { insertedId: string }).insertedId;
-					this.blockService.convertToReferenceEmitter(this.block);
-					this.saveAsSingleSteps = (!this.saveAsSingleSteps);
-				}
-				this.updateBlocksEventEmitter();
-				this.saveAsSingleSteps = undefined;
-				this.notify.success('successfully saved', 'Block');
+			this.blockService.saveBlock(this.block).subscribe({
+				next: (resp) => {
+					if (!this.saveAsSingleSteps){
+						// Backend's insert response returns { insertedId }, not a full Block — block.service's
+						// return type doesn't reflect this, so we cast locally rather than weaken it to `any`
+						this.block._id = (resp as unknown as { insertedId: string }).insertedId;
+						this.blockService.convertToReferenceEmitter(this.block);
+						this.saveAsSingleSteps = (!this.saveAsSingleSteps);
+					}
+					this.updateBlocksEventEmitter();
+					this.saveAsSingleSteps = undefined;
+					this.notify.success('successfully saved', 'Block');
+				},
+				error: () => this.notify.error('Could not save block')
 			});
 			this.modalReference.close();
 		}

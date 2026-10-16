@@ -116,8 +116,9 @@ export class AddBlockFormComponent implements OnInit {
 	ngOnInit() {
 		const id = localStorage.getItem('id');
 		if (!id) return;
-		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks.set(resp);
+		this.blockService.getBlocks(id).subscribe({
+			next: (resp) => this.blocks.set(resp),
+			error: () => this.notify.error('Could not load blocks')
 		});
 	}
 
@@ -146,8 +147,9 @@ export class AddBlockFormComponent implements OnInit {
      * @param repoId id of the repository / project
      */
 	getAllBlocks(repoId: string) {
-		this.blockService.getBlocks(repoId).subscribe((resp) => {
-			this.blocks.set(resp);
+		this.blockService.getBlocks(repoId).subscribe({
+			next: (resp) => this.blocks.set(resp),
+			error: () => this.notify.error('Could not load blocks')
 		});
 	}
 
@@ -195,17 +197,19 @@ export class AddBlockFormComponent implements OnInit {
 		if (this.blocks().find(x => x === this.selectedBlock))
 			this.blockService
 				.deleteBlock(block._id!)
-				.subscribe((resp) => {
-					if (block.usedAsReference)
-						this.blockService.deleteReferenceEmitter(block);
+				.subscribe({
+					next: (_resp) => {
+						if (block.usedAsReference)
+							this.blockService.deleteReferenceEmitter(block);
 
-					this.blocks.update(b => b.filter(x => x !== this.selectedBlock));
-					this.stepList = [];
-					this.selectedBlock = undefined!;
-					console.log(resp);
-					this.updateBlocksEventEmitter();
-					this.notify.error('', 'Block deleted');
-				}); 
+						this.blocks.update(b => b.filter(x => x !== this.selectedBlock));
+						this.stepList = [];
+						this.selectedBlock = undefined!;
+						this.updateBlocksEventEmitter();
+						this.notify.success('', 'Block deleted');
+					},
+					error: () => this.notify.error('Could not delete block')
+				});
       
 	}
 	/**
@@ -283,12 +287,15 @@ export class AddBlockFormComponent implements OnInit {
 				this.selectedBlock.name = this.newBlockName.trim();    
 				this.blockService
 					.updateBlock(this.selectedBlock)
-					.subscribe(_ => {
-						if (this.selectedBlock.usedAsReference)
-							this.blockService.updateNameRefEmitter(this.selectedBlock);
-            
-						this.updateBlocksEventEmitter();
-						this.notify.success('successfully saved', 'Block');
+					.subscribe({
+						next: _ => {
+							if (this.selectedBlock.usedAsReference)
+								this.blockService.updateNameRefEmitter(this.selectedBlock);
+
+							this.updateBlocksEventEmitter();
+							this.notify.success('successfully saved', 'Block');
+						},
+						error: () => this.notify.error('Could not rename block')
 					});
 			}
 			this.blockSaved = true;

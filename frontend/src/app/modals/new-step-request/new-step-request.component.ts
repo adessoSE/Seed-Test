@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/
 import { UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from '../../../app/Services/api.service';
+import { NotificationService } from '../../../app/Services/notification.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -16,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class NewStepRequestComponent {
 	private modalService = inject(NgbModal);
 	apiService = inject(ApiService);
+	notify = inject(NotificationService);
 
 
 	modalReference!: NgbModalRef;
@@ -68,9 +70,8 @@ export class NewStepRequestComponent {
 				'ToDo'
 			]
 		};
-		console.log(obj.title, obj.body);
-		this.apiService.submitGithub(obj).subscribe((resp) => {
-			console.log(resp);
+		this.apiService.submitGithub(obj).subscribe({
+			error: () => this.notify.error('Could not submit step request')
 		});
 		this.modalReference.close();
 	}

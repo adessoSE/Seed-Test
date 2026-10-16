@@ -12,6 +12,7 @@ import { BaseEditorComponent } from '../base-editor/base-editor.component';
 import { Scenario } from '@seed-test/shared/models/Scenario';
 import { Story } from '@seed-test/shared/models/Story';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { throwError } from 'rxjs';
 
 
 const scenarios:Scenario[] = [{scenario_id: 2, name: 'my first scenario', stepDefinitions: {'when':[{'_id':'5dce728851e70f2894a170b4','id': 6, 'stepType':'when', 'type' :'HoverOverAndSelect', 'pre':'I hover over the element', 'mid':'and select the option','values':['',''], 'post':'', 'isExample':[]}], 'given':[{'_id':'5dce728851e70f2894a170b4','id': 6, 'stepType':'when', 'type' :'HoverOverAndSelect', 'pre':'I hover over the element', 'mid':'and select the option','values':['',''], 'post':'', 'isExample':[]}],'then':[], 'example': []},
@@ -256,6 +257,19 @@ describe('ScenarioEditorComponent', () => {
 			TestBed.inject(ScenarioService).renameScenarioEmit('Same name');
 			TestBed.flushEffects();
 			expect(renameScenario).toHaveBeenCalledTimes(2);
+		});
+	});
+
+	describe('behavioral: save errors', () => {
+		afterEach(() => {
+			vi.restoreAllMocks();
+		});
+
+		it('notifies the user when saving the scenario fails', () => {
+			vi.spyOn(TestBed.inject(ScenarioService), 'updateScenario').mockReturnValue(throwError(() => new Error('save failed')));
+			const notifyError = vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+			component.updateScenario();
+			expect(notifyError).toHaveBeenCalledWith('Could not save scenario', 'Scenario');
 		});
 	});
 });

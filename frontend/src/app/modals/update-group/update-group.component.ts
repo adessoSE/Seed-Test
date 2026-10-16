@@ -7,6 +7,7 @@ import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContaine
 import { Story } from '@seed-test/shared/models/Story';
 import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -23,6 +24,7 @@ export class UpdateGroupComponent {
 	private modalService = inject(NgbModal);
 	storyService = inject(StoryService);
 	groupService = inject(GroupService);
+	notify = inject(NotificationService);
 
 
 	readonly updateGroupModal = viewChild.required<UpdateGroupComponent>('updateGroupModal');
@@ -72,9 +74,12 @@ export class UpdateGroupComponent {
 		const _id = localStorage.getItem('id') ?? undefined;
 		const source = localStorage.getItem('source') ?? '';
 		const repositoryContainer: RepositoryContainer = {repoName, source, _id};
-		this.storyService.getStories(repositoryContainer).subscribe(res => {
-			this.stories = res;
-			this.filteredStories.set(new MatTableDataSource(res));
+		this.storyService.getStories(repositoryContainer).subscribe({
+			next: res => {
+				this.stories = res;
+				this.filteredStories.set(new MatTableDataSource(res));
+			},
+			error: () => this.notify.error('Could not load stories')
 		});
 		this.groupId = group._id!;
 		this.groupTitle = group.name;
@@ -133,7 +138,6 @@ export class UpdateGroupComponent {
 	}
 
 	updateGroup(form: NgForm) {
-		console.log('selectedStories:', this.selectedStories);
 		const repoName = localStorage.getItem('repository') ?? '';
 		const _id = localStorage.getItem('id') ?? undefined;
 		const source = localStorage.getItem('source') ?? '';

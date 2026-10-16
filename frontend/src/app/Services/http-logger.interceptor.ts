@@ -10,9 +10,6 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
 	private logger = inject(NGXLogger);
 	private notification = inject(NotificationService);
 
-	constructor() {
-		console.log('constructor http interceptor');
-	}
 	intercept(
 		req: HttpRequest<unknown>,
 		next: HttpHandler

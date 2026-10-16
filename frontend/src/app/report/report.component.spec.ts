@@ -6,7 +6,8 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { ReportComponent } from './report.component';
 import { ReportService } from '../Services/report.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { NotificationService } from '../Services/notification.service';
 
 describe('ReportComponent', () => {
 	let component: ReportComponent;
@@ -106,6 +107,16 @@ describe('ReportComponent', () => {
 	});
 
 	describe('behavioral: error handling - report service failure', () => {
+		it('shows an error toast when getReport fails', () => {
+			const notify = TestBed.inject(NotificationService);
+			const error = vi.spyOn(notify, 'error');
+			vi.spyOn(reportService, 'getReport').mockReturnValue(throwError(() => new Error('not found')));
+
+			component.getReport('missing-report');
+
+			expect(error).toHaveBeenCalledWith('Could not load the report.');
+		});
+
 		it('should survive when ngOnChanges encounters a service error', () => {
 			// Component does not catch subscription errors — this test verifies it
 			// at least doesn't throw synchronously when setting up the subscription

@@ -259,7 +259,6 @@ export class StoryService {
 	public goToTicket(storyId: string, repository: RepositoryContainer) {
 		if (repository.source === 'github') {
 			const AUTHORIZE_URL = 'https://github.com/' + repository.repoName + '/issues/';
-			console.log('AUTHORIZE_UR', AUTHORIZE_URL);
 			const s = `${AUTHORIZE_URL}${storyId}`;
 			return window.open(s);
 		} else if (repository.source === 'jira') {
@@ -290,7 +289,6 @@ export class StoryService {
 			headers: headers
 		};
 
-		console.log('Wir schicken KI-Anfrage ans Backend! (REMOVE)');
 		return this.http.post<AiGenerationResponse>(url, { aiConfig }, options);
 	}
 

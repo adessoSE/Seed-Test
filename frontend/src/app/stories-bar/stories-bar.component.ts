@@ -417,9 +417,12 @@ export class StoriesBarComponent implements OnChanges {
 	constructor() {
 		const repoId = localStorage.getItem('id');
 		if (!repoId) return;
-		this.groupService.getGroups(repoId).subscribe(groups => {
-			this.groups.set(groups);
-			this.liGroupList.set(new Array(groups.length).fill(''));
+		this.groupService.getGroups(repoId).subscribe({
+			next: (groups) => {
+				this.groups.set(groups);
+				this.liGroupList.set(new Array(groups.length).fill(''));
+			},
+			error: () => this.notify.error('Could not load groups.')
 		});
 
 	}
@@ -569,9 +572,6 @@ export class StoriesBarComponent implements OnChanges {
 										if (selectedExecutions && selectedExecutions.includes(testRun.testRunId))
 											this.xrayService.sendXrayStatus(testRun.testRunId, testRun.testRunStepId, String(scenario.status))
 												.subscribe({
-													next: () => {
-														console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, ' and Test Execution:', testRun.testExecKey);
-													},
 													error: (error) => {
 														console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
 													}
@@ -707,10 +707,13 @@ export class StoriesBarComponent implements OnChanges {
 		const story = this.selectedStory();
 		// A scenario can only be added to an already-persisted story, so _id is guaranteed here
 		this.scenarioService.addScenario(story!._id!, scenarioName)
-			.subscribe((resp: Scenario) => {
-				this.selectScenario(resp);
-				story!.scenarios.push(resp);
-				this.notify.info('Successfully added', 'Scenario');
+			.subscribe({
+				next: (resp: Scenario) => {
+					this.selectScenario(resp);
+					story!.scenarios.push(resp);
+					this.notify.info('Successfully added', 'Scenario');
+				},
+				error: () => this.notify.error('Could not add scenario.')
 			});
 	}
 
@@ -758,14 +761,18 @@ export class StoriesBarComponent implements OnChanges {
 		moveItemInArray(arr, event.previousIndex, event.currentIndex);
 		this.renumberCustomLocal(arr);
 		this.stories.set(arr);
-		this.storyService.updateStoryList(repo_id, arr.map((s: Story) => s._id)).subscribe(_ => { });
+		this.storyService.updateStoryList(repo_id, arr.map((s: Story) => s._id)).subscribe({
+			error: () => this.notify.error('Could not save story order.')
+		});
 	}
 
 	dropScenario(event: CdkDragDrop<string[]>, s: Story) {
 		const stories = this.stories();
 		const index = stories.findIndex(o => o._id === s._id);
 		moveItemInArray(stories[index].scenarios, event.previousIndex, event.currentIndex);
-		this.scenarioService.updateScenarioList(stories[index]._id!, stories[index].scenarios).subscribe(_ => { });
+		this.scenarioService.updateScenarioList(stories[index]._id!, stories[index].scenarios).subscribe({
+			error: () => this.notify.error('Could not save scenario order.')
+		});
 	}
 
 	dropGroup(event: CdkDragDrop<string[]>) {
@@ -775,7 +782,9 @@ export class StoriesBarComponent implements OnChanges {
 		this.groups.set(arr);
 		// Deep copy to avoid mutating the original; member_stories already contains string IDs
 		const pass_arr = JSON.parse(JSON.stringify(arr));
-		this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe(_ => { });
+		this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe({
+			error: () => this.notify.error('Could not save group order.')
+		});
 	}
 
 	dropGroupStory(event: CdkDragDrop<string[]>, group: Group) {
@@ -784,7 +793,9 @@ export class StoriesBarComponent implements OnChanges {
 		const index = groups.findIndex(o => o._id === group._id);
 		// Reorder story IDs within the group
 		moveItemInArray(groups[index].member_stories, event.previousIndex, event.currentIndex);
-		this.groupService.updateGroup(repo_id, group._id!, groups[index]).subscribe(_ => { });
+		this.groupService.updateGroup(repo_id, group._id!, groups[index]).subscribe({
+			error: () => this.notify.error('Could not save group.')
+		});
 	}
 
 	/**
@@ -798,12 +809,16 @@ export class StoriesBarComponent implements OnChanges {
 			{
 				this.storyService
 					.deleteStory(repository, story!._id!)
-					.subscribe(_ => {
-						this.storyDeleted();
-						this.groupService.getGroups(localStorage.getItem('id')!).subscribe(groups => {
-							this.groups.set(groups);
-						});
-						this.notify.error('', 'Story deleted');
+					.subscribe({
+						next: _ => {
+							this.storyDeleted();
+							this.groupService.getGroups(localStorage.getItem('id')!).subscribe({
+								next: groups => this.groups.set(groups),
+								error: () => this.notify.error('Could not load groups.')
+							});
+							this.notify.success('', 'Story deleted');
+						},
+						error: () => this.notify.error('Could not delete story.')
 					});
 			}
 		}

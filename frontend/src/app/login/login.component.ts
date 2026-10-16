@@ -9,6 +9,7 @@ import { ThemingService } from '../Services/theming.service';
 import { OwlOptions, CarouselModule } from 'ngx-owl-carousel-o';
 import { LoginService } from '../Services/login.service';
 import { ProjectService } from '../Services/project.service';
+import { NotificationService } from '../Services/notification.service';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -30,6 +31,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	private cdr = inject(ChangeDetectorRef);
 	themeService = inject(ThemingService);
 	projectServise = inject(ProjectService);
+	private notify = inject(NotificationService);
 
 
 	/**
@@ -63,17 +65,17 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	/**
      * Tutorial slides
      */
-	slides = [{'id':'0','image': '/assets//slide0.png'},
-		{'id':'1','image': '/assets//slide01.PNG','caption':'Login to Seed-Test via GitHub or create a new Seed-Test Account by registering.\nAlternatively you can try Seed-Test without an account, by trying our Demo.'},
-		{'id':'2','image': '/assets//slide03.PNG','caption':'Else you can just register yourself using your E-Mail.'},
-		{'id':'3','image': '/assets//slide04.PNG','caption':'After the first Login of your Seed-Test account, you can create your own custom Projects \nor connect an existing GitHub Account or Jira Server.'},
-		{'id':'4','image': '/assets//slide05.PNG','caption':'Name your custom Project and save it.'},
-		{'id':'5','image': '/assets//slide06.PNG','caption':'Select your newly created Project to continue.'},
-		{'id':'6','image': '/assets//slide07.png','caption':'With a new Custom Project you can create your own stories.\nIf you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.'},
-		{'id':'7','image': '/assets//slide08.PNG','caption':'Enter a name and description for your new story.'},
-		{'id':'8','image': '/assets//slide09.PNG','caption':'Now you can add steps to create your first Test!\nUsually you want to start by using the Given-Step: "Website".'},
-		{'id':'9','image': '/assets//slide10.PNG','caption':'Run your Test by clickling on "Run Scenario".'},
-		{'id':'10','image': '/assets//slide11.png','caption':'For help and further information click on Help and check out our Tutorial.'}];
+	slides = [{'id':'0','image': '/assets/slide0.png'},
+		{'id':'1','image': '/assets/slide01.PNG','caption':'Login to Seed-Test via GitHub or create a new Seed-Test Account by registering.\nAlternatively you can try Seed-Test without an account, by trying our Demo.'},
+		{'id':'2','image': '/assets/slide03.PNG','caption':'Else you can just register yourself using your E-Mail.'},
+		{'id':'3','image': '/assets/slide04.PNG','caption':'After the first Login of your Seed-Test account, you can create your own custom Projects \nor connect an existing GitHub Account or Jira Server.'},
+		{'id':'4','image': '/assets/slide05.PNG','caption':'Name your custom Project and save it.'},
+		{'id':'5','image': '/assets/slide06.PNG','caption':'Select your newly created Project to continue.'},
+		{'id':'6','image': '/assets/slide07.png','caption':'With a new Custom Project you can create your own stories.\nIf you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.'},
+		{'id':'7','image': '/assets/slide08.PNG','caption':'Enter a name and description for your new story.'},
+		{'id':'8','image': '/assets/slide09.PNG','caption':'Now you can add steps to create your first Test!\nUsually you want to start by using the Given-Step: "Website".'},
+		{'id':'9','image': '/assets/slide10.PNG','caption':'Run your Test by clickling on "Run Scenario".'},
+		{'id':'10','image': '/assets/slide11.png','caption':'For help and further information click on Help and check out our Tutorial.'}];
 
 	customOptions: OwlOptions = {
 		loop: true,
@@ -135,7 +137,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
 						// the initiate step (token proves ownership — no client-controlled userId).
 						this.loginService.mergeAccountGithub(mergeToken).subscribe({
 							next: () => this.getRepositories(),
-							error: () => this.getRepositories()
+							// The merge is optional: tell the user it failed, but still let them into the app
+							error: () => {
+								this.notify.error('Could not link your GitHub account');
+								this.getRepositories();
+							}
 						});
 					else
 						this.getRepositories();
@@ -191,8 +197,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
 		};
 		// CASE 1: Login succeeded — loginUser resolved a real user (has _id).
 		// Only then may we mark the user as logged in and fetch repositories.
-		// CASE 2: Login failed — loginUser emits null (login.service catches the error and
-		// returns of(null)), so we must NOT set login=true. Doing so would make the app enter
+		// CASE 2: Login failed — loginUser errors (login.service rethrows the rejected login),
+		// so we must NOT set login=true. Doing so would make the app enter
 		// the logged-in shell without a valid session and loop 401 requests until the backend
 		// rate limiter blocks everything (see bootstrap effects in app.component/parent).
 		this.loginService.loginUser(user).subscribe({

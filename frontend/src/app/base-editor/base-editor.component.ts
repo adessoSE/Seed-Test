@@ -45,6 +45,14 @@ interface StepDragData {
 	source: BaseEditorComponent;
 }
 
+/**
+ * Type guard for addStep targets: only a Story carries a `background` block, so its presence
+ * tells a Story apart from a Scenario without relying on the templateName string.
+ */
+function isStory(target: Scenario | Story): target is Story {
+	return 'background' in target;
+}
+
 @Component({
 	selector: 'app-base-editor',
 	templateUrl: './base-editor.component.html',
@@ -391,8 +399,12 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 
 	ngOnInit(): void {
 		const id = localStorage.getItem('id') ?? '';
-		this.blockService.getBlocks(id).subscribe((resp) => {
-			this.blocks.set(resp);
+		this.blockService.getBlocks(id).subscribe({
+			next: (resp) => {
+				this.blocks.set(resp);
+			},
+			// Without an error path the editor silently shows no blocks when the backend is unreachable
+			error: () => this.notify.error('Could not load blocks')
 		});
 	}
 
@@ -570,16 +582,15 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
     * @param templateName
     * @param step_idx Optional argument
     */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- receives Scenario or Story depending on templateName; structural overlap prevents clean typing
-	async addStep(step: StepType, selectedScenario: any, templateName: string, step_idx?: number) {
+	// Receives a Scenario for scenario/example steps and a Story for background steps
+	async addStep(step: StepType, selectedScenario: Scenario | Story, templateName: string, step_idx?: number) {
 		let lastEl: number;
 		let newStep: StepType | undefined;
-		const stepLocation = templateName !== 'background' ? selectedScenario.stepDefinitions : selectedScenario.background.stepDefinitions;
+		const stepLocation = isStory(selectedScenario) ? selectedScenario.background.stepDefinitions : selectedScenario.stepDefinitions;
 		if (step.type == 'Upload File')
 			try {
 				const result = await this.fileExplorerModal().openFileExplorerModal();
 				if (!result) return;
-				console.log('Upload modal return: ', result);
 				const preSelectValues = [result.filename];
 				newStep = this.createNewStep(step, stepLocation);
 				preSelectValues.forEach((value: string, index: number) => {
@@ -593,7 +604,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		else 
 			newStep = this.createNewStep(step, stepLocation);
     
-		console.log('newstep ',newStep);
 		if (!newStep) return;
 
 		if (newStep['type'] === this.newStepName)
@@ -601,6 +611,8 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		else {
 			switch (newStep.stepType) {
 				case 'given':
+					// Story targets have no given block, so only Scenario targets get the step
+					if (isStory(selectedScenario)) break;
 					selectedScenario.stepDefinitions.given.push(newStep);
 					lastEl = selectedScenario.stepDefinitions.given.length - 1;
 					this.lastToFocus =
@@ -609,6 +621,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				case 'when':
 					switch (templateName) {
 						case 'scenario':
+							if (isStory(selectedScenario)) break;
 							selectedScenario.stepDefinitions.when.push(newStep);
 							lastEl = selectedScenario.stepDefinitions.when.length - 1;
 							this.lastToFocus =
@@ -616,6 +629,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 							break;
 
 						case 'background':
+							if (!isStory(selectedScenario)) break;
 							selectedScenario.background.stepDefinitions.when.push(newStep);
 							lastEl =
 								selectedScenario.background.stepDefinitions.when.length - 1;
@@ -625,14 +639,12 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 					break;
 
 				case 'then':
+					if (isStory(selectedScenario)) break;
 					selectedScenario.stepDefinitions.then.push(newStep);
 					lastEl = selectedScenario.stepDefinitions.then.length - 1;
 					this.lastToFocus =
 						templateName + '_' + step_idx + '_input_pre_' + lastEl;
 					break;
-					// case "example":
-					//   this.addExampleStep(step);
-					//   break;
 				default:
 					break;
 			}
@@ -650,8 +662,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 			step,
 			this.selectedBlock()!.stepDefinitions
 		);
-		console.log('New created step');
-		console.log(newStep);
 		switch (newStep.stepType) {
 			case 'given':
 				if (position) 
@@ -675,8 +685,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
         
 				break;
 		}
-		console.log('Current block');
-		console.log(this.selectedBlock());
 	}
 
 	/**
@@ -729,8 +737,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				return this.buildID(stepsRecord.when);
 			case 'then':
 				return this.buildID(stepsRecord.then);
-				// case "example":
-				//   return this.buildID(stepDefs.example);
 			default:
 				return 0;
 		}
@@ -1243,20 +1249,23 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- receives StepDefinition, StepDefinitionBackground, or MultipleScenario[]
-	checkOnIteration(stepsList: any, checkValue: boolean) {
-		//background & scenario
-		for (const prop in stepsList) 
-			if (this.templateName() !== 'example' && prop !== 'example') 
-				for (let i = stepsList[prop].length - 1; i >= 0; i--) 
-					this.checkStep(stepsList[prop][i], checkValue);
-        
-			else 
-			// example
-				for (let i = stepsList.length - 1; i > 0; i--) 
-					this.checkStep(stepsList[i], checkValue);
-      
-    
+	checkOnIteration(stepsList: StepDefinition | StepDefinitionBackground | MultipleScenario[] | undefined, checkValue: boolean) {
+		if (!stepsList) return;
+		// CASE 1: example table — rows are a plain array and row 0 is the header. Iterating the
+		// keys of this array (for-in) would repeat the row loop once per key, so rows are walked once here
+		if (this.templateName() === 'example') {
+			const examples = stepsList as MultipleScenario[];
+			for (let i = examples.length - 1; i > 0; i--)
+				this.checkStep(examples[i], checkValue);
+			return;
+		}
+		// CASE 2: background & scenario — named step lists, each walked once
+		const stepsRecord = stepsList as Partial<Record<'given' | 'when' | 'then', StepType[]>>;
+		for (const key of ['given', 'when', 'then'] as const) {
+			const steps = stepsRecord[key] ?? [];
+			for (let i = steps.length - 1; i >= 0; i--)
+				this.checkStep(steps[i], checkValue);
+		}
 	}
 
 	/**
@@ -1546,15 +1555,19 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		//    this.selectedScenario.multipleScenarios[index + 1].deactivated = false
 		//   });
 		// });
-		this.selectedScenario.stepDefinitions.given.forEach((_value: StepType, index: number) => {
-			_value.values.forEach((_val: string, i: number) => this.selectedScenario.stepDefinitions.given[index].isExample![i] = false);
-		});
-		this.selectedScenario.stepDefinitions.when.forEach((_value: StepType, index: number) => {
-			_value.values.forEach((_val: string, i: number) => this.selectedScenario.stepDefinitions.when[index].isExample![i] = false);
-		});
-		this.selectedScenario.stepDefinitions.then.forEach((_value: StepType, index: number) => {
-			_value.values.forEach((_val: string, i: number) => this.selectedScenario.stepDefinitions.then[index].isExample![i] = false);
-		});
+		this.setIsExampleFlags(false);
+	}
+
+	/**
+	 * Sets the isExample flag of every value in the selected scenario's given/when/then steps.
+	 * @param value false marks the values as plain (non-example) values; undefined clears the flag
+	 */
+	private setIsExampleFlags(value: boolean | undefined) {
+		// isExample typed as boolean[] but runtime needs undefined assignment
+		const steps = this.selectedScenario.stepDefinitions;
+		for (const list of [steps.given, steps.when, steps.then])
+			for (const step of list)
+				step.values.forEach((_val: string, i: number) => { (step.isExample as (boolean | undefined)[])[i] = value; });
 	}
 
 	/**
@@ -1562,18 +1575,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    *
    */
 	deleteRows() {
-		this.selectedScenario.stepDefinitions.given.forEach((_value: StepType, index: number) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
-			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.given[index].isExample as any[])[i] = undefined; });
-		});
-		this.selectedScenario.stepDefinitions.when.forEach((_value: StepType, index: number) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
-			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.when[index].isExample as any[])[i] = undefined; });
-		});
-		this.selectedScenario.stepDefinitions.then.forEach((_value: StepType, index: number) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
-			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.then[index].isExample as any[])[i] = undefined; });
-		});
+		this.setIsExampleFlags(undefined);
 	}
 	/**
    * Deactivates all checked step
@@ -1614,8 +1616,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				break;
 			case 'example':
 				{
-					if (!this.allDeactivated) 
-						console.log('allDeactivated');
           
 					const examples = this.selectedScenario.multipleScenarios!;
 					const totalSteps = Object.keys(examples).length;
@@ -1627,10 +1627,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 					});
 					if (this.activatedSteps === totalSteps - 1) 
 						this.deactivateAllExampleSteps();
-					else {
-						console.log('not all Deactivated');
-						this.reactivateExampleSteps();
-					}
+					else this.reactivateExampleSteps();
 				}
 				//this.selectedScenario.saved = false;
 				this.markUnsaved();
@@ -1655,18 +1652,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	}
 
 	multipleScenariosDeactivated() {
-		this.selectedScenario.stepDefinitions.given.forEach((_value: StepType, index: number) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
-			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.given[index].isExample as any[])[i] = undefined; });
-		});
-		this.selectedScenario.stepDefinitions.when.forEach((_value: StepType, index: number) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
-			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.when[index].isExample as any[])[i] = undefined; });
-		});
-		this.selectedScenario.stepDefinitions.then.forEach((_value: StepType, index: number) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- isExample typed as boolean[] but runtime needs undefined assignment
-			_value.values.forEach((_val: string, i: number) => { (this.selectedScenario.stepDefinitions.then[index].isExample as any[])[i] = undefined; });
-		});
+		this.setIsExampleFlags(undefined);
 	}
 
 	deactivateOnIteration(stepsList: StepDefinition | StepDefinitionBackground) {
@@ -1823,7 +1809,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				const exampleBlock = {
 					multipleScenarios: block
 				};
-				console.log('exampleBlock in copyBlock', exampleBlock);
 				sessionStorage.setItem('copiedExampleBlock', JSON.stringify(exampleBlock));
 				this.notify.success('successfully copied', 'Examples');
 				break;
@@ -2336,7 +2321,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @param step
    */
 	fillExamples(cutInput: string) {
-		console.log('fillExamples', cutInput);
 		if (this.templateName() == 'example') {
 			this.selectedScenario.multipleScenarios![0].values.push(cutInput);
 			// if the table has no rows add a row
@@ -2367,7 +2351,6 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    * @param step
    */
 	createFirstExample(cutInput: string) {
-		console.log('HAllo', this.templateName());
 		const multipleScenarios1: MultipleScenario = {
 			values: [cutInput]
 		};
@@ -2387,41 +2370,14 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 			table.classList.add('mat-mdc-elevation-z8');
 
 		// if (this.templateName() === 'scenario'){
-		this.selectedScenario.stepDefinitions.given.forEach((_value: StepType, index: number) => {
-			_value.values.forEach((_val: string, i: number) => this.selectedScenario.stepDefinitions.given[index].isExample![i] = false);
-		});
-
-		this.selectedScenario.stepDefinitions.when.forEach((_value: StepType, index: number) => {
-			_value.values.forEach((_val: string, i: number) => this.selectedScenario.stepDefinitions.when[index].isExample![i] = false);
-		});
-		this.selectedScenario.stepDefinitions.then.forEach((_value: StepType, index: number) => {
-			_value.values.forEach((_val: string, i: number) => this.selectedScenario.stepDefinitions.then[index].isExample![i] = false);
-		});
+		this.setIsExampleFlags(false);
 		// }
-	}
-
-	/**
-   * Adds an example step
-   * @param step
-   */
-	addExampleStep(step: StepType) {
-		console.log('addExampleStep');
-		const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- multipleScenarios typed as MultipleScenario[] but push receives StepType-derived newStep
-		(this.selectedScenario.multipleScenarios as any[])!.push(newStep);
-		const len = this.selectedScenario.multipleScenarios![0].values.length;
-		for (let j = 1; j < len; j++)
-			this.selectedScenario.multipleScenarios![this.selectedScenario.multipleScenarios!.length - 1].values.push('value');
-    
-		this.exampleService.updateExampleTableEmit();
-		this.markUnsaved();
 	}
 
 	/**
    * Add Value Row
    */
 	addExampleValueRow() {
-		console.log('selected scenario: ', this.selectedScenario.stepDefinitions);
 		const row = JSON.parse(
 			JSON.stringify(this.selectedScenario.multipleScenarios![0])
 		);

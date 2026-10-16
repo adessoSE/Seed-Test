@@ -50,7 +50,14 @@ export class RegistrationComponent implements OnInit {
 			localStorage.setItem('login', 'true');
 			this.notify.success('successfully registered', 'Registration');
 			const user = {email: form.value.email, password: form.value.password};
-			this.loginService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']));
+			this.loginService.loginUser(user).subscribe({
+				// loginUser emits null for an empty login response; that is not a session, so do not navigate
+				next: (loggedInUser) => {
+					if (loggedInUser) this.router.navigate(['/accountManagement']);
+					else this.notify.error('Could not log in after registration. Please log in manually.');
+				},
+				error: () => this.notify.error('Could not log in after registration. Please log in manually.')
+			});
 		} catch(err: unknown) {
 			const errDetail = (err as { error?: { details?: Array<{ path?: string; message?: string }> } })?.error?.details?.[0];
 			const message = errDetail?.path === 'email'

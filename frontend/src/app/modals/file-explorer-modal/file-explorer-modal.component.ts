@@ -4,6 +4,7 @@ import { FileElement } from '@seed-test/shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ThemingService } from '../../Services/theming.service';
+import { NotificationService } from '../../Services/notification.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
@@ -21,6 +22,7 @@ export class FileExplorerModalComponent implements OnInit {
 	private modalService = inject(NgbModal);
 	fileService = inject(ProjectService);
 	themeService = inject(ThemingService);
+	notify = inject(NotificationService);
 
 	public fileElements!: Observable<FileElement[]>;
 	modalReference!: NgbModalRef;
@@ -37,16 +39,20 @@ export class FileExplorerModalComponent implements OnInit {
 	ngOnInit() {
 		this.repoId = localStorage.getItem('id')!; // set before updateFileElementQuery
 		this.updateFileElementQuery();
-		this.fileElements.subscribe((file: FileElement[])=> {
-			this.allFiles.set(file);
-			this.searchFile();
+		this.fileElements.subscribe({
+			next: (file: FileElement[]) => {
+				this.allFiles.set(file);
+				this.searchFile();
+			},
+			error: () => this.notify.error('Could not load files')
 		});
 	}
 
 	openFileExplorerModal() {
 		this.modalReference = this.modalService.open(this.fileExplorerModal());
 		this.fileExlorerEmpty = this.allFiles().length > 0 ? false : true;
-		return this.modalReference.result.catch((reason)=> console.log('UploadFileModal dismissed: ', reason));
+		// Dismissing the modal rejects `result`; that is a normal close, so the rejection is swallowed here
+		return this.modalReference.result.catch(() => undefined);
 	}
 
 	updateFileElementQuery() {
@@ -65,9 +71,12 @@ export class FileExplorerModalComponent implements OnInit {
 	selectUploadFile(event: Event) {
 		const file: File = (event.target as HTMLInputElement).files!.item(0)!;
 		this.fileService.uploadFile(this.repoId, file)
-			.subscribe((_res: FileElement) => {
-				this.updateFileElementQuery();
-				this.selectedFile = null;
+			.subscribe({
+				next: (_res: FileElement) => {
+					this.updateFileElementQuery();
+					this.selectedFile = null;
+				},
+				error: () => this.notify.error('Could not upload file')
 			});
 	}
 
@@ -86,9 +95,11 @@ export class FileExplorerModalComponent implements OnInit {
 	}
 
 	deleteFile() {
-		console.log('delete: ', this.selectedFile);
-		this.fileService.deleteUploadedFile(this.repoId, this.selectedFile!._id!).subscribe(()=>{
-			this.updateFileElementQuery();
+		this.fileService.deleteUploadedFile(this.repoId, this.selectedFile!._id!).subscribe({
+			next: () => {
+				this.updateFileElementQuery();
+			},
+			error: () => this.notify.error('Could not delete file')
 		});
 		this.updateFileElementQuery();
 		this.selectedFile = null;

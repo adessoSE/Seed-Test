@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA, provideZonelessChangeDetection, APP_INITIALIZER } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, provideZonelessChangeDetection, APP_INITIALIZER, ApplicationRef, DoBootstrap } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ROUTES } from './routes/routes';
 import { AppComponent } from './app.component';
@@ -106,7 +106,9 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		LoggerModule.forRoot({
 			serverLoggingUrl: (localStorage.getItem('url_backend') ?? localStorage.getItem('log_url') ?? 'http://localhost:8080/api') + '/log',
 			level: NgxLoggerLevel.DEBUG,
-			serverLogLevel: NgxLoggerLevel.DEBUG
+			// Only errors reach the backend: DEBUG shipped every request/debug line to POST /api/log,
+			// which exceeds the server's 60/min logLimiter and produced 429s on scenario/modal pages.
+			serverLogLevel: NgxLoggerLevel.ERROR
 		}),
 		MatSnackBarModule,
 		MatSlideToggleModule,
@@ -193,7 +195,12 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		},
 		provideHttpClient(withXhr(), withInterceptorsFromDi())
 	],
-	bootstrap: [AppComponent],
 	schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class AppModule {}
+export class AppModule implements DoBootstrap {
+	// AppComponent is standalone, so it cannot go into @NgModule.bootstrap (throws NG6009 at startup).
+	// ngDoBootstrap is the NgModule hook for bootstrapping a standalone root component instead.
+	ngDoBootstrap(appRef: ApplicationRef): void {
+		appRef.bootstrap(AppComponent);
+	}
+}

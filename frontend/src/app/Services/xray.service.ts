@@ -36,7 +36,6 @@ export class XrayService {
 				if (selectedExecutions.includes(testRun.testRunId)) 
 					try {
 						await this.sendXrayStatus(testRun.testRunId, testRun.testRunStepId, status).toPromise();
-						console.log('XRay update successful for TestRunStepId:', testRun.testRunStepId, ' and Test Execution:', testRun.testExecKey);
 					} catch (error) {
 						console.error('Error while updating XRay status for TestRunStepId:', testRun.testRunStepId, error);
 					}

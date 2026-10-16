@@ -61,10 +61,7 @@ export class ScenarioService {
 	addScenario(storyID: string, scenarioTitle: string): Observable<Scenario> {
 		const body = { 'name': scenarioTitle };
 		return this.http
-			.post<Scenario>(this.apiService.apiServer + '/story/' + storyID, body, ApiService.getOptions())
-			.pipe(tap(resp => {
-				console.log('Add new scenario in story ' + storyID + '!', resp);
-			}));
+			.post<Scenario>(this.apiService.apiServer + '/story/' + storyID, body, ApiService.getOptions());
 	}
 	/**
   * Add the First Scenario
@@ -73,10 +70,7 @@ export class ScenarioService {
 */
 	public addFirstScenario(storyID: string): Observable<Scenario> {// not used ?
 		return this.http
-			.get<Scenario>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions())// route doesn't exist
-			.pipe(tap(resp => {
-				console.log('Add new scenario in story ' + storyID + '!', resp);
-			}));
+			.get<Scenario>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions());// route doesn't exist
 	}
 	/**
    * get's single Scenario
@@ -85,10 +79,7 @@ export class ScenarioService {
   */
 	getScenario(storyID: string, scenarioID: number): Observable<Scenario> {
 		return this.http
-			.get<Scenario>(this.apiService.apiServer + '/story/' + storyID + '/' + scenarioID, ApiService.getOptions())
-			.pipe(tap(resp => {
-				console.log('Get scenario in story ' + storyID + '!', resp);
-			}));
+			.get<Scenario>(this.apiService.apiServer + '/story/' + storyID + '/' + scenarioID, ApiService.getOptions());
 	}
 	/**
     * Updates the scenario
@@ -111,7 +102,6 @@ export class ScenarioService {
   */
 	deleteScenario(storyID: string, scenario: Scenario, xrayEnabled: boolean): Observable<Story> {
 		if (xrayEnabled) {
-			console.log('Xray enabled no 2: ' + xrayEnabled);
 			const headers = new HttpHeaders()
 				.set('x-xray-enabled', xrayEnabled.toString())
 				.set('x-test-key', scenario.testKey!.toString());

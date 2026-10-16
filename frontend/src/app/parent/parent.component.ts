@@ -168,19 +168,16 @@ export class ParentComponent implements OnInit {
 	/** Reads current route params and selects the matching story/scenario */
 	routing() {
 		const params = this.route.snapshot.paramMap;
-		console.log('routing() called, stories count:', this.stories()?.length, 'has story_id:', params.has('story_id'));
 		if (params.has('story_id')) {
 			const story_id = params.get('story_id');
 			const story = (this.stories() ?? []).find(o => o._id === story_id);
-			console.log('routing() found story:', story?._id, 'route param:', story_id);
-			if (!story) 
+			if (!story)
 				console.warn('routing() - Story NOT found for ID:', story_id, 'Available IDs:', (this.stories() ?? []).map(s => s._id).join(', '));
 			
 			this.selectedStory.set(story);
 			if (story && params.has('scenario_id')) {
 				const scenario_id = params.get('scenario_id');
 				const scenario = story.scenarios.find(o => o.scenario_id.toString() === scenario_id);
-				console.log('routing() found scenario:', scenario?.scenario_id);
 				if (scenario)
 					this.setSelectedScenario(scenario);
 				else

@@ -2,6 +2,7 @@
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@seed-test/shared/models/Block';
 import { BlockService } from 'src/app/Services/block.service';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { StepType } from '@seed-test/shared/models/StepType';
 import { ThemingService } from '../../Services/theming.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
@@ -19,6 +20,7 @@ export class EditBlockComponent {
 	private modalService = inject(NgbModal);
 	blockService = inject(BlockService);
 	themeService = inject(ThemingService);
+	notify = inject(NotificationService);
 
 
 	readonly editBlockModal = viewChild<TemplateRef<unknown>>('editBlockModal');
@@ -61,18 +63,14 @@ export class EditBlockComponent {
 	}
 
 	editBlockSubmit() {
-		console.log(this.selectedBlock());
-		this.blockService.editBlock(this.selectedBlock()).subscribe((resp) => {
-
-			console.log(resp);
-
-			this.updateBlocksEventEmitter();
-
+		this.blockService.editBlock(this.selectedBlock()).subscribe({
+			next: (_resp) => {
+				this.updateBlocksEventEmitter();
+			},
+			error: () => this.notify.error('Could not save block')
 		});
 
-		console.log('successfully subscirbed');
 		this.modalReference.close();
-		console.log('successfully closed');
 	}
 
 	updateBlocksEventEmitter() {
@@ -86,7 +84,6 @@ export class EditBlockComponent {
 	}
 
 	onClickSubmit() {
-		console.log('Go to editBlockSubmit function');
 		this.editBlockSubmit();
 	}
 }

@@ -7,6 +7,7 @@ import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContaine
 import { Story } from '@seed-test/shared/models/Story';
 import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -23,6 +24,7 @@ export class CreateNewGroupComponent {
 	private modalService = inject(NgbModal);
 	groupService = inject(GroupService);
 	storyService = inject(StoryService);
+	notify = inject(NotificationService);
 
 
 	readonly createNewGroupModal = viewChild.required<CreateNewGroupComponent>('createNewGroupModal');
@@ -66,9 +68,12 @@ export class CreateNewGroupComponent {
 		const _id = localStorage.getItem('id')!;
 		const source = localStorage.getItem('source')!;
 		const repositoryContainer: RepositoryContainer = {repoName, source, _id};
-		this.storyService.getStories(repositoryContainer).subscribe(res => {
-			this.stories = res;
-			this.filteredStories.set(new MatTableDataSource(res));
+		this.storyService.getStories(repositoryContainer).subscribe({
+			next: res => {
+				this.stories = res;
+				this.filteredStories.set(new MatTableDataSource(res));
+			},
+			error: () => this.notify.error('Could not load stories')
 		});
 		this.modalReference = this.modalService.open(this.createNewGroupModal(), {ariaLabelledBy: 'modal-basic-title'});
 	}

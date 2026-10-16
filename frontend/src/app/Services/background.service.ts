@@ -60,10 +60,7 @@ export class BackgroundService {
   */
 	public updateBackground(storyID: string, background: Background): Observable<Background> {
 		return this.http
-			.put<Background>(this.apiService.apiServer + '/background/' + storyID , background, ApiService.getOptions())
-			.pipe(tap(_ => {
-				console.log('Update background for story ' + storyID);
-			}));
+			.put<Background>(this.apiService.apiServer + '/background/' + storyID , background, ApiService.getOptions());
 	}
 	/**
     * Checking the same name of the background

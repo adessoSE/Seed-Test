@@ -58,19 +58,25 @@ export class RenameBackgroundComponent{
 		this.backgroundService.renameBackgroundEmit(title);  
 		if (this.blockToRename && (this.storiesWithBlock && this.storiesWithBlock.length == 1)){
 			this.blockToRename.name = title;
-			this.blockService.updateBlock(this.blockToRename).subscribe(_=>{
-				this.updateBlocksEventEmitter();
+			this.blockService.updateBlock(this.blockToRename).subscribe({
+				next: _=>{
+					this.updateBlocksEventEmitter();
+				},
+				error: () => this.notify.error('Could not rename block')
 			});
 		}
 		this.backgroundService
 			.updateBackground(this.story._id!, this.story.background)
-			.subscribe(_ => {
-				this.backgroundService.backgroundChangedEmitter();
-				this.notify.success('successfully saved', 'Background');
-				if (this.saveBackgroundAndRun) {
-					this.apiService.runSaveOption('saveScenario');
-					this.saveBackgroundAndRun = false;
-				}
+			.subscribe({
+				next: _ => {
+					this.backgroundService.backgroundChangedEmitter();
+					this.notify.success('successfully saved', 'Background');
+					if (this.saveBackgroundAndRun) {
+						this.apiService.runSaveOption('saveScenario');
+						this.saveBackgroundAndRun = false;
+					}
+				},
+				error: () => this.notify.error('Could not save background')
 			});
 		this.backgroundService.backgroundReplaced = false;
 		this.modalReference.close();

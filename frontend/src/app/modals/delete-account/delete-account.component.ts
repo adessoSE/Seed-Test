@@ -46,9 +46,12 @@ export class DeleteAccountComponent {
 	deleteAccount(form: NgForm) {
 		const insertedEmail = form.value.insertedEmail;
 		if (insertedEmail !== undefined && insertedEmail === this.email) {
-			this.managmentService.deleteUser().subscribe(_resp => {
-				this.notify.info('', 'User Deleted');
-				this.loginService.logoutEmitter();
+			this.managmentService.deleteUser().subscribe({
+				next: _resp => {
+					this.notify.info('', 'User Deleted');
+					this.loginService.logoutEmitter();
+				},
+				error: () => this.notify.error('Could not delete account')
 			});
 			this.modalReference.close();
 		} else {

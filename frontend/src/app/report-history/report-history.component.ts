@@ -9,6 +9,7 @@ import {ScenarioReport} from '@seed-test/shared/models/ScenarioReport';
 import {GroupReport} from '@seed-test/shared/models/GroupReport';
 import { ReportService } from '../Services/report.service';
 import { StoryService } from '../Services/story.service';
+import { NotificationService } from '../Services/notification.service';
 import { RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -34,6 +35,7 @@ export class ReportHistoryComponent {
 	private themeService = inject(ThemingService);
 	reportService = inject(ReportService);
 	storyService = inject(StoryService);
+	private notify = inject(NotificationService);
 
 	/**
 	 * Currently selected story
@@ -97,8 +99,9 @@ export class ReportHistoryComponent {
 	 */
 	getReports() {
 		this.reports.set(null as unknown as ReportContainer);
-		this.reportService.getReportHistory(this.selectedStory._id!).subscribe(resp => {
-			this.reports.set(resp);
+		this.reportService.getReportHistory(this.selectedStory._id!).subscribe({
+			next: resp => this.reports.set(resp),
+			error: () => this.notify.error('Could not load the report history.')
 		});
 	}
 
@@ -146,12 +149,15 @@ export class ReportHistoryComponent {
 		this.reportService
 			// Deletion always targets a persisted report, so _id is guaranteed to be set here
 			.deleteReport(report._id!)
-			.subscribe(_resp => {
-				const newReports: ReportContainer = JSON.parse(JSON.stringify(this.reports()));
-				newReports.storyReports = newReports.storyReports.filter(rep => rep._id !== report._id);
-				newReports.scenarioReports = newReports.scenarioReports.filter(rep => rep._id !== report._id);
-				newReports.groupReports = newReports.groupReports.filter(rep => rep._id !== report._id);
-				this.reports.set(newReports);
+			.subscribe({
+				next: _resp => {
+					const newReports: ReportContainer = JSON.parse(JSON.stringify(this.reports()));
+					newReports.storyReports = newReports.storyReports.filter(rep => rep._id !== report._id);
+					newReports.scenarioReports = newReports.scenarioReports.filter(rep => rep._id !== report._id);
+					newReports.groupReports = newReports.groupReports.filter(rep => rep._id !== report._id);
+					this.reports.set(newReports);
+				},
+				error: () => this.notify.error('Could not delete the report.')
 			});
 	}
 
@@ -165,7 +171,8 @@ export class ReportHistoryComponent {
 		this.reportService
 			// Unsaving always targets a persisted report, so _id is guaranteed to be set here
 			.unsaveReport(report._id!)
-			.subscribe(_resp => {
+			.subscribe({
+				error: () => this.notify.error('Could not unsave the report.')
 			});
 	}
 
@@ -179,15 +186,13 @@ export class ReportHistoryComponent {
 		this.reportService
 			// Saving always targets a persisted report, so _id is guaranteed to be set here
 			.saveReport(report._id!)
-			.subscribe(_resp => {
+			.subscribe({
+				error: () => this.notify.error('Could not save the report.')
 			});
 	}
 
 	getStoryStatus(groupReport: GroupReport, story_id: string) {
-		console.log(story_id);
-		console.log(groupReport.storyStatuses.find(storyStatus => storyStatus.storyId === story_id)!.storyId);
 		const storyStatusObj = groupReport.storyStatuses.find(storyStatus => storyStatus.storyId === story_id);
-		console.log(storyStatusObj);
 		return storyStatusObj!.status;
 
 	}
