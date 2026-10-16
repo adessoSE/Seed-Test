@@ -312,7 +312,7 @@ The request validation schemas are exported through the package root, `import { 
 | `block.schemas.ts` | `saveBlockSchema`, `updateBlockSchema` | Block create and update |
 | `github.schemas.ts` | `submitIssueSchema` | GitHub issue submission |
 | `group.schemas.ts` | `createGroupSchema` | Group create |
-| `jira.schemas.ts` | `linkJiraSchema`, `jiraLoginSchema`, `updateXrayStatusSchema` | Jira link, login, Xray status |
+| `jira.schemas.ts` | `linkJiraSchema`, `jiraLoginSchema`, `updateXrayStatusSchema` | Jira link, login (`jiraAccountName` required only for basic auth), Xray status |
 | `logging.schemas.ts` | `logMessageSchema` | Frontend log endpoint |
 | `repository.schemas.ts` | `createRepositorySchema`, `updateSettingsSchema`, `transferOwnerSchema` | Repository create, settings, owner transfer |
 | `sanity.schemas.ts` | `sanityTestSchema` | Sanity test route |

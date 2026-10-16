@@ -16,13 +16,13 @@
   </button>
 </div>
 <div class="modal-body modal-xl">
-  <div class="uk-card-title submitForm">
+  <div class="st-card-title submitForm">
     <div>
       <form [formGroup]="newStepReqForm" novalidate (ngSubmit)="submitNewStepRequest()">
         <div class="modalsContent">
           <div class="padding_top">
             <div>
-              <label class="uk-form-label" for="new-step-title">Title*</label>
+              <label class="st-field-label" for="new-step-title">Title*</label>
               <input name="label_form" id="new-step-title" class="leftMargin" formControlName="title" required>
               @if (title.invalid && (title.dirty || title.touched)) {
                 <div class="alert alert-danger">
@@ -37,7 +37,7 @@
             </div>
             <br>
               <div>
-                <label class="uk-form-label" for="type_form">Type </label>
+                <label class="st-field-label" for="type_form">Type </label>
                 <select id="type_form" name="type_form" formControlName="type" style="width: fit-content; margin-left: 24px;">
                   <option id="type_form_given" value="given">given</option>
                   <option id="type_form_when" value="when">when</option>
@@ -52,8 +52,8 @@
           </div>
           <div class="padding_top modalsContent" id="inputLabels">
             <div  id="emailField">
-              <label class="uk-form-label" for="new-step-email">Email*</label>
-              <input formControlName="email" id="new-step-email" type="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" class="uk-form-controls input leftMargin" required>
+              <label class="st-field-label" for="new-step-email">Email*</label>
+              <input formControlName="email" id="new-step-email" type="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" class="input leftMargin" required>
             </div>
           </div>
           <br>

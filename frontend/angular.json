@@ -39,10 +39,7 @@
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.carousel.min.css",
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.theme.default.min.css"
             ],
-            "scripts": [
-              "./node_modules/uikit/dist/js/uikit.min.js",
-              "./node_modules/uikit/dist/js/uikit-icons.min.js"
-            ],
+            "scripts": [],
             "browser": "src/main.ts"
           },
           "configurations": {

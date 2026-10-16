@@ -27,21 +27,6 @@ describe('LoginService', () => {
 		});
 	});
 
-	describe('jiraLogin', () => {
-		it('should not store the Jira session in localStorage', () => {
-			const service = TestBed.inject(LoginService);
-			const httpController = TestBed.inject(HttpTestingController);
-
-			service.jiraLogin('jiraUser', 'secret', 'https://jira.example.com').subscribe();
-			httpController.expectOne('http://localhost:8080/api/jira/login').flush({ session: 'cookie-value' });
-
-			// Regression: the response was stored as resp.toString() ("[object Object]") and nothing read it.
-			// A session credential in localStorage is readable by any script on the page.
-			expect(localStorage.getItem('JiraSession')).toBeNull();
-			httpController.verify();
-		});
-	});
-
 	// GitHub OAuth: the backend accepts a callback only with the state it issued to this browser session
 	describe('GitHub login state', () => {
 		it('fetches the state with the session cookie, then redirects to GitHub with that state', () => {

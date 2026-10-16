@@ -203,28 +203,6 @@ export class LoginService {
 	}
 
 	/**
-	 * Loggs in the user into jira
-    * @param jiraName
-    * @param jiraPassword
-    * @param jiraServer
-    * @returns
-    */
-	jiraLogin(jiraName: string, jiraPassword: string, jiraServer: string) {
-		const body = {
-			jiraAccountName: jiraName,
-			jiraPassword: jiraPassword,
-			jiraServer: jiraServer
-		};
-		// The Jira session stays server-side. Do not persist it in localStorage: any script
-		// running on the page (e.g. via XSS) could read it.
-		return this.http
-			.post(
-				this.apiService.apiServer + '/jira/login',
-				body,
-				ApiService.getOptions()
-			);
-	}
-	/**
    * Requests a password reset
    * @param email
    * @returns

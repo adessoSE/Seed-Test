@@ -11,7 +11,7 @@
         <form [formGroup]="storyForm" novalidate (ngSubmit)="createNewStory()">
             <div class="form-group modalsContent">
                 <div>
-                    <label class="uk-form-label" for="storytitle">Enter unique story title*</label>
+                    <label class="st-field-label" for="storytitle">Enter unique story title*</label>
                     <input id="storytitle" formControlName="storyTitle"
                            placeholder="Title" style="margin-left: 24px;" (keyup)="storyUnique()">
                 </div>

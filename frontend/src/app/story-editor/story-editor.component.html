@@ -5,7 +5,7 @@
     <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
     @if (!db()) {
       <div>
-        <div class="tutorialDiv uk-card uk-card-default">
+        <div class="tutorialDiv st-card st-card-default">
           <h4>Find out how to create stories:</h4>
           <div>
             <ul id="infoList">
@@ -55,7 +55,7 @@
 @if (stories() && (showEditor() === true)) {
   <div>
     <!--Story-->
-    <div [class.darkTheme]="isDark()" class="uk-card uk-card-default padding" id="story" cdkScrollable>
+    <div [class.darkTheme]="isDark()" class="st-card st-card-default padding" id="story" cdkScrollable>
       <div class="storyHeaderContainer">
         <div>
           <span id="storyHeader" class="SmallCategory1">Story&nbsp;</span>
@@ -476,7 +476,7 @@
                                     }
                                   </div>
                                 }
-                                <div class="storyInfoRight uk-button-group">
+                                <div class="storyInfoRight st-button-row">
                                   @if (this.showResults()) {
                                     <button id="hide_results_top" [class.disabledButton]="!testDone()" class="button"
                                       matTooltip="Hide Test Results" type="button" (click)="hideResults()">
@@ -535,7 +535,7 @@
                                     View Reports
                                   </button>
                                 </div>
-                                <div class="storyInfoRight uk-button-group">
+                                <div class="storyInfoRight st-button-row">
                                   @if (this.showResults()) {
                                     <button id="hide_results_bottom" [class.disabledButton]="!testDone()" class="button"
                                       matTooltip="Hide Test Results" type="button" (click)="hideResults()">
@@ -588,11 +588,11 @@
                                       </div>
                                     </div>
                                     <!-- Shows report after Tests ran-->
-                                    <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults()>
-                                      <div id="report-header" class="uk-card-header">
+                                    <div id="testreport" class="st-card st-card-default padding st-fade-in" [hidden]=!showResults()>
+                                      <div id="report-header" class="st-card-header">
                                         <h3 class="title">Test Results</h3>
                                       </div>
-                                      <div id="report-body" class="uk-card-body">
+                                      <div id="report-body" class="st-card-body">
                                         <div id="chartcontainer" class="chart-container">
                                           <iframe title="Test StoryReport" id="testFrame" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe>
                                         </div>

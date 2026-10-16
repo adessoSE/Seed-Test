@@ -16,11 +16,13 @@ export async function linkJiraCredentials(req: Request, res: Response, next: Nex
 			throw AppError.unauthorized('User not authenticated');
 
 		const body = req.body as Record<string, unknown>;
-		const jiraAccountName = body.jiraAccountName as string;
+		// Bearer tokens have no account name (the Bearer tab does not send one), so it defaults to ''
+		const jiraAccountName = (body.jiraAccountName as string | undefined) ?? '';
 		const jiraPassword = body.jiraPassword as string;
 		const jiraHost = body.jiraHost as string;
 		const jiraAuthMethod = body.jiraAuthMethod as string | undefined;
-		if (!jiraAccountName || !jiraPassword || !jiraHost)
+		// Basic-requires-accountName is enforced by linkJiraSchema in the validate() middleware; not repeated here
+		if (!jiraPassword || !jiraHost)
 			throw AppError.badRequest('Missing Jira credentials (accountName, password, host)');
 
 		requireSafeExternalHost(jiraHost);
@@ -83,11 +85,12 @@ export async function disconnectJira(req: Request, res: Response, next: NextFunc
 export async function jiraLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const body = req.body as Record<string, unknown>;
-		const jiraAccountName = body.jiraAccountName as string;
+		// Bearer logins have no account name; jiraLoginSchema requires it only for AuthMethod 'basic'
+		const jiraAccountName = (body.jiraAccountName as string | undefined) ?? '';
 		const jiraPassword = body.jiraPassword as string;
 		const jiraServer = body.jiraServer as string;
 		const AuthMethod = body.AuthMethod as string | undefined;
-		if (!jiraAccountName || !jiraPassword || !jiraServer)
+		if (!jiraPassword || !jiraServer)
 			throw AppError.badRequest('Missing Jira credentials for login');
 
 		requireSafeExternalHost(jiraServer);

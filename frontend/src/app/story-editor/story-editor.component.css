@@ -226,14 +226,6 @@
   .material-icons{
     font-size: 24px;
   }
-  /* Eventually not in use */
-  .uk-card-footer{
-    padding: 15px 0px;
-  }
- 
-  .darkTheme .uk-card-footer {
-    border-top: 1px solid #B0BEC5;
-  }
 
   .darkTheme .button:hover {
     background-color: #546E7A;
@@ -372,7 +364,7 @@
   padding: 20px;
 }
 
-/* CSS-only dropdown (replacing UIkit uk-dropdown) */
+/* CSS-only dropdown (no JavaScript needed) */
 .hover-dropdown {
   position: relative;
   display: inline-block;
@@ -421,7 +413,7 @@
   color:white;
 }
 
-.darkTheme.uk-card-default {
+.darkTheme.st-card-default {
   background: none;
 }
 
@@ -477,10 +469,6 @@ button#background_up {
 
 .mat-mdc-expansion-panel#widened-expansion-panel .mat-mdc-expansion-panel-header-title {
   color: var(--brown-grey) !important;
-}
-
-.uk-inline {
-  position: unset;
 }
 
 .backgroundTitle {

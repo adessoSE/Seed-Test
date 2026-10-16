@@ -174,12 +174,12 @@ h1{
     height: 17px;
 }
 
-.uk-form-controls{
+.auth-input{
     border-radius: 3px;
     padding: 5px 5px 5px 5px;
 }
 
-/* .darkTheme .uk-form-controls {
+/* .darkTheme .auth-input {
     background: transparent;
 } */
 
@@ -197,6 +197,8 @@ h1{
 }
 
 #noAccountDiv{
+    position: relative;
+    box-sizing: border-box;
     border: 0.25px solid #999;
     padding: 10px;
   }

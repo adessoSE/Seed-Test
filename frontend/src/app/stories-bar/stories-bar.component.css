@@ -21,9 +21,6 @@
   border-color: #60767b;
 }
 
-.uk-background-muted {
-  background-color: #f8f8f8;
-}
 mat-tab-group{
   height: calc(100% - 65px);
 }
@@ -56,9 +53,6 @@ mat-tab-group{
   overflow: scroll;
 }
 
-.darkTheme.uk-background-muted {
-  background-color: #546E7A
-}
 
 
 #storyHeader{

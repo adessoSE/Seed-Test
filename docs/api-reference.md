@@ -160,9 +160,9 @@ interface ExecuteTestRequest {
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
-| POST | `/api/jira/link` | `{jiraAccountName, jiraPassword, jiraHost, jiraAuthMethod?}` | `{message}` | Require |
+| POST | `/api/jira/link` | `{jiraAccountName (required only for basic), jiraPassword, jiraHost, jiraAuthMethod?}` | `{message}` | Require |
 | DELETE | `/api/jira/disconnect` | — | `{message}` | Require |
-| POST | `/api/jira/login` | `{jiraAccountName, jiraPassword, jiraServer, AuthMethod}` | `{sessionCookie}` | Require |
+| POST | `/api/jira/login` | `{jiraAccountName (required only for basic), jiraPassword, jiraServer, AuthMethod?}` | `{sessionCookie}` | Require |
 | PUT | `/api/jira/xray-status` | `{testRunId, stepId, status}` | Xray API response | Require |
 
 ### GitHub

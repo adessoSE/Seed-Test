@@ -12,7 +12,7 @@
         <form [formGroup]="storyForm" novalidate (ngSubmit)="submitRenameStory()">
             <div class="form-group modalsContent">
                 <div>
-                    <label class="uk-form-label" for="newStoryTitle">Edit Story Title</label>
+                    <label class="st-field-label" for="newStoryTitle">Edit Story Title</label>
                     <input id="newStoryTitle" name="newStoryTitle" pattern="\S(.*\S)?"
                     formControlName="storyTitle"  style="margin-left: 24px;" (keyup)="storyUnique()" required>
                 </div>

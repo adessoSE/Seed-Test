@@ -187,11 +187,20 @@ label{
     margin-top: 30px;
 }
 
-.uk-card{
+/* Only the four account boxes get the frame: st-card elements with a grid_* class. .grid-container
+   also carries st-card (page wrapper), and the no-login GitHub div reuses .grid_github unwrapped
+   inside the card, so both must stay borderless */
+.st-card.grid_seedTest,
+.st-card.grid_changePassword,
+.st-card.grid_github,
+.st-card.grid_jira {
     border: 1px solid grey;
 }
 
-.darkTheme .uk-card {
+.darkTheme .st-card.grid_seedTest,
+.darkTheme .st-card.grid_changePassword,
+.darkTheme .st-card.grid_github,
+.darkTheme .st-card.grid_jira {
     border: 1px solid #60767b;
 }
 
@@ -291,9 +300,12 @@ h2, h1{
     min-height: 80px;
 }
 
+/* Full width so the 50% search input resolves against the row, not the shrink-to-fit column;
+   otherwise the version field wraps under the search input */
 .searchAndVersion {
     align-items: center;
     display: flex;
+    width: 100%;
     justify-content: center;
     gap: 8px;
     flex-wrap: wrap;

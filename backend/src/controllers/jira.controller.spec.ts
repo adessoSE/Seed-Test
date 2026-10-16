@@ -151,6 +151,22 @@ describe('JiraController', () => {
 			);
 		});
 
+		// The bearer tab has no account-name field, so a token-only body must pass validation without jiraAccountName.
+		it('accepts bearer without jiraAccountName and stores an empty account name', async () => {
+			mockedExternalAccountService.buildAuthString.mockReturnValue('Bearer tok');
+			vi.mocked(fetch).mockResolvedValue(mockFetchResponse());
+			mockedExternalAccountService.updateJiraCredential.mockResolvedValue(undefined);
+
+			const req = createReq({ body: { jiraPassword: 'tok', jiraHost: VALID_HOST, jiraAuthMethod: 'bearer' } });
+			await controller.linkJiraCredentials(req, res, next);
+
+			expect(next).not.toHaveBeenCalled();
+			expect(mockedExternalAccountService.updateJiraCredential).toHaveBeenCalledWith(
+				VALID_ID, '', 'tok', VALID_HOST, 'bearer'
+			);
+			expect(res.status).toHaveBeenCalledWith(200);
+		});
+
 		it('calls next when user is not authenticated', async () => {
 			const req = createReq({ body: { ...validBody }, user: null });
 			await controller.linkJiraCredentials(req, res, next);

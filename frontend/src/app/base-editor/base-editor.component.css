@@ -142,8 +142,9 @@ em.dragIcon {
 	font-size: 16px;
 }
 
-.uk-card-title {
+.editor-section-title {
 	font-size: medium;
+	line-height: 1.4;
 }
 
 .addStepButton {
@@ -295,7 +296,7 @@ input[type="text"] {
 }
 
 /*
- * CSS-only dropdowns replacing UIkit uk-dropdown.
+ * CSS-only dropdowns, no JavaScript needed.
  * .hover-dropdown — shows .dropdown-menu on :hover
  * .dropdown-right — positions menu to the right of the trigger
  */

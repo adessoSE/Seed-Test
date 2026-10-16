@@ -47,9 +47,85 @@ $dark-theme: mat.m2-define-dark-theme(
     ));
 
 /* You can add global styles to this file, and also import other style files */
-@import "../node_modules/uikit/src/scss/variables-theme.scss";
-@import "../node_modules/uikit/src/scss/mixins-theme.scss";
-@import "../node_modules/uikit/src/scss/uikit-theme.scss";
+/* base element defaults (formerly provided by the UI framework)
+   WHY: Unclassed elements (headings, paragraphs, lists, links, hr, em, code, pre) used to get
+   their look from a CSS framework. These values reproduce that look. Bootstrap's reboot is
+   loaded in index.html and would otherwise win for these elements. */
+html {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #666;
+  background: #fff;
+}
+/* Pages are laid out edge to edge; without this the browser default 8px body inset returns */
+body {
+  margin: 0;
+}
+a {
+  color: #1e87f0;
+  text-decoration: none;
+  cursor: pointer;
+}
+a:hover {
+  color: #0f6ecd;
+  text-decoration: underline;
+}
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 20px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-weight: normal;
+  color: #333;
+  text-transform: none;
+}
+h1 { font-size: 2.23125rem; line-height: 1.2; }
+h2 { font-size: 1.7rem; line-height: 1.3; }
+h3 { font-size: 1.5rem; line-height: 1.4; }
+h4 { font-size: 1.25rem; line-height: 1.4; }
+h5 { font-size: 1rem; line-height: 1.4; }
+h6 { font-size: 0.875rem; line-height: 1.4; }
+@media (min-width: 960px) {
+  h1 { font-size: 2.625rem; }
+  h2 { font-size: 2rem; }
+}
+* + h1, * + h2, * + h3, * + h4, * + h5, * + h6 { margin-top: 40px; }
+p, ul, ol, dl, pre, address, fieldset, figure { margin: 0 0 20px 0; }
+* + p, * + ul, * + ol, * + dl, * + pre, * + address, * + fieldset, * + figure { margin-top: 20px; }
+ul, ol { padding-left: 30px; }
+ul > li > ul, ul > li > ol, ol > li > ol, ol > li > ul { margin: 0; }
+/* Bootstrap gives hr a 0.25 opacity; reset it so the 1px divider keeps its colour */
+hr {
+  overflow: visible;
+  text-align: inherit;
+  margin: 0 0 20px 0;
+  border: 0;
+  border-top: 1px solid #e5e5e5;
+  opacity: 1;
+}
+* + hr { margin-top: 20px; }
+em { color: #f0506e; }
+:not(pre) > code {
+  font-family: Consolas, monaco, monospace;
+  font-size: 0.875rem;
+  color: #f0506e;
+  white-space: nowrap;
+}
+pre {
+  font-family: Consolas, monaco, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #666;
+  tab-size: 4;
+  overflow: auto;
+}
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  object-fit: cover;
+}
+::selection { background: #39f; color: #fff; text-shadow: none; }
+:focus { outline: none; }
+:focus-visible { outline: 2px dotted #333; }
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto&display=swap');
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
@@ -778,8 +854,102 @@ span[rel=def] {
   background: var(--grape);
 }
 
-.uk-button-group {
+/* Shared utility classes (st-*) for cards, lists, spacing and form labels.
+   WHY: The values are the UIkit 3.25 defaults the pages were designed against, so the
+   look stays the same without a UI framework. */
+/* Base card: positioning only, same as UIkit uk-card. The white default look is opt-in via
+   .st-card-default, so plain st-card containers (e.g. page wrappers) stay unframed. */
+.st-card {
+  position: relative;
+  box-sizing: border-box;
+}
+/* Default card look (UIkit uk-card-default): white surface, grey text, soft shadow */
+.st-card-default {
+  transition: box-shadow 0.1s ease-in-out;
+  background-color: #fff;
+  color: #666;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+/* Padding grows at 1200px; header and footer keep flow-root so child margins do not collapse out */
+.st-card-header,
+.st-card-body {
+  display: flow-root;
+}
+.st-card-header {
+  padding: 15px 30px;
+}
+.st-card-body {
+  padding: 30px 30px;
+}
+@media (min-width: 1200px) {
+  .st-card-header {
+    padding: 20px 40px;
+  }
+  .st-card-body {
+    padding: 40px 40px;
+  }
+}
+.st-card-header > :last-child,
+.st-card-body > :last-child {
+  margin-bottom: 0;
+}
+/* Divider and title colour only apply inside a default card, so titles outside a card keep the page colour */
+.st-card-default .st-card-header {
+  border-bottom: 1px solid #e5e5e5;
+}
+.st-card-title {
+  font-size: 1.5rem;
+  line-height: 1.4;
+}
+.st-card-default .st-card-title {
+  color: #333;
+}
+/* Plain list without bullets, last child has no bottom margin inside items */
+.st-list {
+  padding: 0;
+  list-style: none;
+}
+.st-list > * > :last-child {
+  margin-bottom: 0;
+}
+.st-flex {
+  display: flex;
+}
+/* Spacing: 20px below, and 20px above when it follows a sibling (!important keeps it above component margins) */
+.st-margin {
+  margin-bottom: 20px;
+}
+* + .st-margin {
+  margin-top: 20px !important;
+}
+.st-field-label {
+  color: #333;
+  font-size: 0.875rem;
+}
+.st-text-meta {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #999;
+}
+/* Inline group of buttons; neighbours are not spaced */
+.st-button-row {
+  display: inline-flex;
+  vertical-align: middle;
+  position: relative;
   border: transparent;
+}
+.st-fade-in {
+  animation-name: st-fade-in;
+  animation-duration: 0.8s;
+  animation-timing-function: linear;
+}
+@keyframes st-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 span.notPassed {
@@ -826,13 +996,7 @@ div.notPassed{
 }
 
 
-.uk-nav li .dropdownStep {
-	color: var(--ocean-blue);
-}
   
-.darkTheme .uk-nav li .dropdownStep {
-	color: var(--light-blue) !important;
-}  
 
 #static {
   position: static;
@@ -846,10 +1010,6 @@ div.notPassed{
   color: white;
 }
 
-.darkTheme .uk-select {
-  background-color: transparent;
-  color: white;
-}
 
 .darkTheme select>option {
   background-color: #60767b;
@@ -930,7 +1090,7 @@ a:hover {
   border-color: #60767b !important;
 }
 
-.darkTheme .uk-card-default {
+.darkTheme .st-card-default {
   background: none;
 }
 
@@ -965,10 +1125,6 @@ a:hover {
 
 }
 
-.uk-input,
-.uk-select:not([multiple]):not([size]) {
-  height: 32px;
-}
 
 #searchBarIcons {
   color: var(--brown-grey);
@@ -1189,3 +1345,35 @@ html, body { height: 100%; }
 .snackbar-info .mdc-snackbar__surface .mat-mdc-button {
   color: #fff !important;
 }
+
+/* Special-command tooltip set by HighlightInputService.setTooltip (data-tooltip attribute, set by the service).
+   The text comes from attr(), so CSS renders it as plain text only. */
+span[data-tooltip] {
+  position: relative;
+}
+
+span[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #333;
+  color: #fff;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: normal;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+span[data-tooltip]:hover::after {
+  opacity: 1;
+}
+

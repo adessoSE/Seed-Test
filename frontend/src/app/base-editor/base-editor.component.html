@@ -109,10 +109,10 @@
     } @else {
       <ng-template [ngTemplateOutlet]="''" />
     }
-    <div class="uk-steps" [class]="name === 'block-editor' ? 'scrollable blockEditorElement' : ''">
+    <div [class]="name === 'block-editor' ? 'scrollable blockEditorElement' : ''">
 
       <!-- Scenario & Block Editor Steps -->
-      <div class="uk-card-title padding">
+      <div class="editor-section-title padding">
         @if (name === 'scenario' || 'block-editor') {
           <!-- Block Editor Template -->
           @if (this.selectedBlock() && name === 'block-editor') {
@@ -144,7 +144,7 @@
                 <div>{{i+1}}. Then (Result)</div>
               }
             </div>
-            <div class="uk-steps ">
+            <div>
               <div cdkDropList class="cdkListStyle" (cdkDropListDropped)="onDrop($event,stepDefs, i)">
                 @for (currentStep of getStepsList(stepDefs, i); track currentStep; let j = $index) {
                   <div cdkDrag

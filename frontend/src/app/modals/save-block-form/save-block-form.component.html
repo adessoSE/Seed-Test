@@ -17,16 +17,16 @@
 </div>
 <form #saveBlockForm="ngForm" novalidate (ngSubmit)="onSubmit(saveBlockForm)">
   <div class="modal-body modal-xl">
-    <div class="uk-card-title submitForm">
+    <div class="st-card-title submitForm">
       <div class="blockNameContainer modalsContent">
         @if (isBackground === false || isBackground === undefined) {
-          <div class="uk-form-label" id="inputLabels">
+          <div class="st-field-label" id="inputLabels">
             <label class="block" for="blockNameInput">Enter name*</label>
             <input type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
           </div>
         }
         @if (isBackground === true) {
-<div class="uk-form-label" id="inputLabels" style="padding-right: 30px;
+<div class="st-field-label" id="inputLabels" style="padding-right: 30px;
               font-size: 16px;">
             <span>Background Name:</span>
             {{this.backgroundName}}
@@ -78,7 +78,7 @@
       </div>
       @if (exampleBlock) {
         <div class="exampleCheckboxContainer">
-          <label class="uk-form-label" for="example-only-checkbox">Save only Mutliple Scenario</label>
+          <label class="st-field-label" for="example-only-checkbox">Save only Mutliple Scenario</label>
           <input id="example-only-checkbox" class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck()">
         </div>
       }

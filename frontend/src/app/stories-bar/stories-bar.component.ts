@@ -167,9 +167,7 @@ export class StoriesBarComponent implements OnChanges {
 	readonly filteredGroups = signal<Group[]>([]);
 
 	/**
-     * List to track the expansion state of groups (for backwards compatibility tracking)
-     * Previously used: "uk-open" for open, "" for close
-     * Now unused but kept for compatibility
+     * Unused; kept so existing references still compile. Delete it together with those references.
      */
 	readonly liGroupList = signal<string[]>([]);
 

@@ -1,4 +1,4 @@
-<div [class.darkTheme]="isDark()" class="grid-container uk-card-default">
+<div [class.darkTheme]="isDark()" class="grid-container st-card st-card-default">
   <div>
     <a routerLink="/" class="title">
       <button class="backButton" title="Back to Projects">
@@ -9,7 +9,7 @@
   <div>
     <h1 class="LargeHeadline1">Account Settings</h1>
   </div>
-  <div class="grid_seedTest uk-card uk-card-default">
+  <div class="grid_seedTest st-card st-card-default">
     <h2 class="LargeHeadline3">Seed-Test Account</h2>
     @if (email()) {
       <div>
@@ -31,7 +31,7 @@
         <div class="grid_customRepos repositories">
           <div id="DBRepositoriesList">
             <span class="MediumHeadline5">Custom Projects:</span>
-            <ul class="uk-list">
+            <ul class="st-list">
               @for (repository of repositories(); track repository; let i = $index) {
                 @if (this.apiService.isCustomRepo(repository)) {
                   <li class="projectListItem">
@@ -61,7 +61,7 @@
             <div>
               <span>Download Project</span>
             </div>
-            <div class="uk-flex uk-flex-row uk-search downloadWrapper">
+            <div class="st-flex downloadWrapper">
               <div class="searchAndVersion">
                 <em class="material-icons" id="searchBarIcons">search</em>
                 <input class="searchInput" type="text" #searchbar (keyup)="searchRepos()"  [(ngModel)]="searchInput" placeholder="Search"/>
@@ -106,7 +106,7 @@
       <!-----------------Erase your Account-------------->
       @if (loginService.isLoggedIn() && email()) {
         <div class="grid_eraseAccount repositories">
-          <div class="uk-form-horizontal">
+          <div>
             <button class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete Seed-Test
             Account</button>
           </div>
@@ -114,7 +114,7 @@
       }
       <!-----------------Change Password-------------->
       @if (loginService.isLoggedIn()) {
-        <div class="grid_changePassword uk-card uk-card-default">
+        <div class="grid_changePassword st-card st-card-default">
           <h2 class="LargeHeadline3">Change Password</h2>
           <div class="password-form">
             <div class="form-field">
@@ -143,7 +143,7 @@
       }
     </div>
     <!------------------------------------->
-    <div class="grid_github uk-card uk-card-default">
+    <div class="grid_github st-card st-card-default">
       <h2 class="LargeHeadline3" [style.opacity]="clientId()==='undefined' ? '0.5' : '1'">Github</h2>
       @if (github()) {
         <div [style.opacity]="clientId()==='undefined' ? '0.5' : '1'">
@@ -180,7 +180,7 @@
           [style.opacity]="clientId()==='undefined' ? '0.5' : '1'">
           <div id="GitHubRepositoriesList">
             <span class="MediumHeadline5">Github Projects:</span>
-            <ul class="uk-list">
+            <ul class="st-list">
               @for (repository of repositories(); track repository; let i = $index) {
                 @if (this.apiService.isGithubRepo(repository)) {
                   <li class="projectListItem">
@@ -202,16 +202,16 @@
       }
     </div>
     <!------------------------------------->
-    <div class="grid_jira uk-card uk-card-default">
+    <div class="grid_jira st-card st-card-default">
       <h2 class="LargeHeadline3">Jira</h2>
       <div>
         @if (jira()) {
           <div id="jiraDiv">
-            <div class="uk-form-horizontal">
+            <div>
               <p class="SmallHeadline5">Jira-Name: </p>
-              <span class="active MediumBody2">{{jira()['AccountName']}}</span>
+              <span class="active MediumBody2">{{jira()['AccountName'] || 'Bearer token'}}</span>
             </div>
-            <div class="uk-form-horizontal">
+            <div>
               <p class="SmallHeadline5">Jira-Server: </p>
               <span class="active MediumBody2">{{jira()['Host']}}</span>
             </div>
@@ -230,7 +230,7 @@
         <div class="grid_jiraRepos repositories">
           <div id="JiraRepositoriesList">
             <span class="MediumHeadline5">Jira Projects:</span>
-            <ul class="uk-list">
+            <ul class="st-list">
               @for (repository of repositories(); track repository; let i = $index) {
                 @if (this.apiService.isJiraRepo(repository)) {
                   <li class="projectListItem">

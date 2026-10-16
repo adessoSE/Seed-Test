@@ -31,13 +31,13 @@
     outline: none;
 } 
 
-::ng-deep .uk-form-label {
+::ng-deep .st-field-label {
   color: black;
 }
 
 /* In dark mode the modal body background is #455A64 — override the black label
    to white so form labels remain readable. */
-::ng-deep .darkTheme .uk-form-label {
+::ng-deep .darkTheme .st-field-label {
   color: white;
 }
 

@@ -1,6 +1,7 @@
 ﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ManagementService } from 'src/app/Services/management.service';
 import type { User } from '@seed-test/shared/models/User';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
@@ -11,7 +12,8 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	templateUrl: './change-jira-account.component.html',
 	styleUrls: ['./change-jira-account.component.css', '../layout-modal/layout-modal.component.css'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
+	// Tab clicks are handled by MatTabsModule; the component only mirrors the selected tab via (selectedIndexChange) -> switchForm
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, MatTabsModule]
 })
 export class ChangeJiraAccountComponent {
 	private modalService = inject(NgbModal);
@@ -59,11 +61,18 @@ export class ChangeJiraAccountComponent {
 	openChangeJiraAccountModal(type: string) {
 		this.modalReference = this.modalService.open(this.changeJiraAccountModal(), {ariaLabelledBy: 'modal-basic-title'});
 		this.type = type;
-		this.activeForm = 'bearer';
+		this.switchForm('bearer');
 	}
 
+	/**
+	 * Selects the auth tab and mirrors it into jiraForm.jiraAuthMethod. The value is what the backend
+	 * expects ('bearer' | 'basic'); without this, submit sent an empty method and the bearer token
+	 * even on the Basic tab, so Basic auth could never succeed.
+	 * @param form 'bearer' or 'basic'
+	 */
 	switchForm(form: string){
 		this.activeForm = form;
+		this.jiraForm.controls.jiraAuthMethod.setValue(form);
 	}
 	/**
    * Create or change Jira Account
@@ -71,7 +80,8 @@ export class ChangeJiraAccountComponent {
 	changeJiraAccountSubmit() {
 		if (this.type === 'Jira') {
 			const jiraAuthMethod = this.jiraForm.value.jiraAuthMethod;
-			const jiraAccountName = this.jiraBasic.value.jiraAccountName;
+			// Bearer sends no account name: the hidden Basic field may still hold a stale value from an earlier Basic input
+			const jiraAccountName = jiraAuthMethod == 'basic' ? this.jiraBasic.value.jiraAccountName : '';
 			const jiraPassword = jiraAuthMethod == 'basic' ? this.jiraBasic.value.jiraPassword : this.jiraBearer.value.jiraToken ;
 			const jiraHost = this.jiraForm.value.jiraHost;
 			const request = {

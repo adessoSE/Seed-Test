@@ -41,11 +41,11 @@ describe('HighlightInputService', () => {
 		return el;
 	}
 
-	/** Reads the title the service wrote into the uk-tooltip option of the special-command span */
-	function tooltipTitle(el: HTMLElement): string {
+	/** Reads the text the service wrote into the data-tooltip attribute of the special-command span */
+	function tooltipText(el: HTMLElement): string | null {
 		const span = el.querySelector<HTMLElement>('span[id^="specialInputId"]');
 		expect(span).not.toBeNull();
-		return (JSON.parse(span!.getAttribute('uk-tooltip') ?? '') as { title: string }).title;
+		return span!.getAttribute('data-tooltip');
 	}
 
 	describe('XSS protection (stored step text is untrusted)', () => {
@@ -88,7 +88,7 @@ describe('HighlightInputService', () => {
 		});
 	});
 
-	describe('special command tooltip (UIkit renders the title as HTML)', () => {
+	describe('special command tooltip (data-tooltip is read as text by CSS, never parsed as HTML)', () => {
 		const command = '@@Day,1@@format:<img src=x onerror=alert(1)>€€';
 
 		it('should show the resolved string in the tooltip, not an object', () => {
@@ -98,21 +98,21 @@ describe('HighlightInputService', () => {
 			service.highlightInput(field, true);
 			httpMock.expectOne(RESOLVE_URL).flush({ resolved: 'Monday' });
 
-			expect(tooltipTitle(field)).toBe('Monday');
+			expect(tooltipText(field)).toBe('Monday');
 		});
 
-		it('should escape an echoed command in the "Unknown command" tooltip', () => {
+		it('should show an echoed command literally in the "Unknown command" tooltip', () => {
 			const field = createField(command);
 
 			service.highlightInput(field, true);
 			httpMock.expectOne(RESOLVE_URL).flush({ resolved: command });
 
-			expect(tooltipTitle(field)).toBe('Unknown command: @@Day,1@@format:&lt;img src=x onerror=alert(1)&gt;€€');
+			expect(tooltipText(field)).toBe('Unknown command: @@Day,1@@format:<img src=x onerror=alert(1)>€€');
 			expect(field.querySelector('img')).toBeNull();
 		});
 
-		it('should escape the backend error message so no markup is created in the tooltip', () => {
-			// Regression: the 400 message echoes the command; it was put into the tooltip unescaped.
+		it('should show the backend error message literally and create no element from it', () => {
+			// The 400 message echoes the user's command, so it is untrusted: it must render as text, never as markup in the tooltip.
 			const field = createField(command);
 
 			service.highlightInput(field, true);
@@ -121,17 +121,18 @@ describe('HighlightInputService', () => {
 				{ status: 400, statusText: 'Bad Request' }
 			);
 
-			expect(tooltipTitle(field)).toBe('Error: Found: &lt;img src=x onerror=alert(1)&gt;');
+			expect(tooltipText(field)).toBe('Error: Found: <img src=x onerror=alert(1)>');
 			expect(field.querySelector('img')).toBeNull();
 		});
 
-		it('should keep ";" and ":" from a resolved value inside the title (no option injection)', () => {
-			const field = createField('@@Day,1@@format:x€€');
+		it('should not set a uk-tooltip attribute (UIkit is removed, the tooltip is CSS-only)', () => {
+			const field = createField('@@Day,1@@format:Mon€€');
 
 			service.highlightInput(field, true);
-			httpMock.expectOne(RESOLVE_URL).flush({ resolved: 'Mon; pos: bottom-left' });
+			httpMock.expectOne(RESOLVE_URL).flush({ resolved: 'Monday' });
 
-			expect(tooltipTitle(field)).toBe('Mon; pos: bottom-left');
+			const span = field.querySelector<HTMLElement>('span[id^="specialInputId"]');
+			expect(span!.hasAttribute('uk-tooltip')).toBe(false);
 		});
 	});
 });

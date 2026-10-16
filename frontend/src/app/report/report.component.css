@@ -9,16 +9,12 @@
     line-height: 25px;
   }
 
-  .uk-card-default {
+  .st-card-default {
     background: transparent;
   }
 
   .material-icons{
     font-size: 24px;
-  }
-
-  .uk-card-footer{
-    padding: 15px 0px;
   }
 
   .button:hover {
@@ -31,7 +27,7 @@
 
   .button:focus {outline:0 !important;}
 
-  .uk-button-group{
+  .st-button-row{
     border-radius:4px;
   }
 

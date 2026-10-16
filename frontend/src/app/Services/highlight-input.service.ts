@@ -183,7 +183,7 @@ export class HighlightInputService {
 					this.setTooltip(identifier, `Error: ${error.error?.error ?? 'Failed to resolve command'}`);
 				}
 			});
-			return `<span uk-tooltip="title:Resolving Command ..." id="${identifier}" style="color: ${
+			return `<span data-tooltip="Resolving Command ..." id="${identifier}" style="color: ${
 				isDark ? 'var(--light-blue)' : 'var(--ocean-blue)'
 			}; font-weight: bold">${match}</span>`;
 		});
@@ -192,18 +192,16 @@ export class HighlightInputService {
 	}
 
 	/**
-	 * Writes the uk-tooltip option of a special-command span. The span is looked up at callback
-	 * time, because the editor may have re-rendered it while the request was pending.
-	 * UIkit interpolates the title into HTML, so the text is escaped. The option is written as
-	 * JSON because escaped entities such as &lt; contain ';', which the plain
-	 * "title: ...; pos: ..." syntax would read as an option separator.
+	 * Writes the tooltip text of a special-command span into its data-tooltip attribute, which the
+	 * global CSS renders via attr(). The span is looked up at callback time, because the editor may
+	 * have re-rendered it while the request was pending.
+	 * The text is stored and rendered as plain text, never parsed as HTML, so no escaping is needed
+	 * and a backend message echoing user input cannot inject markup.
 	 * @param identifier id of the special-command span
 	 * @param text plain text (may contain user content) to show in the tooltip
 	 */
 	private setTooltip(identifier: string, text: string): void {
-		document
-			.querySelector(`#${identifier}`)
-			?.setAttribute('uk-tooltip', JSON.stringify({ title: this.escapeHtml(text) }));
+		document.querySelector(`#${identifier}`)?.setAttribute('data-tooltip', text);
 	}
 
 	/**

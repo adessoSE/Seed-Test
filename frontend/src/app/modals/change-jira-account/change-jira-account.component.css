@@ -20,4 +20,15 @@ label {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-} 
+}
+
+/* Gap between the tab header and the form above */
+.jira-auth-tabs {
+  margin-top: 20px;
+}
+
+/* Label colour and size for the form fields in this modal */
+.field-label {
+  color: #333;
+  font-size: 0.875rem;
+}

@@ -7,7 +7,7 @@ import { User } from '@seed-test/shared/models/User';
 
 /** Jira account link request payload */
 interface JiraLinkRequest {
-	jiraAccountName: string;
+	jiraAccountName?: string;
 	jiraPassword: string;
 	jiraHost: string;
 	jiraAuthMethod: string;
