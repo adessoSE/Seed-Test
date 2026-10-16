@@ -383,6 +383,23 @@ export class StoriesBarComponent implements OnChanges {
 		untracked(() => this.deleteStory());
 	});
 
+	/** Action channel: story status from story and group runs, which the "Status Of Story" filter reads */
+	// Same in-place write and new array refs as scenarioStatusChangeEffect: the story object keeps its identity
+	// (storyExpansion and selectedStory compare by reference), while the new array refs re-run the filter.
+	private storyStatusChangeEffect = onActionTrigger(this.scenarioService.storyStatusChangeTrigger, custom => {
+		const stories = this.stories();
+		const story = stories.find(item => {
+			const storyIdStr = typeof item._id === 'object' && item._id !== null
+				? (item._id as { toHexString: () => string }).toHexString()
+				: String(item._id ?? '');
+			return storyIdStr === custom.storyId;
+		});
+		if (!story) return;
+		story.lastTestPassed = custom.lastTestPassed;
+		this.stories.set([...stories]);
+		this.filteredStories.set([...this.filteredStories()]);
+	});
+
 	/** Effect: watch for scenario status changes (e.g. after test runs) */
 	// Action channel: every status change of a run is applied, even when a run emits several in one tick.
 	// The backend persists the status after the run response is sent (testExecution and sanity controllers), so a list
@@ -399,8 +416,15 @@ export class StoriesBarComponent implements OnChanges {
 		if (storyIndex === -1) return;
 		const scenarioIndex = stories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
 		if (scenarioIndex === -1) return;
-		// In-place mutation — Angular signals track reference changes, template re-renders handle display
+		// The story object keeps its identity: storyExpansion and selectedStory compare stories by reference,
+		// so replacing it would collapse the accordion and drop the selection highlight.
+		// The scenario is written in place, but that write alone does not re-render in zoneless OnPush, because
+		// signals do not track nested property writes. Only a new array reference notifies the template, so both
+		// list signals get one. Both lists are updated because the rendered list is filteredStories while a search
+		// or filter is active.
 		stories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed;
+		this.stories.set([...stories]);
+		this.filteredStories.set([...this.filteredStories()]);
 	});
 
 	/**
@@ -557,6 +581,8 @@ export class StoriesBarComponent implements OnChanges {
 				this.testRunningGroup.emit(false);
 				const report = typedRet.report;
 				report.storyStatuses.forEach((story: StoryStatus) => {
+					// Story status comes from the run response; the stories bar filter reads it from the story list
+					this.scenarioService.storyStatusChangeEmit(story.storyId, story.status);
 					story.scenarioStatuses.forEach((scenario: ScenarioStatus) => {
 						// ScenarioStatus.scenarioId is modeled as a string, but downstream APIs expect a number
 						const scenarioIdNum = Number(scenario.scenarioId);

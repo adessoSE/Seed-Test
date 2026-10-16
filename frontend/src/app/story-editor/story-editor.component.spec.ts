@@ -118,6 +118,41 @@ describe('StoryEditorComponent', () => {
 		});
 	});
 
+	describe('selection without a parent scenario', () => {
+		it('should keep a newly added scenario selected when the story signal changes afterwards', () => {
+			// Parent holds no scenario (newSelectedScenario stays unset): effect 16 takes the auto-select branch
+			component.selectedStory.set(story);
+			TestBed.flushEffects();
+			const added = { ...structuredClone(story.scenarios[0]), scenario_id: 99, name: 'Added' };
+
+			// Same sequence as addScenario(): select the new scenario, then replace the story's scenarios
+			component.selectScenario(added);
+			component.selectedStory.update(s => s ? { ...s, scenarios: [...s.scenarios, added] } : s);
+			TestBed.flushEffects();
+
+			expect(component.selectedScenario()?.scenario_id).toBe(99);
+		});
+
+		it('keeps the remaining scenario selected after the selected one is deleted, even when the story changes later', () => {
+			// Regression: effect 16's auto-select branch tracked selectedStory, so a later story change reset the selection to scenarios[0]
+			const base = structuredClone(story.scenarios[0]);
+			const scenarios = [1, 3, 4].map(id => ({ ...base, scenario_id: id, name: `Scenario ${id}` }));
+			const multi: Story = { ...structuredClone(story), scenarios };
+			vi.spyOn(component.scenarioService, 'deleteScenario').mockReturnValue(of(multi));
+			vi.spyOn(component.notify, 'success').mockImplementation(() => undefined);
+			component.selectedStory.set(multi);
+			component.selectScenario(scenarios[0]);
+
+			component.deleteScenario(scenarios[0], false);
+			// The last remaining scenario (id 4) is selected, not the first one (id 3)
+			expect(component.selectedScenario()?.scenario_id).toBe(4);
+
+			component.selectedStory.update(s => s ? { ...s, title: 'Renamed' } : s);
+			TestBed.flushEffects();
+			expect(component.selectedScenario()?.scenario_id).toBe(4);
+		});
+	});
+
 	describe('updateBackground', () => {
 		it('should update the background', () => {
 			component.selectedStory.set(story);
@@ -292,6 +327,79 @@ describe('StoryEditorComponent', () => {
 				expect(component.showResults()).toBeTruthy();
 				expect(component.testRunning()).toBeFalsy();
 			});
+		});
+	});
+
+	/**
+	 * Regression: a story run never told the stories bar its new status, so the status filter kept the old value.
+	 */
+	describe('story run status', () => {
+		/** runTests reads the scroll target and the report iframe from the DOM; adds the missing ones and returns them for removal */
+		function addRunDomNodes(): HTMLElement[] {
+			return ['loading', 'testFrame']
+				.filter(id => !document.getElementById(id))
+				.map(id => document.body.appendChild(Object.assign(document.createElement(id === 'testFrame' ? 'iframe' : 'div'), { id })));
+		}
+
+		/** Minimal run response; the story run path only reads report.status and the story-level lists */
+		function runResponse(status: boolean, storyStatuses?: { storyId: string; status: boolean; scenarioStatuses: [] }[]) {
+			return { htmlFile: '', reportId: 'r1', report: { status, storiesTested: [], scenarioStatuses: [], storyStatuses } };
+		}
+
+		beforeEach(() => {
+			// JSDOM has no scrollIntoView; runTests scrolls the loading element into view, so stub it for this describe only
+			Element.prototype.scrollIntoView = vi.fn();
+			vi.spyOn(component, 'testRunParams').mockReturnValue({ browser: null, emulator: null, width: undefined, height: undefined, stepWaitTime: undefined, repository: undefined, repositoryId: undefined, source: undefined, oneDriver: undefined, testRunner: '' });
+			vi.spyOn(component.notify, 'info').mockImplementation(() => undefined);
+			component.selectedStory.set(structuredClone(story));
+		});
+
+		afterEach(async () => {
+			// testRunResponse schedules iframe.scrollIntoView in a 10 ms timer; let it fire while the stub is still installed
+			await new Promise(resolve => setTimeout(resolve, 20));
+			delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+		});
+
+		it('emits the story status after a story run completes', async () => {
+			const added = addRunDomNodes();
+			const emit = vi.spyOn(component.scenarioService, 'storyStatusChangeEmit');
+			vi.spyOn(component.storyService, 'runTests').mockReturnValue(of(runResponse(true)) as never);
+			try {
+				await component.runTests(null);
+			} finally {
+				added.forEach(node => node.remove());
+			}
+			expect(emit).toHaveBeenCalledWith('a', true);
+		});
+
+		it('emits the story status of the tested story after a story run with pre-conditions', async () => {
+			const added = addRunDomNodes();
+			component.preConditionResults = [{}];
+			vi.spyOn(component, 'createTempGroup').mockResolvedValue({} as never);
+			const emit = vi.spyOn(component.scenarioService, 'storyStatusChangeEmit');
+			vi.spyOn(component.groupService, 'runTempGroup').mockReturnValue(of(runResponse(true, [
+				{ storyId: 'z', status: true, scenarioStatuses: [] },
+				{ storyId: 'a', status: false, scenarioStatuses: [] }
+			])) as never);
+			try {
+				await component.runTests(null);
+			} finally {
+				added.forEach(node => node.remove());
+			}
+			expect(emit).toHaveBeenCalledWith('a', false);
+			expect(emit).not.toHaveBeenCalledWith('z', expect.anything());
+		});
+
+		it('does not change the story status after a single-scenario run', async () => {
+			const added = addRunDomNodes();
+			const emit = vi.spyOn(component.scenarioService, 'storyStatusChangeEmit');
+			vi.spyOn(component.storyService, 'runTests').mockReturnValue(of(runResponse(false)) as never);
+			try {
+				await component.runTests(1);
+			} finally {
+				added.forEach(node => node.remove());
+			}
+			expect(emit).not.toHaveBeenCalled();
 		});
 	});
 

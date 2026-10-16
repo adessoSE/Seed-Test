@@ -22,6 +22,8 @@ export class ScenarioService {
 	readonly renameScenarioTrigger = new ActionTrigger<string>();
 	/** Action channel for scenario status change — carries {storyId, scenarioId, lastTestPassed} */
 	readonly scenarioStatusChangeTrigger = new ActionTrigger<{ storyId: string; scenarioId: number; lastTestPassed: boolean }>();
+	/** Action channel for story status change — carries {storyId, lastTestPassed} from a story or group run */
+	readonly storyStatusChangeTrigger = new ActionTrigger<{ storyId: string; lastTestPassed: boolean }>();
 	/** Signal for scenario changed trigger */
 	readonly scenarioChangedTrigger = signal(0);
 	/** Triggers the scenario changed signal */
@@ -43,6 +45,15 @@ export class ScenarioService {
   */
 	scenarioStatusChangeEmit(storyId: string, scenarioId: number, lastTestPassed: boolean) {
 		this.scenarioStatusChangeTrigger.emit({ storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed });
+	}
+	/**
+	 * Emits the story status change action. Only story and group runs call this: the backend derives the
+	 * story status from the whole report, so a single-scenario run must not emit it.
+	 * @param storyId id of the story
+	 * @param lastTestPassed status of the whole story from the run response
+	 */
+	storyStatusChangeEmit(storyId: string, lastTestPassed: boolean) {
+		this.storyStatusChangeTrigger.emit({ storyId: storyId, lastTestPassed: lastTestPassed });
 	}
 	/* Updating scenario list */
 	public updateScenarioList(story_id: string, scenario_list: Scenario[]): Observable<Story> {

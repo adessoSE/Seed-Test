@@ -62,6 +62,8 @@ interface TestReport {
 	status: boolean;
 	storiesTested: { scenarios: Scenario[] }[];
 	scenarioStatuses: { scenarioId: number; status: boolean }[];
+	/** Present on group reports (pre-condition runs); each entry holds the status the backend persisted for that story */
+	storyStatuses?: { storyId: string; status: boolean }[];
 }
 
 /**
@@ -526,15 +528,18 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				this.exitAiReviewMode();
 
 			this.selectScenario(scenario);
-		} else {
+		} else
 			// CASE: newSelectedScenario is null/undefined after story switch.
 			// Auto-select the first scenario of the new story.
-			const story = this.selectedStory();
-			if (story && story.scenarios && story.scenarios.length > 0)
-				this.selectScenario(story.scenarios[0]);
-			else if (story)
-				this.selectScenario(null);
-		}
+			// Untracked: reading selectedStory() here would re-run this effect on every story
+			// update (add/delete scenario) and overwrite the new selection with scenarios[0].
+			untracked(() => {
+				const story = this.selectedStory();
+				if (story && story.scenarios && story.scenarios.length > 0)
+					this.selectScenario(story.scenarios[0]);
+				else if (story)
+					this.selectScenario(null);
+			});
 	});
 
 	/** Effect 17: React to new stories input */
@@ -1356,6 +1361,10 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 						this.groupService.runTempGroup(params).subscribe({
 							next: (resp) => {
 								this.testRunResponse(resp as TestRunResponse);
+								// Pre-condition stories are in the same group report; only the tested story's status is sent
+								// Emitted outside the Xray block: the stories bar filter needs the status even without Xray executions
+								const storyStatus = this.testReport.storyStatuses?.find(status => String(status.storyId) === String(story._id));
+								if (storyStatus) this.scenarioService.storyStatusChangeEmit(story._id!, storyStatus.status);
 								// Update Xray status for each scenario in the tested story
 								if (selectedExecutions) {
 									const testStatus = this.testReport.status ? 'PASS' : 'FAIL';
@@ -1394,6 +1403,9 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 							next: (resp) => {
 								this.testRunResponse(resp as TestRunResponse);
 								const testStatus = this.testReport.status ? 'PASS' : 'FAIL';
+
+								// The stories bar filters on the story status, which only story and group runs change, so it is sent here
+								this.scenarioService.storyStatusChangeEmit(story._id!, this.testReport.status);
 
 								// Emit status change for each scenario and update Xray if applicable
 								this.testReport.scenarioStatuses.forEach((scenario) => {

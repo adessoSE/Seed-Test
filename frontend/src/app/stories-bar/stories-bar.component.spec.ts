@@ -484,6 +484,25 @@ describe('StoriesBarComponent', () => {
 			expect(story.scenarios[0].lastTestPassed).toBe(true);
 			expect(story.scenarios[1].lastTestPassed).toBe(false);
 		});
+
+		it('re-renders the scenario status icon after a status change', () => {
+			const story = {
+				_id: 'a', story_id: 1, storySource: 'db', repo_type: 'db', title: 'Story a', body: '', state: 'open',
+				issue_number: 1, assignee: '', assignee_avatar_url: '',
+				scenarios: [{ scenario_id: 1, name: 'x', lastTestPassed: undefined }],
+				background: { name: '', stepDefinitions: { when: [] } }
+			} as unknown as Story;
+			component.stories.set([story]);
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('.icon.undefined')).toBeTruthy();
+
+			component.scenarioService.scenarioStatusChangeEmit('a', 1, true);
+			TestBed.flushEffects();
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.querySelector('.icon.passed')).toBeTruthy();
+			expect(fixture.nativeElement.querySelector('.icon.undefined')).toBeNull();
+		});
 	});
 
 	/**
@@ -543,6 +562,45 @@ describe('StoriesBarComponent', () => {
 			} finally {
 				create.mockRestore();
 			}
+		});
+	});
+
+	/**
+	 * Regression: the status filter reads story.lastTestPassed, which a story or group run never updated,
+	 * so the filter showed the old status until a reload.
+	 */
+	describe('regression: story run status must update the status filter', () => {
+		it('re-evaluates the status filter after a story run, without reload', () => {
+			const story = { _id: 'a', story_id: 1, scenarios: [], lastTestPassed: undefined } as unknown as Story;
+			component.stories.set([story]);
+			component.filteredStories.set([story]);
+			component.testPassedModel = 'Passed';
+			component.filter();
+			expect(component.filteredStories()).toEqual([]);
+
+			component.scenarioService.storyStatusChangeEmit('a', true);
+			TestBed.flushEffects();
+			component.filter();
+
+			expect(component.filteredStories()).toEqual([story]);
+		});
+
+		it('emits the status of every story after a group run', () => {
+			const emit = vi.spyOn(component.scenarioService, 'storyStatusChangeEmit');
+			vi.spyOn(component.groupService, 'runGroup').mockReturnValue(of({
+				report: {
+					status: false,
+					storyStatuses: [
+						{ storyId: 'a', status: true, scenarioStatuses: [] },
+						{ storyId: 'b', status: false, scenarioStatuses: [] }
+					]
+				}
+			}));
+
+			component.runGroup({ _id: 'g', name: 'G' } as unknown as Parameters<StoriesBarComponent['runGroup']>[0]);
+
+			expect(emit).toHaveBeenCalledWith('a', true);
+			expect(emit).toHaveBeenCalledWith('b', false);
 		});
 	});
 });
