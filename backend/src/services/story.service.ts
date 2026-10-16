@@ -11,7 +11,7 @@ import { emptyBackground } from '../models/emptyBackground.js';
 import { deleteReport } from './report.service.js';
 import { AppError } from '../helpers/AppError.js';
 
-const storiesCollection = 'Stories';
+export const storiesCollection = 'Stories';
 const repositoriesCollection = 'Repositories';
 
 /**

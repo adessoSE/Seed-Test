@@ -1,7 +1,7 @@
 ﻿// src/services/repository.service.spec.ts
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ObjectId } from 'mongodb';
+import { ObjectId, type ClientSession } from 'mongodb';
 
 // --- 1. Import types and the module under test ---
 import type { AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
@@ -198,6 +198,16 @@ describe('RepositoryService', () => {
 			const savedConfig = mockRepoCollection.findOneAndUpdate.mock.calls[0][1].$set.aiConfig;
 			expect(savedConfig.textPreparation.apiKey).toBe(alreadyEncrypted);
 			expect(savedConfig.jsonConversion.apiKey).toBe('encrypted(another-key)');
+		});
+
+		it('should reject a session without its client instead of writing to the default connection', async () => {
+			// A. Arrange — a session is only valid together with the client it was started on
+			const repoId = new ObjectId().toHexString();
+			const session = {} as ClientSession;
+
+			// B. Act + C. Assert
+			await expect(repositoryService.updateRepository(repoId, 'New Name', undefined, undefined, undefined, session)).rejects.toThrow(/client/);
+			expect(mockRepoCollection.findOneAndUpdate).not.toHaveBeenCalled();
 		});
 	});
 

@@ -1,4 +1,4 @@
-﻿import { ObjectId, type ClientSession, type MongoClient, type WithId, type InsertOneResult, type UpdateResult, type UpdateFilter } from 'mongodb';
+﻿import { ObjectId, type ClientSession, type Db, type MongoClient, type WithId, type InsertOneResult, type UpdateResult, type UpdateFilter } from 'mongodb';
 import { type RepositoryDoc, type UserDoc, type GroupDoc, oid } from '../types/mongo.types.js';
 import * as dbConnection from '../database/DbConnector.js';
 import { type Group } from '@seed-test/shared/models/Group.js';
@@ -160,8 +160,27 @@ export async function createRepo(ownerId: string, name: string, session?: Client
 	return result.insertedId;
 }
 
-export async function updateRepository(repoId: string, newName?: string, globalSettings?: Repository['settings'], aiConfig?: AiConfig): Promise<WithId<RepositoryDoc> | null> {
-	const db = dbConnection.getConnection();
+/**
+ * Updates the name, settings and/or AI config of a repository.
+ * @param repoId The ID of the repository to update.
+ * @param newName Optional new repository name.
+ * @param globalSettings Optional replacement settings.
+ * @param aiConfig Optional AI config; API keys are encrypted before saving.
+ * @param client Required together with `session`; the MongoClient the session belongs to.
+ * @param session Optional transaction session. Pass it when the repository was created in the same transaction,
+ * because other connections cannot see an uncommitted repository and the update would silently match nothing.
+ * @returns The updated document, or null when no repository matched.
+ */
+export async function updateRepository(repoId: string, newName?: string, globalSettings?: Repository['settings'], aiConfig?: AiConfig, client?: MongoClient, session?: ClientSession): Promise<WithId<RepositoryDoc> | null> {
+	// CASE 1: session given. The update must run on the session's client, or it would miss the uncommitted repository.
+	// Without the client, falling back to the default connection would write outside the transaction, so the call is rejected.
+	// CASE 2: no session. The update runs directly on the default connection.
+	let db: Db;
+	if (session) {
+		if (!client) throw new Error('updateRepository: a session requires its client');
+		db = client.db('Seed');
+	} else
+		db = dbConnection.getConnection();
 	const updateFields: Partial<Repository> = {};
 	if (newName !== undefined) updateFields.repoName = newName;
 	if (globalSettings !== undefined) updateFields.settings = globalSettings;
@@ -189,7 +208,7 @@ export async function updateRepository(repoId: string, newName?: string, globalS
 	const result = await db.collection<RepositoryDoc>(repositoriesCollection).findOneAndUpdate(
 		{ _id: oid(repoId) },
 		{ $set: updateFields } as unknown as UpdateFilter<RepositoryDoc>,
-		{ returnDocument: 'after' }
+		{ returnDocument: 'after', session }
 	);
 	return result;
 }
