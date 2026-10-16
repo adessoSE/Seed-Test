@@ -78,18 +78,20 @@ export const scenarioSchema = z.object({
 }).passthrough();
 
 /**
- * Full story document — body of PUT /api/story/:_id.
- * The controller replaces the whole document, so title and scenarios are required; without them the
- * stored story would lose its title or scenarios. The frontend always sends the complete Story, which
- * carries a title.
+ * Story editor fields — body of PUT /api/story/:_id.
+ * Only the fields the story editor edits are accepted. Server-owned fields (lastTestPassed, oneDriver,
+ * issue_number, story_id, storySource, ...) are stripped because the service $sets exactly what it
+ * receives, so a stale tab cannot overwrite them. title and scenarios are required; without them the
+ * stored story would lose its title or scenarios.
  */
 export const updateStorySchema = z.object({
 	title: z.string(),
-	// Legacy stored stories hold body and assignee_avatar_url null; the Story model requires strings.
+	// Legacy stored stories hold body null; the Story model requires a string.
 	body: nullAs(z.string(), ''),
-	assignee_avatar_url: nullAs(z.string(), ''),
-	scenarios: z.array(scenarioSchema)
-}).passthrough();
+	scenarios: z.array(scenarioSchema),
+	background: z.object({}).passthrough().optional(),
+	aiSuggestion: z.object({}).passthrough().optional()
+});
 
 /** PATCH /api/story/:story_id — body is the complete scenarios array of the story */
 export const updateScenarioListSchema = z.array(scenarioSchema);

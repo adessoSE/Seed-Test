@@ -71,12 +71,48 @@ describe('scenarioSchema with legacy stored data', () => {
 });
 
 describe('updateStorySchema with legacy stored data', () => {
-	// PUT /api/story/:_id replaces the whole document, so the stored story must come back with clean values.
-	it('accepts the stored story with body and assignee_avatar_url null and normalises them to empty strings', () => {
+	// PUT /api/story/:_id updates only the editor fields, so the stored story must come back with clean values.
+	it('accepts the stored story with body null and normalises it to an empty string', () => {
 		const result = updateStorySchema.safeParse(storedStory);
 		expect(result.success).toBe(true);
 		expect(result.data?.body).toBe('');
-		expect(result.data?.assignee_avatar_url).toBe('');
+	});
+
+	// Server-owned fields are written by sync, test runs and the one-driver toggle; a client PUT must not set them.
+	it('strips server-owned fields that the client sends', () => {
+		const result = updateStorySchema.safeParse({
+			...storedStory,
+			lastTestPassed: false,
+			oneDriver: true,
+			issue_number: 99,
+			story_id: 42,
+			storySource: 'jira',
+			assignee_avatar_url: 'https://example.invalid/a.png'
+		});
+		expect(result.success).toBe(true);
+		expect(result.data).not.toHaveProperty('lastTestPassed');
+		expect(result.data).not.toHaveProperty('oneDriver');
+		expect(result.data).not.toHaveProperty('issue_number');
+		expect(result.data).not.toHaveProperty('story_id');
+		expect(result.data).not.toHaveProperty('storySource');
+		expect(result.data).not.toHaveProperty('assignee_avatar_url');
+	});
+
+	it('still rejects a story without scenarios', () => {
+		const { scenarios: _scenarios, ...withoutScenarios } = storedStory;
+		const result = updateStorySchema.safeParse(withoutScenarios);
+		expect(result.success).toBe(false);
+	});
+
+	it('keeps aiSuggestion and background that the editor sends', () => {
+		const result = updateStorySchema.safeParse({
+			...storedStory,
+			background: { name: 'Bg', stepDefinitions: { when: [{ id: 1, origin: 'created-by-user' }] }, saved: true },
+			aiSuggestion: { scenarios: [] }
+		});
+		expect(result.success).toBe(true);
+		expect(result.data?.background).toEqual({ name: 'Bg', stepDefinitions: { when: [{ id: 1, origin: 'created-by-user' }] }, saved: true });
+		expect(result.data?.aiSuggestion).toEqual({ scenarios: [] });
 	});
 
 	it('normalises the comment and isExample nulls of the stored scenarios', () => {

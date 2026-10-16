@@ -128,10 +128,14 @@ export async function deleteStory(req: Request, res: Response, next: NextFunctio
 		const storyId = requireValidId(param(req, '_id'), 'story ID');
 
 		const story = await storyService.getOneStory(storyId); // Fetch story to get title for file deletion
-		if (!story)
-			throw AppError.notFound('Story not found');
+		// The story document may already be gone when an earlier attempt failed after deleting it.
+		// The service still runs so the remaining cleanup (group and repo references) finishes.
+		// Its membership guard still answers 404 for unknown or foreign story IDs.
 		await storyService.deleteStory(repo_id, storyId);
-		await featureFileService.deleteFeatureFile(story.title, story._id);
+		// CASE 1: story document found → also delete its feature file (named after the title).
+		// CASE 2: document already gone (retry) → no title to name the file by, so the file step is skipped.
+		if (story)
+			await featureFileService.deleteFeatureFile(story.title, story._id);
 		res.status(200).json({ message: 'Story deleted' });
 	} catch (error) {
 		next(error);

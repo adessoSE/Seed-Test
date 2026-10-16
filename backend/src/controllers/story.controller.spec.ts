@@ -461,15 +461,33 @@ describe('StoryController', () => {
 			expect((next.mock.calls[0][0] as AppError).statusCode).toBe(400);
 		});
 
-		it('should pass 404 AppError to next when story is not found', async () => {
+		// Retry case: an earlier attempt deleted the story document but failed before removing the repo reference.
+		// The controller must still let the service finish the cleanup instead of answering 404 forever.
+		it('should call the service and skip the feature file when the story document is already gone', async () => {
 			req.params = { repo_id: VALID_REPO_ID, _id: VALID_STORY_ID };
 
 			vi.mocked(storyService.getOneStory).mockResolvedValue(null);
+			vi.mocked(storyService.deleteStory).mockResolvedValue(null);
+
+			await controller.deleteStory(req, res, next);
+
+			expect(storyService.deleteStory).toHaveBeenCalledWith(VALID_REPO_ID, VALID_STORY_ID);
+			expect(featureFileService.deleteFeatureFile).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it('should pass the 404 from the membership guard to next and delete no feature file', async () => {
+			req.params = { repo_id: VALID_REPO_ID, _id: VALID_STORY_ID };
+
+			vi.mocked(storyService.getOneStory).mockResolvedValue({ _id: VALID_STORY_ID, title: 'Foreign' } as any);
+			vi.mocked(storyService.deleteStory).mockRejectedValue(AppError.notFound('Story not found in this repository'));
 
 			await controller.deleteStory(req, res, next);
 
 			expect(next).toHaveBeenCalledWith(expect.any(AppError));
 			expect((next.mock.calls[0][0] as AppError).statusCode).toBe(404);
+			expect(featureFileService.deleteFeatureFile).not.toHaveBeenCalled();
 		});
 	});
 

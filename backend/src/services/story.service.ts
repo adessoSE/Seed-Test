@@ -130,6 +130,8 @@ export async function createStory(storyTitle: string, storyDescription: string, 
 	const db = client ? client.db('Seed') : dbConnection.getConnection();
 	const repo = await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }, { session });
 
+	// shortcut: two concurrent creates in one repo can get the same issue_number (read-then-insert); accepted per
+	// ADR-0001 because creation is effectively serialized. Upgrade: link the story into the repo with a guarded update if this ever shows up.
 	let finalIssueNumber: number | undefined = 1;
 	if (repo?.stories && repo.stories.length > 0) {
 		// Fetch all issue numbers from stories in the current repository to find the next free number.
@@ -152,18 +154,21 @@ export async function createStory(storyTitle: string, storyDescription: string, 
 }
 
 /**
- * Replaces an existing story document in the database with an updated version.
- * @param updatedStory - The full story object to replace the existing one.
+ * Updates the fields of an existing story. Only the fields present in the input are written.
+ * A full replace would let a stale editor tab overwrite server-owned fields (lastTestPassed,
+ * oneDriver, issue_number) that the client never sent.
+ * @param updatedStory - The story ID and the editable fields to set. Absent fields are left unchanged.
  * @param client - Optional MongoClient for transaction support.
  * @param session - Optional ClientSession for transaction support.
- * @returns A Promise that resolves to the result of the replacement operation.
+ * @returns A Promise that resolves to the story document after the update, or null when no story matches.
  */
 export async function updateStory(updatedStory: Story, client?: MongoClient, session?: ClientSession): Promise<WithId<StoryDoc> | null> {
 	const db = client ? client.db('Seed') : dbConnection.getConnection();
-	const doc: StoryDoc = { ...updatedStory, _id: oid(updatedStory._id!) };
-	return db.collection<StoryDoc>(storiesCollection).findOneAndReplace(
-		{ _id: doc._id },
-		doc,
+	// _id is the filter only; $set must not contain it because MongoDB rejects updates to _id
+	const { _id, ...fields } = updatedStory;
+	return db.collection<StoryDoc>(storiesCollection).findOneAndUpdate(
+		{ _id: oid(_id!) },
+		{ $set: fields },
 		{ returnDocument: 'after', session }
 	);
 }
@@ -201,9 +206,13 @@ export async function assertStoriesInRepo(repoId: string, storyIds: string[] = [
 
 /**
  * Deletes a story and all its references within a repository (stories array, groups) and associated reports.
+ * Steps run in this order: reports, story document, groups, repository stories array. The repository
+ * reference is removed last because the membership guard checks it. While it still exists, a retry
+ * after a partial failure passes the guard and finishes the cleanup. Every step is idempotent.
+ * Irreversible: the story document and its reports are deleted.
  * @param repoId - The ObjectId of the repository containing the story.
  * @param storyId - The ObjectId of the story to delete.
- * @returns A Promise that resolves to the result of the deletion operation.
+ * @returns A Promise that resolves to the deleted story document, or null when it was already gone.
  * @throws AppError (404) when the story is not part of the repository. Nothing is deleted in that case.
  */
 export async function deleteStory(repoId: string, storyId: string): Promise<WithId<StoryDoc> | null> {
@@ -217,6 +226,18 @@ export async function deleteStory(repoId: string, storyId: string): Promise<With
 	const repoCollection = db.collection(repositoriesCollection);
 	const storyCollection = db.collection<StoryDoc>(storiesCollection);
 
+	// Find and delete all associated test reports for this story.
+	const reports = await db.collection('ReportData').find({ storyId: oid(storyId) }).toArray();
+
+	const reportDeletionPromises = reports.map(report =>
+		deleteReport(report._id.toHexString())
+	);
+
+	await Promise.all(reportDeletionPromises);
+
+	// Delete the story document itself. Its result is returned to the caller.
+	const deletedStory = await storyCollection.findOneAndDelete({ _id: oid(storyId) });
+
 	// Remove the story's ObjectId from any groups it might be a member of.
 	// MongoDB driver types (v7 PullOperator/NotAcceptedFields) reject computed paths on Document
 	// collections, so route the update object through unknown before casting to UpdateFilter.
@@ -226,22 +247,13 @@ export async function deleteStory(repoId: string, storyId: string): Promise<With
 	);
 
 	// Remove the story's ObjectId from the main stories array of the repository.
+	// Last on purpose: see the JSDoc above. Removing it earlier would orphan the story and its reports.
 	await repoCollection.updateOne(
 		{ _id: oid(repoId) },
 		{ $pull: { stories: oid(storyId) } } as unknown as UpdateFilter<Document>
 	);
 
-	// Find and delete all associated test reports for this story.
-	const reports = await db.collection('ReportData').find({ storyId: oid(storyId) }).toArray();
-
-	const reportDeletionPromises = reports.map(report => 
-		deleteReport(report._id.toHexString())
-	);
-
-	await Promise.all(reportDeletionPromises);
-
-	// Finally, delete the story document itself.
-	return storyCollection.findOneAndDelete({ _id: oid(storyId) });
+	return deletedStory;
 }
 
 /**
@@ -320,34 +332,37 @@ export async function getOneScenario(storyId: string, scenarioId: number): Promi
 }
 
 /**
- * Creates a new, empty scenario and adds it to an existing story.
+ * Creates a new, empty scenario and appends it to an existing story in one atomic update.
  * @param storyId - The ObjectId of the story to add the scenario to.
  * @param scenarioTitle - The name for the new scenario.
  * @returns A Promise that resolves to the newly created scenario object.
+ * @throws AppError (404) when the story does not exist.
  */
 export async function createScenario(storyId: string, scenarioTitle: string): Promise<Scenario> {
 	const db = dbConnection.getConnection();
 	const collection = db.collection<StoryDoc>(storiesCollection);
-	const story = await collection.findOne({ _id: oid(storyId) });
-
-	if (!story)
-		throw AppError.notFound('Story not found');
-    
 
 	const newScenario = emptyScenario();
 	newScenario.name = scenarioTitle;
-    
-	// Calculate the next available scenario_id.
-	if (story.scenarios.length > 0) {
-		const maxId = Math.max(...story.scenarios.map(s => s.scenario_id));
-		newScenario.scenario_id = maxId + 1;
-	}
 
-	await collection.updateOne(
+	// Calculate the next available scenario_id inside the update. Reading the max in a separate query
+	// would let two concurrent creates read the same max and get the same id.
+	// $literal wraps the user-supplied name so a name starting with '$' is not read as a field path.
+	const result = await collection.findOneAndUpdate(
 		{ _id: oid(storyId) },
-		{ $push: { scenarios: newScenario } } // ESLint: no-unnecessary-type-assertion resolved by typing
+		[{ $set: { scenarios: { $concatArrays: ['$scenarios', [{ $mergeObjects: [
+			{ $literal: newScenario },
+			{ scenario_id: { $add: [{ $ifNull: [{ $max: '$scenarios.scenario_id' }, 0] }, 1] } }
+		] }]] } } }],
+		{ returnDocument: 'before' }
 	);
-	return newScenario;
+
+	if (!result)
+		throw AppError.notFound('Story not found');
+	// Derive the id from the pre-image with the same max+1 rule the update used. The post-image's last element
+	// could be a scenario that a concurrent create appended after ours.
+	const maxId = Math.max(0, ...result.scenarios.map(s => s.scenario_id));
+	return { ...newScenario, scenario_id: maxId + 1 };
 }
 
 /**
@@ -378,11 +393,29 @@ export async function deleteScenario(storyId: string, scenarioId: number): Promi
 	);
 }
 
+/**
+ * Reorders the scenarios of a story. Only the order of the given scenario IDs is applied; the
+ * scenario contents in the database are never written from the client list.
+ * A whole-array $set would drop scenarios added concurrently and revert concurrent edits, so the
+ * update is an aggregation pipeline that rebuilds the array from the stored scenarios.
+ * Scenarios missing from the list (added concurrently) are kept at the end. IDs in the list that
+ * no longer exist (deleted concurrently) are dropped.
+ * @param storyId - The ObjectId of the story to reorder.
+ * @param scenarioList - The scenarios in the desired order. Only their scenario_id is used.
+ * @returns A Promise resolving to the result of the update operation.
+ */
 export async function updateScenarioList(storyId: string, scenarioList: Scenario[]): Promise<UpdateResult> {
 	const db = dbConnection.getConnection();
+	// Duplicate IDs in the list would duplicate the scenario, so each ID is applied once
+	const order = [...new Set(scenarioList.map(s => s.scenario_id))];
 	return db.collection<StoryDoc>(storiesCollection).updateOne(
 		{ _id: oid(storyId) },
-		{ $set: { scenarios: scenarioList } }
+		[{ $set: { scenarios: { $concatArrays: [
+			// Scenarios in the requested order, looked up from the stored array
+			{ $filter: { input: { $map: { input: { $literal: order }, as: 'id', in: { $first: { $filter: { input: '$scenarios', as: 's', cond: { $eq: ['$$s.scenario_id', '$$id'] } } } } } }, as: 'm', cond: { $ne: ['$$m', null] } } },
+			// Stored scenarios that the list does not mention, kept after the ordered ones
+			{ $filter: { input: '$scenarios', as: 's', cond: { $not: [{ $in: ['$$s.scenario_id', { $literal: order }] }] } } }
+		] } } }]
 	);
 }
 
@@ -418,14 +451,25 @@ export async function updateScenarioStatus(storyId: string, scenarioId: number, 
 	);
 }
 
-export async function updateOneDriver(storyId: string, currentOneDriver: boolean): Promise<Story | null> {
+/**
+ * Toggles the oneDriver flag of a story and returns the updated story in one write.
+ * The client sends the value it currently shows and the server negates it. A stale tab therefore
+ * toggles from its own view; this keeps the API contract unchanged.
+ * @param storyId - The ObjectId of the story to toggle.
+ * @param currentOneDriver - The oneDriver value the client currently shows.
+ * @returns A Promise resolving to the story after the toggle.
+ * @throws AppError (404) when the story does not exist.
+ */
+export async function updateOneDriver(storyId: string, currentOneDriver: boolean): Promise<Story> {
 	const db = dbConnection.getConnection();
-	const oneDriver = !currentOneDriver;
-	await db.collection<StoryDoc>(storiesCollection).updateOne(
+	const updatedStory = await db.collection<StoryDoc>(storiesCollection).findOneAndUpdate(
 		{ _id: oid(storyId) },
-		{ $set: { oneDriver: oneDriver } }
+		{ $set: { oneDriver: !currentOneDriver } },
+		{ returnDocument: 'after' }
 	);
-	return await db.collection<StoryDoc>(storiesCollection).findOne({ _id: oid(storyId) }) as unknown as Story | null;
+	if (!updatedStory)
+		throw AppError.notFound('Story not found');
+	return updatedStory as unknown as Story;
 }
 
 // --- Issue Tracker specific Functions ---

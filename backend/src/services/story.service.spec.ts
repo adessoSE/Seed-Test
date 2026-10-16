@@ -37,7 +37,7 @@ const mockStoriesCollection = {
 	insertOne: vi.fn(),
 	updateOne: vi.fn(),
 	findOneAndDelete: vi.fn(),
-	findOneAndReplace: vi.fn(),
+	findOneAndUpdate: vi.fn(),
 	bulkWrite: vi.fn()
 };
 const mockRepoCollection = {
@@ -131,54 +131,97 @@ describe('StoryService', () => {
 		});
 	});
 
+	// --- Tests for updateStory (partial $set so a stale PUT cannot overwrite server-owned fields) ---
+
+	describe('updateStory', () => {
+		it('should $set only the submitted fields and use the _id as the filter only', async () => {
+			// A. Arrange — a stale tab sends a story without lastTestPassed, oneDriver, issue_number
+			const storyId = new ObjectId().toHexString();
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue({ _id: new ObjectId(storyId), title: 'Edited' });
+
+			// B. Act
+			const result = await storyService.updateStory({ _id: storyId, title: 'Edited', scenarios: [] } as unknown as Story);
+
+			// C. Assert — the exact $set means fields absent from the input are left untouched in the database
+			expect(mockStoriesCollection.findOneAndUpdate).toHaveBeenCalledWith(
+				{ _id: new ObjectId(storyId) },
+				{ $set: { title: 'Edited', scenarios: [] } },
+				{ returnDocument: 'after', session: undefined }
+			);
+			expect(result).toEqual({ _id: new ObjectId(storyId), title: 'Edited' });
+		});
+	});
+
+	// --- Tests for updateScenarioList (reorder only, never writes client contents) ---
+
+	describe('updateScenarioList', () => {
+		it('should reorder with an aggregation pipeline and never write the client scenario contents', async () => {
+			// A. Arrange — the client sends a new order together with edited contents that must not be persisted
+			const storyId = new ObjectId().toHexString();
+			const clientList = [
+				{ scenario_id: 2, name: 'CLIENT EDIT' } as any,
+				{ scenario_id: 1, name: 'Stale name' } as any
+			];
+			mockStoriesCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+
+			// B. Act
+			await storyService.updateScenarioList(storyId, clientList);
+
+			// C. Assert — the write is a pipeline; only the id order reaches it, as a $literal so ids are not read as paths
+			const [filter, update] = mockStoriesCollection.updateOne.mock.calls[0];
+			expect(filter).toEqual({ _id: new ObjectId(storyId) });
+			expect(Array.isArray(update)).toBe(true);
+			expect(JSON.stringify(update)).not.toContain('CLIENT EDIT');
+			expect(JSON.stringify(update)).toContain(JSON.stringify({ $literal: [2, 1] }));
+		});
+	});
+
 	// --- Tests for createScenario (Scenario ID Logic) ---
 
 	describe('createScenario', () => {
-		it('should assign scenario_id 1 if story has no scenarios', async () => {
-			// A. Arrange
+		it('should compute scenario_id inside one atomic findOneAndUpdate pipeline and return the appended scenario', async () => {
+			// A. Arrange — the pre-image of the story: the update appends max(5)+1 = 6
 			const storyId = new ObjectId().toHexString();
-			const mockStory: Partial<Story> = { _id: new ObjectId(storyId), scenarios: [] };
-			mockStoriesCollection.findOne.mockResolvedValue(mockStory);
-			mockStoriesCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue({
+				_id: new ObjectId(storyId),
+				scenarios: [{ scenario_id: 1 }, { scenario_id: 5 }]
+			});
 
 			// B. Act
-			await storyService.createScenario(storyId, 'New Scenario');
+			const created = await storyService.createScenario(storyId, 'Next Scenario');
 
-			// C. Assert
-			// Check the $push operation
-			expect(mockStoriesCollection.updateOne).toHaveBeenCalledWith(
-				{ _id: new ObjectId(storyId) },
-				expect.objectContaining({
-					$push: { scenarios: expect.objectContaining({ scenario_id: 1, name: 'New Scenario' }) }
-				})
-			);
+			// C. Assert — the id is max+1 evaluated by the database, so two concurrent creates cannot read the same max
+			const [filter, pipeline, options] = mockStoriesCollection.findOneAndUpdate.mock.calls[0];
+			expect(filter).toEqual({ _id: new ObjectId(storyId) });
+			expect(Array.isArray(pipeline)).toBe(true);
+			expect(JSON.stringify(pipeline)).toContain(JSON.stringify({ $add: [{ $ifNull: [{ $max: '$scenarios.scenario_id' }, 0] }, 1] }));
+			// The pre-image is read, not the post-image: a concurrent create may append after ours, so the last element could be theirs
+			expect(options).toEqual({ returnDocument: 'before' });
+			expect(created).toMatchObject({ scenario_id: 6, name: 'Next Scenario' });
 		});
 
-		it('should find the next available scenario_id', async () => {
-			// A. Arrange
+		it('should wrap the user-supplied name in $literal so a name starting with $ is not read as a field path', async () => {
 			const storyId = new ObjectId().toHexString();
-			const mockStory: Partial<Story> = {
-				_id: new ObjectId(storyId),
-				scenarios: [
-					{ scenario_id: 1 } as any,
-					{ scenario_id: 5 } as any, // Max ID is 5
-					{ scenario_id: 3 } as any
-				]
-			};
-			mockStoriesCollection.findOne.mockResolvedValue(mockStory);
-			mockStoriesCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue({ _id: new ObjectId(storyId), scenarios: [{ scenario_id: 1, name: '$injected' }] });
 
-			// B. Act
-			await storyService.createScenario(storyId, 'Next Scenario');
+			await storyService.createScenario(storyId, '$injected');
 
-			// C. Assert
-			// It should have found max(1, 5, 3) + 1 = 6
-			expect(mockStoriesCollection.updateOne).toHaveBeenCalledWith(
-				{ _id: new ObjectId(storyId) },
-				expect.objectContaining({
-					$push: { scenarios: expect.objectContaining({ scenario_id: 6, name: 'Next Scenario' }) }
-				})
-			);
+			const [, pipeline] = mockStoriesCollection.findOneAndUpdate.mock.calls[0];
+			expect(JSON.stringify(pipeline)).toContain('{"$literal":{"scenario_id":1,"name":"$injected"');
+		});
+
+		it('should give the first scenario of an empty story the id 1', async () => {
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue({ _id: new ObjectId(), scenarios: [] });
+
+			const created = await storyService.createScenario(new ObjectId().toHexString(), 'First');
+
+			expect(created.scenario_id).toBe(1);
+		});
+
+		it('should reject with 404 when the story does not exist', async () => {
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue(null);
+
+			await expect(storyService.createScenario(new ObjectId().toHexString(), 'X')).rejects.toMatchObject({ statusCode: 404 });
 		});
 	});
 
@@ -187,43 +230,40 @@ describe('StoryService', () => {
 	describe('updateOneDriver', () => {
 		const storyId = new ObjectId().toHexString();
 
-		it('should toggle oneDriver from false to true', async () => {
+		it('should toggle oneDriver from false to true in one write and return the updated story', async () => {
 			const updatedStory = { _id: new ObjectId(storyId), title: 'My Story', oneDriver: true };
-			mockStoriesCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
-			mockStoriesCollection.findOne.mockResolvedValue(updatedStory);
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue(updatedStory);
 
 			const result = await storyService.updateOneDriver(storyId, false);
 
-			expect(mockStoriesCollection.updateOne).toHaveBeenCalledWith(
+			expect(mockStoriesCollection.findOneAndUpdate).toHaveBeenCalledWith(
 				{ _id: new ObjectId(storyId) },
-				{ $set: { oneDriver: true } }
+				{ $set: { oneDriver: true } },
+				{ returnDocument: 'after' }
 			);
-			expect(mockStoriesCollection.findOne).toHaveBeenCalledWith({ _id: new ObjectId(storyId) });
+			expect(mockStoriesCollection.updateOne).not.toHaveBeenCalled();
+			expect(mockStoriesCollection.findOne).not.toHaveBeenCalled();
 			expect(result).toEqual(updatedStory);
-			expect(result._id).toBeDefined();
 		});
 
 		it('should toggle oneDriver from true to false', async () => {
 			const updatedStory = { _id: new ObjectId(storyId), title: 'My Story', oneDriver: false };
-			mockStoriesCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
-			mockStoriesCollection.findOne.mockResolvedValue(updatedStory);
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue(updatedStory);
 
 			const result = await storyService.updateOneDriver(storyId, true);
 
-			expect(mockStoriesCollection.updateOne).toHaveBeenCalledWith(
+			expect(mockStoriesCollection.findOneAndUpdate).toHaveBeenCalledWith(
 				{ _id: new ObjectId(storyId) },
-				{ $set: { oneDriver: false } }
+				{ $set: { oneDriver: false } },
+				{ returnDocument: 'after' }
 			);
 			expect(result.oneDriver).toBe(false);
 		});
 
-		it('should return null if story not found after update', async () => {
-			mockStoriesCollection.updateOne.mockResolvedValue({ modifiedCount: 0 });
-			mockStoriesCollection.findOne.mockResolvedValue(null);
+		it('should reject with 404 when no story matches', async () => {
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue(null);
 
-			const result = await storyService.updateOneDriver(storyId, false);
-
-			expect(result).toBeNull();
+			await expect(storyService.updateOneDriver(storyId, false)).rejects.toMatchObject({ statusCode: 404 });
 		});
 	});
 
@@ -316,6 +356,48 @@ describe('StoryService', () => {
 
 			// 5. Check story was deleted
 			expect(mockStoriesCollection.findOneAndDelete).toHaveBeenCalledWith({ _id: new ObjectId(storyId) });
+		});
+
+		// Ordering invariant: the repository reference is removed last. While it still exists, a retry passes the
+		// membership guard and finishes the cleanup; removing it first would orphan the story and its reports.
+		it('should remove the repository reference last so a retry after a partial failure converges', async () => {
+			const repoId = new ObjectId().toHexString();
+			const storyId = new ObjectId().toHexString();
+			mockReportDataCollection.find.mockReturnValue({
+				toArray: vi.fn().mockResolvedValue([{ _id: new ObjectId('111111111111111111111111') }])
+			} as any);
+			mockRepoCollection.findOne.mockResolvedValue({ _id: new ObjectId(repoId), stories: [new ObjectId(storyId)] });
+			mockRepoCollection.updateMany.mockResolvedValue({ modifiedCount: 1 });
+			mockRepoCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+			mockStoriesCollection.findOneAndDelete.mockResolvedValue({ _id: new ObjectId(storyId) });
+
+			await storyService.deleteStory(repoId, storyId);
+
+			const reportsDeleted = mockedReportService.deleteReport.mock.invocationCallOrder[0];
+			const storyDeleted = mockStoriesCollection.findOneAndDelete.mock.invocationCallOrder[0];
+			const groupsPulled = mockRepoCollection.updateMany.mock.invocationCallOrder[0];
+			const repoStoriesPulled = mockRepoCollection.updateOne.mock.invocationCallOrder[0];
+			expect(reportsDeleted).toBeLessThan(storyDeleted);
+			expect(storyDeleted).toBeLessThan(groupsPulled);
+			expect(groupsPulled).toBeLessThan(repoStoriesPulled);
+		});
+
+		// Retry safety: a previous attempt may already have deleted the story document; the cleanup must still finish.
+		it('should finish the cleanup when the story document is already gone', async () => {
+			const repoId = new ObjectId().toHexString();
+			const storyId = new ObjectId().toHexString();
+			mockReportDataCollection.find.mockReturnValue({ toArray: vi.fn().mockResolvedValue([]) } as any);
+			mockRepoCollection.findOne.mockResolvedValue({ _id: new ObjectId(repoId), stories: [new ObjectId(storyId)] });
+			mockRepoCollection.updateMany.mockResolvedValue({ modifiedCount: 1 });
+			mockRepoCollection.updateOne.mockResolvedValue({ modifiedCount: 1 });
+			mockStoriesCollection.findOneAndDelete.mockResolvedValue(null);
+
+			await expect(storyService.deleteStory(repoId, storyId)).resolves.toBeNull();
+
+			expect(mockRepoCollection.updateOne).toHaveBeenCalledWith(
+				{ _id: new ObjectId(repoId) },
+				{ $pull: { stories: new ObjectId(storyId) } }
+			);
 		});
 
 		// Invariant: the route authorizes repo_id but not the story ID, so the service only touches stories that belong to that repo.

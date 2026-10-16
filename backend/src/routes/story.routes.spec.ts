@@ -152,7 +152,7 @@ describe('story router — body validation', () => {
 		expect(runValidation('put', '/:_id', { _id: '507f1f77bcf86cd799439011', title: 'T' }).status).toBe(400);
 	});
 
-	it('passes a full story document on PUT /:_id and keeps unknown story fields', () => {
+	it('passes a full story document on PUT /:_id and strips server-owned story fields', () => {
 		const story = {
 			_id: '507f1f77bcf86cd799439011',
 			title: 'Checkout',
@@ -163,6 +163,8 @@ describe('story router — body validation', () => {
 		};
 		const result = runValidation('put', '/:_id', story);
 		expect(result.passed).toBe(true);
-		expect(result.body).toMatchObject({ storySource: 'custom' });
+		// The service $sets what it receives, so a stale tab must not be able to send storySource and similar fields
+		expect(result.body).toMatchObject({ title: 'Checkout', background: story.background });
+		expect(result.body).not.toHaveProperty('storySource');
 	});
 });
