@@ -13,6 +13,8 @@ import { NotificationService } from '../Services/notification.service';
 import { RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
 
 
 type Report = ScenarioReport | StoryReport | GroupReport;
@@ -36,6 +38,7 @@ export class ReportHistoryComponent {
 	reportService = inject(ReportService);
 	storyService = inject(StoryService);
 	private notify = inject(NotificationService);
+	private dialog = inject(MatDialog);
 
 	/**
 	 * Currently selected story
@@ -139,6 +142,28 @@ export class ReportHistoryComponent {
 		const date = new Date(time).toLocaleDateString('de');
 		const t = new Date(time).toLocaleTimeString('de');
 		return 'Report from ' + date + ' ' + t;
+	}
+
+	/**
+	 * Asks the user to confirm before a report is deleted. Only a confirmed dialog reaches deleteReport.
+	 * @param report: StoryReport | ScenarioReport | GroupReport report to be deleted
+	 */
+	confirmDeleteReport(report: Report) {
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: 'Delete Report?',
+				message: 'Are you sure you want to delete this report? It cannot be restored.',
+				buttons: [
+					{ label: 'Delete', value: 'delete', color: 'warn' },
+					{ label: 'Cancel', value: 'cancel' }
+				]
+			} as ConfirmDialogData
+		});
+		// CASE 1: Only an explicit "delete" button continues to deleteReport
+		// CASE 2: Cancel and backdrop dismiss (undefined) delete nothing
+		ref.afterClosed().subscribe(result => {
+			if (result === 'delete') this.deleteReport(report);
+		});
 	}
 
 	/**

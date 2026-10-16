@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { NEVER, Observable, of, throwError } from 'rxjs';
 import { NotificationService } from '../Services/notification.service';
 
 import { ReportHistoryComponent } from './report-history.component';
@@ -11,6 +11,8 @@ import { ReportService } from '../Services/report.service';
 import { StoryService } from '../Services/story.service';
 import { Story } from '@seed-test/shared/models/Story';
 import { ReportContainer } from '@seed-test/shared/models/ReportContainer';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../modals/confirm-dialog/confirm-dialog.component';
 
 const mockStory: Story = {
 	_id: 'story-1', story_id: 1, title: 'Test Story', body: '',
@@ -152,6 +154,61 @@ describe('ReportHistoryComponent', () => {
 			component.deleteReport({ _id: 'sr-1' } as any);
 
 			expect(reportService.deleteReport).toHaveBeenCalledWith('sr-1');
+		});
+	});
+
+	describe('regression: delete icon asks for confirmation before deleting', () => {
+		/** Makes the confirm dialog close with the given result stream (NEVER = dialog stays open) */
+		function mockDialogResult(result$: Observable<string | undefined>) {
+			const dialog = TestBed.inject(MatDialog);
+			vi.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => result$ } as unknown as ReturnType<MatDialog['open']>);
+			return dialog;
+		}
+
+		/** Renders the reports and clicks the first delete icon (the storyReports entry sr-1) */
+		function clickFirstDeleteIcon() {
+			component.reports.set(mockReportContainer);
+			fixture.detectChanges();
+			const deleteButton = fixture.nativeElement.querySelector('button[matTooltip="Delete Report"]') as HTMLButtonElement;
+			deleteButton.click();
+		}
+
+		it('opens the confirm dialog on click and sends no DELETE request yet', () => {
+			const dialog = mockDialogResult(NEVER);
+			vi.spyOn(reportService, 'deleteReport').mockReturnValue(of({} as any));
+
+			clickFirstDeleteIcon();
+
+			expect(dialog.open).toHaveBeenCalledWith(ConfirmDialogComponent, expect.anything());
+			expect(reportService.deleteReport).not.toHaveBeenCalled();
+		});
+
+		it('sends the DELETE request once the dialog is confirmed', () => {
+			mockDialogResult(of('delete'));
+			vi.spyOn(reportService, 'deleteReport').mockReturnValue(of({} as any));
+
+			clickFirstDeleteIcon();
+
+			expect(reportService.deleteReport).toHaveBeenCalledTimes(1);
+			expect(reportService.deleteReport).toHaveBeenCalledWith('sr-1');
+		});
+
+		it('deletes nothing when the dialog is cancelled', () => {
+			mockDialogResult(of('cancel'));
+			vi.spyOn(reportService, 'deleteReport').mockReturnValue(of({} as any));
+
+			clickFirstDeleteIcon();
+
+			expect(reportService.deleteReport).not.toHaveBeenCalled();
+		});
+
+		it('deletes nothing when the dialog is dismissed without a result', () => {
+			mockDialogResult(of(undefined));
+			vi.spyOn(reportService, 'deleteReport').mockReturnValue(of({} as any));
+
+			clickFirstDeleteIcon();
+
+			expect(reportService.deleteReport).not.toHaveBeenCalled();
 		});
 	});
 
