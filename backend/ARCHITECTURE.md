@@ -116,7 +116,7 @@ Used by Jira integration. Key derived via `scrypt()` from `JIRA_SECRET` + `JIRA_
 
 ### Configuration Validation
 
-`config.ts` uses a Zod schema to validate every environment variable at startup. It aggregates **all** validation errors — not just the first — producing a clear startup error message. Missing required variables cause `process.exit(1)`. `SESSION_SECRET` is only required in production (`NODE_ENV=production`).
+`config.ts` uses a Zod schema to validate every environment variable at startup. It aggregates **all** validation errors — not just the first — producing a clear startup error message. Missing required variables cause `process.exit(1)`. `SESSION_SECRET` is required unless `NODE_ENV` is `development` or `test`; in that opt-in the server uses a random per-process secret.
 
 All validated config values are cached in `validatedConfig.value` on first access. Dependent modules (`cryptoHelper`, `externalAccount`) access it via a lazy getter — reading the value triggers automatic validation if it hasn't run yet.
 

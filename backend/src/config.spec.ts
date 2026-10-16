@@ -36,6 +36,7 @@ describe('config', () => {
 		delete process.env.PORT;
 		delete process.env.FRONTEND_URL;
 		delete process.env.COOKIE_SAMESITE;
+		delete process.env.COOKIE_SECURE;
 		delete process.env.MAX_SAVED_REPORTS;
 		delete process.env.REPORT_DELETION_TIME;
 		delete process.env.GITHUB_CLIENT_ID;
@@ -130,6 +131,28 @@ describe('config', () => {
 			const config = await import('../src/config.js');
 			const result = config.validateConfig();
 			expect(result.SESSION_SECRET).toBe('prod-secret');
+			expect(mockExit).not.toHaveBeenCalled();
+		});
+
+		it('should call process.exit(1) for missing SESSION_SECRET when NODE_ENV is unset', async () => {
+			delete process.env.NODE_ENV;
+			delete process.env.SESSION_SECRET;
+			const config = await import('../src/config.js');
+			config.validateConfig();
+			expect(mockExit).toHaveBeenCalledWith(1);
+		});
+
+		it('should parse COOKIE_SECURE=false as the plain-HTTP opt-out', async () => {
+			process.env.COOKIE_SECURE = 'false';
+			const config = await import('../src/config.js');
+			expect(config.validateConfig().COOKIE_SECURE).toBe(false);
+		});
+
+		it('should NOT call process.exit(1) for missing SESSION_SECRET with the development opt-in', async () => {
+			process.env.NODE_ENV = 'development';
+			delete process.env.SESSION_SECRET;
+			const config = await import('../src/config.js');
+			config.validateConfig();
 			expect(mockExit).not.toHaveBeenCalled();
 		});
 
