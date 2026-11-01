@@ -16,6 +16,8 @@ export function emptyStory(storyTitle?: string, storyDescription?: string): Omit
 		state: 'open',
 		assignee_avatar_url: '',
 		lastTestPassed: undefined,
-		oneDriver: false
+		oneDriver: false,
+		// Optimistic-lock counter of PUT /story/:_id; the client sends it back so a stale save answers 409
+		version: 0
 	};
 }

@@ -145,10 +145,94 @@ describe('StoryService', () => {
 			// C. Assert — the exact $set means fields absent from the input are left untouched in the database
 			expect(mockStoriesCollection.findOneAndUpdate).toHaveBeenCalledWith(
 				{ _id: new ObjectId(storyId) },
-				{ $set: { title: 'Edited', scenarios: [] } },
+				{ $set: { title: 'Edited', scenarios: [] }, $inc: { version: 1 } },
 				{ returnDocument: 'after', session: undefined }
 			);
 			expect(result).toEqual({ _id: new ObjectId(storyId), title: 'Edited' });
+		});
+
+		it('should filter by the client version, $set the fields and $inc the version when the version matches', async () => {
+			// A. Arrange — the client read the story at version 3 and nobody saved since
+			const storyId = new ObjectId().toHexString();
+			const updatedDoc = { _id: new ObjectId(storyId), title: 'Edited', version: 4 };
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue(updatedDoc);
+
+			// B. Act
+			const result = await storyService.updateStory({ _id: storyId, title: 'Edited', scenarios: [], version: 3 } as unknown as Story);
+
+			// C. Assert — the version is a filter and an increment, never a $set field; the returned doc carries the new version
+			expect(mockStoriesCollection.findOneAndUpdate).toHaveBeenCalledWith(
+				{ _id: new ObjectId(storyId), version: 3 },
+				{ $set: { title: 'Edited', scenarios: [] }, $inc: { version: 1 } },
+				{ returnDocument: 'after', session: undefined }
+			);
+			expect(result).toEqual(updatedDoc);
+		});
+
+		it('should match a legacy story without a version field when the client sent version 0', async () => {
+			// A. Arrange — stored documents from before the version field existed count as version 0
+			const storyId = new ObjectId().toHexString();
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue({ _id: new ObjectId(storyId), title: 'Edited', version: 1 });
+
+			// B. Act
+			await storyService.updateStory({ _id: storyId, title: 'Edited', scenarios: [], version: 0 } as unknown as Story);
+
+			// C. Assert — version 0 also matches documents where the field is absent
+			expect(mockStoriesCollection.findOneAndUpdate).toHaveBeenCalledWith(
+				{
+					_id: new ObjectId(storyId),
+					$or: [{ version: 0 }, { version: { $exists: false } }]
+				},
+				{ $set: { title: 'Edited', scenarios: [] }, $inc: { version: 1 } },
+				{ returnDocument: 'after', session: undefined }
+			);
+		});
+
+		it('should throw a 409 AppError when the client version is stale', async () => {
+			// A. Arrange — the update matched nothing, but the story exists, so the version is outdated
+			const storyId = new ObjectId().toHexString();
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue(null);
+			mockStoriesCollection.findOne.mockResolvedValue({ _id: new ObjectId(storyId), version: 5 });
+
+			// B. Act and Assert — a stale tab must get a 409 instead of silently overwriting newer edits
+			await expect(
+				storyService.updateStory({ _id: storyId, title: 'Stale', scenarios: [], version: 2 } as unknown as Story)
+			).rejects.toMatchObject({
+				statusCode: 409,
+				message: 'Story was changed in the meantime. Reload it before saving.'
+			});
+			expect(mockStoriesCollection.findOne).toHaveBeenCalledWith({ _id: new ObjectId(storyId) }, expect.anything());
+		});
+
+		it('should return null without a conflict error when the story does not exist', async () => {
+			// A. Arrange — neither the versioned update nor the existence check finds the story
+			const storyId = new ObjectId().toHexString();
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue(null);
+			mockStoriesCollection.findOne.mockResolvedValue(null);
+
+			// B. Act
+			const result = await storyService.updateStory({ _id: storyId, title: 'Gone', scenarios: [], version: 2 } as unknown as Story);
+
+			// C. Assert — the controller behaviour for unknown stories stays the same
+			expect(result).toBeNull();
+		});
+
+		it('should filter by _id only and skip the existence check when no version is sent', async () => {
+			// A. Arrange — internal callers (import, AI suggestion, example data) send no version
+			const storyId = new ObjectId().toHexString();
+			mockStoriesCollection.findOneAndUpdate.mockResolvedValue(null);
+
+			// B. Act
+			const result = await storyService.updateStory({ _id: storyId, title: 'Internal', scenarios: [] } as unknown as Story);
+
+			// C. Assert — no version filter, so the write is never rejected as stale
+			expect(mockStoriesCollection.findOneAndUpdate).toHaveBeenCalledWith(
+				{ _id: new ObjectId(storyId) },
+				{ $set: { title: 'Internal', scenarios: [] }, $inc: { version: 1 } },
+				{ returnDocument: 'after', session: undefined }
+			);
+			expect(mockStoriesCollection.findOne).not.toHaveBeenCalled();
+			expect(result).toBeNull();
 		});
 	});
 

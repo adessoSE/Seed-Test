@@ -5,6 +5,11 @@ import { BlockService } from './block.service';
 import { onActionTrigger } from './action-trigger';
 import { Block } from '@seed-test/shared/models/Block';
 import { StepType } from '@seed-test/shared/models/StepType';
+import { Story } from '@seed-test/shared/models/Story';
+import { Scenario } from '@seed-test/shared/models/Scenario';
+import { StoryService } from './story.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
 
 describe('BlockService', () => {
 
@@ -16,6 +21,43 @@ describe('BlockService', () => {
 	});
 	afterEach(() => {
 		sessionStorage.removeItem('url_backend');
+	});
+
+	describe('updateReferenceStories', () => {
+		const scenarioA = { scenario_id: 1, name: 'A' } as Scenario;
+		const scenarioB = { scenario_id: 2, name: 'B' } as Scenario;
+
+		it('sends one PUT per story and writes the returned version back', async () => {
+			const service = TestBed.inject(BlockService);
+			const storyService = TestBed.inject(StoryService);
+			const story = { _id: 's1', version: 2, scenarios: [scenarioA, scenarioB] } as Story;
+			const updateSpy = vi.spyOn(storyService, 'updateStory').mockReturnValue(of({ ...story, version: 3 }));
+			service.referenceStories = [story];
+			service.scenariosToUpdate = [scenarioA, scenarioB];
+
+			service.updateReferenceStories();
+			await new Promise(resolve => setTimeout(resolve));
+
+			// Two PUTs with the same version would 409 the second one
+			expect(updateSpy).toHaveBeenCalledTimes(1);
+			expect(story.version).toBe(3);
+		});
+
+		it('shows the conflict message when a story was changed in the meantime', async () => {
+			const service = TestBed.inject(BlockService);
+			const storyService = TestBed.inject(StoryService);
+			const story = { _id: 's1', version: 2, scenarios: [scenarioA] } as Story;
+			vi.spyOn(storyService, 'updateStory').mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
+			const errorSpy = vi.spyOn(service.notify, 'error').mockImplementation(() => undefined);
+			service.referenceStories = [story];
+			service.scenariosToUpdate = [scenarioA];
+
+			service.updateReferenceStories();
+			await new Promise(resolve => setTimeout(resolve));
+
+			expect(errorSpy).toHaveBeenCalledWith('Story was changed in the meantime. Reload it before saving.');
+			expect(story.version).toBe(2);
+		});
 	});
 
 	describe('create', () => {

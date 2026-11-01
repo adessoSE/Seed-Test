@@ -201,7 +201,9 @@ async function processImport(archive: ImportArchive, isRenameMode: boolean, repo
 			const existingStory = existingStories.find(s => s.title === storyObject.title);
 			newStoryId = oid(existingStory!._id!);
 			// The existing story keeps its own number in this repository; the archive's number belongs to the source project
-			await storyService.updateStory({ ...storyObject, _id: newStoryId, issue_number: existingStory!.issue_number } as unknown as Story, client, session);
+			// The archive's version belongs to the source project, so it must not act as the lock check here
+			const { version: _archivedVersion, ...overwriteFields } = storyObject;
+			await storyService.updateStory({ ...overwriteFields, _id: newStoryId, issue_number: existingStory!.issue_number } as unknown as Story, client, session);
 		} else { // RENAME or NO CONFLICT
 			if (isRenameMode && hasConflict) 
 				storyObject.title = findAvailableName(storyObject.title, existingStoryNames);
@@ -213,7 +215,9 @@ async function processImport(archive: ImportArchive, isRenameMode: boolean, repo
 			// updateStory replaces the whole document, so the number createStory assigned must be passed back in.
 			// The archive's issue_number is not used, because it could duplicate a number already in this repository.
 			const assignedIssueNumber = await readAssignedIssueNumber(client, session, newStoryId);
-			await storyService.updateStory({ ...storyObject, _id: newStoryId, issue_number: assignedIssueNumber } as unknown as Story, client, session);
+			// The archive's version is dropped for the same reason as in the overwrite branch above
+			const { version: _archivedVersion, ...renamedFields } = storyObject;
+			await storyService.updateStory({ ...renamedFields, _id: newStoryId, issue_number: assignedIssueNumber } as unknown as Story, client, session);
 		}
 		if (oldId) oldToNewStoryIdMap.set(oldId, newStoryId);
 	}

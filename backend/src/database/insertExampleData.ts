@@ -137,7 +137,9 @@ async function insertExampleTest(user: User): Promise<void> {
 			} else {
 				console.log('\x1b[32mAdding Example-Scenario...\x1b[0m');
 				story.scenarios.push(exampleScenarioData as Scenario);
-				await storyService.updateStory(story); // Update story with new scenario
+				// The loaded version is dropped: this seed step is not a user save and must not fail as stale
+				const { version: _loadedVersion, ...storyToSave } = story;
+				await storyService.updateStory(storyToSave); // Update story with new scenario
 			}
 			console.log('\x1b[32mExample-Scenario-Data ensured!\x1b[0m');
 		} else 
