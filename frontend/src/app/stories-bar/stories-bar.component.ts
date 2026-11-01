@@ -1,6 +1,8 @@
 ﻿import { Component, OnChanges, ElementRef, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, viewChildren, signal, effect, untracked, linkedSignal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Story } from '@seed-test/shared/models/Story';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
 import { XrayService } from '../Services/xray.service';
 import { Scenario } from '@seed-test/shared/models/Scenario';
 import { Group } from '@seed-test/shared/models/Group';
@@ -57,6 +59,7 @@ interface RunGroupResponse {
 })
 export class StoriesBarComponent implements OnChanges {
 	notify = inject(NotificationService);
+	dialog = inject(MatDialog);
 	themeService = inject(ThemingService);
 	storyService = inject(StoryService);
 	xrayService = inject(XrayService);
@@ -141,6 +144,12 @@ export class StoriesBarComponent implements OnChanges {
 	readonly parentSelectedScenario = input<Scenario | undefined>(undefined);
 
 	readonly isReviewing = input<boolean>(false);
+
+	/**
+	 * Reports whether the editor holds unsaved edits. A function (not a value) because the editor flags
+	 * edits in place, which no signal sees; it is evaluated when the user clicks.
+	 */
+	readonly hasUnsavedChanges = input<() => boolean>(() => false);
 
 	/**
      * SearchTerm for story title search
@@ -643,20 +652,23 @@ export class StoriesBarComponent implements OnChanges {
 		const targetStory = owner ?? this.stories().find(s => 
 			s.scenarios.some(sc => sc.scenario_id === scenario.scenario_id)
 		);
-		if (targetStory) {
-			const currentStory = this.selectedStory();
-			// If selecting a scenario from a different story, expand that story's panel
-			if (targetStory !== currentStory) {
-				const prev = new Map(this.storyExpansion());
-				prev.set(targetStory, true);
-				this.storyExpansion.set(prev);
-				// Select the story first (this also calls selectStory internally)
-				this.selectedStory.set(targetStory);
-				this.storyChosen.emit(targetStory);
+		const differs = (!!targetStory && targetStory !== this.selectedStory()) || scenario !== this.parentSelectedScenario();
+		this.switchGuarded(differs, () => {
+			if (targetStory) {
+				const currentStory = this.selectedStory();
+				// If selecting a scenario from a different story, expand that story's panel
+				if (targetStory !== currentStory) {
+					const prev = new Map(this.storyExpansion());
+					prev.set(targetStory, true);
+					this.storyExpansion.set(prev);
+					// Select the story first (this also calls selectStory internally)
+					this.selectedStory.set(targetStory);
+					this.storyChosen.emit(targetStory);
+				}
 			}
-		}
-		// Always emit scenario choice — parent handles selection
-		this.scenarioChosen.emit(scenario);
+			// Always emit scenario choice — parent handles selection
+			this.scenarioChosen.emit(scenario);
+		});
 	}
 
 	/**
@@ -676,8 +688,67 @@ export class StoriesBarComponent implements OnChanges {
      * @param story
      */
 	selectStory(story: Story) {
-		this.selectedStory.set(story);
-		this.storyChosen.emit(story);
+		this.switchGuarded(story !== this.selectedStory(), () => {
+			this.selectedStory.set(story);
+			this.storyChosen.emit(story);
+		});
+	}
+
+	/**
+	 * Runs a selection change, asking first when the editor holds unsaved edits and the target differs.
+	 * Stays synchronous when nothing needs confirming. Cancelling or dismissing the dialog leaves
+	 * selection, highlight and expansion untouched; Discard reloads the edited data before switching.
+	 * @param targetDiffers true when the click targets another story/scenario than the current one
+	 * @param proceed the actual selection change
+	 */
+	private switchGuarded(targetDiffers: boolean, proceed: () => void) {
+		if (!targetDiffers || !this.hasUnsavedChanges()()) {
+			proceed();
+			return;
+		}
+		void this.confirmAndSwitch(proceed);
+	}
+
+	private async confirmAndSwitch(proceed: () => void) {
+		const ref = this.dialog.open(ConfirmDialogComponent, {
+			data: {
+				title: 'Unsaved changes',
+				message: 'The current scenario has unsaved changes.',
+				buttons: [
+					{ label: 'Discard', value: 'Discard', color: 'warn' },
+					{ label: 'Cancel', value: 'Cancel' }
+				]
+			} as ConfirmDialogData
+		});
+		const result = await firstValueFrom(ref.afterClosed());
+		if (result !== 'Discard')
+			return;
+		if (await this.discardUnsavedEdits())
+			proceed();
+	}
+
+	/**
+	 * Replaces the edited scenario and background of the current story with the stored versions,
+	 * in place, so the edits (which share their step objects with the story list) do not survive.
+	 * @returns false when the stored version could not be loaded; the user then stays on the current scenario
+	 */
+	private async discardUnsavedEdits(): Promise<boolean> {
+		const story = this.selectedStory();
+		const scenario = this.parentSelectedScenario();
+		if (!story?._id)
+			return true;
+		try {
+			const fresh = await firstValueFrom(this.storyService.getStory(story._id));
+			const index = scenario ? story.scenarios.findIndex(sc => sc.scenario_id === scenario.scenario_id) : -1;
+			const freshScenario = scenario ? fresh.scenarios.find(sc => sc.scenario_id === scenario.scenario_id) : undefined;
+			if (index >= 0 && freshScenario)
+				story.scenarios[index] = freshScenario;
+			story.background = fresh.background;
+			return true;
+		} catch {
+			this.notify.error('Could not discard the changes', 'Scenario');
+			return false;
+		}
 	}
 
 	scrollToSelectedStory() {

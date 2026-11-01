@@ -4,6 +4,7 @@
       [newSelectedStory]="selectedStory()"
       [parentSelectedScenario]="selectedScenario()"
       [isReviewing]="isReviewing"
+      [hasUnsavedChanges]="hasUnsavedChanges"
       #storiesBar
       (storyChosen)="setSelectedStory($event);"
       (scenarioChosen)="setSelectedScenario($event);"

@@ -138,6 +138,72 @@ describe('StoriesBarComponent', () => {
 		});
 	});
 
+	describe('unsaved changes guard', () => {
+		const mk = (id: string) => ({ _id: id, title: id, scenarios: [{ scenario_id: 1, name: id, stepDefinitions: { given: [], when: [], then: [], example: [] } }] }) as unknown as Story;
+		let first: Story;
+		let second: Story;
+		let openSpy: ReturnType<typeof vi.spyOn>;
+
+		const answerWith = (value: string) => {
+			openSpy = vi.spyOn(component.dialog, 'open').mockReturnValue({ afterClosed: () => of(value) } as any);
+		};
+		const settle = () => new Promise(resolve => setTimeout(resolve, 0));
+
+		beforeEach(() => {
+			first = mk('a');
+			second = mk('b');
+			component.stories.set([first, second]);
+			component.selectedStory.set(first);
+			vi.spyOn(component.storyChosen, 'emit');
+			vi.spyOn(component.storyService, 'getStory').mockReturnValue(of(mk('a')));
+		});
+
+		it('keeps the current story when the dialog is cancelled', async () => {
+			fixture.componentRef.setInput('hasUnsavedChanges', () => true);
+			answerWith('Cancel');
+			component.selectStory(second);
+			await settle();
+			expect(openSpy).toHaveBeenCalledTimes(1);
+			expect(component.storyChosen.emit).not.toHaveBeenCalled();
+			expect(component.selectedStory()).toBe(first);
+		});
+
+		it('switches after the edits are discarded', async () => {
+			fixture.componentRef.setInput('hasUnsavedChanges', () => true);
+			answerWith('Discard');
+			component.selectStory(second);
+			await settle();
+			expect(component.storyChosen.emit).toHaveBeenCalledWith(second);
+			expect(component.selectedStory()).toBe(second);
+		});
+
+		it('does not ask when everything is saved', () => {
+			fixture.componentRef.setInput('hasUnsavedChanges', () => false);
+			answerWith('Cancel');
+			component.selectStory(second);
+			expect(openSpy).not.toHaveBeenCalled();
+			expect(component.storyChosen.emit).toHaveBeenCalledWith(second);
+		});
+
+		it('does not ask when the target is already selected', () => {
+			fixture.componentRef.setInput('hasUnsavedChanges', () => true);
+			answerWith('Cancel');
+			component.selectStory(first);
+			expect(openSpy).not.toHaveBeenCalled();
+		});
+
+		it('asks before switching to a scenario of another story and keeps the selection on cancel', async () => {
+			fixture.componentRef.setInput('hasUnsavedChanges', () => true);
+			answerWith('Cancel');
+			vi.spyOn(component.scenarioChosen, 'emit');
+			component.selectScenario(second.scenarios[0], second);
+			await settle();
+			expect(openSpy).toHaveBeenCalledTimes(1);
+			expect(component.scenarioChosen.emit).not.toHaveBeenCalled();
+			expect(component.selectedStory()).toBe(first);
+		});
+	});
+
 	describe('selectStory', () =>{
 
 		beforeEach(() =>{
