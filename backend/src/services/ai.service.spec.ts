@@ -241,6 +241,25 @@ describe('AiService', () => {
 			aiService.queueAiScenarioGeneration(storyId, { ...cloudAiConfig }, repoId);
 			await done;
 		});
+
+		// Older projects store a flat aiConfig ({ provider, ollamaUrl, defaultTextModel, ... }) without the nested providers.
+		it('should emit a clear error when the stored project aiConfig has the legacy flat shape', async () => {
+			mockedRepoService.getOneRepositoryById.mockResolvedValue({
+				_id: new ObjectId(repoId),
+				aiConfig: { provider: 'ollama', ollamaUrl: 'http://localhost:11434', defaultTextModel: 'mistral', defaultJsonModel: 'codellama', apiKey: 'x' }
+			});
+
+			const done = new Promise<void>((resolve) => {
+				aiService.aiJobEmitter.once(`job-done-${storyId}`, (data) => {
+					expect(data.status).toBe('error');
+					expect(data.error).toContain('legacy');
+					resolve();
+				});
+			});
+
+			aiService.queueAiScenarioGeneration(storyId, { ...cloudAiConfig }, repoId);
+			await done;
+		});
 	});
 
 	describe('JobQueue sequential processing', () => {

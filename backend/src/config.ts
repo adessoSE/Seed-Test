@@ -10,6 +10,9 @@ interface ValidationError {
 	message: string;
 }
 
+/** NODE_ENV values that opt out of the SESSION_SECRET requirement (a random per-process secret is used). */
+const DEV_NODE_ENVS = new Set(['development', 'test']);
+
 /**
  * Zod schema for all Seed-Test backend configuration.
  * Required variables are enforced at runtime by validateConfig().
@@ -21,10 +24,14 @@ const envSchema = z.object({
 		'ENCRYPTION_SECRET must be a 64-character hex string'),
 	JIRA_SECRET: z.string().min(1, 'JIRA_SECRET is required'),
 	JIRA_SALT: z.string().min(1, 'JIRA_SALT is required'),
-	SESSION_SECRET: z.string().min(1, 'SESSION_SECRET is required in production').optional(),
+	SESSION_SECRET: z.string().min(1, 'SESSION_SECRET must not be empty').optional(),
 	PORT: z.coerce.number().default(8080),
 	FRONTEND_URL: z.string().optional(),
 	COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none']).default('lax'),
+	// Unset: Secure cookie only when NODE_ENV=production. 'false' is the opt-out for plain-HTTP setups.
+	COOKIE_SECURE: z.stringbool().optional(),
+	// Unset: trust proxy only when NODE_ENV=production. 'false' when the backend port is exposed without a proxy.
+	TRUST_PROXY: z.stringbool().optional(),
 	MAX_SAVED_REPORTS: z.coerce.number().default(10),
 	REPORT_DELETION_TIME: z.coerce.number().default(5),
 	GITHUB_CLIENT_ID: z.string().optional(),
@@ -37,12 +44,13 @@ const envSchema = z.object({
 	TESTACCOUNT_NAME: z.string().optional(),
 	TESTACCOUNT_TOKEN: z.string().optional()
 }).refine((data) => {
-	// SESSION_SECRET is only required in production
-	// NODE_ENV is set to 'test' in vitest, 'production' on deployed instances
-	if (process.env.NODE_ENV === 'production' && !data.SESSION_SECRET)
+	// SESSION_SECRET is required unless NODE_ENV explicitly opts into development or test.
+	// An unset NODE_ENV counts as production, so a misconfigured deployment fails closed.
+	// NODE_ENV is set to 'test' in vitest, 'production' in the Docker image
+	if (!DEV_NODE_ENVS.has(process.env.NODE_ENV ?? '') && !data.SESSION_SECRET)
 		return false;
 	return true;
-}, { message: 'SESSION_SECRET is required in production' });
+}, { message: 'SESSION_SECRET is required unless NODE_ENV=development or NODE_ENV=test' });
 
 /**
  * Cached validated config. Set the first time validateConfig() is called.
@@ -79,7 +87,7 @@ export function validateConfig(): z.infer<typeof envSchema> {
 	const raw: Record<string, unknown> = {};
 	const allKeys = new Set([
 		'DATABASE_URI', 'ENCRYPTION_SECRET', 'JIRA_SECRET', 'JIRA_SALT',
-		'SESSION_SECRET', 'PORT', 'FRONTEND_URL', 'COOKIE_SAMESITE',
+		'SESSION_SECRET', 'PORT', 'FRONTEND_URL', 'COOKIE_SAMESITE', 'COOKIE_SECURE', 'TRUST_PROXY',
 		'MAX_SAVED_REPORTS', 'REPORT_DELETION_TIME',
 		'GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET',
 		'EMAIL_AUTH', 'EMAIL_PW', 'EMAIL_HOST', 'EMAIL_PORT',
@@ -130,7 +138,7 @@ export function validateConfig(): z.infer<typeof envSchema> {
 		],
 		'',
 		'  Required: DATABASE_URI, ENCRYPTION_SECRET (64-char hex), JIRA_SECRET, JIRA_SALT',
-		'  Production only: SESSION_SECRET',
+		'  Required unless NODE_ENV=development or test: SESSION_SECRET',
 		'',
 		'Fix these issues and restart the server.'
 	];

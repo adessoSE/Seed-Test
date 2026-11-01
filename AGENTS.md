@@ -45,13 +45,13 @@ Monorepo (npm workspaces): `backend/` (Express 5, TypeScript, raw MongoDB driver
 Gotchas:
 - `backend/tsconfig.json` and `frontend/tsconfig.json` map `@seed-test/shared` to `shared/dist`. Build shared after any change under `shared/src`. Vitest maps to `shared/src` and needs no build.
 - Frontend specs run through `ng test`, not `vitest` directly. Direct vitest lacks the Angular test globals.
-- Backend `npm install` runs `playwright install --with-deps` (postinstall).
+- Backend `npm install` runs `playwright install --with-deps` (postinstall). The server only checks browsers at startup and never installs them; the backend image installs them at build time.
 
 ## Environment
 - Node: `^22.22.3 || ^24.15.0 || ^26.0.0` (backend and frontend `engines`). All Dockerfiles use Node 22.
-- `backend/.env` (gitignored; template `backend/.env.example`). Validated by `backend/src/config.ts`. Required: `DATABASE_URI`, `ENCRYPTION_SECRET` (64 hex chars), `JIRA_SECRET`, `JIRA_SALT`. `SESSION_SECRET` is required when `NODE_ENV=production`.
+- `backend/.env` (gitignored; template `backend/.env.example`). Validated by `backend/src/config.ts`. Required: `DATABASE_URI`, `ENCRYPTION_SECRET` (64 hex chars), `JIRA_SECRET`, `JIRA_SALT`. `SESSION_SECRET` is required unless `NODE_ENV` is `development` or `test` (an unset `NODE_ENV` counts as production). The backend image sets `NODE_ENV=production`; the compose files set `COOKIE_SECURE=false` and `TRUST_PROXY=false` because they serve plain HTTP without a reverse proxy.
 - `frontend/.env` (gitignored; template `frontend/.env.example`). Key: `API_SERVER`, default `http://localhost:8080/api`.
-- `docker-compose.yml` starts MongoDB under host `seedmongodb`, which resolves only inside the compose network. Its secrets are demo values; never reuse them. The backend service needs `ENCRYPTION_SECRET`, which compose reads from the root `.env`.
+- `docker-compose.yml` starts MongoDB under host `seedmongodb`, which resolves only inside the compose network. All compose files run MongoDB as a single-node replica set `rs0` (keyFile generated at container start, `rs.initiate` in the healthcheck), so transactions work; the backend URI carries `?replicaSet=rs0`. From the host, connect with `?directConnection=true`. The backend still falls back to non-transactional writes on a standalone server. Its secrets are demo values; never reuse them. The backend service needs `ENCRYPTION_SECRET`, which compose reads from the root `.env`.
 - Container runtime: integration tests and `docker compose` need a Docker-API-compatible runtime. The team uses Podman: run `podman machine start`. `docker` and `docker compose` commands also work through Podman (`podman` and `podman compose`). Gotcha: if `podman machine start` reports that API forwarding failed (win-sshproxy), run `podman machine stop`, delete `%TEMP%\podman\podman-machine-default-api.sock`, then start the machine again.
 - Dev ports: frontend 4200, backend 8080.
 

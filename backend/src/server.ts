@@ -2,16 +2,16 @@ import express, { type Application, type Request, type Response, type NextFuncti
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { AppError } from './helpers/AppError.js';
 import { sanitize, hasDangerousKeys } from './helpers/sanitize.js';
 import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import http from 'node:http';
-import { execSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { chromium, firefox, webkit, type BrowserType } from '@playwright/test';
 import { logger, httpLog } from './logging.js';
 import { isAuthenticated } from './middleware/authenticate.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 import * as dbConnector from './database/DbConnector.js';
 import { validateConfig, validatedConfig } from './config.js';
@@ -73,18 +73,23 @@ function requireDatabaseUri(): string {
 	return uri;
 }
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const sessionConfig: session.SessionOptions = {
 	store: MongoStore.create({
 		mongoUrl: requireDatabaseUri(),
 		dbName: 'Seed',
 		collectionName: userService.SESSION_COLLECTION
 	}),
-	secret: validatedConfig.value?.SESSION_SECRET ?? 'dev-only-secret-not-for-production',
+	// validateConfig() requires SESSION_SECRET unless NODE_ENV is development or test. In that opt-in a random
+	// per-process secret is used: sessions do not survive a restart, but there is no guessable literal.
+	secret: validatedConfig.value?.SESSION_SECRET ?? randomBytes(32).toString('hex'),
 	resave: false,
 	saveUninitialized: false,
 	proxy: true,
 	cookie: {
-		secure: process.env.NODE_ENV === 'production',
+		// COOKIE_SECURE=false is the opt-out for plain-HTTP setups (local docker compose); leave it unset behind HTTPS
+		secure: validatedConfig.value?.COOKIE_SECURE ?? isProduction,
 		httpOnly: true,
 		// 'lax' prevents CSRF while allowing normal navigation; 'none' only for explicit cross-origin setups
 		sameSite: process.env.COOKIE_SAMESITE === 'none' ? 'none' : 'lax',
@@ -92,9 +97,10 @@ const sessionConfig: session.SessionOptions = {
 	}
 };
 
-// Trust first proxy if running behind one (e.g., Nginx, Heroku)
-if (process.env.NODE_ENV === 'production') 
-	app.set('trust proxy', 1); 
+// Trust first proxy if running behind one (e.g., Nginx, Heroku). TRUST_PROXY=false for a directly exposed port:
+// otherwise req.ip comes from the client-sent X-Forwarded-For and the per-IP rate limits can be bypassed.
+if (validatedConfig.value?.TRUST_PROXY ?? isProduction)
+	app.set('trust proxy', 1);
 
 
 // --- Core Middleware ---
@@ -188,91 +194,38 @@ app.use('/api/sanity', isAuthenticated, sanityRouter);
 
 // --- Central Error Handling Middleware ---
 // This MUST be the last middleware added
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-	// Guard: don't attempt to send if response already started (e.g. post-response errors)
-	if (res.headersSent) {
-		logger.error(`Error after response sent (suppressed): ${err.message}`);
-		return;
-	}
+app.use(errorHandler);
 
-	// AppError carries an explicit status code; everything else is an unexpected 500
-	const statusCode = err instanceof AppError ? err.statusCode : 500;
+type BrowserCheckResult = { name: string; status: 'ok' | 'failed' };
 
-	// Only log stack traces for unexpected errors, not operational ones
-	if (statusCode === 500)
-		logger.error(`Unexpected error: ${err.stack}`);
-	else
-		logger.warn(`Operational error [${statusCode}]: ${err.message}`);
-
-	const responseBody: Record<string, unknown> = {
-		error: statusCode === 500 ? 'Internal Server Error' : err.message
-	};
-	// Attach structured error data when available (e.g. field-level details from AppError)
-	if (err instanceof AppError && err.data)
-		Object.assign(responseBody, { data: err.data });
-	res.status(statusCode).json(responseBody);
-});
-
-type BrowserCheckResult = { name: string; status: 'ok' | 'installed' | 'failed' };
-
-async function checkEdgeBrowser(): Promise<BrowserCheckResult> {
+// Browsers are installed at image build time (backend/Dockerfile) or by the backend postinstall script.
+// Startup only checks them: installing here blocked startup for over a minute and needed network access.
+async function checkBrowser(name: string, launch: () => ReturnType<BrowserType['launch']>): Promise<BrowserCheckResult> {
 	try {
-		const edgeBrowser = await chromium.launch({ channel: 'msedge' });
-		await edgeBrowser.close();
-		return { name: 'Microsoft Edge', status: 'ok' };
+		const instance = await launch();
+		await instance.close();
+		return { name, status: 'ok' };
 	} catch {
-		try {
-			execSync('npx playwright install msedge --with-deps', { stdio: 'inherit' });
-			return { name: 'Microsoft Edge', status: 'installed' };
-		} catch (edge_error: unknown) {
-			logger.error(`Microsoft Edge not installable (corporate policies?): ${edge_error instanceof Error ? edge_error.message : String(edge_error)}`);
-			return { name: 'Microsoft Edge', status: 'failed' };
-		}
+		return { name, status: 'failed' };
 	}
 }
 
-async function checkGeneralBrowsers(): Promise<BrowserCheckResult[]> {
-	const browsers: { engine: BrowserType; name: string }[] = [
-		{ engine: firefox, name: 'Firefox' },
-		{ engine: chromium, name: 'Chromium' },
-		{ engine: webkit, name: 'WebKit' }
-	];
-
-	const results: BrowserCheckResult[] = [];
-	let needsInstall = false;
-
-	// Check each browser individually to collect per-browser results
-	for (const browser of browsers)
-		try {
-			const instance = await browser.engine.launch();
-			await instance.close();
-			results.push({ name: browser.name, status: 'ok' });
-		} catch {
-			needsInstall = true;
-			results.push({ name: browser.name, status: 'failed' });
-		}
-
-	// If any browser is missing, install all and update status
-	if (needsInstall)
-		try {
-			execSync('npx playwright install chromium firefox webkit --with-deps', { stdio: 'inherit' });
-			for (const r of results)
-				if (r.status === 'failed')
-					r.status = 'installed';
-		} catch (error: unknown) {
-			logger.error(`Failed to install Playwright browsers: ${error instanceof Error ? error.message : String(error)}`);
-		}
-
-	return results;
+async function checkBrowsers(): Promise<BrowserCheckResult[]> {
+	return Promise.all([
+		checkBrowser('Firefox', () => firefox.launch()),
+		checkBrowser('Chromium', () => chromium.launch()),
+		checkBrowser('WebKit', () => webkit.launch()),
+		checkBrowser('Microsoft Edge', () => chromium.launch({ channel: 'msedge' }))
+	]);
 }
 
 /** Prints a grouped, color-coded summary of browser availability to the console. */
 function logBrowserResults(results: BrowserCheckResult[]): void {
-	const g = '\x1b[32m'; const y = '\x1b[33m'; const r = '\x1b[31m';
+	const g = '\x1b[32m'; const r = '\x1b[31m';
 	const d = '\x1b[2m';  const b = '\x1b[1m';  const x = '\x1b[0m';
 
-	const icon = (s: string) => s === 'ok' ? `${g}✓${x}` : s === 'installed' ? `${y}↻${x}` : `${r}✗${x}`;
-	const label = (s: string) => s === 'ok' ? `${g}available${x}` : s === 'installed' ? `${y}installed${x}` : `${r}unavailable${x}`;
+	const icon = (s: string) => s === 'ok' ? `${g}✓${x}` : `${r}✗${x}`;
+	const label = (s: string) => s === 'ok' ? `${g}available${x}` : `${r}unavailable${x}`;
 
 	const line = `${d}${'─'.repeat(38)}${x}`;
 	console.log(`\n  ${b}Playwright Browser Availability${x}`);
@@ -284,6 +237,9 @@ function logBrowserResults(results: BrowserCheckResult[]): void {
 	// Plain-text summary for log files
 	const summary = results.map(br => `${br.name}: ${br.status}`).join(', ');
 	logger.info(`Browser check complete — ${summary}`);
+	// Edge is optional: it can be blocked by corporate policies, so a missing Edge is only a hint
+	if (results.some(br => br.status === 'failed'))
+		logger.warn('Missing Playwright browsers. Install them in backend/ with "npx playwright install --with-deps chromium firefox webkit msedge".');
 }
 
 // --- Server Startup ---
@@ -295,11 +251,6 @@ async function startServer() {
 		// Validate env vars: aggregated exit on failure, cached for all dependent modules
 		validateConfig();
 
-		const [generalResults, edgeResult] = await Promise.all([
-			checkGeneralBrowsers(),
-			checkEdgeBrowser()
-		]);
-		logBrowserResults([...generalResults, edgeResult]);
 		logger.info('Connecting to database...');
         
 		await dbConnector.establishConnection();
@@ -314,6 +265,9 @@ async function startServer() {
 		});
 		server.setTimeout(600000); // 10 minutes timeout
 
+		// Browser launches can take seconds (or hang until Playwright's timeout), so they run after listen()
+		void checkBrowsers().then(logBrowserResults);
+
 		// Pre-load AI parser in the background so the first /api/ai/available call is instant
 		aiService.isAiParserAvailable().catch(() => {});
 	} catch (error) {
@@ -323,20 +277,31 @@ async function startServer() {
 }
 
 // --- Process-Level Error Handlers ---
-// Catch unhandled promise rejections (e.g. forgotten awaits, uncaught async errors)
-process.on('unhandledRejection', (reason: unknown) => {
-	logger.error('Unhandled Rejection:', reason);
-	// Let the process continue — Express will handle per-request errors
-});
-
-// Catch truly unexpected synchronous errors — log and exit, as state may be corrupted
-process.on('uncaughtException', (error: Error) => {
-	logger.error(`Uncaught Exception — shutting down: ${error.stack}`);
+/**
+ * Closes the HTTP server and database connection, then exits with code 1.
+ * Used after an unhandled error because process state may be corrupted; the container
+ * runtime or process manager restarts the backend.
+ */
+function shutdownAfterFatalError(): void {
 	server.close(() => {
 		dbConnector.closeConnection()
 			.catch(() => {})
 			.finally(() => process.exit(1));
 	});
+	// Force exit if open keep-alive connections stall server.close()
+	setTimeout(() => process.exit(1), 10_000).unref();
+}
+
+// Catch unhandled promise rejections (e.g. forgotten awaits, uncaught async errors) — log and exit
+process.on('unhandledRejection', (reason: unknown) => {
+	logger.error('Unhandled Rejection — shutting down:', reason);
+	shutdownAfterFatalError();
+});
+
+// Catch truly unexpected synchronous errors — log and exit, as state may be corrupted
+process.on('uncaughtException', (error: Error) => {
+	logger.error(`Uncaught Exception — shutting down: ${error.stack}`);
+	shutdownAfterFatalError();
 });
 
 // --- Graceful Shutdown ---

@@ -6,11 +6,25 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: SeedAdmin
       MONGO_INITDB_ROOT_PASSWORD: SeedTest
+    # Single-node replica set rs0 for MongoDB transactions; same setup as docker-compose.yml (keyFile generated per start).
+    entrypoint:
+      - bash
+      - -c
+      - >-
+        rm -f /tmp/mongo-keyfile && openssl rand -base64 756 > /tmp/mongo-keyfile && chmod 400 /tmp/mongo-keyfile && chown mongodb:mongodb /tmp/mongo-keyfile &&
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /tmp/mongo-keyfile --bind_ip_all
+    # Initiates rs0 once and is healthy only when this node is the writable primary.
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet -u "$${MONGO_INITDB_ROOT_USERNAME}" -p "$${MONGO_INITDB_ROOT_PASSWORD}" --eval
+          "try { rs.status() } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'db:27017' }] }) }
+          quit(db.hello().isWritablePrimary ? 0 : 1)"
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 12
+      start_period: 20s
 
   backend:
     build:
