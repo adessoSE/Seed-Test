@@ -136,6 +136,17 @@ describe('BaseEditorComponent', () => {
 		});
 	});
 
+	describe('createFirstExample', () => {
+		it('marks the scenario unsaved so Save persists the new multiple-scenarios table', () => {
+			fixture.componentRef.setInput('templateName', 'example');
+			component.selectedScenario = { stepDefinitions: { given: [], when: [], then: [] }, multipleScenarios: [], saved: true } as unknown as Scenario;
+			component.createFirstExample('Alpha');
+
+			expect(component.selectedScenario.multipleScenarios![0].values).toEqual(['Alpha']);
+			expect(component.selectedScenario.saved).toBe(false);
+		});
+	});
+
 	describe('removeStep', () => {
 		it('should remove the step of the background', () => {
 			component.selectedStory = stories[0];

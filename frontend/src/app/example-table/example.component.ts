@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, input, effect, untracked } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { Scenario } from '@seed-test/shared/models/Scenario';
 import { Story } from '@seed-test/shared/models/Story';
 import { StepType } from '@seed-test/shared/models/StepType';
@@ -8,8 +8,8 @@ import { BaseEditorComponent } from '../base-editor/base-editor.component';
 	selector: 'app-example',
 	template: `<app-base-editor [templateName]="TEMPLATE_NAME"
     [testRunning]="testRunning()"
-    [newlySelectedScenario]="selectedScenario"
-    [newlySelectedStory]="selectedStory"
+    [newlySelectedScenario]="newlySelectedScenario()"
+    [newlySelectedStory]="newlySelectedStory()"
     [originalStepTypes]="originalStepTypes()"
    /> `,
 	styleUrls: ['./example-table.component.css'],
@@ -19,10 +19,6 @@ import { BaseEditorComponent } from '../base-editor/base-editor.component';
 
 /* Example component */
 export class ExampleComponent {
-	selectedScenario!: Scenario;
-
-	selectedStory!: Story;
-
 	readonly originalStepTypes = input<StepType[]>([]);
 
 	readonly templateName = input<string>('');
@@ -37,28 +33,10 @@ export class ExampleComponent {
    */
 	readonly newlySelectedStory = input<Story>();
 
-	/** Effect: React to new selected story input */
-	private readonly newlySelectedStoryEffect = effect(() => {
-		const story = this.newlySelectedStory();
-		if (!story) return;
-		untracked(() => {
-			this.selectedStory = story;
-		});
-	});
-
 	/**
    * Sets a new selected scenaio
    */
 	readonly newlySelectedScenario = input<Scenario>();
-
-	/** Effect: React to new selected scenario input */
-	private readonly newlySelectedScenarioEffect = effect(() => {
-		const scenario = this.newlySelectedScenario();
-		if (!scenario) return;
-		untracked(() => {
-			this.selectedScenario = scenario;
-		});
-	});
 
 	readonly TEMPLATE_NAME = 'example';
 }
