@@ -1,8 +1,7 @@
-import { readFile, writeFile } from 'node:fs/promises';
-import { renameSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
 import { request, type APIRequestContext, type Browser, type BrowserContext, type Locator, type Page } from '@playwright/test';
-import { ACCOUNT_PATH, API_URL, BACKEND_INFO, BASE_URL, STORAGE_STATE_PATH } from './config';
+import { ACCOUNT_PATH, API_URL, BACKEND_INFO, BASE_URL } from './config';
 import { recordAppConsoleError } from './console';
 import { sha256Hex } from './crypto';
 
@@ -29,7 +28,8 @@ export interface WorkgroupDto {
 export async function registerAndLogin(): Promise<MemberSession> {
 	const email = `e2e-member-${randomBytes(4).toString('hex')}@seedtest.test`;
 	const password = `Pw-${randomBytes(6).toString('hex')}`;
-	const api = await request.newContext();
+	// WHY: an empty storageState keeps the shared owner session out of the member's cookie jar, so the member login cannot replace it
+	const api = await request.newContext({ storageState: { cookies: [], origins: [] } });
 	try {
 		// The frontend sends the SHA-256 digest, never the plaintext
 		const register = await api.post(`${API_URL}/user/register`, { data: { email, password: sha256Hex(password) } });
@@ -48,22 +48,6 @@ export async function registerAndLogin(): Promise<MemberSession> {
 }
 
 /**
- * Logs the shared owner account in again with the credentials global setup wrote to .auth/account.json.
- * WHY: a session of the shared account can stop being valid while other specs run, and this spec needs an owner that stays logged in for all steps. Costs one auth request.
- * @returns A logged-in API context of the owner. The caller must dispose it.
- */
-export async function loginOwner(): Promise<APIRequestContext> {
-	const account = JSON.parse(await readFile(ACCOUNT_PATH, 'utf8')) as { email: string; password: string };
-	const api = await request.newContext();
-	const login = await api.post(`${API_URL}/user/login`, { data: { email: account.email, password: sha256Hex(account.password) } });
-	if (login.status() !== 200) {
-		await api.dispose();
-		throw new Error(`loginOwner failed: HTTP ${login.status()} ${await login.text()}`);
-	}
-	return api;
-}
-
-/**
  * Returns the story button of the stories bar. The bar shows "<n>. <title>" with a drag handle icon, so an exact text
  * match misses it; the exact title also exists in a hidden tooltip, which is why the button role is used.
  * @param page Page with a project open in the editor.
@@ -72,31 +56,6 @@ export async function loginOwner(): Promise<APIRequestContext> {
  */
 export function storyItem(page: Page, title: string): Locator {
 	return page.getByRole('button', { name: title }).first();
-}
-
-/**
- * Writes the session of a logged-in API context to the shared storage state, so the browser `page` fixture uses it.
- * WHY: the page fixture loads user.json, which can hold a session the backend has already dropped. Without this the
- * UI tests run logged out and get redirected to /login, even though loginOwner() returned a valid API session.
- * Side effect: overwrites STORAGE_STATE_PATH (the same file global setup writes), atomically via a temp file and rename.
- * @param api Logged-in API context whose cookies become the shared session.
- */
-export async function refreshSharedSession(api: APIRequestContext): Promise<void> {
-	const session = await api.storageState();
-	// The frontend treats the user as logged in only when localStorage.login is set for the app origin
-	const origins = [{ origin: BASE_URL, localStorage: [{ name: 'login', value: 'true' }] }];
-	const temp = `${STORAGE_STATE_PATH}.tmp-${process.pid}`;
-	await writeFile(temp, JSON.stringify({ ...session, origins }, null, '\t'));
-	// WHY: Windows refuses the rename with EPERM while another run has the target open; the lock lasts milliseconds
-	for (let attempt = 1; ; attempt++) {
-		try {
-			renameSync(temp, STORAGE_STATE_PATH);
-			return;
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code !== 'EPERM' || attempt === 10) throw error;
-			await new Promise(resolve => setTimeout(resolve, 100 * attempt));
-		}
-	}
 }
 
 /**

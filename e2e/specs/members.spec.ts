@@ -3,7 +3,7 @@ import { request, type APIRequestContext } from '@playwright/test';
 import { test, expect } from '../fixtures';
 import { API_URL, STORAGE_STATE_PATH } from '../helpers/config';
 import { createProject, createStory, deleteProject, getStory, type ProjectRef } from '../helpers/api';
-import { deleteOwnAccount, getWorkgroup, loginOwner, openMemberContext, ownerEmail, refreshSharedSession, registerAndLogin, storyItem, type MemberSession } from '../helpers/members';
+import { deleteOwnAccount, getWorkgroup, openMemberContext, ownerEmail, registerAndLogin, storyItem, type MemberSession } from '../helpers/members';
 import { AppPage } from '../pages/app';
 import { MembersPage } from '../pages/members';
 import { ProjectsPage } from '../pages/projects';
@@ -23,16 +23,10 @@ test.describe.serial('members and ownership', () => {
 	let dedicated: ProjectRef | undefined;
 
 	test.beforeAll(async () => {
-		// Two auth requests in total: register and login of the member. The owner reuses the shared session.
+		// Two auth requests in total: register and login of the member. The owner reuses the shared session;
+		// registerAndLogin logs the member in with an empty cookie jar, so that login cannot replace it.
 		owner = await request.newContext({ storageState: STORAGE_STATE_PATH });
 		member = await registerAndLogin();
-		// WHY: the shared session was observed to answer 401 right after the member's register and login, so the owner logs in again when it is no longer valid
-		if ((await owner.get(`${API_URL}/user/`)).status() !== 200) {
-			await owner.dispose();
-			owner = await loginOwner();
-			// WHY: the browser page fixture reads user.json; it still holds the dead session, so the UI would run logged out
-			await refreshSharedSession(owner);
-		}
 		shared = await createProject(owner, `E2E members ${runSuffix()}`);
 		storyTitle = `E2E member story ${runSuffix()}`;
 		storyId = await createStory(owner, shared.id, storyTitle);
@@ -101,9 +95,7 @@ test.describe.serial('members and ownership', () => {
 		expect(runtimeErrors).toEqual([]);
 	});
 
-	// WHY: story-editor.component.html:111 shows the rename pencil without a canEdit check, so read-only members see a control the backend then rejects
 	test('member with read-only access sees no story edit controls', async ({ browser, runtimeErrors }) => {
-		test.fixme(true, 'App bug MITTEL: story-editor.component.html:111 shows the rename pencil to read-only members (no canEdit gating)');
 		const { context, page } = await openMemberContext(browser, member.api, runtimeErrors);
 		try {
 			await new AppPage(page).gotoAccount();
