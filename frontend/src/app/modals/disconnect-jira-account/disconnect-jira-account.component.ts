@@ -1,9 +1,9 @@
-﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+﻿import { Component, ChangeDetectionStrategy, inject, output, TemplateRef, viewChild } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ManagementService } from 'src/app/Services/management.service';
 import { NotificationService } from 'src/app/Services/notification.service';
 import type { User } from '@seed-test/shared/models/User';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 @Component({
 	selector: 'app-disconnect-jira-account',
@@ -13,7 +13,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent]
 })
 export class DisconnectJiraAccountComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	managmentService = inject(ManagementService);
 	notify = inject(NotificationService);
 
@@ -23,16 +23,16 @@ export class DisconnectJiraAccountComponent {
      */
 	readonly jiraAccountResponse = output<User>();
 
-	readonly disconnectJiraModal = viewChild.required<DisconnectJiraAccountComponent>('disconnectJiraModal');
+	readonly disconnectJiraModal = viewChild.required<TemplateRef<unknown>>('disconnectJiraModal');
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	/**
    * Opens the disconnect Jira Account Modal
    *
   */
 	openDisconnectJiraAccountModal() {
-		this.modalReference = this.modalService.open(this.disconnectJiraModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.disconnectJiraModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
 
 	/**

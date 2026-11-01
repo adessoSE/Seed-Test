@@ -1,10 +1,10 @@
 <!-- rename Background Modal-->
 
-<ng-template #renameBackground let-modal>
+<ng-template #renameBackground let-modal="dialogRef">
     <app-layout-modal />
     <div class="modal-header">
         <span id="modalHeader" class="MediumSubline1H4 modal-title">Change Background Title</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <button type="button" class="close" aria-label="Close" (click)="modal.close()">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -13,7 +13,7 @@
             <div class="form-group modalsContent">
                 <div>
                     <label for="rename-background-title">Edit Background Title</label>
-                    <input ngbAutofocus id="rename-background-title" type="text" style="margin-left: 24px;" pattern="\S(.*\S)?" [formControl]="backgroundTitle" (keyup)="backgroundUnique()" required>
+                    <input cdkFocusInitial id="rename-background-title" type="text" style="margin-left: 24px;" pattern="\S(.*\S)?" [formControl]="backgroundTitle" (keyup)="backgroundUnique()" required>
                 </div>
             </div>
             

@@ -250,7 +250,7 @@ test.describe('scenario steps', () => {
 		await editor.fillValue('given', 0, 'ungespeichert');
 		await page.locator('#storyList').filter({ hasText: otherTitle }).first().click();
 
-		await expect(page.locator('mat-dialog-container, ngb-modal-window').first()).toBeVisible();
+		await expect(page.locator('mat-dialog-container').first()).toBeVisible();
 		expect((await fetchScenario(api, storyId, created.scenario_id)).stepDefinitions.given).toHaveLength(0);
 	});
 

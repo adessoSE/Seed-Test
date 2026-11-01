@@ -1,9 +1,9 @@
 <!--Update Group -->
-<ng-template #updateGroupModal let-modal>
+<ng-template #updateGroupModal let-modal="dialogRef">
     <app-layout-modal />
     <div class="modal-header">
         <span class="MediumSubline1H4 modal-title">Update Group</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <button type="button" class="close" aria-label="Close" (click)="modal.close()">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -61,7 +61,7 @@
                 </div>                
             </div>
             <div class="modal-footer">
-                <button type="button" class="normalButton deleteButton" (click)="deleteGroup($event); modal.dismiss()">Delete</button>
+                <button type="button" class="normalButton deleteButton" (click)="deleteGroup($event); modal.close()">Delete</button>
                 <button id="submitUpdateGroup" type="submit" class="normalButton"
                 [disabled]="!updateGroupForm.valid" [style.opacity]="!updateGroupForm.valid ?  '50%' : '100%'">Update</button>
             </div>

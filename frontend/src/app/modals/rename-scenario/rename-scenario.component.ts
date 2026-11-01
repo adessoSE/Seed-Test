@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, viewChild, TemplateRef } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ScenarioService } from 'src/app/Services/scenario.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -13,22 +13,22 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class RenameScenarioComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	scenarioService = inject(ScenarioService);
 
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	scenarioName!: string;
 
-	readonly renameScenarioModal = viewChild.required<RenameScenarioComponent>('renameScenarioModal');
+	readonly renameScenarioModal = viewChild.required<TemplateRef<unknown>>('renameScenarioModal');
 
 	/**
  * Opens the rename scenario Modal
  * @param oldTitle old scenario title
  */
 	openRenameScenarioModal(oldTitle: string) {
-		this.modalReference = this.modalService.open(this.renameScenarioModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.renameScenarioModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 		this.scenarioName = oldTitle;
 	}
 

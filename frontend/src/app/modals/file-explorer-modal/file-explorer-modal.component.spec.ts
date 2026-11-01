@@ -5,7 +5,7 @@ import { of } from 'rxjs';
 import { FileExplorerModalComponent } from './file-explorer-modal.component';
 import { ProjectService } from '../../Services/project.service';
 import { ThemingService } from '../../Services/theming.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('FileExplorerModalComponent', () => {
 	let component: FileExplorerModalComponent;
@@ -23,7 +23,7 @@ describe('FileExplorerModalComponent', () => {
 	};
 
 	const mockModalService = {
-		open: vi.fn()
+		open: vi.fn().mockReturnValue({ close: vi.fn(), afterClosed: () => of(undefined) })
 	};
 
 	beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('FileExplorerModalComponent', () => {
 			providers: [
 				{ provide: ProjectService, useValue: mockProjectService },
 				{ provide: ThemingService, useValue: mockThemingService },
-				{ provide: NgbModal, useValue: mockModalService }
+				{ provide: MatDialog, useValue: mockModalService }
 			],
 			schemas: [CUSTOM_ELEMENTS_SCHEMA]
 		})
@@ -45,5 +45,10 @@ describe('FileExplorerModalComponent', () => {
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
+	});
+
+	it('should resolve to undefined when the modal is dismissed', async () => {
+		mockModalService.open.mockReturnValueOnce({ close: vi.fn(), afterClosed: () => of(undefined) });
+		await expect(component.openFileExplorerModal()).resolves.toBeUndefined();
 	});
 });

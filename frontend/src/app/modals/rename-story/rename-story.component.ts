@@ -1,9 +1,9 @@
 ﻿import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Story } from '@seed-test/shared/models/Story';
 import { StoryService } from 'src/app/Services/story.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -14,11 +14,11 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameStoryComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	storyService = inject(StoryService);
 
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	readonly renameStoryModal = viewChild.required<TemplateRef<RenameStoryComponent>>('renameStoryModal');
 
@@ -39,7 +39,7 @@ export class RenameStoryComponent {
 	openRenameStoryModal(stories: Story [], story: Story) {
 		this.stories = stories;
 		this.story = story;
-		this.modalReference = this.modalService.open(this.renameStoryModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.renameStoryModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 		const title = document.getElementById('newStoryTitle') as HTMLInputElement;
 		title.placeholder = story.title;
 		this.storyForm.setValue({

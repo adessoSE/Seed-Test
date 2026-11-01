@@ -141,3 +141,12 @@
 
 
 
+
+/* MatDialog surface for the template modals: the Bootstrap header/body/footer bring their own spacing */
+::ng-deep .st-modal .mat-mdc-dialog-surface {
+    padding: 0;
+}
+
+::ng-deep .darkTheme .st-modal .mat-mdc-dialog-surface {
+    background: #455A64;
+}

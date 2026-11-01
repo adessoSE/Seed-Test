@@ -79,7 +79,7 @@ test.describe('legacy data written by older Seed-Test versions', () => {
 		await page.locator('button[matTooltip="Change Scenario Title"]').click();
 		await page.locator('#newTitle').clear();
 		await page.locator('#newTitle').pressSequentially(scenarioName);
-		await page.locator('.modal button[type="submit"]:visible').click();
+		await page.locator('mat-dialog-container button[type="submit"]:visible').click();
 		const scenarioSave = page.waitForResponse(r => r.request().method() === 'PUT' && new RegExp(`/story/${storyId}/[^/]+$`).test(r.url()));
 		await page.locator('button[name="saveScenario"]#saveButton:visible').click();
 		expect((await scenarioSave).status()).toBeLessThan(300);
@@ -105,7 +105,7 @@ test.describe('legacy data written by older Seed-Test versions', () => {
 		const scenarioName = `Added legacy ${Date.now()}`;
 		await page.locator('#add_scenario:visible').click();
 		await page.locator('#newTitle').pressSequentially(scenarioName);
-		await page.locator('.modal button[type="submit"]:visible').click();
+		await page.locator('mat-dialog-container button[type="submit"]:visible').click();
 
 		await expect(page.locator('#scenarioTitle:visible')).toContainText(scenarioName, { ignoreCase: true });
 		await expect(scenarioRow(page, scenarioName)).toBeVisible();

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog } from '@angular/material/dialog';
 import { ThemingService } from '../../Services/theming.service';
 import { StoryService } from '../../Services/story.service';
 
@@ -27,7 +27,7 @@ describe('ExecutionListComponent', () => {
 		await TestBed.configureTestingModule({
 			imports: [ExecutionListComponent],
 			providers: [
-				{ provide: NgbModal, useValue: mockModalService },
+				{ provide: MatDialog, useValue: mockModalService },
 				{ provide: ThemingService, useValue: mockThemingService },
 				{ provide: StoryService, useValue: mockStoryService }
 			],

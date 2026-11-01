@@ -1,14 +1,13 @@
 ﻿import { Component, OnInit, ChangeDetectionStrategy, TemplateRef, inject, viewChild, signal, effect, input, untracked } from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '@seed-test/shared/models/Block';
 import { StepType } from '@seed-test/shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
 import { NotificationService } from 'src/app/Services/notification.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/confirm-dialog.component';
 import { ApiService } from 'src/app/Services/api.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 import { MatSelectionList, MatListOption } from '@angular/material/list';
 import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '@angular/material/table';
 import { MatFormField, MatSelect, MatOption } from '@angular/material/select';
@@ -22,7 +21,6 @@ import { MatIconModule } from '@angular/material/icon';
 	imports: [LayoutModalComponent, MatSelectionList, FormsModule, MatListOption, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatFormField, MatSelect, ReactiveFormsModule, MatOption, MatIconModule]
 })
 export class AddBlockFormComponent implements OnInit {
-	private modalService = inject(NgbModal);
 	blockService = inject(BlockService);
 	notify = inject(NotificationService);
 	dialog = inject(MatDialog);
@@ -111,7 +109,7 @@ export class AddBlockFormComponent implements OnInit {
      */
 	addAsSingleSteps: boolean | undefined;
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
      
 	ngOnInit() {
 		const id = localStorage.getItem('id');
@@ -134,7 +132,7 @@ export class AddBlockFormComponent implements OnInit {
 		this.blockSaved = true;
 		this.getAllBlocks(repoId);
 		this.correspondingComponent = correspondingComponent;
-		this.modalReference = this.modalService.open(this.addBlockFormModal(), {ariaLabelledBy: 'modal-basic-title',  modalDialogClass: 'addBlock'});
+		this.modalReference = this.dialog.open(this.addBlockFormModal()!, { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title', width: '80%', minWidth: '1000px', maxWidth: 'none' });
 		if (this.correspondingComponent == 'background') 
 			this.clipboardBlock = JSON.parse(sessionStorage.getItem('backgroundBlock')!);
 		else if (this.correspondingComponent == 'scenario')

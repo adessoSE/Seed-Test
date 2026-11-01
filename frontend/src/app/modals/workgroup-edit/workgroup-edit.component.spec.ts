@@ -3,7 +3,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationService } from 'src/app/Services/notification.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog } from '@angular/material/dialog';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { WorkgroupEditComponent } from './workgroup-edit.component';
 import { ProjectService } from 'src/app/Services/project.service';
@@ -38,8 +38,8 @@ describe('WorkgroupEditComponent', () => {
 			providers: [
 				{ provide: NotificationService, useValue: notificationMock },
 				{
-					provide: NgbModal,
-					useValue: { open: vi.fn().mockReturnValue({ result: Promise.resolve(), close: vi.fn() }) }
+					provide: MatDialog,
+					useValue: { open: vi.fn().mockReturnValue({ close: vi.fn(), afterClosed: () => of(undefined) }) }
 				}
 			],
 			schemas: [NO_ERRORS_SCHEMA]

@@ -1,10 +1,10 @@
-﻿import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, TemplateRef, viewChild } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -15,14 +15,14 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class CreateCustomProjectComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	projectService = inject(ProjectService);
 	private notify = inject(NotificationService);
 
 
-	readonly createCustomProjectModal = viewChild.required<CreateCustomProjectComponent>('createCustomProjectModal');
+	readonly createCustomProjectModal = viewChild.required<TemplateRef<unknown>>('createCustomProjectModal');
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 	/**
   * Existing Projects
   */
@@ -39,7 +39,7 @@ export class CreateCustomProjectComponent {
      */
 	openCreateCustomProjectModal(repositories: RepositoryContainer[]) {
 		this.repositories = repositories;
-		this.modalReference = this.modalService.open(this.createCustomProjectModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.createCustomProjectModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
 
 	/**

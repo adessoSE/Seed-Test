@@ -1,10 +1,10 @@
 <!-- Workgroup edit Modal-->
 <app-repo-swich #repoSwitchModal />
-<ng-template #workgroupEditModal let-modal>
+<ng-template #workgroupEditModal let-modal="dialogRef">
   <app-layout-modal />
   <div class="modal-header">
     <span class="MediumSubline1H4 modal-title">Project Settings</span>
-    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click'); onModalClosed();">
+    <button type="button" class="close" aria-label="Close" (click)="modal.close(); onModalClosed();">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>

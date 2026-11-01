@@ -1,5 +1,5 @@
 <!-- New steps request modal-->
-<ng-template #newStepRequestModal let-modal>
+<ng-template #newStepRequestModal let-modal="dialogRef">
   <app-layout-modal />
   <div class="modal-header">
     <span id="modalHeader"class="MediumSubline1H4 modal-title">New step request</span>
@@ -11,7 +11,7 @@
       please leave us a way to reach out to you for further clarification.
     </span>
   </dfn>
-  <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+  <button type="button" class="close" aria-label="Close" (click)="modal.close()">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>

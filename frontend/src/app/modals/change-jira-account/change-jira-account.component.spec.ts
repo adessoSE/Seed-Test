@@ -2,7 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog } from '@angular/material/dialog';
 import { NEVER } from 'rxjs';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { ChangeJiraAccountComponent } from './change-jira-account.component';
@@ -28,11 +28,11 @@ describe('ChangeJiraAccountComponent', () => {
 	// Close the modal while the fixture is still alive. Dismissing after TestBed teardown removes DOM nodes of an
 	// already destroyed view, which surfaced as unhandled "removeChild of null" errors.
 	afterEach(async () => {
-		TestBed.inject(NgbModal).dismissAll();
+		TestBed.inject(MatDialog).closeAll();
 		fixture.detectChanges();
 		await fixture.whenStable();
-		// ng-bootstrap removes the modal window only after its close transition, which whenStable() does not wait for
-		await vi.waitFor(() => expect(document.querySelector('ngb-modal-window')).toBeNull());
+		// MatDialog removes the dialog container only after its close animation, which whenStable() does not wait for
+		await vi.waitFor(() => expect(document.querySelector('mat-dialog-container')).toBeNull());
 	});
 
 	it('should create', () => {
@@ -92,7 +92,7 @@ describe('ChangeJiraAccountComponent', () => {
 
 	describe('auth method tabs', () => {
 		/**
-		 * The modal content is rendered by NgbModal into document.body, not into the fixture, so the
+		 * The modal content is rendered by MatDialog into document.body, not into the fixture, so the
 		 * tests query the document and close the modal again afterwards.
 		 */
 		async function openModalAndGetTabs(): Promise<HTMLElement[]> {

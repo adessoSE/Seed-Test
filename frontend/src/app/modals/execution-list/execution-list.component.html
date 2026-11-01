@@ -1,8 +1,8 @@
-<ng-template #executionListModal let-modal >
+<ng-template #executionListModal let-modal="dialogRef" >
   <app-layout-modal />
   <div class="modal-header">
     <span id="modalHeader" class="MediumSubline1H4 modal-title">Select Xray Test Execution</span>
-    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+    <button type="button" class="close" aria-label="Close" (click)="modal.close()">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
