@@ -636,10 +636,11 @@ export class StoriesBarComponent implements OnChanges {
 	/**
       * Selects a new scenario
       * @param scenario
+      * @param owner story the scenario was clicked in; scenario_id is only unique per story, so the id lookup below is a fallback
       */
-	selectScenario(scenario: Scenario) {
-		// Find which story this scenario belongs to
-		const targetStory = this.stories().find(s => 
+	selectScenario(scenario: Scenario, owner?: Story) {
+		// Find which story this scenario belongs to. Matching by scenario_id alone picks the first story that reuses the id and flips the accordion between two stories
+		const targetStory = owner ?? this.stories().find(s => 
 			s.scenarios.some(sc => sc.scenario_id === scenario.scenario_id)
 		);
 		if (targetStory) {

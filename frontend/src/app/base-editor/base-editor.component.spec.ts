@@ -10,6 +10,7 @@ import { StepDefinition } from '@seed-test/shared/models/StepDefinition';
 import { vi } from 'vitest';
 import { throwError } from 'rxjs';
 import { BlockService } from '../Services/block.service';
+import { Block } from '@seed-test/shared/models/Block';
 import { NotificationService } from '../Services/notification.service';
 import { MultipleScenario } from '@seed-test/shared/models/MuiltipleScenario';
 
@@ -414,6 +415,76 @@ describe('BaseEditorComponent', () => {
 		});
 	});
 
+	describe('behavioral: block insertion notifies the parent', () => {
+		it('emits blockInserted after a block is added to a scenario, so the parent re-sets its signal-held scenario', () => {
+			const testScenario: Scenario = {
+				scenario_id: 42, name: 'Target', comment: '', saved: true,
+				stepDefinitions: { given: [], when: [], then: [], example: [] }
+			};
+			const block = { _id: 'block-1', name: 'Shared Block', stepDefinitions: { when: [], example: [] } } as unknown as Block;
+			let emitted = 0;
+			component.blockInserted.subscribe(() => emitted++);
+
+			fixture.componentRef.setInput('newlySelectedScenario', testScenario);
+			TestBed.flushEffects();
+			TestBed.inject(BlockService).addBlockToScenarioTrigger.emit(['scenario', block, 'When', false]);
+			TestBed.flushEffects();
+
+			expect(testScenario.saved).toBe(false);
+			expect(emitted).toBe(1);
+		});
+
+		it('keeps the user checked steps and the inserted block when the parent re-sets the scenario reference', () => {
+			const checkedStep: StepType = {
+				_id: 'checked-1', id: 1, stepType: 'given', type: 'Role', pre: 'As a', mid: '',
+				values: ['Guest'], post: '', isExample: [], checked: true
+			};
+			const testScenario: Scenario = {
+				scenario_id: 42, name: 'Target', comment: '', saved: true,
+				stepDefinitions: { given: [checkedStep], when: [], then: [], example: [] }
+			};
+			const block = { _id: 'block-1', name: 'Shared Block', stepDefinitions: { when: [], example: [] } } as unknown as Block;
+
+			fixture.componentRef.setInput('newlySelectedScenario', testScenario);
+			TestBed.flushEffects();
+			TestBed.inject(BlockService).addBlockToScenarioTrigger.emit(['scenario', block, 'When', false]);
+			TestBed.flushEffects();
+
+			// Same shape as scenario-editor.markScenarioUnsaved: a new reference that shares the step arrays
+			const reSetScenario: Scenario = { ...testScenario, saved: false };
+			fixture.componentRef.setInput('newlySelectedScenario', reSetScenario);
+			TestBed.flushEffects();
+
+			expect(component.selectedScenario).toBe(reSetScenario);
+			expect(component.selectedScenario.stepDefinitions.when.length).toBe(1);
+			expect(checkedStep.checked).toBe(true);
+			expect(component.selectedScenario.saved).toBe(false);
+		});
+
+		it('unchecks steps when a different scenario is selected', () => {
+			const checkedStep: StepType = {
+				_id: 'checked-2', id: 1, stepType: 'given', type: 'Role', pre: 'As a', mid: '',
+				values: ['Guest'], post: '', isExample: [], checked: true
+			};
+			const firstScenario: Scenario = {
+				scenario_id: 42, name: 'First', comment: '', saved: true,
+				stepDefinitions: { given: [checkedStep], when: [], then: [], example: [] }
+			};
+			const otherScenario: Scenario = {
+				scenario_id: 42, name: 'Same id in another story', comment: '', saved: true,
+				stepDefinitions: { given: [], when: [], then: [], example: [] }
+			};
+
+			fixture.componentRef.setInput('newlySelectedScenario', firstScenario);
+			TestBed.flushEffects();
+			fixture.componentRef.setInput('newlySelectedScenario', otherScenario);
+			TestBed.flushEffects();
+
+			expect(checkedStep.checked).toBe(false);
+			expect(component.selectedScenario).toBe(otherScenario);
+		});
+	});
+
 	describe('behavioral: checkAllSteps toggles all steps', () => {
 		beforeEach(() => {
 			fixture.componentRef.setInput('templateName', 'scenario');
@@ -521,6 +592,76 @@ describe('BaseEditorComponent', () => {
 			component.ngOnInit();
 
 			expect(errorSpy).toHaveBeenCalledWith('Could not load blocks');
+		});
+	});
+	describe('contenteditable step values', () => {
+		const wikiUrl = 'https://de.wikipedia.org/wiki/Gleith%C3%B6rnchen';
+
+		/**
+		 * Renders a scenario with one 'when' step holding the given value and returns its contenteditable element.
+		 * Uses a fresh fixture because the shared one already rendered with no scenario, and an OnPush view is not
+		 * re-rendered by a plain property change.
+		 */
+		function renderSingleStepValue(value: string): HTMLElement {
+			const step: StepType = {
+				id: 1, stepType: 'when', type: 'Website', pre: 'I am on the website:', mid: '',
+				values: [value], post: '', isExample: []
+			};
+			fixture = TestBed.createComponent(BaseEditorComponent);
+			component = fixture.componentInstance;
+			component.selectedScenario = {
+				scenario_id: 1, name: 'single step', comment: '',
+				stepDefinitions: { given: [], when: [step], then: [], example: [] }
+			};
+			fixture.componentRef.setInput('templateName', 'scenario');
+			fixture.detectChanges();
+			return fixture.nativeElement.querySelector('[contenteditable="true"]') as HTMLElement;
+		}
+
+		it('should render the step value without template whitespace', () => {
+			const el = renderSingleStepValue(wikiUrl);
+
+			expect(el.textContent).toBe(wikiUrl);
+		});
+
+		it('should store an edit without adding a leading space', () => {
+			const el = renderSingleStepValue(wikiUrl);
+
+			el.textContent = el.textContent + 'X';
+			el.dispatchEvent(new Event('input'));
+
+			expect(component.selectedScenario.stepDefinitions.when[0].values[0]).toBe(wikiUrl + 'X');
+		});
+
+		it('should keep intentional trailing spaces of a stored value', () => {
+			const el = renderSingleStepValue('https://example.com  ');
+
+			el.dispatchEvent(new Event('input'));
+
+			expect(component.selectedScenario.stepDefinitions.when[0].values[0]).toBe('https://example.com  ');
+		});
+
+		it('should render a value containing markup-like text exactly as stored', () => {
+			const value = 'https://example.com/äöü "Quote" <script>alert(1)</script>';
+			const el = renderSingleStepValue(value);
+
+			expect(el.textContent).toBe(value);
+		});
+
+		it('should store an edit of a markup-like value as the original text plus the typed text', () => {
+			const value = 'https://example.com/äöü "Quote" <script>alert(1)</script>';
+			const el = renderSingleStepValue(value);
+
+			el.textContent = el.textContent + ' typed';
+			el.dispatchEvent(new Event('input'));
+
+			expect(component.selectedScenario.stepDefinitions.when[0].values[0]).toBe(value + ' typed');
+		});
+
+		it('should render an example placeholder such as <name> unchanged', () => {
+			const el = renderSingleStepValue('I open <name>');
+
+			expect(el.textContent).toBe('I open <name>');
 		});
 	});
 });

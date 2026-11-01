@@ -463,6 +463,13 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 		this.createScenarioModal().openCreateScenarioModal(this.selectedStory());
 	}
 
+	/**
+	 * Re-sets the scenario to a new reference after a block was inserted in place, so the OnPush header shows "Save Scenario"
+	 */
+	markScenarioUnsaved() {
+		this.selectedScenario.update(s => (s ? { ...s, saved: false } : s));
+	}
+
 	blockSelectTrigger(block: StepType & { stepDefinitions?: StepDefinition }) {
 		this.selectedBlock = this.blocks().find(i => i._id == block._blockReferenceId)!;
 		block.stepDefinitions = this.selectedBlock?.stepDefinitions;

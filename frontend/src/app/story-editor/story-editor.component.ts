@@ -656,6 +656,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		this.checkGlobalSettings();
 	}
 
+	/**
+	 * Re-sets the background to a new reference after a block was inserted in place, so the OnPush header shows "Save"
+	 */
+	markBackgroundUnsaved() {
+		this.selectedStory.update(s => (s ? { ...s, background: { ...s.background, saved: false } } : s));
+	}
+
 	handleSizeChange(event: { width: number; height: number }) {
 		const story = this.selectedStory();
 		if (!story) return;
@@ -1322,6 +1329,10 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 					.subscribe({
 						next: (resp) => {
 							this.testRunResponse(resp as TestRunResponse);
+
+							// The stories bar scenario icon is only updated from this emit; a single-scenario run does not change the story status, so no storyStatusChangeEmit here
+							// The single-scenario report status equals that scenario's status (report.service sets both from the same result)
+							this.scenarioService.scenarioStatusChangeEmit(story._id!, scenario_id, this.testReport.status);
 
 							// Determine test status for Xray synchronization
 							const val = this.testReport.status;

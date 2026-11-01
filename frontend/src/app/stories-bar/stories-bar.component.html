@@ -129,11 +129,12 @@
                    <ul class="scenario-drop-list" (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
                      @for (scen of s.scenarios; track scen; let c = $index) {
                         <li>
+                          <!-- CASE 1: highlight only inside the selected story, since scenario_id repeats across stories -->
                           <a class="Largecaption scenarioListItem"
                             [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed !== undefined"
                             [class.passed]="scen.lastTestPassed && scen.lastTestPassed !== undefined" [class.notTested]=""
-                            [class.selected-scenario]="parentSelectedScenario() && scen.scenario_id === parentSelectedScenario()!.scenario_id"
-                            tabindex="0" role="button" (click)="selectScenario(scen);" (keydown.enter)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
+                            [class.selected-scenario]="parentSelectedScenario() && selectedStory() === s && scen.scenario_id === parentSelectedScenario()!.scenario_id"
+                            tabindex="0" role="button" (click)="selectScenario(scen, s);" (keydown.enter)="selectScenario(scen, s);" id="{{'scenario' + c}}" cdkDrag>
                        <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
                           #{{getIssueNumber(s)}}.{{c+1}} {{scen.name | titlecase}}
                        @if (scen.lastTestPassed && scen.lastTestPassed !== undefined) {

@@ -397,13 +397,12 @@
                                         }
                                         <!-- Fallback block -->
                                         <ng-template #fallbackBlock let-index="index">
-                                          <div style="overflow: hidden;">
+                                          <!-- The value is read back from the contenteditable textContent on input, so the interpolation must not be padded with template whitespace. -->
+                                        <div style="overflow: hidden;">
                                             <div class="scenario contentEditableElement inputEditableDiv" #step_type_input1
                           id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightInput(step_type_input1, j, index, currentStep.stepType, currentStep,
                           currentStep.pre, undefined, sd)" (blur)="onStepInputQuoteValidation($event, stepIndex, valueIndex, stepType)" (click)="matchString(step_type_input1)" (keydown.enter)="matchString(step_type_input1)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom:
-                          1px; white-space: nowrap; overflow: hidden;">
-                                              {{ formatStepValue(currentStep.values, index) }}
-                                            </div>
+                          1px; white-space: nowrap; overflow: hidden;">{{ formatStepValue(currentStep.values, index) }}</div>
                                           </div>
                                           @if (name!=='block-editor' && this.selectedScenario?.multipleScenarios?.[0] !== undefined) {
                                             <button

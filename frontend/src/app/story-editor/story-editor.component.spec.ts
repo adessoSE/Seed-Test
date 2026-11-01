@@ -390,6 +390,18 @@ describe('StoryEditorComponent', () => {
 			expect(emit).not.toHaveBeenCalledWith('z', expect.anything());
 		});
 
+		it('emits the scenario status after a single-scenario run', async () => {
+			const added = addRunDomNodes();
+			const emit = vi.spyOn(component.scenarioService, 'scenarioStatusChangeEmit');
+			vi.spyOn(component.storyService, 'runTests').mockReturnValue(of(runResponse(true)) as never);
+			try {
+				await component.runTests(1);
+			} finally {
+				added.forEach(node => node.remove());
+			}
+			expect(emit).toHaveBeenCalledWith('a', 1, true);
+		});
+
 		it('does not change the story status after a single-scenario run', async () => {
 			const added = addRunDomNodes();
 			const emit = vi.spyOn(component.scenarioService, 'storyStatusChangeEmit');

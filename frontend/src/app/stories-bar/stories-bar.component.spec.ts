@@ -100,6 +100,42 @@ describe('StoriesBarComponent', () => {
 			component.selectScenario(scenario);
 			expect(component.scenarioChosen.emit).toHaveBeenCalledWith(scenario);
 		});
+
+		it('selects the owning story when scenario_id also exists in an earlier story', () =>{
+			// scenario_id is a per-story counter, so two stories can both own scenario_id 1
+			const mk = (id: string) => ({ _id: id, title: id, scenarios: [{ scenario_id: 1, name: id, stepDefinitions: { given: [], when: [], then: [], example: [] } }] }) as unknown as Story;
+			const first = mk('a');
+			const second = mk('b');
+			component.stories.set([first, second]);
+			component.selectedStory.set(first);
+			vi.spyOn(component.storyChosen, 'emit');
+			component.selectScenario(second.scenarios[0], second);
+			expect(component.selectedStory()).toBe(second);
+			expect(component.storyChosen.emit).toHaveBeenCalledWith(second);
+			expect(component.storyExpansion().has(second)).toBe(true);
+			expect(component.storyExpansion().has(first)).toBe(false);
+		});
+
+		it('highlights only the scenario of the selected story when scenario_id repeats', () =>{
+			// scenario_id is a per-story counter: story B's scenario 1 must not also light up story A's scenario 1
+			const mk = (id: string) => ({
+				_id: id, story_id: 1, storySource: 'db', repo_type: 'db', title: 'Story ' + id, body: '', state: 'open',
+				issue_number: 1, assignee: '', assignee_avatar_url: '',
+				scenarios: [{ scenario_id: 1, name: id, lastTestPassed: undefined, stepDefinitions: { given: [], when: [], then: [], example: [] } }],
+				background: { name: '', stepDefinitions: { when: [] } }
+			}) as unknown as Story;
+			const a = mk('a');
+			const b = mk('b');
+			component.stories.set([a, b]);
+			component.selectedStory.set(b);
+			fixture.componentRef.setInput('parentSelectedScenario', b.scenarios[0]);
+			fixture.detectChanges();
+
+			const wrapperOf = (title: string) => [...fixture.nativeElement.querySelectorAll('.story-drag-wrapper')]
+				.find((el: HTMLElement) => el.textContent?.includes(title)) as HTMLElement;
+			expect(wrapperOf('Story b').querySelectorAll('.selected-scenario').length).toBe(1);
+			expect(wrapperOf('Story a').querySelectorAll('.selected-scenario').length).toBe(0);
+		});
 	});
 
 	describe('selectStory', () =>{

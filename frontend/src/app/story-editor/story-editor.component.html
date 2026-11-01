@@ -292,7 +292,7 @@
                         @if (showBackground()) {
                           <app-base-editor [templateName]="TEMPLATE_NAME" [newlySelectedScenario]="selectedScenario()"
                             [newlySelectedStory]="selectedStory()" [testRunning]="testRunning()" [originalStepTypes]="originalStepTypes()"
-                          [uncheckBackgroundCheckboxes]="showBackground()" />
+                          [uncheckBackgroundCheckboxes]="showBackground()" (blockInserted)="markBackgroundUnsaved()" />
                         }
                       </mat-expansion-panel>
                     </mat-accordion>

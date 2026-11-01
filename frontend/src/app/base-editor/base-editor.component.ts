@@ -120,10 +120,18 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		if (!scenario) return;
 		untracked(() => {
 			if (this.templateName() === 'background' && !this.selectedStory?.background) return;
-			if (this.selectedScenario)
+			// CASE 1: the parent re-sets the same scenario as a new reference after a block insert
+			// (markScenarioUnsaved). That must keep the user's step selection, so only a different
+			// scenario resets it. scenario_id repeats across stories, so the shared stepDefinitions
+			// reference (kept by the shallow copy in markScenarioUnsaved) is part of the identity.
+			const isOtherScenario = this.selectedScenario && (
+				this.selectedScenario.scenario_id !== scenario.scenario_id ||
+				this.selectedScenario.stepDefinitions !== scenario.stepDefinitions);
+			if (isOtherScenario)
 				this.checkAllSteps(false);
 
 			this.selectedScenario = scenario;
+			// Reset on every re-set too: the inserted block's inputs still need regex highlighting
 			this.initialRegex = true;
 		});
 	});
@@ -186,6 +194,13 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	readonly blockSelectTriggerEvent = output<StepType>();
 
 	/**
+	 * Emitted after a block was inserted in place. The parent must re-set its signal-held
+	 * scenario or story to a new reference: OnPush headers only re-render on a new reference,
+	 * so an in-place `saved = false` leaves the "Save Scenario" button stale.
+	 */
+	readonly blockInserted = output<void>();
+
+	/**
    * currently selected scenario
    */
 	selectedScenario!: Scenario;
@@ -245,12 +260,11 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	/**
 	 * Formats a step value for the editable fallback control.
 	 * Imported or legacy steps can omit optional second and third values.
+	 * Returns the stored text unchanged: the contenteditable text is read back on input and saved as the value,
+	 * so any display-only decoration here would be persisted and corrupt the step.
 	 */
 	formatStepValue(values: readonly string[] | null | undefined, index: number): string {
-		const value = values?.[index] ?? '';
-		return value.includes('<') && value.includes('>')
-			? `<  ${value.replace('<', '').replace('>', '')}  >`
-			: value;
+		return values?.[index] ?? '';
 	}
 
 	indexOfExampleToDelete: number | null = null;
@@ -290,6 +304,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				this.selectedStory.background.stepDefinitions['when'].push(JSON.parse(JSON.stringify(step)));
 			});
 			this.markUnsaved();
+			this.blockInserted.emit();
 		}
 		if (this.templateName() == 'scenario' && blockValue[0] == 'scenario') {
 			if (!blockValue[3]) {
@@ -324,6 +339,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 				this.insertStepsWithExamples(blockValue[1] as unknown as { stepDefinitions: Record<string, StepType[]> });
 
 			this.markUnsaved();
+			this.blockInserted.emit();
 		}
 	});
 
