@@ -4,8 +4,8 @@ services:
     container_name: "Seed-db"
     restart: on-failure
     environment:
-      MONGO_INITDB_ROOT_USERNAME: SeedAdmin
-      MONGO_INITDB_ROOT_PASSWORD: SeedTest
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME_FROM_WORKFLOW:?set MONGO_ROOT_USERNAME secret in the workflow}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD_FROM_WORKFLOW:?set MONGO_ROOT_PASSWORD secret in the workflow}
     # Single-node replica set rs0 for MongoDB transactions; same setup as docker-compose.yml (keyFile generated per start).
     entrypoint:
       - bash
@@ -46,6 +46,10 @@ services:
       GITHUB_CLIENT_SECRET: ${G_CLIENT_SECRET_FROM_WORKFLOW}
       GITHUB_CLIENT_ID: ${G_CLIENT_ID_FROM_WORKFLOW}
       PASSPORT_GITHUB_LOCAL_PW_FIELD: ${PASSPORT_GITHUB_LOCAL_PW_FIELD_FROM_WORKFLOW}
+      ENCRYPTION_SECRET: ${ENCRYPTION_SECRET_FROM_WORKFLOW:?set ENCRYPTION_SECRET secret in the workflow}
+      SESSION_SECRET: ${SESSION_SECRET_FROM_WORKFLOW:?set SESSION_SECRET secret in the workflow}
+      JIRA_SECRET: ${JIRA_SECRET_FROM_WORKFLOW:?set JIRA_SECRET secret in the workflow}
+      JIRA_SALT: ${JIRA_SALT_FROM_WORKFLOW:?set JIRA_SALT secret in the workflow}
     depends_on:
       db:
         condition: service_healthy

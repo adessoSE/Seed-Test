@@ -32,6 +32,13 @@ jobs:
           FRONTEND_URL_FROM_WORKFLOW: ${{ secrets.FRONTEND_URL }}
           G_CLIENT_SECRET_FROM_WORKFLOW: ${{ secrets.G_CLIENT_SECRET }}
           PASSPORT_GITHUB_LOCAL_PW_FIELD_FROM_WORKFLOW: ${{ secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD }}
+          # Secrets required by docker-test.yml (no values in the repo; the DB_URI_TEST secret must use the same root credentials)
+          MONGO_ROOT_USERNAME_FROM_WORKFLOW: ${{ secrets.MONGO_ROOT_USERNAME }}
+          MONGO_ROOT_PASSWORD_FROM_WORKFLOW: ${{ secrets.MONGO_ROOT_PASSWORD }}
+          ENCRYPTION_SECRET_FROM_WORKFLOW: ${{ secrets.ENCRYPTION_SECRET }}
+          SESSION_SECRET_FROM_WORKFLOW: ${{ secrets.SESSION_SECRET }}
+          JIRA_SECRET_FROM_WORKFLOW: ${{ secrets.JIRA_SECRET }}
+          JIRA_SALT_FROM_WORKFLOW: ${{ secrets.JIRA_SALT }}
 
           # Frontend Variables
           API_SERVER_FROM_WORKFLOW: ${{ secrets.API_SERVER }}

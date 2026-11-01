@@ -10,8 +10,8 @@ services:
     ports:
       - "27017-27019:27017-27019"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=SeedAdmin
-      - MONGO_INITDB_ROOT_PASSWORD=SeedTest
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:?set MONGO_ROOT_USERNAME in .env}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
       - MONGO_INITDB_DATABASE=Seed
     # Single-node replica set rs0, so the backend can use MongoDB transactions (atomic project import).
     # Root auth plus --replSet requires a keyFile. It is generated on every start, never stored in the repo or the volume.
@@ -48,7 +48,8 @@ services:
       FRONTEND_URL: "http://localhost:4200"
       # replicaSet=rs0 enables transactions. The member host seedmongodb resolves only inside the compose network;
       # from the host machine connect with mongodb://...@localhost:27017/?directConnection=true
-      DATABASE_URI: mongodb://SeedAdmin:SeedTest@seedmongodb:27017/?replicaSet=rs0
+      # Credentials come from the root .env; the password must use URL-safe characters (no @ : / ? # %).
+      DATABASE_URI: mongodb://${MONGO_ROOT_USERNAME:?set MONGO_ROOT_USERNAME in .env}:${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}@seedmongodb:27017/?replicaSet=rs0
       # Required by backend/src/config.ts (64-char hex). Read from the root .env; compose refuses to start without it.
       ENCRYPTION_SECRET: ${ENCRYPTION_SECRET:?set ENCRYPTION_SECRET in .env}
       # The image runs with NODE_ENV=production (Secure cookie). This setup serves plain HTTP on localhost,
@@ -60,9 +61,10 @@ services:
       TESTACCOUNT_NAME:
       TESTACCOUNT_REPO:
       TESTACCOUNT_TOKEN:
-      SESSION_SECRET: "secretSessionKey"
-      JIRA_SECRET: "secretJiraKey"
-      JIRA_SALT: "BJ1yJTJ7AFql"
+      # Read from the root .env like ENCRYPTION_SECRET; compose refuses to start without them.
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      JIRA_SECRET: ${JIRA_SECRET:?set JIRA_SECRET in .env}
+      JIRA_SALT: ${JIRA_SALT:?set JIRA_SALT in .env}
       EMAIL_AUTH:
       EMAIL_PW:
       EMAIL_PORT:

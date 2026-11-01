@@ -51,3 +51,9 @@ webdriver/*
 
 # logs
 .log
+
+# Environment variables: secrets must never be tracked (root rule covers this too)
+.env
+.env.*
+!.env.example
+!.env.*.example
