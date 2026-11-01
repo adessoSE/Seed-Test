@@ -109,9 +109,6 @@ test.describe('reports', () => {
 	});
 
 	test('story editor offers a download control for the story feature file', async ({ page, api, project }) => {
-		// Known bug: downloadFeature() (frontend/src/app/story-editor/story-editor.component.ts:1999) is not bound in any template,
-		// so no control in the story editor calls it. Bind it in story-editor.component.html, then drop this line.
-		test.fixme(true, 'downloadFeature() is unbound (story-editor.component.ts:1999); the story editor has no download control');
 
 		const title = uniqueLabel('Editor Download Story');
 		await createStory(api, project.id, title);
@@ -119,7 +116,8 @@ test.describe('reports', () => {
 		await new AppPage(page).gotoHome();
 		await reports.openStory(title);
 
-		const download = page.getByRole('button', { name: /download/i }).first();
+		// By id: a role/name match would also hit the stories-bar entry, whose title contains "Download"
+		const download = page.locator('#story_download');
 		await expect(download).toBeVisible();
 		const [file] = await Promise.all([page.waitForEvent('download'), download.click()]);
 		expect(file.suggestedFilename()).toMatch(/\.feature$/);

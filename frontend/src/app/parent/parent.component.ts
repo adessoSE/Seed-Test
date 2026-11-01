@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, linkedSignal, untracked } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, effect, linkedSignal, untracked, viewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@seed-test/shared/models/Story';
 import { Scenario } from '@seed-test/shared/models/Scenario';
@@ -79,6 +79,11 @@ export class ParentComponent implements OnInit {
 	});
 
 	isReviewing: boolean = false;
+
+	private readonly storyEditor = viewChild(StoryEditorComponent);
+
+	/** Unsaved state lives in the editor (it edits copies), so the stories bar asks it on every switch */
+	readonly hasUnsavedChanges = () => this.storyEditor()?.storySaved() === false;
 
 	/**
      * Subscribtions for all EventEmitter

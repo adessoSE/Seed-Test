@@ -2,13 +2,14 @@
 import { Block } from '@seed-test/shared/models/Block';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ApiService } from '../Services/api.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
 import { Story } from '@seed-test/shared/models/Story';
 import { StepType } from '@seed-test/shared/models/StepType';
 import { StoryService } from './story.service';
 import { Scenario } from '@seed-test/shared/models/Scenario';
 import { ActionTrigger } from './action-trigger';
+import { NotificationService } from './notification.service';
 
 /** Payload for adding a block to a scenario — [component, block, stepType, asSingleSteps] */
 type AddBlockPayload = [string, Block, string, boolean];
@@ -36,6 +37,7 @@ export class BlockService {
 	apiService = inject(ApiService);
 	private http = inject(HttpClient);
 	storyService = inject(StoryService);
+	notify = inject(NotificationService);
 
 	/** Action channel to add a block to the current scenario — carries [component, block, stepType, asSingleSteps] */
 	readonly addBlockToScenarioTrigger = new ActionTrigger<AddBlockPayload>();
@@ -294,11 +296,19 @@ export class BlockService {
 		if (this.scenariosToUpdate.length > 0) {
 			// Promise.all + firstValueFrom: every update is awaited before continuing.
 			// No trigger update here — callers update UI via other signal paths.
-			const promises = this.referenceStories.flatMap((story) => {
-				return this.scenariosToUpdate
-					.filter(scenario => story.scenarios.includes(scenario))
-					.map(() => firstValueFrom(this.storyService.updateStory(story)).catch(() => null));
-			});
+			// One PUT per story: the backend bumps the version on each PUT, so a second PUT with the same version would 409.
+			const promises = this.referenceStories
+				.filter(story => this.scenariosToUpdate.some(scenario => story.scenarios.includes(scenario)))
+				.map((story) => firstValueFrom(this.storyService.updateStory(story))
+					.then((savedStory) => {
+						// Written in place: these are the editor's story objects, and this method returns nothing to the editor
+						if (savedStory) story.version = savedStory.version;
+					})
+					.catch((err: unknown) => {
+						if (err instanceof HttpErrorResponse && err.status === 409)
+							this.notify.error('Story was changed in the meantime. Reload it before saving.');
+						return null;
+					}));
 			Promise.all(promises).catch(() => {
 				// Story updates may fail — callers handle UI via other signal paths
 			});

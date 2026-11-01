@@ -38,6 +38,11 @@ export interface Story {
     oneDriver?: boolean;
 
     /**
+     * Optimistic-lock counter, incremented on every story-level update. Missing in legacy documents (treated as 0).
+     */
+    version?: number;
+
+    /**
      * Title of the story
      */
     title: string;

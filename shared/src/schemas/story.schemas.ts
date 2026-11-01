@@ -90,7 +90,9 @@ export const updateStorySchema = z.object({
 	body: nullAs(z.string(), ''),
 	scenarios: z.array(scenarioSchema),
 	background: z.object({}).passthrough().optional(),
-	aiSuggestion: z.object({}).passthrough().optional()
+	aiSuggestion: z.object({}).passthrough().optional(),
+	// Version the client loaded; the service rejects the save with 409 when the stored version differs.
+	version: z.number().int().nonnegative().optional()
 });
 
 /** PATCH /api/story/:story_id — body is the complete scenarios array of the story */

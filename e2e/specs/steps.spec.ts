@@ -217,7 +217,6 @@ test.describe('scenario steps', () => {
 	});
 
 	test('a multiple-scenarios table created in the editor is persisted with its first column', async ({ page, api, project }) => {
-		test.fixme(true, 'Create-first examples entry is unreachable from the scenario editor: base-editor.component.html:453 and :471 render "Activate Multiple Scenarios" (id {{name}}_add_step) only under @if (name === \'example\'), but scenario-editor passes TEMPLATE_NAME \'scenario\' (scenario-editor.component.ts:92).');
 		const editor = new StepEditor(page);
 		const storyTitle = unique('E2E Examples Story');
 		const storyId = await createStory(api, project.id, storyTitle);
@@ -237,7 +236,6 @@ test.describe('scenario steps', () => {
 	});
 
 	test('unsaved step edits trigger a warning when navigating to another story', async ({ page, api, project }) => {
-		test.fixme(true, 'No unsaved-changes guard: no CanDeactivate or beforeunload in frontend/src/app (only the RUN dialog at story-editor.component.ts:1448). Edits are lost silently.');
 		const editor = new StepEditor(page);
 		const storyTitle = unique('E2E Unsaved Story');
 		const storyId = await createStory(api, project.id, storyTitle);
@@ -257,7 +255,6 @@ test.describe('scenario steps', () => {
 	});
 
 	test('a stale story PUT from a second tab does not overwrite the first tab edit', async ({ api, project }) => {
-		test.fixme(true, 'Lost update: PUT /story/:_id (story.routes.ts:86) runs updateStory (story.service.ts:165-174), which $sets the whole body with no version check, so a stale snapshot answers 200 and overwrites the stored body.');
 		const storyId = await createStory(api, project.id, unique('E2E Two Tabs'));
 		const snapshot = await getStory(api, storyId) as unknown as { title: string; body: string; scenarios: unknown[] };
 		const tabA = await api.put(`${API_URL}/story/${storyId}`, { data: { ...snapshot, body: 'edited in tab A' } });

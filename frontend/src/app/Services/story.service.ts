@@ -135,7 +135,8 @@ export class StoryService {
   */
 	public updateStory(story: Story): Observable<Story> {
 		return this.http
-			.put<Story>(this.apiService.apiServer + '/story/' + story._id, story, ApiService.getOptions())
+			// A legacy story without a stored version counts as version 0, so its first save is checked too
+			.put<Story>(this.apiService.apiServer + '/story/' + story._id, { ...story, version: story.version ?? 0 }, ApiService.getOptions())
 			.pipe(tap(_ => {
 				//
 			}));
@@ -230,7 +231,8 @@ export class StoryService {
   */
 	public storyUnique(buttonId: string, input: string, array: Story[], story?: Story) {
 		array = array ? array : [];
-		input = input ? input : '';
+		// CASE 1: whitespace-only title counts as empty, so a blank name cannot re-enable the submit button
+		input = input && input.trim() ? input : '';
 		const button = (document.getElementById(buttonId)) as HTMLButtonElement;
 		if ((input && !array.find(i => i.title === input)) || (story ? array.find(g => g._id === story._id && g.title === input) : false)) 
 			button.disabled = false;

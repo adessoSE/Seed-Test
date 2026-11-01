@@ -44,8 +44,6 @@ async function deleteScenarioViaApi(api: APIRequestContext, storyId: string, sce
 
 test.describe('stories', () => {
 	test('the create-story button stays disabled for an empty or blank title and the story is saved', async ({ page, api, project }) => {
-		// WHY: create-new-story.component.html:24 enables submit from storyForm.valid, which accepts a whitespace-only title; the click then does nothing because create-new-story.component.ts:74 rejects it silently
-		test.fixme(true, 'create-story modal enables submit for a whitespace-only title (create-new-story.component.html:24, create-new-story.component.ts:74)');
 		const stories = new StoriesPage(page);
 		const title = uniqueName('Story');
 		await new AppPage(page).gotoHome();

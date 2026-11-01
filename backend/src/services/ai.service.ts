@@ -135,8 +135,10 @@ async function generateAiScenariosForStory(storyId: string, aiConfig: AiConfig, 
 			}
 		};
         
-		// Update the story in the database
-		await storyService.updateStory(story);
+		// Update the story in the database. The version is dropped so a background save never fails as stale;
+		// it is a plain write like before, and a user edit made while the job ran is overwritten as it always was.
+		const { version: _loadedVersion, ...storyToSave } = story;
+		await storyService.updateStory(storyToSave);
 
 		// Notify listeners (SSE client) that the job is done
 		aiJobEmitter.emit(`job-done-${storyId}`, { 

@@ -1,4 +1,5 @@
-﻿import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+﻿import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -20,6 +21,7 @@ import { ApiService } from '../Services/api.service';
 import { findComponent } from '../../test_helper';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
 class MockRenameStoryModal {
 	openRenameStoryModal = vi.fn();
@@ -83,6 +85,8 @@ describe('StoryEditorComponent', () => {
 		component.selectedStory.set(story);
 		// Provide required signal input before first change detection
 		fixture.componentRef.setInput('isDark', false);
+		// Repository without canEdit: the header controls stay visible unless a test overrides it
+		fixture.componentRef.setInput('selectedRepository', { repoName: 'repo', source: 'db', _id: 'repo-1' } as RepositoryContainer);
 		fixture.detectChanges();
 	});
 
@@ -287,6 +291,53 @@ describe('StoryEditorComponent', () => {
 			// Regression: without the reset, the next user in the same SPA session saw the previous user's project list.
 			expect(clearSpy).toHaveBeenCalled();
 			expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+		});
+	});
+
+	describe('updateStory version handling', () => {
+		it('writes the version returned by the PUT into selectedStory and the stories list', () => {
+			vi.spyOn(component.storyService, 'updateStory').mockReturnValue(of({ ...story, version: 4 }));
+			component.stories.set([{ ...story, version: 3 }]);
+			component.selectedStory.set({ ...story, version: 3 });
+
+			component.updateStory();
+
+			expect(component.selectedStory()?.version).toBe(4);
+			expect(component.stories()[0].version).toBe(4);
+		});
+
+		it('sends the new version on the next save from the same tab', () => {
+			const updateSpy = vi.spyOn(component.storyService, 'updateStory').mockReturnValue(of({ ...story, version: 4 }));
+			component.selectedStory.set({ ...story, version: 3 });
+
+			component.updateStory();
+			component.updateStory();
+
+			expect(updateSpy.mock.calls[1][0].version).toBe(4);
+		});
+
+		it('shows the conflict message on 409 and keeps the stored version', () => {
+			vi.spyOn(component.storyService, 'updateStory').mockReturnValue(
+				throwError(() => new HttpErrorResponse({ status: 409, error: { error: 'Story was changed in the meantime. Reload it before saving.' } }))
+			);
+			vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+			component.selectedStory.set({ ...story, version: 3 });
+
+			component.updateStory();
+
+			expect(component.notify.error).toHaveBeenCalledWith('Story was changed in the meantime. Reload it before saving.');
+			expect(component.selectedStory()?.version).toBe(3);
+		});
+
+		it('keeps the generic message for other save errors', () => {
+			vi.spyOn(component.storyService, 'updateStory').mockReturnValue(
+				throwError(() => new HttpErrorResponse({ status: 500 }))
+			);
+			vi.spyOn(component.notify, 'error').mockImplementation(() => undefined);
+
+			component.updateStory();
+
+			expect(component.notify.error).toHaveBeenCalledWith('Could not save story.');
 		});
 	});
 
@@ -865,6 +916,57 @@ describe('StoryEditorComponent', () => {
 			TestBed.flushEffects();
 			expect(component.selectedStory()).toBe(edited);
 		});
+	});
+
+	describe('story header controls by repository permission', () => {
+		/** Renders the story header for the given repository and returns the header controls. */
+		function renderHeaderFor(repo: RepositoryContainer) {
+			fixture.componentRef.setInput('selectedRepository', repo);
+			component.stories.set(stories);
+			component.showEditor.set(true);
+			component.selectedStory.set(story);
+			// The child scenario editor needs a selected scenario to render the story body
+			component.selectedScenario.set(story.scenarios[0]);
+			TestBed.flushEffects();
+			fixture.detectChanges();
+			return {
+				pencil: fixture.nativeElement.querySelector('.storyHeaderContainer button.pencil_icon'),
+				deleteButton: fixture.nativeElement.querySelector('#story_delete'),
+				downloadButton: fixture.nativeElement.querySelector('#story_download'),
+				backgroundPencil: fixture.nativeElement.querySelector('button[mattooltip="Change Background Title"]')
+			};
+		}
+
+		it('hides rename, delete and download when the repository has canEdit false', () => {
+			const { pencil, deleteButton, downloadButton, backgroundPencil } = renderHeaderFor({ repoName: 'repo', source: 'db', _id: 'repo-1', canEdit: false });
+			expect(pencil).toBeNull();
+			expect(backgroundPencil).toBeNull();
+			expect(deleteButton).toBeNull();
+			expect(downloadButton).toBeNull();
+		});
+
+		it('shows rename, delete and download when the repository has canEdit true', () => {
+			const { pencil, deleteButton, downloadButton, backgroundPencil } = renderHeaderFor({ repoName: 'repo', source: 'db', _id: 'repo-1', canEdit: true });
+			expect(pencil).toBeTruthy();
+			expect(backgroundPencil).toBeTruthy();
+			expect(deleteButton).toBeTruthy();
+			expect(downloadButton).toBeTruthy();
+		});
+
+		it('shows the controls when canEdit is missing (GitHub and Jira repositories)', () => {
+			const { pencil, deleteButton, downloadButton } = renderHeaderFor({ repoName: 'repo', source: 'github', _id: 'repo-1' });
+			expect(pencil).toBeTruthy();
+			expect(deleteButton).toBeTruthy();
+			expect(downloadButton).toBeTruthy();
+		});
+
+		it('calls downloadFeature when the download button is clicked', () => {
+			const downloadSpy = vi.spyOn(component, 'downloadFeature').mockImplementation(() => undefined);
+			const { downloadButton } = renderHeaderFor({ repoName: 'repo', source: 'db', _id: 'repo-1', canEdit: true });
+			downloadButton.click();
+			expect(downloadSpy).toHaveBeenCalledTimes(1);
+		});
+
 	});
 });
 

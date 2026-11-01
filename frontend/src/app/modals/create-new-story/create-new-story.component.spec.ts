@@ -69,6 +69,37 @@ describe('CreateNewStoryComponent', () => {
 		expect(submitbutton.nativeElement.disabled).toBeTruthy();
 	}));
 
+	// Regression: storyUnique re-enabled the submit button on keyup, so a whitespace-only title could be submitted
+	describe('whitespace-only title', () => {
+		const typeTitle = (value: string) => {
+			const titleInput = findComponent(fixture, '#storytitle');
+			titleInput.nativeElement.value = value;
+			titleInput.nativeElement.dispatchEvent(new Event('input'));
+			titleInput.nativeElement.dispatchEvent(new KeyboardEvent('keyup'));
+			fixture.detectChanges();
+		};
+
+		it('keeps the form invalid', () => {
+			typeTitle('   ');
+
+			expect(component.storyForm.valid).toBeFalsy();
+		});
+
+		it('keeps the submit button disabled', () => {
+			typeTitle('   ');
+
+			const submitButton = findComponent(fixture, '#submitCreateNewStory');
+			expect(submitButton.nativeElement.disabled).toBeTruthy();
+		});
+
+		it('enables the submit button for a non-blank title', () => {
+			typeTitle('new story');
+
+			const submitButton = findComponent(fixture, '#submitCreateNewStory');
+			expect(submitButton.nativeElement.disabled).toBeFalsy();
+		});
+	});
+
 	it('should define title & description', (() => {
 		const inputElemnt = findComponent(fixture, '#storytitle');
 		inputElemnt.nativeElement.value = 'new story name';

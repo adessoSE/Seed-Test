@@ -76,7 +76,8 @@ export class CreateCustomProjectComponent {
 
 	checkProject(buttonId: string, input: string, array: RepositoryContainer[], repository?: RepositoryContainer){
 		array = array ? array : [];
-		input = input ? input : '';
+		// CASE 1: whitespace-only name counts as empty, so the button stays disabled with the empty-field message
+		input = input && input.trim() ? input : '';
 		const button = (document.getElementById(buttonId)) as HTMLButtonElement;
 		if ((input && !array.find(i => i.repoName === input)) || (repository ? array.find(g => g._id == repository._id && g.repoName == input) : false))
 			button.disabled = false;

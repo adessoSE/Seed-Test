@@ -156,21 +156,44 @@ export async function createStory(storyTitle: string, storyDescription: string, 
 /**
  * Updates the fields of an existing story. Only the fields present in the input are written.
  * A full replace would let a stale editor tab overwrite server-owned fields (lastTestPassed,
- * oneDriver, issue_number) that the client never sent.
- * @param updatedStory - The story ID and the editable fields to set. Absent fields are left unchanged.
+ * oneDriver, issue_number) that the client never sent. When the input carries a version, the update
+ * only applies if the stored version still matches, and every update increments the version.
+ * @param updatedStory - The story ID, the editable fields to set and optionally the version the client loaded.
+ *   Absent fields are left unchanged.
  * @param client - Optional MongoClient for transaction support.
  * @param session - Optional ClientSession for transaction support.
  * @returns A Promise that resolves to the story document after the update, or null when no story matches.
+ * @throws AppError (409) when the story exists but the sent version is no longer the stored one.
  */
+// shortcut: only the story-level PUT bumps version; scenario/background writes don't, upgrade if those get stale-tab overwrites too
 export async function updateStory(updatedStory: Story, client?: MongoClient, session?: ClientSession): Promise<WithId<StoryDoc> | null> {
 	const db = client ? client.db('Seed') : dbConnection.getConnection();
-	// _id is the filter only; $set must not contain it because MongoDB rejects updates to _id
-	const { _id, ...fields } = updatedStory;
-	return db.collection<StoryDoc>(storiesCollection).findOneAndUpdate(
-		{ _id: oid(_id!) },
-		{ $set: fields },
+	const collection = db.collection<StoryDoc>(storiesCollection);
+	// _id is the filter only; $set must not contain it because MongoDB rejects updates to _id.
+	// version is the lock check, not a field: $set must not write it, $inc bumps it.
+	const { _id, version: expectedVersion, ...fields } = updatedStory;
+	const storyOid = oid(_id!);
+	const filter: Filter<StoryDoc> = { _id: storyOid };
+	// CASE 1: the client sent a version, so only update if it is still the stored one.
+	// Without this a stale tab overwrites newer edits from another tab (lost update).
+	if (expectedVersion !== undefined)
+		// CASE 1a: legacy documents have no version field and count as version 0
+		if (expectedVersion === 0)
+			filter.$or = [{ version: 0 }, { version: { $exists: false } }];
+		else
+			filter.version = expectedVersion;
+	const updated = await collection.findOneAndUpdate(
+		filter,
+		{ $set: fields, $inc: { version: 1 } },
 		{ returnDocument: 'after', session }
 	);
+	// CASE 2: nothing matched and a version was sent, so either the story is gone (null, as before) or the version is stale (409)
+	if (!updated && expectedVersion !== undefined) {
+		const exists = await collection.findOne({ _id: storyOid }, { session, projection: { _id: 1 } });
+		if (exists)
+			throw AppError.conflict('Story was changed in the meantime. Reload it before saving.');
+	}
+	return updated;
 }
 
 /**

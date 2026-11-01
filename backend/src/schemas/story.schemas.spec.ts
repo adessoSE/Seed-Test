@@ -140,6 +140,25 @@ describe('updateStorySchema with legacy stored data', () => {
 		const result = updateStorySchema.safeParse({ ...storedStory, body: 42 });
 		expect(result.success).toBe(false);
 	});
+
+	// The client echoes the version it loaded; the service uses it as the optimistic-lock check.
+	it('keeps the version the client sent', () => {
+		const result = updateStorySchema.safeParse({ ...storedStory, version: 3 });
+		expect(result.success).toBe(true);
+		expect(result.data?.version).toBe(3);
+	});
+
+	it('accepts a PUT without a version', () => {
+		const result = updateStorySchema.safeParse(storedStory);
+		expect(result.success).toBe(true);
+		expect(result.data).not.toHaveProperty('version');
+	});
+
+	it('rejects a negative, fractional or non-numeric version', () => {
+		expect(updateStorySchema.safeParse({ ...storedStory, version: -1 }).success).toBe(false);
+		expect(updateStorySchema.safeParse({ ...storedStory, version: 1.5 }).success).toBe(false);
+		expect(updateStorySchema.safeParse({ ...storedStory, version: '2' }).success).toBe(false);
+	});
 });
 
 // Legacy stored steps are only lenient in the stored-scenario schemas; block routes keep stepTypeSchema strict.

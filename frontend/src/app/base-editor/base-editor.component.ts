@@ -1,6 +1,6 @@
 ﻿import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, OnInit, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, inject, output, input, viewChildren, viewChild, effect, signal, untracked } from '@angular/core';
+import { Component, ElementRef, OnInit, DoCheck, AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, inject, output, input, viewChildren, viewChild, effect, signal, untracked } from '@angular/core';
 import { NotificationService } from '../Services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../modals/confirm-dialog/confirm-dialog.component';
@@ -65,6 +65,7 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	dialog = inject(MatDialog);
 	blockService = inject(BlockService);
 	exampleService = inject(ExampleService);
+	private readonly cdr = inject(ChangeDetectorRef);
 	scenarioService = inject(ScenarioService);
 	backgroundService = inject(BackgroundService);
 	apiService = inject(ApiService);
@@ -2388,6 +2389,10 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 		// if (this.templateName() === 'scenario'){
 		this.setIsExampleFlags(false);
 		// }
+		// Without this the Save button stays on "Without changes" and the new table is never persisted
+		this.markUnsaved();
+		// The click came from the modal, outside the scenario editor's OnPush tree, so its Save button must be re-checked explicitly
+		this.cdr.markForCheck();
 	}
 
 	/**

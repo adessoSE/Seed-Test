@@ -108,14 +108,22 @@
           @if (selectedStory()) {
             <span id="storytitle" class="MediumHeadline5"></span>
           }
-          <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" [disabled]="isReviewingAi()" matTooltip="Change Story Title">
-            <em class="material-icons">edit</em>
-          </button>
+          @if (canEdit()) {
+            <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" [disabled]="isReviewingAi()" matTooltip="Change Story Title">
+              <em class="material-icons">edit</em>
+            </button>
+          }
         </div>
-        <button id="story_delete" class="storyTitle" (click)=showDeleteStoryToast($event) [disabled]="isReviewingAi()"
-          matTooltip="Delete Story">
-          <em class="material-icons">delete</em>
-        </button>
+        @if (canEdit()) {
+          <button id="story_download" class="storyTitle" (click)="downloadFeature()" [disabled]="isReviewingAi()"
+            matTooltip="Download Feature File">
+            <em class="material-icons">download</em>
+          </button>
+          <button id="story_delete" class="storyTitle" (click)=showDeleteStoryToast($event) [disabled]="isReviewingAi()"
+            matTooltip="Delete Story">
+            <em class="material-icons">delete</em>
+          </button>
+        }
       </div>
       <!--Description-->
       <br>
@@ -240,11 +248,14 @@
                           </mat-panel-title>
 <div class="backgroundTitle">
                             @if (this.selectedStory()?.background) {
-                              <button class="storyTitle pencil_icon" (click)="changeBackgroundTitle();$event.stopPropagation();" matTooltip="Change Background Title">
-                                <em class="material-icons">edit</em>
-                              </button>
+                              @if (canEdit()) {
+                                <button class="storyTitle pencil_icon" (click)="changeBackgroundTitle();$event.stopPropagation();" matTooltip="Change Background Title">
+                                  <em class="material-icons">edit</em>
+                                </button>
+                              }
                               <span class="MediumHeadline5 scenarioTitle"> {{this.selectedStory()!.background.name}}</span>
                                <!-- replace Background -->
+                              @if (canEdit()) {
                               <div class="hover-dropdown" style="display: inline-block; vertical-align: middle;">
                                 <button [class.disabled]="sortedBackgrounds() === undefined" class="storyTitle pencil_icon" matTooltip="Switch Background">
                                   <em class="material-icons">swap_horiz</em>
@@ -260,6 +271,7 @@
                                   </div>
                                 }
                               </div>
+                              }
                             }
                            </div>
 <div>
