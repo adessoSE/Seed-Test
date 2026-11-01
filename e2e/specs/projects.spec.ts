@@ -202,8 +202,8 @@ test('deleting a project asks first; cancel keeps it, confirm removes it and its
 	await new AppPage(page).gotoAccount();
 	await projects.openSettings(other.name);
 
-	// The confirm dialog is a Material dialog; the settings modal is also role=dialog, so target the container
-	const confirm = page.locator('mat-dialog-container');
+	// The settings modal is a mat-dialog-container too, so the confirm dialog is matched by its title
+	const confirm = page.locator('mat-dialog-container').filter({ has: page.locator('[mat-dialog-title]', { hasText: 'Delete Project?' }) });
 	await page.getByRole('button', { name: 'Delete Project' }).click();
 	await expect(confirm).toContainText('cannot be restored');
 	await confirm.locator('button').filter({ hasText: /^\s*Cancel\s*$/ }).click();
