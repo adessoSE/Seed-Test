@@ -30,7 +30,6 @@
     "@angular/platform-browser": "^22.0.8",
     "@angular/platform-browser-dynamic": "^22.0.8",
     "@angular/router": "^22.0.8",
-    "@ng-bootstrap/ng-bootstrap": "^21.0.0",
     "@seed-test/shared": "*",
     "express": "^5.2.1",
     "file-saver": "^2.0.5",
