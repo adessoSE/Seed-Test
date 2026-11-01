@@ -1,5 +1,6 @@
 ﻿import { Router } from '@angular/router';
-import { Component, OnInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked, computed } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@seed-test/shared/models/Story';
 import { Scenario } from '@seed-test/shared/models/Scenario';
@@ -151,6 +152,13 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
    * Currently selected repository
    */
 	readonly selectedRepository = input.required<RepositoryContainer>();
+
+	/**
+	 * Whether the current user may rename, delete or download the selected story.
+	 * WHY: the backend answers 403 to workgroup members without canEdit on these routes, so the header hides the controls.
+	 * A missing flag counts as editable because GitHub and Jira repositories do not carry canEdit.
+	 */
+	readonly canEdit = computed(() => this.selectedRepository()?.canEdit !== false);
 
 	/**
    * Current repo Id
@@ -1962,11 +1970,37 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 		const story = this.selectedStory();
 		if (!story) return;
 		this.storyService.updateStory(story).subscribe({
-			next: (_resp) => {
+			next: (savedStory) => {
+				this.storeSavedVersion(savedStory);
 				this.notify.success('successfully saved', 'Story');
 			},
-			error: () => this.notify.error('Could not save story.')
+			error: (err: unknown) => this.notifySaveError(err, 'Could not save story.')
 		});
+	}
+
+	/**
+	 * Copies the version the backend returned for a saved story into the in-memory copies.
+	 * Without this, the next PUT sends the old version and the backend answers 409 for a save from the same tab.
+	 * @param savedStory The story as returned by the PUT.
+	 */
+	private storeSavedVersion(savedStory: Story) {
+		// In place on purpose: the parent and the stories bar find the selected story by object identity, so a copy
+		// would deselect it. The version is never rendered, so no signal has to fire.
+		const copies = [this.selectedStory(), ...this.stories(), ...this.storyService.stories()];
+		for (const story of copies)
+			if (story && story._id === savedStory._id) story.version = savedStory.version;
+	}
+
+	/**
+	 * Shows the error of a failed story save. A 409 means the story was changed elsewhere first, so the save did not happen.
+	 * @param err The error of the failed PUT.
+	 * @param fallback The message for every other error.
+	 */
+	private notifySaveError(err: unknown, fallback: string) {
+		if (err instanceof HttpErrorResponse && err.status === 409)
+			this.notify.error('Story was changed in the meantime. Reload it before saving.');
+		else
+			this.notify.error(fallback);
 	}
 
 	storyLink() {
@@ -2390,7 +2424,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 				this.notify.info('AI suggestion discarded.');
 				this.exitAiReviewMode(updatedStory);
 			},
-			error: () => this.notify.error('Could not discard AI suggestion.')
+			error: (err: unknown) => this.notifySaveError(err, 'Could not discard AI suggestion.')
 		});
 	}
 
@@ -2431,7 +2465,7 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 					);
 					this.exitAiReviewMode(updatedStory);
 				},
-				error: () => this.notify.error('Could not save AI scenarios.')
+				error: (err: unknown) => this.notifySaveError(err, 'Could not save AI scenarios.')
 			});
 	}
 

@@ -46,7 +46,7 @@ export class MembersPage {
 
 	/**
 	 * Sets the write-access checkbox of a member. Each change saves immediately, so the PUT is awaited.
-	 * WHY: the checkbox is labelled "Can add team members" in the UI but toggles canEdit (write access).
+	 * The checkbox ("Can edit project") toggles canEdit (write access).
 	 * Callers must pass the opposite of the current state; otherwise no request is sent and the wait times out.
 	 * @param email Member email.
 	 * @param canEdit Target write-access value.
