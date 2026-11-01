@@ -4,7 +4,8 @@
   "workspaces": [
     "backend",
     "shared",
-    "frontend"
+    "frontend",
+    "e2e"
   ],
   "dependencies": {
     "@popperjs/core": "^2.11.8"

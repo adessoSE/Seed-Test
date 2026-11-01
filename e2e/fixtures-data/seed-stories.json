@@ -1,0 +1,567 @@
+[{
+  "_id": {
+    "$oid": "6a7e20a4897ac42b865669ac"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Login implementieren",
+  "body": "Als Benutzer möchte ich mich einloggen",
+  "issue_number": 1,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a7e359e37465d117df0d48b"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Erste Story",
+  "body": "",
+  "issue_number": 2,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [
+          {
+            "id": 1,
+            "mid": "",
+            "pre": "I am on the website:",
+            "stepType": "given",
+            "type": "Website / URL",
+            "values": [
+              "https://example.com  "
+            ],
+            "isExample": [
+              false
+            ],
+            "origin": "created-by-user"
+          }
+        ],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": [],
+      "stepWaitTime": 0,
+      "browser": "chromium",
+      "width": 1920,
+      "height": 1080,
+      "lastTestPassed": null
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a7e3a4037465d117df0d48c"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Story Alpha",
+  "body": "Erste Story im leeren Projekt",
+  "issue_number": 3,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a7e3a9b37465d117df0d48d"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Story Alpha",
+  "body": "Erste Story",
+  "issue_number": 1,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a7e3aa037465d117df0d48e"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Story Beta",
+  "body": "",
+  "issue_number": 2,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a847d3221894d5ce260437a"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Test Story Playwright MCP",
+  "body": null,
+  "issue_number": 4,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": null,
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": null,
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a9172a2f351d00857ece0db"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Mutti",
+  "body": "",
+  "issue_number": 1,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    },
+    {
+      "scenario_id": 2,
+      "name": "2",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a9172a9f351d00857ece0dc"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Vati",
+  "body": "",
+  "issue_number": 2,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a917672f351d00857ece0de"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "A",
+  "body": "",
+  "issue_number": 1,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a917677f351d00857ece0df"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "B",
+  "body": "",
+  "issue_number": 2,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a91767cf351d00857ece0e0"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "C",
+  "body": "",
+  "issue_number": 3,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a9a71681309d06f885c4321"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Test Story 1",
+  "body": "",
+  "issue_number": 5,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    },
+    {
+      "scenario_id": 2,
+      "name": "Test Scenario 1",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a9a72191309d06f885c4322"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Test Story 2",
+  "body": "",
+  "issue_number": 6,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a9a7d6a8575273cc2672478"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Story A",
+  "body": "",
+  "issue_number": 7,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+},
+{
+  "_id": {
+    "$oid": "6a9a7d988575273cc2672479"
+  },
+  "story_id": 0,
+  "assignee": "unassigned",
+  "title": "Story B",
+  "body": "",
+  "issue_number": 8,
+  "background": {
+    "name": "New Background",
+    "stepDefinitions": {
+      "when": []
+    }
+  },
+  "scenarios": [
+    {
+      "scenario_id": 1,
+      "name": "New Scenario",
+      "comment": "",
+      "stepDefinitions": {
+        "given": [],
+        "when": [],
+        "then": []
+      },
+      "multipleScenarios": []
+    }
+  ],
+  "storySource": "db",
+  "repo_type": "db",
+  "state": "open",
+  "assignee_avatar_url": "",
+  "lastTestPassed": null,
+  "oneDriver": false
+}]

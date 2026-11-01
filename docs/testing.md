@@ -64,6 +64,15 @@ Integration tests run against an isolated MongoDB in a container instead of the 
 
 Backend and frontend must finish with 0 errors and 0 warnings. The backend ESLint config relaxes some `no-unsafe-*` rules for `src/testing/test-runners/**/*.ts`; the rationale is in `backend/eslint.config.mjs`.
 
+## Playwright E2E suite (e2e/)
+
+The committed suite lives in `e2e/` (`@playwright/test`, see `e2e/README.md`). It runs against a live stack (frontend 4200, backend 8080, local MongoDB replica set) and never against Atlas.
+
+- Run: `cd e2e && npm test` (one spec: `npx playwright test specs/<file>.spec.ts`).
+- Global setup registers one throwaway user and stores the session in `e2e/.auth/` (git-ignored). Auth routes share the `authLimiter` in `backend/src/routes/user.routes.ts`, so specs make no extra auth calls.
+- Import `test` and `expect` from `e2e/fixtures.ts`: `api`, `page`, `runtimeErrors`, `project`.
+- Arrange through the API, act in the UI, assert in the UI and through the API. Clean up what each test creates.
+
 ## Playwright MCP — Browser-based E2E testing via Agent
 
 The Playwright MCP (`@playwright/mcp`) is configured in the local, gitignored `opencode.jsonc` and lets agent sessions control a real Chromium browser. This is **not** a test framework; it is a tool for agents to verify UI changes interactively.

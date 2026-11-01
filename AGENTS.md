@@ -34,6 +34,7 @@ Monorepo (npm workspaces): `backend/` (Express 5, TypeScript, raw MongoDB driver
 | One backend spec | `cd backend && npx vitest run src/services/repository.service.spec.ts` |
 | Backend integration (container runtime must run, see Environment) | `cd backend && npm run test:integration` |
 | Backend lint / typecheck | `cd backend && npm run lint` / `npm run tsc` |
+| E2E suite (stack must run, see `docs/testing.md`) | `cd e2e && npm test` |
 | Create collections and stepTypes (needs backend/.env) | `cd backend && npm run database` |
 | Run backend | `cd backend && npm start` |
 | Frontend unit tests | `cd frontend && npm test -- --watch=false` |

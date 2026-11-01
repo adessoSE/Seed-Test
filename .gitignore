@@ -143,3 +143,6 @@ dbbackups/
 .openchamber/
 *.openchamber.backup
 .playwright-mcp/
+
+# Playwright E2E session and test account (never commit)
+e2e/.auth/
