@@ -87,7 +87,11 @@ export async function importProject(
 		if (repoId && repoId !== 'undefined') 
 		// --- Logic for importing into an EXISTING project ---
 			await runImportStep(session, transactional, async (currentSession) => {
-				await processImport(archive, isRenameMode, repoId, undefined, client, currentSession, userId);
+				// CASE 3: the target repository does not exist. Stop before any block is written, because blocks need its name.
+				// WHY: the archive's repoName is the source project's name. Blocks store the name in `repository`, so it is read from the target inside the import session.
+				const targetRepo = await repositoryService.getOneRepositoryById(repoId, currentSession);
+				if (!targetRepo) throw AppError.notFound('Repository not found.');
+				await processImport(archive, isRenameMode, repoId, targetRepo.repoName, client, currentSession, userId);
 			});
 		else {
 			// --- Logic for importing into a NEW project ---
@@ -169,7 +173,7 @@ function parseJsonEntries(zip: AdmZip, folder: string): unknown[] {
 /**
  * Central orchestrator for the import process. Manages transactions and data mapping.
  */
-async function processImport(archive: ImportArchive, isRenameMode: boolean, repoId: string, repoName: string | undefined, client: MongoClient, session: ClientSession | undefined, userId: string) {
+async function processImport(archive: ImportArchive, isRenameMode: boolean, repoId: string, repoName: string, client: MongoClient, session: ClientSession | undefined, userId: string) {
 	// withTransaction may run this function again after a transient error. Work on a copy, because the loops
 	// below rename titles and rewrite group members, and those changes must not leak into the next attempt.
 	const workingArchive = structuredClone(archive);
@@ -225,7 +229,8 @@ async function processImport(archive: ImportArchive, isRenameMode: boolean, repo
 
 		if (!isRenameMode && hasConflict) { // OVERWRITE
 			const existingBlock = existingBlocks.find(b => b.name === blockObject.name);
-			await blockService.updateBlock(existingBlock!._id!, blockObject, userId, session, client);
+			// overwriteBlock, not updateBlock: the archive block replaces the stored one, and its project name is the target's
+			await blockService.overwriteBlock(existingBlock!._id!, blockObject, userId, repoName, session, client);
 		} else { // RENAME or NO CONFLICT
 			if (isRenameMode && hasConflict) 
 				blockObject.name = findAvailableName(blockObject.name!, existingBlockNames);

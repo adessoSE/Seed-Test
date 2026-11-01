@@ -61,7 +61,8 @@ vi.mock('./story.service', () => ({
 vi.mock('./block.service', () => ({
 	getBlocks: vi.fn(),
 	saveBlock: vi.fn(),
-	updateBlock: vi.fn()
+	updateBlock: vi.fn(),
+	overwriteBlock: vi.fn()
 }));
 
 // Mock logging — no-op logger
@@ -262,6 +263,8 @@ describe('ImportExportService', () => {
 			vi.mocked(storyService.getAllStoriesOfRepo).mockResolvedValue([]);
 			vi.mocked(blockService.getBlocks).mockResolvedValue([]);
 			vi.mocked(repositoryService.getAllStoryGroups).mockResolvedValue([]);
+			// Default: the target repository exists. Existing-project imports read its name from here.
+			vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(makeRepo() as any);
 
 			// Default mock for story/block/group creation
 			vi.mocked(storyService.createStory).mockResolvedValue(newStoryOid);
@@ -373,6 +376,30 @@ describe('ImportExportService', () => {
 			expect(storyService.createStory).toHaveBeenCalledTimes(stories.length);
 			expect(blockService.saveBlock).toHaveBeenCalledTimes(blocks.length);
 			expect(repositoryService.createStoryGroup).toHaveBeenCalledTimes(groups.length);
+		});
+
+		it('should save blocks with the name of the existing project when importing into it', async () => {
+			const zipBuffer = buildImportZip(makeRepo({ repoName: 'SourceProject' }), [], makeBlocks(), []);
+			vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(makeRepo({ repoName: 'ExistingProject' }) as any);
+
+			await importExportService.importProject({ buffer: zipBuffer }, repoId, undefined, true, userId);
+
+			// The archive's repository name belongs to the source project, so the name is read from the target repository inside the import session
+			expect(repositoryService.getOneRepositoryById).toHaveBeenCalledWith(repoId, mockSession);
+			expect(blockService.saveBlock).toHaveBeenCalledWith(
+				expect.objectContaining({ repositoryId: repoId, repository: 'ExistingProject' }), mockSession, mockClient
+			);
+		});
+
+		it('should reject an import into a repository that does not exist with 404 before saving any block', async () => {
+			vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(null);
+			const zipBuffer = buildImportZip(makeRepo(), [], makeBlocks(), []);
+
+			await expect(
+				importExportService.importProject({ buffer: zipBuffer }, repoId, undefined, true, userId)
+			).rejects.toMatchObject({ statusCode: 404 });
+
+			expect(blockService.saveBlock).not.toHaveBeenCalled();
 		});
 
 		it('should throw AppError.badRequest when new import is missing project name', async () => {
@@ -503,6 +530,7 @@ describe('ImportExportService', () => {
 			vi.mocked(blockService.getBlocks).mockResolvedValue([
 				{ _id: existingBlockId, name: 'SharedBlock', repositoryId: repoId, steps: [] } as any
 			]);
+			vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(makeRepo({ repoName: 'ExistingProject' }) as any);
 
 			const repo = makeRepo();
 			const blocks = [{ _id: blockId1, name: 'SharedBlock', repositoryId: repoId, steps: [{ type: 'click' }] }];
@@ -516,18 +544,35 @@ describe('ImportExportService', () => {
 				userId
 			);
 
-			// Should update the existing block
-			expect(blockService.updateBlock).toHaveBeenCalledTimes(1);
-			expect(blockService.updateBlock).toHaveBeenCalledWith(
+			// Should overwrite the existing block with the archive's content, named after the target project
+			expect(blockService.overwriteBlock).toHaveBeenCalledTimes(1);
+			expect(blockService.overwriteBlock).toHaveBeenCalledWith(
 				existingBlockId,
 				expect.objectContaining({ name: 'SharedBlock' }),
 				userId,
+				'ExistingProject',
 				mockSession,
 				mockClient
 			);
 
-			// Should NOT create a new block
+			// Should NOT create a new block and should NOT use the partial update path
 			expect(blockService.saveBlock).not.toHaveBeenCalled();
+			expect(blockService.updateBlock).not.toHaveBeenCalled();
+		});
+
+		it('should give an overwritten block the target project name even when it was saved with a wrong name', async () => {
+			const existingBlockId = new ObjectId().toHexString();
+
+			// A block saved earlier with a null project name
+			vi.mocked(blockService.getBlocks).mockResolvedValue([
+				{ _id: existingBlockId, name: 'SharedBlock', repositoryId: repoId, repository: null, steps: [] } as any
+			]);
+			vi.mocked(repositoryService.getOneRepositoryById).mockResolvedValue(makeRepo({ repoName: 'ExistingProject' }) as any);
+			const zipBuffer = buildImportZip(makeRepo({ repoName: 'SourceProject' }), [], [{ _id: blockId1, name: 'SharedBlock', steps: [] }], []);
+
+			await importExportService.importProject({ buffer: zipBuffer }, repoId, undefined, false, userId);
+
+			expect(vi.mocked(blockService.overwriteBlock).mock.calls[0][3]).toBe('ExistingProject');
 		});
 
 		it('should overwrite conflicting groups in overwrite mode', async () => {

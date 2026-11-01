@@ -405,7 +405,16 @@ describe('RepositoryService', () => {
 			const result = await repositoryService.getOneRepositoryById(REPO_ID);
 
 			expect(result).toEqual(repo);
-			expect(mockRepoCollection.findOne).toHaveBeenCalledWith({ _id: new ObjectId(REPO_ID) });
+			expect(mockRepoCollection.findOne).toHaveBeenCalledWith({ _id: new ObjectId(REPO_ID) }, { session: undefined });
+		});
+
+		it('should read through the given session so uncommitted writes of the transaction are visible', async () => {
+			const session = { id: 'transaction-session' } as any;
+			mockRepoCollection.findOne.mockResolvedValue({ _id: new ObjectId(REPO_ID) });
+
+			await repositoryService.getOneRepositoryById(REPO_ID, session);
+
+			expect(mockRepoCollection.findOne).toHaveBeenCalledWith({ _id: new ObjectId(REPO_ID) }, { session });
 		});
 
 		it('should return null when not found', async () => {

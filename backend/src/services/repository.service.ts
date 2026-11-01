@@ -108,9 +108,15 @@ export function uniqueRepositories(repositories: Partial<RepositoryContainer>[])
 }
 
 
-export async function getOneRepositoryById(repoId: string): Promise<Repository | null> {
+/**
+ * Finds a repository by its ID.
+ * @param repoId The ID of the repository.
+ * @param session Optional transaction session. Pass it when the read must see writes made in the same transaction.
+ * @returns The repository, or null when none has this ID.
+ */
+export async function getOneRepositoryById(repoId: string, session?: ClientSession): Promise<Repository | null> {
 	const db = dbConnection.getConnection();
-	return await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }) as unknown as Repository | null;
+	return await db.collection<RepositoryDoc>(repositoriesCollection).findOne({ _id: oid(repoId) }, { session }) as unknown as Repository | null;
 }
 
 /**
