@@ -6,6 +6,8 @@ import { CreateCustomProjectComponent } from './create-custom-project.component'
 import { NgForm } from '@angular/forms';
 import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ProjectService } from 'src/app/Services/project.service';
+import { NotificationService } from 'src/app/Services/notification.service';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 
 describe('CreateCustomProjectComponent', () => {
 	let component: CreateCustomProjectComponent;
@@ -59,6 +61,44 @@ describe('CreateCustomProjectComponent', () => {
 			expect(localStorage.getItem('id')).toBe('new-id');
 			expect(localStorage.getItem('repository')).toBe('Proj');
 			expect(localStorage.getItem('source')).toBe('db');
+		});
+	});
+
+	describe('checkProject', () => {
+		let button: HTMLButtonElement;
+
+		beforeEach(() => {
+			button = document.createElement('button');
+			button.id = 'submitCreateNewProject';
+			button.disabled = true;
+			document.body.appendChild(button);
+		});
+		afterEach(() => {
+			button.remove();
+		});
+
+		// Regression: a whitespace-only name passed the non-empty check and enabled the submit button
+		it('keeps the button disabled and reports an empty field for whitespace-only input', () => {
+			const errorSpy = vi.spyOn(TestBed.inject(NotificationService), 'error');
+
+			component.checkProject('submitCreateNewProject', '   ', []);
+
+			expect(button.disabled).toBe(true);
+			expect(errorSpy).toHaveBeenCalledWith('The field can not be empty');
+		});
+
+		it('enables the button for a non-blank name that is not in use', () => {
+			component.checkProject('submitCreateNewProject', 'Proj', []);
+
+			expect(button.disabled).toBe(false);
+		});
+
+		it('keeps the button disabled for a name already in use', () => {
+			const existing = [{ _id: 'a', repoName: 'Proj', source: 'db' }] as RepositoryContainer[];
+
+			component.checkProject('submitCreateNewProject', 'Proj', existing);
+
+			expect(button.disabled).toBe(true);
 		});
 	});
 });

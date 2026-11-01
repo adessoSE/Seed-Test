@@ -119,8 +119,6 @@ test('a duplicate project name gives a readable error and creates no second proj
 });
 
 test('a whitespace-only project name keeps Save disabled and sends no request', async ({ page, api }) => {
-	// WHY: checkProject (create-custom-project.component.ts:77-86) enables Save for any non-empty input, so a whitespace-only name passes; it only rejects an empty name or a duplicate
-	test.fixme(true, 'Save enabled for whitespace-only name (create-custom-project.component.ts:77-86 checkProject)');
 	const projects = new ProjectsPage(page);
 	await new AppPage(page).gotoAccount();
 	await projects.openCreateModal();
