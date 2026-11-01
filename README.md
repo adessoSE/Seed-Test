@@ -69,12 +69,21 @@ Once you have Docker installed, the process of setting up Seed is straightforwar
 1. **Download the Release:**
 
    - Go to the [releases page](https://github.com/adessoSE/Seed-Test/releases) of Seed on GitHub.
-   - Download the `docker-compose.yml` file from the assets for the specific release you want.
+   - Download the `docker-compose.yml` and `.env.example` files from the assets for the specific release you want.
 
-2. **Navigate and Execute:**
+2. **Create the `.env` file:**
+
+   - In the same folder, copy `.env.example` to `.env`.
+   - Replace every `change-me` value:
+     - `ENCRYPTION_SECRET`: exactly 64 hex characters, e.g. `openssl rand -hex 32`.
+     - `MONGO_ROOT_USERNAME` and `MONGO_ROOT_PASSWORD`: use only URL-safe characters, no `@ : / ? # %`.
+     - `SESSION_SECRET` and `JIRA_SECRET`: long random strings. `JIRA_SALT`: at least 16 random bytes.
+   - Compose refuses to start while one of these values is missing.
+
+3. **Navigate and Execute:**
 
    - Open a terminal.
-   - Navigate to the directory where you placed the `docker-compose.yml` file using the `cd` command. For instance:
+   - Navigate to the directory where you placed the `docker-compose.yml` and `.env` files using the `cd` command. For instance:
      ```
      cd C:/seed-test
      ```
@@ -83,27 +92,38 @@ Once you have Docker installed, the process of setting up Seed is straightforwar
      docker compose up -d
      ```
 
-With these steps, you'll have Seed up and running using Docker with the downloaded `docker-compose.yml` file. This will initiate the necessary services, volumes and configurations for the application (mongoDB, seed-test-frontend, seed-test-backend).
+With these steps, you'll have Seed up and running using Docker with the downloaded `docker-compose.yml` file. This will initiate the necessary services, volumes and configurations for the application (mongoDB as a single-node replica set `rs0`, seed-test-frontend, seed-test-backend).
 
 Seed-Test can now be accessed via `http://localhost:4200/login`
 
+#### Upgrading an existing install
+
+Installs from 1.x used demo secrets written into `docker-compose.yml`. To keep your data, copy these values into `.env`:
+
+- `MONGO_ROOT_USERNAME=SeedAdmin` and `MONGO_ROOT_PASSWORD=SeedTest`
+- `SESSION_SECRET=secretSessionKey`, `JIRA_SECRET=secretJiraKey` and `JIRA_SALT=BJ1yJTJ7AFql`
+- `ENCRYPTION_SECRET`: keep the value you already have in `.env`.
+
+Note the following:
+
+- Changing `JIRA_SECRET`, `JIRA_SALT` or `ENCRYPTION_SECRET` on an existing database makes the stored Jira and AI credentials undecryptable. Users must enter them again.
+- MongoDB reads the root user only when the `seedDB` volume is created. To change `MONGO_ROOT_USERNAME` or `MONGO_ROOT_PASSWORD`, either update the user inside MongoDB or recreate the volume. Recreating the volume deletes its data. Until one of these is done, the backend does not start.
+- MongoDB runs as a single-node replica set `rs0`, which the backend needs for transactions. The healthcheck initiates it on existing volumes too, and the data stays.
+
 #### ⚠️ Warning:
 
-Seed-Test now runs within docker with default values which means the following:
+Seed-Test runs within docker without external services, which means the following:
 
 - No emails can be send to reset the password:
   To get this working you need to create and link an email account.
 - GitHub functionalities don't work:
   To get GitHub functionalities to work you need to create and link a [GitHub OAuth App](https://docs.github.com/de/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
-- Salt and secrets are defaults:They should be changed for generating secure passwords!
-- The mongoDB used has a default username and password:
-  This should be changed for a secure database.
-
-To know how to change this look at the configure section below.
+- The compose files serve plain HTTP (`COOKIE_SECURE=false`, `TRUST_PROXY=false`):
+  Before you expose Seed-Test beyond localhost, put an HTTPS reverse proxy in front of it. Then remove `COOKIE_SECURE` and set `TRUST_PROXY` to `true` in `docker-compose.yml`.
 
 #### ⚙️ Configuration:
 
-To configure anything when running seed via docker, you can simply adjust the environment variables for each container in the docker-compose.yml file and rerun the command:
+To configure anything when running seed via docker, you can simply adjust the environment variables for each container in the docker-compose.yml file and rerun the command. The secrets and the MongoDB root user are read from `.env`, not from this file:
 
 ##### Backend
 
@@ -138,11 +158,10 @@ To configure anything when running seed via docker, you can simply adjust the en
 
 | Variable                     | Meaning                                             |
 | :--------------------------- | :-------------------------------------------------- |
-| MONGO_INITDB_ROOT_USERNAME\* | The username which should be used for the database. |
-| MONGO_INITDB_ROOT_PASSWORD\* | The password which should be used for the database. |
-| MONGO_INITDB_DATABASE\*      | The name which should be used for the database.     |
+| MONGO_ROOT_USERNAME\*        | Root user of the MongoDB container. Set in `.env`.                                   |
+| MONGO_ROOT_PASSWORD\*        | Root password of the MongoDB container. Set in `.env`, URL-safe characters only.     |
 
-\*By modifying any of these variables, remember to adjust the corresponding database URI in the backend configuration as well.
+\*Compose builds `DATABASE_URI` for the backend from these two values. Changing them needs the steps in "Upgrading an existing install".
 
 ### 🤙 By hand:
 
@@ -211,15 +230,15 @@ npm run start:wd_updater
 
 #### ⚠️ Warning:
 
-Seed-Test now runs with default values which means the following:
+Seed-Test runs without external services, which means the following:
 
 - No emails can be send to reset the password:
   To get this working you need to create and link an email account.
 - GitHub functionalities don't work:
   To get GitHub functionalities to work you need to create and link a [GitHub OAuth App](https://docs.github.com/de/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
-- Salt and secrets are defaults:They should be changed for generating secure passwords!
+- Secrets in `backend/.env` must be replaced with your own values before any use beyond local testing.
 
-To know how to change this look at the configure section below.
+See the configuration section below.
 
 #### ⚙️ Configuration:
 
