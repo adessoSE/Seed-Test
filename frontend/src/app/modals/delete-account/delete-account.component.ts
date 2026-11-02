@@ -1,62 +1,71 @@
-import { Component, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { Component, ChangeDetectionStrategy, inject, TemplateRef, viewChild } from '@angular/core';
+import { NgForm, FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { NotificationService } from 'src/app/Services/notification.service';
 import { LoginService } from 'src/app/Services/login.service';
 import { ManagementService } from 'src/app/Services/management.service';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
+
 
 @Component({
-    selector: 'app-delete-account',
-    templateUrl: './delete-account.component.html',
-    styleUrls: ['./delete-account.component.css', '../layout-modal/layout-modal.component.css'],
-    standalone: false
+	selector: 'app-delete-account',
+	templateUrl: './delete-account.component.html',
+	styleUrls: ['./delete-account.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [LayoutModalComponent, FormsModule]
 })
 export class DeleteAccountComponent {
+	private modalService = inject(MatDialog);
+	loginService = inject(LoginService);
+	managmentService = inject(ManagementService);
+	private notify = inject(NotificationService);
 
-  @ViewChild ('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
 
-  /**
+	readonly deleteAccountModal = viewChild.required<TemplateRef<unknown>>('deleteAccountModal');
+
+	/**
      * Email of the user
      * Modal: delete account modal
      */
-  email: string;
+	email!: string;
 
-  modalReference: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
-  constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private toastr: ToastrService) { }
-
-  /**
+	/**
      * Opens delete account modal
      * @param email email of the user
      */
-  openDeleteAccountModal(email) {
-    this.email = email;
-    this.modalReference = this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
-  }
+	openDeleteAccountModal(email: string) {
+		this.email = email;
+		this.modalReference = this.modalService.open(this.deleteAccountModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
+	}
 
-  /**
+	/**
  * Deletes The Seed-Test account
  */
-  deleteAccount(form: NgForm) {
-    const insertedEmail = form.value.insertedEmail;
-    if (insertedEmail !== undefined && insertedEmail === this.email) {
-        this.managmentService.deleteUser().subscribe(resp => {
-            this.toastr.info('', 'User Deleted');
-            this.loginService.logoutEvent.emit();
-        });
-      this.modalReference.close();
-    } else {
-      this.unallowableNameToast();
-      this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
-    }
-  }
+	deleteAccount(form: NgForm) {
+		const insertedEmail = form.value.insertedEmail;
+		if (insertedEmail !== undefined && insertedEmail === this.email) {
+			this.managmentService.deleteUser().subscribe({
+				next: _resp => {
+					this.notify.info('', 'User Deleted');
+					this.loginService.logoutEmitter();
+				},
+				error: () => this.notify.error('Could not delete account')
+			});
+			this.modalReference.close();
+		} else {
+			this.unallowableNameToast();
+			this.modalService.open(this.deleteAccountModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
+		}
+	}
 
-  /**
+	/**
  * Opens warning toast
  */
 
-  unallowableNameToast() {
-    this.toastr.warning('', 'Enter a valid e-mail', {
-    });
-  }
+	unallowableNameToast() {
+		this.notify.warning('', 'Enter a valid e-mail', {
+		});
+	}
 }

@@ -1,78 +1,68 @@
-import { EventEmitter, Injectable } from '@angular/core';
+﻿import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { Scenario } from '../model/Scenario';
-import { Background } from '../model/Background';
-import { ToastrService } from 'ngx-toastr';
+import { Background } from '@seed-test/shared/models/Background';
+import { NotificationService } from './notification.service';
+import { ActionTrigger } from './action-trigger';
 /**
  * Service for communication between background of the story and the backend
  */
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root'
 })
 export class BackgroundService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
+	notify = inject(NotificationService);
 
-  /**
-  * @ignore
-  */
-  constructor(public apiService: ApiService, private http: HttpClient, public toastr: ToastrService) { }
-  /**
-  * Event emitter to remane backgrounf of a story
-  */
-  public renameBackgroundEvent: EventEmitter<string> = new EventEmitter();
-  /**
-    * Event emitter to change a background
-  */
-  public backgroundChangedEvent: EventEmitter<Scenario> = new EventEmitter();
- /**
+	/** Action channel for rename background — carries the new name */
+	readonly renameBackgroundTrigger = new ActionTrigger<string>();
+	/** Signal for background changed trigger */
+	readonly backgroundChangedTrigger = signal(0);
+	/**
     * Track if background was replaced
   */
-  public backgroundReplaced = false;
-  /**
-    * Event emitter for applying changes to Backgrounds(current or centrally)
-  */
-  public applyChangesBackgroundEvent = new EventEmitter();
-  /**
-    * Emits the applying changes for background
+	public backgroundReplaced = false;
+
+	/** Action channel for apply background changes — carries the option string */
+	readonly applyChangesBackgroundTrigger = new ActionTrigger<string>();
+	/**
+    * Emits the apply background changes option
     * @param option
   */
-  public applyBackgroundChanges(option: string) {
-    this.applyChangesBackgroundEvent.emit(option);
-  }
+	public applyBackgroundChanges(option: string) {
+		this.applyChangesBackgroundTrigger.emit(option);
+	}
 
-  /**
+	/**
     * Track current background before saving changes
   */
-  public currentBackground: Background;
-  /* 
-  * Emits background changed event 
+	public currentBackground!: Background;
+	/**
+  * Triggers the background changed signal
   */
-  public backgroundChangedEmitter() {
-    this.backgroundChangedEvent.emit();
-  }
-  /* 
-  * Emits background rename event 
+	public backgroundChangedEmitter() {
+		this.backgroundChangedTrigger.update(n => n + 1);
+	}
+	/**
+  * Sets the background rename value
   */
-  renameBackgroundEmit(newBackgroundName) {
-    const val = newBackgroundName;
-    this.renameBackgroundEvent.emit(val);
-  }
-  /**
+	renameBackgroundEmit(newBackgroundName: string) {
+		this.renameBackgroundTrigger.emit(newBackgroundName);
+	}
+	/**
    * Updates the background
    * @param storyID
    * @param background
    * @returns
   */
-  public updateBackground(storyID: any, background: Background): Observable<Background> {
-    return this.http
-      .put<Background>(this.apiService.apiServer + '/background/' + storyID , background, ApiService.getOptions())
-      .pipe(tap(_ => {
-        console.log('Update background for story ' + storyID);
-      }));
-  }
-   /**
+	public updateBackground(storyID: string, background: Background): Observable<Background> {
+		return this.http
+			.put<Background>(this.apiService.apiServer + '/background/' + storyID , background, ApiService.getOptions());
+	}
+	/**
     * Checking the same name of the background
     * @param buttonId
     * @param input
@@ -80,29 +70,29 @@ export class BackgroundService {
     * @param background?
     * @returns
   */
-   public backgroundUnique(buttonId: string, input: string, array: Background[], background?: Background) {
-    array = array ? array : [];
-    input = input ? input : '';
-    const button = (document.getElementById(buttonId)) as HTMLButtonElement;
-    if ((input && !array.find(i => i.name === input)) || (background ? array.find(g => g.name === background.name && g.name === input) : false)) {
-      button.disabled = false;
-    } else {
-      button.disabled = true;
-      this.toastr.error('This Background Title is already in use. Please choose another Title');
-    }
-  }
-  /**
+	public backgroundUnique(buttonId: string, input: string, array: Background[], background?: Background) {
+		array = array ? array : [];
+		input = input ? input : '';
+		const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+		if ((input && !array.find(i => i.name === input)) || (background ? array.find(g => g.name === background.name && g.name === input) : false)) 
+			button.disabled = false;
+		else {
+			button.disabled = true;
+			this.notify.error('This Background Title is already in use. Please choose another Title');
+		}
+	}
+	/**
     * Deletes the background
     * @param storyID
     * @param storySource
     * @returns
   */
-  deleteBackground(storyID: any): Observable<any> {
-    return this.http
-      .delete<any>(this.apiService.apiServer + '/background/' + storyID , ApiService.getOptions())
-      .pipe(tap(() => {
-        //
-      }));
-  }
+	deleteBackground(storyID: string): Observable<Background> {
+		return this.http
+			.delete<Background>(this.apiService.apiServer + '/background/' + storyID , ApiService.getOptions())
+			.pipe(tap(() => {
+				//
+			}));
+	}
 
 }

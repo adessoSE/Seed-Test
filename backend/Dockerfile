@@ -1,5 +1,5 @@
 # Use build argument for Node.js version
-ARG NODE_VERSION=20
+ARG NODE_VERSION=22
 FROM node:${NODE_VERSION}
 
 RUN apt-get update && \
@@ -63,11 +63,26 @@ RUN edgedriver --version
 # Remove temporary file (regardless of download success)
 RUN rm -f latest_stable.txt
 
-# Bundle app source
+# Bundle the monorepo source: the build context is the repo root because backend depends on the
+# workspace package @seed-test/shared (not on the npm registry) and the root package-lock.json is the only current lockfile.
 COPY . .
 
-# Install dependencies and rebuild native modules
-RUN npm install --ignore-scripts && npm rebuild bcrypt
+# Create runtime directory for generated .feature files and JSON/HTML reports
+RUN mkdir -p backend/features
+
+# Install backend and shared workspace dependencies exactly as locked (npm ci fails if package-lock.json is out of sync) and rebuild native modules
+RUN npm ci --ignore-scripts -w backend -w shared && npm rebuild bcrypt -w backend
+
+# Run everything below from the backend package
+WORKDIR /usr/src/app/backend
+
+# Install the Playwright browsers at build time; --ignore-scripts above skips the postinstall that does it locally.
+# Edge comes from the apt package above. Without this the server could not run Playwright tests in the container.
+RUN ../node_modules/.bin/playwright install --with-deps chromium firefox webkit
+
+# Set after npm install so devDependencies (tsc, run by npm start) are still installed.
+# Production enables the Secure session cookie and trust proxy, and requires SESSION_SECRET (backend/src/config.ts).
+ENV NODE_ENV=production
 
 #RUN npm ci
 # If you are building your code for production

@@ -1,0 +1,45 @@
+﻿import { type Request, type Response, type NextFunction } from 'express';
+import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
+import * as storyService from '../services/story.service.js';
+import * as featureFileService from '../services/feature-file.service.js';
+import { type Background } from '@seed-test/shared/models/Background.js';
+
+/**
+ * Handles updating the background section of a story.
+ * Expects story ID in URL parameters and background data in the request body.
+ */
+export async function updateBackground(req: Request, res: Response, next: NextFunction): Promise<void> {
+	try {
+		const storyId = requireValidId(param(req, 'storyID'), 'story ID');
+
+		const backgroundData = req.body as Background;
+
+		await storyService.updateBackground(storyId, backgroundData);
+		// Trigger feature file update after successful DB update
+		await featureFileService.updateFeatureFile(storyId);
+
+		// Send back the updated background data (or fetch the updated story if needed)
+		res.status(200).json(backgroundData);
+	} catch (error) {
+		next(error); // Pass error to the central handler
+	}
+}
+
+/**
+ * Handles deleting the background section of a story (resets it to empty).
+ * Expects story ID in URL parameters.
+ */
+export async function deleteBackground(req: Request, res: Response, next: NextFunction): Promise<void> {
+	try {
+		const storyId = requireValidId(param(req, 'storyID'), 'story ID');
+
+		await storyService.deleteBackground(storyId);
+		// Trigger feature file update after successful DB update
+		await featureFileService.updateFeatureFile(storyId);
+
+		res.status(200).json({}); // Send back an empty object or success message
+	} catch (error) {
+		next(error); // Pass error to the central handler
+	}
+}

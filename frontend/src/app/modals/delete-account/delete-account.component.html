@@ -1,9 +1,9 @@
 <!---Modal for delete Account------>
-<ng-template #deleteAccountModal let-modal>
-    <app-layout-modal></app-layout-modal>
+<ng-template #deleteAccountModal let-modal="dialogRef">
+    <app-layout-modal />
     <div class="modal-header">
         <span class="MediumSubline1H4 modal-title">Delete My Account</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <button type="button" class="close" aria-label="Close" (click)="modal.close()">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -22,8 +22,8 @@
                             <span>If you wish to erase your Seed-Account and connected data, please verify with your email.</span>
                             <div class="modalsContent">
                                 <div>
-                                    <label class="uk-form-label">Enter your email*</label>
-                                    <input type="email" ngModel name="insertedEmail" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+                                    <label class="st-field-label" for="delete-account-email">Enter your email*</label>
+                                    <input type="email" id="delete-account-email" ngModel name="insertedEmail" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
                                 </div>  
                             </div> 
                         </div> 
@@ -33,7 +33,7 @@
         </div>
         <div class="modal-footer">
             <button type="submit" class="normalButton deleteButton" [disabled]="!deleteAccountForm.valid"
-            [ngStyle]="{'opacity': !deleteAccountForm.valid ?  '50%' : '100%'}">Delete my Account
+            [style.opacity]="!deleteAccountForm.valid ?  '50%' : '100%'">Delete my Account
             </button>
         </div> 
     </form>  

@@ -31,8 +31,14 @@
     outline: none;
 } 
 
-::ng-deep .uk-form-label {
+::ng-deep .st-field-label {
   color: black;
+}
+
+/* In dark mode the modal body background is #455A64 — override the black label
+   to white so form labels remain readable. */
+::ng-deep .darkTheme .st-field-label {
+  color: white;
 }
 
 ::ng-deep span[rel=def] {
@@ -135,3 +141,12 @@
 
 
 
+
+/* MatDialog surface for the template modals: the Bootstrap header/body/footer bring their own spacing */
+::ng-deep .st-modal .mat-mdc-dialog-surface {
+    padding: 0;
+}
+
+::ng-deep .darkTheme .st-modal .mat-mdc-dialog-surface {
+    background: #455A64;
+}

@@ -1,0 +1,118 @@
+﻿import { type Request, type Response, type NextFunction } from 'express';
+import { requireValidId } from '../utils/validation.js';
+import { param } from '../utils/request-params.js';
+import * as repositoryService from '../services/repository.service.js';
+import * as storyService from '../services/story.service.js';
+import * as testRunnerService from '../testing/test-runner.service.js';
+import type { TestExecutionResult } from '../testing/test-runner.service.js';
+import * as reportService from '../services/report.service.js';
+import * as featureFileService from '../services/feature-file.service.js';
+import { type Story } from '@seed-test/shared/models/Story.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { type GroupReport, ExecutionMode, type PassedCount } from '../models/models.js';
+import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
+
+/**
+ * Handles the execution of a sanity test for a specific group.
+ * Fetches group and stories, executes tests, analyzes results,
+ * and returns a formatted notification string.
+ */
+export async function runSanityTest(req: Request, res: Response, next: NextFunction): Promise<void> {
+	let sanityFolderName: string | undefined;
+	try {
+		const repoID = requireValidId(param(req, 'repoID'), 'repository ID');
+		const groupID = requireValidId(param(req, 'groupID'), 'group ID');
+
+		const group = await repositoryService.getOneStoryGroup(repoID, groupID);
+		if (!group)
+			throw AppError.notFound('Group not found');
+
+		const stories: (Story | null)[] = await Promise.all(
+			group.member_stories.map(id => storyService.getOneStory(id.toString()))
+		);
+		const validStories = stories.filter(s => s !== null);
+		if (validStories.length === 0)
+			throw AppError.badRequest('No valid stories found in the group');
+
+		// --- Test Execution Logic (adapted from original runSanityReport) ---
+		// Prepare request body/params for testRunnerService
+		sanityFolderName = featureFileService.cleanFileName(`sanity_${group.name}_${Date.now()}`);
+		const testReq = {
+			...req,
+			body: {
+				...group,
+				name: sanityFolderName,
+				repositoryId: repoID
+			},
+			params: { // Simulate params if executeTest needs them
+				// issueID etc. might not be relevant here, check executeTest needs
+			}
+		};
+
+		fs.mkdirSync(path.join(process.cwd(), 'features', testReq.body.name), { recursive: true });
+
+		let lastReportResult: TestExecutionResult | undefined;
+		// Override name with the sanitized folder name so resolveAndSaveReport looks in the correct directory
+		const parameters = { ...group, name: sanityFolderName, repositoryId: repoID, stories: validStories };
+
+		if (group.isSequential) 
+			for (const story of validStories) 
+				lastReportResult = await testRunnerService.executeTest(testReq as unknown as Parameters<typeof testRunnerService.executeTest>[0], ExecutionMode.GROUP, story);
+            
+		else {
+			const results = await Promise.all(
+				validStories.map(story => testRunnerService.executeTest(testReq as unknown as Parameters<typeof testRunnerService.executeTest>[0], ExecutionMode.GROUP, story))
+			);
+			lastReportResult = results.pop();
+		}
+
+		if (!lastReportResult?.reportName)
+			throw new AppError('Sanity test execution failed to produce a valid report result.', 500);
+
+		// --- Report Analysis & Response (adapted from original runSanityReport) ---
+		const finalReport = await reportService.resolveAndSaveReport(lastReportResult, ExecutionMode.GROUP, validStories, parameters);
+
+		// Format the specific notification string
+		const notificationText = formatSanityNotification(finalReport as GroupReport);
+		// Persist the status before sending: the frontend reloads the story list on response and would
+		// otherwise show the previous lastTestPassed. A failed write is logged, not thrown, so the report is still delivered.
+		await reportService.persistLatestTestStatusSafely(finalReport, ExecutionMode.GROUP);
+		res.status(200).send(notificationText);
+
+		// Post-response cleanup — errors here must not crash the process or trigger the error handler
+		try {
+			const deletionTime = parseInt(process.env.REPORT_DELETION_TIME ?? '5') * 60000;
+			reportService.scheduleReportDeletion(finalReport.reportName, true, deletionTime);
+		} catch (postErr) {
+			logger.error(`Error in post-response sanity cleanup: ${String(postErr)}`);
+		}
+
+	} catch (error) {
+		if (sanityFolderName && fs.existsSync(path.join(process.cwd(), 'features', sanityFolderName))) 
+			fs.rm(path.join(process.cwd(), 'features', sanityFolderName), { recursive: true, force: true }, (err) => {
+				if (err) logger.error(`Error cleaning up sanity test folder on failure: ${err}`);
+			});
+        
+		next(error);
+	}
+}
+
+/**
+ * Formats the sanity test result into a notification string.
+ * (Moved from original sanityTest.js)
+ */
+function formatSanityNotification(report: GroupReport): string {
+	// Ensure report structure matches expected GroupReport
+	const scenarios: PassedCount = report.scenariosTested;
+	const steps = report.groupTestResults;
+	const totalScenarios = scenarios.passed + scenarios.failed;
+	const totalSteps = steps.passedSteps + steps.failedSteps + steps.skippedSteps;
+
+	const notificationText = `
+Scenarios: ${scenarios.failed} failed, ${scenarios.passed} passed, ${totalScenarios} total
+Steps: ${steps.failedSteps} failed, ${steps.passedSteps} passed, ${steps.skippedSteps} skipped, ${totalSteps} total
+`;
+	return notificationText.trim();
+}

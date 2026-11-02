@@ -1,0 +1,75 @@
+import express, { type Request, type Response, type NextFunction } from 'express';
+import passport from 'passport';
+import initializePassport from '../passport-config.js';
+import * as userService from '../services/user.service.js';
+import * as scriptController from '../controllers/script.controller.js';
+import { validate } from '../middleware/validate.js';
+import { scriptGroupSchema, scriptFeatureSchema } from '@seed-test/shared/schemas/script.schemas.js';
+import { AppError } from '../helpers/AppError.js';
+
+const router = express.Router();
+
+// CORS, body parsing, and authentication are handled globally in server.ts.
+
+// Initialize Passport for this router's specific needs (session-based)
+initializePassport(
+	passport,
+	userService.getUserByEmail,
+	userService.getUserById
+);
+
+// --- Custom Authentication Middleware for Script Routes ---
+// This middleware handles the specific passport login flow for these routes.
+const authenticateAndProceed = (controllerFunction: (req: Request, res: Response, next: NextFunction) => Promise<void>) => {
+	return (req: Request, res: Response, next: NextFunction) => {
+		const reqBody = req.body as Record<string, unknown>;
+		if (reqBody.email)
+			reqBody.email = (reqBody.email as string).toLowerCase();
+
+		// Authenticate using passport.authenticate with a custom callback
+		(passport.authenticate as (strategy: string, callback: (error: unknown, user: Express.User | false, info: { message?: string } | undefined) => void) => (req: Request, res: Response, next: NextFunction) => void)('normal-local', (error: unknown, user: Express.User | false, info: { message?: string } | undefined) => {
+			if (error)
+				return next(error); // Pass errors to central handler
+
+			if (!user)
+				return next(AppError.unauthorized(info?.message ?? 'Authentication failed'));
+
+			// Session fixation prevention — regenerate before establishing new identity
+			req.session.regenerate((regenerateErr) => {
+				if (regenerateErr) return next(regenerateErr);
+
+				// Set extended session lifetime after regeneration so the new session inherits it
+				if ((req.body as Record<string, unknown>).stayLoggedIn)
+					req.session.cookie.maxAge = 86400000; // 10 days
+
+				req.logIn(user, (loginErr) => {
+					if (loginErr)
+						return next(loginErr);
+
+					// Authentication successful — void the async call to satisfy no-misused-promises
+					void controllerFunction(req, res, next)
+						.catch((controllerError) => next(controllerError));
+				});
+			});
+		})(req, res, next); // Don't forget to invoke the middleware function returned by passport.authenticate
+	};
+};
+
+
+// --- Route Definitions ---
+
+/**
+ * @route   POST /api/script/Group
+ * @desc    Authenticates and runs tests for a specific group
+ * @access  Private (Requires valid credentials in body)
+ */
+router.post('/Group', validate(scriptGroupSchema), authenticateAndProceed(scriptController.runGroupViaScript));
+
+/**
+ * @route   POST /api/script/Feature/:issueID
+ * @desc    Authenticates and runs tests for a specific feature
+ * @access  Private (Requires valid credentials in body)
+ */
+router.post('/Feature/:issueID', validate(scriptFeatureSchema), authenticateAndProceed(scriptController.runFeatureViaScript));
+
+export default router;

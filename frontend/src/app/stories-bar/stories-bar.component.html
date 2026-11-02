@@ -1,158 +1,259 @@
-<div [class.darkTheme]="isDark" class="grid" cdkScrollable>
-  <br>
-  <mat-tab-group [dynamicHeight]='true'>
-    <mat-tab label="Stories">
-      <ng-template mat-tab-label>
-        <label matTooltip="A user story describes requirements for a software system.
+<fieldset [disabled]="isReviewing()">
+  <div [class.darkTheme]="isDark()" class="grid" cdkScrollable>
+    <br>
+      <mat-tab-group [dynamicHeight]='true'>
+        <mat-tab label="Stories">
+          <ng-template mat-tab-label>
+          <span matTooltip="A user story describes requirements for a software system.
           It is consciously kept in short sentences and simple words.
           A story includes several scenarios.
           The following template is recommended:
-          As a <...>, I want <...> so that <...>"> 
+          As a <...>, I want <...> so that <...>">
             Stories
-        </label>              
-      </ng-template>
+          </span>
+        </ng-template>
         <!-- search bar here -->
-      <hr>
-      <div class="storyFilterWrapper">
-        <span class="searchBar" id="searchStoriesBar">
-          <em class="material-icons" id="searchBarIcons">search</em>
-          <input class="searchInput" [(ngModel)]="storyString" (ngModelChange)="storyTermChange()"/>
-          <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('story')">close</em>
-        </span>
-        <span style="display: inherit;">
-          <em id="searchBarIcons" class="material-icons">filter_alt</em>
-          <span id="clickableIcon">
-            <em *ngIf="showFilter==false" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_more</em>
-            <em *ngIf="showFilter==true" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_less</em>
+        <hr>
+        <div class="storyFilterWrapper">
+          <span class="searchBar" id="searchStoriesBar">
+            <em class="material-icons searchBarIcons">search</em>
+            <input class="searchInput" [(ngModel)]="storyString" (ngModelChange)="storyTermChange()" />
+            <em class="material-icons eraseIcon" tabindex="0" role="button" (click)="eraseSearchTerm('story')" (keydown.enter)="eraseSearchTerm('story')">close</em>
           </span>
-          <span id="clickableIcon" style="float: right; display: flex; flex-direction: row;">
-            <em id="searchBarIcons" class="material-icons-outlined" (click)="clearAllFilter()">filter_alt</em>
-            <em id="searchBarIcons" class="material-icons" style="/* margin-left: -8px; */ font-size: 17px; vertical-align: bottom;" (click)="clearAllFilter()">close</em>
-          </span>
-        </span>
-      </div>
-      <div [hidden]="!showFilter" style="margin-top: 10px;">
-        <mat-form-field *ngIf="!isCustomStory" appearance="standard" class="filterFormField">
-          <mat-label>Assignee</mat-label>
-          <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
-            <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
-              <mat-option *ngFor="let assignee of createDistictList('assignee'); let odd = odd" [value]="assignee" [ngClass]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
-                {{assignee}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
-          <mat-label>Status Of Story</mat-label>
-          <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter()">
-            <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
-            <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed'); let odd = odd" [value]="testPassed" [ngClass]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
-              {{testPassed}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="standard" class="filterFormField">
-          <mat-label>Group</mat-label>
-          <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
-            <mat-option [ngClass]="{'odd-row-mat-option': true}">--</mat-option>
-            <mat-option *ngFor="let group of createDistictList('group'); let odd = odd" [value]="group" [ngClass]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
-              {{group}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-      <hr>
-      <div [class.itemListDiv]="this.stories?.length !== 0 && isCustomStory" [class.storyListDivNotCustom]="this.stories?.length !== 0 && !isCustomStory" [class.storyListDivWithFilter]="showFilter">   
-        <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
-          <li #storyElement *ngFor="let s of getSortedStories(); let i = index" cdkDrag [id]="'story' + s.issue_number">
-            <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" [class.selected]="s.issue_number === selectedStory?.issue_number">
-              <span *ngIf="!isCustomStory" class="jiraGithubStoryIcons">
-                <button uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
-                  <mat-icon class="toTicket">launch</mat-icon>
-                </button>
-                <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
-                <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
-              </span>
-              <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-              <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
-                {{s.issue_number}}. {{s.title}}
-              </a>
-            </div>
-            <div id="scenarioList" class="uk-accordion-content" [hidden]="s.issue_number !== selectedStory?.issue_number">
-              <ul (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
-                <li *ngFor="let scen of s.scenarios; let c = index">
-                  <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested]=""
-                    (click)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
-                    <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                    #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
-                    <mat-icon class="icon passed" *ngIf="scen.lastTestPassed && scen.lastTestPassed != undefined">check_circle_outline</mat-icon>
-                    <mat-icon class="icon notPassed" *ngIf="!scen.lastTestPassed && (scen.lastTestPassed != undefined)">report</mat-icon>
-                    <mat-icon class="icon undefined" *ngIf="scen.lastTestPassed == undefined">watch_later</mat-icon>
-                  </a>
-                </li>
-              </ul>
-              <button id="add_first_scenario" class="SmallButton" *ngIf="!(s.scenarios.length > 0)"
-                (click)="openCreateScenario()">
-                <em class="material-icons">add</em>
-                Create First Scenario</button>
-              <button id="add_scenario" *ngIf="s.scenarios.length > 0" class="material-icons" uk-tooltip="Add New Scenario" (click)="openCreateScenario()">add</button>
-            </div>
-          </li>
-        </ul>
-      </div>
-        <div *ngIf="isCustomStory" id="createNewStoryDiv">
-          <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
-        </div>
-    </mat-tab>
-    <mat-tab label="Groups">
-      <ng-template mat-tab-label>
-        <mat-icon class="tab-icon">folder_open</mat-icon>
-        <label matTooltip="Create a Group and add Stories to run multiple Stories at once!">   
-          Groups
-        </label>
-      </ng-template>
-      <hr>
-      <div class="searchBarWrapper"> 
-      </div>
-        <div class="searchBar">
-          <em class="material-icons" id="searchBarIcons">search</em>
-          <input class="searchInput" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()" style="width: 100% !important;"/>
-          <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>  
-      </div>
-      <hr>
-      <div [class.itemListDiv]="this.groups?.length !== 0 && this.groups?.length !== null">
-        <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
-          <li *ngFor="let g of getSortedGroups(); let i = index " class="{{liGroupList[i]}}" cdkDrag>
-            <div id="groupList" class=" Mediumaccordeon2 uk-accordion-title" (click)="selectFirstStoryOfGroup(g)">
-              <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
-                title="{{g.name}}">
-                <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                {{g.name}}
-              </a>
-              <span class="groupIconSpan">
-                <em class="material-icons" uk-tooltip title="Run Tests in Group" (click)="selectFirstStoryOfGroup(g);evaluateAndRunGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
-                <em class="material-icons" uk-tooltip title="Update Group" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
+          <span style="display: inherit;">
+            <em class="material-icons searchBarIcons">filter_alt</em>
+            <span id="clickableIcon">
+              @if (showFilter === false) {
+<em class="material-icons searchBarIcons" tabindex="0" role="button"
+                (click)="showFilterClick()" (keydown.enter)="showFilterClick()">expand_more</em>
+                  }
+                  @if (showFilter === true) {
+                    <em class="material-icons searchBarIcons" tabindex="0" role="button"
+                    (click)="showFilterClick()" (keydown.enter)="showFilterClick()">expand_less</em>
+                  }
+                </span>
+                <span id="clickableIcon" style="float: right; display: flex; flex-direction: row;">
+                  <em class="material-icons-outlined searchBarIcons" tabindex="0" role="button" (click)="clearAllFilter()" (keydown.enter)="clearAllFilter()">filter_alt</em>
+                  <em class="material-icons searchBarIcons" tabindex="0" role="button"
+                    style="/* margin-left: -8px; */ font-size: 17px; vertical-align: bottom;"
+                  (click)="clearAllFilter()" (keydown.enter)="clearAllFilter()">close</em>
+                </span>
               </span>
             </div>
-            <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
-                <li *ngFor="let story of g.member_stories" (click)="selectStoryOfGroup(story._id)">
-                <a class="Largecaption scenarioListItem" cdkDrag>
-                    <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                    {{story.issue_number}} {{story.title | titlecase}}
-                  </a>
-                </li>
-              </ul>
-          </li>
-        </ul>
-      </div>
-      <div id="createNewGroupDiv">
-        <button class="normalButton" (click)="openCreateNewGroupModal()">Create New Group</button>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
-  <hr>
-</div>
-<app-create-new-group #createNewGroup></app-create-new-group>
-<app-create-new-story #createNewStory></app-create-new-story>
-<app-update-group #updateGroup></app-update-group>
-<app-create-scenario #createNewScenario (createScenarioEvent)="addScenario($event)"></app-create-scenario>
-<app-execution-list #executionListModal (selectedExecutions)="executeTests($event)"></app-execution-list>
+            <div [hidden]="!showFilter" style="margin-top: 10px;">
+              @if (!isCustomStory()) {
+                <mat-form-field appearance="outline" class="filterFormField">
+                  <mat-label>Assignee</mat-label>
+                  <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
+                    <mat-option [class.odd-row-mat-option]="true">--</mat-option>
+                    @for (assignee of createDistictList('assignee'); track assignee; let odd = $odd) {
+                      <mat-option [value]="assignee"
+                        [class]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
+                        {{assignee}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              }
+              <mat-form-field appearance="outline" class="filterFormField rightFilterFormField">
+                <mat-label>Status Of Story</mat-label>
+                <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter()">
+                  <mat-option [class.odd-row-mat-option]="true">--</mat-option>
+                  @for (testPassed of createDistictList('lastTestPassed'); track testPassed; let odd = $odd) {
+                    <mat-option
+                      [value]="testPassed" [class]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
+                      {{testPassed}}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="filterFormField">
+                <mat-label>Group</mat-label>
+                <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
+                  <mat-option [class.odd-row-mat-option]="true">--</mat-option>
+                  @for (group of createDistictList('group'); track group; let odd = $odd) {
+                    <mat-option [value]="group"
+                      [class]="{'even-row-mat-option': !odd, 'odd-row-mat-option': odd}">
+                      {{group}}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <hr>
+<div [class.itemListDiv]="stories().length !== 0 && isCustomStory()"
+                 [class.storyListDivNotCustom]="stories().length !== 0 && !isCustomStory()"
+                  [class.storyListDivWithFilter]="showFilter">
+                <!-- CASE: project has stories — render the draggable story list -->
+                @if (stories().length !== 0) {
+                  <div cdkDropList cdkDropListLockAxis="y" (cdkDropListDropped)="dropStory($event)" class="stories-drop-container">
+                  <mat-accordion displayMode="flat" class="stories-accordion">
+                    @for (s of storyNumbering().stories; track s; let i = $index) {
+		  <div cdkDrag class="story-drag-wrapper" [class.cdk-drag-dragging]="selectedStory() === s"
+			tabindex="0"
+			(keydown.enter)="selectStory(s); $event.stopPropagation();"
+			(keydown.space)="$event.preventDefault(); selectStory(s); $event.stopPropagation();"
+			(click)="selectStory(s); $event.stopPropagation();">
+                      <mat-expansion-panel class="story-expansion-panel"
+                         [expanded]="storyExpansion().has(s)"
+                         (opened)="toggleStoryExpansion(s)" (closed)="toggleStoryExpansion(s)">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title id="storyList" tabindex="0" role="button"
+                           [class.selected]="selectedStory() === s"
+                          style="cursor:pointer"
+                          (click)="$event.stopPropagation(); selectStory(s);">
+                          @if (!isCustomStory()) {
+                            <span class="jiraGithubStoryIcons">
+                              <button class="toTicket" (click)="toTicket(getIssueNumber(s));$event.stopPropagation();">
+                               <mat-icon class="toTicket">launch</mat-icon>
+                             </button>
+                             @if (s.assignee_avatar_url === null) {
+                               <img src="assets/unassigned_avatar.png"
+                                 alt="assignee github avatar" width="20px" height="20px" matTooltip="Unassigned"
+                                 title="Unassigned">
+                             }
+                             @if (s.assignee_avatar_url !== null) {
+                               <img [src]=s.assignee_avatar_url alt="assignee github avatar"
+                                 width="20px" height="20px" matTooltip="{{s.assignee}}" title="{{s.assignee}}">
+                             }
+                           </span>
+                         }
+                       <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                         <a class="storyListLink" maxlength="10" id="{{'story' + (i + 1)}}"
+                           #storyElement
+                           matTooltip="{{s.title}}" title="{{s.title}}">
+                            {{getIssueNumber(s)}}. {{s.title}}
+                       </a>
+                     </mat-panel-title>
+                   </mat-expansion-panel-header>
+                   <ul class="scenario-drop-list" (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
+                     @for (scen of s.scenarios; track scen; let c = $index) {
+                        <li>
+                          <!-- CASE 1: highlight only inside the selected story, since scenario_id repeats across stories -->
+                          <a class="Largecaption scenarioListItem"
+                            [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed !== undefined"
+                            [class.passed]="scen.lastTestPassed && scen.lastTestPassed !== undefined" [class.notTested]=""
+                            [class.selected-scenario]="parentSelectedScenario() && selectedStory() === s && scen.scenario_id === parentSelectedScenario()!.scenario_id"
+                            tabindex="0" role="button" (click)="selectScenario(scen, s);" (keydown.enter)="selectScenario(scen, s);" id="{{'scenario' + c}}" cdkDrag>
+                       <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                          #{{getIssueNumber(s)}}.{{c+1}} {{scen.name | titlecase}}
+                       @if (scen.lastTestPassed && scen.lastTestPassed !== undefined) {
+                         <mat-icon class="icon passed"
+                         >check_circle_outline</mat-icon>
+                       }
+                       @if (!scen.lastTestPassed && (scen.lastTestPassed !== undefined)) {
+                         <mat-icon class="icon notPassed"
+                         >report</mat-icon>
+                       }
+                       @if (scen.lastTestPassed === undefined) {
+                         <mat-icon class="icon undefined">watch_later</mat-icon>
+                       }
+                     </a>
+                   </li>
+                 }
+               </ul>
+               @if (!(s.scenarios.length > 0)) {
+                 <button id="add_first_scenario" class="SmallButton"
+                   (click)="openCreateScenario()">
+                   <em class="material-icons">add</em>
+                 Create First Scenario</button>
+               }
+               @if (s.scenarios.length > 0) {
+                 <button id="add_scenario" class="material-icons"
+                 matTooltip="Add New Scenario" (click)="openCreateScenario()">add</button>
+               }
+              </mat-expansion-panel>
+              </div>
+            }
+           </mat-accordion>
+          </div>
+        }
+                <!-- Empty project: a custom project with no stories yet gets a dedicated CTA
+                     so users are not left with a blank list and unknown way to begin. -->
+                @if (isCustomStory() && stories().length === 0) {
+                  <div id="emptyStoryListDiv" [class.darkTheme]="isDark()">
+                    <p class="emptyStoryText">No stories yet in this project.</p>
+                    <button id="createFirstStory" class="normalButton" (click)="openCreateNewStoryModal()">
+                      <em class="material-icons">add</em>
+                      Create First Story
+                    </button>
+                  </div>
+                }
+                </div>
+              @if (isCustomStory()) {
+                <div id="createNewStoryDiv">
+                  <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
+                </div>
+              }
+            </mat-tab>
+            <mat-tab label="Groups">
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">folder_open</mat-icon>
+                <span matTooltip="Create a Group and add Stories to run multiple Stories at once!">
+                  Groups
+                </span>
+              </ng-template>
+              <hr>
+                <div class="searchBarWrapper">
+                </div>
+                <div class="searchBar">
+                  <em class="material-icons searchBarIcons">search</em>
+                  <input class="searchInput" aria-label="Search groups" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"
+                    style="width: 100% !important;" />
+                    <em class="material-icons eraseIcon" tabindex="0" role="button" (click)="eraseSearchTerm('group')" (keydown.enter)="eraseSearchTerm('group')">close</em>
+                  </div>
+                  <hr>
+<div class="groups-list-container" cdkDropList (cdkDropListDropped)="dropGroup($event)">
+                      <mat-accordion displayMode="flat" class="groups-accordion">
+                        @for (g of getSortedGroups(); track g._id; let i = $index) {
+                          <mat-expansion-panel [cdkDrag] class="group-expansion-panel cdk-drag" (opened)="onGroupOpened(g)" (closed)="onGroupClosed(g)">
+                           <mat-expansion-panel-header>
+                             <mat-panel-title class="group-panel-title" tabindex="0" role="button"
+                               (click)="selectFirstStoryOfGroup(g);$event.preventDefault();"
+                               (keydown.enter)="selectFirstStoryOfGroup(g);$event.preventDefault();">
+                               <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}"
+                                 matTooltip="{{g.name}}" title="{{g.name}}">
+                                 <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                                 {{g.name}}
+                               </a>
+                               <span class="groupIconSpan" style="position:relative;z-index:1;">
+                                 <em class="material-icons" matTooltip="Run Tests in Group" tabindex="0" role="button"
+                                   (click)="selectFirstStoryOfGroup(g);evaluateAndRunGroup(g);$event.stopPropagation();"
+                                   (keydown.enter)="selectFirstStoryOfGroup(g);evaluateAndRunGroup(g);$event.stopPropagation();"
+                                 id="groupPlay">play_arrow</em>
+                                 <em class="material-icons" matTooltip="Update Group" tabindex="0" role="button"
+                                 (click)="openUpdateGroupModal(g);$event.stopPropagation();"
+                                 (keydown.enter)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
+                               </span>
+                             </mat-panel-title>
+                           </mat-expansion-panel-header>
+                           <ul class="group-story-drop-list" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList
+                             cdkDropListLockAxis="y">
+@for (storyId of g.member_stories; track storyId) {
+                                <li tabindex="0" role="button" (click)="selectStoryOfGroup(storyId)" (keydown.enter)="selectStoryOfGroup(storyId)">
+                                  @if (getStoryById(storyId); as story) {
+                                    <a class="Largecaption scenarioListItem" cdkDrag>
+                                      <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                                    {{getIssueNumber(story)}} {{story.title | titlecase}}
+                                   </a>
+                                 }
+                               </li>
+                             }
+                           </ul>
+                         </mat-expansion-panel>
+                       }
+                     </mat-accordion>
+                   </div>
+                    <div id="createNewGroupDiv">
+                      <button class="normalButton" (click)="openCreateNewGroupModal()">Create New Group</button>
+                    </div>
+                  </mat-tab>
+                </mat-tab-group>
+                <hr>
+                </div>
+                <app-create-new-group #createNewGroup />
+                <app-create-new-story #createNewStory />
+                <app-update-group #updateGroup />
+                <app-create-scenario #createNewScenario (createScenarioEvent)="addScenario($event)" />
+                <app-execution-list #executionListModal (selectedExecutions)="executeTests($event)" />
+              </fieldset>

@@ -1,0 +1,9 @@
+node_modules
+**/node_modules
+.git
+**/dist
+.env
+**/.env
+.claude
+workers
+tasks

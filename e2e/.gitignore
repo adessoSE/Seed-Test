@@ -1,0 +1,14 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Environment variables: secrets must never be tracked; templates stay tracked
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Playwright run output and the local E2E session/test account
+test-results/
+playwright-report/
+.auth/

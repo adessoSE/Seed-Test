@@ -1,15 +1,16 @@
 # Use build argument for Node.js version
-ARG NODE_VERSION=20
+ARG NODE_VERSION=22
 FROM node:${NODE_VERSION}
 
 # Create app directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Build context is the repo root: frontend depends on the workspace package @seed-test/shared
+# (not on the npm registry) and the root package-lock.json is the only current lockfile.
+COPY . .
 
-# Install dependencies
-RUN npm install --ignore-scripts
+# Install frontend and shared workspace dependencies exactly as locked (npm ci fails if package-lock.json is out of sync)
+RUN npm ci --ignore-scripts -w frontend -w shared
 #RUN npm install --force --ignore-scripts
 
 # Install Angular CLI
@@ -18,7 +19,10 @@ RUN npm install --force --ignore-scripts -g @angular/cli
 # Install esbuild 
 RUN npm install --ignore-scripts esbuild 
 
-COPY . .
+# Build shared first: the frontend resolves @seed-test/shared to shared/dist
+RUN npm run build -w shared
+
+WORKDIR /usr/src/app/frontend
 
 EXPOSE 4200
 

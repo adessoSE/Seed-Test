@@ -21,9 +21,6 @@
   border-color: #60767b;
 }
 
-.uk-background-muted {
-  background-color: #f8f8f8;
-}
 mat-tab-group{
   height: calc(100% - 65px);
 }
@@ -40,14 +37,22 @@ mat-tab-group{
   height: calc(100% - 185px);
 }
 
+.stories-drop-container,
+.groups-list-container {
+  height: 100%;
+  overflow: auto;
+}
+
+.stories-drop-container .stories-accordion,
+.groups-list-container .groups-accordion {
+  min-height: 100%;
+}
+
 .itemListDiv>ul, .storyListDivNotCustom>ul, .storyListDivWithFilter>ul{
   height: 100%;
   overflow: scroll;
 }
 
-.darkTheme.uk-background-muted {
-  background-color: #546E7A
-}
 
 
 #storyHeader{
@@ -59,6 +64,33 @@ mat-tab-group{
 
 #createNewStoryDiv{
   text-align: right;
+}
+/* Empty-project CTA: centered message + button so first-time custom projects
+   give a clear, discoverable way to create the opening story. */
+#emptyStoryListDiv{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  text-align: center;
+  padding: 16px;
+}
+#emptyStoryListDiv .emptyStoryText{
+  margin: 0;
+  color: var(--brown-grey);
+}
+#emptyStoryListDiv.darkTheme .emptyStoryText{
+  color: #CFD8DC;
+}
+#createFirstStory{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+#createFirstStory em{
+  font-size: 18px;
 }
 #createNewGroupDiv{
   text-align: right;
@@ -166,14 +198,18 @@ a.storyListLink:hover{
   position: relative;
 }
 .groupLinkList{
-  position: absolute;
-  /* z-index: 50; */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+  display: block;
 }
 .groupIconSpan{
   white-space: nowrap;
-  float: right;
-  /* z-index: 100; */
-  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
 }
 #groupEdit{
   float: right;
@@ -205,63 +241,110 @@ a.storyListLink:hover{
   background-color: #90a4ae;
 }
 
-.uk-accordion{
+.stories-accordion,
+.groups-accordion {
   width: 100%;
 }
 
-.uk-accordion-content {
-  font-size: small;
+.stories-accordion .story-expansion-panel,
+.groups-accordion .group-expansion-panel {
+  margin-bottom: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
 }
 
-.uk-accordion-content a{
-  color: #56595e;
+.stories-accordion .story-expansion-panel.mat-expanded {
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.darkTheme .uk-accordion-content a{
-  color:#90A4AE;
+.darkTheme .stories-accordion .story-expansion-panel,
+.darkTheme .groups-accordion .group-expansion-panel {
+  border-color: #60767b;
+  background-color: #37474F;
 }
 
-/* .uk-accordion-content .passed,
-.uk-accordion-title.uk-background-muted .passed{
-  color: green !important;
-} */
+.darkTheme .stories-accordion .story-expansion-panel.mat-expanded,
+.darkTheme .groups-accordion .group-expansion-panel.mat-expanded {
+  background-color: #455A64;
+}
 
-/* .darkTheme .uk-accordion-content .passed,
-.darkTheme .uk-accordion-title.uk-background-muted .passed{
-  color: #4CAF50 !important;
-} */
+.stories-accordion ::ng-deep .mat-expansion-panel-body,
+.groups-accordion ::ng-deep .mat-expansion-panel-body {
+  padding: 0 !important;
+}
 
-/* .uk-accordion-content .notPassed,
-.uk-accordion-title.uk-background-muted .notPassed{
-  color: red !important;
-} */
+/* Hover effect on the full panel header row — not just the inner title span.
+   Overrides Angular Material's default header background on hover. */
+.stories-accordion ::ng-deep .mat-expansion-panel-header:hover,
+.groups-accordion ::ng-deep .mat-expansion-panel-header:hover {
+  background-color: #f1f1f1 !important;
+}
 
-/* .darkTheme .uk-accordion-content .notPassed,
-.darkTheme .uk-accordion-title.uk-background-muted .notPassed{
-  color: red !important;
-} */
+.darkTheme .stories-accordion ::ng-deep .mat-expansion-panel-header:hover,
+.darkTheme .groups-accordion ::ng-deep .mat-expansion-panel-header:hover {
+  background-color: #546E7A !important;
+}
 
-/* .uk-accordion-title.uk-background-muted span.passed{
-  background-color: green !important;
-} */
+/* Visual indicator for the currently selected story in the accordion panel header */
+.stories-accordion .selected {
+  font-weight: 600;
+}
 
-/* .darkTheme .uk-accordion-title.uk-background-muted span.passed {
-  background-color: #4CAF50 !important;
-} */
+.darkTheme .stories-accordion .selected {
+  color: white;
+}
 
-/*  .uk-accordion-title.uk-background-muted span.notPassed{
-  background-color: red !important;
-} */
+/* Visual indicator for the currently selected scenario in the sidebar */
+.scenarioListItem.selected-scenario {
+  background-color: #e3f2fd;
+  font-weight: 600;
+}
 
-/* .darkTheme .uk-accordion-title.uk-background-muted span.notPassed{
-  background-color: red !important;
-} */
+.darkTheme .scenarioListItem.selected-scenario {
+  background-color: #1565C0;
+  color: white;
+}
+
+.stories-accordion ::ng-deep .mat-expansion-panel-header,
+.groups-accordion ::ng-deep .mat-expansion-panel-header {
+  height: auto !important;
+  padding: 4px 8px !important;
+}
+
+.stories-accordion ::ng-deep .mat-expansion-panel-header-title,
+.groups-accordion ::ng-deep .mat-expansion-panel-header-title {
+  font-size: 14px;
+}
+
+.stories-accordion ::ng-deep .mat-expansion-panel-header-description,
+.groups-accordion ::ng-deep .mat-expansion-panel-header-description {
+  justify-content: space-between;
+  flex-direction: row-reverse;
+}
+
+.scenario-drop-list,
+.group-story-drop-list {
+  padding: 8px;
+}
+
+.scenario-drop-list li,
+.group-story-drop-list li {
+  margin-bottom: 2px;
+}
 
 .drag-handle{
   cursor: move;
   color: var(--ocean-blue);
   display: inline-block;
   vertical-align: middle;
+}
+
+.story-drag-wrapper {
+  display: block;
+}
+
+.story-drag-wrapper .story-expansion-panel {
+  width: 100%;
 }
 
 .storyFilterWrapper {
@@ -284,14 +367,14 @@ a.storyListLink:hover{
   display: flex;
   align-self: center;
 }
-#eraseIcon{
+.eraseIcon{
   color: var(--brown-grey);
   vertical-align: middle;
   /* border-bottom: 1px solid var(--brown-grey); */
   position: relative;
   left: -19px;
 }
-#eraseIcon:hover{
+.eraseIcon:hover{
   cursor: pointer;
 }
 .searchInput{
@@ -324,6 +407,11 @@ a.storyListLink:hover{
   height: unset;
 }
 
+.groups-list-container {
+  height: calc(100% - 125px);
+  overflow: auto;
+}
+
 @media screen and (max-width: 600px) {
 .grid{
     display: grid;
@@ -332,18 +420,6 @@ a.storyListLink:hover{
     "storyList";
 }
 }
-.darkTheme .uk-accordion-title::before {
-  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMThweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMThweCIgZmlsbD0iI0ZGRkZGRiI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE5IDEzaC02djZoLTJ2LTZINXYtMmg2VjVoMnY2aDZ2MnoiLz48L3N2Zz4=);
-  width: 19px;
-  height: 19px;
-}
-
-.darkTheme .uk-open > .uk-accordion-title::before  {
-  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMThweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMThweCIgZmlsbD0iI0ZGRkZGRiI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE5IDEzSDV2LTJoMTR2MnoiLz48L3N2Zz4=);
-  width: 19px;
-  height: 19px;
-}
-
 .darkTheme ::-webkit-scrollbar-corner{
   background: none !important;
 }
@@ -363,6 +439,11 @@ a.storyListLink:hover{
 
 ::ng-deep .mat-mdc-tooltip {
   font-size: 13px  !important ;
+}
+
+fieldset[disabled] { /* For AI Review mode */
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 

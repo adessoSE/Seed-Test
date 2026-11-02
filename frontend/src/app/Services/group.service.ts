@@ -1,86 +1,112 @@
-import { EventEmitter, Injectable } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ToastrService } from 'ngx-toastr';
-import { Group } from '../model/Group';
 
+import { Group } from '@seed-test/shared/models/Group';
+import type { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { ActionTrigger } from './action-trigger';
+
+/** Payload for creating a custom group via the signal */
+interface CreateGroupPayload {
+	repositoryContainer: RepositoryContainer;
+	group: { title: string; member_stories: string[]; isSequential: boolean };
+}
+
+/** Payload for updating a group via the signal */
+interface UpdateGroupPayload {
+	repositoryContainer: RepositoryContainer;
+	group: Group;
+}
+
+/** Payload for deleting a group via the signal */
+interface DeleteGroupPayload {
+	repo_id: string;
+	group_id: string;
+}
+
+/** Test execution parameters for running groups */
+interface GroupExecutionParams {
+	repository: string;
+	source: string;
+}
+
+/** Parameters for running a temporary group */
+interface TempGroupParams {
+	id?: string | null;
+	repositoryId?: string | null;
+	repository: string | null;
+	source: string | null;
+	group: Record<string, unknown>;
+}
 
 /**
  * Service for communication between group component and the backend
  */
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root'
 })
 export class GroupService {
+	apiService = inject(ApiService);
+	private http = inject(HttpClient);
 
-  /**
-  * @ignore
-  */
-  constructor(public apiService: ApiService, private http: HttpClient, public toastr: ToastrService) { }
-  /**
-    * Event emitter to create a custom group
-  */
-  public createCustomGroupEmitter: EventEmitter<any> = new EventEmitter();
-  /**
-    * Event emitter to update a custom group
-  */
-  public updateGroupEmitter: EventEmitter<any> = new EventEmitter();
-  /**
-    * Event emitter to delete a custom group
-  */
-  public deleteGroupEmitter: EventEmitter<any> = new EventEmitter();
-  /**
-    * Emits the create group event
+	/** Action channel for create custom group — carries the group object */
+	readonly createCustomGroupTrigger = new ActionTrigger<CreateGroupPayload>();
+	/** Action channel for update group — carries the group object */
+	readonly updateGroupTrigger = new ActionTrigger<UpdateGroupPayload>();
+	/** Action channel for delete group — carries the values */
+	readonly deleteGroupTrigger = new ActionTrigger<DeleteGroupPayload>();
+	/**
+    * Emits the create group action
     * @param group
   */
-  createGroupEvent(group) {
-    this.createCustomGroupEmitter.emit(group);
-  }
-  /**
-   * Emits the create group event
+	createGroupEvent(group: CreateGroupPayload) {
+		this.createCustomGroupTrigger.emit(group);
+	}
+	/**
+   * Emits the update group action
    * @param group
   */
-  updateGroupEvent(group) {
-    this.updateGroupEmitter.emit(group);
-  }
-  /**
-    * Emits the delete scenario event
+	updateGroupEvent(group: UpdateGroupPayload) {
+		this.updateGroupTrigger.emit(group);
+	}
+	/**
+    * Emits the delete group action
   */
-  public deleteGroupEvent(values) {
-    this.deleteGroupEmitter.emit(values);
-  }
-  /**
+	public deleteGroupEvent(values: DeleteGroupPayload) {
+		this.deleteGroupTrigger.emit(values);
+	}
+	/**
     * Get groups
     * @param repoId
     * @returns
   */
-  getGroups(repoId: string): Observable<Group[]> {
-    return this.http
-      .get<Group[]>(this.apiService.apiServer + '/group/' + repoId, ApiService.getOptions());
-  }
-  /**
+	getGroups(repoId: string): Observable<Group[]> {
+		return this.http
+			.get<Group[]>(this.apiService.apiServer + '/group/' + repoId, ApiService.getOptions());
+	}
+	/**
     * Delete a group
     * @param repoId
     * @param groupId
     * @returns
   */
-  deleteGroup(repoId: string, groupId: string) {
-    return this.http
-      .delete(this.apiService.apiServer + '/group/' + repoId + '/' + groupId, ApiService.getOptions());
-  }
-  /**
+	deleteGroup(repoId: string, groupId: string) {
+		return this.http
+			.delete(this.apiService.apiServer + '/group/' + repoId + '/' + groupId, ApiService.getOptions());
+	}
+	/**
     * Update a group
     * @param repoId
     * @param groupId
     * @param updatedGroup
     * @returns
   */
-  updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> {
-    return this.http
-      .put(this.apiService.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions());
-  }
-  /**
+	updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<Group> {
+		return this.http
+			.put<Group>(this.apiService.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions());
+	}
+	/**
     * Create a group
     * @param title
     * @param repoId
@@ -88,60 +114,43 @@ export class GroupService {
     * @param isSequential
     * @returns
   */
-  createGroup(title: string, repoId: string, member_stories, isSequential): Observable<any> {
-    return this.http
-      .post(this.apiService.apiServer + '/group/' + repoId, { 'name': title, 'member_stories': member_stories, 'sequence': isSequential }, ApiService.getOptions());
-  }
-  updateGroupsArray(repoId: string, groupsArray) {
-    return this.http
-      .put(this.apiService.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions());
-  }
-  /**
-    * Checking the same name of the group
-    * @param buttonId
-    * @param input
-    * @param array
-    * @param group
-    * @returns
+	createGroup(title: string, repoId: string, member_stories: string[], isSequential: boolean): Observable<Group> {
+		return this.http
+			.post<Group>(this.apiService.apiServer + '/group/' + repoId, { 'name': title, 'member_stories': member_stories, 'sequence': isSequential }, ApiService.getOptions());
+	}
+	updateGroupsArray(repoId: string, groupsArray: Group[]) {
+		return this.http
+			.put(this.apiService.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions());
+	}
+	/**
+    * Whether another group already uses this name
+    * @param input name typed in the modal
+    * @param groups existing groups
+    * @param group group being edited; its own name does not count as taken
+    * @returns true when the name is non-empty and used by a different group
   */
-  public groupUnique(buttonId: string, input: string, array: Group[], group?: Group) {
-    array = array ? array : [];
-    input = input ? input : '';
-    const button = (document.getElementById(buttonId)) as HTMLButtonElement;
-    if ((input && !array.find(i => i.name === input)) || (group ? array.find(g => g._id == group._id && g.name == input) : false)) {
-      button.disabled = false;
-    }
-
-    else {
-      if (input.length == 0) {
-        button.disabled = true;
-        this.toastr.error('The field can not be empty');
-      }
-      else {
-        button.disabled = true;
-        this.toastr.error('This Group Title is already in use. Please choose another Title');
-      }
-    }
-  }
-  /**
+	isGroupNameTaken(input: string, groups: Group[], group?: Group): boolean {
+		return !!input && groups.some(g => g.name === input && (!group || g._id !== group._id));
+	}
+	/**
     * Running a group
     * @param repoID
     * @param groupID
     * @param params
     * @returns
   */
-  runGroup(repoID, groupID, params) {
-    const timeout = 6000000;
-    return this.http
-      .post(this.apiService.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
-  }
+	runGroup(repoID: string, groupID: string, params: GroupExecutionParams) {
+		const timeout = 6000000;
+		return this.http
+			.post(this.apiService.apiServer + '/execute/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+	}
 
-  /*
+	/*
   * Running a temporary group with precondition storys
   */
-  runTempGroup(params): Observable<any> { 
-    const timeout = 6000000;
-    return this.http
-      .post(this.apiService.apiServer + '/run/TempGroup', params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
-  }
+	runTempGroup(params: TempGroupParams): Observable<unknown> {
+		const timeout = 6000000;
+		return this.http
+			.post(this.apiService.apiServer + '/execute/TempGroup', params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+	}
 }

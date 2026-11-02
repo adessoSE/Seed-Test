@@ -1,4 +1,4 @@
-import { Inject, Injectable, InjectionToken } from '@angular/core';
+import { Injectable, InjectionToken, inject } from '@angular/core';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { timeout } from 'rxjs/operators';
@@ -14,19 +14,19 @@ export const DEFAULT_TIMEOUT = new InjectionToken<number>('defaultTimeout');
  */
 @Injectable()
 export class TimeoutInterceptor implements HttpInterceptor {
-  constructor(@Inject(DEFAULT_TIMEOUT) protected defaultTimeout: number) {
-  }
+	protected defaultTimeout = inject(DEFAULT_TIMEOUT);
 
-  /**
+
+	/**
    * Intercepts the request and makes the timeout to the specified time
    * @param req 
    * @param next 
    * @returns 
    */
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const timeoutValue = req.headers.get('timeout') || this.defaultTimeout;
-    const timeoutValueNumeric = Number(timeoutValue);
+	intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+		const timeoutValue = req.headers.get('timeout') || this.defaultTimeout;
+		const timeoutValueNumeric = Number(timeoutValue);
 
-    return next.handle(req).pipe(timeout(timeoutValueNumeric));
-  }
+		return next.handle(req).pipe(timeout(timeoutValueNumeric));
+	}
 }

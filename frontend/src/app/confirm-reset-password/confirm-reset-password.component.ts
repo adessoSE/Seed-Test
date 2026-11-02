@@ -1,104 +1,103 @@
-import { Component } from "@angular/core";
-import { NgForm } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { ThemingService } from "../Services/theming.service";
-import { LoginService } from "../Services/login.service";
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal, effect } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NgForm, FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ThemingService } from '../Services/theming.service';
+import { LoginService } from '../Services/login.service';
+import { ConfirmResetPasswordPopupComponent } from '../confirm-reset-password-popup/confirm-reset-password-popup.component';
 
 /**
  * Component to enable to reset the password
  */
 @Component({
-    selector: "app-confirm-reset-password",
-    templateUrl: "./confirm-reset-password.component.html",
-    styleUrls: ["./confirm-reset-password.component.css"],
-    standalone: false
+	selector: 'app-confirm-reset-password',
+	templateUrl: './confirm-reset-password.component.html',
+	styleUrls: ['./confirm-reset-password.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [ConfirmResetPasswordPopupComponent, FormsModule]
 })
-export class ConfirmResetPasswordComponent {
-  /**
+export class ConfirmResetPasswordComponent implements OnInit {
+	loginService = inject(LoginService);
+	private router = inject(Router);
+	private route = inject(ActivatedRoute);
+	private themeService = inject(ThemingService);
+
+	/**
    * Id of the reset password request
    */
-  uuid: string;
+	uuid!: string;
 
-  /**
+	/**
    * New Password of the user
    */
-  password: string;
+	password!: string;
 
-  /**
+	/**
    * Error during reset password
    */
-  error: boolean;
-  defaultErrorMessage = "Couldn't set password!";
-  /**
+	readonly error = signal(false);
+	defaultErrorMessage = "Couldn't set password!";
+	/**
    * Successfully sent email
    */
-  success: boolean;
-  defaultSuccessMessage = "Your Password Has Been Updated!";
+	readonly success = signal(false);
+	defaultSuccessMessage = 'Your Password Has Been Updated!';
 
-  /**
+	/**
    * The message to display
    */
-  message: string;
+	readonly message = signal('');
 
-  isDark: boolean;
-  /**
-   * Constructor
-   * @param loginService
-   * @param router
-   * @param route
-   */
-  constructor(
-    public loginService: LoginService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private themeService: ThemingService
-  ) {
-    this.route.queryParams.subscribe((params) => {
-      if (params.uuid) {
-        this.uuid = params.uuid;
-      }
-    });
-  }
+	isDark!: boolean;
+	/** Query params as a signal — extracts UUID for password reset */
+	private readonly queryParams = toSignal(this.route.queryParams);
 
-  ngOnInit(): void {
-    this.isDark = this.themeService.isDarkMode();
-  }
+	/** Extracts UUID from query params when available */
+	private readonly uuidEffect = effect(() => {
+		const params = this.queryParams();
+		if (params?.['uuid'])
+			this.uuid = params['uuid'];
+	});
 
-  /**
+	ngOnInit(): void {
+		this.isDark = this.themeService.isDarkMode();
+	}
+
+	/**
    * Confirm the reset and send new password
    * @param form form with the new password value
    */
-  confirmReset(form: NgForm) {
-    this.error = false;
-    this.success = false;
-    this.loginService.confirmReset(this.uuid, form.value.password).subscribe({
-      next: (value) => {
-        this.message = this.defaultSuccessMessage;
-        this.success = true;
-      },
-      error: (error) => {
-        this.message = this.defaultErrorMessage;
-        if (error.status === 401) {
-          this.message = "This Link Has Expired!";
-        }
-        this.error = true;
-      },
-    });
-  }
+	confirmReset(form: NgForm) {
+		this.error.set(false);
+		this.success.set(false);
+		this.loginService.confirmReset(this.uuid, form.value.password).subscribe({
+			next: (_value) => {
+				this.message.set(this.defaultSuccessMessage);
+				this.success.set(true);
+			},
+			error: (error) => {
+				this.message.set(this.defaultErrorMessage);
+				if (error.status === 401)
+					this.message.set('This Link Has Expired!');
 
-  /**
+				this.error.set(true);
+			}
+		});
+	}
+
+	/**
    * Redirects the user to the login component
    */
-  redirectToLogin() {
-    this.router.navigate(["/"]);
-  }
+	redirectToLogin() {
+		this.router.navigate(['/']);
+	}
 
-  redirectToReset() {
-    this.router.navigate(["/resetpassword"]);
-  }
+	redirectToReset() {
+		this.router.navigate(['/resetpassword']);
+	}
 
-  isDarkModeOn() {
-    this.isDark = this.themeService.isDarkMode();
-    return this.isDark;
-  }
+	isDarkModeOn() {
+		this.isDark = this.themeService.isDarkMode();
+		return this.isDark;
+	}
 }

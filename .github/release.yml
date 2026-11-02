@@ -1,0 +1,25 @@
+# Categories for GitHub's "Generate release notes" button.
+# A PR lands in the first category whose label it carries; "*" catches the rest.
+# Labels are not created here. Apply them to PRs. Dependabot adds "dependencies" to its PRs.
+# No author exclusions: that would drop Dependabot PRs from the Dependencies category.
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: Breaking Changes
+      labels:
+        - breaking-change
+    - title: Features
+      labels:
+        - feature
+        - enhancement
+    - title: Fixes
+      labels:
+        - bug
+    - title: Dependencies
+      labels:
+        - dependencies
+    - title: Other
+      labels:
+        - "*"

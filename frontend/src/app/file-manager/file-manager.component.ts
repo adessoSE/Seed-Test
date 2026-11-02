@@ -1,146 +1,167 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, computed, signal, linkedSignal, effect } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { ThemingService } from '../Services/theming.service';
 import { StoryService } from '../Services/story.service';
-import { Subscription } from 'rxjs/internal/Subscription';
-import { FileElement } from '../model/FileElement';
+import { FileElement } from '@seed-test/shared/models/FileElement';
 import { ProjectService } from '../Services/project.service';
-import { Observable } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { DatePipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-file-manager',
-    templateUrl: './file-manager.component.html',
-    styleUrl: './file-manager.component.css',
-    standalone: false
+	selector: 'app-file-manager',
+	templateUrl: './file-manager.component.html',
+	styleUrl: './file-manager.component.css',
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCheckbox, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe, MatIconModule]
 })
 
 export class FileManagerComponent implements OnInit {
+	private themeService = inject(ThemingService);
+	storyService = inject(StoryService);
+	fileService = inject(ProjectService);
 
 
-  isDark: boolean;
-  repoId: string;
-  allFiles: FileElement[] = [];
-  searchedFiles: FileElement[] = [];
-  searchText: string = '';
-  fileElements: Observable<FileElement[]>;
-  selection = new Set<any>();
-  isAllSelected: boolean = false;
+	readonly isDark = computed(() => this.themeService.isDark());
+	repoId!: string;
+	readonly refreshFilesTrigger = signal(0);
+	/**
+     * Direct signal dependency on service's fileElements — no BehaviorSubject bridge.
+     * Automatically syncs whenever the service signal changes (query, upload, delete).
+     */
+	readonly allFiles = linkedSignal(() => this.fileService.fileElements());
+	readonly searchedFiles = signal<FileElement[]>([]);
+	searchText: string = '';
+	selection = new Set<FileElement>();
+	isAllSelected: boolean = false;
 
-  themeObservable: Subscription;
-  /**
-    * @ignore
-    */
-  constructor(private themeService: ThemingService, public storyService: StoryService, public fileService: ProjectService) { }
+	/**
+     * Reactive file refresh effect — calls loadFiles when refreshFilesTrigger changes.
+     * Uses field initializer to stay within injection context.
+     */
+	constructor() {
+		effect(() => {
+			this.refreshFilesTrigger();
+			// loadFiles catches its own errors, so the ignored promise never rejects
+			void this.loadFiles();
+		});
+	}
 
 
-  /**
-   * @ignore
-   */
-  ngOnInit(): void {
-    this.isDark = this.themeService.isDarkMode();
-    this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
-      this.isDark = this.themeService.isDarkMode();
-    });
-    this.repoId = localStorage.getItem('id');
-    this.updateFileElementQuery(this.repoId);
-    this.fileElements.subscribe((files: FileElement[]) => {
-      this.allFiles = files;
-      this.searchFile();
-    });
+	ngOnInit(): void {
+		this.repoId = localStorage.getItem('id')!;
+		this.refreshFilesTrigger.update(n => n + 1);
+	}
 
-  }
+	/**
+     * Loads files from the backend and syncs with the service signal.
+     * The queryFiles() method already sets fileElements via tap(), so no duplicate set needed.
+     */
+	async loadFiles(): Promise<void> {
+		if (!this.repoId) return;
+		try {
+			// queryFiles already sets fileElements in its tap() handler
+			await firstValueFrom(this.fileService.queryFiles(this.repoId));
+		} catch (error) {
+			console.error('Failed to load files:', error);
+			this.fileService.fileElements.set([]);
+		}
+	}
 
-  goBackToStoryEditor(): void {
-    this.storyService.changeStoryViewEvent("storyView");
-  }
+	goBackToStoryEditor(): void {
+		this.storyService.changeStoryViewEvent('storyView');
+	}
 
-  /**
-   * Updates the file elements by querying the file service with the repository ID.
-   */
-  updateFileElementQuery(repoId): void {
-    this.fileElements = this.fileService.queryFiles(repoId);
-  }
-
-  /**
+	/**
    * Filters the files based on the search text.
    */
-  searchFile(): void {
-    if (this.searchText.trim() === '') {
-      this.searchedFiles = this.allFiles;
-    } else {
-      this.searchedFiles = this.allFiles.filter(file =>
-        file.filename.toLowerCase().includes(this.searchText.toLowerCase())
-      );
-    }
-  }
+	searchFile(): void {
+		if (this.searchText.trim() === '')
+			this.searchedFiles.set(this.allFiles());
+		else
+			this.searchedFiles.set(this.allFiles().filter(file =>
+				file.filename!.toLowerCase().includes(this.searchText.toLowerCase())
+			));
+    
+	}
 
-  /**
+	/**
    * all checkboxes are selected
    */
-  toggleAllSelection(event: Event): void {
-    this.selection.size === this.searchedFiles.length ? this.selection.clear() : this.searchedFiles.forEach(file => this.selection.add(file));
-    this.isAllSelected = !this.isAllSelected;
-  }
+	toggleAllSelection(_event: Event): void {
+		if (this.selection.size === this.searchedFiles().length)
+			this.selection.clear();
+		else
+			this.searchedFiles().forEach(file => this.selection.add(file));
+		
+		this.isAllSelected = !this.isAllSelected;
+	}
 
-  /**
-   * Deletes the selected files
+	/**
+   * Deletes the selected files and refreshes the file list.
    */
-  deleteFile(): void {
-    this.allFiles = this.allFiles.filter(file => !this.selection.has(file));
-    Array.from(this.selection).map(file => {
-      this.fileService.deleteUploadedFile(file._id).subscribe(() => {
-        this.updateFileElementQuery(this.repoId);
-      });
-    });
-    this.selection.clear();
-    this.isAllSelected = false;
-  }
+	async deleteFile(): Promise<void> {
+		const filesToDelete = Array.from(this.selection);
+		await Promise.all(
+			filesToDelete.map(file =>
+				firstValueFrom(this.fileService.deleteUploadedFile(this.repoId, file._id!))
+			)
+		);
+		this.selection.clear();
+		this.isAllSelected = false;
+		this.refreshFilesTrigger.update(n => n + 1);
+	}
 
-  /**
+	/**
    * Set checkbox to selected file
    * @param element
    */
-  selectedRow(element) {
-    this.selection.has(element) ? this.selection.delete(element) : this.selection.add(element);
-    this.isAllSelected = this.selection.size === this.searchedFiles.length;
-  }
+	selectedRow(element: FileElement) {
+		if (this.selection.has(element)) 
+			this.selection.delete(element);
+		else 
+			this.selection.add(element);
+		
+		this.isAllSelected = this.selection.size === this.searchedFiles().length;
+	}
 
-  /**
-   * Uploads a selected file
+	/**
+   * Uploads a selected file and refreshes the file list.
    * @param event
    */
-  selectUploadFile(event: any): void {
-    const file: File = event.target.files.item(0);
-    this.fileService.uploadFile(this.repoId, file)
-      .subscribe((res: FileElement) => {
-        this.updateFileElementQuery(this.repoId);
-      });
-  }
+	async selectUploadFile(event: Event): Promise<void> {
+		const file: File = (event.target as HTMLInputElement).files!.item(0)!;
+		await firstValueFrom(this.fileService.uploadFile(this.repoId, file));
+		this.refreshFilesTrigger.update(n => n + 1);
+	}
 
-  /**
+	/**
    * Converts an ArrayBuffer to a Base64 string
    * @param buffer
    */
-  arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const binary = new Uint8Array(buffer);
-    let base64 = '';
-    for (const byte of binary) {
-      base64 += String.fromCharCode(byte);
-    }
-    return window.btoa(base64);
-  }
+	arrayBufferToBase64(buffer: ArrayBuffer): string {
+		const binary = new Uint8Array(buffer);
+		let base64 = '';
+		for (const byte of binary) 
+			base64 += String.fromCharCode(byte);
+    
+		return window.btoa(base64);
+	}
 
-  /**
+	/**
    * Checks if a file is selected and highlights it
    * @param file
    */
-  isFileSelected(file: FileElement): boolean {
-    return this.selection.has(file);
-  }
+	isFileSelected(file: FileElement): boolean {
+		return this.selection.has(file);
+	}
 
-   /**
+	/**
    * To pass the sonarCloud check?
    */
-  onKeyDown(event: KeyboardEvent, row: FileElement): void {
-    console.log('KeyDown event');
-  }
+	onKeyDown(_event: KeyboardEvent, _row: FileElement): void {
+		// Intentionally empty: the row template binds (keydown) here, so the handler stays until the bindings change
+	}
 }

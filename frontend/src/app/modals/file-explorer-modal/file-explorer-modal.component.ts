@@ -1,103 +1,117 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
-import { FileElement } from '../../model/FileElement';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed, signal, TemplateRef } from '@angular/core';
+import { Observable, firstValueFrom } from 'rxjs';
+import { FileElement } from '@seed-test/shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ThemingService } from '../../Services/theming.service';
+import { NotificationService } from '../../Services/notification.service';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
+import { FormsModule } from '@angular/forms';
+import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
+import { DatePipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-file-explorer-modal',
-    templateUrl: './file-explorer-modal.component.html',
-    styleUrls: ['./file-explorer-modal.component.css'],
-    standalone: false
+	selector: 'app-file-explorer-modal',
+	templateUrl: './file-explorer-modal.component.html',
+	styleUrls: ['./file-explorer-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe, MatIconModule]
 })
 export class FileExplorerModalComponent implements OnInit {
-  public fileElements: Observable<FileElement[]>;
-  modalReference: NgbModalRef;
-  repoId: string;
-  fileExlorerEmpty: boolean;
-  allFiles: FileElement[]=[];
-  searchedFiles: FileElement[] = [];
-  selectedFile: FileElement| null = null;
-  searchText: string = '';
-  isDark: boolean;
-  themeObservable: Subscription;
+	private modalService = inject(MatDialog);
+	fileService = inject(ProjectService);
+	themeService = inject(ThemingService);
+	notify = inject(NotificationService);
 
-  @ViewChild ('fileExplorerModal') fileExplorerModal: FileExplorerModalComponent;
+	public fileElements!: Observable<FileElement[]>;
+	modalReference!: MatDialogRef<unknown>;
+	repoId!: string;
+	fileExlorerEmpty!: boolean;
+	readonly allFiles = signal<FileElement[]>([]);
+	readonly searchedFiles = signal<FileElement[]>([]);
+	selectedFile: FileElement | null = null;
+	searchText: string = '';
+	readonly isDark = computed(() => this.themeService.isDark());
 
-  constructor(private modalService: NgbModal, public fileService: ProjectService, public themeService: ThemingService) {}
+	readonly fileExplorerModal = viewChild.required<TemplateRef<unknown>>('fileExplorerModal');
 
-  ngOnInit() {
-    this.repoId = localStorage.getItem('id'); // set before updateFileElementQuery
-    this.isDark = this.themeService.isDarkMode();
-    this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
-        this.isDark = this.themeService.isDarkMode();
-    });
-    this.updateFileElementQuery();
-    this.fileElements.subscribe((file: FileElement[])=> {
-      this.allFiles = file;
-      this.searchFile(); 
-    })
-  }
+	ngOnInit() {
+		this.repoId = localStorage.getItem('id')!; // set before updateFileElementQuery
+		this.updateFileElementQuery();
+		this.fileElements.subscribe({
+			next: (file: FileElement[]) => {
+				this.allFiles.set(file);
+				this.searchFile();
+			},
+			error: () => this.notify.error('Could not load files')
+		});
+	}
 
-  openFileExplorerModal() {
-    this.modalReference = this.modalService.open(this.fileExplorerModal);
-    this.fileExlorerEmpty = this.allFiles.length > 0 ? false : true;
-    return this.modalReference.result.catch((reason)=> console.log('UploadFileModal dismissed: ', reason))
-  }
+	openFileExplorerModal() {
+		this.modalReference = this.modalService.open(this.fileExplorerModal(), MODAL_CONFIG);
+		this.fileExlorerEmpty = this.allFiles().length > 0 ? false : true;
+		// afterClosed() emits undefined when the modal is dismissed, which callers treat as "no file selected"
+		return firstValueFrom(this.modalReference.afterClosed());
+	}
 
-  updateFileElementQuery() {
-    this.fileElements = this.fileService.queryFiles(this.repoId);
-  }
+	updateFileElementQuery() {
+		this.fileElements = this.fileService.queryFiles(this.repoId);
+	}
 
-  arrayBufferToBase64(buffer) {
-    const binary = new Uint8Array(buffer);
-    let base64 = '';
-    for (let i = 0; i < binary.length; i++) {
-        base64 += String.fromCharCode(binary[i]);
-    }
-    return window.btoa(base64);
-  }
+	arrayBufferToBase64(buffer: ArrayBuffer) {
+		const binary = new Uint8Array(buffer);
+		let base64 = '';
+		for (let i = 0; i < binary.length; i++) 
+			base64 += String.fromCharCode(binary[i]);
+    
+		return window.btoa(base64);
+	}
 
-  selectUploadFile(event: any) {
-    const file: File = event.target.files.item(0);
-    this.fileService.uploadFile(this.repoId, file)
-        .subscribe((res: FileElement) => {
-          this.updateFileElementQuery();
-          delete this.selectedFile;
-        });
-  }
+	selectUploadFile(event: Event) {
+		const file: File = (event.target as HTMLInputElement).files!.item(0)!;
+		this.fileService.uploadFile(this.repoId, file)
+			.subscribe({
+				next: (_res: FileElement) => {
+					this.updateFileElementQuery();
+					this.selectedFile = null;
+				},
+				error: () => this.notify.error('Could not upload file')
+			});
+	}
 
-  selected(event: MouseEvent, element: FileElement) {
-    this.selectedFile = element;
-  }
+	selected(event: MouseEvent, element: FileElement) {
+		this.selectedFile = element;
+	}
 
-  searchFile() {
-    if (this.searchText.trim() === '') {
-      this.searchedFiles = this.allFiles;
-    } else {
-      this.searchedFiles = this.allFiles.filter(file => 
-        file.filename.toLowerCase().includes(this.searchText.toLowerCase())
-      );
-    }
-  }
+	searchFile() {
+		if (this.searchText.trim() === '')
+			this.searchedFiles.set(this.allFiles());
+		else
+			this.searchedFiles.set(this.allFiles().filter(file =>
+				file.filename!.toLowerCase().includes(this.searchText.toLowerCase())
+			));
+    
+	}
 
-  deleteFile() {
-    console.log("delete: ", this.selectedFile)
-    this.fileService.deleteUploadedFile(this.selectedFile._id).subscribe(()=>{
-      this.updateFileElementQuery();
-    });
-    this.updateFileElementQuery();
-    delete this.selectedFile;
-  }
+	deleteFile() {
+		this.fileService.deleteUploadedFile(this.repoId, this.selectedFile!._id!).subscribe({
+			next: () => {
+				this.updateFileElementQuery();
+			},
+			error: () => this.notify.error('Could not delete file')
+		});
+		this.updateFileElementQuery();
+		this.selectedFile = null;
+	}
 
-  submitUploadFile() {
-    this.modalReference.close(this.selectedFile);
-    delete this.selectedFile;
-  }
+	submitUploadFile() {
+		this.modalReference.close(this.selectedFile);
+		this.selectedFile = null;
+	}
 
-  closeModal(){
-    delete this.selectedFile;
-    this.modalReference.close();
-  }
+	closeModal(){
+		this.selectedFile = null;
+		this.modalReference.close();
+	}
 }

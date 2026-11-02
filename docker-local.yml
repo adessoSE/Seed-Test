@@ -1,0 +1,78 @@
+services:
+  db:
+    image: mongo:latest
+    container_name: "Seed-db"
+    restart: on-failure
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?set MONGO_ROOT_USERNAME in .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}
+    ports:
+      - "27017:27017"
+    # Single-node replica set rs0 for MongoDB transactions; same setup as docker-compose.yml (keyFile generated per start).
+    entrypoint:
+      - bash
+      - -c
+      - >-
+        rm -f /tmp/mongo-keyfile && openssl rand -base64 756 > /tmp/mongo-keyfile && chmod 400 /tmp/mongo-keyfile && chown mongodb:mongodb /tmp/mongo-keyfile &&
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /tmp/mongo-keyfile --bind_ip_all
+    # Initiates rs0 once and is healthy only when this node is the writable primary.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet -u "$${MONGO_INITDB_ROOT_USERNAME}" -p "$${MONGO_INITDB_ROOT_PASSWORD}" --eval
+          "try { rs.status() } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'db:27017' }] }) }
+          quit(db.hello().isWritablePrimary ? 0 : 1)"
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8080:8080"
+    container_name: "Seed-backend"
+    restart: on-failure
+    environment:
+      # replicaSet=rs0 enables transactions; the member host db resolves only inside the compose network
+      # Credentials come from the root .env; the password must use URL-safe characters (no @ : / ? # %).
+      DATABASE_URI: mongodb://${MONGO_ROOT_USERNAME:?set MONGO_ROOT_USERNAME in .env}:${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in .env}@db:27017/?replicaSet=rs0
+      # Read from the root .env like ENCRYPTION_SECRET; compose refuses to start without them.
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      JIRA_SECRET: ${JIRA_SECRET:?set JIRA_SECRET in .env}
+      JIRA_SALT: ${JIRA_SALT:?set JIRA_SALT in .env}
+      FRONTEND_URL: http://localhost:4200
+      # The image runs with NODE_ENV=production (Secure cookie); this setup serves plain HTTP, where a Secure cookie is never set.
+      COOKIE_SECURE: "false"
+      # No reverse proxy in front: trusting X-Forwarded-For would let clients bypass rate limits.
+      TRUST_PROXY: "false"
+      PORT: 8080
+      ENCRYPTION_SECRET: ${ENCRYPTION_SECRET:?set ENCRYPTION_SECRET in .env}
+      PASSPORT_GITHUB_LOCAL_PW_FIELD: id
+      MAX_SAVED_REPORTS: 3
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "4200:4200"
+    container_name: "Seed-frontend"
+    restart: on-failure
+    environment:
+      API_SERVER: http://localhost:8080/api
+    depends_on:
+      backend:
+        condition: service_healthy

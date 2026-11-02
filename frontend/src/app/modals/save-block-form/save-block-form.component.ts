@@ -1,109 +1,124 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
-import { Block } from 'src/app/model/Block';
-import { StepType } from 'src/app/model/StepType';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked, input, TemplateRef } from '@angular/core';
+import { NgForm, FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { NotificationService } from 'src/app/Services/notification.service';
+import { Block } from '@seed-test/shared/models/Block';
+import { StepType } from '@seed-test/shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
+import { firstValueFrom } from 'rxjs';
 import { BackgroundService } from '../../Services/background.service';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
+import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
+
 
 @Component({
-    selector: 'app-save-block-form',
-    templateUrl: './save-block-form.component.html',
-    styleUrls: ['./save-block-form.component.css'],
-    standalone: false
+	selector: 'app-save-block-form',
+	templateUrl: './save-block-form.component.html',
+	styleUrls: ['./save-block-form.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatIconModule]
 })
-export class SaveBlockFormComponent implements OnInit, OnDestroy {
+export class SaveBlockFormComponent implements OnInit {
+	private modalService = inject(MatDialog);
+	private notify = inject(NotificationService);
+	blockService = inject(BlockService);
+	backgroundService = inject(BackgroundService);
 
-  @ViewChild('saveBlockFormModal') saveBlockFormModal: SaveBlockFormComponent;
-  selectedTemplate: string;
-  /**
+
+	readonly saveBlockFormModal = viewChild.required<TemplateRef<unknown>>('saveBlockFormModal');
+	selectedTemplate!: string;
+	/**
     * Sets a new selected story
     */
-  @Input()
-  set templateName(name) {
-    this.selectedTemplate = name;
-  }
-  /**
+	readonly templateName = input<string>();
+
+	/** Syncs selectedTemplate when templateName input changes */
+	private templateNameEffect = effect(() => {
+		const name = this.templateName();
+		if (name === undefined) return;
+		untracked(() => { this.selectedTemplate = name; });
+	});
+	/**
      * Block to be saved
      */
-  block: Block;
+	block!: Block;
 
-   /**
+	/**
     * Columns of the save block table
     */
-  displayedColumnsSaveBlock: string[] = ['stepType', 'pre'];
-  /**
+	displayedColumnsSaveBlock: string[] = ['stepType', 'pre'];
+	/**
     * Columns of the second save block table
     */
-  displayedColumnsSaveBlockExample: string[];
+	displayedColumnsSaveBlockExample!: string[];
 
-   /**
+	/**
     * List with the steps to be saved to the block
     */
-  stepListSaveBlock = [];
-  /**
+	stepListSaveBlock: StepType[] = [];
+	/**
     * List with the multiple scenarios to be saved to the block
     */
-  stepListSaveBlockExample = [];
+	stepListSaveBlockExample: StepType[] = [];
 
-   /**
+	/**
     * If the block is an example
     */
-  exampleBlock = false;
+	exampleBlock = false;
 
-   /**
+	/**
     * If an example is checked
     */
-  exampleChecked = false;
+	exampleChecked = false;
 
-   /**
+	/**
     * All Steps
     */
-  stepListComplete = [];
+	stepListComplete: StepType[] = [];
 
-   /**
+	/**
     * Parent component
     */
-  parentComponent;
-  
-  /**
+	parentComponent!: { checkAllSteps: (checked: boolean) => void };
+
+	/**
     * Boolean, whether steps should be convert to a reference
     */
-  saveAsSingleSteps: boolean;
+	saveAsSingleSteps: boolean | undefined;
 
-  modalReference: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
-  blocks: Block[];
+	readonly blocks = signal<Block[]>([]);
 
-  updateObservable: Subscription;
+	/** Reloads blocks whenever updateBlocksTrigger fires */
+	private updateBlocksEffect = effect(() => {
+		const trigger = this.blockService.updateBlocksTrigger();
+		if (trigger === 0) return;
+		untracked(() => this.reloadBlocks());
+	});
 
-  isBackground: boolean;
-  backgroundName: string;
+	/** Fetches blocks from the backend and updates the local signal */
+	private async reloadBlocks() {
+		const id = localStorage.getItem('id');
+		if (!id) return;
+		const resp = await firstValueFrom(this.blockService.getBlocks(id));
+		this.blocks.set(resp);
+	}
 
+	isBackground!: boolean;
+	backgroundName!: string;
 
-  constructor(private modalService: NgbModal, private toastr: ToastrService, public blockService: BlockService, public backgroundService: BackgroundService) {}
+	ngOnInit() {
+		const id = localStorage.getItem('id');
+		if (!id) return;
+		this.blockService.getBlocks(id).subscribe({
+			next: (resp) => this.blocks.set(resp),
+			error: () => this.notify.error('Could not load blocks')
+		});
+	}
 
-  ngOnInit() {
-    const id = localStorage.getItem('id');
-    this.blockService.getBlocks(id).subscribe((resp) => {
-      this.blocks = resp;
-    });
-    this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
-      this.blockService.getBlocks(id).subscribe((resp) => {
-        this.blocks = resp;
-      });
-    });
-  }
-
-  ngOnDestroy() {
-    if (!this.updateObservable.closed) {
-      this.updateObservable.unsubscribe();
-    }
-  }
-
-  /**
+	/**
      * Opens save block form modal
      * @param block
      * @param comp
@@ -111,175 +126,178 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
      * @param backgroundName
      * @param stories
      */
-  openSaveBlockFormModal(block: Block, comp, isBackground?: boolean, backgroundName?) {
-    if (this.selectedTemplate === 'background'){
-      this.checkSaveAsSingleSteps();
-    }
-    this.exampleBlock = false;
-    this.exampleChecked = false;
-    this.block = block;
-    this.parentComponent = comp;
-    this.backgroundName = backgroundName;
-    this.isBackground = isBackground;
-    if (block.multipleScenarios && block.multipleScenarios.length > 0) {
-      this.exampleBlock = true;
-    }
-    this.createStepList();
-    this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
-    if(isBackground && isBackground !== undefined){
-      document.getElementById('modalHeader').innerHTML = 'Save Background';
-      document.getElementById('infoSpan').innerHTML = 'You have replaced the current story background. To save this background in your project, click Submit. If you don`t want to use it anymore and want to delete the current background, click Discard Background.';
-      document.getElementById('multipleScenarioDiv').style.display = 'none';
-    }
-  }
+	openSaveBlockFormModal(block: Block, comp: { checkAllSteps: (checked: boolean) => void }, isBackground?: boolean, backgroundName?: string) {
+		if (this.selectedTemplate === 'background')
+			this.checkSaveAsSingleSteps();
+    
+		this.exampleBlock = false;
+		this.exampleChecked = false;
+		this.block = block;
+		this.parentComponent = comp;
+		this.backgroundName = backgroundName ?? '';
+		this.isBackground = isBackground ?? false;
+		if (block.multipleScenarios && block.multipleScenarios.length > 0) 
+			this.exampleBlock = true;
+    
+		this.createStepList();
+		this.modalReference = this.modalService.open(this.saveBlockFormModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
+		if (isBackground && isBackground !== undefined){
+			document.getElementById('modalHeader')!.innerHTML = 'Save Background';
+			document.getElementById('infoSpan')!.innerHTML = 'You have replaced the current story background. To save this background in your project, click Submit. If you don`t want to use it anymore and want to delete the current background, click Discard Background.';
+			(document.getElementById('multipleScenarioDiv') as HTMLElement).style.display = 'none';
+		}
+	}
 
-/**
+	/**
  * Creates a new step list
  */
-  createStepList() {
-    this.stepListSaveBlock = [];
-    this.stepListSaveBlockExample = [];
-    this.displayedColumnsSaveBlockExample = [];
-    let toastrShown = false;
-    Object.keys(this.block.stepDefinitions).forEach((key, _) => {
-        this.block.stepDefinitions[key].forEach((step: StepType) => {
-          if(step.stepType !== undefined){
-            if(step._blockReferenceId && !toastrShown){
-              this.toastr.info("Please Note: To avoid complexity issues embedded blocks aren't allowed to be saved in another blocks ","You've selected at least one reference block to save in another block.", {
-                timeOut: 8000,
-                extendedTimeOut: 3000
-              });
-              toastrShown = true;
-            }else if(!step._blockReferenceId){
-              this.stepListSaveBlock.push(step);
-            }
-          } else {
-            this.stepListSaveBlockExample.push(step);
-          }
+	createStepList() {
+		this.stepListSaveBlock = [];
+		this.stepListSaveBlockExample = [];
+		this.displayedColumnsSaveBlockExample = [];
+		let toastrShown = false;
+		Object.keys(this.block.stepDefinitions).forEach((key, _) => {
+			(this.block.stepDefinitions as unknown as Record<string, StepType[]>)[key].forEach((step: StepType) => {
+				if (step.stepType !== undefined){
+					if (step._blockReferenceId && !toastrShown){
+						this.notify.info("Please Note: To avoid complexity issues embedded blocks aren't allowed to be saved in another blocks ","You've selected at least one reference block to save in another block.", {
+							timeOut: 8000
+						});
+						toastrShown = true;
+					} else if (!step._blockReferenceId)
+						this.stepListSaveBlock.push(step);
+            
+				} else 
+					this.stepListSaveBlockExample.push(step);
           
-        });
-    });
-    if(this.stepListSaveBlockExample.length > 0) {
-      const valueLength = this.stepListSaveBlockExample[0].values.length
-      this.displayedColumnsSaveBlockExample.push('stepType')
-      for (let index = 0; index < valueLength; index++) {
-        this.displayedColumnsSaveBlockExample.push(index.toString())
-      }
-    }
-  }
+          
+			});
+		});
+		if (this.stepListSaveBlockExample.length > 0) {
+			const valueLength = this.stepListSaveBlockExample[0].values.length;
+			this.displayedColumnsSaveBlockExample.push('stepType');
+			for (let index = 0; index < valueLength; index++) 
+				this.displayedColumnsSaveBlockExample.push(index.toString());
+      
+		}
+	}
 
-/**
+	/**
  * Checks if an example is contained in the step list
  * 
  */
-  exampleCheck() {
-    this.exampleChecked = !this.exampleChecked;
-    if (this.exampleChecked) {
-        this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock));
-        this.stepListSaveBlock = this.stepListSaveBlock.filter(step => {
-            return step.stepType.toString() === 'example';
-        });
-    } else {
-        this.stepListSaveBlock = JSON.parse(JSON.stringify(this.stepListComplete));
-    }
-  }
+	exampleCheck() {
+		this.exampleChecked = !this.exampleChecked;
+		if (this.exampleChecked) {
+			this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock));
+			this.stepListSaveBlock = this.stepListSaveBlock.filter(step => {
+				return step.stepType.toString() === 'example';
+			});
+		} else 
+			this.stepListSaveBlock = JSON.parse(JSON.stringify(this.stepListComplete));
+    
+	}
 
-/**
+	/**
  * Submits and saves a block
  */
-  submitSaveBlock(form: NgForm) {
-    let title = form.value.blockNameInput;
-    this.parentComponent.checkAllSteps(false);
-    if (this.blockBeforeSubmit(title)) {
-      this.block.name = title;
-      this.block.repository = localStorage.getItem('repository');
-      this.block.source = localStorage.getItem('source');
-      this.block.repositoryId = localStorage.getItem('id');
-      this.filterResavedReferences(this.block);
-      this.blockService.saveBlock(this.block).subscribe((resp) => {
-        console.log(resp);
-        if(!this.saveAsSingleSteps){
-          this.block._id = resp.insertedId;
-          this.blockService.convertToReferenceEmitter(this.block);
-          this.saveAsSingleSteps = (!this.saveAsSingleSteps);
-        }
-        this.updateBlocksEventEmitter();
-        delete this.saveAsSingleSteps;
-        this.toastr.success('successfully saved', 'Block');
-      });
-      this.modalReference.close();
-    }
-  }
+	submitSaveBlock(form: NgForm) {
+		const title = form.value.blockNameInput;
+		this.parentComponent.checkAllSteps(false);
+		if (this.blockBeforeSubmit(title)) {
+			this.block.name = title;
+			this.block.repository = localStorage.getItem('repository') ?? undefined;
+			this.block.source = localStorage.getItem('source') ?? undefined;
+			this.block.repositoryId = localStorage.getItem('id') ?? undefined;
+			this.filterResavedReferences(this.block);
+			this.blockService.saveBlock(this.block).subscribe({
+				next: (resp) => {
+					if (!this.saveAsSingleSteps){
+						// Backend's insert response returns { insertedId }, not a full Block — block.service's
+						// return type doesn't reflect this, so we cast locally rather than weaken it to `any`
+						this.block._id = (resp as unknown as { insertedId: string }).insertedId;
+						this.blockService.convertToReferenceEmitter(this.block);
+						this.saveAsSingleSteps = (!this.saveAsSingleSteps);
+					}
+					this.updateBlocksEventEmitter();
+					this.saveAsSingleSteps = undefined;
+					this.notify.success('successfully saved', 'Block');
+				},
+				error: () => this.notify.error('Could not save block')
+			});
+			this.modalReference.close();
+		}
+	}
 
-  /**
+	/**
    * Prevents reference blocks from being saved repeatedly
    */
-  filterResavedReferences(block: Block): Block {
-    for (let stepType in this.block.stepDefinitions) {
-      this.block.stepDefinitions[stepType] = this.block.stepDefinitions[stepType].filter(
-        (step) => !step._blockReferenceId
-      );
-    }
-    return this.block; // Assuming you want to return the modified block
-  }
+	filterResavedReferences(_block: Block): Block {
+		for (const stepType in this.block.stepDefinitions)
+			(this.block.stepDefinitions as unknown as Record<string, StepType[]>)[stepType] = (this.block.stepDefinitions as unknown as Record<string, StepType[]>)[stepType].filter(
+				(step: StepType) => !step._blockReferenceId
+			);
+    
+		return this.block; // Assuming you want to return the modified block
+	}
 
-  /**
+	/**
    * Performing checks in block before saving
    *  @param title
    *  @returns
    */
-  blockBeforeSubmit(title){
-    //title validation
-    let blockValid = true;
-    if (this.isBackground && this.isBackground !== undefined){
-      title = this.backgroundName;
-    }
-    if (title.trim() === '') {
-      title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
-    }
-    if (this.isTitleEqual(title)) {
-      this.toastr.warning('', 'This name exists already. Enter unique name.', {});
-      blockValid = false;
-      return blockValid;
-    }
-    //saving block if contain examples
-    if(this.exampleChecked){
-      this.block.stepDefinitions = {given: [], when: [], then: []}
-      this.block.multipleScenarios = this.stepListSaveBlockExample;
-    }
-    //saving block central as a background(won't be displayed when adding a block, only in the list of backgrounds)
-    if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){
-      this.block.isBackground = true;
-    }
-    return blockValid;
-  }
+	blockBeforeSubmit(title: string){
+		//title validation
+		let blockValid = true;
+		if (this.isBackground && this.isBackground !== undefined)
+			title = this.backgroundName;
+    
+		if (title.trim() === '') 
+			title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
+    
+		if (this.isTitleEqual(title)) {
+			this.notify.warning('', 'This name exists already. Enter unique name.');
+			blockValid = false;
+			return blockValid;
+		}
+		//saving block if contain examples
+		if (this.exampleChecked){
+			this.block.stepDefinitions = {given: [], when: [], then: []}; // NOSONAR typescript:S7739 Gherkin step key, not a thenable
+			this.block.multipleScenarios = this.stepListSaveBlockExample;
+		}
+		//saving block central as a background(won't be displayed when adding a block, only in the list of backgrounds)
+		if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined)
+			this.block.isBackground = true;
+    
+		return blockValid;
+	}
 
-  /**
+	/**
    * If title already used
    * @param value
    */
-  isTitleEqual(value): boolean {
-    let bool = false;
-    this.blocks.forEach(block => {
-      if (value === block.name && block.isBackground == this.block.isBackground) { bool = true; }
-    });
-    return bool;
-  }
+	isTitleEqual(value: string): boolean {
+		let bool = false;
+		this.blocks().forEach(block => {
+			if (value === block.name && block.isBackground == this.block.isBackground)  bool = true; 
+		});
+		return bool;
+	}
 
-  checkSaveAsSingleSteps() {
-    this.saveAsSingleSteps = (!this.saveAsSingleSteps);
-  }
+	checkSaveAsSingleSteps() {
+		this.saveAsSingleSteps = (!this.saveAsSingleSteps);
+	}
 
-  updateBlocksEventEmitter() {
-    this.blockService.updateBlocksEvent.emit();
-  }
+	updateBlocksEventEmitter() {
+		this.blockService.updateBlocksEmitter();
+	}
 
-  onSubmit(form: NgForm) {
-    this.submitSaveBlock(form);
-  }
+	onSubmit(form: NgForm) {
+		this.submitSaveBlock(form);
+	}
 
-  closeModal(){
-    delete this.saveAsSingleSteps;
-    this.modalReference.close();
-  }
+	closeModal(){
+		this.saveAsSingleSteps = undefined;
+		this.modalReference.close();
+	}
 }

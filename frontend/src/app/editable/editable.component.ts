@@ -1,94 +1,68 @@
-import { Component, ContentChild, ElementRef, EventEmitter,
-   Output, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ChangeDetectionStrategy, inject, output, contentChild, signal } from '@angular/core';
 import { ViewModeDirective } from '../directives/view-mode.directive';
 import { EditModeDirective } from '../directives/edit-mode.directive';
-import { fromEvent, Subject } from 'rxjs';
-import { filter, take, switchMapTo } from 'rxjs/operators';
-import { untilDestroyed } from '@ngneat/until-destroy';
+import { NgTemplateOutlet } from '@angular/common';
 
 /**
- * Component to enable editable cells in the example table
+ * Component to enable editable cells in the example table.
+ * Switches between view and edit mode via double-click / click-outside.
  */
 @Component({
-    selector: 'editable',
-    templateUrl: './editable.component.html',
-    styleUrls: ['./editable.component.css'],
-    standalone: false
+	selector: 'editable',
+	templateUrl: './editable.component.html',
+	styleUrls: ['./editable.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet],
+	host: {
+		'(dblclick)': 'onDblClick()',
+		'(document:click)': 'onDocumentClick($event)'
+	}
 })
 
-export class EditableComponent implements OnInit, OnDestroy {
-  @ContentChild(ViewModeDirective) viewModeTpl: ViewModeDirective;
-  @ContentChild(EditModeDirective) editModeTpl: EditModeDirective;
-  @Output() update = new EventEmitter();
+export class EditableComponent {
+	private elementRef = inject(ElementRef);
 
-  editMode = new Subject();
-  editMode$ = this.editMode.asObservable();
+	readonly viewModeTpl = contentChild.required(ViewModeDirective);
+	readonly editModeTpl = contentChild.required(EditModeDirective);
+	readonly update = output();
 
-  mode: 'view' | 'edit' = 'view';
+	/** Current editing mode — 'view' shows read-only, 'edit' shows input */
+	readonly mode = signal<'view' | 'edit'>('view');
 
-  /**
-   * @ignore
-   */
-  constructor(private host: ElementRef) {}
+	/**
+	 * Switches to edit mode on double-click
+	 */
+	onDblClick() {
+		this.mode.set('edit');
+	}
 
-  /**
-   * handles the edit and view mode on init
-   */
-  ngOnInit() {
-    this.viewModeHandler();
-    this.editModeHandler();
-  }
+	/**
+	 * Returns to view mode when clicking outside the component while editing
+	 */
+	onDocumentClick(event: MouseEvent) {
+		if (this.mode() === 'edit' && !this.element.contains(event.target as Node))
+			this.toViewMode();
+	}
 
-  /**
-   * @ignore
-   */
-  ngOnDestroy() {}
+	/**
+	 * Changes to the view mode
+	 */
+	toViewMode() {
+		this.update.emit();
+		this.mode.set('view');
+	}
 
-  /**
-   * Changes to the view mode
-   */
-  toViewMode() {
-    this.update.emit();
-    this.mode = 'view';
-  }
+	/**
+	 * Gets the native element
+	 */
+	private get element() {
+		return this.elementRef.nativeElement;
+	}
 
-  /**
-   * Gets the native element
-   */
-  private get element() {
-    return this.host.nativeElement;
-  }
-
-  /**
-   * handles the view mode
-   */
-  private viewModeHandler() {
-    fromEvent(this.element, 'dblclick').pipe(
-      untilDestroyed(this)
-    ).subscribe(() => {
-      this.mode = 'edit';
-      this.editMode.next(true);
-    });
-  }
-
-  /**
-   * Handles the edit mode
-   */
-  private editModeHandler() {
-    const clickOutside$ = fromEvent(document, 'click').pipe(
-      filter(({ target }) => this.element.contains(target) === false),
-      take(1)
-    );
-    this.editMode$.pipe(
-      switchMapTo(clickOutside$),
-      untilDestroyed(this)
-    ).subscribe(event => this.toViewMode());
-  }
-
-  /**
-   * Gets the current mode
-   */
-  get currentView() {
-    return this.mode === 'view' ? this.viewModeTpl.tpl : this.editModeTpl.tpl;
-  }
+	/**
+	 * Gets the current mode
+	 */
+	get currentView() {
+		return this.mode() === 'view' ? this.viewModeTpl().tpl : this.editModeTpl().tpl;
+	}
 }

@@ -1,33 +1,39 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ToastrModule} from 'ngx-toastr';
-import { HttpClient } from '@angular/common/http';
-import { ApiService } from './api.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ScenarioService } from './scenario.service';
+import { onActionTrigger } from './action-trigger';
 
 describe('ScenarioService', () => {
-  let service: ScenarioService;
-  let httpMock: HttpTestingController;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			imports: [HttpClientTestingModule, MatSnackBarModule]
 
-    });
-    service = TestBed.inject(ScenarioService);
-    httpMock = TestBed.inject(HttpTestingController);
-    sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
-  });
-  afterEach(() => {
-    sessionStorage.removeItem('url_backend');
-  });
+		});
+		sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
+	});
+	afterEach(() => {
+		sessionStorage.removeItem('url_backend');
+	});
 
-  describe('create', () => {
-    it('should be created', () => {
-      const http: HttpClient = TestBed.inject(HttpClient);
-      const apiService =TestBed.inject(ApiService);
-      const service: ScenarioService = new ScenarioService(apiService,http);
-      expect(service).toBeTruthy();
-    });
-  });
+	describe('create', () => {
+		it('should be created', () => {
+			const service = TestBed.inject(ScenarioService);
+			expect(service).toBeTruthy();
+		});
+	});
+
+	describe('storyStatusChangeEmit', () => {
+		it('queues the story status for connected consumers', () => {
+			const service = TestBed.inject(ScenarioService);
+			const received: unknown[] = [];
+			TestBed.runInInjectionContext(() => onActionTrigger(service.storyStatusChangeTrigger, payload => received.push(payload)));
+
+			service.storyStatusChangeEmit('a', false);
+			TestBed.flushEffects();
+
+			expect(received).toEqual([{ storyId: 'a', lastTestPassed: false }]);
+		});
+	});
 });

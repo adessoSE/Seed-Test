@@ -1,15 +1,30 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "esModuleInterop": true,
-      "declaration": true,
-      "declarationMap": true,
-      "target": "es2022",
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "outDir": "dist",
-      //"allowJs": true,
-      //"checkJs": true
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
+    "target": "es2024",
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "preserveSymlinks": true,
+    "typeRoots": ["./node_modules/@types"],
+    "paths": {
+      "@seed-test/shared": ["../shared/dist/index"],
+      "@seed-test/shared/*": ["../shared/dist/*"]
     },
-    "lib": ["es2022"]
-  }
+    "lib": ["es2024", "dom"]
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.spec.ts",
+    "src/**/*.itest.ts",
+    "src/integration"
+  ],
+  "references": [{ "path": "../shared" }]
+}

@@ -1,307 +1,357 @@
-import { EventEmitter, Injectable } from "@angular/core";
-import { catchError, tap } from "rxjs/operators";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-import { Observable, of, throwError } from "rxjs";
-import { User } from "../model/User";
-import { RepositoryContainer } from "../model/RepositoryContainer";
+﻿import { Injectable, inject, signal } from '@angular/core';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError, from } from 'rxjs';
+import { User } from '@seed-test/shared/models/User';
+import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
+import { sha256Hex } from './crypto';
+import { ActionTrigger } from './action-trigger';
+import { NotificationService } from './notification.service';
+
+/** Backend info response from /backendInfo endpoint */
+interface BackendInfo {
+	url: string;
+	clientId: string;
+	version: string;
+	gecko_enabled: string;
+	chromium_enabled: string;
+	edge_enabled: string;
+	webkit_enabled: string;
+	gecko_emulators: string;
+	chromium_emulators: string;
+	edge_emulators: string;
+}
+
+/**
+ * Backend URL used when /backendInfo cannot be read. Equals the default in frontend/server.js.
+ * Needed because `ng serve` has no server.js, so GET /backendInfo answers index.html there.
+ */
+const DEFAULT_API_SERVER = 'http://localhost:8080/api';
+
+/** GitHub issue submission payload */
+interface GitHubIssueRequest {
+	title: string;
+	body: string;
+	assignees: string[];
+	milestone: number | null;
+	labels: string[];
+}
+
+/** GitHub issue submission response */
+interface GitHubIssueResponse {
+	id: number;
+	number: number;
+	html_url: string;
+}
+
+/** Payload for changing the user's own password while logged in */
+export interface ChangePasswordPayload {
+	currentPassword: string;
+	newPassword: string;
+}
 
 /**
  * Service for communication between components and the backend
  */
 @Injectable({
-  providedIn: "root",
+	providedIn: 'root'
 })
 export class ApiService {
-  /**
-   * @ignore
-   */
-  constructor(private http: HttpClient) {}
+	private http = inject(HttpClient);
+	private notify = inject(NotificationService);
 
-  /**
-   * url of the backend
-   */
-  public apiServer: string = localStorage.getItem("url_backend");
 
-  // ------------------------------- TOASTR TEMPLATE --------------------------------
-  /**
-   * name of component
-   */
-  public nameComponent: string;
-  /**
-   * name of the first option in the toastr
-   */
-  public firstOption: string;
-  /**
-   * name of the second option in the toastr
-   */
-  public secondOption: string;
-  /**
-   * set name of component
-   * @param nameComponent
-   */
-  nameOfComponent(nameComponent: string) {
-    this.nameComponent = nameComponent;
-  }
-  /**
-   * get name of component that user wants to delete
-   * @returns
-   */
-  getNameOfComponent() {
-    return this.nameComponent;
-  }
-  /**
-   * set options for info-warning-toster
-   * @param nameComponent
-   */
-  setToastrOptions(first: string, second: string) {
-    this.firstOption = first;
-    this.secondOption = second;
-  }
-  /**
-   * get name of options that user wants to execute
-   * @returns
-   */
-  getNameOfToastrOptions() {
-    return [this.firstOption, this.secondOption];
-  }
-  // ------------------------------- TOASTR TEMPLATE -----------------------------
+	/**
+    * url of the backend. In-memory source of truth for all request URLs: set from localStorage at
+    * construction, from /backendInfo on success, or to the default on fallback. Methods must not re-read
+    * localStorage, because a fallback deliberately leaves url_backend unset.
+    */
+	public apiServer: string = localStorage.getItem('url_backend') || DEFAULT_API_SERVER;
 
-  /**
+	/**
    * If the backend url was received
    */
-  public urlReceived =
-    localStorage.getItem("url_backend") &&
-    localStorage.getItem("url_backend") !== "undefined";
+	public urlReceived =
+		localStorage.getItem('url_backend') &&
+    localStorage.getItem('url_backend') !== 'undefined';
 
-  /**
-   * Event Emitter if the stories could not be retrieved
-   * Api
-   */
-  public storiesErrorEvent = new EventEmitter();
-
-  /**
-   * Event Emitter to signal that the backend url is available
-   * Api
-   */
-  public getBackendUrlEvent = new EventEmitter();
-
-  /**
-   * Event emitter to save the story / scenario and then run the test
-   */
-  public runSaveOptionEvent = new EventEmitter();
-
-  /**
-   * Event emitter for handling copy of steps with example
-   */
-  public copyStepWithExampleEvent = new EventEmitter();
-
-  /**
+	/** Signal for stories error trigger */
+	readonly storiesErrorTrigger = signal(0);
+	/** Signal for backend URL ready trigger */
+	readonly backendUrlReadyTrigger = signal(0);
+	/** Run/save option action — the payload is the option string; every request is delivered, none merged */
+	readonly runSaveOptionTrigger = new ActionTrigger<string>();
+	/** Copy-step-with-example action — the payload is the option string; every request is delivered, none merged */
+	readonly copyStepWithExampleTrigger = new ActionTrigger<string>();
+	/**
    * Gets api headers
    * @returns
    */
-  public static getOptions() {
-    return { withCredentials: true };
-  }
+	public static getOptions() {
+		return { withCredentials: true };
+	}
 
-  /**
-   * Handles http error
-   * @param error
-   * @returns
-   */
-  public handleError(error: HttpErrorResponse) {
-    console.log(JSON.stringify(error));
-    return throwError(() => error);
-  }
+	/**
+    * Handles http error
+    * @param error
+    * @returns
+    */
+	public handleError(error: HttpErrorResponse) {
+		console.error(JSON.stringify(error));
+		return throwError(() => error);
+	}
 
-  /**
+	/**
    * Emits the run save option
    * @param option
    */
-  public runSaveOption(option: string) {
-    this.runSaveOptionEvent.emit(option);
-  }
+	public runSaveOption(option: string) {
+		this.runSaveOptionTrigger.emit(option);
+	}
 
-  /**
-   * Emits the copy with example option
+	/**
+   * Sets the copy with example option value
    * @param option
    */
-  public copyStepWithExampleOption(option: string) {
-    this.copyStepWithExampleEvent.emit(option);
-  }
+	public copyStepWithExampleOption(option: string) {
+		this.copyStepWithExampleTrigger.emit(option);
+	}
 
-  /**
+	/**
    * Handles the error from retrieve stories
    * @param error
    * @param caught
    * @returns
    */
-  handleStoryError = (_error: HttpErrorResponse, _caught: Observable<any>) => {
-    this.storiesErrorEvent.emit();
-    return of([]);
-  };
+	handleStoryError = <T>(error: HttpErrorResponse, _caught: Observable<T>): Observable<T> => {
+		console.error('Story fetch failed:', error.status, error.statusText, error.error);
+		this.storiesErrorTrigger.update(n => n + 1);
+		return throwError(() => error);
+	};
 
-  /**
-   * Retrieves the backend info for all api request necessary
-   * @returns
-   */
-  getBackendInfo(): Promise<any> {
-    const url = localStorage.getItem("url_backend");
-    const clientId = localStorage.getItem("clientId");
-    const version = localStorage.getItem("version");
-    const gecko_enabled = localStorage.getItem("gecko_enabled");
-    const chromium_enabled = localStorage.getItem("chromium_enabled");
-    const edge_enabled = localStorage.getItem("edge_enabled");
-    const webkit_enabled = localStorage.getItem("webkit_enabled");
+	/**
+    * Initializes backend info before Angular app boot — called by APP_INITIALIZER.
+    * Also updates the logger URL so LoggerModule config resolves correctly.
+    */
+	async initializeBackendInfo(): Promise<void> {
+		if (this.urlReceived) return; // Already initialized
+		await this.getBackendInfo();
+		const url = localStorage.getItem('url_backend');
+		if (url) localStorage.setItem('log_url', url);
+	}
 
-    const gecko_emulators = localStorage.getItem("gecko_emulators");
-    const chromium_emulators = localStorage.getItem("chromium_emulators");
-    const edge_emulators = localStorage.getItem("edge_emulators");
-    const playwright_emulators = localStorage.getItem("playwright_emulators");
+	/**
+    * Retrieves the backend info for all api request necessary.
+    * Idempotent — returns immediately if urlReceived is already true.
+    * @returns
+    */
+	getBackendInfo(): Promise<string | undefined> {
+		// Idempotent guard — skip if already initialized
+		if (this.urlReceived) return Promise.resolve(localStorage.getItem('url_backend') ?? undefined);
 
-    if (
-      url &&
-      url !== "undefined" &&
+		const url = localStorage.getItem('url_backend');
+		const clientId = localStorage.getItem('clientId');
+		const version = localStorage.getItem('version');
+		const gecko_enabled = localStorage.getItem('gecko_enabled');
+		const chromium_enabled = localStorage.getItem('chromium_enabled');
+		const edge_enabled = localStorage.getItem('edge_enabled');
+		const webkit_enabled = localStorage.getItem('webkit_enabled');
+
+		const gecko_emulators = localStorage.getItem('gecko_emulators');
+		const chromium_emulators = localStorage.getItem('chromium_emulators');
+		const edge_emulators = localStorage.getItem('edge_emulators');
+		const playwright_emulators = localStorage.getItem('playwright_emulators');
+
+		if (
+			url &&
+      url !== 'undefined' &&
       clientId &&
-      clientId !== "undefined" &&
+      clientId !== 'undefined' &&
       version &&
-      version !== "undefined" &&
+      version !== 'undefined' &&
       gecko_enabled &&
-      gecko_enabled !== "undefined" &&
+      gecko_enabled !== 'undefined' &&
       chromium_enabled &&
-      chromium_enabled !== "undefined" &&
+      chromium_enabled !== 'undefined' &&
       edge_enabled &&
-      edge_enabled !== "undefined" &&
+      edge_enabled !== 'undefined' &&
       webkit_enabled &&
-      webkit_enabled !== "undefined" &&
+      webkit_enabled !== 'undefined' &&
       gecko_emulators &&
-      gecko_emulators !== "undefined" &&
+      gecko_emulators !== 'undefined' &&
       chromium_emulators &&
-      chromium_emulators !== "undefined" &&
+      chromium_emulators !== 'undefined' &&
       edge_emulators &&
-      edge_emulators !== "undefined" &&
+      edge_emulators !== 'undefined' &&
       playwright_emulators &&
-      playwright_emulators !== "undefined"
-    ) {
-      this.urlReceived = true;
-      this.getBackendUrlEvent.emit();
-      return Promise.resolve(url);
-    } else {
-      return this.http
-        .get<any>(
-          window.location.origin + "/backendInfo",
-          ApiService.getOptions()
-        )
-        .toPromise()
-        .then((backendInfo) => {
-          localStorage.setItem("url_backend", backendInfo.url);
-          localStorage.setItem("clientId", backendInfo.clientId);
-          localStorage.setItem("version", backendInfo.version);
-          localStorage.setItem("gecko_enabled", backendInfo.gecko_enabled);
-          localStorage.setItem(
-            "chromium_enabled",
-            backendInfo.chromium_enabled
-          );
-          localStorage.setItem("edge_enabled", backendInfo.edge_enabled);
-          localStorage.setItem("webkit_enabled", backendInfo.webkit_enabled);
-          localStorage.setItem("gecko_emulators", backendInfo.gecko_emulators);
-          localStorage.setItem(
-            "chromium_emulators",
-            backendInfo.chromium_emulators
-          );
-          localStorage.setItem("edge_emulators", backendInfo.edge_emulators);
-          this.getPlaywrightEmulators().subscribe();
-          
-          this.urlReceived = true;
-          this.getBackendUrlEvent.emit();
-          
-        });
-    }
-  }
-  /**
-   * Updates a user
-   * @param userID
-   * @param user
-   * @returns
-   */
-  updateUser(userID: string, user: User): Observable<User> {
-    //not used
-    this.apiServer = localStorage.getItem("url_backend");
-    return this.http
-      .post<User>(this.apiServer + "/user/update/" + userID, user)
-      .pipe(
-        tap((_) => {
-          //
-        }),
-        catchError(this.handleStoryError)
-      );
-  }
+      playwright_emulators !== 'undefined'
+		) {
+			this.urlReceived = true;
+			this.backendUrlReadyTrigger.update(n => n + 1);
+			return Promise.resolve(url);
+		} else
+			return this.http
+				.get<BackendInfo>(
+					window.location.origin + '/backendInfo',
+					ApiService.getOptions()
+				)
+				.toPromise()
+				.then((backendInfo) => {
+					// Validate before caching: a non-JSON body (index.html) would otherwise store "undefined" as the URL
+					if (typeof backendInfo !== 'object' || typeof backendInfo.url !== 'string')
+						throw new TypeError('/backendInfo did not return backend info JSON');
+					localStorage.setItem('url_backend', backendInfo!.url);
+					// In-memory copy is what the request methods use; keep it in sync with the stored URL
+					this.apiServer = backendInfo!.url;
+					localStorage.setItem('clientId', backendInfo!.clientId);
+					localStorage.setItem('version', backendInfo!.version);
+					localStorage.setItem('gecko_enabled', backendInfo!.gecko_enabled);
+					localStorage.setItem(
+						'chromium_enabled',
+						backendInfo!.chromium_enabled
+					);
+					localStorage.setItem('edge_enabled', backendInfo!.edge_enabled);
+					localStorage.setItem('webkit_enabled', backendInfo!.webkit_enabled);
+					localStorage.setItem('gecko_emulators', backendInfo!.gecko_emulators);
+					localStorage.setItem(
+						'chromium_emulators',
+						backendInfo!.chromium_emulators
+					);
+					localStorage.setItem('edge_emulators', backendInfo!.edge_emulators);
+					// Fire-and-forget: the emulator list is only cached for the playwright
+					// dropdowns. A failure is reported to the user; the backend URL is still usable.
+					this.getPlaywrightEmulators().subscribe({
+						error: () => this.notify.error('Could not load Playwright emulators')
+					});
 
-  /**
-   * Sets the available emulation devices of playwright
-   */
-  getPlaywrightEmulators(): Observable<string[]> {
-    this.apiServer = localStorage.getItem("url_backend");
-    return this.http.get<string[]>(
-      this.apiServer + "/playwright/device-names",
-      ApiService.getOptions()
-    ).pipe(
-      tap(emulators => {
-        localStorage.setItem("playwright_emulators", emulators.join(","));
-      }),
-      catchError(error => {
-        console.error('Fehler beim Abrufen der Playwright-Geräte:', error);
-        return throwError(() => error);
-      })
-    );
-  }
-  
+					this.urlReceived = true;
+					this.backendUrlReadyTrigger.update(n => n + 1);
 
-  /**
+					return backendInfo!.url;
+				})
+				.catch((err: unknown) => {
+					// CASE: /backendInfo unavailable (ng serve answers index.html, or the server is down).
+					// Use the server.js default so APP_INITIALIZER resolves and the app still boots.
+					// Consequence: the playwright/browser emulator lists stay empty, they only come from /backendInfo.
+					// WHY in-memory only: persisting url_backend or setting urlReceived would make every later load
+					// skip /backendInfo, so one transient proxy error or HTML catch-all would pin the browser to the
+					// default URL forever. Leaving both unset makes the next load and the next initializeBackendInfo()
+					// call fetch /backendInfo again.
+					console.warn('Could not load /backendInfo, using default backend URL:', err);
+					this.apiServer = DEFAULT_API_SERVER;
+					this.backendUrlReadyTrigger.update(n => n + 1);
+					return DEFAULT_API_SERVER;
+				});
+
+	}
+
+	/**
+    * Updates the logged-in user's password.
+    * Sends { currentPassword, newPassword } to the backend;
+    * backend rejects unknown fields and returns 401 on wrong currentPassword.
+    * CRITICAL: both values are SHA-256-hashed before sending, matching how
+    * login.service.ts hashes register/login. The stored hash is
+    * bcrypt(SHA-256(pw)), so the controller's bcrypt.compare only matches a
+    * hashed value — sending raw passwords made change-password never verify
+    * and silently return 401.
+    * @param userID - MongoDB ObjectId of the user
+    * @param payload - current and new password values
+    * @returns Observable of the updated User
+    */
+	updateUser(userID: string, payload: ChangePasswordPayload): Observable<User> {
+		// Hash both passwords the same way the login service hashes credentials,
+		// otherwise bcrypt.compare inside the controller never matches the stored
+		// hash (which is bcrypt(SHA-256(password))) and the change returns 401.
+		return from(sha256Hex(payload.currentPassword)).pipe(
+			switchMap(currentHash => from(sha256Hex(payload.newPassword)).pipe(
+				switchMap(newHash => this.http
+					// withCredentials is required: the SPA (port 4200) and backend
+					// (port 8080) are cross-origin, so without it the session cookie
+					// is never sent and isAuthenticated 401s before the controller runs
+					.post<User>(this.apiServer + '/user/update/' + userID, {
+						currentPassword: currentHash,
+						newPassword: newHash
+					}, ApiService.getOptions())
+					// NOTE: deliberately NOT piping through handleStoryError here. That
+					// helper swallows errors into an empty success result, which would
+					// mask the 401 "wrong current password" and turn it into apparent
+					// success. The change-password 401 must propagate so the
+					// account-management component can render the inline form error.
+				)
+			))
+		);
+	}
+
+	/**
+    * Sets the available emulation devices of playwright
+    */
+	getPlaywrightEmulators(): Observable<string[]> {
+		return this.http.get<string[]>(
+			this.apiServer + '/playwright/device-names',
+			ApiService.getOptions()
+		).pipe(
+			tap(emulators => {
+				localStorage.setItem('playwright_emulators', emulators.join(','));
+			}),
+			catchError(error => {
+				console.error('Failed to load Playwright devices:', error);
+				return throwError(() => error);
+			})
+		);
+	}
+
+
+	/**
    * Submitts an issue to github to create a new step
    * @param obj
    * @returns
    */
-  submitGithub(obj) {
-    this.apiServer = localStorage.getItem("url_backend");
-    return this.http.post<any>(
-      this.apiServer + "/github/submitIssue/",
-      obj,
-      ApiService.getOptions()
-    );
-  }
-  /**
+	submitGithub(obj: GitHubIssueRequest) {
+		return this.http.post<GitHubIssueResponse>(
+			this.apiServer + '/github/submitIssue/',
+			obj,
+			ApiService.getOptions()
+		);
+	}
+	/**
    * If the repo is github repo
    * @param repo
    * @returns
    */
-  isGithubRepo(repo: RepositoryContainer): boolean {
-    return repo.source === "github";
-  }
+	isGithubRepo(repo: RepositoryContainer): boolean {
+		return repo.source === 'github';
+	}
 
-  /**
+	/**
    * If the repo is a jira repo
    * @param repo
    * @returns
    */
-  isJiraRepo(repo: RepositoryContainer): boolean {
-    return repo.source === "jira";
-  }
+	isJiraRepo(repo: RepositoryContainer): boolean {
+		return repo.source === 'jira';
+	}
 
-  /**
+	/**
    * If the repo is a custom project
    * @param repo
    * @returns
    */
-  isCustomRepo(repo: RepositoryContainer): boolean {
-    return repo.source === "db";
-  }
+	isCustomRepo(repo: RepositoryContainer): boolean {
+		return repo.source === 'db';
+	}
 
-  resolveSpecialCommand(command) {
-    this.apiServer = localStorage.getItem("url_backend");
-    return this.http.post<any>(
-      this.apiServer + "/story/specialCommands/resolve",
-      { command: command },
-      ApiService.getOptions()
-    );
-  }
+	/**
+	 * Resolves a special command (e.g. @@Day,1@@format:...) on the backend.
+	 * @param command the unescaped command text
+	 * @returns the resolved string; the backend wraps it as { resolved }
+	 */
+	resolveSpecialCommand(command: string): Observable<string> {
+		// WHY: Unwrapped here so callers compare and display a string. Without the map,
+		// the object reached the tooltip as "[object Object]" and never equalled the command.
+		return this.http.post<{ resolved: string }>(
+			this.apiServer + '/story/specialCommands/resolve',
+			{ command: command },
+			ApiService.getOptions()
+		).pipe(map(res => res.resolved));
+	}
 }

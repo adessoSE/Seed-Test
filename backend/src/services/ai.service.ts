@@ -1,0 +1,166 @@
+﻿import { EventEmitter } from 'node:events';
+import { JobQueue } from '../helpers/jobQueue.js';
+import * as repositoryService from './repository.service.js';
+import * as storyService from './story.service.js';
+import { decrypt } from '../helpers/cryptoHelper.js';
+import { logger } from '../logging.js';
+import { AppError } from '../helpers/AppError.js';
+import { type AiConfig } from '@seed-test/shared/models/RepositoryContainer.js';
+
+/** @see {@link isAiParserAvailable} — nullable until the optional parser module loads. */
+let parseTextToStory: ((opts: Record<string, unknown>) => Promise<Record<string, unknown> | null>) | null = null;
+let _parserChecked = false;
+
+async function loadParser(): Promise<boolean> {
+	if (_parserChecked) return parseTextToStory !== null;
+	_parserChecked = true;
+	try {
+		const parserModule = '@seed-test/ai-parser';
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- dynamic import of optional module
+		const mod = await import(/* webpackIgnore: true */ parserModule);
+		parseTextToStory = (mod as Record<string, unknown>).parseTextToStory as typeof parseTextToStory;
+		logger.info('AI Parser (@seed-test/ai-parser) loaded successfully.');
+		return true;
+	} catch {
+		logger.info('AI Parser (@seed-test/ai-parser) not available. AI features disabled.');
+		return false;
+	}
+}
+
+export async function isAiParserAvailable(): Promise<boolean> {
+	return loadParser();
+}
+
+export function _resetParserStateForTesting(): void {
+	_parserChecked = false;
+	parseTextToStory = null;
+}
+
+// Create a single queue and emitter for the AI service
+const aiJobQueue = new JobQueue();
+export const aiJobEmitter = new EventEmitter();
+
+/**
+ * Orchestrates the AI scenario generation process for a specific story.
+ * Fetches story, decrypts API key, calls parser, and saves result as a suggestion.
+ * This function is intended to be called by the JobQueue.
+ * @param storyId The ID of the story to process.
+ * @param aiConfig The AI configuration (will be modified with decrypted keys).
+ * @param repoId The ID of the repository for fetching encrypted keys.
+ */
+/**
+ * Orchestrates the AI scenario generation process for a specific story.
+ * Fetches story, decrypts API key, calls parser, and saves result as a suggestion.
+ * This function is intended to be called by the JobQueue.
+ * @param storyId The ID of the story to process.
+ * @param aiConfig The AI configuration (will be modified with decrypted keys) — stored as unknown
+ *   in the queue; narrowed by usage below.
+ * @param repoId The ID of the repository for fetching encrypted keys.
+ */
+async function generateAiScenariosForStory(storyId: string, aiConfig: AiConfig, repoId: string): Promise<void> {
+	try {
+		await loadParser();
+		if (!parseTextToStory) 
+			throw new Error('AI Parser is not installed. Install @seed-test/ai-parser to use AI features.');
+        
+
+		const story = await storyService.getOneStory(storyId);
+		if (!story)
+			throw AppError.notFound('Story not found');
+        
+
+		// Use story body as input
+		const inputText = `${story.body || ''}`.trim();
+		if (inputText.length === 0) 
+			throw AppError.badRequest('No input from story description found');
+        
+
+		// Decrypt API keys if cloud provider is used
+		if (aiConfig.textPreparation.name === 'cloud' || aiConfig.jsonConversion.name === 'cloud') {
+			const project = await repositoryService.getOneRepositoryById(repoId);
+			if (!project?.aiConfig) 
+				throw AppError.badRequest('Cloud provider is configured, but no AI config was found for this project.');
+
+			// Older projects and imports store a flat aiConfig ({ provider, ollamaUrl, defaultTextModel, ... })
+			// without the nested providers; the type does not reflect that, hence the Partial cast.
+			const storedConfig = project.aiConfig as Partial<AiConfig>;
+			if (!storedConfig.textPreparation || !storedConfig.jsonConversion)
+				throw AppError.badRequest('The stored AI config of this project uses the legacy flat format. Save the AI settings of the project again.');
+
+			const encryptedTextApiKey = storedConfig.textPreparation.apiKey;
+			const encryptedJsonApiKey = storedConfig.jsonConversion.apiKey;
+            
+			// Decrypt text key
+			if (aiConfig.textPreparation.name === 'cloud') {
+				if (!encryptedTextApiKey) throw AppError.badRequest('Text preparation provider is cloud, but no API key was found.');
+				const decryptedApiKey = decrypt(encryptedTextApiKey);
+				if (!decryptedApiKey) throw new Error('Text API key decryption failed.');
+				aiConfig.textPreparation.apiKey = decryptedApiKey;
+			}
+            
+			// Decrypt json key
+			if (aiConfig.jsonConversion.name === 'cloud') {
+				if (!encryptedJsonApiKey) throw AppError.badRequest('JSON conversion provider is cloud, but no API key was found.');
+				const decryptedApiKey = decrypt(encryptedJsonApiKey);
+				if (!decryptedApiKey) throw new Error('JSON API key decryption failed.');
+				aiConfig.jsonConversion.apiKey = decryptedApiKey;
+			}
+		}
+
+		logger.info(`Starting AI parser for Story ${story.title} with ID: ${storyId}`);
+        
+		// Call the AI parser
+		const parsedStory = await parseTextToStory({
+			inputText: inputText,
+			config: aiConfig // Pass the full, potentially decrypted config
+		});
+
+		const scenarios = parsedStory?.scenarios as unknown[] | undefined;
+		if (!scenarios || scenarios.length === 0) 
+			throw AppError.badRequest('AI-Parser did not generate any valid scenarios.');
+        
+
+		logger.info(`AI results for story ${storyId} are ready. Saving as suggestion.`);
+        
+		// Save the AI-generated result as a suggestion on the story object
+		story.aiSuggestion = {
+			scenarios: scenarios,
+			background: parsedStory?.background,
+			metadata: {
+				generationTimestamp: new Date(),
+				modelsUsed: {
+					textModel: aiConfig.textPreparation.modelName,
+					jsonModel: aiConfig.jsonConversion.modelName
+				}
+			}
+		};
+        
+		// Update the story in the database. The version is dropped so a background save never fails as stale;
+		// it is a plain write like before, and a user edit made while the job ran is overwritten as it always was.
+		const { version: _loadedVersion, ...storyToSave } = story;
+		await storyService.updateStory(storyToSave);
+
+		// Notify listeners (SSE client) that the job is done
+		aiJobEmitter.emit(`job-done-${storyId}`, { 
+			status: 'suggestion-ready', 
+			storyId: storyId 
+		});
+
+	} catch (error: unknown) {
+		logger.error(`Error in generateAiScenariosForStory for storyId ${storyId}: ${error instanceof Error ? error.message : String(error)}`);
+		// Notify listeners (SSE client) about the error
+		aiJobEmitter.emit(`job-done-${storyId}`, { status: 'error', error: error instanceof Error ? error.message : String(error) });
+	}
+}
+
+/**
+ * Adds an AI scenario generation task to the job queue.
+ * @param storyId The ID of the story.
+ * @param aiConfig The AI configuration from the request.
+ * @param repoId The ID of the repository.
+ */
+export function queueAiScenarioGeneration(storyId: string, aiConfig: AiConfig, repoId: string): void {
+	const task = () => generateAiScenariosForStory(storyId, aiConfig, repoId);
+	aiJobQueue.add(task);
+	logger.info(`AI Job for story ${storyId} has been added to the queue.`);
+}

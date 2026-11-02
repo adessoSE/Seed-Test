@@ -1,69 +1,76 @@
 <!--Scenario Header-->
-<div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="scenario">
+<div [class.darkTheme]="isDark()" class="st-card st-card-default padding" id="scenario">
   <div class="title">
     <div class="scenarioHeaderContainer">
       <div style="margin: auto 0">
         <span id="scenarioHeader" class="Smallnavigation2">Scenario&nbsp;</span>
-          <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
-            <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
-              It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
-              A scenario consists of individual steps:
-                   Given (precondition),
-                   When (action) and
-                   Then (desired result)
-            </span>
-          </dfn>
-      </div>
-      <div>
-        <button id="scenario_shift_left" class="scenarioTitle" *ngIf="!arrowLeft" data-uk-tooltip
-        title="Previous Scenario" (click)="scenarioShiftLeft();">
-        <em class="material-icons">keyboard_arrow_left</em>
+        <dfn class="def"><span class="infoIcon icon-wrapper"><mat-icon>info</mat-icon></span>
+        <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
+          It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
+          A scenario consists of individual steps:
+          Given (precondition),
+          When (action) and
+          Then (desired result)
+        </span>
+      </dfn>
+    </div>
+    <div>
+      @if (!arrowLeft) {
+        <button id="scenario_shift_left" class="scenarioTitle" matTooltip="Previous Scenario" (click)="scenarioShiftLeft();">
+          <em class="material-icons">keyboard_arrow_left</em>
         </button>
-        <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5 scenarioTitle"># {{selectedScenario.name | titlecase}}</span>
-        <button class="scenarioTitle pencil_icon" (click)="changeScenarioTitle();" data-uk-tooltip
-        title="Change Scenario Title">
+      }
+      @if (this.selectedScenario()) {
+        <span id="scenarioTitle" class="MediumHeadline5 scenarioTitle"># {{selectedScenario().name | titlecase}}</span>
+      }
+      <button class="scenarioTitle pencil_icon" (click)="changeScenarioTitle();" [disabled]="isReviewing()" matTooltip="Change Scenario Title">
         <em class="material-icons">edit</em>
-        </button>
+      </button>
 
-        <button id="scenario_shift_right" class="scenarioTitle" *ngIf="!arrowRight" data-uk-tooltip
-        title="Next Scenario" (click)="scenarioShiftRight();">
-        <em class="material-icons">keyboard_arrow_right</em>
+      @if (!arrowRight) {
+        <button id="scenario_shift_right" class="scenarioTitle" matTooltip="Next Scenario" (click)="scenarioShiftRight();">
+          <em class="material-icons">keyboard_arrow_right</em>
         </button>
-      </div>
-      <div style="justify-self: end;">
-        <button id="new_scenario" class="scenarioTitle" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
-          <em class="material-icons">add</em>
-          </button>
-          <button *ngIf="this.scenarioUnSaved()" name="saveScenario" id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
-          title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.scenarioUnSaved()}"
+      }
+    </div>
+    <div style="justify-self: end;">
+      <button id="new_scenario" class="scenarioTitle" [class.disabled]="isReviewing() || testRunning" [disabled]="isReviewing() || testRunning" matTooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
+        <em class="material-icons">add</em>
+      </button>
+      @if (this.scenarioUnSaved()) {
+        <button name="saveScenario" id="saveButton" [class.disabled]="isReviewing() || this.scenarioSaved()" [disabled]="isReviewing() || this.scenarioSaved()" class="scenarioTitle" matTooltip="Save Scenario" [class.iconButton_unsaved]="this.scenarioUnSaved()"
           (click)="updateScenario();">
           <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
-          </button>
-          <button *ngIf="this.selectedScenario.saved!=false" name="saveScenario" id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
-          title="Without changes">
-          <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
-          </button>
-          <button [class.disabled]="testRunning" [disabled]="testRunning"
-          class="scenarioTitle" data-uk-tooltip title="Delete Scenario"
-          (click)="deleteScenario();">
-          <em class="material-icons">delete</em>
         </button>
-      </div>
+      }
+      @if (this.selectedScenario()?.saved !== false) {
+        <button name="saveScenario" id="saveButton" [class.disabled]="isReviewing() || this.scenarioSaved()" [disabled]="isReviewing() || this.scenarioSaved()" class="scenarioTitle" matTooltip="Without changes">
+          <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
+        </button>
+      }
+      <button [class.disabled]="isReviewing() || testRunning" [disabled]="isReviewing() || testRunning"
+        class="scenarioTitle" matTooltip="Delete Scenario"
+        (click)="deleteScenario();">
+        <em class="material-icons">delete</em>
+      </button>
     </div>
-  </div> 
-  <!-- Shared template: Scenario's action bar & steps -->
-  <app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
-  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"[selectedBlock]="selectedBlock" (blockSelectTriggerEvent)="blockSelectTrigger($event)"></app-base-editor>
-  
-  <app-example [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
-  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-example>
-  <br>
+  </div>
+</div>
+<!-- Shared template: Scenario's action bar & steps -->
+<app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [isReviewing]="isReviewing()" [newlySelectedScenario]="selectedScenario()"
+[newlySelectedStory]="selectedStory()" [originalStepTypes]="originalStepTypes()"[selectedBlock]="selectedBlock" (blockSelectTriggerEvent)="blockSelectTrigger($event)" (blockInserted)="markScenarioUnsaved()" />
+
+<app-example [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario()"
+[newlySelectedStory]="selectedStory()" [originalStepTypes]="originalStepTypes()" />
+<br>
   <div class="comment MediumButton1">
-    <label>Comment</label><br>
-    <textarea *ngIf="this.selectedScenario" id="commentBox" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" (change)="commentChange(comment.value)">
-    </textarea>
+    <label for="commentBox">Comment</label><br>
+    @if (this.selectedScenario()) {
+      <textarea id="commentBox" cols="50" rows="5" #comment type="text" value="{{selectedScenario().comment}}" (change)="commentChange(comment.value)">
+      </textarea>
+    }
   </div>
 </div>
 
-<app-rename-scenario #renameScenarioModal></app-rename-scenario>
-<app-create-scenario #createScenarioModal (createScenarioEvent)="addScenarioToStory($event)"></app-create-scenario>
+<app-rename-scenario #renameScenarioModal />
+<app-create-scenario #createScenarioModal (createScenarioEvent)="addScenarioToStory($event)" />

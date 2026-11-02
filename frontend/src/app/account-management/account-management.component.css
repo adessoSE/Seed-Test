@@ -36,8 +36,21 @@
 }
 
 .grid_eraseAccount {
+    grid-row: 6 / 7;
+    grid-column: 1 / 2;
+}
+
+.grid_changePassword {
     grid-row: 5 / 6;
     grid-column: 1 / 2;
+    text-align: center;
+    margin-top: 10px;
+    margin-left: 20px;
+    background: white;
+}
+
+.darkTheme .grid_changePassword {
+    background: #455A64;
 }
 
 .grid_github{
@@ -174,11 +187,20 @@ label{
     margin-top: 30px;
 }
 
-.uk-card{
+/* Only the four account boxes get the frame: st-card elements with a grid_* class. .grid-container
+   also carries st-card (page wrapper), and the no-login GitHub div reuses .grid_github unwrapped
+   inside the card, so both must stay borderless */
+.st-card.grid_seedTest,
+.st-card.grid_changePassword,
+.st-card.grid_github,
+.st-card.grid_jira {
     border: 1px solid grey;
 }
 
-.darkTheme .uk-card {
+.darkTheme .st-card.grid_seedTest,
+.darkTheme .st-card.grid_changePassword,
+.darkTheme .st-card.grid_github,
+.darkTheme .st-card.grid_jira {
     border: 1px solid #60767b;
 }
 
@@ -203,16 +225,17 @@ h2, h1{
     font-family: Klavika, sans-serif;
 }
 
-.repositories{
+.repositories {
     width: 90%;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 60px;
-    margin-top: 60px;
-    padding: 15px;
+    margin-bottom: 40px;
+    margin-top: 35px;
+    padding: 20px 15px;
     background-color: transparent;
     border-top: 1px solid #999;
+    box-sizing: border-box;
 }
 
 .darkTheme .repositories {
@@ -246,48 +269,78 @@ h2, h1{
     color: var(--light-blue);
 }
 
+.df {
+    display: inline-block;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--brown-grey);
+    max-width: 320px;
+    text-align: center;
+    margin-top: 4px;
+    font-style: normal;
+}
+
+.df .def {
+    display: block;
+}
+
 #downloadInfo #exportInfo #importInfo {
-    width: 14px;
-    height: 15px;
+  width: 14px;
+  height: 15px;
 }
 
 .downloadWrapper {
-    margin-bottom: 7px;
-    margin-top: 4px;
+    margin-bottom: 16px;
+    margin-top: 8px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    align-items: center;
+    gap: 12px;
+    height: auto;
+    min-height: 80px;
 }
 
-.searchAndVersion{
+/* Full width so the 50% search input resolves against the row, not the shrink-to-fit column;
+   otherwise the version field wraps under the search input */
+.searchAndVersion {
     align-items: center;
     display: flex;
-    justify-content: center;
-}  
-
-.dropDownProject{
-    padding-left: 25px;
     width: 100%;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dropDownProject {
+    padding-left: 0;
+    width: 100%;
+    max-width: 350px;
 } 
-.downloadExportButton{
-    margin-top: 15px;
-    margin-left: 25px;
+.downloadExportButton {
+    margin-top: 20px;
+    margin-left: 0;
     display: flex;
-    justify-content: space-evenly;
-    align-items: end;
+    justify-content: center;
+    gap: 28px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 8px 0 16px 0;
 }  
 
-.searchInput, .versionInput{
-    border: none;
-    border-bottom: 1px solid var(--brown-grey);
-    font-weight: normal;
-    width: 50%;
-    max-height: 2em;
-    margin-top: 1.75em;
-  }
-  .versionInput{
-    margin-left: 7px;
-  }
+.searchInput, .versionInput {
+  border: none;
+  border-bottom: 2px solid var(--brown-grey);
+  font-weight: normal;
+  font-size: 15px;
+  width: 50%;
+  max-height: 3em;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+.versionInput {
+  width: 100px;
+  margin-left: 7px;
+}
 
   .darkTheme .searchInput .versionInput{
     border-bottom: 1px solid #60767b;
@@ -332,6 +385,51 @@ h2, h1{
     text-align: center;
     color:white;
     opacity: 1;
+}
+
+.password-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 260px;
+}
+
+.form-field label {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.password-input {
+    padding: 8px;
+    border: 1px solid var(--brown-grey);
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.darkTheme .password-input {
+    border-color: #60767b;
+    background: #37474F;
+    color: white;
+}
+
+.password-error {
+    color: var(--grape);
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+    min-height: 20px;
 }
 
 .mat-mdc-option{

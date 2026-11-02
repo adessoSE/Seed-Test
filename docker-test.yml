@@ -4,18 +4,32 @@ services:
     container_name: "Seed-db"
     restart: on-failure
     environment:
-      MONGO_INITDB_ROOT_USERNAME: SeedAdmin
-      MONGO_INITDB_ROOT_PASSWORD: SeedTest
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME_FROM_WORKFLOW:?set MONGO_ROOT_USERNAME secret in the workflow}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD_FROM_WORKFLOW:?set MONGO_ROOT_PASSWORD secret in the workflow}
+    # Single-node replica set rs0 for MongoDB transactions; same setup as docker-compose.yml (keyFile generated per start).
+    entrypoint:
+      - bash
+      - -c
+      - >-
+        rm -f /tmp/mongo-keyfile && openssl rand -base64 756 > /tmp/mongo-keyfile && chmod 400 /tmp/mongo-keyfile && chown mongodb:mongodb /tmp/mongo-keyfile &&
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /tmp/mongo-keyfile --bind_ip_all
+    # Initiates rs0 once and is healthy only when this node is the writable primary.
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --quiet -u "$${MONGO_INITDB_ROOT_USERNAME}" -p "$${MONGO_INITDB_ROOT_PASSWORD}" --eval
+          "try { rs.status() } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'db:27017' }] }) }
+          quit(db.hello().isWritablePrimary ? 0 : 1)"
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 12
+      start_period: 20s
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION}
     ports:
@@ -32,6 +46,10 @@ services:
       GITHUB_CLIENT_SECRET: ${G_CLIENT_SECRET_FROM_WORKFLOW}
       GITHUB_CLIENT_ID: ${G_CLIENT_ID_FROM_WORKFLOW}
       PASSPORT_GITHUB_LOCAL_PW_FIELD: ${PASSPORT_GITHUB_LOCAL_PW_FIELD_FROM_WORKFLOW}
+      ENCRYPTION_SECRET: ${ENCRYPTION_SECRET_FROM_WORKFLOW:?set ENCRYPTION_SECRET secret in the workflow}
+      SESSION_SECRET: ${SESSION_SECRET_FROM_WORKFLOW:?set SESSION_SECRET secret in the workflow}
+      JIRA_SECRET: ${JIRA_SECRET_FROM_WORKFLOW:?set JIRA_SECRET secret in the workflow}
+      JIRA_SALT: ${JIRA_SALT_FROM_WORKFLOW:?set JIRA_SALT secret in the workflow}
     depends_on:
       db:
         condition: service_healthy
@@ -44,8 +62,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         NODE_VERSION: ${NODE_VERSION}
     ports:

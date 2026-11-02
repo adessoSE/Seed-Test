@@ -1,85 +1,80 @@
-import { Component } from "@angular/core";
-import { NgForm } from "@angular/forms";
-import { Router } from "@angular/router";
-import { ThemingService } from "../Services/theming.service";
-import { LoginService } from "../Services/login.service";
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { NgForm, FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ThemingService } from '../Services/theming.service';
+import { LoginService } from '../Services/login.service';
 
 /**
  * Component to reset the password
  */
 @Component({
-    selector: "app-reset-password",
-    templateUrl: "./reset-password.component.html",
-    styleUrls: ["./reset-password.component.css"],
-    standalone: false
+	selector: 'app-reset-password',
+	templateUrl: './reset-password.component.html',
+	styleUrls: ['./reset-password.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [FormsModule]
 })
-export class ResetPasswordComponent {
-  /**
+export class ResetPasswordComponent implements OnInit {
+	loginService = inject(LoginService);
+	private router = inject(Router);
+	themeService = inject(ThemingService);
+
+	/**
    * Error during reset password
    */
-  error: string;
-  defaultErrorMessage = "Reset password email faild";
+	readonly error = signal<string | undefined>(undefined);
+	defaultErrorMessage = 'Reset password email faild';
 
-  /**
+	/**
    * Successfully sent email
    */
-  success: string;
-  defaultSuccessMessage = "Email has been sent!";
+	readonly success = signal<string | undefined>(undefined);
+	defaultSuccessMessage = 'Email has been sent!';
 
-  isDark: boolean;
+	isDark!: boolean;
 
-  /**
-   * @ignore
-   */
-  constructor(
-    public loginService: LoginService,
-    private router: Router,
-    public themeService: ThemingService
-  ) {}
+	ngOnInit(): void {
+		this.isDark = this.themeService.isDarkMode();
+	}
 
-  ngOnInit(): void {
-    this.isDark = this.themeService.isDarkMode();
-  }
-
-  /**
+	/**
    * Request a reset of the password
    * @param form
    */
-  requestReset(form: NgForm) {
-    this.error = undefined;
-    this.success = undefined;
-    this.loginService.requestReset(form.value.email).subscribe({
-      next: (value) => {
-        this.error = undefined;
-        this.success = this.defaultSuccessMessage;
-      },
-      error: (error) => {
-        this.success = undefined;
-        if (error !== "No user found with the given email adress!") {
-          this.error = "Email couldn't be send.";
-          return;
-        }
-        this.error = error.error;
-      },
-    });
-  }
+	requestReset(form: NgForm) {
+		this.error.set(undefined);
+		this.success.set(undefined);
+		this.loginService.requestReset(form.value.email).subscribe({
+			// The backend answers the same way for registered and unknown e-mails (no account enumeration),
+			// so the success text is the server's generic message and must not claim a mail was sent
+			next: (resp) => {
+				this.error.set(undefined);
+				this.success.set(resp.message || this.defaultSuccessMessage);
+			},
+			// Only real failures reach here (network or server errors); unknown e-mails return 200
+			error: () => {
+				this.success.set(undefined);
+				this.error.set("Email couldn't be send.");
+			}
+		});
+	}
 
-  /**
+	/**
    * Redirects the user to the register component
    */
-  redirectToRegister() {
-    this.router.navigate(["/register"]);
-  }
+	redirectToRegister() {
+		this.router.navigate(['/register']);
+	}
 
-  /**
+	/**
    * Redirects the user to the login component
    */
-  redirectToLogin() {
-    this.router.navigate(["/"]);
-  }
+	redirectToLogin() {
+		this.router.navigate(['/']);
+	}
 
-  isDarkModeOn() {
-    this.isDark = this.themeService.isDarkMode();
-    return this.isDark;
-  }
+	isDarkModeOn() {
+		this.isDark = this.themeService.isDarkMode();
+		return this.isDark;
+	}
 }

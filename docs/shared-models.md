@@ -1,13 +1,13 @@
 # Shared Models (TypeScript)
 
-Die Modelle in `shared/src/models/` werden vom Backend und Frontend genutzt via `import { Foo } from '@shared/models/Foo'`.
+Models in `shared/src/models/*.ts` are used by backend and frontend. Import them as `@seed-test/shared/models/<Name>`, for example `import type { User } from '@seed-test/shared/models/User'`. Zod schemas that validate request bodies live in `shared/src/schemas/` (see the last section). The `@shared/...` alias does not exist.
 
 ## Core Domain Models
 
 ### `Story`
 ```typescript
 interface Story {
-    _id?: any;
+    _id?: string;
     issue_number?: number | string;
     story_id: number;
     storySource: string;
@@ -61,9 +61,9 @@ interface Background {
 ### `Group`
 ```typescript
 interface Group {
-    _id?: any;
+    _id?: string;
     name: string;
-    member_stories: any[];
+    member_stories: string[];
     isSequential: boolean;
     xrayTestSet?: boolean;
 }
@@ -72,15 +72,16 @@ interface Group {
 ### `Block`
 ```typescript
 interface Block {
-    _id?: any;
-    owner?: any;
+    _id?: string;
+    owner?: string;
     name?: string;
     stepDefinitions: StepDefinition;
-    repositoryId?: any;
+    repositoryId?: string;
     repository?: string;
     source?: string;
     isBackground?: boolean;
     usedAsReference?: boolean;
+    multipleScenarios?: MultipleScenario[];
 }
 ```
 
@@ -91,6 +92,13 @@ interface StepDefinition {
     when: StepType[];
     then: StepType[];
     example?: StepType[];
+}
+```
+
+### `StepDefinitionBackground`
+```typescript
+interface StepDefinitionBackground {
+    when: StepType[];
 }
 ```
 
@@ -120,13 +128,13 @@ interface StepType {
 ### `FileElement`
 ```typescript
 class FileElement {
-    _id?: any;
+    _id?: string;
     uploadDate?: string | Date;
     filename?: string;
 }
 ```
 
-### `MultipleScenario`
+### `MultipleScenario` (file `shared/src/models/MuiltipleScenario.ts`, spelling as in the file name)
 ```typescript
 interface MultipleScenario {
     values: string[];
@@ -140,12 +148,12 @@ interface MultipleScenario {
 ### `Repository`
 ```typescript
 interface Repository {
-    _id?: any;
-    owner: any;
+    _id?: string;
+    owner: string;
     repoName: string;
-    stories: any[];
+    stories: string[];
     repoType: 'db' | 'github' | 'jira';
-    customBlocks?: any[];
+    customBlocks?: string[];
     groups: Group[];
     settings?: { stepWaitTime?: number; reportComment?: boolean; browser?: string; testRunner?: string; emulator?: string; width?: number; height?: number; activated?: boolean };
     aiConfig?: AiConfig;
@@ -153,7 +161,28 @@ interface Repository {
 }
 ```
 
-### `AiConfig`
+### `RepositoryContainer`
+```typescript
+interface RepositoryContainer {
+    _id?: string;
+    repoName: string;
+    source: string;
+    canEdit?: boolean;
+    settings?: {
+        stepWaitTime?: number;
+        reportComment?: boolean;
+        browser?: string;
+        testRunner?: string;
+        emulator?: string;
+        width?: number;
+        height?: number;
+        activated?: boolean;
+    };
+    aiConfig?: AiConfig;
+}
+```
+
+### `AiConfig` (defined in `RepositoryContainer.ts`, imported by `Repository.ts`)
 ```typescript
 interface AiConfig {
     textPreparation: AiProviderConfig;
@@ -172,11 +201,11 @@ interface AiProviderConfig {
 ### `User`
 ```typescript
 interface User {
-    _id?: any;
+    _id?: string;
     email: string;
     password?: string;
     transitioned?: boolean;
-    github: { githubToken: string; login: string; id: number; githubRepo?: string };
+    github?: { githubToken: string; login: string; id: number; githubRepo?: string };
     jira?: { AccountName: string; Password: { $binary: { base64: string; subType: string } }; Password_Nonce: { $binary: { base64: string; subType: string } }; Password_Tag: { $binary: { base64: string; subType: string } }; Host: string; AuthMethod: string };
 }
 ```
@@ -195,13 +224,13 @@ interface ReportContainer {
 ### `StoryReport`
 ```typescript
 interface StoryReport {
-    _id: any;
+    _id: string;
     reportName: string;
     reportTime: number;
-    reportOptions: any;
-    storyId: any;
+    reportOptions: Record<string, unknown>;
+    storyId: string;
     mode: string;
-    scenarioId?: any;
+    scenarioId?: string;
     isSaved?: boolean;
     overallTestStatus: boolean;
     storyStepResults: StepResults;
@@ -212,13 +241,13 @@ interface StoryReport {
 ### `ScenarioReport`
 ```typescript
 interface ScenarioReport {
-    _id?: any;
+    _id?: string;
     reportName: string;
     reportTime: number;
-    reportOptions: any;
-    storyId: any;
+    reportOptions: Record<string, unknown>;
+    storyId: string;
     mode: string;
-    scenarioId: any;
+    scenarioId: string;
     overallTestStatus: boolean;
     isSaved?: boolean;
     scenarioStatuses: ScenarioStatus;
@@ -228,10 +257,10 @@ interface ScenarioReport {
 ### `GroupReport`
 ```typescript
 interface GroupReport {
-    _id?: any;
+    _id?: string;
     reportName: string;
     reportTime: number;
-    reportOptions: any;
+    reportOptions: Record<string, unknown>;
     mode: string;
     isSaved?: boolean;
     overallTestStatus: boolean;
@@ -252,7 +281,7 @@ interface StepResults {
 ### `ScenarioStatus`
 ```typescript
 interface ScenarioStatus {
-    scenarioId: any;
+    scenarioId: string;
     status: boolean;
     stepResults: StepResults;
 }
@@ -261,7 +290,7 @@ interface ScenarioStatus {
 ### `StoryStatus`
 ```typescript
 interface StoryStatus {
-    storyId: any;
+    storyId: string;
     status: boolean;
     storyStepResults: StepResults;
     scenarioStatuses: ScenarioStatus[];
@@ -270,4 +299,27 @@ interface StoryStatus {
 
 ## Frontend-local models
 
-Im Frontend (`frontend/src/app/model/`) gibt es **dieselben Models** als lokale Kopien (nicht referenziell identisch zu `shared/`). Sie werden direkt in Template-Typen verwendet. Die Felder decken sich mit den shared-Modellen.
+`frontend/src/app/model/` holds one local copy, `Group.ts`, which duplicates the shared `Group` model. All other frontend code imports from `@seed-test/shared/models/*`. Prefer the shared import; delete the copy when touching it.
+
+## Zod schemas (`shared/src/schemas/`)
+
+The request validation schemas are exported through the package root, `import { ... } from '@seed-test/shared'`. The backend applies them with `validate()`. One file per feature:
+
+| File | Exports (examples) | Used for |
+|---|---|---|
+| `shared.schemas.ts` | `stepTypeSchema`, `stepDefinitionSchema`, `stepDefinitionBackgroundSchema`, `multipleScenarioSchema` | Domain shapes reused by other schemas |
+| `background.schemas.ts` | `updateBackgroundSchema` | Background PUT |
+| `block.schemas.ts` | `saveBlockSchema`, `updateBlockSchema` | Block create and update |
+| `github.schemas.ts` | `submitIssueSchema` | GitHub issue submission |
+| `group.schemas.ts` | `createGroupSchema` | Group create |
+| `jira.schemas.ts` | `linkJiraSchema`, `jiraLoginSchema`, `updateXrayStatusSchema` | Jira link, login (`jiraAccountName` required only for basic auth), Xray status |
+| `logging.schemas.ts` | `logMessageSchema` | Frontend log endpoint |
+| `repository.schemas.ts` | `createRepositorySchema`, `updateSettingsSchema`, `transferOwnerSchema` | Repository create, settings, owner transfer |
+| `sanity.schemas.ts` | `sanityTestSchema` | Sanity test route |
+| `script.schemas.ts` | `scriptGroupSchema`, `scriptFeatureSchema` | Script runs |
+| `story.schemas.ts` | `createStorySchema`, `createScenarioSchema`, `setOneDriverSchema`, `updateStoryOrderSchema`, `resolveCommandSchema` | Story and scenario routes |
+| `testExecution.schemas.ts` | `runTestSchema`, `runTempGroupSchema` | Test execution routes |
+| `user.schemas.ts` | `loginSchema`, `registerSchema`, `forgotPasswordSchema`, `resetPasswordSchema`, `mergeGithubSchema`, `initiateMergeGithubSchema`, `updateUserSchema` | User routes |
+| `workgroup.schemas.ts` | `addMemberSchema`, `updateMemberSchema`, `removeMemberSchema` | Workgroup member routes |
+
+The directory listing is the source of truth for the exact set of files.

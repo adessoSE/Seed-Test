@@ -1,75 +1,132 @@
 .import-label {
-  margin-right: 16px;
+  margin-right: 12px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .toggle-container {
   display: flex;
   align-items: center;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  min-height: 40px;
 }
 
 .toggle-label {
-  margin-left: 16px;
-  margin-right: 16px;
+  margin-left: 4px;
+  margin-right: 12px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .error-container {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   color: red;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+  padding: 12px;
 }
 
 .error-icon {
-  margin-right: 10px;
-  font-size: 24px;
+  margin-right: 8px;
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .error-message {
-  font-size: 18px;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 span.infoIcon {
-  color: white;
+  color: var(--ocean-blue);
+  cursor: help;
 }
 
 .warning-text {
-  color: red;
+  color: #d32f2f;
+  font-size: 13px;
+  margin-top: 6px;
+  display: block;
+  line-height: 1.3;
 }
 
-.searchInputProject, .projectNameInput{
-  border: none;
-  border-bottom: 1px solid var(--brown-grey);
-  font-weight: normal;
-  width: 50%;
-  max-height: 2em;
-  margin-top: 1.75em;
+.file-input-wrapper {
+  margin-bottom: 20px;
 }
-.searchInputProject:focus, .projectNameInput:focus{
+
+input[type="file"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px dashed var(--brown-grey);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.02);
+  cursor: pointer;
+}
+
+.darkTheme input[type="file"] {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #60767b;
+}
+
+.searchInputProject, .projectNameInput {
+  border: none;
+  border-bottom: 2px solid var(--brown-grey);
+  font-size: 15px;
+  font-weight: normal;
+  width: 100%;
+  max-height: 3em;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+.searchInputProject:focus, .projectNameInput:focus {
   outline: none;
 }
-.searchProject{
+
+.searchProject {
   display: flex;
-  align-items: end;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
-.searchFieldContainer, .projectDropDownContainer{
+
+.searchFieldContainer, .projectDropDownContainer {
   flex: 1;
+  min-width: 200px;
 }
-.searchFieldContainer{
+
+.searchFieldContainer {
   display: flex;
-  align-items: end;
+  flex-direction: column;
+  align-items: flex-start;
 }
-.searchFieldContainer .searchInputProject{
-  width: 100%;
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  margin-top: 24px;
+  border-top: 1px solid var(--brown-grey);
 }
-.searchInputProject{
-  border: none;
-  border-bottom: 1px solid var(--brown-grey);
-  font-weight: normal;
-  width: 50%;
-  max-height: 2em;
-  margin-top: 1.75em;
+
+.normalButton {
+  min-width: 80px;
+  padding: 8px 20px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--brown-grey);
+  background: var(--ocean-blue);
+  color: white;
+  transition: opacity 0.2s;
+}
+
+.normalButton:hover {
+  opacity: 0.85;
 }

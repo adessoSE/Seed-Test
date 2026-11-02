@@ -1,0 +1,11 @@
+# Dependencies and build output
+node_modules/
+dist/
+.angular/
+coverage/
+
+# Environment variables: secrets must never be tracked; templates stay tracked
+.env
+.env.*
+!.env.example
+!.env.*.example

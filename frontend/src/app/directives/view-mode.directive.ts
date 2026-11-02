@@ -1,17 +1,10 @@
-import { Directive, TemplateRef } from '@angular/core';
+import { Directive, TemplateRef, inject } from '@angular/core';
 
 /**
  * Directive of table cell if it is only viewable for the example table
  */
-@Directive({
-    selector: '[viewMode]',
-    standalone: false
-})
-export class ViewModeDirective {
+@Directive({ selector: '[appViewMode]' })
+export class ViewModeDirective {	tpl = inject<TemplateRef<unknown>>(TemplateRef);
 
-  /**
-   * @ignore
-   */
-  constructor(public tpl: TemplateRef<any>) { }
 
 }

@@ -1,19 +1,19 @@
-import { Component, Input } from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, ChangeDetectionStrategy, inject, input } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
-    selector: "app-confirm-reset-password-popup",
-    templateUrl: "./confirm-reset-password-popup.component.html",
-    styleUrls: ["./confirm-reset-password-popup.component.css"],
-    standalone: false
+	selector: 'app-confirm-reset-password-popup',
+	templateUrl: './confirm-reset-password-popup.component.html',
+	styleUrls: ['./confirm-reset-password-popup.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmResetPasswordPopupComponent {
-  @Input() type: string; // Default background color is red
-  @Input() message: string = "Reset your password?"; // Default message
+	private router = inject(Router);
 
-  constructor(private router: Router) {}
+	readonly type = input(''); // Default background color is red
+	readonly message = input<string>('Reset your password?');
 
-  navigateToLogin() {
-    this.router.navigateByUrl("/login");
-  }
+	navigateToLogin() {
+		this.router.navigateByUrl('/login');
+	}
 }

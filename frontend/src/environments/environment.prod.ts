@@ -2,5 +2,7 @@
  * Environment parameters for production
  */
 export const environment = {
-  production: true,
+	production: true,
+	version: '2.0.0',
+	env: ''
 };

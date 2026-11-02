@@ -1,70 +1,84 @@
 <!--Change Jira-Account Modal-->
-<ng-template #changeJiraAccountModal let-modal>
-    <app-layout-modal></app-layout-modal>
-    <div class="modal-header">
-        <span class="MediumSubline1H4 modal-title">Change Jira account</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <form [formGroup]="jiraForm" novalidate (ngSubmit)="changeJiraAccountSubmit()"> 
-        <div class="modal-body">
-            <div class="submitForm">
-                <div class="form-group modalsContent" id="jiraForm" *ngIf="type==='Jira'">
+<ng-template #changeJiraAccountModal let-modal="dialogRef">
+  <app-layout-modal />
+  <div class="modal-header">
+    <span class="MediumSubline1H4 modal-title">Change Jira account</span>
+    <button type="button" class="close" aria-label="Close" (click)="modal.close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <form [formGroup]="jiraForm" novalidate (ngSubmit)="changeJiraAccountSubmit()">
+    <div class="modal-body">
+      <div class="submitForm">
+        @if (type==='Jira') {
+          <div class="form-group modalsContent" id="jiraForm">
+            <div>
+              <!-- Tab state lives in activeForm so submit still knows which auth method is selected -->
+              <mat-tab-group class="jira-auth-tabs" [selectedIndex]="activeForm === 'basic' ? 1 : 0" (selectedIndexChange)="switchForm($event === 1 ? 'basic' : 'bearer')">
+                <mat-tab label="Bearer">
+                <form [formGroup]="jiraBearer">
+                  <label class="field-label" for="jiraTokenInput">Enter Token*</label>
+                  <input name="jiraToken" id="jiraTokenInput" type="password" formControlName="jiraToken" required>
+                </form>
+                </mat-tab>
+                <mat-tab label="Basic">
+                <form [formGroup]="jiraBasic">
+                  <div>
+                    <label class="field-label" for="jiraAccountNameInput">Enter existing account name*</label>
+                    <input name="jiraAccountName" id="jiraAccountNameInput" formControlName="jiraAccountName" required>
+                    @if (!jiraAccountName.valid && (jiraAccountName.dirty || jiraAccountName.touched)) {
+                      <div class="alert alert-danger">
+                        @if (jiraAccountName.errors?.['required']) {
+                          <div style="font-size: small;">Title is required.</div>
+                        }
+                        @if (jiraAccountName.errors?.['pattern']) {
+                          <div style="font-size: small;">Enter valid title name.</div>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <br>
                     <div>
-                        <ul class="uk-subnav uk-subnav-pill" uk-switcher>
-                            <li><a href="#" (click)="switchForm('bearer')" [class.active]="jiraForm.get('jiraAuthMethod').value === 'bearer'">Bearer</a></li>
-                            <li><a href="#" (click)="switchForm('basic')" [class.active]="jiraForm.get('jiraAuthMethod').value === 'basic'">Basic</a></li>
-                        </ul>
-                        <ul class="uk-switcher uk-margin">
-                            <form [formGroup]="jiraBearer">
-                                <label class="uk-form-label">Enter Token*</label>
-                                <input name="jiraToken" type="password" formControlName="jiraToken" required>
-                            </form>
-                            <form [formGroup]="jiraBasic">
-                                <div>
-                                    <label class="uk-form-label">Enter existing account name*</label>
-                                    <input name="jiraAccountName" formControlName="jiraAccountName" required>
-                                    <div *ngIf="!jiraAccountName.valid && (jiraAccountName.dirty || jiraAccountName.touched)" class="alert alert-danger">
-                                        <div *ngIf="jiraAccountName.errors?.['required']" style="font-size: small;">Title is required.</div>
-                                        <div *ngIf="jiraAccountName.errors?.['pattern']" style="font-size: small;">Enter valid title name.</div>
-                                    </div>
-                                </div>
-                                <br>
-                                <div>
-                                    <label class="uk-form-label">Enter password*</label>
-                                    <input name="jiraPassword" type="password" formControlName="jiraPassword" required>
-                                </div>  
-                            </form>
-                        </ul>
-                        
-                        <div>
-                            <label class="uk-form-label">Enter server URL*</label>
-                            <input name="jiraHost" formControlName="jiraHost" required>
-                        </div>
+                      <label class="field-label" for="jiraPasswordInput">Enter password*</label>
+                      <input name="jiraPassword" id="jiraPasswordInput" type="password" formControlName="jiraPassword" required>
                     </div>
-                    <div id="githubForm" *ngIf="type==='Github'">
-                        <div class="padding_top uk-form-horizontal">
-                            <label class="padding_right">Github-AccountName:</label>
-                            <input id="githubAccountName">
-                        </div>
-                        <div class="padding_top uk-form-horizontal">
-                            <label class="padding_right">Github-Token:</label>
-                            <input id="githubToken">
-                        </div>
-                    </div>
+                  </form>
+                </mat-tab>
+              </mat-tab-group>
+                <div>
+                  <label class="field-label" for="jiraHostInput">Enter server URL*</label>
+                  <input name="jiraHost" id="jiraHostInput" formControlName="jiraHost" required>
                 </div>
+              </div>
+              @if (type==='Github') {
+                <div id="githubForm">
+                  <div class="padding_top">
+                    <label class="padding_right" for="githubAccountName">Github-AccountName:</label>
+                    <input id="githubAccountName">
+                  </div>
+                  <div class="padding_top">
+                    <label class="padding_right" for="githubToken">Github-Token:</label>
+                    <input id="githubToken">
+                  </div>
+                </div>
+              }
             </div>
+          }
         </div>
-        <div class="modal-footer">
-            <button *ngIf="activeForm === 'bearer'" type="submit" class="normalButton" [disabled]="!jiraForm.valid || !jiraBearer.valid"
-            [ngStyle]="{'opacity': (!jiraForm.valid || !jiraBearer.valid) ?  '50%' : '100%'}">
+      </div>
+      <div class="modal-footer">
+        @if (activeForm === 'bearer') {
+          <button type="submit" class="normalButton" [disabled]="!jiraForm.valid || !jiraBearer.valid"
+            [style.opacity]="(!jiraForm.valid || !jiraBearer.valid) ?  '50%' : '100%'">
             Submit
-            </button>
-            <button *ngIf="activeForm === 'basic'" type="submit" class="normalButton" [disabled]="!jiraForm.valid || !jiraBasic.valid"
-            [ngStyle]="{'opacity':  (!jiraForm.valid || !jiraBasic.valid)  ?  '50%' : '100%'}">
+          </button>
+        }
+        @if (activeForm === 'basic') {
+          <button type="submit" class="normalButton" [disabled]="!jiraForm.valid || !jiraBasic.valid"
+            [style.opacity]="(!jiraForm.valid || !jiraBasic.valid)  ?  '50%' : '100%'">
             Submit
-            </button>
-        </div> 
-    </form>  
-</ng-template>
+          </button>
+        }
+      </div>
+    </form>
+  </ng-template>

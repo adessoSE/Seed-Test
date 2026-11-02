@@ -1,111 +1,88 @@
 # Seed-Test — Agent Instructions
 
-## Repo context
-GitHub: `adessoSE/Seed-Test` (wiki/docs at `adessoAG/Seed-Test`). Open-source BDD UI-testing platform (25★, 9↙). v1.8.1 on `master`.
+Monorepo (npm workspaces): `backend/` (Express 5, TypeScript, raw MongoDB driver), `frontend/` (Angular, zoneless), `shared/` (Zod schemas and TypeScript models, imported as `@seed-test/shared/...`). Root `package.json` has no scripts; run commands inside the package directory.
 
-**API reference**: `docs/api-reference.md` (complete endpoint inventory)
-**Shared models**: `docs/shared-models.md` (all schema types + frontend copies)
-**Repo testing**: `docs/testing.md` (Vitest + Jest)
-**Test execution engine**: `docs/test-execution.md` (Cucumber/Playwright/Selenium product feature)
+## Reference by trigger
+- `CONTEXT.md`: domain terms (`storySource`, `issue_number`, reorder). Read before changing story numbering or source logic.
+- `docs/adr/`: recorded decisions. Read before changing a rule an ADR covers.
+- `backend/AGENTS.md`: editing `backend/`. Layering, Zod validation, rate limits, test runners.
+- `frontend/AGENTS.md`: editing `frontend/`. Signals, zoneless change detection, lint.
+- `docs/api-reference.md`: adding, changing, or calling an `/api` route.
+- `docs/shared-models.md`: changing a model or schema in `shared/`.
+- `docs/testing.md`: writing tests for Seed-Test itself, or Playwright MCP browser checks (`#playwright-mcp--browser-based-e2e-testing-via-agent`).
+- `docs/test-execution.md`: changing the product test engine in `backend/src/testing/`.
+- `tasks/README.md`: only when the user names a task file.
 
-## Architecture
-Monorepo with 3 packages: `backend` (Express/TS), `frontend` (Angular 20), `shared` (TS models).
+## Find code with the graph first
+- If codebase-memory-mcp is available, use it for structural questions. Take the project whose root is the repo folder (`list_projects`); in a worktree, the project whose root is your worktree. Tools:
+  - Where X is defined: `search_graph(name_pattern="X")`.
+  - Who calls X, what X calls, change impact: `trace_path(function_name="X", direction="inbound"|"outbound")`.
+  - X's source: `get_code_snippet` with the qualified name from `search_graph`.
+  A grep for a symbol misses callers across `backend`, `frontend`, and `shared`.
+- An exact file:line in a brief is already the answer: Read that range.
+- Literal text (messages, config keys), config, and non-code files: Grep and Glob.
+- Zero graph callers is not proof of dead code: `trace_path` does not resolve namespace-import calls (`userService.fn()`, `this.apiService.fn()`) or HTTP routes. Grep the symbol name before deleting.
+- Angular work: angular-cli MCP, if available. Run `list_projects`, then `get_best_practices`, then `search_documentation`.
+- Third-party library APIs: Context7 (`resolve-library-id`, then `query-docs`), if available.
 
-Backend is TypeScript — old `serverRouter/` removed; replaced by clean 3-layer architecture.
+## Workflow and orchestration
+- Bugs: `tdd` skill (failing regression spec first, then the fix). Reviews: `code-review` skill, run the Standards and Spec axes separately. Writing agent documents (this file, skills): `writing-for-agents` skill.
+- Give each subagent an explicit file scope; it must not touch files outside it.
 
-| Shared models | — | — | imported via `@shared` alias |
+## Commands
+| Goal | Command |
+|---|---|
+| Install all workspaces | `npm install` at repo root |
+| Build shared (before tsc, start, or frontend build) | `cd shared && npm run build` |
+| Backend unit tests | `cd backend && npm test` |
+| One backend spec | `cd backend && npx vitest run src/services/repository.service.spec.ts` |
+| Backend integration (container runtime must run, see Environment) | `cd backend && npm run test:integration` |
+| Backend lint / typecheck | `cd backend && npm run lint` / `npm run tsc` |
+| E2E suite (stack must run, see `docs/testing.md`) | `cd e2e && npm test` |
+| Create collections and stepTypes (needs backend/.env) | `cd backend && npm run database` |
+| Run backend | `cd backend && npm start` |
+| Frontend unit tests | `cd frontend && npm test -- --watch=false` |
+| One frontend spec | `cd frontend && npx ng test --include "src/app/login/login.component.spec.ts" --watch=false` |
+| Frontend lint / production build | `cd frontend && npm run lint` / `npm run build` |
+| Run frontend | `cd frontend && npm run build && node server.js` (serves `dist/cucumber-frontend/browser`, no hot reload) |
+| Product Cucumber run | `cd backend && npm run exec-test` |
 
-- **Database**: MongoDB. Default connection in `docker-compose.yml`: `mongodb://SeedAdmin:SeedTest@seedmongodb:27017`
-- **Frontend dev**: `http://localhost:4200/login`
-- **Backend API**: `http://localhost:8080/api`
+Gotchas:
+- Docker images (`docker-*.yml`, release workflow) build from the repo root and install from the root `package-lock.json` via `-w <pkg> -w shared`, because `@seed-test/shared` is not on the npm registry. The per-package lockfiles are not used by Docker.
+- `backend/tsconfig.json` and `frontend/tsconfig.json` map `@seed-test/shared` to `shared/dist`. Build shared after any change under `shared/src`. Vitest maps to `shared/src` and needs no build.
+- Frontend specs run through `ng test`, not `vitest` directly. Direct vitest lacks the Angular test globals.
+- Backend `npm install` runs `playwright install --with-deps` (postinstall). The server only checks browsers at startup and never installs them; the backend image installs them at build time.
 
-## Backend — routes → controllers → services
-Old `serverRouter/` replaced by clean 3-layer architecture:
+## Environment
+- Node: `^22.23.4 || ^24.22.1 || ^26.12.1` (backend and frontend `engines`). All Dockerfiles use Node 22.
+- `backend/.env` (gitignored; template `backend/.env.example`). Validated by `backend/src/config.ts`. Required: `DATABASE_URI`, `ENCRYPTION_SECRET` (64 hex chars), `JIRA_SECRET`, `JIRA_SALT`. `SESSION_SECRET` is required unless `NODE_ENV` is `development` or `test` (an unset `NODE_ENV` counts as production). The backend image sets `NODE_ENV=production`; the compose files set `COOKIE_SECURE=false` and `TRUST_PROXY=false` because they serve plain HTTP without a reverse proxy.
+- `frontend/.env` (gitignored; template `frontend/.env.example`). Key: `API_SERVER`, default `http://localhost:8080/api`.
+- `docker-compose.yml` starts MongoDB under host `seedmongodb`, which resolves only inside the compose network. All compose files run MongoDB as a single-node replica set `rs0` (keyFile generated at container start, `rs.initiate` in the healthcheck), so transactions work; the backend URI carries `?replicaSet=rs0`. From the host, connect with `?directConnection=true`. The backend still falls back to non-transactional writes on a standalone server. The compose files hold no secret values. `ENCRYPTION_SECRET`, `SESSION_SECRET`, `JIRA_SECRET`, `JIRA_SALT`, `MONGO_ROOT_USERNAME` and `MONGO_ROOT_PASSWORD` are read from the root `.env` (template: root `.env.example`); compose refuses to start without them. `docker-test.yml` gets the same names from GitHub secrets, passed in by `.github/workflows/CI_Tests_and_Report.yaml`.
+- Container runtime: integration tests and `docker compose` need a Docker-API-compatible runtime. Docker or Podman both work (`podman machine start`; `docker compose` also runs through Podman). If Podman reports a win-sshproxy API forwarding failure, stop the machine, delete `%TEMP%\podman\podman-machine-default-api.sock`, and start it again.
+- Dev ports: frontend 4200, backend 8080.
 
-```
-routes/*.ts        → URL routing + request parsing
-controllers/*.ts   → HTTP handlers (call services, return JSON)
-services/*.ts      → business logic (database ops, integrations)
-```
+## Code comments (required)
+- Keep every existing comment when editing code. Do not remove comments.
+- Comment business-logic branches (prefix each with `// CASE 1: ...`), async flow control (effects, signal chains, `firstValueFrom`), non-obvious constraints and their consequences, workarounds, and integration points (Jira, Xray, MongoDB).
+- JSDoc every exported function, class, and interface: purpose, parameters, return value, side effects. Omit types TypeScript already states.
+- Explain WHY, not WHAT. Warn about consequences: `// Irreversible — deletes all associated reports`.
+- Place single-line `//` comments above the line they describe.
+- Use `// TODO:` for planned work and `// FIXME:` for known breakage.
+- Write English only for comments, JSDoc, `.md` files, and commit messages.
+- Do not leave commented-out code, changelog comments (`// added 2026-…`), or comments that restate code (`// increment counter`).
 
-**New services:**
-- `ai.service.ts` — AI-driven test scenario generation via `@seed-test/ai-parser`, queued via `JobQueue`
-- `externalSync.service.ts` — JIRA ↔ Xray ↔ GitHub ↔ DB synchronization
-- `xray.service.ts` — Xray REST API integration
-- `feature-file.service.ts` — Gherkin feature file generation/parsing
-- `report.service.ts` — Report management
-- `test-runner.service.ts` — test execution via Cucumber
-- `import-export.service.ts` — SEED import/export
-- `block.service.ts`, `workgroup.service.ts` — new domain models
+## Conventions tooling does not enforce
+- Backend mocks: `vi.hoisted()` plus `vi.mock()`. ESM-safe; avoids TDZ errors. Controller tests use `createReq()` and `createRes()`.
+- Every new mutating route gets a Zod schema in `shared/src/schemas/` and the `validate()` middleware from `backend/src/middleware/validate.ts`.
+- Database access uses the raw `mongodb` driver through `db.collection<T>(name)`, with collection names as constants.
+- Controllers are async `(req, res, next)` and forward errors with `next(error)`.
+- Lint must finish with 0 errors and 0 warnings in both packages.
 
-**Test runners:** Playwright (`@playwright/test`) and Selenium-Webdriver both available in `backend/src/test-runners/`. Mode selected via request parameter.
+## Git and files
+- Commit only source, tests, and docs. Check the staged diff for secrets before every commit. Never commit `.env` or tokens.
+- Write scratch output (logs, screenshots, scripts, temp dumps) to `workers/scratch/`. `workers/` and `tasks/` are gitignored local tracking.
+- Feature branches target `dev`. Docker images build when a GitHub release named `Seed-Test_v*` is published (`.github/workflows/Build_and_Publish_Images.yaml`).
+- Commit messages follow the existing style in `git log` (Conventional Commits, English).
 
-## Quick setup
-```bash
-# Docker (recommended — spins up mongo, backend, frontend)
-cd /c/SeedTest && docker compose up -d
-
-# Local install (Node 20/22/24)
-npm install            # root package-lock.json does nothing
-cd backend && npm install
-cd ../frontend && npm install
-# Create .env in /backend and /frontend from their .env.example files
-cd ../backend && npm run database   # creates Collections + stepTypes
-```
-
-## Key commands
-```bash
-# Backend
-npm test                     # Vitest unit tests (*.spec.ts in services/)
-npm run test-coverage        # Vitest with coverage
-npm run exec-test            # Cucumber E2E (runs .feature files in features/)
-npm run database             # initialize MongoDB collections
-npm run tsc                  # TypeScript build only
-
-# Frontend
-npm test                     # Jest unit tests
-npm run test-coverage        # Jest with coverage
-npm run build                # Angular production build
-```
-
-## Docker
-- **Production compose**: `docker-compose.yml` — uses pre-built images from Docker Hub, defaults included
-- **CI compose**: `docker-test.yml` — builds images from `./backend/Dockerfile` and `./frontend/Dockerfile`
-- **Demo image**: `docker run -p 4200:4200 -p 8080:8080 seedtest/seed-test-demo:latest`
-  - Default login: `seed@test.de` / `seedtest`
-
-## CI (GitHub Actions)
-PR → `.github/workflows/CI_Tests_and_Report.yaml`:
-1. Builds Docker stack with `docker-test.yml` (Node 20/22/24 matrix)
-2. Runs `docker exec Seed-backend npm test` and `docker exec Seed-frontend npm test`
-3. Sanity check: POST login to backend → call `/api/sanity/test/$REPO_ID/$GROUP_ID`
-4. Sends Microsoft Teams report via `actions/fullReport`
-
-Release publish → `Build_and_Publish_Images.yaml`: publishes to Docker Hub.
-
-## Environment & config
-- Backend needs `.env` in `/backend` with at least `DATABASE_URI`, `SESSION_SECRET`, `JIRA_SECRET`, `JIRA_SALT`
-  - **Also required**: `ENCRYPTION_SECRET` — 64-char hex string (used by `cryptoHelper.ts` for AES-256-GCM)
-- Frontend needs `.env` in `/frontend` with `API_SERVER` (default `http://localhost:8080/api`)
-- Docker compose embeds env vars directly in `docker-compose.yml`
-- **Default secrets in compose are not secure**: `SESSION_SECRET=secretSessionKey`, `JIRA_SECRET=secretJiraKey`, `JIRA_SALT=BJ1yJTJ7AFql`
-
-## Testing & branch conventions
-- **Primary test**: `npm test` (Vitest unit `.spec.ts` + Jest frontend) — daily use
-- **Cucumber E2E**: `npm run exec-test` — `.feature` → Cucumber → Playwright/Selenium → JSON report → docs/testing.md
-- **Branching**: Feature branches → `dev`; `master` reserved for official release tags (triggers Docker Hub build)
-
-## Style conventions (backend)
-`backend/.eslintrc.json` extends `airbnb-base` with these overrides:
-- **Tabs** for indentation (`"indent": [2, "tab"]`)
-- Single quotes, semicolons required, no `comma-dangle`
-- Curly braces **always required** (`"curly": ["error", "multi"]`)
-- `prefer-arrow-callback` enforced
-- `no-underscore-dangle`, `no-console`, `no-plusplus` all **off**
-- Lint target is **only** `src/database/` — not full backend
-
-## Files/gitignore
-Always gitignore: `.feature`, `reporting_*`, `dist/`, `node_modules/`, `.env`, `tsconfig.tsbuildinfo`, `coverage/`, `logs/`, `*.bat`, `*.sh`
-
-## SonarCloud
-Frontend-only: project key `adessoAG_Seed-Test`, test inclusions `**/*.spec.ts`, report at `frontend/coverage/lcov.info`.
+## Ports
+- Stop any dev server you started on ports 4200 or 8080 before finishing. Those ports belong to the user's running instance.

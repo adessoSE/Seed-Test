@@ -1,74 +1,79 @@
-import { Component, ViewChild } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { Component, ChangeDetectionStrategy, inject, TemplateRef, viewChild } from '@angular/core';
+import { UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ApiService } from '../../../app/Services/api.service';
+import { NotificationService } from '../../../app/Services/notification.service';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
+import { MatIconModule } from '@angular/material/icon';
+
 
 @Component({
-    selector: 'app-new-step-request',
-    templateUrl: './new-step-request.component.html',
-    styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
-    standalone: false
+	selector: 'app-new-step-request',
+	templateUrl: './new-step-request.component.html',
+	styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, MatIconModule]
 })
 export class NewStepRequestComponent {
+	private modalService = inject(MatDialog);
+	apiService = inject(ApiService);
+	notify = inject(NotificationService);
 
-  modalReference: NgbModalRef;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+	modalReference!: MatDialogRef<unknown>;
 
-  @ViewChild('newStepRequestModal') newStepRequestModal: NewStepRequestComponent;
+	readonly newStepRequestModal = viewChild.required<TemplateRef<unknown>>('newStepRequestModal');
 
-  newStepReqForm = new UntypedFormGroup ({
-    title: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
-    type: new UntypedFormControl(''),
-    description: new UntypedFormControl(''),
-    email: new UntypedFormControl(''),
-  },
-  {updateOn: "blur"});
+	newStepReqForm = new UntypedFormGroup ({
+		title: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+		type: new UntypedFormControl(''),
+		description: new UntypedFormControl(''),
+		email: new UntypedFormControl('')
+	},
+	{updateOn: 'blur'});
 
-  get title() { return this.newStepReqForm.get('title'); }
+	get title() { return this.newStepReqForm.get('title'); }
 
-  /**
+	/**
     * Opens a new step request modal
     * @param stepType
   */
-  openNewStepRequestModal(stepType) {
-    this.modalReference = this.modalService.open(this.newStepRequestModal, {ariaLabelledBy: 'modal-basic-title'});
-    const id = 'type_form_' + stepType;
-    (document.getElementById(id) as HTMLOptionElement).selected = true;
-    //Updates the type 
-    this.newStepReqForm.patchValue({
-      type: (document.getElementById(id) as HTMLOptionElement).value
-    }); 
-  }
+	openNewStepRequestModal(stepType: string) {
+		this.modalReference = this.modalService.open(this.newStepRequestModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
+		const id = 'type_form_' + stepType;
+		(document.getElementById(id) as HTMLOptionElement).selected = true;
+		//Updates the type 
+		this.newStepReqForm.patchValue({
+			type: (document.getElementById(id) as HTMLOptionElement).value
+		}); 
+	}
 
-  /**
+	/**
    * Submits a request to create a new step
    * 
    */
-  submitNewStepRequest() {
-    const title = this.newStepReqForm.value.title; 
-    const type = 'Type: '.concat(this.newStepReqForm.value.type.value);
-    const description = 'Description: '.concat(this.newStepReqForm.value.description, '\n');
-    const email = 'Email: '.concat(this.newStepReqForm.value.email, '\n');
-    const body = type.concat(description, email);
-    const obj = {
-      'title': title,
-      'body': body,
-      'assignees': [
-          'adessoCucumber'
-      ],
-      'milestone': null,
-      'labels': [
-          'generated',
-          'ToDo'
-      ]
-    };
-    console.log(obj.title, obj.body);
-    this.apiService.submitGithub(obj).subscribe((resp) => {
-      console.log(resp);
-    });
-    this.modalReference.close();
-  }
+	submitNewStepRequest() {
+		const title = this.newStepReqForm.value.title; 
+		const type = 'Type: '.concat(this.newStepReqForm.value.type.value);
+		const description = 'Description: '.concat(this.newStepReqForm.value.description, '\n');
+		const email = 'Email: '.concat(this.newStepReqForm.value.email, '\n');
+		const body = type.concat(description, email);
+		const obj = {
+			'title': title,
+			'body': body,
+			'assignees': [
+				'adessoCucumber'
+			],
+			'milestone': null,
+			'labels': [
+				'generated',
+				'ToDo'
+			]
+		};
+		this.apiService.submitGithub(obj).subscribe({
+			error: () => this.notify.error('Could not submit step request')
+		});
+		this.modalReference.close();
+	}
 
 }

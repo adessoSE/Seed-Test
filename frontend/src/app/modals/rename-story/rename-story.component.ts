@@ -1,60 +1,64 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
-import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Story } from 'src/app/model/Story';
+﻿import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Story } from '@seed-test/shared/models/Story';
 import { StoryService } from 'src/app/Services/story.service';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
+
 
 @Component({
-    selector: 'app-rename-story',
-    templateUrl: './rename-story.component.html',
-    styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css'],
-    standalone: false
+	selector: 'app-rename-story',
+	templateUrl: './rename-story.component.html',
+	styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameStoryComponent {
+	private modalService = inject(MatDialog);
+	storyService = inject(StoryService);
 
-  modalReference: NgbModalRef;
 
-  @ViewChild('renameStoryModal') renameStoryModal: TemplateRef<RenameStoryComponent>;
+	modalReference!: MatDialogRef<unknown>;
 
-  story: Story;
-  stories: Story[];
-  storyForm = new UntypedFormGroup ({
-    storyTitle: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
-    storyDescription: new UntypedFormControl(''),
-  });
+	readonly renameStoryModal = viewChild.required<TemplateRef<RenameStoryComponent>>('renameStoryModal');
 
-  get storyTitle() { return this.storyForm.get('storyTitle'); }
+	story!: Story;
+	stories!: Story[];
+	storyForm = new UntypedFormGroup ({
+		storyTitle: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+		storyDescription: new UntypedFormControl('')
+	});
 
-  constructor(private modalService: NgbModal, public storyService: StoryService) { }
+	get storyTitle() { return this.storyForm.get('storyTitle'); }
 
-  /**
+	/**
    * Opens the rename story Modal
    * @param stories
    * @param story
    */
-  openRenameStoryModal(stories: Story [], story: Story) {
-    this.stories = stories;
-    this.story = story;
-    this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
-    const title = document.getElementById('newStoryTitle') as HTMLInputElement;
-    title.placeholder = story.title;
-    this.storyForm.setValue({
-      storyTitle: story.title,
-      storyDescription: story.body
-    });
-  }
+	openRenameStoryModal(stories: Story [], story: Story) {
+		this.stories = stories;
+		this.story = story;
+		this.modalReference = this.modalService.open(this.renameStoryModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
+		const title = document.getElementById('newStoryTitle') as HTMLInputElement;
+		title.placeholder = story.title;
+		this.storyForm.setValue({
+			storyTitle: story.title,
+			storyDescription: story.body
+		});
+	}
 
-  /**
+	/**
    * Submits the new name for the story & description
    */
-  submitRenameStory() {
-    const title = this.storyForm.value.storyTitle;
-    const description = this.storyForm.value.storyDescription;
-    this.storyService.renameStoryEmit(title, description);
-    this.modalReference.close();
-  }
+	submitRenameStory() {
+		const title = this.storyForm.value.storyTitle;
+		const description = this.storyForm.value.storyDescription;
+		this.storyService.renameStoryEmit(title, description);
+		this.modalReference.close();
+	}
 
-  storyUnique() {
-    this.storyService.storyUnique('submitRenameStory', this.storyForm.value.storyTitle, this.stories, this.story);
-  }
+	storyUnique() {
+		this.storyService.storyUnique('submitRenameStory', this.storyForm.value.storyTitle, this.stories, this.story);
+	}
 }

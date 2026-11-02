@@ -1,0 +1,38 @@
+import { z } from 'zod';
+
+/** POST /api/execute/TempGroup — group with member stories for temp execution */
+export const runTempGroupSchema = z.object({
+	repositoryId: z.string().optional(),
+	id: z.string().optional(),
+	repository: z.string().optional(),
+	source: z.string().optional(),
+	group: z.object({
+		name: z.string().optional(),
+		// member_stories are full Story objects from the frontend — validated as objects,
+		// not stripped, because the test runner consumes them wholesale
+		member_stories: z.array(z.record(z.string(), z.unknown())),
+		isSequential: z.boolean().optional().default(false)
+	})
+}).superRefine((data, ctx) => {
+	const repositoryId = data.repositoryId ?? data.id;
+	if (!repositoryId || repositoryId.trim().length === 0) 
+		ctx.addIssue({
+			code: 'custom',
+			message: 'Repository ID is required',
+			path: ['repositoryId']
+		});
+});
+
+/** POST /api/execute/Feature and /api/execute/Scenario — minimal body */
+export const runTestSchema = z.object({
+	repositoryId: z.string().min(1, 'Repository ID is required'),
+	browser: z.string().optional(),
+	emulator: z.string().nullable().optional(),
+	width: z.number().optional(),
+	height: z.number().optional(),
+	stepWaitTime: z.number().optional(),
+	repository: z.string().optional(),
+	source: z.string().optional(),
+	oneDriver: z.boolean().optional(),
+	testRunner: z.string().optional()
+});

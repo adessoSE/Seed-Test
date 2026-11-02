@@ -1,8 +1,8 @@
-# API Endpunkte Übersicht
+# API Endpoints Overview
 
-Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middleware erfordern Login. Public (`/api/user`, `/api/playwright`, `/api/log`) sind auth-frei.
+All endpoints are routed under `/api/`. `backend/src/server.ts` mounts every router behind `isAuthenticated` except the public ones: `/api/health`, `/api/ai/available`, `/api` (HTML), `/api/log`, `/api/playwright/*`, and under `/api/user` only `login`, `register`, `logout`, `resetpassword`, `reset`, and `callback`. Each table below marks auth per endpoint.
 
-## Authentifizierung
+## Authentication
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -15,9 +15,11 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | POST | `/api/user/update/:userID` | `User` (partial) | `User` | Require |
 | DELETE | `/api/user/` | — | `{message}` | Require |
 | GET | `/api/user/callback`?code= | — | `User` | Public |
+| POST | `/api/user/mergeGithub/initiate` | — | `{mergeToken}` | Require |
 | POST | `/api/user/mergeGithub` | `{userId, login, id}` | `{status}` | Require |
 
 ## Repositories
+
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -31,6 +33,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 
 ## Stories
 
+
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
 | GET | `/api/story/` | query: `source`, `id` | `Story[]` | Require |
@@ -42,19 +45,19 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | POST | `/api/story/:story_id` | `{name}` | `Scenario` | Require |
 | PUT | `/api/story/:story_id/:_id` | `Scenario` | `Scenario` | Require |
 | GET | `/api/story/:story_id/:_id` | — | `Scenario` | Require |
-| DELETE | `/api/scenario/:story_id/:_id` | — | `{message}` | Require |
+| DELETE | `/api/story/scenario/:story_id/:_id` | — | `{message}` | Require |
 | PATCH | `/api/story/:story_id` | `Scenario[]` | `{message}` | Require |
 | GET | `/api/story/download/story/:_id` | — | Binary `.feature` | Require |
 | GET | `/api/story/download/project/:repo_id` | query: `version_id` | Binary `.zip` | Require |
 | GET | `/api/story/download/export/:repo_id` | — | Binary `.zip` | Require |
 | POST/PUT | `/api/story/upload/import/` | multer file + query: `repo_id, projectName, importMode` | `{message}` | Require |
-| POST | `/api/story/specialCommands/resolve` | `{command}` | `{resolved}` | Require |
 | POST | `/api/story/oneDriver/:storyID` | `{oneDriver}` | `Result` | Require |
 | GET | `/api/story/issueKey/:issue_key` | — | `Story` | Require |
 | POST | `/api/story/:story_id/generate-scenarios` | `{aiConfig: AiConfig}` | `{message: 'queued'}` | Require |
 | GET | `/api/story/:story_id/generate-scenarios/status` | — | SSE event stream (202) | Require |
 
 ## Groups
+
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -67,6 +70,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | PUT | `/api/group/:repo_id` | `Group[]` | `{message}` | Require |
 
 ## Blocks
+
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -82,7 +86,7 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 | PUT | `/api/background/:storyID` | `Background` | `{Background}` | Require |
 | DELETE | `/api/background/:storyID` | — | `{}` | Require |
 
-## Workgroups (Team-Mitglieder)
+## Workgroups (Team members)
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -93,13 +97,15 @@ Alle Endpunkte sind unter `/api/` routet. Routen mit `isAuthenticated`-Middlewar
 
 ## Files (Upload)
 
+
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
 | POST | `/api/files/:repoId` | multer file (binary) | `FileElement` | Require |
 | GET | `/api/files/:repoId` | — | `FileElement[]` | Require |
-| DELETE | `/api/files/:fileId` | — | `{message}` | Require |
+| DELETE | `/api/files/:repoId/:fileId` | — | `{message}` | Require |
 
 ## Reports
+
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
@@ -139,14 +145,14 @@ interface ExecuteTestRequest {
 }
 ```
 
-## Script (automatisierte Ausführung ohne Browser)
+## Script (automated execution without browser)
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
-| POST | `/api/script/Group` | `{repoID, groupID, repository?, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Passport+Body |
-| POST | `/api/script/Feature/:issueID` | `{issueID, repositoryId, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Passport+Body |
+| POST | `/api/script/Group` | `{repoID, groupID, repository?, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Session + body |
+| POST | `/api/script/Feature/:issueID` | `{issueID, repositoryId, stayLoggedIn?, email, password}` | `handleReportResult` JSON | Session + body |
 
-> `script` Route verwendet eigenes Auth-Middleware (`authenticateAndProceed`) — Body enthält Login-Credentials direkt.
+> The `script` router is mounted behind `isAuthenticated` (`server.ts`), so a session is required. Its routes also pass the body credentials to `authenticateAndProceed` (`script.routes.ts`).
 
 ## External Integrations
 
@@ -154,9 +160,9 @@ interface ExecuteTestRequest {
 
 | | Endpoint | Body | Response | Auth |
 |---|---------|------|----------|------|
-| POST | `/api/jira/link` | `{jiraAccountName, jiraPassword, jiraHost, jiraAuthMethod?}` | `{message}` | Require |
+| POST | `/api/jira/link` | `{jiraAccountName (required only for basic), jiraPassword, jiraHost, jiraAuthMethod?}` | `{message}` | Require |
 | DELETE | `/api/jira/disconnect` | — | `{message}` | Require |
-| POST | `/api/jira/login` | `{jiraAccountName, jiraPassword, jiraServer, AuthMethod}` | `{sessionCookie}` | Require |
+| POST | `/api/jira/login` | `{jiraAccountName (required only for basic), jiraPassword, jiraServer, AuthMethod?}` | `{sessionCookie}` | Require |
 | PUT | `/api/jira/xray-status` | `{testRunId, stepId, status}` | Xray API response | Require |
 
 ### GitHub
@@ -165,6 +171,12 @@ interface ExecuteTestRequest {
 |---|---------|------|----------|------|
 | POST | `/api/github/submitIssue` | `{title, body, ...}` | GitHub Issue JSON | Require |
 | DELETE | `/api/github/disconnectGithub` | — | `{message}` | Require |
+
+## AI
+
+| | Endpoint | Body | Response | Auth |
+|---|---------|------|----------|------|
+| GET | `/api/ai/available` | — | `{ available: boolean }` | Public |
 
 ## System
 
