@@ -142,6 +142,27 @@ function buildRawZip(entries: Record<string, string>) {
 	return zip.toBuffer();
 }
 
+/**
+ * Rewrites the declared uncompressed size in the central directory and the local file header of the given entries,
+ * so the archive claims a size that its data does not match. Without an entry name every entry is rewritten.
+ * @param buffer A zip buffer built by AdmZip.
+ * @param size The uncompressed size to declare.
+ * @param entryName Optional name of the one entry to rewrite.
+ */
+function withDeclaredSize(buffer: Buffer, size: number, entryName?: string): Buffer {
+	const patched = Buffer.from(buffer);
+	const centralSignature = Buffer.from([0x50, 0x4b, 0x01, 0x02]);
+	// Central directory header: uncompressed size at +24, name length at +28, local header offset at +42, name at +46
+	for (let pos = patched.indexOf(centralSignature); pos !== -1; pos = patched.indexOf(centralSignature, pos + 4)) {
+		const name = patched.toString('utf8', pos + 46, pos + 46 + patched.readUInt16LE(pos + 28));
+		if (entryName !== undefined && name !== entryName) continue;
+		patched.writeUInt32LE(size, pos + 24);
+		// Local file header: uncompressed size at +22
+		patched.writeUInt32LE(size, patched.readUInt32LE(pos + 42) + 22);
+	}
+	return patched;
+}
+
 
 describe('ImportExportService', () => {
 	let importExportService: typeof ImportExportServiceModule;
@@ -818,6 +839,53 @@ describe('ImportExportService', () => {
 			).rejects.toMatchObject({ statusCode: 400 });
 
 			expect(mockSession.withTransaction).not.toHaveBeenCalled();
+		});
+
+		it('should reject an entry that compresses far beyond any real export with 400 before writing anything', async () => {
+			const zip = new AdmZip();
+			zip.addFile('repository.json', Buffer.from(JSON.stringify(makeRepo())));
+			// 2 MB of spaces deflates to a few KB, a ratio far above any real story
+			zip.addFile('stories/bomb.json', Buffer.alloc(2 * 1024 * 1024, ' '));
+
+			await expect(
+				importExportService.importProject({ buffer: zip.toBuffer() }, undefined, 'NewProject', true, userId)
+			).rejects.toMatchObject({ statusCode: 400, message: expect.stringContaining('ratio') });
+
+			expect(repositoryService.createRepo).not.toHaveBeenCalled();
+		});
+
+		it('should reject an archive whose headers declare a huge uncompressed size with 400 before writing anything', async () => {
+			const zipBuffer = withDeclaredSize(buildImportZip(makeRepo(), [], [], []), 0xFFFFFFF0);
+
+			await expect(
+				importExportService.importProject({ buffer: zipBuffer }, undefined, 'NewProject', true, userId)
+			).rejects.toMatchObject({ statusCode: 400, message: expect.stringContaining('uncompressed size') });
+
+			expect(repositoryService.createRepo).not.toHaveBeenCalled();
+		});
+
+		it('should reject an entry that inflates beyond its declared size with 400 before writing anything', async () => {
+			const story = { _id: storyId1, title: 'x'.repeat(200 * 1024), body: '', scenarios: [] };
+			// The entry declares 10 bytes but holds about 200 KB of real data
+			const zipBuffer = withDeclaredSize(buildImportZip(makeRepo(), [story], [], []), 10, `stories/${storyId1.toString()}.json`);
+
+			await expect(
+				importExportService.importProject({ buffer: zipBuffer }, undefined, 'NewProject', true, userId)
+			).rejects.toMatchObject({ statusCode: 400, message: expect.stringContaining('declared size') });
+
+			expect(repositoryService.createRepo).not.toHaveBeenCalled();
+		});
+
+		it('should reject an archive with more than 10000 entries with 400 before writing anything', async () => {
+			const zip = new AdmZip();
+			zip.addFile('repository.json', Buffer.from(JSON.stringify(makeRepo())));
+			for (let i = 0; i < 10_001; i++) zip.addFile(`extra/${i}.txt`, Buffer.from('x'));
+
+			await expect(
+				importExportService.importProject({ buffer: zip.toBuffer() }, undefined, 'NewProject', true, userId)
+			).rejects.toMatchObject({ statusCode: 400, message: expect.stringContaining('entries') });
+
+			expect(repositoryService.createRepo).not.toHaveBeenCalled();
 		});
 
 		it('should link a new story to the repository before updating it, so a failed update cannot leave it unlinked', async () => {
