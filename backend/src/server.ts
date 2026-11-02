@@ -105,7 +105,7 @@ if (validatedConfig.value?.TRUST_PROXY ?? isProduction)
 
 
 // --- Core Middleware ---
-app.use((cors as unknown as (options: Record<string, unknown>) => express.RequestHandler)({
+app.use(cors({
 	origin: [
 		process.env.FRONTEND_URL ?? 'http://localhost:4200'
 	],
