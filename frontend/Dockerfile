@@ -9,8 +9,8 @@ WORKDIR /usr/src/app
 # (not on the npm registry) and the root package-lock.json is the only current lockfile.
 COPY . .
 
-# Install frontend and shared workspace dependencies
-RUN npm install --ignore-scripts -w frontend -w shared
+# Install frontend and shared workspace dependencies exactly as locked (npm ci fails if package-lock.json is out of sync)
+RUN npm ci --ignore-scripts -w frontend -w shared
 #RUN npm install --force --ignore-scripts
 
 # Install Angular CLI

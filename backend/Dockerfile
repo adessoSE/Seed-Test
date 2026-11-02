@@ -70,8 +70,8 @@ COPY . .
 # Create runtime directory for generated .feature files and JSON/HTML reports
 RUN mkdir -p backend/features
 
-# Install backend and shared workspace dependencies and rebuild native modules
-RUN npm install --ignore-scripts -w backend -w shared && npm rebuild bcrypt -w backend
+# Install backend and shared workspace dependencies exactly as locked (npm ci fails if package-lock.json is out of sync) and rebuild native modules
+RUN npm ci --ignore-scripts -w backend -w shared && npm rebuild bcrypt -w backend
 
 # Run everything below from the backend package
 WORKDIR /usr/src/app/backend
