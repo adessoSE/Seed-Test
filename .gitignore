@@ -99,6 +99,8 @@ backend/tsconfig.tsbuildinfo
 opencode.jsonc
 
 # Claude Code: track shared config, ignore local overrides and worktrees
+CLAUDE.local.md
+**/CLAUDE.local.md
 .claude/settings.local.json
 .claude/worktrees/
 

@@ -14,21 +14,20 @@ Monorepo (npm workspaces): `backend/` (Express 5, TypeScript, raw MongoDB driver
 - `tasks/README.md`: only when the user names a task file.
 
 ## Find code with the graph first
-- Structural questions go to codebase-memory-mcp, project `C-SeedTest` (auto-refreshed; in a worktree, run `list_projects` and take the project whose root is your folder). The tools are deferred: load them once with ToolSearch query `+codebase-memory`, then:
+- If codebase-memory-mcp is available, use it for structural questions. Take the project whose root is the repo folder (`list_projects`); in a worktree, the project whose root is your worktree. Tools:
   - Where X is defined: `search_graph(name_pattern="X")`.
   - Who calls X, what X calls, change impact: `trace_path(function_name="X", direction="inbound"|"outbound")`.
   - X's source: `get_code_snippet` with the qualified name from `search_graph`.
   A grep for a symbol misses callers across `backend`, `frontend`, and `shared`.
-- An exact file:line in your brief is already the answer: Read that range.
+- An exact file:line in a brief is already the answer: Read that range.
 - Literal text (messages, config keys), config, and non-code files: Grep and Glob.
 - Zero graph callers is not proof of dead code: `trace_path` does not resolve namespace-import calls (`userService.fn()`, `this.apiService.fn()`) or HTTP routes. Grep the symbol name before deleting.
-- Angular work: angular-cli MCP. Run `list_projects`, then `get_best_practices`, then `search_documentation`.
-- Third-party library APIs: Context7 (`resolve-library-id`, then `query-docs`).
-- Pass these rules to any subagent you spawn. Every worker brief that touches code carries this sentence verbatim: "Structural lookups (where X is defined, who calls X, what X calls): load tools with ToolSearch `+codebase-memory`, then search_graph / trace_path with project `C-SeedTest`. Grep only for literal text, or when trace_path finds no callers (namespace imports, HTTP routes). Skip this when this brief gives an exact file:line."
+- Angular work: angular-cli MCP, if available. Run `list_projects`, then `get_best_practices`, then `search_documentation`.
+- Third-party library APIs: Context7 (`resolve-library-id`, then `query-docs`), if available.
 
 ## Workflow and orchestration
 - Bugs: `tdd` skill (failing regression spec first, then the fix). Reviews: `code-review` skill, run the Standards and Spec axes separately. Writing agent documents (this file, skills): `writing-for-agents` skill.
-- Opus orchestrates and dispatches; Haiku workers do the scoped work. Each worker gets an explicit file scope and must not touch files outside it.
+- Give each subagent an explicit file scope; it must not touch files outside it.
 
 ## Commands
 | Goal | Command |
@@ -59,7 +58,7 @@ Gotchas:
 - `backend/.env` (gitignored; template `backend/.env.example`). Validated by `backend/src/config.ts`. Required: `DATABASE_URI`, `ENCRYPTION_SECRET` (64 hex chars), `JIRA_SECRET`, `JIRA_SALT`. `SESSION_SECRET` is required unless `NODE_ENV` is `development` or `test` (an unset `NODE_ENV` counts as production). The backend image sets `NODE_ENV=production`; the compose files set `COOKIE_SECURE=false` and `TRUST_PROXY=false` because they serve plain HTTP without a reverse proxy.
 - `frontend/.env` (gitignored; template `frontend/.env.example`). Key: `API_SERVER`, default `http://localhost:8080/api`.
 - `docker-compose.yml` starts MongoDB under host `seedmongodb`, which resolves only inside the compose network. All compose files run MongoDB as a single-node replica set `rs0` (keyFile generated at container start, `rs.initiate` in the healthcheck), so transactions work; the backend URI carries `?replicaSet=rs0`. From the host, connect with `?directConnection=true`. The backend still falls back to non-transactional writes on a standalone server. The compose files hold no secret values. `ENCRYPTION_SECRET`, `SESSION_SECRET`, `JIRA_SECRET`, `JIRA_SALT`, `MONGO_ROOT_USERNAME` and `MONGO_ROOT_PASSWORD` are read from the root `.env` (template: root `.env.example`); compose refuses to start without them. `docker-test.yml` gets the same names from GitHub secrets, passed in by `.github/workflows/CI_Tests_and_Report.yaml`.
-- Container runtime: integration tests and `docker compose` need a Docker-API-compatible runtime. The team uses Podman: run `podman machine start`. `docker` and `docker compose` commands also work through Podman (`podman` and `podman compose`). Gotcha: if `podman machine start` reports that API forwarding failed (win-sshproxy), run `podman machine stop`, delete `%TEMP%\podman\podman-machine-default-api.sock`, then start the machine again.
+- Container runtime: integration tests and `docker compose` need a Docker-API-compatible runtime. Docker or Podman both work (`podman machine start`; `docker compose` also runs through Podman). If Podman reports a win-sshproxy API forwarding failure, stop the machine, delete `%TEMP%\podman\podman-machine-default-api.sock`, and start it again.
 - Dev ports: frontend 4200, backend 8080.
 
 ## Code comments (required)
