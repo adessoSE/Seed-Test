@@ -9,9 +9,6 @@
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "target": "ES2024",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
     "types": [
       "node"
     ],
