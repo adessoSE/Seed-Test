@@ -21,5 +21,7 @@ The frontend runs **zoneless**: `provideZonelessChangeDetection()` in `app.modul
 - All components use `ChangeDetectionStrategy.OnPush`
 - Directives use the `app` prefix
 
+- Optional: install the Angular agent skill locally with `npx skills add angular/skills`; local skill installs (`frontend/.claude/`, `.agents/`, `skills-lock.json`) are gitignored.
+
 ## SonarCloud
 Config: `.sonarcloud.properties` at the repo root. The workflow `.github/workflows/SonarCloud-PR.yaml` runs no tests, so the lcov report exists only when `npm run test-coverage` ran locally before the scan.

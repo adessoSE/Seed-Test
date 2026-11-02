@@ -98,11 +98,21 @@ backend/tsconfig.tsbuildinfo
 *.tsbuildinfo
 opencode.jsonc
 
-# Claude Code: track shared config, ignore local overrides and worktrees
+# Agent tooling: only project-specific config is tracked; installed/third-party skills stay local
 CLAUDE.local.md
 **/CLAUDE.local.md
-.claude/settings.local.json
-.claude/worktrees/
+.claude/*
+!.claude/settings.json
+!.claude/agents/
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/seed-review/
+**/.agents/
+frontend/.claude/
+backend/.claude/
+shared/.claude/
+e2e/.claude/
+skills-lock.json
 
 # Agent working files (local tracking only, never committed)
 workers/
