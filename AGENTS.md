@@ -49,6 +49,7 @@ Monorepo (npm workspaces): `backend/` (Express 5, TypeScript, raw MongoDB driver
 | Product Cucumber run | `cd backend && npm run exec-test` |
 
 Gotchas:
+- Docker images (`docker-*.yml`, release workflow) build from the repo root and install from the root `package-lock.json` via `-w <pkg> -w shared`, because `@seed-test/shared` is not on the npm registry. The per-package lockfiles are not used by Docker.
 - `backend/tsconfig.json` and `frontend/tsconfig.json` map `@seed-test/shared` to `shared/dist`. Build shared after any change under `shared/src`. Vitest maps to `shared/src` and needs no build.
 - Frontend specs run through `ng test`, not `vitest` directly. Direct vitest lacks the Angular test globals.
 - Backend `npm install` runs `playwright install --with-deps` (postinstall). The server only checks browsers at startup and never installs them; the backend image installs them at build time.

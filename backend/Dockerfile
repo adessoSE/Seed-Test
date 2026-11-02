@@ -63,14 +63,18 @@ RUN edgedriver --version
 # Remove temporary file (regardless of download success)
 RUN rm -f latest_stable.txt
 
-# Bundle app source
+# Bundle the monorepo source: the build context is the repo root because backend depends on the
+# workspace package @seed-test/shared (not on the npm registry) and the root package-lock.json is the only current lockfile.
 COPY . .
 
 # Create runtime directory for generated .feature files and JSON/HTML reports
-RUN mkdir -p features
+RUN mkdir -p backend/features
 
-# Install dependencies and rebuild native modules
-RUN npm install --ignore-scripts && npm rebuild bcrypt
+# Install backend and shared workspace dependencies and rebuild native modules
+RUN npm install --ignore-scripts -w backend -w shared && npm rebuild bcrypt -w backend
+
+# Run everything below from the backend package
+WORKDIR /usr/src/app/backend
 
 # Install the Playwright browsers at build time; --ignore-scripts above skips the postinstall that does it locally.
 # Edge comes from the apt package above. Without this the server could not run Playwright tests in the container.

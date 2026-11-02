@@ -27,7 +27,7 @@ jobs:
 
       # BACKEND
       - name: Build Docker Image
-        run: docker build -t seed-test-backend:${{ steps.get_tag_name.outputs.version }} ./backend
+        run: docker build -f backend/Dockerfile -t seed-test-backend:${{ steps.get_tag_name.outputs.version }} .
 
       - name: Tag Docker Image as Latest
         run: |
@@ -44,7 +44,7 @@ jobs:
 
       # FRONTEND
       - name: Build Docker Image
-        run: docker build -t seed-test-frontend:${{ steps.get_tag_name.outputs.version }} ./frontend
+        run: docker build -f frontend/Dockerfile -t seed-test-frontend:${{ steps.get_tag_name.outputs.version }} .
 
       - name: Tag Docker Image as Latest
         run: |
