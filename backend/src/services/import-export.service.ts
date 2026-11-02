@@ -1,5 +1,6 @@
 ﻿import { type ClientSession, type MongoClient, type ObjectId } from 'mongodb';
 import AdmZip from 'adm-zip';
+import { inflateRawSync } from 'node:zlib';
 import { z } from '@seed-test/shared';
 import * as repositoryService from './repository.service.js';
 import * as storyService from './story.service.js';
@@ -129,6 +130,53 @@ const importArchiveSchema = z.object({
 	groups: z.array(z.object({ member_stories: z.array(z.unknown()) }).passthrough())
 });
 
+// Limits far above a real export (the E2E fixture: 18 entries, 51 KB, ratio 6), well below what exhausts memory
+const MAX_ENTRIES = 10_000;
+const MAX_TOTAL_UNCOMPRESSED_BYTES = 100 * 1024 * 1024;
+const MAX_ENTRY_RATIO = 200;
+// Small entries are covered by the total limit; ratios of tiny files are meaningless
+const RATIO_CHECK_MIN_BYTES = 1024 * 1024;
+
+/**
+ * Rejects archives that could exhaust memory when read. The header sizes are checked first, before any decompression.
+ * The header sizes are not trusted, so each entry's real bytes are then measured against its declared size.
+ * @param zip The opened archive.
+ * @throws Error when the archive has too many entries, declares too much data, has an implausible compression ratio,
+ * holds more data than it declares, or uses an unsupported compression method.
+ */
+function assertSafeArchive(zip: AdmZip): void {
+	const entries = zip.getEntries();
+	if (entries.length > MAX_ENTRIES) throw new Error(`Archive has too many entries (max ${MAX_ENTRIES})`);
+
+	const totalDeclared = entries.reduce((sum, entry) => sum + entry.header.size, 0);
+	if (totalDeclared > MAX_TOTAL_UNCOMPRESSED_BYTES) throw new Error(`Archive uncompressed size exceeds ${MAX_TOTAL_UNCOMPRESSED_BYTES} bytes`);
+
+	for (const entry of entries) {
+		const { size, compressedSize } = entry.header;
+		if (size >= RATIO_CHECK_MIN_BYTES && size / Math.max(compressedSize, 1) > MAX_ENTRY_RATIO)
+			throw new Error(`Entry ${entry.entryName} compression ratio exceeds ${MAX_ENTRY_RATIO}`);
+	}
+
+	for (const entry of entries) {
+		if (entry.isDirectory) continue;
+		const raw = entry.getCompressedData();
+		let actual: number;
+		// Method 0 is stored: the archive bytes are the content
+		if (entry.header.method === 0) actual = raw.length;
+		// Method 8 is deflate. The output is capped at the declared size, so a lying entry stops early
+		else if (entry.header.method === 8) {
+			if (raw.length === 0) continue;
+			try {
+				actual = inflateRawSync(raw, { maxOutputLength: Math.max(entry.header.size, 1) }).length;
+			} catch (error) {
+				if (error instanceof RangeError) throw new Error(`Entry ${entry.entryName} is larger than its declared size`, { cause: error });
+				throw error;
+			}
+		} else throw new Error(`Entry ${entry.entryName} uses unsupported compression method`);
+		if (actual > entry.header.size) throw new Error(`Entry ${entry.entryName} is larger than its declared size`);
+	}
+}
+
 /**
  * Reads and validates an import zip. Every failure (not a zip, missing repository.json, invalid JSON in a
  * story, block or group entry) is reported as a 400, so the client gets a clear error instead of a 500.
@@ -138,6 +186,7 @@ const importArchiveSchema = z.object({
 function parseImportArchive(buffer: Buffer): ImportArchive {
 	try {
 		const zip = new AdmZip(buffer);
+		assertSafeArchive(zip);
 		// readAsText returns an empty string for a missing entry, so an empty value means the file is absent
 		const repositoryJson = zip.readAsText('repository.json');
 		if (!repositoryJson) throw new Error('repository.json is missing');
