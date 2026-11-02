@@ -14,12 +14,12 @@
                 <div>
                     <label class="st-field-label" for="projectTitle">Enter unique project name*</label>
                     <input defaultValue="YourRepoName" id="projectTitle" ngModel name="title" pattern="\S(.*\S)?"
-                    style="margin-left: 24px;" (keyup)="projectUnique(createProjectForm)" required>
+                    style="margin-left: 24px;" (keyup)="projectUnique()" (ngModelChange)="name.set($event)" required>
                 </div>
             </div>    
             <div class="modal-footer">
-                <button id="submitCreateNewProject" type="submit" [disabled]="!createProjectForm.valid" 
-                [style.opacity]="!createProjectForm.valid ?  '50%' : '100%'" class="normalButton">Save</button>
+                <button id="submitCreateNewProject" type="submit" [disabled]="!createProjectForm.valid || nameTaken()" 
+                [style.opacity]="!createProjectForm.valid || nameTaken() ? '50%' : '100%'" class="normalButton">Save</button>
             </div>    
         </div>
       </form>

@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal, TemplateRef } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, computed, inject, viewChild, signal, Signal, TemplateRef } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -38,11 +38,18 @@ export class UpdateGroupComponent {
 	/**
    * Existing Groups
    */
-	groups!: Group[];
+	// WHY: a signal, not a snapshot, so a group created while the modal is open is still checked
+	private readonly groups = signal<Signal<Group[]>>(signal([]));
 
 	group!: Group;
 
 	scrGroup!: Group;
+
+	/** Group name as typed; drives the duplicate check and the Update button state */
+	readonly name = signal('');
+
+	/** Whether another group already has the typed name; the group being edited does not count */
+	readonly nameTaken = computed(() => this.groupService.isGroupNameTaken(this.name(), this.groups()(), this.scrGroup));
 
 	selectedStories!: string[];
 
@@ -67,9 +74,10 @@ export class UpdateGroupComponent {
 	/**
      * Opens the create new group modal
      */
-	openUpdateGroupModal(group: Group, groups: Group[]) {
-		this.groups = groups;
+	openUpdateGroupModal(group: Group, groups: Signal<Group[]>) {
+		this.groups.set(groups);
 		this.scrGroup = group;
+		this.name.set(group.name);
 		const repoName = localStorage.getItem('repository') ?? '';
 		const _id = localStorage.getItem('id') ?? undefined;
 		const source = localStorage.getItem('source') ?? '';
@@ -88,8 +96,14 @@ export class UpdateGroupComponent {
 		this.modalReference = this.modalService.open(this.updateGroupModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
 
-	groupUnique(form :NgForm) {
-		this.groupService.groupUnique('submitUpdateGroup', form.value.title, this.groups, this.scrGroup);
+	/**
+     * Keyup message for the group name; the Update button state comes from the template (nameTaken)
+     */
+	groupUnique() {
+		if (this.name().trim() === '')
+			this.notify.error('The field can not be empty');
+		else if (this.nameTaken())
+			this.notify.error('This Group Title is already in use. Please choose another Title');
 	}
 
 	/**

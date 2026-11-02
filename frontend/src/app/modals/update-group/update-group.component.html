@@ -14,7 +14,7 @@
                     <div>
                         <label class="st-field-label" for="grouptitle">Change group name</label>
                         <input name="title" id="grouptitle" ngModel [ngModel]="groupTitle"
-                         pattern="\S(.*\S)?" style="margin-left: 24px;" (keyup)="groupUnique(updateGroupForm)" required>
+                         pattern="\S(.*\S)?" style="margin-left: 24px;" (keyup)="groupUnique()" (ngModelChange)="name.set($event)" required>
                     </div>
                     <div >
                         <label class="st-field-label" for="update-group-find-story">Find story </label>
@@ -63,7 +63,7 @@
             <div class="modal-footer">
                 <button type="button" class="normalButton deleteButton" (click)="deleteGroup($event); modal.close()">Delete</button>
                 <button id="submitUpdateGroup" type="submit" class="normalButton"
-                [disabled]="!updateGroupForm.valid" [style.opacity]="!updateGroupForm.valid ?  '50%' : '100%'">Update</button>
+                [disabled]="!updateGroupForm.valid || nameTaken()" [style.opacity]="!updateGroupForm.valid || nameTaken() ?  '50%' : '100%'">Update</button>
             </div>
         </form>
     </div>

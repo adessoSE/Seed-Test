@@ -244,7 +244,7 @@ export class AccountManagementComponent {
      * Opens Modal to create a new custom project
      */
 	newRepository() {
-		this.createCustomProject().openCreateCustomProjectModal(this.repositories() ?? []);
+		this.createCustomProject().openCreateCustomProjectModal(this.repositories);
 	}
 
 	/**

@@ -36,4 +36,29 @@ describe('GroupService', () => {
 			expect(handler.mock.calls).toEqual([[values], [values]]);
 		});
 	});
+	describe('isGroupNameTaken', () => {
+		const groups = [
+			{ _id: 'g1', name: 'Smoke', member_stories: [], isSequential: true },
+			{ _id: 'g2', name: 'Regression', member_stories: [], isSequential: true }
+		];
+
+		it('is true when another group already has the name', () => {
+			expect(TestBed.inject(GroupService).isGroupNameTaken('Smoke', groups)).toBe(true);
+		});
+
+		it('is false for an unused name and for an empty name', () => {
+			const service = TestBed.inject(GroupService);
+
+			expect(service.isGroupNameTaken('New', groups)).toBe(false);
+			expect(service.isGroupNameTaken('', groups)).toBe(false);
+		});
+
+		it('ignores the group being edited', () => {
+			expect(TestBed.inject(GroupService).isGroupNameTaken('Smoke', groups, groups[0])).toBe(false);
+		});
+
+		it('is true when a different group has the name while editing', () => {
+			expect(TestBed.inject(GroupService).isGroupNameTaken('Regression', groups, groups[0])).toBe(true);
+		});
+	});
 });

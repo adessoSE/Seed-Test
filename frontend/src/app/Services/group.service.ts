@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { NotificationService } from './notification.service';
 import { Group } from '@seed-test/shared/models/Group';
 import type { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ActionTrigger } from './action-trigger';
@@ -50,7 +49,6 @@ interface TempGroupParams {
 export class GroupService {
 	apiService = inject(ApiService);
 	private http = inject(HttpClient);
-	notify = inject(NotificationService);
 
 	/** Action channel for create custom group — carries the group object */
 	readonly createCustomGroupTrigger = new ActionTrigger<CreateGroupPayload>();
@@ -125,30 +123,14 @@ export class GroupService {
 			.put(this.apiService.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions());
 	}
 	/**
-    * Checking the same name of the group
-    * @param buttonId
-    * @param input
-    * @param array
-    * @param group
-    * @returns
+    * Whether another group already uses this name
+    * @param input name typed in the modal
+    * @param groups existing groups
+    * @param group group being edited; its own name does not count as taken
+    * @returns true when the name is non-empty and used by a different group
   */
-	public groupUnique(buttonId: string, input: string, array: Group[], group?: Group) {
-		array = array ? array : [];
-		input = input ? input : '';
-		const button = (document.getElementById(buttonId)) as HTMLButtonElement;
-		if ((input && !array.find(i => i.name === input)) || (group ? array.find(g => g._id == group._id && g.name == input) : false)) 
-			button.disabled = false;
-    
-
-		else 
-			if (input.length == 0) {
-				button.disabled = true;
-				this.notify.error('The field can not be empty');
-			} else {
-				button.disabled = true;
-				this.notify.error('This Group Title is already in use. Please choose another Title');
-			}
-    
+	isGroupNameTaken(input: string, groups: Group[], group?: Group): boolean {
+		return !!input && groups.some(g => g.name === input && (!group || g._id !== group._id));
 	}
 	/**
     * Running a group

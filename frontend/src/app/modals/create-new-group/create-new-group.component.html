@@ -14,7 +14,7 @@
                     <div>
                         <label class="st-field-label" for="grouptitle">Enter unique group name*</label> 
                         <input id="grouptitle" ngModel name="title"
-                        pattern="\S(.*\S)?" style="margin-left: 24px;" (keyup)="groupUnique(newGroupForm)" required>  
+                        pattern="\S(.*\S)?" style="margin-left: 24px;" (keyup)="groupUnique()" (ngModelChange)="name.set($event)" required>  
                     </div>
                     <div>            
                         <label class="st-field-label" for="findStory">Find story</label> 
@@ -61,8 +61,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="submitCreateNewGroup" type="submit" class="normalButton" [disabled]="!newGroupForm.valid" 
-                [style.opacity]="!newGroupForm.valid ?  '50%' : '100%'">Save</button>
+                <button id="submitCreateNewGroup" type="submit" class="normalButton" [disabled]="!newGroupForm.valid || nameTaken()" 
+                [style.opacity]="!newGroupForm.valid || nameTaken() ?  '50%' : '100%'">Save</button>
             </div>
         </form>
     </div>
