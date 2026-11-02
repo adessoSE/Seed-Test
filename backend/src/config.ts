@@ -39,7 +39,8 @@ const envSchema = z.object({
 	EMAIL_AUTH: z.string().optional(),
 	EMAIL_PW: z.string().optional(),
 	EMAIL_HOST: z.string().optional(),
-	EMAIL_PORT: z.coerce.number().optional(),
+	// Kept as a string: nodemailer.ts parses it with parseInt, and mail is optional, so a malformed port must not stop the server
+	EMAIL_PORT: z.string().optional(),
 	TESTACCOUNT_REPO: z.string().optional(),
 	TESTACCOUNT_NAME: z.string().optional(),
 	TESTACCOUNT_TOKEN: z.string().optional()

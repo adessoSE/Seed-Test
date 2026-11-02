@@ -66,6 +66,13 @@ describe('config', () => {
 			expect(mockExit).not.toHaveBeenCalled();
 		});
 
+		it('should not exit for a non-numeric EMAIL_PORT, because mail is optional', async () => {
+			process.env.EMAIL_PORT = '"587"';
+			const config = await import('../src/config.js');
+			config.validateConfig();
+			expect(mockExit).not.toHaveBeenCalled();
+		});
+
 		it('should call process.exit(1) for missing DATABASE_URI', async () => {
 			delete process.env.DATABASE_URI;
 			const config = await import('../src/config.js');
