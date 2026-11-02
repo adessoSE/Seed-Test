@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, inject, TemplateRef, viewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal, Signal, TemplateRef, viewChild } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/Services/notification.service';
@@ -26,19 +26,26 @@ export class CreateCustomProjectComponent {
 	/**
   * Existing Projects
   */
-	repositories!: RepositoryContainer[];
+	// WHY: a signal, not a snapshot, so a project created while the modal is open is still checked
+	private readonly repositories = signal<Signal<RepositoryContainer[] | undefined>>(signal(undefined));
 
-	repoId!: string;
+	/** Project name as typed; drives the duplicate check and the Save button state */
+	readonly name = signal('');
 
-	repository!: RepositoryContainer;
+	/** Whether another existing project already has the typed name */
+	readonly nameTaken = computed(() => {
+		const name = this.name();
+		return name.trim() !== '' && (this.repositories()()?.some(r => r.repoName === name) ?? false);
+	});
 
 	// create custom project modal
 
 	/**
      * Open the create custom project modal
      */
-	openCreateCustomProjectModal(repositories: RepositoryContainer[]) {
-		this.repositories = repositories;
+	openCreateCustomProjectModal(repositories: Signal<RepositoryContainer[] | undefined>) {
+		this.repositories.set(repositories);
+		this.name.set('');
 		this.modalReference = this.modalService.open(this.createCustomProjectModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
 
@@ -69,29 +76,16 @@ export class CreateCustomProjectComponent {
      
 		this.modalReference.close();
 	}
-	projectUnique(form: NgForm){
-		this.checkProject('submitCreateNewProject', form.value.title, this.repositories, this.repository);
 
-	}
-
-	checkProject(buttonId: string, input: string, array: RepositoryContainer[], repository?: RepositoryContainer){
-		array = array ? array : [];
+	/**
+   * Keyup message for the project name; the Save button state comes from the template (nameTaken)
+   */
+	projectUnique() {
 		// CASE 1: whitespace-only name counts as empty, so the button stays disabled with the empty-field message
-		input = input && input.trim() ? input : '';
-		const button = (document.getElementById(buttonId)) as HTMLButtonElement;
-		if ((input && !array.find(i => i.repoName === input)) || (repository ? array.find(g => g._id == repository._id && g.repoName == input) : false))
-			button.disabled = false;
-   
-  
-		else 
-			if (input.length == 0) {
-				button.disabled = true;
-				this.notify.error('The field can not be empty');
-			} else {
-				button.disabled = true;
-				this.notify.error('This Project Title is already in use. Please choose another Title'); 
-			}
-  
+		if (this.name().trim() === '')
+			this.notify.error('The field can not be empty');
+		else if (this.nameTaken())
+			this.notify.error('This Project Title is already in use. Please choose another Title');
 	}
 
 

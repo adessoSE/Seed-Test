@@ -817,14 +817,14 @@ export class StoriesBarComponent implements OnChanges {
      * Opens a create New group Modal
      */
 	openCreateNewGroupModal() {
-		this.createNewGroup().openCreateNewGroupModal(this.groups());
+		this.createNewGroup().openCreateNewGroupModal(this.groups);
 	}
 
 	/**
      * Opens a update group Modal
      */
 	openUpdateGroupModal(group: Group) {
-		this.updateGroup().openUpdateGroupModal(group, this.groups());
+		this.updateGroup().openUpdateGroupModal(group, this.groups);
 	}
 
 	openCreateScenario() {

@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal, TemplateRef } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, computed, inject, viewChild, signal, Signal, TemplateRef } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -39,15 +39,20 @@ export class CreateNewGroupComponent {
 	/**
   * Existing Groups
   */
-	groups!: Group[];
+	// WHY: a signal, not a snapshot, so a group created while the modal is open is still checked
+	private readonly groups = signal<Signal<Group[]>>(signal([]));
+
+	/** Group name as typed; drives the duplicate check and the Save button state */
+	readonly name = signal('');
+
+	/** Whether an existing group already has the typed name */
+	readonly nameTaken = computed(() => this.groupService.isGroupNameTaken(this.name(), this.groups()()));
 
 	selectedStories: string[] | undefined = undefined;
 
 	groupId: string | undefined = undefined;
 
 	isSequential!: boolean;
-
-	group!: Group;
 
 	modalReference!: MatDialogRef<unknown>;
 
@@ -59,8 +64,9 @@ export class CreateNewGroupComponent {
 	/**
      * Opens the create new group modal
      */
-	openCreateNewGroupModal(groups: Group[]) {
-		this.groups = groups;
+	openCreateNewGroupModal(groups: Signal<Group[]>) {
+		this.groups.set(groups);
+		this.name.set('');
 		this.groupId = undefined;
 		this.isSequential = true;
 		this.selectedStories = undefined;
@@ -120,8 +126,14 @@ export class CreateNewGroupComponent {
     
 	}
 
-	groupUnique(form :NgForm) {
-		this.groupService.groupUnique('submitCreateNewGroup', form.value.title, this.groups, this.group);
+	/**
+     * Keyup message for the group name; the Save button state comes from the template (nameTaken)
+     */
+	groupUnique() {
+		if (this.name().trim() === '')
+			this.notify.error('The field can not be empty');
+		else if (this.nameTaken())
+			this.notify.error('This Group Title is already in use. Please choose another Title');
 	}
 
 	/**
