@@ -24,7 +24,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TermsComponent } from './terms/terms.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
-import { CookieService } from 'ngx-cookie-service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
@@ -174,7 +173,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 		provideZonelessChangeDetection(),
 		ApiService,
 		AuthGuard,
-		CookieService,
 		[{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }],
 		[
 			{

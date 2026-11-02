@@ -1,10 +1,6 @@
 import nodemailer from 'nodemailer';
 import { logger } from './logging.js';
 
-// nodemailer has no type declarations on our version — cast to access methods
-const nodemailerModule = nodemailer as Record<string, unknown>;
-const createTransport = nodemailerModule.createTransport as (opts: Record<string, unknown>) => Record<string, unknown>;
-
 export async function sendResetLink(email: string, id: string): Promise<void> {
 	if (process.env.EMAIL_HOST === undefined || process.env.EMAIL_PORT === undefined) {
 		logger.warn('To send emails please provide a email server and port. You can see how to do it in the README.');
@@ -15,8 +11,7 @@ export async function sendResetLink(email: string, id: string): Promise<void> {
 		throw new Error('Bad email config');
 	}
 
-	// nodemailer has no type declarations — use local typed wrapper
-	const transporter = createTransport({
+	const transporter = nodemailer.createTransport({
 		host: process.env.EMAIL_HOST,
 		port: parseInt(process.env.EMAIL_PORT, 10),
 		secure: false, // secureConnection is deprecated, use secure
@@ -117,9 +112,7 @@ export async function sendResetLink(email: string, id: string): Promise<void> {
 	};
 
 	try {
-		// nodemailer has no type declarations — cast sendMail before calling
-		const sendMail = (transporter.sendMail as (opts: Record<string, unknown>) => Promise<Record<string, unknown>>);
-		const info = await sendMail(mailOptions);
+		const info = await transporter.sendMail(mailOptions);
 		logger.info(`Email sent: ${String(info.response)}`);
 	} catch (error) {
 		logger.error(`Failed to send email: ${String(error)}`);

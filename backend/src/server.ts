@@ -12,6 +12,7 @@ import { chromium, firefox, webkit, type BrowserType } from '@playwright/test';
 import { logger, httpLog } from './logging.js';
 import { isAuthenticated } from './middleware/authenticate.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { ensureFeaturesDirectory } from './helpers/featuresDirectory.js';
 
 import * as dbConnector from './database/DbConnector.js';
 import { validateConfig, validatedConfig } from './config.js';
@@ -104,7 +105,7 @@ if (validatedConfig.value?.TRUST_PROXY ?? isProduction)
 
 
 // --- Core Middleware ---
-app.use((cors as unknown as (options: Record<string, unknown>) => express.RequestHandler)({
+app.use(cors({
 	origin: [
 		process.env.FRONTEND_URL ?? 'http://localhost:4200'
 	],
@@ -250,6 +251,9 @@ async function startServer() {
 	try {
 		// Validate env vars: aggregated exit on failure, cached for all dependent modules
 		validateConfig();
+
+		// Story and report code writes under features/ relative to cwd; a fresh checkout does not have it yet
+		ensureFeaturesDirectory();
 
 		logger.info('Connecting to database...');
         
