@@ -347,11 +347,15 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 	/** Adds example value when example service emits new example */
 	private newExampleEffect = onActionTrigger(this.exampleService.newExampleTrigger, value => {
 		this.addToValues(value, 0, 0, '');
+		// The request comes from a MatDialog outside this OnPush tree, so the table must be re-checked explicitly
+		this.cdr.markForCheck();
 	});
 
 	/** Renames example when example service emits rename */
 	private renameExampleEffect = onActionTrigger(this.exampleService.renameExampleTrigger, value => {
 		this.renameExample(value.name, value.column);
+		// The request comes from a MatDialog outside this OnPush tree, so the table must be re-checked explicitly
+		this.cdr.markForCheck();
 	});
 
 	/** Unchecks all steps when scenario changes */
