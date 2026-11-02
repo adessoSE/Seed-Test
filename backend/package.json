@@ -55,12 +55,12 @@
     "@types/node": "^26.6.6",
     "@types/passport": "^1.0.17",
     "@types/passport-local": "^1.0.38",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^5.0.5",
     "eslint": "^10.14.0",
     "testcontainers": "^12.2.1",
     "typescript": ">=6.0.0 <6.1.0",
     "typescript-eslint": "^8.72.1",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.5"
   },
   "_comment": "Bitte bei cucumber-html-reporter > 7.2.0 wieder entfernen!",
   "overrides": {
