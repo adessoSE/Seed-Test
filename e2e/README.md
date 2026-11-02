@@ -19,7 +19,7 @@ npm run test:headed                       # watch the browser
 npm run report                            # open the last HTML report
 ```
 
-Environment overrides: `E2E_BASE_URL` (default http://localhost:4200), `E2E_API_URL` (default http://localhost:8080/api).
+Environment overrides: `E2E_BASE_URL` (default http://localhost:4200), `E2E_API_URL` (default http://localhost:8080/api), `E2E_MONGO_URI` (default mongodb://127.0.0.1:27017/?directConnection=true, used by the legacy-data helper; must point to the backend's database and a local host).
 
 ## Rate limits
 

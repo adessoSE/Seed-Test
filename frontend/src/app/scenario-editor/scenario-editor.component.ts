@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked } from '@angular/core';
+﻿import { Component, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, inject, output, input, viewChild, signal, effect, untracked, ChangeDetectorRef } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '@seed-test/shared/models/Story';
 import { Scenario } from '@seed-test/shared/models/Scenario';
@@ -35,6 +35,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	blockService = inject(BlockService);
 	scenarioService = inject(ScenarioService);
 	notify = inject(NotificationService);
+	private cdr = inject(ChangeDetectorRef);
 
 
 	/**
@@ -134,6 +135,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 	private renameScenarioEffect = onActionTrigger(this.scenarioService.renameScenarioTrigger, newName => {
 		if (!newName) return;
 		this.renameScenario(newName);
+		// The rename comes from a MatDialog outside this OnPush tree, so the Save button must be re-checked explicitly
+		this.cdr.markForCheck();
 	});
 
 	/** Selects the scenario when the selectedScenario input changes (replaces ngOnChanges block) */

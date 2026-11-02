@@ -173,6 +173,21 @@ describe('ScenarioEditorComponent', () => {
 			component.renameScenario('   ');
 			expect(component.selectedScenario()!.name).toBe('Original');
 		});
+
+		// Regression: the rename modal is a MatDialog outside this OnPush tree, so its submit alone does not re-check the Save button
+		it('enables the Save button after a rename submitted from the modal', () => {
+			// A new object, so the OnPush view renders the saved state before the rename
+			component.selectedScenario.set({ ...component.selectedScenario()!, saved: true });
+			fixture.detectChanges();
+			const saveButton = () => fixture.nativeElement.querySelector('#saveButton') as HTMLButtonElement;
+			expect(saveButton().disabled).toBe(true);
+
+			TestBed.inject(ScenarioService).renameScenarioEmit('Renamed in modal');
+			TestBed.flushEffects();
+			fixture.detectChanges();
+
+			expect(saveButton().disabled).toBe(false);
+		});
 	});
 
 	describe('behavioral: DOM rendering after signal changes', () => {

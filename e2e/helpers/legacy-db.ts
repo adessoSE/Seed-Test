@@ -11,8 +11,8 @@ const { MongoClient, ObjectId } = requireFromRoot('mongodb') as {
 	ObjectId: typeof ObjectIdType;
 };
 
-/** Connection string of the local e2e Mongo replica set (Podman container seedtest-e2e-mongo). */
-const LEGACY_DB_URI = 'mongodb://127.0.0.1:27017/?directConnection=true';
+/** Connection string of the local e2e Mongo replica set (Podman container seedtest-e2e-mongo). Override with E2E_MONGO_URI for a non-default stack. */
+const LEGACY_DB_URI = process.env.E2E_MONGO_URI ?? 'mongodb://127.0.0.1:27017/?directConnection=true';
 
 /** Database the backend writes to in the e2e stack. */
 const LEGACY_DB_NAME = 'Seed';
