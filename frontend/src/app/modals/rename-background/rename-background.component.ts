@@ -1,6 +1,6 @@
-﻿import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild, TemplateRef } from '@angular/core';
 import { UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BackgroundService } from 'src/app/Services/background.service';
 import { Background } from '@seed-test/shared/models/Background';
 import { Story } from '@seed-test/shared/models/Story';
@@ -8,7 +8,7 @@ import { NotificationService } from '../../Services/notification.service';
 import { ApiService } from '../../Services/api.service';
 import { Block } from '@seed-test/shared/models/Block';
 import { BlockService } from '../../Services/block.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -19,16 +19,16 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class RenameBackgroundComponent{
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	backgroundService = inject(BackgroundService);
 	notify = inject(NotificationService);
 	apiService = inject(ApiService);
 	blockService = inject(BlockService);
 
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
-	readonly renameBackground = viewChild.required<RenameBackgroundComponent>('renameBackground');
+	readonly renameBackground = viewChild.required<TemplateRef<unknown>>('renameBackground');
 	background!: Background;
 	backgrounds!: Background[];
 	story!: Story;
@@ -48,7 +48,7 @@ export class RenameBackgroundComponent{
 		this.blockToRename = blockToRename;
 		this.storiesWithBlock = storiesWithBlock;
 		this.saveBackgroundAndRun = saveBackgroundAndRun;
-		this.modalReference = this.modalService.open(this.renameBackground(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.renameBackground(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title', autoFocus: 'first-tabbable' });
 		this.backgroundTitle.setValue(background.name);
 	}
 

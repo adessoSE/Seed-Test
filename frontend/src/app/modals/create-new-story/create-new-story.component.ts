@@ -1,13 +1,13 @@
 ﻿import { Component, TemplateRef, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Group } from '@seed-test/shared/models/Group';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { Story } from '@seed-test/shared/models/Story';
 import { UntypedFormGroup, UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoryService } from 'src/app/Services/story.service';
 import { NotificationService } from 'src/app/Services/notification.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -18,7 +18,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class CreateNewStoryComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	storyService = inject(StoryService);
 	private notify = inject(NotificationService);
 
@@ -40,7 +40,7 @@ export class CreateNewStoryComponent {
 
 	groupId!: string;
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	story!: Story;
 
@@ -56,7 +56,7 @@ export class CreateNewStoryComponent {
      */
 	openCreateNewStoryModal(stories: Story[]) {
 		this.stories = stories;
-		this.modalReference = this.modalService.open(this.createNewStoryModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.createNewStoryModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
 
 	/**
@@ -87,9 +87,9 @@ export class CreateNewStoryComponent {
 	storyUnique() {
 		this.storyService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
 	}
-	close(modal: NgbModalRef){
+	close(modal: MatDialogRef<unknown>){
 		this.storyForm.reset({storyTitle:'', storyDescription:''});
-		modal.dismiss('Cross click');
+		modal.close();
 	}
 }
 

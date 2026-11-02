@@ -1,12 +1,12 @@
 ﻿import { Component, ChangeDetectionStrategy, TemplateRef, inject, output, viewChild, computed } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Scenario } from '@seed-test/shared/models/Scenario';
 import { Story } from '@seed-test/shared/models/Story';
 import { Group } from '@seed-test/shared/models/Group';
 import { ThemingService } from '../../Services/theming.service';
 import { lastValueFrom } from 'rxjs';
 import { StoryService } from '../../Services/story.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class ExecutionListComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	themeService = inject(ThemingService);
 	private storyService = inject(StoryService);
 
@@ -31,7 +31,7 @@ export class ExecutionListComponent {
 
 	selectedTestRunIds: number[] = [];
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	executionContext!: Scenario | Story | Group;
 
@@ -44,7 +44,7 @@ export class ExecutionListComponent {
 		this.selectedTestRunIds = [];
 		this.executionContext = context;
 		this.getTestExecutions(this.executionContext);
-		this.modalReference = this.modalService.open(this.executionListModal(), { size: 'mysize' });
+		this.modalReference = this.modalService.open(this.executionListModal()!, MODAL_CONFIG);
 	}
 
 	toggleSelection(testRunId: number, isChecked: boolean) {

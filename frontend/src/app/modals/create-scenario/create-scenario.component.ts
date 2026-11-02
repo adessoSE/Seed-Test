@@ -1,8 +1,8 @@
-﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild, TemplateRef } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Story } from '@seed-test/shared/models/Story';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -13,7 +13,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class CreateScenarioComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 
 
 	/**
@@ -21,9 +21,9 @@ export class CreateScenarioComponent {
      */
 	selectedStory!: Story;
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
-	readonly createScenarioModal = viewChild.required<CreateScenarioComponent>('createScenarioModal');
+	readonly createScenarioModal = viewChild.required<TemplateRef<CreateScenarioComponent>>('createScenarioModal');
 
 	/**
      * Event emitter to add a new scenario
@@ -36,7 +36,7 @@ export class CreateScenarioComponent {
  */
 	openCreateScenarioModal(selectedStory: Story) {
 		this.selectedStory = selectedStory;
-		this.modalReference = this.modalService.open(this.createScenarioModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.createScenarioModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
   
 	/**

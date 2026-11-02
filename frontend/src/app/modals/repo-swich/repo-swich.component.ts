@@ -1,10 +1,10 @@
-﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked, TemplateRef } from '@angular/core';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog } from '@angular/material/dialog';
 
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ProjectService } from 'src/app/Services/project.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -15,7 +15,7 @@ import { FormsModule } from '@angular/forms';
 	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class RepoSwichComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	projectService = inject(ProjectService);
 
 
@@ -27,7 +27,7 @@ export class RepoSwichComponent {
 
 	currentRepo;
 
-	readonly repoSwitch = viewChild.required<RepoSwichComponent>('repoSwitch');
+	readonly repoSwitch = viewChild.required<TemplateRef<unknown>>('repoSwitch');
 
 	/** Reacts to repository update trigger — refreshes repos list */
 	private updateReposEffect = effect(() => {
@@ -52,7 +52,7 @@ export class RepoSwichComponent {
 	}
 
 	openModal() {
-		this.modalService.open(this.repoSwitch(), {ariaLabelledBy: 'modal-basic-titles'});
+		this.modalService.open(this.repoSwitch(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-titles' });
 	}
 
 	/**

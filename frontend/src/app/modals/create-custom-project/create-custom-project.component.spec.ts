@@ -4,7 +4,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { CreateCustomProjectComponent } from './create-custom-project.component';
 import { NgForm } from '@angular/forms';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ProjectService } from 'src/app/Services/project.service';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
@@ -37,7 +37,7 @@ describe('CreateCustomProjectComponent', () => {
 			const projectService = TestBed.inject(ProjectService);
 			const getSpy = vi.spyOn(projectService, 'getRepositoriesEmitter');
 			const updateSpy = vi.spyOn(projectService, 'updateRepositoryEmitter');
-			component.modalReference = { close: vi.fn() } as unknown as NgbModalRef;
+			component.modalReference = { close: vi.fn() } as unknown as MatDialogRef<unknown>;
 			const form = { value: { title: 'Proj', _id: 'a' } } as unknown as NgForm;
 
 			component.createNewProject(form);
@@ -53,7 +53,7 @@ describe('CreateCustomProjectComponent', () => {
 		it('selects the created repository using the insertedId from the POST response', () => {
 			localStorage.removeItem('id');
 			const http = TestBed.inject(HttpTestingController);
-			component.modalReference = { close: vi.fn() } as unknown as NgbModalRef;
+			component.modalReference = { close: vi.fn() } as unknown as MatDialogRef<unknown>;
 
 			component.createNewProject({ value: { title: 'Proj' } } as unknown as NgForm);
 			http.match(req => req.method === 'POST')[0].flush({ insertedId: 'new-id' });

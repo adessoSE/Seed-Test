@@ -28,29 +28,4 @@ span.infoIcon {
     color: white;
 }
 
-@media screen and (min-width: 500px) {
-
-
-    ::ng-deep body>ngb-modal-window>.edit-block.modal-dialog {
-
-        max-width: none !important;
-
-    }
-
-}
-
-
-::ng-deep body>ngb-modal-window>.edit-block.modal-dialog {
-
-    width: 55%;
-
-    min-width: 1000px;
-
-}
-
-::ng-deep body>ngb-modal-window.modal {
-
-    z-index: 1;
-
-}
 

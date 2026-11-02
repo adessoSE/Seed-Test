@@ -1,14 +1,14 @@
-﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, viewChild, signal, TemplateRef } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Group } from '@seed-test/shared/models/Group';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { Story } from '@seed-test/shared/models/Story';
 import { GroupService } from 'src/app/Services/group.service';
 import { StoryService } from 'src/app/Services/story.service';
 import { NotificationService } from 'src/app/Services/notification.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 
@@ -21,13 +21,13 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
 	imports: [LayoutModalComponent, FormsModule, MatIcon, MatSlideToggle, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow]
 })
 export class CreateNewGroupComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	groupService = inject(GroupService);
 	storyService = inject(StoryService);
 	notify = inject(NotificationService);
 
 
-	readonly createNewGroupModal = viewChild.required<CreateNewGroupComponent>('createNewGroupModal');
+	readonly createNewGroupModal = viewChild.required<TemplateRef<CreateNewGroupComponent>>('createNewGroupModal');
 
 	/**
      * selectable Stories when create Group
@@ -49,7 +49,7 @@ export class CreateNewGroupComponent {
 
 	group!: Group;
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	/**
   * Columns of the story table table
@@ -75,7 +75,7 @@ export class CreateNewGroupComponent {
 			},
 			error: () => this.notify.error('Could not load stories')
 		});
-		this.modalReference = this.modalService.open(this.createNewGroupModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.createNewGroupModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
 
 	/**

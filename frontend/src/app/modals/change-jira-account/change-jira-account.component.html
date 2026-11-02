@@ -1,9 +1,9 @@
 <!--Change Jira-Account Modal-->
-<ng-template #changeJiraAccountModal let-modal>
+<ng-template #changeJiraAccountModal let-modal="dialogRef">
   <app-layout-modal />
   <div class="modal-header">
     <span class="MediumSubline1H4 modal-title">Change Jira account</span>
-    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+    <button type="button" class="close" aria-label="Close" (click)="modal.close()">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>

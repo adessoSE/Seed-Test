@@ -1,6 +1,5 @@
-﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild, signal, effect, untracked } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild, signal, effect, untracked, TemplateRef } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { RepositoryContainer } from '@seed-test/shared/models/RepositoryContainer';
 import { ApiService } from 'src/app/Services/api.service';
@@ -9,8 +8,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../confirm-dialog/con
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 
 import { MatSelect, MatFormField, MatLabel, MatOption } from '@angular/material/select';
-import { MatDialog } from '@angular/material/dialog';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 import { WindowSizeComponent } from '../window-size/window-size.component';
 
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
@@ -27,7 +26,6 @@ import { MatIconModule } from '@angular/material/icon';
 	imports: [RepoSwichComponent, LayoutModalComponent, FormsModule, WindowSizeComponent, MatFormField, MatLabel, MatSelect, MatOption, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, MatIconModule]
 })
 export class WorkgroupEditComponent {
-	private modalService = inject(NgbModal);
 	projectService = inject(ProjectService);
 	private notify = inject(NotificationService);
 	dialog = inject(MatDialog);
@@ -104,7 +102,7 @@ export class WorkgroupEditComponent {
 	/**
    * Model Reference for closing
    */
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	projectName!: string;
 	readonly ownerSelect = viewChild<MatSelect>('ownerSelect');
@@ -118,7 +116,7 @@ export class WorkgroupEditComponent {
    */
 	readonly globalSettingsChanged = output<boolean>();
 
-	readonly workgroupEditModal = viewChild.required<WorkgroupEditComponent>('workgroupEditModal');
+	readonly workgroupEditModal = viewChild.required<TemplateRef<unknown>>('workgroupEditModal');
 	readonly repoSwitchModal = viewChild.required<RepoSwichComponent>('repoSwitchModal');
 	/** Handles repository deletion when service triggers */
 	private deleteRepoEffect = effect(() => {
@@ -256,7 +254,8 @@ export class WorkgroupEditComponent {
 		};
 
 		this.loadGlobalSettings();
-		this.modalReference = this.modalService.open(this.workgroupEditModal(), {
+		this.modalReference = this.dialog.open(this.workgroupEditModal(), {
+			...MODAL_CONFIG,
 			ariaLabelledBy: 'modal-basic-titles'
 		});
 		this.projectName = project.repoName;

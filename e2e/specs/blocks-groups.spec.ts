@@ -90,7 +90,7 @@ async function openScenario(page: Page, storyTitle: string, scenarioName: string
  */
 async function openBlockManager(page: Page): Promise<void> {
 	await page.locator('#add_block').locator('visible=true').click();
-	await expect(page.locator('ngb-modal-window mat-selection-list')).toBeVisible();
+	await expect(page.locator('mat-dialog-container mat-selection-list')).toBeVisible();
 }
 
 test.describe('saved blocks', () => {
@@ -104,7 +104,7 @@ test.describe('saved blocks', () => {
 		await page.locator('input[id^="scenario_"][id*="_checkbox_"]:not([id$="_checkbox_all"])').first().click();
 		await page.locator('button[matTooltip="Save Steps as Block"]').locator('visible=true').first().click();
 
-		const dialog = page.locator('ngb-modal-window');
+		const dialog = page.locator('mat-dialog-container');
 		const submit = dialog.getByRole('button', { name: 'Submit' });
 		await expect(page.locator('#blockNameInput')).toBeVisible();
 		await expect(submit).toBeDisabled();
@@ -162,7 +162,7 @@ test.describe('saved blocks', () => {
 		await openBlockManager(page);
 		await page.getByRole('option', { name: blockName }).click();
 		await page.getByRole('button', { name: 'Add Block' }).click();
-		await expect(page.locator('ngb-modal-window')).toBeHidden();
+		await expect(page.locator('mat-dialog-container')).toBeHidden();
 
 		// WHY: Add Block marks the scenario unsaved, so Save Scenario must be offered before the user saves the inserted block
 		await expect(page.locator('button#saveButton[matTooltip="Save Scenario"]').locator('visible=true')).toBeVisible();

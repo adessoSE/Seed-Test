@@ -119,7 +119,7 @@ export class StoriesPage {
 	 * @param name Scenario name typed into #newTitle.
 	 */
 	private async submitScenarioModal(name: string): Promise<void> {
-		const modal = this.page.locator('ngb-modal-window');
+		const modal = this.page.locator('mat-dialog-container');
 		await this.typeInto(modal.locator('#newTitle'), name, 30);
 		await modal.locator('button[type=submit]').click();
 		await expect(modal).toHaveCount(0);

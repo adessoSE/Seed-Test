@@ -1,10 +1,10 @@
 ﻿import { Scenario } from '@seed-test/shared/models/Scenario';
 import { StepType } from '@seed-test/shared/models/StepType';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Component, ChangeDetectionStrategy, inject, viewChild, TemplateRef } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ExampleService } from 'src/app/Services/example.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -15,7 +15,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule]
 })
 export class NewExampleComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	exampleService = inject(ExampleService);
 
 
@@ -29,13 +29,13 @@ export class NewExampleComponent {
 	exampleNames!: string[];
 	modalName!: string;
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	newExampleForm = new UntypedFormGroup({
 		newName: new UntypedFormControl('')
 	});
 
-	readonly newExampleModal = viewChild.required<NewExampleComponent>('newExampleModal');
+	readonly newExampleModal = viewChild.required<TemplateRef<unknown>>('newExampleModal');
 
 	/**
     * Opens the new example Modal
@@ -56,7 +56,7 @@ export class NewExampleComponent {
 				break;
 		}
 		this.exampleNames = (this.selectedScenario.multipleScenarios && this.selectedScenario.multipleScenarios.length > 0) ? this.selectedScenario.multipleScenarios[0].values : [];
-		this.modalReference = this.modalService.open(this.newExampleModal(), { ariaLabelledBy: 'modal-basic-title' });
+		this.modalReference = this.modalService.open(this.newExampleModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
 
 	renameExample(scenario: Scenario, columnIndex: number) {

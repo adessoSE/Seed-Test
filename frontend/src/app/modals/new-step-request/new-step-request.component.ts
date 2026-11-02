@@ -1,9 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, TemplateRef, viewChild } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ApiService } from '../../../app/Services/api.service';
 import { NotificationService } from '../../../app/Services/notification.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 import { MatIconModule } from '@angular/material/icon';
 
 
@@ -15,14 +15,14 @@ import { MatIconModule } from '@angular/material/icon';
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, MatIconModule]
 })
 export class NewStepRequestComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	apiService = inject(ApiService);
 	notify = inject(NotificationService);
 
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
-	readonly newStepRequestModal = viewChild.required<NewStepRequestComponent>('newStepRequestModal');
+	readonly newStepRequestModal = viewChild.required<TemplateRef<unknown>>('newStepRequestModal');
 
 	newStepReqForm = new UntypedFormGroup ({
 		title: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
@@ -39,7 +39,7 @@ export class NewStepRequestComponent {
     * @param stepType
   */
 	openNewStepRequestModal(stepType: string) {
-		this.modalReference = this.modalService.open(this.newStepRequestModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.newStepRequestModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 		const id = 'type_form_' + stepType;
 		(document.getElementById(id) as HTMLOptionElement).selected = true;
 		//Updates the type 

@@ -6,7 +6,7 @@ import { CreateNewStoryComponent } from './create-new-story.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { NO_ERRORS_SCHEMA, ViewContainerRef } from '@angular/core';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/Services/notification.service';
 
 describe('CreateNewStoryComponent', () => {
@@ -38,7 +38,7 @@ describe('CreateNewStoryComponent', () => {
 			localStorage.removeItem('id');
 			const createSpy = vi.spyOn(component.storyService, 'createCustomStoryEvent');
 			const errorSpy = vi.spyOn(TestBed.inject(NotificationService), 'error');
-			component.modalReference = { close: vi.fn(), dismiss: vi.fn() } as unknown as NgbModalRef;
+			component.modalReference = { close: vi.fn() } as unknown as MatDialogRef<unknown>;
 			component.storyForm.setValue({ storyTitle: 'new story', storyDescription: '' });
 
 			component.createNewStory();

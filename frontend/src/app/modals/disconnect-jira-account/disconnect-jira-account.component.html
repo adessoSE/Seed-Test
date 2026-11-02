@@ -1,9 +1,9 @@
 <!---Modal for disconnect Jira------>
-<ng-template #disconnectJiraModal let-modal>
+<ng-template #disconnectJiraModal let-modal="dialogRef">
     <app-layout-modal />
     <div class="modal-header">
         <span class="MediumSubline1H4 modal-title">Disconnect My Jira-Account</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <button type="button" class="close" aria-label="Close" (click)="modal.close()">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -14,6 +14,6 @@
     </div>
     <div class="modal-footer">
         <button class="normalButton" (click)="disconnectJiraAccount()">Yes</button>
-        <button class="normalButton deleteButton" (click)="modal.dismiss('Cross click')">No</button>
+        <button class="normalButton deleteButton" (click)="modal.close()">No</button>
     </div>
 </ng-template>

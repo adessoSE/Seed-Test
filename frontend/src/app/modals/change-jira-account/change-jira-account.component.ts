@@ -1,10 +1,10 @@
-﻿import { Component, ChangeDetectionStrategy, inject, output, viewChild } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, output, TemplateRef, viewChild } from '@angular/core';
 import { UntypedFormGroup, UntypedFormControl, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ManagementService } from 'src/app/Services/management.service';
 import type { User } from '@seed-test/shared/models/User';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -16,7 +16,7 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule, ReactiveFormsModule, MatTabsModule]
 })
 export class ChangeJiraAccountComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	managmentService = inject(ManagementService);
 
 
@@ -25,7 +25,7 @@ export class ChangeJiraAccountComponent {
      */
 	readonly jiraAccountResponse = output<User>();
 
-	readonly changeJiraAccountModal = viewChild.required<ChangeJiraAccountComponent>('changeJiraAccountModal');
+	readonly changeJiraAccountModal = viewChild.required<TemplateRef<unknown>>('changeJiraAccountModal');
 
 	/**
      * Type of the changed account
@@ -36,7 +36,7 @@ export class ChangeJiraAccountComponent {
 	/**
   * Model Reference for closing
   */
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 	activeForm!: string;
 
 	jiraForm = new UntypedFormGroup({
@@ -59,7 +59,7 @@ export class ChangeJiraAccountComponent {
      * @param type type of the changed account
      */
 	openChangeJiraAccountModal(type: string) {
-		this.modalReference = this.modalService.open(this.changeJiraAccountModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.changeJiraAccountModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 		this.type = type;
 		this.switchForm('bearer');
 	}

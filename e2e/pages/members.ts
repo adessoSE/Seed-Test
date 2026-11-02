@@ -76,10 +76,11 @@ export class MembersPage {
 	/**
 	 * Material dialog that asks for the ownership transfer. Located by its container element and title, not by role:
 	 * the settings modal and the CDK overlay hide dialog content from the accessibility tree, so getByRole('dialog') finds nothing.
+	 * The settings modal is a mat-dialog-container too and contains the same text, so the match is on the dialog title.
 	 * @returns Locator of the open transfer dialog (zero or one match).
 	 */
 	private ownerDialog(): Locator {
-		return this.page.locator('mat-dialog-container').filter({ hasText: 'Transfer Ownership' });
+		return this.page.locator('mat-dialog-container').filter({ has: this.page.locator('[mat-dialog-title]', { hasText: 'Transfer Ownership' }) });
 	}
 
 	/**

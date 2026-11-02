@@ -1,11 +1,11 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed, signal } from '@angular/core';
-import { Observable } from 'rxjs';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, computed, signal, TemplateRef } from '@angular/core';
+import { Observable, firstValueFrom } from 'rxjs';
 import { FileElement } from '@seed-test/shared/models/FileElement';
 import { ProjectService } from '../../Services/project.service';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ThemingService } from '../../Services/theming.service';
 import { NotificationService } from '../../Services/notification.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 import { FormsModule } from '@angular/forms';
 import { MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { DatePipe } from '@angular/common';
@@ -19,13 +19,13 @@ import { MatIconModule } from '@angular/material/icon';
 	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DatePipe, MatIconModule]
 })
 export class FileExplorerModalComponent implements OnInit {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	fileService = inject(ProjectService);
 	themeService = inject(ThemingService);
 	notify = inject(NotificationService);
 
 	public fileElements!: Observable<FileElement[]>;
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 	repoId!: string;
 	fileExlorerEmpty!: boolean;
 	readonly allFiles = signal<FileElement[]>([]);
@@ -34,7 +34,7 @@ export class FileExplorerModalComponent implements OnInit {
 	searchText: string = '';
 	readonly isDark = computed(() => this.themeService.isDark());
 
-	readonly fileExplorerModal = viewChild.required<FileExplorerModalComponent>('fileExplorerModal');
+	readonly fileExplorerModal = viewChild.required<TemplateRef<unknown>>('fileExplorerModal');
 
 	ngOnInit() {
 		this.repoId = localStorage.getItem('id')!; // set before updateFileElementQuery
@@ -49,10 +49,10 @@ export class FileExplorerModalComponent implements OnInit {
 	}
 
 	openFileExplorerModal() {
-		this.modalReference = this.modalService.open(this.fileExplorerModal());
+		this.modalReference = this.modalService.open(this.fileExplorerModal(), MODAL_CONFIG);
 		this.fileExlorerEmpty = this.allFiles().length > 0 ? false : true;
-		// Dismissing the modal rejects `result`; that is a normal close, so the rejection is swallowed here
-		return this.modalReference.result.catch(() => undefined);
+		// afterClosed() emits undefined when the modal is dismissed, which callers treat as "no file selected"
+		return firstValueFrom(this.modalReference.afterClosed());
 	}
 
 	updateFileElementQuery() {

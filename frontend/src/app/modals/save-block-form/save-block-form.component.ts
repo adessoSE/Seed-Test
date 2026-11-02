@@ -1,13 +1,13 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked, input } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, inject, viewChild, signal, effect, untracked, input, TemplateRef } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { Block } from '@seed-test/shared/models/Block';
 import { StepType } from '@seed-test/shared/models/StepType';
 import { BlockService } from 'src/app/Services/block.service';
 import { firstValueFrom } from 'rxjs';
 import { BackgroundService } from '../../Services/background.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 import { MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -20,13 +20,13 @@ import { MatIconModule } from '@angular/material/icon';
 	imports: [LayoutModalComponent, FormsModule, MatTable, MatColumnDef, MatCellDef, MatCell, MatRowDef, MatRow, MatIconModule]
 })
 export class SaveBlockFormComponent implements OnInit {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	private notify = inject(NotificationService);
 	blockService = inject(BlockService);
 	backgroundService = inject(BackgroundService);
 
 
-	readonly saveBlockFormModal = viewChild.required<SaveBlockFormComponent>('saveBlockFormModal');
+	readonly saveBlockFormModal = viewChild.required<TemplateRef<unknown>>('saveBlockFormModal');
 	selectedTemplate!: string;
 	/**
     * Sets a new selected story
@@ -87,7 +87,7 @@ export class SaveBlockFormComponent implements OnInit {
     */
 	saveAsSingleSteps: boolean | undefined;
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	readonly blocks = signal<Block[]>([]);
 
@@ -140,7 +140,7 @@ export class SaveBlockFormComponent implements OnInit {
 			this.exampleBlock = true;
     
 		this.createStepList();
-		this.modalReference = this.modalService.open(this.saveBlockFormModal(), {ariaLabelledBy: 'modal-basic-title'});
+		this.modalReference = this.modalService.open(this.saveBlockFormModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 		if (isBackground && isBackground !== undefined){
 			document.getElementById('modalHeader')!.innerHTML = 'Save Background';
 			document.getElementById('infoSpan')!.innerHTML = 'You have replaced the current story background. To save this background in your project, click Submit. If you don`t want to use it anymore and want to delete the current background, click Discard Background.';

@@ -21,7 +21,6 @@ import { EditModeDirective } from './directives/edit-mode.directive';
 import { EditableOnEnterDirective } from './directives/edit-on-enter.directive';
 import { FocusableDirective } from './editable/focusable.directive';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TermsComponent } from './terms/terms.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
@@ -89,7 +88,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 @NgModule({
 	declarations: [],
 	imports: [
-		NgbModule,
 		BrowserModule,
 		BrowserAnimationsModule,
 		FormsModule,

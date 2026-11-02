@@ -1,4 +1,4 @@
-<ng-template #editBlockModal let-modal>
+<ng-template #editBlockModal let-modal="dialogRef">
   <app-layout-modal />
   <div [class.darkTheme] ="isDark()" class="modal-header">
     <span id="modalHeader" class="MediumSubline1H4 modal-title">Edit Block</span>
@@ -6,7 +6,7 @@
     <span rel="def">Edit a saved Block. Scenarios that use this block will be updated.
     </span>
   </dfn>
-  <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+  <button type="button" class="close" aria-label="Close" (click)="modal.close()">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>

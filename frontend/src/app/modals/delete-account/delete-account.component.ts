@@ -1,10 +1,10 @@
-import { Component, ChangeDetectionStrategy, inject, viewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, TemplateRef, viewChild } from '@angular/core';
 import { NgForm, FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from 'src/app/Services/notification.service';
 import { LoginService } from 'src/app/Services/login.service';
 import { ManagementService } from 'src/app/Services/management.service';
-import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
+import { LayoutModalComponent, MODAL_CONFIG } from '../layout-modal/layout-modal.component';
 
 
 @Component({
@@ -15,13 +15,13 @@ import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 	imports: [LayoutModalComponent, FormsModule]
 })
 export class DeleteAccountComponent {
-	private modalService = inject(NgbModal);
+	private modalService = inject(MatDialog);
 	loginService = inject(LoginService);
 	managmentService = inject(ManagementService);
 	private notify = inject(NotificationService);
 
 
-	readonly deleteAccountModal = viewChild.required<DeleteAccountComponent>('deleteAccountModal');
+	readonly deleteAccountModal = viewChild.required<TemplateRef<unknown>>('deleteAccountModal');
 
 	/**
      * Email of the user
@@ -29,7 +29,7 @@ export class DeleteAccountComponent {
      */
 	email!: string;
 
-	modalReference!: NgbModalRef;
+	modalReference!: MatDialogRef<unknown>;
 
 	/**
      * Opens delete account modal
@@ -37,7 +37,7 @@ export class DeleteAccountComponent {
      */
 	openDeleteAccountModal(email: string) {
 		this.email = email;
-		this.modalReference = this.modalService.open(this.deleteAccountModal(), {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+		this.modalReference = this.modalService.open(this.deleteAccountModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 	}
 
 	/**
@@ -56,7 +56,7 @@ export class DeleteAccountComponent {
 			this.modalReference.close();
 		} else {
 			this.unallowableNameToast();
-			this.modalService.open(this.deleteAccountModal(), {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+			this.modalService.open(this.deleteAccountModal(), { ...MODAL_CONFIG, ariaLabelledBy: 'modal-basic-title' });
 		}
 	}
 
