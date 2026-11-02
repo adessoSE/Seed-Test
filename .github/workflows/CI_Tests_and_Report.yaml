@@ -55,6 +55,7 @@ jobs:
 
       - name: Send failure notification
         if: ${{ failure() }}
+        continue-on-error: true
         uses: ./actions/fullReport
         with:
           prnumber: ${{ github.event.pull_request.number }}
@@ -182,6 +183,8 @@ jobs:
 
       # SEND FULL REPORT
       - name: Send Teams Message
+        # Notification only: a broken Teams webhook must not fail the build
+        continue-on-error: true
         uses: ./actions/fullReport
         with:
           prnumber: ${{ github.event.pull_request.number }}

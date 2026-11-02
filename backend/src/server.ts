@@ -191,7 +191,8 @@ app.use('/api/script', isAuthenticated, scriptRouter); // Script execution needs
 app.use('/api/execute', isAuthenticated, testExecutionRouter); // Test execution needs auth
 app.use('/api/report', isAuthenticated, reportRouter); // Report management needs auth
 app.use('/api/background', isAuthenticated, backgroundRouter);
-app.use('/api/sanity', isAuthenticated, sanityRouter);
+// No session guard: the CI sanity run posts credentials and the route authenticates them itself (passport 'normal-local', session: false)
+app.use('/api/sanity', sanityRouter);
 
 // --- Central Error Handling Middleware ---
 // This MUST be the last middleware added
