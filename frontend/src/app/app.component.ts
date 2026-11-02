@@ -140,7 +140,8 @@ export class AppComponent implements OnInit{
 			this.toggleControl.setValue(true);
 
 		// Load the repository list on initial navigation to the app
-		this.getRepositories();
+		// getRepositories catches its own errors, so the ignored promise never rejects
+		void this.getRepositories();
 	}
 
 	/** Switches theme when toggle value changes */

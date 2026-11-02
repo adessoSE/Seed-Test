@@ -4,7 +4,7 @@
  * (Express 5 makes req.query a read-only getter).
  */
 
-const DANGEROUS_KEY = /^\$|\./;
+const DANGEROUS_KEY = /(^\$)|\./;
 
 /**
  * Recursively removes keys that start with `$` or contain `.` from an object,

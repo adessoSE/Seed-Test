@@ -41,7 +41,7 @@
               <span id="newTitle" tabindex="0" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</span>
             }
             @if (this.blockSaved === false) {
-              <input #newBlockTitle id="blockTitleChange" name="newBlockTitle" type="text"
+              <input #newBlockTitle id="blockTitleChange" aria-label="Block title" name="newBlockTitle" type="text"
                 value={{selectedBlock.name}}  (keyup)="checkName(newBlockTitle.value)" pattern="\S(.*\S)?" required>
             }
           </div>

@@ -124,7 +124,8 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
 		this.apiService.runSaveOptionTrigger,
 		option => {
 			if (option == 'saveScenario')
-				this.saveRunOption();
+				// updateScenario never rejects (failures are notified and its promise stays pending), so this cannot fail
+				void this.saveRunOption();
 		}
 	);
 

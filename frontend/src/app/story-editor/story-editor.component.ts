@@ -451,7 +451,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 
 	/** Effect 10: React to block reference removal check */
 	private readonly checkRefOnRemoveEffect = onActionTrigger(this.blockService.checkRefOnRemoveTrigger, blockReferenceId => {
-		this.handleCheckRefOnRemove(blockReferenceId);
+		// reloadBlocks has no error handling of its own, so a failed load must reach the user here
+		this.handleCheckRefOnRemove(blockReferenceId).catch(() => this.notify.error('Could not load blocks.'));
 	});
 
 	/** Reloads blocks and checks references for the removed block */
@@ -470,7 +471,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 
 	/** Effect 12: React to block unpacking */
 	private readonly unpackBlockEffect = onActionTrigger(this.blockService.unpackBlockTrigger, obj => {
-		this.handleUnpackBlock(obj);
+		// reloadBlocks has no error handling of its own, so a failed load must reach the user here
+		this.handleUnpackBlock(obj).catch(() => this.notify.error('Could not load blocks.'));
 	});
 
 	/** Unpacks block from scenario and checks remaining references */
@@ -2305,7 +2307,8 @@ export class StoryEditorComponent implements OnInit, AfterViewChecked {
 															setTimeout(() => this.enterAiReviewMode(), 50);
 														}
 													} else 
-														this.enterAiReviewMode();
+														// enterAiReviewMode reports its own failures via notify, so the ignored promise never rejects
+														void this.enterAiReviewMode();
                       
 												});
 										},

@@ -545,7 +545,7 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 		const world = this;
 		try {
 			await driver.getCurrentUrl().then((currentUrl: string) => {
-				assert.strictEqual(currentUrl.replace(/\/$/g, ''), url.replace(/[\s]|\/\s*$/g, ''), 'ERROR expected: ...');
+				assert.strictEqual(currentUrl.replace(/\/$/g, ''), url.replace(/(?:[\s]|\/\s*$)/g, ''), 'ERROR expected: ...');
 			});
 		} catch (e: unknown) {
 			await world.attachScreenshot();

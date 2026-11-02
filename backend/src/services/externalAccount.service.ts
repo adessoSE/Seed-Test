@@ -186,7 +186,4 @@ function toBuffer(input: CipherInput): Buffer {
 	return Buffer.from(input.$binary.base64, 'base64');
     
 
-	// Fallback/Error
-	logger.error(`Failed to convert crypto input to Buffer. Input type: ${typeof input}`);
-	throw new Error('Invalid crypto input type: unable to convert to Buffer.');
 }

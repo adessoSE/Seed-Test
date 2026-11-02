@@ -335,7 +335,8 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
 						});
 					}
 
-				this.addStep(blockReference, this.selectedScenario, 'scenario');
+				// addStep awaits only a file-explorer call guarded by its own try/catch, so the ignored promise never rejects
+				void this.addStep(blockReference, this.selectedScenario, 'scenario');
 			} else
 				this.insertStepsWithExamples(blockValue[1] as unknown as { stepDefinitions: Record<string, StepType[]> });
 

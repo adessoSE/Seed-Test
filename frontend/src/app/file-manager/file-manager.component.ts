@@ -44,7 +44,8 @@ export class FileManagerComponent implements OnInit {
 	constructor() {
 		effect(() => {
 			this.refreshFilesTrigger();
-			this.loadFiles();
+			// loadFiles catches its own errors, so the ignored promise never rejects
+			void this.loadFiles();
 		});
 	}
 

@@ -38,7 +38,7 @@
             </div>
 
             @if (isNewProject) {
-              <input type="text" name="projectName" class="projectNameInput" [(ngModel)]="projectName"
+              <input type="text" name="projectName" class="projectNameInput" aria-label="Project name" [(ngModel)]="projectName"
                 placeholder="Project name" (input)="onProjectChange()" required />
             }
 

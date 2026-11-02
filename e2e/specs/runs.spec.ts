@@ -125,7 +125,7 @@ test.describe('runs', () => {
 
 			// Expand the filter bar, then pick the status in "Status Of Story"
 			await test.step('expand the filter bar', async () => {
-				await page.locator('em#searchBarIcons', { hasText: 'expand_more' }).filter({ visible: true }).first().click({ timeout: 10_000 });
+				await page.locator('em.searchBarIcons', { hasText: 'expand_more' }).filter({ visible: true }).first().click({ timeout: 10_000 });
 			});
 			// WHY: the outline field's <mat-label> overlaps the select box and intercepts pointer events at its centre,
 			// so the click targets the arrow wrapper on the right edge instead of the mat-select element itself.

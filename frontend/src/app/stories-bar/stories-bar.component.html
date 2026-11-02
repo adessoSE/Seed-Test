@@ -16,25 +16,25 @@
         <hr>
         <div class="storyFilterWrapper">
           <span class="searchBar" id="searchStoriesBar">
-            <em class="material-icons" id="searchBarIcons">search</em>
+            <em class="material-icons searchBarIcons">search</em>
             <input class="searchInput" [(ngModel)]="storyString" (ngModelChange)="storyTermChange()" />
-            <em class="material-icons" id="eraseIcon" tabindex="0" role="button" (click)="eraseSearchTerm('story')" (keydown.enter)="eraseSearchTerm('story')">close</em>
+            <em class="material-icons eraseIcon" tabindex="0" role="button" (click)="eraseSearchTerm('story')" (keydown.enter)="eraseSearchTerm('story')">close</em>
           </span>
           <span style="display: inherit;">
-            <em id="searchBarIcons" class="material-icons">filter_alt</em>
+            <em class="material-icons searchBarIcons">filter_alt</em>
             <span id="clickableIcon">
               @if (showFilter === false) {
-<em id="searchBarIcons" class="material-icons" tabindex="0" role="button"
+<em class="material-icons searchBarIcons" tabindex="0" role="button"
                 (click)="showFilterClick()" (keydown.enter)="showFilterClick()">expand_more</em>
                   }
                   @if (showFilter === true) {
-                    <em id="searchBarIcons" class="material-icons" tabindex="0" role="button"
+                    <em class="material-icons searchBarIcons" tabindex="0" role="button"
                     (click)="showFilterClick()" (keydown.enter)="showFilterClick()">expand_less</em>
                   }
                 </span>
                 <span id="clickableIcon" style="float: right; display: flex; flex-direction: row;">
-                  <em id="searchBarIcons" class="material-icons-outlined" tabindex="0" role="button" (click)="clearAllFilter()" (keydown.enter)="clearAllFilter()">filter_alt</em>
-                  <em id="searchBarIcons" class="material-icons" tabindex="0" role="button"
+                  <em class="material-icons-outlined searchBarIcons" tabindex="0" role="button" (click)="clearAllFilter()" (keydown.enter)="clearAllFilter()">filter_alt</em>
+                  <em class="material-icons searchBarIcons" tabindex="0" role="button"
                     style="/* margin-left: -8px; */ font-size: 17px; vertical-align: bottom;"
                   (click)="clearAllFilter()" (keydown.enter)="clearAllFilter()">close</em>
                 </span>
@@ -197,10 +197,10 @@
                 <div class="searchBarWrapper">
                 </div>
                 <div class="searchBar">
-                  <em class="material-icons" id="searchBarIcons">search</em>
-                  <input class="searchInput" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"
+                  <em class="material-icons searchBarIcons">search</em>
+                  <input class="searchInput" aria-label="Search groups" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"
                     style="width: 100% !important;" />
-                    <em class="material-icons" id="eraseIcon" tabindex="0" role="button" (click)="eraseSearchTerm('group')" (keydown.enter)="eraseSearchTerm('group')">close</em>
+                    <em class="material-icons eraseIcon" tabindex="0" role="button" (click)="eraseSearchTerm('group')" (keydown.enter)="eraseSearchTerm('group')">close</em>
                   </div>
                   <hr>
 <div class="groups-list-container" cdkDropList (cdkDropListDropped)="dropGroup($event)">

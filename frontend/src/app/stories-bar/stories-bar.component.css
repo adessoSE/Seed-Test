@@ -367,14 +367,14 @@ a.storyListLink:hover{
   display: flex;
   align-self: center;
 }
-#eraseIcon{
+.eraseIcon{
   color: var(--brown-grey);
   vertical-align: middle;
   /* border-bottom: 1px solid var(--brown-grey); */
   position: relative;
   left: -19px;
 }
-#eraseIcon:hover{
+.eraseIcon:hover{
   cursor: pointer;
 }
 .searchInput{

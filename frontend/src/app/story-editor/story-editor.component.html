@@ -446,7 +446,7 @@
                                           }
                                         </dfn>
                                         @if (this.emulator_enabled) {
-                                          <select name="emulator" class="select" id="emulatorSelect"
+                                          <select name="emulator" class="select" id="emulatorSelect" aria-label="Emulator"
                                             (change)="setEmulator($event.target.value)">
                                             @if (this.getAvaiableEmulators().length === 0) {
                                               <option value="{{ undefined }}"

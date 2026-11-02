@@ -78,7 +78,7 @@ WORKDIR /usr/src/app/backend
 
 # Install the Playwright browsers at build time; --ignore-scripts above skips the postinstall that does it locally.
 # Edge comes from the apt package above. Without this the server could not run Playwright tests in the container.
-RUN npx playwright install --with-deps chromium firefox webkit
+RUN ../node_modules/.bin/playwright install --with-deps chromium firefox webkit
 
 # Set after npm install so devDependencies (tsc, run by npm start) are still installed.
 # Production enables the Secure session cookie and trust proxy, and requires SESSION_SECRET (backend/src/config.ts).

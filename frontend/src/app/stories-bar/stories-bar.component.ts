@@ -322,7 +322,8 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Effect: watch for custom story creation requests */
 	private createStoryEffect = onActionTrigger(this.storyService.createCustomStoryTrigger, custom => {
-		this.handleCreateStory(custom);
+		// handleCreateStory reports its own failures via notify, so the ignored promise never rejects
+		void this.handleCreateStory(custom);
 	});
 
 	/** Creates a story via API, reloads story list, and selects the new story */
@@ -342,7 +343,8 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Effect: watch for custom group creation requests */
 	private createGroupEffect = onActionTrigger(this.groupService.createCustomGroupTrigger, custom => {
-		this.handleCreateGroup(custom);
+		// Group HTTP calls have no error handling of their own, so a failure must reach the user here
+		this.handleCreateGroup(custom).catch(() => this.notify.error('Could not create group.'));
 	});
 
 	/** Creates a group via API, reloads group list, and opens the new group */
@@ -363,7 +365,8 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Effect: watch for group update requests */
 	private updateGroupEffect = onActionTrigger(this.groupService.updateGroupTrigger, custom => {
-		this.handleUpdateGroup(custom);
+		// Group HTTP calls have no error handling of their own, so a failure must reach the user here
+		this.handleUpdateGroup(custom).catch(() => this.notify.error('Could not update group.'));
 	});
 
 	/** Updates a group via API and reloads the group list */
@@ -375,7 +378,8 @@ export class StoriesBarComponent implements OnChanges {
 
 	/** Effect: watch for group deletion requests */
 	private deleteGroupEffect = onActionTrigger(this.groupService.deleteGroupTrigger, custom => {
-		this.handleDeleteGroup(custom);
+		// Group HTTP calls have no error handling of their own, so a failure must reach the user here
+		this.handleDeleteGroup(custom).catch(() => this.notify.error('Could not delete group.'));
 	});
 
 	/** Deletes a group via API and reloads the group list */

@@ -1275,7 +1275,7 @@ When(
 Then('So I will be navigated to the website: {string}', async function (this: PlaywrightWorld, url: string) {
 	await handleError(async () => {
 		const page = this.getPage();
-		await expect(page).toHaveURL(url.replace(/[\s]|\/\s*$/g, ''));
+		await expect(page).toHaveURL(url.replace(/(?:[\s]|\/\s*$)/g, ''));
 
 		if (this.parameters.waitTime)
 			await this.getPage().waitForTimeout(this.parameters.waitTime);
