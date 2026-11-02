@@ -58,7 +58,7 @@ const storedStepSchema = stepTypeSchema.extend({
 const storedStepDefinitionSchema = stepDefinitionSchema.extend({
 	given: z.array(storedStepSchema),
 	when: z.array(storedStepSchema),
-	then: z.array(storedStepSchema),
+	then: z.array(storedStepSchema), // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 	example: z.array(storedStepSchema).optional()
 }).passthrough();
 

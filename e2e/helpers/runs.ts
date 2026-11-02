@@ -49,7 +49,7 @@ export const FAIL_THEN_STEP: RunStep = {
  * @param steps Steps to store in the given and then sections.
  */
 export async function setScenarioSteps(api: APIRequestContext, storyId: string, scenario: RunScenarioDto, steps: { given: RunStep[]; then: RunStep[] }): Promise<void> {
-	const body = { ...scenario, stepDefinitions: { given: steps.given, when: [], then: steps.then } };
+	const body = { ...scenario, stepDefinitions: { given: steps.given, when: [], then: steps.then } }; // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 	const response = await api.put(`${API_URL}/story/${storyId}/${scenario.scenario_id}`, { data: body });
 	if (response.status() !== 200)
 		throw new Error(`setScenarioSteps failed: HTTP ${response.status()} ${await response.text()}`);
@@ -64,7 +64,7 @@ export async function setScenarioSteps(api: APIRequestContext, storyId: string, 
  */
 export async function addPassingScenario(api: APIRequestContext, storyId: string, name: string): Promise<RunScenarioDto> {
 	const created = (await addScenario(api, storyId, name)) as RunScenarioDto;
-	await setScenarioSteps(api, storyId, created, { given: [PASS_GIVEN_STEP], then: [] });
+	await setScenarioSteps(api, storyId, created, { given: [PASS_GIVEN_STEP], then: [] }); // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 	return created;
 }
 
@@ -77,7 +77,7 @@ export async function addPassingScenario(api: APIRequestContext, storyId: string
  */
 export async function addFailingScenario(api: APIRequestContext, storyId: string, name: string): Promise<RunScenarioDto> {
 	const created = (await addScenario(api, storyId, name)) as RunScenarioDto;
-	await setScenarioSteps(api, storyId, created, { given: [PASS_GIVEN_STEP], then: [FAIL_THEN_STEP] });
+	await setScenarioSteps(api, storyId, created, { given: [PASS_GIVEN_STEP], then: [FAIL_THEN_STEP] }); // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 	return created;
 }
 

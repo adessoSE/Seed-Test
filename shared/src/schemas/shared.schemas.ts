@@ -28,7 +28,7 @@ export const stepTypeSchema = z.object({
 export const stepDefinitionSchema = z.object({
 	given: z.array(stepTypeSchema),
 	when: z.array(stepTypeSchema),
-	then: z.array(stepTypeSchema),
+	then: z.array(stepTypeSchema), // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 	example: z.array(stepTypeSchema).optional()
 });
 

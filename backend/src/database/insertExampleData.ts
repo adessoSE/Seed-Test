@@ -31,7 +31,7 @@ const exampleScenarioData: Partial<Scenario> = { // Use Partial as DB _id is mis
 			}
 		],
 		when: [],
-		then: [
+		then: [ // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 			{
 				id: 1, // Changed id to number
 				mid: '',

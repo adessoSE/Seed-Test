@@ -1859,8 +1859,8 @@ export class BaseEditorComponent implements OnInit, DoCheck, AfterViewChecked, A
    */
 	addStepsToBlockOnIteration(stepList: Record<string, StepType[]>, multipleScenarios?: MultipleScenario[]) {
 		const stepsList = JSON.parse(JSON.stringify(stepList));
-		const copyBlock: Record<string, (StepType | MultipleScenario)[]> = { given: [], when: [], then: [], example: [] };
-		const stepsListIterate: Record<string, StepType[]> = { given: [], when: [], then: [] };
+		const copyBlock: Record<string, (StepType | MultipleScenario)[]> = { given: [], when: [], then: [], example: [] }; // NOSONAR typescript:S7739 Gherkin step key, not a thenable
+		const stepsListIterate: Record<string, StepType[]> = { given: [], when: [], then: [] }; // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 		const examplesToBeCopied: string[] = [];
 		Object.keys(stepsListIterate).forEach((key: string, _: number) => {
 			for (const s in stepsList[key])

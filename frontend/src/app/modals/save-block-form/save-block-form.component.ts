@@ -262,7 +262,7 @@ export class SaveBlockFormComponent implements OnInit {
 		}
 		//saving block if contain examples
 		if (this.exampleChecked){
-			this.block.stepDefinitions = {given: [], when: [], then: []};
+			this.block.stepDefinitions = {given: [], when: [], then: []}; // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 			this.block.multipleScenarios = this.stepListSaveBlockExample;
 		}
 		//saving block central as a background(won't be displayed when adding a block, only in the list of backgrounds)

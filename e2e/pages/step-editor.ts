@@ -8,7 +8,7 @@ export type StepGroup = 'given' | 'when' | 'then';
  * Index of each group in the editor's element ids (`scenario_<index>_...`, `scenario_add_step<index>`).
  * WHY: the ids use the position of the group in the scenario's stepDefinitions keys, which are stored as given, when, then.
  */
-const GROUP_INDEX: Record<StepGroup, number> = { given: 0, when: 1, then: 2 };
+const GROUP_INDEX: Record<StepGroup, number> = { given: 0, when: 1, then: 2 }; // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 
 /** Matches the scenario save route PUT /story/:story_id/:scenario_id, whose last segment is the numeric scenario id. */
 const SCENARIO_SAVE_PATH = /\/story\/[^/]+\/\d+$/;

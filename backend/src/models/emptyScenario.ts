@@ -9,7 +9,7 @@ export function emptyScenario(): Omit<Scenario, '_id' | 'scenario_id'> & { scena
 		stepDefinitions: {
 			given: [],
 			when: [],
-			then: []
+			then: [] // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 		},
 		multipleScenarios: []
 	};

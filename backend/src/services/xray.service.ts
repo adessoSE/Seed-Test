@@ -158,7 +158,7 @@ async function processTestSteps(steps: XrayTestStep[], resolvedTestRuns: XrayTes
 			stepDefinitions: {
 				given: givenSteps,
 				when: whenSteps,
-				then: thenSteps,
+				then: thenSteps, // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 				example: []
 			},
 			testRunSteps: matchingSteps,

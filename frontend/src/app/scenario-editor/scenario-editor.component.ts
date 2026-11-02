@@ -332,7 +332,7 @@ export class ScenarioEditorComponent implements OnInit, OnChanges{
      *
      */
 	saveExampleBlock() {
-		const saveBlock: Record<string, StepType[]> = {given: [], when: [], then: [], example: []};
+		const saveBlock: Record<string, StepType[]> = {given: [], when: [], then: [], example: []}; // NOSONAR typescript:S7739 Gherkin step key, not a thenable
 		const stepDefs = this.selectedScenario()!.stepDefinitions as unknown as Record<string, StepType[]>;
 		for (const prop in stepDefs)
 			for (let s = 0; s < stepDefs[prop].length; s++)
